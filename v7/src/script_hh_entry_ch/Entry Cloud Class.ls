@@ -1,4 +1,6 @@
-on define(me, tSprite, tCount)
+property pCloudMember, pSprite, pVertDir, pTurnPointList, pMemName, pCurrentTurnPoint, pTurnPoint, pCloudDir, pLoc, pImg
+
+on define me, tSprite, tCount 
   pSprite = tSprite
   if memberExists("entrycloud_" & tCount) then
     pCloudMember = member(getmemnum("entrycloud_" & tCount))
@@ -25,10 +27,9 @@ on define(me, tSprite, tCount)
   getFirstTurnPoint(me)
   pCloudDir = pVertDir
   return(1)
-  exit
 end
 
-on getFirstTurnPoint(me)
+on getFirstTurnPoint me 
   f = 1
   repeat while f <= pTurnPointList.count
     if pSprite.right < pTurnPointList.getAt(f) then
@@ -38,10 +39,9 @@ on getFirstTurnPoint(me)
       f = 1 + f
     end if
   end repeat
-  exit
 end
 
-on initCloud(me)
+on initCloud me 
   if pSprite.left > the stageRight - the stageLeft then
     pVertDir = -1
     pSprite.locH = -40
@@ -62,19 +62,17 @@ on initCloud(me)
   pCloudMember.copyPixels(tTempImg, tdestrect, tTempImg.rect, [#ink:8])
   pLoc = pSprite.loc
   pSprite.width = tTempImg.width
-  exit
 end
 
-on getNextTurnPoint(me)
+on getNextTurnPoint me 
   pCurrentTurnPoint = pCurrentTurnPoint + 1
   if pCurrentTurnPoint > pTurnPointList.count then
     pCurrentTurnPoint = pTurnPointList.count
   end if
   pTurnPoint = pTurnPointList.getAt(pCurrentTurnPoint)
-  exit
 end
 
-on update(me)
+on update me 
   if pSprite.right > pTurnPoint and pSprite.left <= pTurnPoint then
     me.turn()
     pVertDir = 0
@@ -91,20 +89,18 @@ on update(me)
   if pSprite.left > the stageRight - the stageLeft + 30 then
     me.initCloud()
   end if
-  exit
 end
 
-on checkCloud(me)
+on checkCloud me 
   if pSprite.locH > pTurnPoint then
     me.turn()
   else
     pVertDir = -1
     pSprite.flipH = 0
   end if
-  exit
 end
 
-on turn(me)
+on turn me 
   if pVertDir <> 0 then
     pCloudDir = pVertDir
   end if
@@ -137,5 +133,4 @@ on turn(me)
     tDest = tSource + rect(0, pImg.height / 2 - tSource.height / 2 + tHeigth, 0, pImg.height / 2 - tSource.height / 2 + tHeigth)
     pImg.copyPixels(tImg, tDest, tSource, [#ink:8])
   end if
-  exit
 end

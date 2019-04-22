@@ -1,4 +1,4 @@
-on update(me)
+on update me 
   tAnimCntr = 0
   tAction = me.pAction
   tPart = me.pPart
@@ -30,5 +30,4 @@ on update(me)
     return()
   end if
   me.copyPixels(me.pCacheImage, me.pCacheRectA, me.pCacheRectB, me.pDrawProps)
-  exit
 end

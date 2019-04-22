@@ -1,38 +1,36 @@
-on construct(me)
+on construct me 
   me.registerServerMessages(1)
   return(1)
-  exit
 end
 
-on deconstruct(me)
+on deconstruct me 
   return(1)
-  exit
 end
 
-on handleHelpItems(me, tMsg)
+on handleHelpItems me, tMsg 
   tConn = tMsg.getaProp(#connection)
   tIdCount = tConn.GetIntFrom()
-  tdata = []
+  tdata = [:]
   tNo = 1
   repeat while tNo <= tIdCount
     tID = tConn.GetIntFrom()
     tKey = ""
-    if me = 1 then
+    if tID = 1 then
       tKey = "own_user"
     else
-      if me = 2 then
+      if tID = 2 then
         tKey = "messenger"
       else
-        if me = 3 then
+        if tID = 3 then
           tKey = "navigator"
         else
-          if me = 4 then
+          if tID = 4 then
             tKey = "chat"
           else
-            if me = 5 then
+            if tID = 5 then
               tKey = "hand"
             else
-              if me = 6 then
+              if tID = 6 then
                 tKey = "invite"
               end if
             end if
@@ -46,10 +44,9 @@ on handleHelpItems(me, tMsg)
     tNo = 1 + tNo
   end repeat
   me.getComponent().setHelpStatusData(tdata)
-  exit
 end
 
-on handleTutorsAvailable(me, tMsg)
+on handleTutorsAvailable me, tMsg 
   tConn = tMsg.getaProp(#connection)
   tAreAvailable = tConn.GetIntFrom()
   if not tAreAvailable then
@@ -57,26 +54,23 @@ on handleTutorsAvailable(me, tMsg)
   end if
   me.getComponent().showInviteWindow()
   return(1)
-  exit
 end
 
-on handleInvitationExpired(me, tMsg)
+on handleInvitationExpired me, tMsg 
   me.getComponent().invitationExpired()
-  exit
 end
 
-on handleInvitationExists(me, tMsg)
+on handleInvitationExists me, tMsg 
   me.getComponent().invitationExists()
-  exit
 end
 
-on registerServerMessages(me, tBool)
-  tMsgs = []
+on registerServerMessages me, tBool 
+  tMsgs = [:]
   tMsgs.setaProp(352, #handleHelpItems)
   tMsgs.setaProp(356, #handleTutorsAvailable)
   tMsgs.setaProp(357, #handleInvitationExpired)
   tMsgs.setaProp(358, #handleInvitationExists)
-  tCmds = []
+  tCmds = [:]
   tCmds.setaProp("MSG_REMOVE_ACCOUNT_HELP_TEXT", 313)
   tCmds.setaProp("MSG_GET_TUTORS_AVAILABLE", 355)
   tCmds.setaProp("MSG_INVITE_TUTORS", 356)
@@ -88,5 +82,4 @@ on registerServerMessages(me, tBool)
     unregisterCommands(getVariable("connection.info.id", #info), me.getID(), tCmds)
   end if
   return(1)
-  exit
 end

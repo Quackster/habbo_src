@@ -1,31 +1,30 @@
-on construct(me)
+property pContentList, pWriterIdPlain, pItemWidth, pItemHeight, pListImg
+
+on construct me 
   pListImg = image(1, 1, 32)
   pListImg = member("friends_requests").image
-  pContentList = []
+  pContentList = [:]
   pContentList.sort()
   pWriterIdPlain = getUniqueID()
   createWriter(pWriterIdPlain, getStructVariable("struct.font.plain"))
   pItemHeight = integer(getVariable("fr.online.item.height"))
   pItemWidth = integer(getVariable("fr.list.panel.width"))
   pEmptyListText = getText("friend_list_no_friends_online_category")
-  exit
 end
 
-on deconstruct(me)
+on deconstruct me 
   pListImg = void()
   removeWriter(pWriterIdPlain)
-  exit
 end
 
-on setListData(me, tdata)
+on setListData me, tdata 
   if ilk(tdata) = #propList then
     pContentList = tdata.duplicate()
     me.renderListImage()
   end if
-  exit
 end
 
-on renderFriendItem(me, tFriendData, tSelected)
+on renderFriendItem me, tFriendData, tSelected 
   tNameWriter = getWriter(pWriterIdPlain)
   tFigureParser = getObject("Figure_System")
   tPreviewObj = getObject("Figure_Preview")
@@ -63,10 +62,9 @@ on renderFriendItem(me, tFriendData, tSelected)
     tItemImg.copyPixels(tFollowIconImg, tdestrect, tFollowIconRect, [#ink:36])
   end if
   return(tItemImg.duplicate())
-  exit
 end
 
-on renderListImage(me)
+on renderListImage me 
   if pContentList.count = 0 then
     pListImg = image(1, 1, 32)
   end if
@@ -119,10 +117,9 @@ on renderListImage(me)
   pListImg = image(tImage.width, tImage.height, 32)
   pListImg.copyPixels(tBgImage, tBgImage.rect, tBgImage.rect)
   pListImg.copyPixels(tImage, tImage.rect, tImage.rect, [#ink:36])
-  exit
 end
 
-on renderBackgroundImage(me)
+on renderBackgroundImage me 
   if ilk(pContentList) <> #propList then
     return(image(1, 1, 32))
   end if
@@ -141,13 +138,12 @@ on renderBackgroundImage(me)
     tIndex = 1 + tIndex
   end repeat
   return(tImage)
-  exit
 end
 
-on relayEvent(me, tEvent, tLocX, tLocY)
+on relayEvent me, tEvent, tLocX, tLocY 
   tItemHeight = integer(getVariable("fr.online.item.height"))
   tListIndex = tLocY / tItemHeight + 1
-  tEventResult = []
+  tEventResult = [:]
   tEventResult.setAt(#Event, tEvent)
   tEventResult.setAt(#cursor, "cursor.arrow")
   if tListIndex > pContentList.count then
@@ -186,5 +182,4 @@ on relayEvent(me, tEvent, tLocX, tLocY)
     end if
   end if
   return(tEventResult)
-  exit
 end

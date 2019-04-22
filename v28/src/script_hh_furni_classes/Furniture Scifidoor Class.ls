@@ -1,4 +1,6 @@
-on construct(me)
+property pChanges, pLastActive, pActive, pStopped, pScifiDoorSpeed, pSizeMultiplier, pScifiDoorTimeOut, pScifiDoorLocs, pDoubleClick
+
+on construct me 
   pLastActive = -1
   pScifiDoorSpeed = 7
   pScifiDoorTimeOut = 0.4 * 60
@@ -7,20 +9,18 @@ on construct(me)
   pDoubleClick = 0
   pStopped = 1
   if me.pXFactor = 32 then
-    pSizeMultiplier = 0
+    pSizeMultiplier = 0.5
   else
-    pSizeMultiplier = 0
+    pSizeMultiplier = 1
   end if
-  exit
 end
 
-on prepareForMove(me)
+on prepareForMove me 
   pChanges = 1
   me.update()
-  exit
 end
 
-on prepare(me, tdata)
+on prepare me, tdata 
   if tdata.getAt(#stuffdata) = "O" then
     me.setOn()
   else
@@ -29,10 +29,9 @@ on prepare(me, tdata)
   pScifiDoorTimer = the timer
   pChanges = 1
   return(1)
-  exit
 end
 
-on updateStuffdata(me, tValue)
+on updateStuffdata me, tValue 
   if tValue = "O" then
     me.setOn()
   else
@@ -42,10 +41,9 @@ on updateStuffdata(me, tValue)
   pStopped = 0
   pChanges = 1
   pDoubleClick = 0
-  exit
 end
 
-on update(me)
+on update me 
   if not pChanges then
     return(0)
   end if
@@ -53,10 +51,9 @@ on update(me)
     return(0)
   end if
   return(me.updateScifiDoor())
-  exit
 end
 
-on updateScifiDoor(me)
+on updateScifiDoor me 
   if me.count(#pSprList) < 4 then
     return(0)
   end if
@@ -88,7 +85,7 @@ on updateScifiDoor(me)
     if tDoorTimer > pScifiDoorTimeOut then
       return(me.SetScifiDoor("up"))
     end if
-    if pSizeMultiplier = 0 then
+    if pSizeMultiplier = 1 then
       tTopSp.locV = tTopSp.locV - pScifiDoorSpeed
     else
       tTopSp.locV = tTopSp.locV - pScifiDoorSpeed
@@ -100,10 +97,9 @@ on updateScifiDoor(me)
     end if
   end if
   return(1)
-  exit
 end
 
-on SetScifiDoor(me, tdir)
+on SetScifiDoor me, tdir 
   if me.count(#pSprList) < 4 then
     return(0)
   end if
@@ -117,7 +113,7 @@ on SetScifiDoor(me, tdir)
     tMidSp1.locV = pScifiDoorLocs.getAt(2)
     tMidSp2.locV = pScifiDoorLocs.getAt(3)
   else
-    if pSizeMultiplier = 0 then
+    if pSizeMultiplier = 1 then
       tTopSp.locV = pScifiDoorLocs.getAt(1) + 57
       tMidSp1.height = 8
       tMidSp2.height = 7
@@ -135,10 +131,9 @@ on SetScifiDoor(me, tdir)
   pLastActive = pActive
   pStopped = 1
   return(1)
-  exit
 end
 
-on moveTopLine(me, tSpr, tAmount)
+on moveTopLine me, tSpr, tAmount 
   tBot = tSpr.bottom
   tSpr.height = tSpr.height + tAmount
   if tBot > tSpr.bottom then
@@ -148,20 +143,17 @@ on moveTopLine(me, tSpr, tAmount)
     tSpr.locV = tSpr.locV - 1
   end if
   return(1)
-  exit
 end
 
-on setOn(me)
+on setOn me 
   pActive = 1
-  exit
 end
 
-on setOff(me)
+on setOff me 
   pActive = 0
-  exit
 end
 
-on select(me)
+on select me 
   if the doubleClick then
     if pChanges then
       return(0)
@@ -179,5 +171,4 @@ on select(me)
     end if
   end if
   return(1)
-  exit
 end

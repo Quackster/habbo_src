@@ -1,4 +1,6 @@
-on construct(me)
+property pimage, pMaxH, pMinV, pMaxV, pTurnPoint, pType, pImageLeft, pImageRight, pLoc
+
+on construct me 
   pLoc = point(0, 0)
   pRefLoc = point(0, 0)
   pImageLeft = image(1, 1, 8)
@@ -6,15 +8,13 @@ on construct(me)
   pMatteLeft = pimage.createMatte()
   pMatteRight = pimage.createMatte()
   return(1)
-  exit
 end
 
-on deconstruct(me)
+on deconstruct me 
   return(1)
-  exit
 end
 
-on define(me, tProps)
+on define me, tProps 
   pType = tProps.getaProp(#type)
   pMinV = tProps.getaProp(#minv)
   pMaxV = tProps.getaProp(#maxv)
@@ -31,19 +31,17 @@ on define(me, tProps)
   pImageRight = image.duplicate()
   pMatteLeft = pImageLeft.createMatte()
   pMatteRight = pImageRight.createMatte()
-  exit
 end
 
-on updateAnim(me)
+on updateAnim me 
   pLoc.setAt(1, pLoc.getAt(1) + 1)
   tLocY = pLoc.getAt(2)
   if the stage > rect.width then
     pLoc = point(the stage, random(rect.height))
   end if
-  exit
 end
 
-on render(me, tImage)
+on render me, tImage 
   if pLoc.getAt(1) < pTurnPoint then
     tSourceImage = pImageLeft
   else
@@ -51,5 +49,4 @@ on render(me, tImage)
   end if
   tTargetRect = tSourceImage.rect + rect(pLoc.getAt(1), pLoc.getAt(2), pLoc.getAt(1), pLoc.getAt(2))
   tImage.copyPixels(tSourceImage, tTargetRect, tSourceImage.rect, [#maskImage:tSourceImage.createMatte()])
-  exit
 end

@@ -1,32 +1,31 @@
-on construct(me)
+property pCardWndID, pMessage, pPackageID
+
+on construct me 
   pMessage = ""
   pPackageID = ""
   pCardWndID = "Card" && getUniqueID()
   registerMessage(#leaveRoom, me.getID(), #hideCard)
   registerMessage(#changeRoom, me.getID(), #hideCard)
   return(1)
-  exit
 end
 
-on deconstruct(me)
+on deconstruct me 
   if windowExists(pCardWndID) then
     removeWindow(pCardWndID)
   end if
   unregisterMessage(#leaveRoom, me.getID())
   unregisterMessage(#changeRoom, me.getID())
   return(1)
-  exit
 end
 
-on define(me, tProps)
+on define me, tProps 
   pPackageID = tProps.getAt(#id)
   pMessage = tProps.getAt(#msg)
   me.showCard(tProps.getAt(#loc) + [0, -220])
   return(1)
-  exit
 end
 
-on showCard(me, tloc)
+on showCard me, tloc 
   if windowExists(pCardWndID) then
     removeWindow(pCardWndID)
   end if
@@ -47,25 +46,22 @@ on showCard(me, tloc)
   tWndObj.registerProcedure(#eventProcCard, me.getID(), #mouseUp)
   tWndObj.getElement("package_msg").setText(pMessage)
   return(1)
-  exit
 end
 
-on hideCard(me)
+on hideCard me 
   unregisterMessage(#leaveRoom, me.getID())
   unregisterMessage(#changeRoom, me.getID())
   if windowExists(pCardWndID) then
     removeWindow(pCardWndID)
   end if
   return(1)
-  exit
 end
 
-on openPresent(me)
+on openPresent me 
   return(getThread(#room).getComponent().getRoomConnection().send("PRESENTOPEN", pPackageID))
-  exit
 end
 
-on showContent(me, tdata)
+on showContent me, tdata 
   if not windowExists(pCardWndID) then
     return(0)
   end if
@@ -95,19 +91,17 @@ on showContent(me, tdata)
   tWndObj.getElement("small_img").feedImage(tImg)
   tWndObj.getElement("small_img").setProperty(#blend, 100)
   tWndObj.getElement("open_package").hide()
-  exit
 end
 
-on eventProcCard(me, tEvent, tElemID, tParam)
+on eventProcCard me, tEvent, tElemID, tParam 
   if tEvent <> #mouseUp then
     return(0)
   end if
-  if me = "close" then
+  if tElemID = "close" then
     return(me.hideCard())
   else
-    if me = "open_package" then
+    if tElemID = "open_package" then
       return(me.openPresent())
     end if
   end if
-  exit
 end

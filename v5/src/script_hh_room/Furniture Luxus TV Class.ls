@@ -1,4 +1,6 @@
-on prepare(me, tdata)
+property tvFrame, fireplaceOn, carLoop, formulaFrame, carLoopCount, stillWait, stillPicture
+
+on prepare me, tdata 
   tvFrame = 0
   polyfonfprand = 0
   formulaFrame = 0
@@ -12,19 +14,17 @@ on prepare(me, tdata)
     me.setOff()
   end if
   return(1)
-  exit
 end
 
-on updateStuffdata(me, tProp, tValue)
+on updateStuffdata me, tProp, tValue 
   if tValue = "ON" then
     me.setOn()
   else
     me.setOff()
   end if
-  exit
 end
 
-on update(me)
+on update me 
   if me.count(#pSprList) < 4 then
     return()
   end if
@@ -87,20 +87,17 @@ on update(me)
     end if
   end if
   me.getPropRef(#pSprList, 4).locZ = me.getPropRef(#pSprList, 1).locZ + 2
-  exit
 end
 
-on setOn(me)
+on setOn me 
   fireplaceOn = 1
-  exit
 end
 
-on setOff(me)
+on setOff me 
   fireplaceOn = 0
-  exit
 end
 
-on select(me)
+on select me 
   if the doubleClick then
     if fireplaceOn then
       tOnString = "OFF"
@@ -109,5 +106,4 @@ on select(me)
     end if
     getThread(#room).getComponent().getRoomConnection().send(#room, "SETSTUFFDATA /" & me.getID() & "/" & "FIREON" & "/" & tOnString)
   end if
-  exit
 end

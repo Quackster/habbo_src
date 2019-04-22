@@ -1,4 +1,6 @@
-on prepare(me, tdata)
+property pTiming, pChanges, pActive
+
+on prepare me, tdata 
   pChanges = 1
   pTiming = 1
   if tdata.getAt(#stuffdata) = "ON" then
@@ -7,20 +9,18 @@ on prepare(me, tdata)
     me.setOff()
   end if
   return(1)
-  exit
 end
 
-on updateStuffdata(me, tValue)
+on updateStuffdata me, tValue 
   if tValue = "ON" then
     me.setOn()
   else
     me.setOff()
   end if
   pChanges = 1
-  exit
 end
 
-on update(me)
+on update me 
   pTiming = not pTiming
   if not pChanges then
     return()
@@ -45,20 +45,17 @@ on update(me)
   me.getPropRef(#pSprList, 3).castNum = tmember.number
   me.getPropRef(#pSprList, 3).width = tmember.width
   me.getPropRef(#pSprList, 3).height = tmember.height
-  exit
 end
 
-on setOn(me)
+on setOn me 
   pActive = 1
-  exit
 end
 
-on setOff(me)
+on setOff me 
   pActive = 0
-  exit
 end
 
-on select(me)
+on select me 
   if the doubleClick then
     if pActive then
       tStr = "OFF"
@@ -68,5 +65,4 @@ on select(me)
     getThread(#room).getComponent().getRoomConnection().send("SETSTUFFDATA", [#string:string(me.getID()), #string:tStr])
   end if
   return(1)
-  exit
 end

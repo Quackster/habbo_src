@@ -1,11 +1,12 @@
-on construct(me)
+property pTempPassword
+
+on construct me 
   pConnectionId = getVariable("connection.info.id")
   pTempPassword = ""
   return(1)
-  exit
 end
 
-on deconstruct(me)
+on deconstruct me 
   if windowExists(#login_a) then
     removeWindow(#login_a)
   end if
@@ -13,10 +14,9 @@ on deconstruct(me)
     removeWindow(#login_b)
   end if
   return(1)
-  exit
 end
 
-on showLogin(me)
+on showLogin me 
   getObject(#session).set(#userName, "")
   getObject(#session).set(#password, "")
   pTempPassword = ""
@@ -59,10 +59,9 @@ on showLogin(me)
     end if
   end if
   return(1)
-  exit
 end
 
-on hideLogin(me)
+on hideLogin me 
   if windowExists(#login_a) then
     removeWindow(#login_a)
   end if
@@ -70,10 +69,9 @@ on hideLogin(me)
     removeWindow(#login_b)
   end if
   return(1)
-  exit
 end
 
-on showDisconnect(me)
+on showDisconnect me 
   createWindow(#error, "error.window", 0, 0, #modal)
   tWndObj = getWindow(#error)
   tWndObj.getElement("error_title").setText(getText("Alert_ConnectionFailure"))
@@ -81,10 +79,9 @@ on showDisconnect(me)
   tWndObj.registerClient(me.getID())
   tWndObj.registerProcedure(#eventProcDisconnect, me.getID(), #mouseUp)
   the keyboardFocusSprite = 0
-  exit
 end
 
-on tryLogin(me)
+on tryLogin me 
   if not windowExists(#login_b) then
     return(error(me, "Window not found:" && #login_b, #eventProcLogin))
   end if
@@ -110,10 +107,9 @@ on tryLogin(me)
   me.blinkConnection()
   me.getComponent().setaProp(#pOkToLogin, 1)
   return(me.getComponent().connect())
-  exit
 end
 
-on blinkConnection(me)
+on blinkConnection me 
   if not windowExists(#login_b) then
     return(0)
   end if
@@ -129,10 +125,9 @@ on blinkConnection(me)
   end if
   tElem.setProperty(#visible, not tElem.getProperty(#visible))
   return(createTimeout(#login_blinker, 500, #blinkConnection, me.getID(), void(), 1))
-  exit
 end
 
-on showUserFound(me)
+on showUserFound me 
   if windowExists(#login_b) then
     getWindow(#login_b).unmerge()
   else
@@ -151,28 +146,25 @@ on showUserFound(me)
     me.hideLogin()
   end if
   return(1)
-  exit
 end
 
-on myHabboSmile(me)
+on myHabboSmile me 
   if objectExists("Figure_Preview") then
     getObject("Figure_Preview").createTemplateHuman("h", 3, "gest", "temp sml")
   end if
   me.delay(1200, #stopWaving)
-  exit
 end
 
-on stopWaving(me)
+on stopWaving me 
   if objectExists("Figure_Preview") then
     getObject("Figure_Preview").createTemplateHuman("h", 3, "reset")
     getObject("Figure_Preview").createTemplateHuman("h", 3, "gest", "temp sml")
     getObject("Figure_Preview").createTemplateHuman("h", 3, "remove")
   end if
   me.delay(400, #hideLogin)
-  exit
 end
 
-on updatePasswordAsterisks(me)
+on updatePasswordAsterisks me 
   if not windowExists(#login_b) then
     return(0)
   end if
@@ -192,24 +184,23 @@ on updatePasswordAsterisks(me)
     i = 1 + i
   end repeat
   getWindow(#login_b).getElement("login_password").setText(tStars)
-  exit
 end
 
-on eventProcLogin(me, tEvent, tSprID, tParam)
+on eventProcLogin me, tEvent, tSprID, tParam 
   tWndObj = getWindow(#login_b)
   if not tWndObj then
     return(0)
   end if
-  if me = #mouseUp then
-    if me = "login_password" then
+  if tEvent = #mouseUp then
+    if tEvent = "login_password" then
       tCount = tWndObj.getElement(tSprID).getText().length
       the selStart = tCount
       the selEnd = tCount
     else
-      if me = "login_ok" then
+      if tEvent = "login_ok" then
         return(me.tryLogin())
       else
-        if me = "login_createUser" then
+        if tEvent = "login_createUser" then
           pTempPassword = ""
           if getWindow(#login_a).getElement(tSprID).getProperty(#blend) = 100 then
             if windowExists(#login_a) then
@@ -222,7 +213,7 @@ on eventProcLogin(me, tEvent, tSprID, tParam)
             return(1)
           end if
         else
-          if me = "login_forgotten" then
+          if tEvent = "login_forgotten" then
             if tWndObj.getElement(tSprID).getProperty(#blend) = 100 then
               openNetPage(getText("login_forgottenPassword_url"))
             end if
@@ -231,31 +222,31 @@ on eventProcLogin(me, tEvent, tSprID, tParam)
       end if
     end if
   else
-    if me = #keyDown then
+    if tEvent = #keyDown then
       tTimeoutHideName = "pwdhide" & the milliSeconds
       if the keyCode = 36 then
         me.tryLogin()
         return(1)
       end if
-      if me = "login_password" then
-        if me = 48 then
+      if tEvent = "login_password" then
+        if tEvent = 48 then
           return(0)
         else
-          if me = 49 then
+          if tEvent = 49 then
             return(1)
           else
-            if me = 51 then
+            if tEvent = 51 then
               if pTempPassword.length > 0 then
                 pTempPassword = chars(pTempPassword, 1, pTempPassword.length - 1)
               end if
             else
-              if me <> 123 then
-                if me <> 124 then
-                  if me <> 125 then
-                    if me = 126 then
+              if tEvent <> 123 then
+                if tEvent <> 124 then
+                  if tEvent <> 125 then
+                    if tEvent = 126 then
                       return(1)
                     else
-                      if me = 117 then
+                      if tEvent = 117 then
                         if windowExists(#login_b) then
                           tWndObj.getElement(tSprID).setText("")
                           pTempPassword = ""
@@ -264,7 +255,6 @@ on eventProcLogin(me, tEvent, tSprID, tParam)
                     end if
                     createTimeout(tTimeoutHideName, 1, #updatePasswordAsterisks, me.getID(), void(), 1)
                     return(0)
-                    exit
                   end if
                 end if
               end if
@@ -276,12 +266,11 @@ on eventProcLogin(me, tEvent, tSprID, tParam)
   end if
 end
 
-on eventProcDisconnect(me, tEvent, tElemID, tParam)
+on eventProcDisconnect me, tEvent, tElemID, tParam 
   if tEvent = #mouseUp then
     if tElemID = "error_close" then
       removeWindow(#error)
       resetClient()
     end if
   end if
-  exit
 end

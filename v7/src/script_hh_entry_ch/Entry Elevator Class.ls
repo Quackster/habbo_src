@@ -1,4 +1,6 @@
-on define(me, tSpriteA, tSpriteB)
+property pFloors, pSpriteA, pBottomLimit, pTopLimit, pCurrentFloor, pSpriteB, pContinueTime, pTargetFloor, pmode
+
+on define me, tSpriteA, tSpriteB 
   pSpriteA = tSpriteA
   pSpriteB = tSpriteB
   pmode = #up
@@ -10,10 +12,9 @@ on define(me, tSpriteA, tSpriteB)
   pContinueTime = the milliSeconds
   pSpriteA.locV = pBottomLimit - pBottomLimit - pTopLimit / pFloors * pCurrentFloor
   pSpriteB.locV = pSpriteA.locV
-  exit
 end
 
-on update(me)
+on update me 
   if pContinueTime < the milliSeconds then
     if pSpriteA.locV > pBottomLimit - pBottomLimit - pTopLimit / pFloors * pTargetFloor then
       pSpriteA.locV = pSpriteA.locV - 2
@@ -29,11 +30,10 @@ on update(me)
       me.modechange()
     end if
   end if
-  exit
 end
 
-on modechange(me)
-  if me = #up then
+on modechange me 
+  if pmode = #up then
     if pCurrentFloor = pFloors then
       mode = #down
       me.goDownRandom()
@@ -46,7 +46,7 @@ on modechange(me)
       end if
     end if
   else
-    if me = #down then
+    if pmode = #down then
       if pCurrentFloor = 0 then
         mode = #up
         me.goUpRandom()
@@ -59,20 +59,17 @@ on modechange(me)
       end if
     end if
   end if
-  exit
 end
 
-on goDownRandom(me)
+on goDownRandom me 
   if random(2) = 1 then
     pTargetFloor = 0
     pmode = #up
   else
     pTargetFloor = pCurrentFloor - random(pCurrentFloor) + 1
   end if
-  exit
 end
 
-on goUpRandom(me)
+on goUpRandom me 
   pTargetFloor = random(pFloors - pCurrentFloor) + pCurrentFloor
-  exit
 end

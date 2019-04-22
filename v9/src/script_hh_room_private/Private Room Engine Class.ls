@@ -1,4 +1,6 @@
-on construct(me)
+property pWallDefined, pWallModel, pFloorDefined, pFloorModel, pWallPatterns, pFloorPatterns
+
+on construct me 
   pWallPatterns = field(0)
   pFloorPatterns = field(0)
   pWallDefined = 0
@@ -6,10 +8,9 @@ on construct(me)
   pWallModel = string(getVariable("room.default.wall", "201"))
   pFloorModel = string(getVariable("room.default.floor", "203"))
   return(1)
-  exit
 end
 
-on prepare(me)
+on prepare me 
   if not pWallDefined then
     me.setWallPaper(pWallModel)
   end if
@@ -17,21 +18,19 @@ on prepare(me)
     me.setFloorPattern(pFloorModel)
   end if
   return(1)
-  exit
 end
 
-on setProperty(me, tKey, tValue)
-  if me = "wallpaper" then
+on setProperty me, tKey, tValue 
+  if tKey = "wallpaper" then
     return(me.setWallPaper(tValue))
   else
-    if me = "floor" then
+    if tKey = "floor" then
       return(me.setFloorPattern(tValue))
     end if
   end if
-  exit
 end
 
-on setWallPaper(me, tIndex)
+on setWallPaper me, tIndex 
   tField = pWallPatterns.getProp(#line, integer(tIndex.getProp(#char, 1, length(tIndex) - 2)))
   if tField = "" then
     return(error(me, "Invalid wall color index:" && tIndex, #setWallPaper))
@@ -57,10 +56,10 @@ on setWallPaper(me, tIndex)
   the itemDelimiter = "_"
   tPieceList = getThread(#room).getComponent().getPassiveObject(#list)
   tObjPieceCount = 0
-  repeat while me <= undefined
+  repeat while tField <= undefined
     tPiece = getAt(undefined, tIndex)
     tSprList = tPiece.getSprites()
-    repeat while me <= undefined
+    repeat while tField <= undefined
       tSpr = getAt(undefined, tIndex)
       tdir = name.getProp(#item, 1)
       tName = name.getProp(#item, 2)
@@ -96,7 +95,7 @@ on setWallPaper(me, tIndex)
     if not voidp(tViz) then
       tWrappedWallParts = tViz.getWrappedParts([#wallleft, #wallright])
       if tWrappedWallParts.count > 0 then
-        repeat while me <= undefined
+        repeat while tField <= undefined
           tWrapper = getAt(undefined, tIndex)
           tWrapper.setPartPattern(ttype, tPalette, tColors.getAt("left"), #wallleft)
           tWrapper.setPartPattern(ttype, tPalette, tColors.getAt("right"), #wallright)
@@ -115,10 +114,9 @@ on setWallPaper(me, tIndex)
     pWallDefined = 1
     return(1)
   end if
-  exit
 end
 
-on setFloorPattern(me, tIndex)
+on setFloorPattern me, tIndex 
   tField = pFloorPatterns.getProp(#line, integer(tIndex.getProp(#char, 1, length(tIndex) - 2)))
   if tField = "" then
     return(error(me, "Invalid floor color index:" && tIndex, #setFloorPattern))
@@ -164,19 +162,17 @@ on setFloorPattern(me, tIndex)
     tSpr.bgColor = tColor
     member.paletteRef = member(getmemnum(tPalette))
     tSpr.ink = 41
-    -- UNK_40 6
-    ERROR.locZ = ERROR
+    tSpr.locZ = tSpr.locZ - 1000000
     tPieceId = tPieceId + 1
     tSpr = tVisualizer.getSprById("floor" & tPieceId)
   end repeat
   the itemDelimiter = tDelim
   tWrappedParts = tVisualizer.getWrappedParts([#floor])
-  repeat while me <= undefined
+  repeat while tField <= undefined
     tWrapper = getAt(undefined, tIndex)
     tWrapper.setPartPattern(ttype, tPalette, tColor, #floor)
   end repeat
   the itemDelimiter = tDelim
   pFloorDefined = 1
   return(1)
-  exit
 end

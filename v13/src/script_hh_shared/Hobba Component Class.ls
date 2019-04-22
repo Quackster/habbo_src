@@ -1,43 +1,40 @@
-on construct(me)
-  pCryDataBase = []
+property pCryDataBase
+
+on construct me 
+  pCryDataBase = [:]
   registerMessage(#sendCallForHelp, me.getID(), #send_cryForHelp)
   return(1)
-  exit
 end
 
-on deconstruct(me)
-  pCryDataBase = []
+on deconstruct me 
+  pCryDataBase = [:]
   unregisterMessage(#sendCallForHelp, me.getID())
   return(1)
-  exit
 end
 
-on receive_cryforhelp(me, tMsg)
+on receive_cryforhelp me, tMsg 
   pCryDataBase.setAt(tMsg.getAt(#cry_id), tMsg)
   me.getInterface().ShowAlert()
   me.getInterface().updateCryWnd()
   return(1)
-  exit
 end
 
-on receive_pickedCry(me, tMsg)
+on receive_pickedCry me, tMsg 
   if voidp(pCryDataBase.getAt(tMsg.getAt(#cry_id))) then
     return(0)
   end if
   pCryDataBase.getAt(tMsg.getAt(#cry_id)).picker = tMsg.getAt(#picker)
   me.getInterface().updateCryWnd()
   return(1)
-  exit
 end
 
-on deleteCry(me, tid)
+on deleteCry me, tid 
   pCryDataBase.deleteProp(tid)
   me.getInterface().updateCryWnd()
   return(1)
-  exit
 end
 
-on send_changeCfhType(me, tCryID, tCategoryNum)
+on send_changeCfhType me, tCryID, tCategoryNum 
   if not connectionExists(getVariable("connection.info.id")) then
     return(0)
   end if
@@ -54,10 +51,9 @@ on send_changeCfhType(me, tCryID, tCategoryNum)
   end if
   getConnection(getVariable("connection.info.id")).send("CHANGECALLCATEGORY", [#string:tCryID, #integer:tNewCategory])
   return(1)
-  exit
 end
 
-on send_cryPick(me, tCryID, tGoHelp)
+on send_cryPick me, tCryID, tGoHelp 
   if not connectionExists(getVariable("connection.info.id")) then
     return(0)
   end if
@@ -108,10 +104,9 @@ on send_cryPick(me, tCryID, tGoHelp)
     executeMessage(#roomForward, tdata, tdata.getAt(#type))
   end if
   return(1)
-  exit
 end
 
-on send_cryForHelp(me, tMsg, ttype)
+on send_cryForHelp me, tMsg, ttype 
   tMsg = replaceChars(tMsg, "/", space())
   tMsg = replaceChunks(tMsg, "\r", "<br>")
   tMsg = convertSpecialChars(tMsg, 1)
@@ -130,10 +125,9 @@ on send_cryForHelp(me, tMsg, ttype)
   else
     return(error(me, "Failed to access room connection!", #send_cryForHelp))
   end if
-  exit
 end
 
-on send_CfhReply(me, tCryID, tMsg)
+on send_CfhReply me, tCryID, tMsg 
   if not connectionExists(getVariable("connection.info.id")) then
     return(0)
   end if
@@ -152,16 +146,13 @@ on send_CfhReply(me, tCryID, tMsg)
   tMsg = convertSpecialChars(tMsg, 1)
   getConnection(getVariable("connection.info.id")).send("MESSAGETOCALLER", [#string:tCryID, #string:tMsg])
   return(1)
-  exit
 end
 
-on getCryDataBase(me)
+on getCryDataBase me 
   return(pCryDataBase)
-  exit
 end
 
-on clearCryDataBase(me)
-  pCryDataBase = []
+on clearCryDataBase me 
+  pCryDataBase = [:]
   return(1)
-  exit
 end

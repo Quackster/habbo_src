@@ -1,5 +1,7 @@
-on construct(me)
-  pData = []
+property pwidth, pheight, pData, pMsg, pUnit, pLastTime, pMsgCount, pMsgLinkRect, pID, pCacheImage, pSelected, pName, pEmailOK, pNeedUpdate, pNameNeedUpdate, pWriterName, pLeftMarg, pCacheNameImg, pTopMarg, pMsgsNeedUpdate, pWriterMsgs, pLastNeedUpdate, pWriterLast, pLineHeight, pCacheOnlineImg, pOnline, pMissNeedUpdate, pWriterText, pDotLineImg
+
+on construct me 
+  pData = [:]
   pID = ""
   pMsg = ""
   pEmailOK = 0
@@ -20,10 +22,9 @@ on construct(me)
   pLastNeedUpdate = 1
   pMissNeedUpdate = 1
   return(1)
-  exit
 end
 
-on define(me, tdata, tProps)
+on define me, tdata, tProps 
   pData = tdata
   pEmailOK = tdata.emailOk
   pID = tdata.id
@@ -38,10 +39,9 @@ on define(me, tdata, tProps)
   pWriterText = getWriter(tProps.writer_text)
   pNeedUpdate = 1
   me.update()
-  exit
 end
 
-on update(me)
+on update me 
   pOnline = pData.online
   if pData.msg <> pMsg then
     pMsg = pData.msg
@@ -63,10 +63,9 @@ on update(me)
     pMsgsNeedUpdate = 1
     pNeedUpdate = 1
   end if
-  exit
 end
 
-on select(me, tClickPoint, tBuffer, tPosition)
+on select me, tClickPoint, tBuffer, tPosition 
   if integer(pMsgCount.getProp(#word, 1)) > 0 and inside(tClickPoint, pMsgLinkRect) then
     tMsgStruct = getThread(#messenger).getComponent().getMessageBySenderId(pID)
     getThread(#messenger).getInterface().renderMessage(tMsgStruct)
@@ -82,15 +81,13 @@ on select(me, tClickPoint, tBuffer, tPosition)
     end if
     getThread(#messenger).getInterface().buddySelectOrNot(pName, pID, pSelected, pEmailOK)
   end if
-  exit
 end
 
-on unselect(me)
+on unselect me 
   pSelected = 0
-  exit
 end
 
-on render(me, tBuffer, tPosition)
+on render me, tBuffer, tPosition 
   tPosition = tPosition - 1
   if pData.update then
     pNeedUpdate = 1
@@ -177,5 +174,4 @@ on render(me, tBuffer, tPosition)
     tBuffer.copyPixels(pCacheImage, tDstRect, pCacheImage.rect)
     pData.update = 0
   end if
-  exit
 end

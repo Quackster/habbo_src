@@ -1,17 +1,17 @@
-on construct(me)
+property pModBadgeList, pExtensionOpenedID, pExtensionClosedID
+
+on construct me 
   pModBadgeList = getVariableValue("moderator.badgelist")
   pExtensionClosedID = "roomnfo_ext_right"
   pExtensionOpenedID = "roomnfo_ext_close"
   return(1)
-  exit
 end
 
-on deconstruct(me)
+on deconstruct me 
   return(1)
-  exit
 end
 
-on initWindow(me, tID, ttype)
+on initWindow me, tID, ttype 
   if not windowExists(tID) then
     tBaseWindowType = "obj_disp_base.window"
     createWindow(tID, tBaseWindowType, 9999, 9999)
@@ -22,10 +22,9 @@ on initWindow(me, tID, ttype)
   tWndObj.lock()
   mergeWindow(tID, ttype)
   return(tWndObj)
-  exit
 end
 
-on createFurnitureWindow(me, tID, tProps)
+on createFurnitureWindow me, tID, tProps 
   tWndObj = me.initWindow(tID, "obj_disp_furni.window")
   tWndObj.getElement("room_obj_disp_name").setText(tProps.getAt(#name))
   tWndObj.getElement("room_obj_disp_desc").setText(tProps.getAt(#custom))
@@ -36,10 +35,9 @@ on createFurnitureWindow(me, tID, tProps)
   tWndObj.getElement("room_obj_disp_avatar").feedImage(tImage)
   tWndObj.lock()
   return(1)
-  exit
 end
 
-on createHumanWindow(me, tID, tProps, tSelectedObj, tBadgeObjID, tShowTags)
+on createHumanWindow me, tID, tProps, tSelectedObj, tBadgeObjID, tShowTags 
   tWndObj = me.initWindow(tID, "obj_disp_human.window")
   tWndObj.getElement("room_obj_disp_name").setText(tProps.getAt(#name))
   tWndObj.getElement("room_obj_disp_desc").setText(tProps.getAt(#custom))
@@ -49,35 +47,32 @@ on createHumanWindow(me, tID, tProps, tSelectedObj, tBadgeObjID, tShowTags)
   me.showHideTags(tID, tShowTags)
   tWndObj.lock()
   return(1)
-  exit
 end
 
-on createBotWindow(me, tID, tProps)
+on createBotWindow me, tID, tProps 
   tWndObj = me.initWindow(tID, "obj_disp_bot.window")
   tWndObj.getElement("room_obj_disp_name").setText(tProps.getAt(#name))
   tWndObj.getElement("room_obj_disp_desc").setText(tProps.getAt(#custom))
   tWndObj.lock()
   return(1)
-  exit
 end
 
-on createPetWindow(me, tID, tProps)
+on createPetWindow me, tID, tProps 
   tWndObj = me.initWindow(tID, "obj_disp_pet.window")
   tWndObj.getElement("room_obj_disp_name").setText(tProps.getAt(#name))
   tWndObj.getElement("room_obj_disp_desc").setText(tProps.getAt(#custom))
   tWndObj.getElement("room_obj_disp_avatar").feedImage(tProps.getAt(#image))
   tWndObj.lock()
   return(1)
-  exit
 end
 
-on createActionsHumanWindow(me, tID, tTargetUserName, tShowButtons)
+on createActionsHumanWindow me, tID, tTargetUserName, tShowButtons 
   tSessionObj = getObject(#session)
   tUserRights = tSessionObj.GET("user_rights")
   if tTargetUserName = tSessionObj.GET("user_name") then
     tOwnUser = getThread("room").getComponent().getOwnUser()
     tWindowModel = "obj_disp_actions_own.window"
-    tButtonList = []
+    tButtonList = [:]
     tButtonList.setAt("wave", #visible)
     tButtonList.setAt("dance", #hidden)
     tButtonList.setAt("hcdance", #hidden)
@@ -94,7 +89,7 @@ on createActionsHumanWindow(me, tID, tTargetUserName, tShowButtons)
       tButtonList.setAt("dance", tDanceButtonState)
     end if
   else
-    tButtonList = []
+    tButtonList = [:]
     tButtonList.setAt("friend", #visible)
     tButtonList.setAt("trade", #visible)
     tButtonList.setAt("ignore", #visible)
@@ -158,11 +153,10 @@ on createActionsHumanWindow(me, tID, tTargetUserName, tShowButtons)
   me.scaleButtonWindow(tID, tButtonList, tShowButtons)
   tWndObj.lock()
   return(tID)
-  exit
 end
 
-on createActionsFurniWindow(me, tID, tClass, tShowButtons)
-  tButtonList = []
+on createActionsFurniWindow me, tID, tClass, tShowButtons 
+  tButtonList = [:]
   tButtonList.setAt("move", #hidden)
   tButtonList.setAt("rotate", #hidden)
   tButtonList.setAt("pick", #hidden)
@@ -193,10 +187,9 @@ on createActionsFurniWindow(me, tID, tClass, tShowButtons)
   me.scaleButtonWindow(tID, tButtonList, tShowButtons)
   tWndObj.lock()
   return(tID)
-  exit
 end
 
-on showHideTags(me, tID, tShowTags)
+on showHideTags me, tID, tShowTags 
   tWndObj = getWindow(tID)
   tArrowElem = tWndObj.getElement("object_displayer_toggle_tags_icon")
   tTextElem = tWndObj.getElement("object_displayer_toggle_tags")
@@ -212,10 +205,9 @@ on showHideTags(me, tID, tShowTags)
       tTextElem.setText(getText("object_displayer_show_tags"))
     end if
   end if
-  exit
 end
 
-on scaleButtonWindow(me, tID, tButtonList, tShowButtons)
+on scaleButtonWindow me, tID, tButtonList, tShowButtons 
   tWndObj = getWindow(tID)
   if tShowButtons = 0 then
     tIndex = 1
@@ -243,16 +235,16 @@ on scaleButtonWindow(me, tID, tButtonList, tShowButtons)
     if tIndex = 1 then
       tCurrentButtonTopPos = tElement.getProperty(#locY)
     end if
-    if me = #visible then
+    if tButtonVisibility = #visible then
       tElement.moveTo(tLeftPos, tCurrentButtonTopPos)
       tCurrentButtonTopPos = tCurrentButtonTopPos + tButtonHeight + tButtonVertMargins
     else
-      if me = #deactive then
+      if tButtonVisibility = #deactive then
         tElement.moveTo(tLeftPos, tCurrentButtonTopPos)
         tElement.deactivate()
         tCurrentButtonTopPos = tCurrentButtonTopPos + tButtonHeight + tButtonVertMargins
       else
-        if me = #hidden then
+        if tButtonVisibility = #hidden then
           tElement.setProperty(#visible, 0)
           tHiddenRowCount = tHiddenRowCount + 1
         end if
@@ -262,46 +254,40 @@ on scaleButtonWindow(me, tID, tButtonList, tShowButtons)
   end repeat
   tNewHeight = tWndObj.getProperty(#height) - tHiddenRowCount * tButtonHeight + tButtonVertMargins - tButtonVertMargins
   me.resizeWindowTo(tID, tWndObj.getProperty(#width), tNewHeight)
-  exit
 end
 
-on createLinksWindow(me, tID, tFormat)
-  if me = #own then
+on createLinksWindow me, tID, tFormat 
+  if tFormat = #own then
     tWindowModel = "obj_disp_links_own.window"
   else
-    if me = #peer then
+    if tFormat = #peer then
       tWindowModel = "obj_disp_links_peer.window"
     end if
   end if
   tWndObj = me.initWindow(tID, tWindowModel)
   tWndObj.lock()
   return(tID)
-  exit
 end
 
-on createUserTagsWindow(me, tID)
+on createUserTagsWindow me, tID 
   tWindowModel = "obj_disp_user_tags.window"
   tWndObj = me.initWindow(tID, tWindowModel)
   tWndObj.lock()
   return(tID)
-  exit
 end
 
-on createBottomWindow(me, tID)
+on createBottomWindow me, tID 
   tWndObj = me.initWindow(tID, "obj_disp_bottom.window")
   tWndObj.lock()
   return(tID)
-  exit
 end
 
-on resizeWindowBy(me, tID, tX, tY)
+on resizeWindowBy me, tID, tX, tY 
   tWndObj = getWindow(tID)
   tWndObj.resizeBy(tX, tY)
-  exit
 end
 
-on resizeWindowTo(me, tID, tX, tY)
+on resizeWindowTo me, tID, tX, tY 
   tWndObj = getWindow(tID)
   tWndObj.resizeTo(tX, tY)
-  exit
 end

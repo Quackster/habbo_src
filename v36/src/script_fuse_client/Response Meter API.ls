@@ -1,35 +1,31 @@
-on startResponseMeter()
+on startResponseMeter  
   if not objectp(g_meterObj) then
     g_meterObj = ["Response Meter Class"]
   end if
   g_meterObj.startMeasuring()
-  exit
 end
 
-on stopResponseMeter()
+on stopResponseMeter  
   if not objectp(g_meterObj) then
     put("Error : Response meter not started yet!")
     return(0)
   end if
   g_meterObj.stopMeasuring()
-  exit
 end
 
-on printResponseMeterGraph()
+on printResponseMeterGraph  
   if not objectp(g_meterObj) then
     put("Error : Response meter not started yet!")
     return(0)
   end if
   g_meterObj.printGraph()
-  exit
 end
 
-on clearResponseMeter()
+on clearResponseMeter  
   g_meterObj = void()
-  exit
 end
 
-on printSkipCountToFile(tFileName)
+on printSkipCountToFile tFileName 
   if voidp(g_io) then
     -- UNK_B3 1408
     g_io = ERROR
@@ -42,5 +38,4 @@ on printSkipCountToFile(tFileName)
   g_io.openfile(the moviePath & tFileName, 2)
   g_io.writeString(tString)
   g_io.closeFile()
-  exit
 end

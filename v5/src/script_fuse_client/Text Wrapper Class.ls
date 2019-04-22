@@ -1,4 +1,6 @@
-on prepare(me)
+property pFontData, pTextMem, pNeedFill
+
+on prepare me 
   me.pOffX = 0
   me.pOffY = 0
   me.pOwnW = me.getProp(#pProps, #width)
@@ -11,7 +13,7 @@ on prepare(me)
     me.pOwnX = me.getProp(#pProps, #locH)
     me.pOwnY = me.getProp(#pProps, #locV)
   end if
-  pFontData = []
+  pFontData = [:]
   pFontData.setAt(#color, me.getProp(#pProps, #txtColor))
   pFontData.setAt(#bgColor, me.getProp(#pProps, #txtBgColor))
   pFontData.setAt(#key, me.getProp(#pProps, #key))
@@ -35,10 +37,9 @@ on prepare(me)
   end if
   me.initResources(pFontData)
   return(me.createImgFromTxt())
-  exit
 end
 
-on setText(me, tText)
+on setText me, tText 
   tText = string(tText)
   pFontData.setAt(#text, tText)
   tRect = rect(me.pOwnX, me.pOwnY, me.pOwnX + me.pOwnW, me.pOwnY + me.pOwnH)
@@ -47,15 +48,13 @@ on setText(me, tText)
   me.render()
   me.registerScroll()
   return(1)
-  exit
 end
 
-on getText(me)
+on getText me 
   return(pFontData.getAt(#text))
-  exit
 end
 
-on setFont(me, tStruct)
+on setFont me, tStruct 
   pFontData.font = tStruct.getaProp(#font)
   pFontData.fontStyle = tStruct.getaProp(#fontStyle)
   pFontData.fontSize = tStruct.getaProp(#fontSize)
@@ -67,10 +66,9 @@ on setFont(me, tStruct)
   me.render()
   me.registerScroll()
   return(1)
-  exit
 end
 
-on getFont(me)
+on getFont me 
   tStruct = getStructVariable("struct.font.empty")
   tStruct.setaProp(#font, pFontData.font)
   tStruct.setaProp(#fontStyle, pFontData.fontStyle)
@@ -78,10 +76,9 @@ on getFont(me)
   tStruct.setaProp(#color, pFontData.color)
   tStruct.setaProp(#lineHeight, pFontData.fixedLineSpace)
   return(tStruct)
-  exit
 end
 
-on initResources(me, tFontProps)
+on initResources me, tFontProps 
   tMemNum = getResourceManager().getmemnum("visual window text")
   if tMemNum = 0 then
     tMemNum = getResourceManager().createMember("visual window text", #text)
@@ -91,10 +88,9 @@ on initResources(me, tFontProps)
     pTextMem = member(tMemNum)
   end if
   return(1)
-  exit
 end
 
-on createImgFromTxt(me)
+on createImgFromTxt me 
   if pTextMem.wordWrap <> pFontData.getAt(#wordWrap) then
     pTextMem.wordWrap = pFontData.getAt(#wordWrap)
   end if
@@ -183,5 +179,4 @@ on createImgFromTxt(me)
   end if
   me.copyPixels(pTextMem.image, me.rect, me.rect, [#ink:8])
   return(1)
-  exit
 end

@@ -1,13 +1,14 @@
-on construct(me)
-  pData = []
+property pColorMember, pWriterIdBold, pData
+
+on construct me 
+  pData = [:]
   pWriterIdBold = "if_writer_bold"
   pColorMember = void()
   return(1)
-  exit
 end
 
-on deconstruct(me)
-  pData = []
+on deconstruct me 
+  pData = [:]
   if not voidp(pColorMember) then
     removeMember(pColorMember.name)
   end if
@@ -15,29 +16,26 @@ on deconstruct(me)
     removeWriter(pWriterIdBold)
   end if
   return(1)
-  exit
 end
 
-on define(me, tdata)
+on define me, tdata 
   if not listp(tdata) then
     return(error(me, "Invalid data supplied for infofeed item!", #define))
   end if
   pData = tdata.duplicate()
   return(1)
-  exit
 end
 
-on renderMinDefault(me, tWndObj)
+on renderMinDefault me, tWndObj 
   if tWndObj = 0 then
     return(0)
   end if
   tWndObj.merge("if_min_default.window")
   me.feedTitle(tWndObj)
   return(1)
-  exit
 end
 
-on renderMin(me, tWndObj)
+on renderMin me, tWndObj 
   if tWndObj = 0 then
     return(0)
   end if
@@ -47,10 +45,9 @@ on renderMin(me, tWndObj)
     me.setTitleBgColor(tWndObj, pData.getaProp(#bgColor))
   end if
   return(1)
-  exit
 end
 
-on renderFull(me, tWndObj, tItemPos, tItemCount)
+on renderFull me, tWndObj, tItemPos, tItemCount 
   tIsFirstItem = tItemPos <= 1
   tIsLastItem = tItemPos = tItemCount
   if tWndObj = 0 then
@@ -73,20 +70,17 @@ on renderFull(me, tWndObj, tItemPos, tItemCount)
   me.feedContentImage(tWndObj)
   me.feedMessageNumber(tWndObj)
   return(1)
-  exit
 end
 
-on getData(me)
+on getData me 
   return(pData)
-  exit
 end
 
-on getShowOnCreate(me)
+on getShowOnCreate me 
   return(1)
-  exit
 end
 
-on setTitleBgColor(me, tWndObj, tBgColor)
+on setTitleBgColor me, tWndObj, tBgColor 
   if tWndObj = 0 then
     return(0)
   end if
@@ -104,10 +98,9 @@ on setTitleBgColor(me, tWndObj, tBgColor)
   pColorMember.image = tDest
   tWndObj.getElement("back_title").setProperty(#member, pColorMember)
   tWndObj.getElement("back_title").setProperty(#image, pColorMember.image)
-  exit
 end
 
-on feedTitle(me, tWndObj)
+on feedTitle me, tWndObj 
   if tWndObj = 0 then
     return(0)
   end if
@@ -132,10 +125,9 @@ on feedTitle(me, tWndObj)
   tWndObj.resizeTo(tImage.width + 38, tWndObj.getProperty(#height))
   removeWriter(pWriterIdBold)
   return(1)
-  exit
 end
 
-on feedTopic(me, tWndObj)
+on feedTopic me, tWndObj 
   if tWndObj = 0 then
     return(0)
   end if
@@ -150,10 +142,9 @@ on feedTopic(me, tWndObj)
   end if
   tElem.setText(getText("if_topic_" & pData.getaProp(#type)))
   return(1)
-  exit
 end
 
-on feedContentText(me, tWndObj)
+on feedContentText me, tWndObj 
   if tWndObj = 0 then
     return(0)
   end if
@@ -168,10 +159,9 @@ on feedContentText(me, tWndObj)
   end if
   tElem.setText(tText)
   return(1)
-  exit
 end
 
-on feedContentImage(me, tWndObj)
+on feedContentImage me, tWndObj 
   if tWndObj = 0 then
     return(0)
   end if
@@ -190,10 +180,9 @@ on feedContentImage(me, tWndObj)
   tImage = member(tMemNum).image
   tElem.feedImage(tImage)
   return(1)
-  exit
 end
 
-on feedMessageNumber(me, tWndObj)
+on feedMessageNumber me, tWndObj 
   if tWndObj = 0 then
     return(0)
   end if
@@ -209,10 +198,9 @@ on feedMessageNumber(me, tWndObj)
   tText = replaceChunks(tText, "%n%", tItemCount)
   tElem.setText(tText)
   return(1)
-  exit
 end
 
-on alignIconImage(me, tImage, tWidth, tHeight)
+on alignIconImage me, tImage, tWidth, tHeight 
   if tImage.ilk <> #image then
     return(0)
   end if
@@ -221,5 +209,4 @@ on alignIconImage(me, tImage, tWidth, tHeight)
   tOffsetY = tHeight - tImage.height / 2
   tNewImage.copyPixels(tImage, tImage.rect + rect(tOffsetX, tOffsetY, tOffsetX, tOffsetY), tImage.rect)
   return(tNewImage)
-  exit
 end

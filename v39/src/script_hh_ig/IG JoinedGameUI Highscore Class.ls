@@ -1,4 +1,6 @@
-on addWindows(me)
+property pPreviousLayout
+
+on addWindows me 
   me.pWindowID = "jg"
   tWrapObjRef = me.getWindowWrapper()
   if tWrapObjRef = 0 then
@@ -6,10 +8,9 @@ on addWindows(me)
   end if
   tWrapObjRef.addOneWindow(me.getWindowId(), void(), me.pWindowSetId)
   return(1)
-  exit
 end
 
-on render(me)
+on render me 
   tService = me.getIGComponent("GameList")
   if tService = 0 then
     return(0)
@@ -44,22 +45,20 @@ on render(me)
     i = 1 + i
   end repeat
   return(1)
-  exit
 end
 
-on renderProperty(me, tKey, tValue)
-  if me = #game_type_icon then
+on renderProperty me, tKey, tValue 
+  if tKey = #game_type_icon then
     return(1)
   else
-    if me = #game_type then
+    if tKey = #game_type then
       return(me.renderType(tValue))
     end if
   end if
   return(me.renderProperty(tKey, tValue))
-  exit
 end
 
-on renderType(me, tValue)
+on renderType me, tValue 
   tWndObj = getWindow(me.getWindowId())
   if tWndObj = 0 then
     return(0)
@@ -73,10 +72,9 @@ on renderType(me, tValue)
     tElem.feedImage(member(tMemNum).image)
   end if
   return(1)
-  exit
 end
 
-on renderScores(me, tItemRef)
+on renderScores me, tItemRef 
   tLevelData = tItemRef.getLevelHighscore()
   if tLevelData = 0 then
     return(0)
@@ -107,7 +105,7 @@ on renderScores(me, tItemRef)
     tItem = tTeamData.getAt(i)
     tText = ""
     tPlayers = tItem.getaProp(#players)
-    repeat while me <= undefined
+    repeat while tPlayers <= undefined
       tName = getAt(undefined, tItemRef)
       tText = tText & tName & "\r"
     end repeat
@@ -121,5 +119,4 @@ on renderScores(me, tItemRef)
     end if
     i = 1 + i
   end repeat
-  exit
 end

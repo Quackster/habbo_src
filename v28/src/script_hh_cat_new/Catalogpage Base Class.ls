@@ -1,35 +1,32 @@
-on construct(me)
+property pPageData
+
+on construct me 
   pPageData = void()
   return(1)
-  exit
 end
 
-on deconstruct(me)
+on deconstruct me 
   pPageData = void()
   return(1)
-  exit
 end
 
-on define(me, tdata)
+on define me, tdata 
   pPageData = tdata
-  exit
 end
 
-on getPageId(me)
+on getPageId me 
   return(pPageData.getAt(#pageid))
-  exit
 end
 
-on getClassAsset(me, tClassName)
+on getClassAsset me, tClassName 
   tClass = tClassName
   if tClass contains "*" then
     tClass = tClass.getProp(#char, 1, offset("*", tClass) - 1)
   end if
   return(tClass)
-  exit
 end
 
-on renderLargePreviewImage(me, tProps)
+on renderLargePreviewImage me, tProps 
   if not voidp(tProps.getAt("dealList")) then
     if not objectExists("ctlg_dealpreviewObj") then
       tObj = createObject("ctlg_dealpreviewObj", ["Deal Preview Class"])
@@ -77,7 +74,7 @@ on renderLargePreviewImage(me, tProps)
     else
       tObjectType = tProps.getAt("objectType")
     end if
-    tdata = []
+    tdata = [:]
     tdata.setAt(#id, "ctlg_previewObj")
     tdata.setAt(#class, tClass)
     tdata.setAt(#name, tClass)
@@ -98,12 +95,11 @@ on renderLargePreviewImage(me, tProps)
     tImage = tObj.getPicture()
   end if
   return(tImage)
-  exit
 end
 
-on getPossibleBuyButtonTypes(me, tWndObj)
+on getPossibleBuyButtonTypes me, tWndObj 
   tBuyButtonNames = getVariableValue("layout.buybutton.types")
-  tTypes = []
+  tTypes = [:]
   tElementList = tWndObj.getProperty(#elementList)
   i = 1
   repeat while i <= tElementList.count
@@ -117,10 +113,9 @@ on getPossibleBuyButtonTypes(me, tWndObj)
     i = 1 + i
   end repeat
   return(tTypes)
-  exit
 end
 
-on getOfferTypeList(me, tItemGroup)
+on getOfferTypeList me, tItemGroup 
   tList = []
   if not voidp(me.getOfferByType(tItemGroup, #credits)) then
     tList.add(#credits)
@@ -132,23 +127,22 @@ on getOfferTypeList(me, tItemGroup)
     tList.add(#pixels)
   end if
   return(tList)
-  exit
 end
 
-on getOfferByType(me, tItemGroup, tOfferType)
-  repeat while me <= tOfferType
+on getOfferByType me, tItemGroup, tOfferType 
+  repeat while tItemGroup <= tOfferType
     tOffer = getAt(tOfferType, tItemGroup)
-    if me = #credits then
+    if tItemGroup = #credits then
       if tOffer.getAt(#price).getAt(#pixels) = 0 then
         return(tOffer)
       end if
     else
-      if me = #creditsandpixels then
+      if tItemGroup = #creditsandpixels then
         if tOffer.getAt(#price).getAt(#pixels) <> 0 and tOffer.getAt(#price).getAt(#credits) <> 0 then
           return(tOffer)
         end if
       else
-        if me = #pixels then
+        if tItemGroup = #pixels then
           if tOffer.getAt(#price).getAt(#credits) = 0 then
             return(tOffer)
           end if
@@ -157,29 +151,27 @@ on getOfferByType(me, tItemGroup, tOfferType)
     end if
   end repeat
   return(void())
-  exit
 end
 
-on getOfferPriceTextByType(me, tItemGroup, tOfferType)
+on getOfferPriceTextByType me, tItemGroup, tOfferType 
   tOffer = me.getOfferByType(tItemGroup, tOfferType)
   if not voidp(tOffer) then
-    if me = #credits then
+    if tOfferType = #credits then
       return(tOffer.getAt(#price).getAt(#credits) && getText("credits", "credits"))
     else
-      if me = #creditsandpixels then
+      if tOfferType = #creditsandpixels then
         return(tOffer.getAt(#price).getAt(#pixels) && getText("pixels", "pixels") && "&" && tOffer.getAt(#price).getAt(#credits) && getText("credits", "credits"))
       else
-        if me = #pixels then
+        if tOfferType = #pixels then
           return(tOffer.getAt(#price).getAt(#pixels) && getText("pixels", "pixels"))
         end if
       end if
     end if
   end if
   return("")
-  exit
 end
 
-on centerRectInRect(me, tSmallrect, tLargeRect)
+on centerRectInRect me, tSmallrect, tLargeRect 
   tpoint = point(0, 0)
   tpoint.locH = tLargeRect.width - tSmallrect.width / 2
   tpoint.locV = tLargeRect.height - tSmallrect.height / 2
@@ -190,34 +182,28 @@ on centerRectInRect(me, tSmallrect, tLargeRect)
     tpoint.locV = 0
   end if
   return(tpoint)
-  exit
 end
 
-on centerBlitImageToElement(me, tImage, tElement)
+on centerBlitImageToElement me, tImage, tElement 
   tElement.clearBuffer()
   tOffset = me.centerRectInRect(tImage.rect, tElement.getProperty(#image).rect)
   tOldImage = tElement.getProperty(#image)
   tOldImage.copyPixels(tImage, tImage.rect + rect(tOffset.locH, tOffset.locV, tOffset.locH, tOffset.locV), tImage.rect)
   tElement.feedImage(tOldImage)
-  exit
 end
 
-on mergeWindow(me)
+on mergeWindow me 
   return(error(me, "Calling virtual function from Catalogpage Base Class, you shouldn't be doing this!"))
-  exit
 end
 
-on unmergeWindow(me)
+on unmergeWindow me 
   return(error(me, "Calling virtual function from Catalogpage Base Class, you shouldn't be doing this!"))
-  exit
 end
 
-on renderPage(me)
+on renderPage me 
   return(error(me, "Calling virtual function from Catalogpage Base Class, you shouldn't be doing this!"))
-  exit
 end
 
-on handleClick(me, tEvent, tSprID, tProp)
+on handleClick me, tEvent, tSprID, tProp 
   return(error(me, "Calling virtual function from Catalogpage Base Class, you shouldn't be doing this!"))
-  exit
 end

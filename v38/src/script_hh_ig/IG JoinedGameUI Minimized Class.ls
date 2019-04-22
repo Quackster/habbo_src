@@ -1,4 +1,4 @@
-on addWindows(me)
+on addWindows me 
   me.pWindowID = "jg_m"
   tWrapObjRef = me.getWindowWrapper()
   if tWrapObjRef = 0 then
@@ -6,10 +6,9 @@ on addWindows(me)
   end if
   tWrapObjRef.addOneWindow(me.getWindowId(), "ig_jnd_minimized.window", me.pWindowSetId)
   return(1)
-  exit
 end
 
-on render(me)
+on render me 
   tListService = me.getIGComponent("GameList")
   if tListService = 0 then
     return(0)
@@ -28,26 +27,24 @@ on render(me)
     i = 1 + i
   end repeat
   return(1)
-  exit
 end
 
-on renderProperty(me, tKey, tValue)
-  if me = #game_type_icon then
+on renderProperty me, tKey, tValue 
+  if tKey = #game_type_icon then
     return(me.renderType(tValue))
   else
-    if me = #level_name then
+    if tKey = #level_name then
       return(me.renderName(tValue))
     else
-      if me = #number_of_teams then
+      if tKey = #number_of_teams then
         return(me.renderNumberOfTeams(tValue))
       end if
     end if
   end if
   return(0)
-  exit
 end
 
-on renderType(me, tValue)
+on renderType me, tValue 
   tWndObj = getWindow(me.getWindowId())
   if tWndObj = 0 then
     return(0)
@@ -60,10 +57,9 @@ on renderType(me, tValue)
     tElem.feedImage(tValue)
   end if
   return(1)
-  exit
 end
 
-on renderName(me, tValue)
+on renderName me, tValue 
   tWndObj = getWindow(me.getWindowId())
   if tWndObj = 0 then
     return(0)
@@ -74,10 +70,9 @@ on renderName(me, tValue)
   end if
   tElem.setText(tValue)
   return(1)
-  exit
 end
 
-on renderNumberOfTeams(me, tValue)
+on renderNumberOfTeams me, tValue 
   if tValue = void() then
     return(0)
   end if
@@ -101,10 +96,9 @@ on renderNumberOfTeams(me, tValue)
   if ilk(tTempImage) = #image then
     tElem.feedImage(tTempImage)
   end if
-  exit
 end
 
-on renderPlayerCount(me, tPlayerCount, tMaxPlayerCount)
+on renderPlayerCount me, tPlayerCount, tMaxPlayerCount 
   tWndObj = getWindow(me.getWindowId())
   if tWndObj = 0 then
     return(0)
@@ -115,5 +109,4 @@ on renderPlayerCount(me, tPlayerCount, tMaxPlayerCount)
   end if
   tElem.setText(tPlayerCount & "/" & tMaxPlayerCount)
   return(1)
-  exit
 end

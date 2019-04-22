@@ -1,26 +1,25 @@
-on construct(me)
+property pUserList, pUserListFilter, pTicketsLeft
+
+on construct me 
   pUserList = void()
   pExcludeList = []
   pUserListFilter = 1
   pTicketsLeft = 0
   return(1)
-  exit
 end
 
-on deconstruct(me)
+on deconstruct me 
   return(me.deconstruct())
-  exit
 end
 
-on getUserList(me)
+on getUserList me 
   if pUserList = void() then
     return(me.getHandler().send_LIST_POSSIBLE_INVITEES(pUserListFilter))
   end if
   return(pUserList)
-  exit
 end
 
-on changeUserListFilter(me, tFilter)
+on changeUserListFilter me, tFilter 
   if tFilter = void() then
     return(0)
   end if
@@ -29,15 +28,13 @@ on changeUserListFilter(me, tFilter)
   end if
   pUserListFilter = tFilter
   return(me.getHandler().send_LIST_POSSIBLE_INVITEES(pUserListFilter))
-  exit
 end
 
-on getUserListFilter(me)
+on getUserListFilter me 
   return(pUserListFilter)
-  exit
 end
 
-on sendInviteToListIndex(me, tIndex, tMessage)
+on sendInviteToListIndex me, tIndex, tMessage 
   put("* sendInviteToListIndex" && tIndex && tMessage)
   if tIndex = void() then
     return(0)
@@ -53,10 +50,9 @@ on sendInviteToListIndex(me, tIndex, tMessage)
   me.append(tUserName)
   put("* TODO: how to exclude people..")
   return(1)
-  exit
 end
 
-on sendInviteToName(me, tUserName, tMessage)
+on sendInviteToName me, tUserName, tMessage 
   put("* sendInviteToName" && tUserName && tMessage)
   if tUserName = "" then
     return(0)
@@ -65,10 +61,9 @@ on sendInviteToName(me, tUserName, tMessage)
   me.append(tUserName)
   put("* TODO: how to exclude people..")
   return(1)
-  exit
 end
 
-on excludeListIndex(me, tIndex)
+on excludeListIndex me, tIndex 
   put("* TODO: excludeListIndex" && tIndex)
   if tIndex = void() then
     return(0)
@@ -83,37 +78,30 @@ on excludeListIndex(me, tIndex)
   me.append(tUserName)
   put("* TODO: how to exclude people.." && tUserName)
   return(1)
-  exit
 end
 
-on saveInviteTicketCount(me, tNum)
+on saveInviteTicketCount me, tNum 
   pTicketsLeft = tNum
   return(1)
-  exit
 end
 
-on getInviteTicketCount(me)
+on getInviteTicketCount me 
   return(pTicketsLeft)
-  exit
 end
 
-on showInviteResponse(me, tdata)
+on showInviteResponse me, tdata 
   put(me.getID() && "* showInviteResponse" && tdata)
   return(1)
-  exit
 end
 
-on saveInviteData(me, tdata)
+on saveInviteData me, tdata 
   pUserListFilter = tdata.getaProp(#list_type)
   pUserList = tdata.getaProp(#invitee_list)
   return(1)
-  exit
 end
 
-on update(me)
-  exit
+on update me 
 end
 
-on render(me)
-  exit
+on render me 
 end

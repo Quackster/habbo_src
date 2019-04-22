@@ -1,12 +1,9 @@
-on prepare(me, tdata)
+on prepare me, tdata 
   return(1)
-  exit
 end
 
-on updateStuffdata(me, tProp, tValue)
-  exit
+on updateStuffdata me, tProp, tValue 
 end
 
-on update(me)
-  exit
+on update me 
 end

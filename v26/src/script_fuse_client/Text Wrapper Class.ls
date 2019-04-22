@@ -1,4 +1,6 @@
-on prepare(me)
+property pFontData, pTextMem, pUnderliningDisabled, pTextRenderMode, pNeedFill
+
+on prepare me 
   me.pOffX = 0
   me.pOffY = 0
   me.pOwnW = me.getProp(#pProps, #width)
@@ -11,7 +13,7 @@ on prepare(me)
     me.pOwnX = me.getProp(#pProps, #locH)
     me.pOwnY = me.getProp(#pProps, #locV)
   end if
-  pFontData = []
+  pFontData = [:]
   pFontData.setAt(#color, me.getProp(#pProps, #txtColor))
   pFontData.setAt(#bgColor, me.getProp(#pProps, #txtBgColor))
   pFontData.setAt(#key, me.getProp(#pProps, #key))
@@ -48,10 +50,9 @@ on prepare(me)
   end if
   me.initResources(pFontData)
   return(me.createImgFromTxt())
-  exit
 end
 
-on setText(me, tText)
+on setText me, tText 
   tText = string(tText)
   pFontData.setAt(#text, tText)
   tRect = rect(me.pOwnX, me.pOwnY, me.pOwnX + me.pOwnW, me.pOwnY + me.pOwnH)
@@ -60,15 +61,13 @@ on setText(me, tText)
   me.render()
   me.registerScroll()
   return(1)
-  exit
 end
 
-on getText(me)
+on getText me 
   return(pFontData.getAt(#text))
-  exit
 end
 
-on setFont(me, tStruct)
+on setFont me, tStruct 
   pFontData.font = tStruct.getaProp(#font)
   pFontData.fontStyle = tStruct.getaProp(#fontStyle)
   pFontData.fontSize = tStruct.getaProp(#fontSize)
@@ -80,10 +79,9 @@ on setFont(me, tStruct)
   me.render()
   me.registerScroll()
   return(1)
-  exit
 end
 
-on getFont(me)
+on getFont me 
   tStruct = getStructVariable("struct.font.empty")
   tStruct.setaProp(#font, pFontData.font)
   tStruct.setaProp(#fontStyle, pFontData.fontStyle)
@@ -91,10 +89,9 @@ on getFont(me)
   tStruct.setaProp(#color, pFontData.color)
   tStruct.setaProp(#lineHeight, pFontData.fixedLineSpace)
   return(tStruct)
-  exit
 end
 
-on registerScroll(me, tID)
+on registerScroll me, tID 
   if voidp(me.pScrolls) then
     me.prepare()
   end if
@@ -110,16 +107,15 @@ on registerScroll(me, tID)
   tSourceRect = rect(me.pOffX, me.pOffY, me.pOffX + me.pOwnW, me.pOffY + me.pOwnH)
   tScrollList = []
   tWndObj = getWindowManager().GET(me.pMotherId)
-  repeat while me <= undefined
+  repeat while me.pScrolls <= undefined
     tScrollId = getAt(undefined, tID)
     tScrollList.add(tWndObj.getElement(tScrollId))
   end repeat
   me.createImgFromTxt()
   call(#updateData, tScrollList, tSourceRect, me.rect)
-  exit
 end
 
-on initResources(me, tFontProps)
+on initResources me, tFontProps 
   tMemNum = getResourceManager().getmemnum("visual window text")
   if tMemNum = 0 then
     tMemNum = getResourceManager().createMember("visual window text", #text)
@@ -130,10 +126,9 @@ on initResources(me, tFontProps)
   end if
   executeMessage(#invalidateCrapFixRegion)
   return(1)
-  exit
 end
 
-on createImgFromTxt(me)
+on createImgFromTxt me 
   pTextMem.rect = rect(0, 0, me.pOwnW, me.pOwnH)
   if not listp(pFontData.getAt(#fontStyle)) then
     tList = []
@@ -262,5 +257,4 @@ on createImgFromTxt(me)
   end if
   executeMessage(#invalidateCrapFixRegion)
   return(1)
-  exit
 end

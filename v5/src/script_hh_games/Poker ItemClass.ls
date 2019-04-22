@@ -1,4 +1,6 @@
-on new(me, towner, tlocation, tid, tdata)
+property spr, isOpen, pCards, cardNum, lCardTypes, pOtherCards, pPlayersCards, changed
+
+on new me, towner, tlocation, tid, tdata 
   ancestor = new(script("InteractiveItem Abstract"), towner, tlocation, tid, tdata)
   if the movieName contains "private" then
     Initialize(me)
@@ -9,10 +11,9 @@ on new(me, towner, tlocation, tid, tdata)
   gPoker = me
   changed = 0
   return(me)
-  exit
 end
 
-on Initialize(me)
+on Initialize me 
   oldDelim = the itemDelimiter
   the itemDelimiter = ","
   me.locX = integer(me.location.item[1])
@@ -24,28 +25,25 @@ on Initialize(me)
   screenLoc = getScreenCoordinate(me.locX, me.locY, me.locHeight)
   sprite(spr).loc = point(screenLoc.getAt(1), screenLoc.getAt(2))
   sprite(spr).locZ = screenLoc.getAt(3)
-  exit
 end
 
-on mouseDown(me)
+on mouseDown me 
   if the doubleClick then
     open(me)
   else
     select(me)
   end if
-  exit
 end
 
-on close(me)
+on close me 
   if isOpen then
     isOpen = 0
     me.sendItemMessage("CLOSE")
     close(gGameContext)
   end if
-  exit
 end
 
-on open(me, content)
+on open me, content 
   if not voidp(gGameContext) then
     close(gGameContext)
   end if
@@ -56,22 +54,20 @@ on open(me, content)
     p = point(400, 70)
   end if
   isOpen = 1
-  gGameContext = new(p)
+  gGameContext = new(script("PopUp Context Class"), 2000000000, 30, 99, p)
   displayFrame(gGameContext, "card_intro")
-  exit
 end
 
-on register(me, oCard)
+on register me, oCard 
   if voidp(pCards) then
-    pCards = []
+    pCards = [:]
   end if
   setaProp(pCards, cardNum, oCard)
   setCard(oCard, getAt(lCardTypes, cardNum))
   cardNum = cardNum + 1
-  exit
 end
 
-on registerOtherCard(me, oCard)
+on registerOtherCard me, oCard 
   if gGameContext.frame = "card_change" then
     setaProp(pOtherCards, oCard.playerNum && oCard.cardNum, oCard)
     sprite(oCard.spriteNum).visible = 0
@@ -87,17 +83,15 @@ on registerOtherCard(me, oCard)
       sprite(oCard.spriteNum).visible = 0
     end if
   end if
-  exit
 end
 
-on startOver(me)
+on startOver me 
   sendItemMessage(me, "OPEN")
   sendItemMessage(me, "STARTOVER")
   changed = 0
-  exit
 end
 
-on change(me)
+on change me 
   if changed then
     return()
   end if
@@ -115,14 +109,13 @@ on change(me)
   sendItemMessage(me, "CHANGE" && s)
   changed = 1
   member("cards.helptext").text = "Waiting for the other players"
-  exit
 end
 
-on processItemMessage(me, content)
+on processItemMessage me, content 
   ln1 = content.line[2]
   put(content)
   if ln1 contains "START" then
-    pOtherCards = []
+    pOtherCards = [:]
     member("cards.helptext").text = "Choose the cards to change"
   end if
   if ln1 contains "OPPONENTS" then
@@ -193,9 +186,9 @@ on processItemMessage(me, content)
     member("cards.ready." & playerNo).text = "Done" && "- changed " && the number of word in cardNos
   end if
   if ln1 contains "REVEALCARDS" then
-    pOtherCards = []
+    pOtherCards = [:]
     j = 1
-    pPlayersCards = []
+    pPlayersCards = [:]
     i = 3
     repeat while i <= the number of line in content
       the itemDelimiter = "/"
@@ -245,5 +238,4 @@ on processItemMessage(me, content)
       displayFrame(gGameContext, "card_change")
     end if
   end if
-  exit
 end

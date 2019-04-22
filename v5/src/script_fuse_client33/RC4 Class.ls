@@ -1,4 +1,6 @@
-on setKey(me, tMyKey, tMode)
+property i, pKey, pSbox, j
+
+on setKey me, tMyKey, tMode 
   tMyKeyS = string(tMyKey)
   pSbox = []
   pKey = []
@@ -10,8 +12,8 @@ on setKey(me, tMyKey, tMode)
       tMode = #artificialKey
     end if
   end if
-  if me <> #old then
-    if me = void() then
+  if tMode <> #old then
+    if tMode = void() then
       i = 0
       repeat while i <= 255
         pKey.setAt(i + 1, charToNum(tMyKeyS.getProp(#char, i mod length(tMyKeyS) + 1)))
@@ -20,7 +22,7 @@ on setKey(me, tMyKey, tMode)
       end repeat
       exit repeat
     end if
-    if me = #artificialKey then
+    if tMode = #artificialKey then
       len = bitAnd(tMyKey, 31)
       if len < 20 then
         len = len + 20
@@ -48,7 +50,7 @@ on setKey(me, tMyKey, tMode)
       end repeat
       exit repeat
     end if
-    if me = #new then
+    if tMode = #new then
       i = 0
       repeat while i <= 255
         pKey.setAt(i + 1, i)
@@ -76,11 +78,10 @@ on setKey(me, tMyKey, tMode)
     end repeat
     i = 0
     j = 0
-    exit
   end if
 end
 
-on encipher(me, tdata)
+on encipher me, tdata 
   tCipher = ""
   tBytes = []
   e = 1
@@ -107,10 +108,9 @@ on encipher(me, tdata)
     a = 1 + a
   end repeat
   return(tCipher)
-  exit
 end
 
-on decipher(me, tdata)
+on decipher me, tdata 
   tCipher = ""
   tStrServ = getStringServices()
   a = 1
@@ -127,10 +127,9 @@ on decipher(me, tdata)
     a = 1 + a
   end repeat
   return(tCipher)
-  exit
 end
 
-on createKey(me)
+on createKey me 
   tKey = ""
   tSeed = the randomSeed
   the randomSeed = the milliSeconds
@@ -141,5 +140,4 @@ on createKey(me)
   end repeat
   the randomSeed = tSeed
   return(abs(convertHexToInt(tKey)))
-  exit
 end

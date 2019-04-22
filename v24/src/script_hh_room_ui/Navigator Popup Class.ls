@@ -1,31 +1,30 @@
-on construct(me)
+property pVisible, pPopupWindowID, pTargetElementID, pNodeInfo, pBlend
+
+on construct me 
   pPopupWindowID = getUniqueID()
   pHideTimeoutID = getUniqueID()
   pShowTimeOutID = getUniqueID()
   pVisible = 0
-  pNodeInfo = []
+  pNodeInfo = [:]
   pBlend = 0
   registerMessage(#show_hide_navigator, me.getID(), #hide)
   return(1)
-  exit
 end
 
-on deconstruct(me)
+on deconstruct me 
   unregisterMessage(#show_hide_navigator, me.getID())
   return(1)
-  exit
 end
 
-on Init(me, tTargetElementID)
+on Init me, tTargetElementID 
   pTargetElementID = tTargetElementID
   tNavComponent = getObject(#navigator_component)
   if tNavComponent <> 0 then
     tNavComponent.updateRecomRooms()
   end if
-  exit
 end
 
-on show(me)
+on show me 
   if pVisible then
     return(1)
   end if
@@ -96,10 +95,9 @@ on show(me)
   pBlend = 0
   receiveUpdate(me.getID())
   pVisible = 1
-  exit
 end
 
-on hide(me)
+on hide me 
   if not pVisible then
     return(1)
   end if
@@ -107,15 +105,13 @@ on hide(me)
   removeWindow(pPopupWindowID)
   executeMessage(#popupClosed, me.getID())
   pVisible = 0
-  exit
 end
 
-on fetchNodeInfo(me)
+on fetchNodeInfo me 
   pNodeInfo = getObject(#navigator_component).getRecomNodeInfo()
-  exit
 end
 
-on update(me)
+on update me 
   pBlend = pBlend + 25
   if pBlend >= 100 then
     pBlend = 100
@@ -123,20 +119,17 @@ on update(me)
   end if
   tWindow = getWindow(pPopupWindowID)
   tWindow.setBlend(pBlend)
-  exit
 end
 
-on popupEntered(me)
+on popupEntered me 
   executeMessage(#popupEntered, pTargetElementID)
-  exit
 end
 
-on popupLeft(me)
+on popupLeft me 
   executeMessage(#popupLeft, pTargetElementID)
-  exit
 end
 
-on eventProc(me, tEvent, tSprID, tParam, tWndID)
+on eventProc me, tEvent, tSprID, tParam, tWndID 
   if tEvent <> #mouseUp then
     return(0)
   end if
@@ -152,5 +145,4 @@ on eventProc(me, tEvent, tSprID, tParam, tWndID)
     me.hide()
     executeMessage(#show_navigator)
   end if
-  exit
 end

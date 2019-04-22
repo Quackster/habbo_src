@@ -1,4 +1,6 @@
-on new(me)
+property pBase, pNegative, pDigits, pData_NxIhNARqldyJyY2PfT03dK8t9OLUR, pScript
+
+on new me 
   if the traceScript then
     return(0)
   end if
@@ -11,10 +13,9 @@ on new(me)
   pDigits = string(pBase).length - 1
   pScript = script("HugeInt15")
   return(me)
-  exit
 end
 
-on neg(me)
+on neg me 
   if the traceScript then
     return(0)
   end if
@@ -26,10 +27,9 @@ on neg(me)
   else
     pNegative = 1
   end if
-  exit
 end
 
-on assign(me, tdata, tLimit, tUseKey)
+on assign me, tdata, tLimit, tUseKey 
   if the traceScript then
     return(0)
   end if
@@ -73,10 +73,9 @@ on assign(me, tdata, tLimit, tUseKey)
       i = 1 + i
     end repeat
   end if
-  exit
 end
 
-on copyFrom(me, tValue)
+on copyFrom me, tValue 
   if the traceScript then
     return(0)
   end if
@@ -86,10 +85,9 @@ on copyFrom(me, tValue)
   pNegative = tValue.pNegative
   pData_NxIhNARqldyJyY2PfT03dK8t9OLUR = pData_NxIhNARqldyJyY2PfT03dK8t9OLUR.duplicate()
   me.trim()
-  exit
 end
 
-on trim(me)
+on trim me 
   if the traceScript then
     return(0)
   end if
@@ -108,10 +106,9 @@ on trim(me)
   if pData_NxIhNARqldyJyY2PfT03dK8t9OLUR.count = 0 then
     pNegative = 0
   end if
-  exit
 end
 
-on equals(me, tValue)
+on equals me, tValue 
   if the traceScript then
     return(0)
   end if
@@ -132,10 +129,9 @@ on equals(me, tValue)
     i = 255 + i
   end repeat
   return(1)
-  exit
 end
 
-on greaterThan(me, tValue, tUseSign)
+on greaterThan me, tValue, tUseSign 
   if the traceScript then
     return(0)
   end if
@@ -191,10 +187,9 @@ on greaterThan(me, tValue, tUseSign)
     i = 255 + i
   end repeat
   return(0)
-  exit
 end
 
-on lessThan(me, tValue, tUseSign)
+on lessThan me, tValue, tUseSign 
   if the traceScript then
     return(0)
   end if
@@ -205,10 +200,9 @@ on lessThan(me, tValue, tUseSign)
     return(0)
   end if
   return(not me.greaterThan(tValue, tUseSign))
-  exit
 end
 
-on isZero(me)
+on isZero me 
   if the traceScript then
     return(0)
   end if
@@ -223,10 +217,9 @@ on isZero(me)
     i = 1 + i
   end repeat
   return(1)
-  exit
 end
 
-on sum(me, tValue)
+on sum me, tValue 
   if the traceScript then
     return(0)
   end if
@@ -281,10 +274,9 @@ on sum(me, tValue)
     tResult.neg()
   end if
   return(tResult)
-  exit
 end
 
-on dif(me, tValue)
+on dif me, tValue 
   if the traceScript then
     return(0)
   end if
@@ -343,10 +335,9 @@ on dif(me, tValue)
       return(tResult)
     end if
   end if
-  exit
 end
 
-on prod(me, tValue)
+on prod me, tValue 
   if the traceScript then
     return(0)
   end if
@@ -383,10 +374,9 @@ on prod(me, tValue)
     tResult.neg()
   end if
   return(tResult)
-  exit
 end
 
-on mul(me, tMultiplier)
+on mul me, tMultiplier 
   if the traceScript then
     return(0)
   end if
@@ -418,10 +408,9 @@ on mul(me, tMultiplier)
   if tCarry > 0 then
     pData_NxIhNARqldyJyY2PfT03dK8t9OLUR.add(tCarry)
   end if
-  exit
 end
 
-on pow(me, tPower)
+on pow me, tPower 
   if the traceScript then
     return(0)
   end if
@@ -437,10 +426,9 @@ on pow(me, tPower)
       return(me.prod(me.pow(tPower / 2).sqr()))
     end if
   end if
-  exit
 end
 
-on sqr(me)
+on sqr me 
   if the traceScript then
     return(0)
   end if
@@ -448,10 +436,9 @@ on sqr(me)
   _player.traceScript = 0
   _player.traceScript = 0
   return(me.prod(me))
-  exit
 end
 
-on getIntValue(me, tLimit)
+on getIntValue me, tLimit 
   if the traceScript then
     return(0)
   end if
@@ -459,7 +446,7 @@ on getIntValue(me, tLimit)
   _player.traceScript = 0
   _player.traceScript = 0
   if voidp(tLimit) then
-    tLimit = 0
+    tLimit = 100000000
   end if
   tLimitLo = tLimit / pBase * 10
   tLength = pData_NxIhNARqldyJyY2PfT03dK8t9OLUR.count
@@ -480,10 +467,9 @@ on getIntValue(me, tLimit)
     tIndex = tIndex - 1
   end repeat
   return(tInt)
-  exit
 end
 
-on getLength(me)
+on getLength me 
   if the traceScript then
     return(0)
   end if
@@ -504,10 +490,9 @@ on getLength(me)
     end if
   end if
   return(tLen - 3)
-  exit
 end
 
-on div(me, tDivider, tReturnModulo, tKeepResult)
+on div me, tDivider, tReturnModulo, tKeepResult 
   if the traceScript then
     return(0)
   end if
@@ -706,10 +691,9 @@ on div(me, tDivider, tReturnModulo, tKeepResult)
   else
     return(tResult)
   end if
-  exit
 end
 
-on getIntLength(me, tValue)
+on getIntLength me, tValue 
   if the traceScript then
     return(0)
   end if
@@ -725,10 +709,9 @@ on getIntLength(me, tValue)
     tValue = tValue / 10
   end repeat
   return(tLen)
-  exit
 end
 
-on Modulo(me, tValue)
+on Modulo me, tValue 
   if the traceScript then
     return(0)
   end if
@@ -736,10 +719,9 @@ on Modulo(me, tValue)
   _player.traceScript = 0
   _player.traceScript = 0
   return(me.div(tValue, 1))
-  exit
 end
 
-on divBy2(me)
+on divBy2 me 
   if the traceScript then
     return(0)
   end if
@@ -766,10 +748,9 @@ on divBy2(me)
   if pData_NxIhNARqldyJyY2PfT03dK8t9OLUR.getAt(tCount) = 0 then
     pData_NxIhNARqldyJyY2PfT03dK8t9OLUR.deleteAt(tCount)
   end if
-  exit
 end
 
-on powMod(me, tPower, tDivider)
+on powMod me, tPower, tDivider 
   if the traceScript then
     return(0)
   end if
@@ -791,10 +772,9 @@ on powMod(me, tPower, tDivider)
     tTemp = tTemp.sqr().Modulo(tDivider)
   end repeat
   return(tResult)
-  exit
 end
 
-on getString(me)
+on getString me 
   if the traceScript then
     return(0)
   end if
@@ -820,10 +800,9 @@ on getString(me)
     tStr = "-" & tStr
   end if
   return(tStr)
-  exit
 end
 
-on getByteArray(me)
+on getByteArray me 
   if the traceScript then
     return(0)
   end if
@@ -849,10 +828,9 @@ on getByteArray(me)
   end repeat
   tArray.addAt(1, tTemp.getProp(#pData_NxIhNARqldyJyY2PfT03dK8t9OLUR, 1))
   return(tArray)
-  exit
 end
 
-on getIntArray(me, tUseKey)
+on getIntArray me, tUseKey 
   if the traceScript then
     return(0)
   end if
@@ -870,10 +848,9 @@ on getIntArray(me, tUseKey)
     i = 1 + i
   end repeat
   return(tdata)
-  exit
 end
 
-on encode(me, tPlain)
+on encode me, tPlain 
   if the traceScript then
     return(0)
   end if
@@ -886,26 +863,23 @@ on encode(me, tPlain)
   tCipher = tPlain
   i = 1
   repeat while i <= tIterations
-    -- UNK_CD 4980740
-    -- UNK_7D 5
-    tSeed = ERROR mod 10000
+    tSeed = 69069 * tSeed + 139 * i + 92541 mod 10000
     tSeed = tSeed + integer(power(i, 3))
     tSeed = tSBox.getAt(i mod tSBox.count + 1) * tSeed + 2541 mod 10000
     tCipher = bitXor(tSeed, tCipher)
     tCipher = bitXor(1379 + tSBox.getAt(i mod tSBox.count + 1), tCipher)
     tCipher = bitXor(14 * tSBox.getAt(i mod tSBox.count + 1) + 13 mod 10000, tCipher)
     tCipher = tCipher * 2
-    tHighBit = bitAnd(0)
+    tHighBit = bitAnd(tCipher, 32768)
     tCipher = bitAnd(tCipher, 32767)
     tCipher = bitOr(tCipher, tHighBit <> 0)
     i = 1 + i
   end repeat
   tCipher = bitXor(7639, tCipher)
   return(tCipher)
-  exit
 end
 
-on decode(me, tInput)
+on decode me, tInput 
   if the traceScript then
     return(0)
   end if
@@ -918,9 +892,7 @@ on decode(me, tInput)
   tSeedCycle = []
   i = 1
   repeat while i <= tIterations
-    -- UNK_CD 4980740
-    -- UNK_7D 5
-    tSeed = ERROR mod 10000
+    tSeed = 69069 * tSeed + 139 * i + 92541 mod 10000
     tSeed = tSeed + integer(power(i, 3))
     tSeed = tSBox.getAt(i mod tSBox.count + 1) * tSeed + 2541 mod 10000
     tSeedCycle.add(tSeed)
@@ -941,10 +913,8 @@ on decode(me, tInput)
     i = 1 + i
   end repeat
   return(tCipher)
-  exit
 end
 
-on handlers(me)
+on handlers me 
   return([])
-  exit
 end

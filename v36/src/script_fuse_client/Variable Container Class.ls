@@ -1,35 +1,31 @@
-on construct(me)
-  me.pItemList = []
+on construct me 
+  me.pItemList = [:]
   me.sort()
   return(1)
-  exit
 end
 
-on deconstruct(me)
-  me.pItemList = []
+on deconstruct me 
+  me.pItemList = [:]
   return(1)
-  exit
 end
 
-on create(me, tVariable, tValue)
+on create me, tVariable, tValue 
   if not stringp(tVariable) and not symbolp(tVariable) then
     return(error(me, "String or symbol expected:" && tVariable, #create, #major))
   end if
   setaProp(me.pItemList, tVariable, tValue)
   return(1)
-  exit
 end
 
-on set(me, tVariable, tValue)
+on set me, tVariable, tValue 
   if not stringp(tVariable) and not symbolp(tVariable) then
     return(error(me, "String or symbol expected:" && tVariable, #set, #major))
   end if
   setaProp(me.pItemList, tVariable, tValue)
   return(1)
-  exit
 end
 
-on GET(me, tVariable, tDefault)
+on GET me, tVariable, tDefault 
   tValue = me.getaProp(tVariable)
   if voidp(tValue) then
     tError = "Variable not found:" && "\"" & tVariable & "\""
@@ -42,10 +38,9 @@ on GET(me, tVariable, tDefault)
     error(me, tError, #GET, #minor)
   end if
   return(tValue)
-  exit
 end
 
-on getInt(me, tVariable, tDefault)
+on getInt me, tVariable, tDefault 
   tValue = integer(me.getaProp(tVariable))
   if not integerp(tValue) then
     tError = "Variable not found:" && "\"" & tVariable & "\""
@@ -56,10 +51,9 @@ on getInt(me, tVariable, tDefault)
     error(me, tError, #getInt, #minor)
   end if
   return(tValue)
-  exit
 end
 
-on getString(me, tVariable, tDefault)
+on getString me, tVariable, tDefault 
   tValue = ""
   if me.getaProp(tVariable) = void() then
     tError = "Variable not found:" && "\"" & tVariable & "\""
@@ -72,10 +66,9 @@ on getString(me, tVariable, tDefault)
     tValue = string(me.getaProp(tVariable))
   end if
   return(tValue)
-  exit
 end
 
-on getSymbol(me, tVariable, tDefault)
+on getSymbol me, tVariable, tDefault 
   tValue = ""
   if me.getaProp(tVariable) = void() then
     tError = "Variable not found:" && "\"" & tVariable & "\""
@@ -88,10 +81,9 @@ on getSymbol(me, tVariable, tDefault)
     tValue = symbol(me.getaProp(tVariable))
   end if
   return(tValue)
-  exit
 end
 
-on GetValue(me, tVariable, tDefault)
+on GetValue me, tVariable, tDefault 
   tValue = value(me.getaProp(tVariable))
   if voidp(tValue) then
     tError = "Variable not found:" && "\"" & tVariable & "\""
@@ -107,20 +99,17 @@ on GetValue(me, tVariable, tDefault)
     error(me, "Using getValue to get something other than list or proplist:" && tVariable, #GetValue, #minor)
   end if
   return(tValue)
-  exit
 end
 
-on Remove(me, tVariable)
+on Remove me, tVariable 
   return(me.deleteProp(tVariable))
-  exit
 end
 
-on exists(me, tVariable)
+on exists me, tVariable 
   return(not voidp(me.getaProp(tVariable)))
-  exit
 end
 
-on dump(me, tField, tDelimiter, tOverride)
+on dump me, tField, tDelimiter, tOverride 
   tStr = field(0)
   tDelim = the itemDelimiter
   if voidp(tDelimiter) then
@@ -169,10 +158,8 @@ on dump(me, tField, tDelimiter, tOverride)
   end repeat
   the itemDelimiter = tDelim
   return(1)
-  exit
 end
 
-on clear(me)
-  me.pItemList = []
-  exit
+on clear me 
+  me.pItemList = [:]
 end

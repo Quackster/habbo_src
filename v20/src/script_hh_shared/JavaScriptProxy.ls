@@ -1,8 +1,8 @@
-on newJavaScriptProxy()
+on newJavaScriptProxy  
 end
 
-on JavaScriptProxy()
+on JavaScriptProxy  
 end
 
-on _call()
+on _call  
 end

@@ -1,15 +1,15 @@
-on construct(me)
+property pModBadgeList
+
+on construct me 
   pModBadgeList = getVariableValue("moderator.badgelist")
   return(1)
-  exit
 end
 
-on deconstruct(me)
+on deconstruct me 
   return(1)
-  exit
 end
 
-on createFurnitureWindow(me, tClass, tName, tDesc, tMemName)
+on createFurnitureWindow me, tClass, tName, tDesc, tMemName 
   tID = "object.displayer.furni"
   createWindow(tID, "obj_disp_furni.window")
   tWndObj = getWindow(tID)
@@ -19,15 +19,13 @@ on createFurnitureWindow(me, tClass, tName, tDesc, tMemName)
   tWndObj.getElement("room_obj_disp_avatar").feedImage(tImage)
   tWndObj.lock()
   return(tID)
-  exit
 end
 
-on getHumanWindowID(me)
+on getHumanWindowID me 
   return("object.displayer.human")
-  exit
 end
 
-on createHumanWindow(me, tClass, tName, tPersMessage, tImage, tBadge, tSelectedObj, tBadgeObjID)
+on createHumanWindow me, tClass, tName, tPersMessage, tImage, tBadge, tSelectedObj, tBadgeObjID 
   tID = me.getHumanWindowID()
   createWindow(tID, "obj_disp_human.window")
   tWndObj = getWindow(tID)
@@ -38,10 +36,9 @@ on createHumanWindow(me, tClass, tName, tPersMessage, tImage, tBadge, tSelectedO
   tBadgeObj.updateInfoStandBadge(tID, tSelectedObj, tBadge)
   tWndObj.lock()
   return(tID)
-  exit
 end
 
-on createPetWindow(me, tClass, tName, tDesc, tImage)
+on createPetWindow me, tClass, tName, tDesc, tImage 
   tID = "object.displayer.furni"
   createWindow(tID, "obj_disp_furni.window")
   tWndObj = getWindow(tID)
@@ -50,15 +47,14 @@ on createPetWindow(me, tClass, tName, tDesc, tImage)
   tWndObj.getElement("room_obj_disp_avatar").feedImage(tImage)
   tWndObj.lock()
   return(tID)
-  exit
 end
 
-on createActionsHumanWindow(me, tTargetUserName)
+on createActionsHumanWindow me, tTargetUserName 
   tSessionObj = getObject(#session)
   tID = "object.displayer.actions"
   if tTargetUserName = tSessionObj.GET("user_name") then
     tWindowModel = "obj_disp_actions_own.window"
-    tButtonList = []
+    tButtonList = [:]
     tButtonList.setAt("wave", #visible)
     tButtonList.setAt("dance", #visible)
     tButtonList.setAt("hcdance", #visible)
@@ -68,7 +64,7 @@ on createActionsHumanWindow(me, tTargetUserName)
       tButtonList.setAt("hcdance", #hidden)
     end if
   else
-    tButtonList = []
+    tButtonList = [:]
     tButtonList.setAt("friend", #visible)
     tButtonList.setAt("trade", #visible)
     tButtonList.setAt("ignore", #visible)
@@ -143,16 +139,16 @@ on createActionsHumanWindow(me, tTargetUserName)
     if tIndex = 1 then
       tCurrentButtonTopPos = tElement.getProperty(#locY)
     end if
-    if me = #visible then
+    if tButtonVisibility = #visible then
       tElement.moveTo(tLeftPos, tCurrentButtonTopPos)
       tCurrentButtonTopPos = tCurrentButtonTopPos + tButtonHeight + tButtonVertMargins
     else
-      if me = #deactive then
+      if tButtonVisibility = #deactive then
         tElement.moveTo(tLeftPos, tCurrentButtonTopPos)
         tElement.deactivate()
         tCurrentButtonTopPos = tCurrentButtonTopPos + tButtonHeight + tButtonVertMargins
       else
-        if me = #hidden then
+        if tButtonVisibility = #hidden then
           tElement.setProperty(#visible, 0)
           tHiddenRowCount = tHiddenRowCount + 1
         end if
@@ -164,10 +160,9 @@ on createActionsHumanWindow(me, tTargetUserName)
   tNewHeight = tWndObj.getProperty(#height) - tHiddenRowCount * tButtonHeight + tButtonVertMargins - tButtonVertMargins
   createTimeout(#temp, 10, #resizeWindowTo, me.getID(), [#id:tID, #x:tWndObj.getProperty(#width), #y:tNewHeight], 1)
   return(tID)
-  exit
 end
 
-on createActionsFurniWindow(me, tClass)
+on createActionsFurniWindow me, tClass 
   tButtonList = []
   tSessionObj = getObject(#session)
   tRoomController = tSessionObj.GET("room_controller")
@@ -191,7 +186,7 @@ on createActionsFurniWindow(me, tClass)
   tWndObj = getWindow(tID)
   tAllButtons = ["move", "rotate", "pick", "delete"]
   tRowHeight = 20
-  repeat while me <= undefined
+  repeat while tAllButtons <= undefined
     tButtonID = getAt(undefined, tClass)
     if not tButtonList.getOne(tButtonID) then
       tElem = tWndObj.getElement(tButtonID & ".button")
@@ -205,17 +200,16 @@ on createActionsFurniWindow(me, tClass)
   tWndObj.lock()
   createTimeout(#temp, 10, #resizeWindowBy, me.getID(), [#id:tID, #x:0, #y:tNewHeight], 1)
   return(tID)
-  exit
 end
 
-on createLinksWindow(me, tFormat)
-  if me = #own then
+on createLinksWindow me, tFormat 
+  if tFormat = #own then
     tWindowModel = "obj_disp_links_own.window"
   else
-    if me = #peer then
+    if tFormat = #peer then
       tWindowModel = "obj_disp_links_peer.window"
     else
-      if me = #furni then
+      if tFormat = #furni then
         tWindowModel = "obj_disp_links_furni.window"
       end if
     end if
@@ -225,30 +219,26 @@ on createLinksWindow(me, tFormat)
   tWndObj = getWindow(tID)
   tWndObj.lock()
   return(tID)
-  exit
 end
 
-on createBottomWindow(me)
+on createBottomWindow me 
   tID = "object.displayer.bottom"
   createWindow(tID, "obj_disp_bottom.window")
   tWndObj = getWindow(tID)
   tWndObj.lock()
   return(tID)
-  exit
 end
 
-on resizeWindowBy(me, tParams)
+on resizeWindowBy me, tParams 
   tWndObj = getWindow(tParams.getAt(#id))
   tX = tParams.getAt(#x)
   tY = tParams.getAt(#y)
   tWndObj.resizeBy(tX, tY)
-  exit
 end
 
-on resizeWindowTo(me, tParams)
+on resizeWindowTo me, tParams 
   tWndObj = getWindow(tParams.getAt(#id))
   tX = tParams.getAt(#x)
   tY = tParams.getAt(#y)
   tWndObj.resizeTo(tX, tY)
-  exit
 end

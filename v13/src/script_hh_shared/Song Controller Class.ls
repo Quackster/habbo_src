@@ -1,37 +1,35 @@
-on construct(me)
-  pSampleList = []
+property pSongPlayer, pSampleList
+
+on construct me 
+  pSampleList = [:]
   pSongPlayer = "song player"
   createObject(pSongPlayer, "Song Player Class")
   return()
-  exit
 end
 
-on deconstruct(me)
+on deconstruct me 
   if objectExists(pSongPlayer) then
     removeObject(pSongPlayer)
   end if
   return()
-  exit
 end
 
-on preloadSounds(me, tSampleList)
+on preloadSounds me, tSampleList 
   i = 1
   repeat while i <= tSampleList.count
     me.startSampleDownload(tSampleList.getAt(i))
     i = 1 + i
   end repeat
-  exit
 end
 
-on getSampleLoadingStatus(me, tMemName)
+on getSampleLoadingStatus me, tMemName 
   if memberExists(tMemName) then
     return(1)
   end if
   return(0)
-  exit
 end
 
-on getSampleLength(me, tMemName)
+on getSampleLength me, tMemName 
   if getMember(tMemName) = void() then
     return(0)
   end if
@@ -40,30 +38,25 @@ on getSampleLength(me, tMemName)
   end if
   tLength = getMember(tMemName).duration
   return(tLength)
-  exit
 end
 
-on startSamplePreview(me, tMemberName)
+on startSamplePreview me, tMemberName 
   return(getObject(pSongPlayer).startSamplePreview([#name:tMemberName]))
-  exit
 end
 
-on stopSamplePreview(me)
+on stopSamplePreview me 
   return(getObject(pSongPlayer).stopSamplePreview())
-  exit
 end
 
-on playSong(me, tSongData)
+on playSong me, tSongData 
   return(getObject(pSongPlayer).startSong(tSongData))
-  exit
 end
 
-on stopSong(me)
+on stopSong me 
   return(getObject(pSongPlayer).stopSong())
-  exit
 end
 
-on startSampleDownload(me, tMemberName)
+on startSampleDownload me, tMemberName 
   if memberExists(tMemberName) then
     if pSampleList.getaProp(tMemberName) = void() then
       tSample = [#status:"ready"]
@@ -82,13 +75,11 @@ on startSampleDownload(me, tMemberName)
     end if
   end if
   return(1)
-  exit
 end
 
-on soundDownloadCompleted(me, tName, tParam2)
+on soundDownloadCompleted me, tName, tParam2 
   tSample = pSampleList.getaProp(tName)
   if not voidp(tSample) then
     tSample.status = "ready"
   end if
-  exit
 end

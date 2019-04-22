@@ -1,10 +1,11 @@
-on deconstruct(me)
+property pAction, pPart, pDirection, ancestor, pmodel, pMemString, pCacheRectA, pCacheImage, pDrawProps, pCacheRectB
+
+on deconstruct me 
   ancestor = void()
   return(1)
-  exit
 end
 
-on define(me, tPart, tmodel, tPalette, tColor, tDirection, tAction, tAncestor)
+on define me, tPart, tmodel, tPalette, tColor, tDirection, tAction, tAncestor 
   ancestor = tAncestor
   pPart = tPart
   pmodel = tmodel
@@ -18,10 +19,9 @@ on define(me, tPart, tmodel, tPalette, tColor, tDirection, tAction, tAncestor)
   pAction = tAction
   pMemString = ""
   return(1)
-  exit
 end
 
-on update(me)
+on update me 
   tAnimCntr = 0
   tAction = pAction
   tPart = pPart
@@ -31,19 +31,19 @@ on update(me)
   if tBodyDir > 4 then
     tBodyDir = 5
   end if
-  if me = "bd" then
-    if me <> "wlk" then
-      if me <> "jmp" then
-        if me = "bnd" then
+  if pPart = "bd" then
+    if pPart <> "wlk" then
+      if pPart <> "jmp" then
+        if pPart = "bnd" then
           tAnimCntr = me.pAnimCounter
         else
-          if me <> "pla" then
-            if me = "scr" then
+          if pPart <> "pla" then
+            if pPart = "scr" then
               tAnimCntr = 1 mod me.pAnimCounter
             end if
             tXFix = 0
             tYFix = 0
-            if me = "hd" then
+            if pPart = "hd" then
               if me.pMainAction = "jmp" or me.pMainAction = "scr" or me.pMainAction = "bnd" then
                 tXFix = me.getPropRef(#pOffsetList, "hd_" & me.pMainAction & "_" & me.pAnimCounter).getAt(tBodyDir).getAt(1)
                 tYFix = me.getPropRef(#pOffsetList, "hd_" & me.pMainAction & "_" & me.pAnimCounter).getAt(tBodyDir).getAt(2)
@@ -56,7 +56,7 @@ on update(me)
               end if
               tUpdate = 1
             else
-              if me = "tl" then
+              if pPart = "tl" then
                 if me.pMainAction = "jmp" or me.pMainAction = "scr" or me.pMainAction = "bnd" then
                   tXFix = me.getPropRef(#pOffsetList, "tl_" & me.pMainAction & "_" & me.pAnimCounter).getAt(tBodyDir).getAt(1)
                   tYFix = me.getPropRef(#pOffsetList, "tl_" & me.pMainAction & "_" & me.pAnimCounter).getAt(tBodyDir).getAt(2)
@@ -95,7 +95,6 @@ on update(me)
             end if
             member(tMemNum).paletteRef = member(getmemnum(pDrawProps.getAt(#palette)))
             me.copyPixels(pCacheImage, pCacheRectA, pCacheRectB, pDrawProps)
-            exit
           end if
         end if
       end if
@@ -103,35 +102,31 @@ on update(me)
   end if
 end
 
-on render(me)
+on render me 
   if memberExists(pMemString) then
     me.copyPixels(pCacheRectB, pCacheRectA, pCacheRectB, pDrawProps)
   end if
-  exit
 end
 
-on defineDir(me, tdir, tPart)
+on defineDir me, tdir, tPart 
   if voidp(tPart) or tPart = pPart then
     pDirection = tdir
   end if
-  exit
 end
 
-on defineDirMultiple(me, tdir, tTargetPartList)
+on defineDirMultiple me, tdir, tTargetPartList 
   if tTargetPartList.getOne(pPart) then
     pDirection = tdir
   end if
-  exit
 end
 
-on defineAct(me, tAct, tTargetPartList)
+on defineAct me, tAct, tTargetPartList 
   if pAction = "std" then
     pAction = tAct
   end if
-  exit
 end
 
-on defineActMultiple(me, tAct, tTargetPartList)
+on defineActMultiple me, tAct, tTargetPartList 
   if tTargetPartList.getOne(pPart) then
     if pAction = "std" then
       pAction = tAct
@@ -140,12 +135,11 @@ on defineActMultiple(me, tAct, tTargetPartList)
       pAction = "std"
     end if
   end if
-  exit
 end
 
-on defineInk(me, tInk)
+on defineInk me, tInk 
   if voidp(tInk) then
-    if me = "sd" then
+    if pPart = "sd" then
       tInk = 32
     else
       tInk = 41
@@ -153,15 +147,13 @@ on defineInk(me, tInk)
   end if
   pDrawProps.setAt(#ink, tInk)
   return(1)
-  exit
 end
 
-on setModel(me, tmodel)
+on setModel me, tmodel 
   pmodel = tmodel
-  exit
 end
 
-on setColor(me, tColor)
+on setColor me, tColor 
   if voidp(tColor) then
     return(0)
   end if
@@ -174,30 +166,25 @@ on setColor(me, tColor)
     pDrawProps.setAt(#bgColor, rgb(255, 255, 255))
   end if
   return(1)
-  exit
 end
 
-on layDown(me)
+on layDown me 
   pAction = "lay"
-  exit
 end
 
-on getCurrentMember(me)
+on getCurrentMember me 
   return(pMemString)
-  exit
 end
 
-on getColor(me)
+on getColor me 
   return(pDrawProps.getAt(#bgColor))
-  exit
 end
 
-on getDirection(me)
+on getDirection me 
   return(pDirection)
-  exit
 end
 
-on copyPicture(me, tImg, tdir, tHumanSize, tAction, tAnimFrame)
+on copyPicture me, tImg, tdir, tHumanSize, tAction, tAnimFrame 
   if voidp(tdir) then
     tdir = "2"
   end if
@@ -231,10 +218,8 @@ on copyPicture(me, tImg, tdir, tHumanSize, tAction, tAnimFrame)
     return(1)
   end if
   return(0)
-  exit
 end
 
-on reset(me)
+on reset me 
   pAction = "std"
-  exit
 end

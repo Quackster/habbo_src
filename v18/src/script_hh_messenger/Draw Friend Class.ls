@@ -1,5 +1,7 @@
-on construct(me)
-  pData = []
+property pwidth, pheight, pData, pCustomText, pOnline, pLocation, pLastTime, pMsgCount, pMsgLinkRect, pID, pCacheImage, pSelected, pName, pCacheWebLinkImg, pNeedUpdate, pNameNeedUpdate, pWriterName, pLeftMarg, pCacheNameImg, pTopMarg, pFriendNameOffset, pMsgsNeedUpdate, pWriterMsgs, pLastNeedUpdate, pLocationNeedUpdate, pWriterLast, pLineHeight, pFriendLastOffset, pCacheOnlineImg, pMissNeedUpdate, pWriterText, pFriendPerMsgOffset, pDotLineImg
+
+on construct me 
+  pData = [:]
   pID = ""
   pCustomText = ""
   pOnline = 0
@@ -32,10 +34,9 @@ on construct(me)
     pFriendPerMsgOffset = getVariable("messenger_friend_permsg_offset")
   end if
   return(1)
-  exit
 end
 
-on define(me, tdata, tProps)
+on define me, tdata, tProps 
   pData = tdata
   pID = tdata.id
   pName = tdata.name
@@ -49,10 +50,9 @@ on define(me, tdata, tProps)
   pWriterText = getWriter(tProps.writer_text)
   pNeedUpdate = 1
   me.update()
-  exit
 end
 
-on update(me)
+on update me 
   pOnline = pData.online
   if pData.customText <> pCustomText then
     pCustomText = pData.customText
@@ -77,10 +77,9 @@ on update(me)
     pMsgsNeedUpdate = 1
     pNeedUpdate = 1
   end if
-  exit
 end
 
-on select(me, tClickPoint, tBuffer, tPosition)
+on select me, tClickPoint, tBuffer, tPosition 
   if integer(pMsgCount.getProp(#word, 1)) > 0 and inside(tClickPoint, pMsgLinkRect) then
     tMsgStruct = getThread(#messenger).getComponent().getMessageBySenderId(pID)
     getThread(#messenger).getInterface().renderMessage(tMsgStruct)
@@ -96,15 +95,13 @@ on select(me, tClickPoint, tBuffer, tPosition)
     end if
     getThread(#messenger).getInterface().buddySelectOrNot(pName, pID, pSelected)
   end if
-  exit
 end
 
-on unselect(me)
+on unselect me 
   pSelected = 0
-  exit
 end
 
-on clickAt(me, locX, locY)
+on clickAt me, locX, locY 
   tX1 = pwidth - 16
   tX2 = tX1 + pCacheWebLinkImg.width
   tY1 = 4
@@ -116,10 +113,9 @@ on clickAt(me, locX, locY)
       openNetPage(tDestURL)
     end if
   end if
-  exit
 end
 
-on render(me, tBuffer, tPosition)
+on render me, tBuffer, tPosition 
   tPosition = tPosition - 1
   if pData.update then
     pNeedUpdate = 1
@@ -214,5 +210,4 @@ on render(me, tBuffer, tPosition)
     tBuffer.copyPixels(pCacheImage, tDstRect, pCacheImage.rect)
     pData.update = 0
   end if
-  exit
 end

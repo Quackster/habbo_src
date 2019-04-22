@@ -1,20 +1,20 @@
-on construct(me)
+property pScifiDoorSpeed, pScifiDoorTimeOut, pDoubleClick
+
+on construct me 
   me.pLastActive = -1
   pScifiDoorSpeed = 7
   pScifiDoorTimeOut = 0.4 * 60
   me.pScifiDoorLocs = [0, 0, 0]
   me.pScifiDoorTimer = 0
   pDoubleClick = 0
-  exit
 end
 
-on prepareForMove(me)
+on prepareForMove me 
   me.pChanges = 1
   me.update()
-  exit
 end
 
-on prepare(me, tdata)
+on prepare me, tdata 
   if tdata.getAt("STATUS") = "O" then
     me.setOn()
   else
@@ -23,10 +23,9 @@ on prepare(me, tdata)
   me.pScifiDoorTimer = the timer
   me.pChanges = 1
   return(1)
-  exit
 end
 
-on updateStuffdata(me, tProp, tValue)
+on updateStuffdata me, tProp, tValue 
   if tValue = "O" then
     me.setOn()
   else
@@ -35,10 +34,9 @@ on updateStuffdata(me, tProp, tValue)
   me.pScifiDoorTimer = the timer
   me.pChanges = 1
   pDoubleClick = 0
-  exit
 end
 
-on update(me)
+on update me 
   if not me.pChanges then
     return(0)
   end if
@@ -46,10 +44,9 @@ on update(me)
     return(0)
   end if
   return(me.updateScifiDoor())
-  exit
 end
 
-on updateScifiDoor(me)
+on updateScifiDoor me 
   tTopSp = me.getProp(#pSprList, 4)
   tMidSp1 = me.getProp(#pSprList, 2)
   tMidSp2 = me.getProp(#pSprList, 3)
@@ -86,10 +83,9 @@ on updateScifiDoor(me)
     end if
   end if
   return(1)
-  exit
 end
 
-on SetScifiDoor(me, tdir)
+on SetScifiDoor me, tdir 
   tTopSp = me.getProp(#pSprList, 4)
   tMidSp1 = me.getProp(#pSprList, 2)
   tMidSp2 = me.getProp(#pSprList, 3)
@@ -109,10 +105,9 @@ on SetScifiDoor(me, tdir)
   me.pChanges = 0
   me.pLastActive = me.pActive
   return(1)
-  exit
 end
 
-on moveTopLine(me, tSpr, tAmount)
+on moveTopLine me, tSpr, tAmount 
   tBot = tSpr.bottom
   tSpr.height = tSpr.height + tAmount
   if tBot > tSpr.bottom then
@@ -122,20 +117,17 @@ on moveTopLine(me, tSpr, tAmount)
     tSpr.locV = tSpr.locV - 1
   end if
   return()
-  exit
 end
 
-on setOn(me)
+on setOn me 
   me.pActive = 1
-  exit
 end
 
-on setOff(me)
+on setOff me 
   me.pActive = 0
-  exit
 end
 
-on select(me)
+on select me 
   if the doubleClick then
     if me.pChanges then
       return(0)
@@ -153,5 +145,4 @@ on select(me)
     end if
   end if
   return(1)
-  exit
 end

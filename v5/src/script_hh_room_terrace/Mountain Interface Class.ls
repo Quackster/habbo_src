@@ -1,10 +1,12 @@
-on construct(me)
+property pActLoc, pKoppiWndID, pTicketWndID, pUserMem, pUserSpr, pUserName, pState, pSpeed, pCurLoc, pElevSpr_a, pElevSpr_b, pLocAnimList, pLocAnimIndx, pEndLoc, pSwimSuitModel, pSwimSuitColor, pSwimSuitIndex
+
+on construct me 
   pKoppiWndID = "dew_pukukoppi"
   pTicketWndID = getText("ph_tickets_title")
   pUserName = ""
   tVisual = getThread(#room).getInterface().getRoomVisualizer()
   pState = #ready
-  pSpeed = 0
+  pSpeed = 1
   pActLoc = point(102, 308)
   pEndLoc = point(-14, 424)
   pCurLoc = pActLoc
@@ -25,10 +27,9 @@ on construct(me)
     tSprite.registerProcedure(#eventProcDew, me.getID(), #mouseUp)
   end if
   return(1)
-  exit
 end
 
-on deconstruct(me)
+on deconstruct me 
   if windowExists(pKoppiWndID) then
     removeWindow(pKoppiWndID)
   end if
@@ -36,10 +37,9 @@ on deconstruct(me)
     removeWindow(pTicketWndID)
   end if
   return(removePrepare(me.getID()))
-  exit
 end
 
-on openPukukoppi(me)
+on openPukukoppi me 
   pSwimSuitIndex = 1
   if getObject(#session).get("user_sex") = "F" then
     pSwimSuitModel = "s01"
@@ -63,18 +63,16 @@ on openPukukoppi(me)
   tWndObj.registerProcedure(#eventProcPukukoppi, me.getID(), #mouseUp)
   me.createFigurePrew()
   return(1)
-  exit
 end
 
-on closePukukoppi(me)
+on closePukukoppi me 
   if windowExists(pKoppiWndID) then
     pSwimSuitIndex = 1
     removeWindow(pKoppiWndID)
   end if
-  exit
 end
 
-on openTicketWnd(me, tIsUpdate)
+on openTicketWnd me, tIsUpdate 
   if not windowExists(pTicketWndID) then
     createWindow(pTicketWndID, "habbo_basic.window")
     tWndObj = getWindow(pTicketWndID)
@@ -97,10 +95,9 @@ on openTicketWnd(me, tIsUpdate)
   tWndObj.getElement("ph_tickets_txt").setText(string(tText))
   tWndObj.getElement("ph_tickets_namefield").setText(getObject(#session).get("user_name"))
   return(1)
-  exit
 end
 
-on doTheDew(me, tUserName)
+on doTheDew me, tUserName 
   return(0)
   if not getThread(#room).getComponent().userObjectExists(tUserName) then
     return(error(me, "User not found:" && tUserName, #doTheDew))
@@ -127,40 +124,37 @@ on doTheDew(me, tUserName)
   if pState = #ready then
     pState = #action
   end if
-  exit
 end
 
-on prepare(me)
-  if me = #ready then
+on prepare me 
+  if pState = #ready then
   else
-    if me = #action then
+    if pState = #action then
       me.executeEscape()
     else
-      if me = #return then
+      if pState = #return then
         me.executeReturn()
       end if
     end if
   end if
-  exit
 end
 
-on executeEscape(me)
+on executeEscape me 
   pSpeed = pSpeed * 1.2
   pCurLoc = pCurLoc + [-pSpeed, pSpeed]
   pElevSpr_a.loc = pCurLoc
   pElevSpr_b.loc = pElevSpr_b.loc + [pSpeed, -pSpeed]
   pUserSpr.loc = pUserSpr.loc + [-pSpeed, pSpeed]
   if pCurLoc.getAt(1) < -20 then
-    pSpeed = 0
+    pSpeed = 1
     pCurLoc = pActLoc
     pElevSpr_b.flipH = 1
     pElevSpr_b.loc = pActLoc + [-17, -11] + [pElevSpr_b.width, 0]
     pState = #return
   end if
-  exit
 end
 
-on executeReturn(me)
+on executeReturn me 
   pElevSpr_b.loc = pElevSpr_b.loc + pLocAnimList.getAt(pLocAnimIndx)
   pLocAnimIndx = pLocAnimIndx + 1
   if pLocAnimIndx = pLocAnimList.count then
@@ -176,10 +170,9 @@ on executeReturn(me)
     end if
     pUserName = ""
   end if
-  exit
 end
 
-on createFigurePrew(me)
+on createFigurePrew me 
   tFigure = getObject(#session).get("user_figure").duplicate()
   tFigure.getAt("hd").setAt("model", "001")
   tFigure.getAt("fc").setAt("model", "001")
@@ -203,10 +196,9 @@ on createFigurePrew(me)
   tPrewImg.copyPixels(tHumanImg, tdestrect, tHumanImg.rect)
   tWndObj.getElement("preview_img").feedImage(tPrewImg)
   tWndObj.getElement("preview_color").setProperty(#bgColor, pSwimSuitColor)
-  exit
 end
 
-on changeSwimSuitColor(me, tPart, tButtonDir)
+on changeSwimSuitColor me, tPart, tButtonDir 
   if getObject(#session).get("user_sex") = "F" then
     tSetID = 20
   else
@@ -232,17 +224,16 @@ on changeSwimSuitColor(me, tPart, tButtonDir)
     pSwimSuitColor = tColor
   end if
   me.createFigurePrew()
-  exit
 end
 
-on eventProcPukukoppi(me, tEvent, tSprID, tParam)
+on eventProcPukukoppi me, tEvent, tSprID, tParam 
   if tEvent = #mouseUp then
-    if me = "exit" then
+    if tSprID = "exit" then
       me.closePukukoppi()
       getConnection(getVariable("connection.room.id")).send(#room, "UPDATE" && "ph_figure=")
       getConnection(getVariable("connection.room.id")).send(#room, "CLOSE_UIMAKOPPI")
     else
-      if me = "go" then
+      if tSprID = "go" then
         me.closePukukoppi()
         tTempDelim = the itemDelimiter
         the itemDelimiter = ","
@@ -256,16 +247,16 @@ on eventProcPukukoppi(me, tEvent, tSprID, tParam)
         getConnection(getVariable("connection.room.id")).send(#room, "UPDATE" && tswimsuit)
         getConnection(getVariable("connection.room.id")).send(#room, "CLOSE_UIMAKOPPI")
       else
-        if me = "dew" then
+        if tSprID = "dew" then
           getConnection(getVariable("connection.room.id")).send(#room, "UPDATE" && "ph_figure=")
           getConnection(getVariable("connection.room.id")).send(#room, "CHANGESHRT")
           getConnection(getVariable("connection.info.id")).send(#room, "REFRESHFIGURE")
           getConnection(getVariable("connection.room.id")).send(#room, "CLOSE_UIMAKOPPI")
         else
-          if me = "prev" then
+          if tSprID = "prev" then
             me.changeSwimSuitColor("ch", -1)
           else
-            if me = "next" then
+            if tSprID = "next" then
               me.changeSwimSuitColor("ch", 1)
             end if
           end if
@@ -273,12 +264,11 @@ on eventProcPukukoppi(me, tEvent, tSprID, tParam)
       end if
     end if
   end if
-  exit
 end
 
-on eventProcDew(me, tEvent, tSprID, tParam)
+on eventProcDew me, tEvent, tSprID, tParam 
   if tEvent = #mouseUp then
-    if me = "pool_teleport" then
+    if tSprID = "pool_teleport" then
       tName = getObject(#session).get("user_name")
       tObj = getThread(#room).getComponent().getUserObject(tName)
       if not tObj then
@@ -292,10 +282,10 @@ on eventProcDew(me, tEvent, tSprID, tParam)
         end if
       end if
     else
-      if me = "ticket_box" then
+      if tSprID = "ticket_box" then
         return(me.openTicketWnd())
       else
-        if me = "highscore_table" then
+        if tSprID = "highscore_table" then
           return(openNetPage("url_peeloscore"))
         else
           put(tSprID)
@@ -304,10 +294,9 @@ on eventProcDew(me, tEvent, tSprID, tParam)
     end if
   end if
   return(0)
-  exit
 end
 
-on eventProcTickets(me, tEvent, tSprID, tParam, tWndID)
+on eventProcTickets me, tEvent, tSprID, tParam, tWndID 
   if tEvent = #mouseUp then
     if tSprID = "close" then
       if windowExists(pTicketWndID) then
@@ -325,5 +314,4 @@ on eventProcTickets(me, tEvent, tSprID, tParam, tWndID)
       end if
     end if
   end if
-  exit
 end

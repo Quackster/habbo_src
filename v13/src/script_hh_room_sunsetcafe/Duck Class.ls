@@ -1,4 +1,6 @@
-on define(me, tsprite)
+property pSplashFrameCount, pAnimTimeoutMax, pSprite, pInitialLoc, pBoundsX, pBoundsY, pMoveTarget, pMoveTime, pAnimTimeout, pSplashFrame, pDir, pMoving, pMovementTimer, pPixelsPerTimeX, pPixelsPerTimeY
+
+on define me, tsprite 
   pSprite = tsprite
   pSplashFrameCount = 4
   pSplashFrame = random(pSplashFrameCount)
@@ -16,10 +18,9 @@ on define(me, tsprite)
   pBoundsY = [pInitialLoc.getAt(2) - tMoveMargin, pInitialLoc.getAt(2) + tMoveMargin]
   me.setNewMoveTarget()
   return(1)
-  exit
 end
 
-on setNewMoveTarget(me)
+on setNewMoveTarget me 
   pMoving = 0
   tLimitX = pBoundsX.getAt(2) - pBoundsX.getAt(1)
   tNewX = random(tLimitX) + pBoundsX.getAt(1)
@@ -50,15 +51,13 @@ on setNewMoveTarget(me)
   pPixelsPerTimeX = float(tMovementDistX) / pMoveTime
   pPixelsPerTimeY = float(tMovementDistY) / pMoveTime
   me.enableMoving()
-  exit
 end
 
-on enableMoving(me)
+on enableMoving me 
   pMoving = 1
-  exit
 end
 
-on update(me)
+on update me 
   pAnimTimeout = pAnimTimeout - 1
   if pAnimTimeout < 0 then
     pAnimTimeout = pAnimTimeoutMax
@@ -83,5 +82,4 @@ on update(me)
       me.setNewMoveTarget()
     end if
   end if
-  exit
 end

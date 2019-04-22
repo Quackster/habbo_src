@@ -1,11 +1,12 @@
-on construct(me)
+property pItemList
+
+on construct me 
   pItemList = []
   pItemList.sort()
   return(1)
-  exit
 end
 
-on deconstruct(me)
+on deconstruct me 
   tObjMngr = getObjectManager()
   i = 1
   repeat while i <= pItemList.count
@@ -16,10 +17,9 @@ on deconstruct(me)
   end repeat
   pItemList = []
   return(1)
-  exit
 end
 
-on create(me, tid, tClass)
+on create me, tid, tClass 
   if getObjectManager().exists(tid) then
     return(error(me, "Object already exists:" && tid, #create, #major))
   end if
@@ -28,15 +28,13 @@ on create(me, tid, tClass)
   end if
   pItemList.add(tid)
   return(1)
-  exit
 end
 
-on GET(me, tid)
+on GET me, tid 
   return(getObjectManager().GET(tid))
-  exit
 end
 
-on getIDList(me)
+on getIDList me 
   tIDList = []
   tListMode = ilk(me.pItemList)
   i = 1
@@ -50,24 +48,21 @@ on getIDList(me)
     i = 1 + i
   end repeat
   return(tIDList)
-  exit
 end
 
-on Remove(me, tid)
+on Remove me, tid 
   if not me.exists(tid) then
     return(0)
   end if
   pItemList.deleteOne(tid)
   return(getObjectManager().Remove(tid))
-  exit
 end
 
-on exists(me, tid)
+on exists me, tid 
   return(me.getOne(tid) > 0)
-  exit
 end
 
-on print(me)
+on print me 
   tListMode = ilk(me.pItemList)
   i = 1
   repeat while i <= me.count(#pItemList)
@@ -84,5 +79,4 @@ on print(me)
     i = 1 + i
   end repeat
   return(1)
-  exit
 end

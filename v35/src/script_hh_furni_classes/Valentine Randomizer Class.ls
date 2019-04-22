@@ -1,4 +1,6 @@
-on define(me, tProps)
+property pExtraStateCount, pFlippedLayerDataList, pStateCount, pRollStartMillis, pOriginalLayerDataList, pTargetState, pRunning
+
+on define me, tProps 
   pRunning = 0
   pTargetState = 0
   pExtraStateCount = 3
@@ -21,10 +23,9 @@ on define(me, tProps)
     j = 1 + j
   end repeat
   return(tRetVal)
-  exit
 end
 
-on select(me)
+on select me 
   if the doubleClick then
     if me.pState = 1 or me.pState = pExtraStateCount and the milliSeconds - pRollStartMillis > 15 * 1000 then
       getThread(#room).getComponent().getRoomConnection().send("SET_RANDOM_STATE", [#integer:integer(me.getID())])
@@ -34,10 +35,9 @@ on select(me)
     return(0)
   end if
   return(1)
-  exit
 end
 
-on update(me)
+on update me 
   if me.getProp(#pDirection, 1) = 4 then
     me.pLayerDataList = pOriginalLayerDataList
   else
@@ -66,10 +66,9 @@ on update(me)
     end if
   end if
   return(callAncestor(#update, [me]))
-  exit
 end
 
-on setState(me, tNewState)
+on setState me, tNewState 
   tNewState = integer(tNewState)
   if tNewState > 1000 then
     tNewState = 0
@@ -79,10 +78,9 @@ on setState(me, tNewState)
     tNewState = -tNewState
   end if
   me.setStateInternal(tNewState)
-  exit
 end
 
-on setStateInternal(me, tNewState)
+on setStateInternal me, tNewState 
   tNewState = integer(tNewState)
   if not pRunning then
     if tNewState > 0 then
@@ -107,5 +105,4 @@ on setStateInternal(me, tNewState)
     tRetVal = callAncestor(#setState, [me], tNewState - 1)
   end if
   return(tRetVal)
-  exit
 end

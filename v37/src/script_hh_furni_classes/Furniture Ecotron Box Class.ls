@@ -1,4 +1,6 @@
-on prepare(me, tdata)
+property pCardObj, pDate
+
+on prepare me, tdata 
   pCardObj = "PackageCardObj"
   tDate = tdata.getAt(#stuffdata)
   tDateItems = explode(tDate, "-", 3)
@@ -7,23 +9,20 @@ on prepare(me, tdata)
     pDate = getObject(#dateFormatter).getLocalDate(tDateItems.getAt(3), tDateItems.getAt(2), tDateItems.getAt(1))
   end if
   return(1)
-  exit
 end
 
-on select(me)
+on select me 
   if the doubleClick then
     me.showCard()
   end if
   return(1)
-  exit
 end
 
-on showCard(me)
+on showCard me 
   if objectExists(pCardObj) then
     removeObject(pCardObj)
   end if
   createObject(pCardObj, "Ecotron Box Card Class")
   getObject(pCardObj).define([#id:me.getID(), #date:pDate, #loc:me.getPropRef(#pSprList, 1).loc])
   return(1)
-  exit
 end

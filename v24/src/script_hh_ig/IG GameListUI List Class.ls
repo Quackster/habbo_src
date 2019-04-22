@@ -1,4 +1,6 @@
-on construct(me)
+property pPageMaxSize, pVisibleIdList, pPageVisibleSize, pListItemHeight, pBackImages, pTeamSizeImages
+
+on construct me 
   me.cacheBackImages()
   me.cacheTeamSizeImages()
   pPageVisibleSize = 11
@@ -6,18 +8,16 @@ on construct(me)
   pListItemHeight = 25
   pVisibleIdList = []
   return(me.construct())
-  exit
 end
 
-on deconstruct(me)
+on deconstruct me 
   pBackImages = []
   pTeamSizeImages = []
   pVisibleIdList = []
   return(me.deconstruct())
-  exit
 end
 
-on addWindows(me)
+on addWindows me 
   me.pWindowID = "ig_list"
   tWrapObjRef = me.getWindowWrapper(me)
   if tWrapObjRef = 0 then
@@ -33,10 +33,9 @@ on addWindows(me)
   tWrapObjRef.addOneWindow(me.getWindowId("list"), "ig_gamelist.window", tSetID)
   tWrapObjRef.addOneWindow(me.getWindowId("btm"), void(), tSetID)
   return(1)
-  exit
 end
 
-on render(me)
+on render me 
   tService = me.getIGComponent("GameList")
   if tService = 0 then
     return(0)
@@ -95,10 +94,9 @@ on render(me)
     tWndObj.merge("ig_frame_blank_btm.window")
   end if
   return(1)
-  exit
 end
 
-on getIdFromPoint(me, tpoint)
+on getIdFromPoint me, tpoint 
   tIndex = tpoint.locV / pListItemHeight + 1
   if tIndex < 1 then
     return(-1)
@@ -107,10 +105,9 @@ on getIdFromPoint(me, tpoint)
     return(-1)
   end if
   return(pVisibleIdList.getAt(tIndex))
-  exit
 end
 
-on renderShort(me, tImage, tGameRef, tCount, tScrollBars, tJoinedGame)
+on renderShort me, tImage, tGameRef, tCount, tScrollBars, tJoinedGame 
   if tGameRef = void() then
     return(0)
   end if
@@ -155,20 +152,18 @@ on renderShort(me, tImage, tGameRef, tCount, tScrollBars, tJoinedGame)
     tImage.copyPixels(tTempImage, tTempImage.rect + rect(tPicOffsetH + tOffsetH, 8 + tOffsetV, tPicOffsetH + tOffsetH, 8 + tOffsetV), tTempImage.rect)
   end if
   return(1)
-  exit
 end
 
-on renderSlotBackground(me, tImage, tBackImage, tCount, tScrollBarSize)
+on renderSlotBackground me, tImage, tBackImage, tCount, tScrollBarSize 
   tOffsetY = tCount - 1 * pListItemHeight
   tTargetRect = rect(0, tOffsetY, tImage.width, tOffsetY + pListItemHeight)
   tImage.copyPixels(tBackImage, tTargetRect, tBackImage.rect)
   return(1)
-  exit
 end
 
-on cacheBackImages(me)
+on cacheBackImages me 
   pBackImages = []
-  repeat while me <= undefined
+  repeat while ["ig_list_px_lblue", "ig_list_px_lite", "ig_list_px_dblue", "ig_icon_face_bg2"] <= undefined
     tMemName = getAt(undefined, undefined)
     tmember = member(getmemnum(tMemName))
     if ilk(tmember) <> #member then
@@ -177,12 +172,11 @@ on cacheBackImages(me)
     pBackImages.append(tmember.image)
   end repeat
   return(1)
-  exit
 end
 
-on cacheTeamSizeImages(me)
+on cacheTeamSizeImages me 
   pTeamSizeImages = []
-  repeat while me <= undefined
+  repeat while ["ig_icon_teams_1", "ig_icon_teams_2", "ig_icon_teams_3", "ig_icon_teams_4"] <= undefined
     tMemName = getAt(undefined, undefined)
     tmember = member(getmemnum(tMemName))
     if ilk(tmember) <> #member then
@@ -191,10 +185,9 @@ on cacheTeamSizeImages(me)
     pTeamSizeImages.append(tmember.image)
   end repeat
   return(1)
-  exit
 end
 
-on setScrollBar(me, tstate)
+on setScrollBar me, tstate 
   tWndObj = getWindow(me.getWindowId("list"))
   if tWndObj = 0 then
     return(0)
@@ -214,15 +207,14 @@ on setScrollBar(me, tstate)
     end if
   end if
   return(1)
-  exit
 end
 
-on eventProcMouseDown(me, tEvent, tSprID, tParam, tWndID)
+on eventProcMouseDown me, tEvent, tSprID, tParam, tWndID 
   tService = me.getIGComponent("GameList")
   if tService = 0 then
     return(0)
   end if
-  if me = "ig_gamelist" then
+  if tSprID = "ig_gamelist" then
     if ilk(tParam) <> #point then
       return(0)
     end if
@@ -239,5 +231,4 @@ on eventProcMouseDown(me, tEvent, tSprID, tParam, tWndID)
     return(tService.setObservedGameId(tID))
   end if
   return(0)
-  exit
 end

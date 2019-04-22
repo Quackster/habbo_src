@@ -1,12 +1,14 @@
-on construct(me)
+property pSprite, pTextBgBoxImg, pPaaluPlayers, pTransition, StateOfAd, pheight, pwidth, adMember, pTransitBuffer, adLink, adIdNum, pTextShowState, pTargetObj, pTargetSpr, AdWaitScore, pLastCropPoint, pTextImgBuffer, pScrImg, pTextShowTime, pTextBlend, pSpeed, pVX, pFlexible, pVY, pTransitState, pFadeSpeed, adShowTime, pZoom, pXFactor
+
+on construct me 
   pheight = 108
   pwidth = 102
   pVX = 0
   pVY = 0
   pXFactor = 32
   pZoom = 4
-  pSpeed = 0
-  pFlexible = 0
+  pSpeed = 10
+  pFlexible = 50
   pTransitState = 0
   pTargetObj = void()
   pTargetSpr = void()
@@ -22,30 +24,26 @@ on construct(me)
   StateOfAd = 0
   AdWaitScore = 0
   adIdNum = void()
-  pPaaluPlayers = []
+  pPaaluPlayers = [:]
   me.fuseShow_transition("fade")
   return(receivePrepare(me.getID()))
-  exit
 end
 
-on deconstruct(me)
+on deconstruct me 
   return(removePrepare(me.getID()))
-  exit
 end
 
-on activatePaaluPlayer(me, tName, tObj)
+on activatePaaluPlayer me, tName, tObj 
   pPaaluPlayers.setAt(tName, tObj)
-  exit
 end
 
-on deActivatePaaluPlayer(me, tName)
+on deActivatePaaluPlayer me, tName 
   if not voidp(pPaaluPlayers.getAt(tName)) then
     pPaaluPlayers.deleteProp(tName)
   end if
-  exit
 end
 
-on fuseShow_setcamera(me, tNumber)
+on fuseShow_setcamera me, tNumber 
   if pTransition <> "fade" then
     pTransition = 0
   end if
@@ -55,10 +53,9 @@ on fuseShow_setcamera(me, tNumber)
   if tNumber = 2 then
     pZoom = 4
   end if
-  exit
 end
 
-on fuseShow_targetcamera(me, tTargetObj)
+on fuseShow_targetcamera me, tTargetObj 
   tUserObj = getThread(#room).getComponent().getUserObject(tTargetObj)
   if not tUserObj then
     pTargetObj = void()
@@ -67,20 +64,19 @@ on fuseShow_targetcamera(me, tTargetObj)
   end if
   pTargetSpr = tUserObj.getSprites().getAt(1)
   pTargetObj = tTargetObj
-  pSpeed = 0 + random(10)
-  pFlexible = 0 + random(20)
-  exit
+  pSpeed = 50 + random(10)
+  pFlexible = 10 + random(20)
 end
 
-on fuseShow_transition(me, tTran)
+on fuseShow_transition me, tTran 
   if StateOfAd = 0 then
-    if me = "cameraPan" then
+    if tTran = "cameraPan" then
       pTransition = "cameraPan"
       pTargetObj = void()
-      pSpeed = 0 + random(25)
-      pFlexible = 0 + random(20)
+      pSpeed = 5 + random(25)
+      pFlexible = 30 + random(20)
     else
-      if me = "fade" then
+      if tTran = "fade" then
         pTransition = "fade"
         pTargetObj = void()
         pTransitBuffer = image(pheight, pwidth, 16)
@@ -89,10 +85,9 @@ on fuseShow_transition(me, tTran)
       end if
     end if
   end if
-  exit
 end
 
-on fuseShow_showtext(me, tText)
+on fuseShow_showtext me, tText 
   if StateOfAd = 0 then
     tDelim = the itemDelimiter
     the itemDelimiter = "/"
@@ -113,18 +108,16 @@ on fuseShow_showtext(me, tText)
     pTextBlend = 100
     the itemDelimiter = tDelim
   end if
-  exit
 end
 
-on fuseShow_ad(me, tFuse_s)
+on fuseShow_ad me, tFuse_s 
   adIdNum = tFuse_s.getProp(#word, 1)
   adMember = tFuse_s.getProp(#word, 2)
   adLink = tFuse_s.getProp(#word, 3)
   pTextShowState = 0
-  exit
 end
 
-on fuseShow_Activate_ad(me)
+on fuseShow_Activate_ad me 
   if not voidp(adMember) then
     StateOfAd = 1
     AdWaitScore = 0
@@ -139,10 +132,9 @@ on fuseShow_Activate_ad(me)
       pSprite.cursor = [member(getmemnum("cursor.finger")), member(getmemnum("cursor.finger.mask"))]
     end if
   end if
-  exit
 end
 
-on mouseDown(me)
+on mouseDown me 
   if voidp(adLink) then
     dontPassEvent()
     return(0)
@@ -153,10 +145,9 @@ on mouseDown(me)
     end if
     getConnection(getVariable("connection.info.id")).send(#info, "ADCLICK" && adIdNum)
   end if
-  exit
 end
 
-on prepare(me)
+on prepare me 
   if pPaaluPlayers.count > 0 then
     if pPaaluPlayers.count = 2 then
       if abs(pPaaluPlayers.getAt(1).getBalance()) < abs(pPaaluPlayers.getAt(2).getBalance()) then
@@ -180,12 +171,12 @@ on prepare(me)
           me.cameraPan(pTargetSpr.loc)
         end if
       else
-        if me = "cameraPan" then
+        if pPaaluPlayers.getAt(1) = "cameraPan" then
           if not voidp(pTargetObj) then
             me.cameraPan(pTargetSpr.loc)
           end if
         else
-          if me = "fade" then
+          if pPaaluPlayers.getAt(1) = "fade" then
             if not voidp(pTargetObj) then
               if pSprite.member <> member(getmemnum("fuse_screen")) then
                 pSprite.member = member(getmemnum("fuse_screen"))
@@ -208,10 +199,9 @@ on prepare(me)
     me.cameraCrop(pLastCropPoint)
     me.showText()
   end if
-  exit
 end
 
-on showText(me)
+on showText me 
   if pTextShowState < pTextImgBuffer.height then
     pScrImg.copyPixels(pTextBgBoxImg, rect(0, pwidth - pTextShowState, pheight, pwidth), pTextBgBoxImg.rect, [#blend:40])
     pTextShowState = pTextShowState + 2
@@ -241,10 +231,9 @@ on showText(me)
       end if
     end if
   end if
-  exit
 end
 
-on cameraPan(me, tTransitionTargetPoint)
+on cameraPan me, tTransitionTargetPoint 
   tX = pLastCropPoint.locH
   tY = pLastCropPoint.locV
   tAX = tTransitionTargetPoint.locH - tX * pSpeed / 100
@@ -254,20 +243,18 @@ on cameraPan(me, tTransitionTargetPoint)
   tX = tX + pVX
   tY = tY + pVY
   me.cameraCrop(point(tX, tY))
-  exit
 end
 
-on cameraFade(me, tTransitionTargetPoint)
+on cameraFade me, tTransitionTargetPoint 
   me.cameraCrop(tTransitionTargetPoint, 1)
   pTransitState = pTransitState + pFadeSpeed
   pScrImg.copyPixels(pTransitBuffer, pTransitBuffer.rect, member(getmemnum("fuse_screen")).rect, [#blend:pTransitState])
   if pTransitState > 99 then
     pTransition = 0
   end if
-  exit
 end
 
-on ad_system(me)
+on ad_system me 
   if pTransition <> 0 then
     if pTextShowState = 0 then
       pTransitState = pTransitState + pFadeSpeed
@@ -291,10 +278,9 @@ on ad_system(me)
       me.cameraCrop(pLastCropPoint, 1)
     end if
   end if
-  exit
 end
 
-on cameraCrop(me, tpoint, tBufferImage)
+on cameraCrop me, tpoint, tBufferImage 
   pLastCropPoint = tpoint
   if voidp(pTargetSpr) then
     return(error(me, "Target sprite not defined!", #cameraCrop))
@@ -325,5 +311,4 @@ on cameraCrop(me, tpoint, tBufferImage)
   else
     pTransitBuffer.copyPixels(tCropScrImg, rect(0, 0, pheight, pwidth), tCropScrImg.rect)
   end if
-  exit
 end

@@ -1,61 +1,56 @@
-on feedImage(me, tImage)
+on feedImage me, tImage 
   me.pimage = tImage
   me.render()
   return(1)
-  exit
 end
 
-on moveTo(me, tX, tY)
+on moveTo me, tX, tY 
   me.pLocX = tX
   me.pLocY = tY
   me.render()
-  exit
 end
 
-on moveBy(me, tX, tY)
+on moveBy me, tX, tY 
   me.pLocX = me.pLocX + tX
   me.pLocY = me.pLocY + tY
   me.render()
-  exit
 end
 
-on resizeTo(me, tX, tY)
+on resizeTo me, tX, tY 
   tOffH = tX - me.pwidth
   tOffV = tY - me.pheight
   return(me.resizeBy(tOffH, tOffV))
-  exit
 end
 
-on resizeBy(me, tOffH, tOffV)
+on resizeBy me, tOffH, tOffV 
   if tOffH <> 0 or tOffV <> 0 then
-    if me = #move then
+    if me.pScaleH = #move then
       me.pLocX = me.pLocX + tOffH
     else
-      if me = #scale then
+      if me.pScaleH = #scale then
         me.pwidth = me.pwidth + tOffH
       else
-        if me = #center then
+        if me.pScaleH = #center then
           me.pLocX = me.pLocX + tOffH / 2
         end if
       end if
     end if
-    if me = #move then
+    if me.pScaleH = #move then
       me.pLocY = me.pLocY + tOffV
     else
-      if me = #scale then
+      if me.pScaleH = #scale then
         me.pheight = me.pheight + tOffV
       else
-        if me = #center then
+        if me.pScaleH = #center then
           me.pLocY = me.pLocY + tOffV / 2
         end if
       end if
     end if
     me.render()
   end if
-  exit
 end
 
-on render(me)
+on render me 
   tW = me.width
   tH = me.height
   tXW = me.pwidth / me.width
@@ -72,10 +67,8 @@ on render(me)
     end repeat
     i = 1 + i
   end repeat
-  exit
 end
 
-on draw(me)
+on draw me 
   undefined.draw(rect(me.pLocX, me.pLocY, me.pLocX + me.pwidth, me.pLocY + me.pheight), [#shapeType:#rect, #color:rgb(255, 0, 128)])
-  exit
 end

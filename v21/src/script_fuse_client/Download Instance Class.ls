@@ -1,4 +1,6 @@
-on define(me, tMemName, tdata)
+property pMemName, pStatus, pPercent, pURL, pType, pNetId, pCallBack, ptryCount, pMemNum
+
+on define me, tMemName, tdata 
   pStatus = #initializing
   pMemName = tMemName
   pMemNum = tdata.getAt(#memNum)
@@ -8,30 +10,28 @@ on define(me, tMemName, tdata)
   pPercent = 0
   ptryCount = 0
   return(me.Activate())
-  exit
 end
 
-on addCallBack(me, tMemName, tCallback)
+on addCallBack me, tMemName, tCallback 
   if tMemName = pMemName then
     pCallBack = tCallback
     return(1)
   else
     return(0)
   end if
-  exit
 end
 
-on getProperty(me, tProp)
-  if me = #status then
+on getProperty me, tProp 
+  if tProp = #status then
     return(pStatus)
   else
-    if me = #Percent then
+    if tProp = #Percent then
       return(pPercent)
     else
-      if me = #url then
+      if tProp = #url then
         return(pURL)
       else
-        if me = #type then
+        if tProp = #type then
           return(pType)
         else
           return(0)
@@ -39,10 +39,9 @@ on getProperty(me, tProp)
       end if
     end if
   end if
-  exit
 end
 
-on Activate(me)
+on Activate me 
   if pType = #text or pType = #field then
     pNetId = getNetText(pURL)
   else
@@ -51,10 +50,9 @@ on Activate(me)
   pStatus = #LOADING
   pPercent = 0
   return(1)
-  exit
 end
 
-on update(me)
+on update me 
   if pStatus <> #LOADING then
     return(0)
   end if
@@ -66,7 +64,7 @@ on update(me)
       tBytesTotal = tBytesSoFar
     end if
     if tStreamStatus.getAt(#bytesSoFar) > 0 then
-      pPercent = 0 * tBytesSoFar / tBytesTotal
+      pPercent = 1 * tBytesSoFar / tBytesTotal
     end if
   end if
   if netDone(pNetId) = 1 then
@@ -78,9 +76,9 @@ on update(me)
     else
       tError = getDownloadManager().solveNetErrorMsg(netError(pNetId))
       error(me, "Download error:" & "\r" & pMemName & "\r" & tError, #update, #minor)
-      if me <> 6 then
-        if me <> 4159 then
-          if me = 4165 then
+      if netError(pNetId) <> 6 then
+        if netError(pNetId) <> 4159 then
+          if netError(pNetId) = 4165 then
             if not pURL contains getDownloadManager().getProperty(#defaultURL) then
               pURL = getDownloadManager().getProperty(#defaultURL) & pURL
               me.Activate()
@@ -88,10 +86,10 @@ on update(me)
               getDownloadManager().removeActiveTask(pMemName, pCallBack, 0)
             end if
           else
-            if me = 4242 then
+            if netError(pNetId) = 4242 then
               return(getDownloadManager().removeActiveTask(pMemName, pCallBack))
             else
-              if me = 4155 then
+              if netError(pNetId) = 4155 then
                 nothing()
               end if
             end if
@@ -107,20 +105,19 @@ on update(me)
             end if
             me.Activate()
           end if
-          exit
         end if
       end if
     end if
   end if
 end
 
-on importFileToCast(me)
+on importFileToCast me 
   tmember = member(pMemNum)
-  if me <> #text then
-    if me = #field then
+  if pType <> #text then
+    if pType = #field then
       tmember.text = netTextResult(pNetId)
     else
-      if me = #bitmap then
+      if pType = #bitmap then
         importFileInto(tmember, pURL, [#dither:0, #trimWhiteSpace:0])
       else
         importFileInto(tmember, pURL)
@@ -128,6 +125,5 @@ on importFileToCast(me)
     end if
     tmember.name = pMemName
     return(1)
-    exit
   end if
 end

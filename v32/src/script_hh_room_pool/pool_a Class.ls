@@ -1,14 +1,15 @@
-on construct(me)
-  pCurtainsLocZ = []
-  tProps = []
-  pSplashs = []
+property pCurtainsLocZ, pSplashs, pArrowCursor
+
+on construct me 
+  pCurtainsLocZ = [:]
+  tProps = [:]
+  pSplashs = [:]
   initThread("thread.pelle")
   me.regMsgList(1)
   return(1)
-  exit
 end
 
-on deconstruct(me)
+on deconstruct me 
   me.regMsgList(0)
   closeThread(#pellehyppy)
   removeUpdate(me.getID())
@@ -18,11 +19,10 @@ on deconstruct(me)
   pSplashs = void()
   me.removeArrowCursor()
   return(1)
-  exit
 end
 
-on prepare(me)
-  pCurtainsLocZ = []
+on prepare me 
+  pCurtainsLocZ = [:]
   f = 1
   repeat while f <= 2
     tSpr = getThread(#room).getInterface().getRoomVisualizer().getSprById("curtains" & f)
@@ -30,8 +30,8 @@ on prepare(me)
     tSpr.locZ = tSpr.locZ - 2000
     f = 1 + f
   end repeat
-  tProps = []
-  pSplashs = []
+  tProps = [:]
+  pSplashs = [:]
   pSplashs.addProp("Splash0", createObject(#temp, "AnimSprite Class"))
   tProps.setAt(#visible, 0)
   tProps.setAt(#AnimFrames, 10)
@@ -44,7 +44,7 @@ on prepare(me)
     createObject(#waterripples, "Water Ripple Effects Class")
   end if
   getObject(#waterripples).Init("vesi1")
-  repeat while me <= undefined
+  repeat while ["pool_clickarea", "floor", "hiliter", "vesi1", "portaat0"] <= undefined
     tID = getAt(undefined, undefined)
     tSpr = getThread(#room).getInterface().getRoomVisualizer().getSprById(tID)
     registerProcedure(tSpr, #poolTeleport, me.getID(), #mouseDown)
@@ -55,22 +55,20 @@ on prepare(me)
   end if
   getThread(#pellehyppy).getInterface().showRoomBar()
   receiveUpdate(me.getID())
-  exit
 end
 
-on showprogram(me, tMsg)
-  exit
+on showprogram me, tMsg 
 end
 
-on handle_dressing_room_curtain(me, tMsg)
+on handle_dressing_room_curtain me, tMsg 
   tConn = tMsg.connection
   tID = tConn.GetStrFrom()
   tStateInt = tConn.GetIntFrom()
-  if me = 0 then
+  if tStateInt = 0 then
     tmember = member(getmemnum("verho kiinni"))
     tlocz = pCurtainsLocZ.getAt(tID) - 1000
   else
-    if me = 1 then
+    if tStateInt = 1 then
       tmember = member(getmemnum("verhot auki"))
       tlocz = pCurtainsLocZ.getAt(tID) - 2000
     end if
@@ -87,29 +85,26 @@ on handle_dressing_room_curtain(me, tMsg)
   tSpr.setMember(tmember)
   tSpr.locZ = tlocz
   return(1)
-  exit
 end
 
-on handle_pool_stair_splash(me, tMsg)
+on handle_pool_stair_splash me, tMsg 
   tConn = tMsg.connection
   tDest = "Splash" & tConn.GetIntFrom()
   if not voidp(pSplashs.getAt(tDest)) then
     call(#Activate, pSplashs.getAt(tDest))
   end if
-  exit
 end
 
-on update(me)
+on update me 
   if pSplashs.count > 0 then
     call(#updateSplashs, pSplashs)
   end if
   if pArrowCursor or the mouseH > 694 then
     me.poolArrows()
   end if
-  exit
 end
 
-on poolArrows(me)
+on poolArrows me 
   tStartPos = [19, 3]
   tloc = getThread(#room).getInterface().getGeometry().getWorldCoordinate(the mouseH, the mouseV)
   if tloc.ilk <> #list then
@@ -121,17 +116,15 @@ on poolArrows(me)
   else
     me.removeArrowCursor()
   end if
-  exit
 end
 
-on removeArrowCursor(me)
+on removeArrowCursor me 
   pArrowCursor = 0
   cursor(-1)
   return(1)
-  exit
 end
 
-on poolTeleport(me, tEvent, tSprID, tParm)
+on poolTeleport me, tEvent, tSprID, tParm 
   tMyIndex = getObject(#session).GET("user_index")
   tObject = getThread(#room).getComponent().getUserObject(tMyIndex)
   if tObject = 0 then
@@ -146,14 +139,13 @@ on poolTeleport(me, tEvent, tSprID, tParm)
       getConnection(getVariable("connection.room.id")).send("MOVE", [#short:20, #short:28])
     end if
   end if
-  exit
 end
 
-on regMsgList(me, tBool)
-  tMsgs = []
+on regMsgList me, tBool 
+  tMsgs = [:]
   tMsgs.setaProp(504, #handle_dressing_room_curtain)
   tMsgs.setaProp(505, #handle_pool_stair_splash)
-  tCmds = []
+  tCmds = [:]
   if tBool then
     registerListener(getVariable("connection.info.id"), me.getID(), tMsgs)
     registerCommands(getVariable("connection.info.id"), me.getID(), tCmds)
@@ -162,5 +154,4 @@ on regMsgList(me, tBool)
     unregisterCommands(getVariable("connection.info.id"), me.getID(), tCmds)
   end if
   return(1)
-  exit
 end

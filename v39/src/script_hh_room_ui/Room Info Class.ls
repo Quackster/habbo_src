@@ -1,4 +1,6 @@
-on construct(me)
+property pWindowID, pEventInfoWindowID, pUseRatings
+
+on construct me 
   pWindowID = "RoomInfoWindow"
   pEventInfoWindowID = "EventInfoWindow"
   pUseRatings = 0
@@ -10,15 +12,13 @@ on construct(me)
   registerMessage(#roomRatingChanged, me.getID(), #updateRatingData)
   registerMessage(#roomEventInfoUpdated, me.getID(), #updateRoomEventInfo)
   return(1)
-  exit
 end
 
-on deconstruct(me)
+on deconstruct me 
   return(1)
-  exit
 end
 
-on showRoomInfo(me)
+on showRoomInfo me 
   tRoomData = getThread(#room).getComponent().getRoomData()
   if listp(tRoomData) then
     tRoomType = tRoomData.getaProp(#type)
@@ -36,20 +36,18 @@ on showRoomInfo(me)
   else
     me.hideRoomInfo()
   end if
-  exit
 end
 
-on hideRoomInfo(me)
+on hideRoomInfo me 
   if windowExists(pWindowID) then
     removeWindow(pWindowID)
   end if
   if windowExists(pEventInfoWindowID) then
     removeWindow(pEventInfoWindowID)
   end if
-  exit
 end
 
-on createInfoWindow(me)
+on createInfoWindow me 
   if not windowExists(pWindowID) then
     tSuccess = createWindow(pWindowID, "room_info.window", 10, 420)
     if tSuccess = 0 then
@@ -64,15 +62,13 @@ on createInfoWindow(me)
   else
     return(getWindow(pWindowID))
   end if
-  exit
 end
 
-on sendFlatRate(me, tValue)
+on sendFlatRate me, tValue 
   getThread(#room).getComponent().getRoomConnection().send("RATEFLAT", [#integer:tValue])
-  exit
 end
 
-on updateRatingData(me)
+on updateRatingData me 
   tWndObj = getWindow(pWindowID)
   if tWndObj = 0 then
     return(0)
@@ -98,19 +94,17 @@ on updateRatingData(me)
     tRateText = getText("room_info_rated") && tRoomRatings.getAt(#rate)
     tWndObj.getElement("room_info_rate_value").setText(tRateText)
   end if
-  exit
 end
 
-on hideRatingElements(me)
+on hideRatingElements me 
   tWndObj = getWindow(pWindowID)
   tWndObj.getElement("room_info_rate_room").setProperty(#visible, 0)
   tWndObj.getElement("room_info_rate_plus").setProperty(#visible, 0)
   tWndObj.getElement("room_info_rate_minus").setProperty(#visible, 0)
   tWndObj.getElement("room_info_rate_value").setProperty(#visible, 0)
-  exit
 end
 
-on updateRoomEventInfo(me)
+on updateRoomEventInfo me 
   tRoomEventData = getThread(#room).getComponent().getRoomEvent()
   if voidp(tRoomEventData) then
     return(0)
@@ -128,10 +122,9 @@ on updateRoomEventInfo(me)
   else
     tLinkElem.hide()
   end if
-  exit
 end
 
-on showEventInfo(me)
+on showEventInfo me 
   tRoomEventData = getThread(#room).getComponent().getRoomEvent()
   createWindow(pEventInfoWindowID, "eventinfo_bubble.window")
   tWnd = getWindow(pEventInfoWindowID)
@@ -153,56 +146,50 @@ on showEventInfo(me)
     tWnd.getElement("room_info_event_details_quit").hide()
     tWnd.getElement("room_info_event_details_edit").hide()
   end if
-  exit
 end
 
-on removeEventInfo(me)
+on removeEventInfo me 
   removeWindow(pEventInfoWindowID)
-  exit
 end
 
-on quitEvent(me)
+on quitEvent me 
   tConn = getConnection(getVariable("connection.info.id", #info))
   tConn.send("QUIT_ROOMEVENT")
   me.removeEventInfo()
-  exit
 end
 
-on editEvent(me)
+on editEvent me 
   executeMessage(#editRoomevent)
   me.removeEventInfo()
-  exit
 end
 
-on eventProcInfo(me, tEvent, tSprID, tParam)
+on eventProcInfo me, tEvent, tSprID, tParam 
   if tEvent <> #mouseUp then
     return(0)
   end if
-  if me = "room_info_rate_plus" then
+  if tSprID = "room_info_rate_plus" then
     me.sendFlatRate(1)
   else
-    if me = "room_info_rate_minus" then
+    if tSprID = "room_info_rate_minus" then
       me.sendFlatRate(-1)
     else
-      if me = "roominfo_event_link" then
+      if tSprID = "roominfo_event_link" then
         me.showEventInfo()
       end if
     end if
   end if
-  exit
 end
 
-on eventProcEventInfo(me, tEvent, tSprID, tParam)
-  if me = "room_info_event_details_close" then
+on eventProcEventInfo me, tEvent, tSprID, tParam 
+  if tSprID = "room_info_event_details_close" then
     me.removeEventInfo()
   else
-    if me = "room_info_event_details_quit" then
+    if tSprID = "room_info_event_details_quit" then
       me.quitEvent()
     else
-      if me = "room_info_event_details_edit" then
+      if tSprID = "room_info_event_details_edit" then
         me.editEvent()
       end if
     end if
   end if
-  exit
 end

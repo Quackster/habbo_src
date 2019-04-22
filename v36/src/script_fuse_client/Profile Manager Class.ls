@@ -1,19 +1,19 @@
-on construct(me)
+property pItemList, pTotalTimeStart
+
+on construct me 
   pLastExecutedMessage = ""
-  pItemList = []
+  pItemList = [:]
   pItemList.sort()
   pTotalTimeStart = the milliSeconds
   return(1)
-  exit
 end
 
-on deconstruct(me)
-  pItemList = []
+on deconstruct me 
+  pItemList = [:]
   return(1)
-  exit
 end
 
-on create(me, tTask)
+on create me, tTask 
   if getObjectManager().managerExists(#variable_manager) then
     if not variableExists("profiler.enabled") then
       return()
@@ -29,10 +29,9 @@ on create(me, tTask)
   tTaskInstance.setID(tTask)
   me.setProp(#pItemList, tTask, tTaskInstance)
   return(1)
-  exit
 end
 
-on Remove(me, tTask)
+on Remove me, tTask 
   if getObjectManager().managerExists(#variable_manager) then
     if not variableExists("profiler.enabled") then
       return()
@@ -45,10 +44,9 @@ on Remove(me, tTask)
     return(error(me, "Profile task not found:" && tTask, #Remove, #minor))
   end if
   return(me.deleteProp(tTask))
-  exit
 end
 
-on GET(me, tTask)
+on GET me, tTask 
   if getObjectManager().managerExists(#variable_manager) then
     if not variableExists("profiler.enabled") then
       return()
@@ -61,20 +59,18 @@ on GET(me, tTask)
     return(error(me, "Profile task not found:" && tTask, #GET, #minor))
   end if
   return(me.getProp(#pItemList, tTask))
-  exit
 end
 
-on exists(me, tTask)
+on exists me, tTask 
   if getObjectManager().managerExists(#variable_manager) then
     if not variableExists("profiler.enabled") then
       return()
     end if
   end if
   return(not voidp(me.getProp(#pItemList, tTask)))
-  exit
 end
 
-on start(me, tTask)
+on start me, tTask 
   if getObjectManager().managerExists(#variable_manager) then
     if not variableExists("profiler.enabled") then
       return()
@@ -89,10 +85,9 @@ on start(me, tTask)
     end if
   end if
   me.getPropRef(#pItemList, tTask).start()
-  exit
 end
 
-on finish(me, tTask)
+on finish me, tTask 
   if getObjectManager().managerExists(#variable_manager) then
     if not variableExists("profiler.enabled") then
       return()
@@ -105,21 +100,19 @@ on finish(me, tTask)
     return(error(me, "Profile task not found:" && tTask, #finish, #minor))
   end if
   me.getPropRef(#pItemList, tTask).finish()
-  exit
 end
 
-on reset(me)
+on reset me 
   if getObjectManager().managerExists(#variable_manager) then
     if not variableExists("profiler.enabled") then
       return()
     end if
   end if
-  pItemList = []
+  pItemList = [:]
   pTotalTimeStart = the milliSeconds
-  exit
 end
 
-on print(me)
+on print me 
   if getObjectManager().managerExists(#variable_manager) then
     if not variableExists("profiler.enabled") then
       return()
@@ -127,17 +120,16 @@ on print(me)
   end if
   tString = ""
   put(me.printToText(tString))
-  exit
 end
 
-on printToText(me, tText)
+on printToText me, tText 
   if getObjectManager().managerExists(#variable_manager) then
     if not variableExists("profiler.enabled") then
       return()
     end if
   end if
   tTime = the milliSeconds
-  tSortedList = []
+  tSortedList = [:]
   tSortedList.sort()
   i = 1
   repeat while i <= me.count(#pItemList)
@@ -150,10 +142,9 @@ on printToText(me, tText)
     i = 1 + i
   end repeat
   return(tText)
-  exit
 end
 
-on printToDialog(me)
+on printToDialog me 
   tText = me.printToText("")
   if createWindow("Profile Dialog") then
     tWndObj = getWindow("Profile Dialog")
@@ -168,35 +159,32 @@ on printToDialog(me)
     tWndObj.registerProcedure(#eventProcProfileDialog, me.getID(), #mouseUp)
     removeWriter(tWriterId)
   end if
-  exit
 end
 
-on printToUrl(me)
+on printToUrl me 
   tText = replaceChunks(me.printToText(""), "\r", "%0D%0A")
   gotoNetPage("http://localhost/?profile=" & tText, "_new")
-  exit
 end
 
-on printToClipBoard(me)
+on printToClipBoard me 
   tText = me.printToText("")
   tMemberName = getUniqueID()
   tmember = member(createMember(tMemberName, #field))
   tmember.text = tText
   tmember.copyToClipboard()
   removeMember(tMemberName)
-  exit
 end
 
-on eventProcProfileDialog(me, tEvent, tElemID)
+on eventProcProfileDialog me, tEvent, tElemID 
   if tEvent = #mouseUp then
-    if me <> "close" then
-      if me = "alert_ok" then
+    if tElemID <> "close" then
+      if tElemID = "alert_ok" then
         removeWindow("Profile Dialog")
       else
-        if me = "reset" then
+        if tElemID = "reset" then
           me.reset()
         else
-          if me = "refresh" then
+          if tElemID = "refresh" then
             tText = me.printToText("")
             tWriterId = getUniqueID()
             createWriter(tWriterId, getStructVariable("struct.font.plain"))
@@ -204,22 +192,20 @@ on eventProcProfileDialog(me, tEvent, tElemID)
             tWndObj.getElement("alert_text").feedImage(getWriter(tWriterId).render(tText))
             removeWriter(tWriterId)
           else
-            if me = "printtourl" then
+            if tElemID = "printtourl" then
               me.printToUrl()
             else
-              if me = "copytoclipboard" then
+              if tElemID = "copytoclipboard" then
                 me.printToClipBoard()
               end if
             end if
           end if
         end if
       end if
-      exit
     end if
   end if
 end
 
-on handlers()
+on handlers  
   return([])
-  exit
 end

@@ -1,4 +1,6 @@
-on construct(me)
+property pWriterPlainNormLeft, pWriterLinkRight, pOpenWindow, pScoreData, pWindowID, pTimeOutID, pJoinedPlayers, pCountdownEndTime
+
+on construct me 
   pJoinedPlayers = []
   pWindowID = getText("gs_title_finalscores")
   pTimeOutID = "bb_endgame_resetGameTimeout"
@@ -12,10 +14,9 @@ on construct(me)
   pWriterLinkRight.setProperty(#alignment, #right)
   registerMessage(#remove_user, me.getID(), #showRemovedPlayer)
   return(1)
-  exit
 end
 
-on deconstruct(me)
+on deconstruct me 
   me.removeFinalScores()
   removeWriter("bb_plain_norm_left")
   pWriterPlainNormLeft = void()
@@ -25,33 +26,31 @@ on deconstruct(me)
   pWriterLinkRight = void()
   unregisterMessage(#remove_user, me.getID())
   return(1)
-  exit
 end
 
-on Refresh(me, tTopic, tdata)
-  if me = #gameend then
+on Refresh me, tTopic, tdata 
+  if tTopic = #gameend then
     pJoinedPlayers = []
     me.saveSortedScores(tdata)
     me.startResetCountdown(tdata.getAt(#time_until_game_reset))
     me.toggleWindowMode()
   else
-    if me = #gamereset then
+    if tTopic = #gamereset then
       me.removeFinalScores()
     else
-      if me = #playerrejoined then
+      if tTopic = #playerrejoined then
         me.showJoinedPlayer(tdata)
       else
-        if me = #numtickets then
+        if tTopic = #numtickets then
           me.renderNumTickets()
         end if
       end if
     end if
   end if
   return(1)
-  exit
 end
 
-on toggleWindowMode(me)
+on toggleWindowMode me 
   if pOpenWindow = void() or pOpenWindow = "bb_score_tiny.window" then
     if not listp(pScoreData) then
       return(0)
@@ -86,10 +85,9 @@ on toggleWindowMode(me)
   me.renderCountdownTimer()
   me.renderNumTickets()
   return(1)
-  exit
 end
 
-on removeFinalScores(me)
+on removeFinalScores me 
   pCountdownEndTime = void()
   pOpenWindow = void()
   if windowExists(pWindowID) then
@@ -99,10 +97,9 @@ on removeFinalScores(me)
     removeTimeout(pTimeOutID)
   end if
   return(1)
-  exit
 end
 
-on renderNumTickets(me)
+on renderNumTickets me 
   tWndObj = getWindow(pWindowID)
   if tWndObj = 0 then
     return(0)
@@ -122,10 +119,9 @@ on renderNumTickets(me)
     tNumTickets = "0" & tNumTickets
   end if
   tElem.setText(tNumTickets)
-  exit
 end
 
-on saveSortedScores(me, tdata)
+on saveSortedScores me, tdata 
   pScoreData = tdata.getAt(#gameend_scores)
   tSortedTeams = []
   tTeamNum = pScoreData.count
@@ -161,16 +157,15 @@ on saveSortedScores(me, tdata)
   end repeat
   pScoreData = tSortedTeams
   return(1)
-  exit
 end
 
-on renderFinalScoresText(me)
+on renderFinalScoresText me 
   tWndObj = getWindow(pWindowID)
   if tWndObj = 0 then
     return(0)
   end if
   if me.getGameSystem().getSpectatorModeFlag() then
-    repeat while me <= undefined
+    repeat while ["bb_button_playAgn", "bb_button_leaveGam2", "gs_button_buytickets"] <= undefined
       tButtonID = getAt(undefined, undefined)
       tWndObj.getElement(tButtonID).hide()
     end repeat
@@ -243,10 +238,9 @@ on renderFinalScoresText(me)
     tElem.feedImage(tPlayerImage)
   end if
   return(1)
-  exit
 end
 
-on renderFinalScoreItem(me, tTeam)
+on renderFinalScoreItem me, tTeam 
   tRoomComponent = getObject(#room_component)
   if tRoomComponent = 0 then
     return(0)
@@ -272,10 +266,9 @@ on renderFinalScoreItem(me, tTeam)
   tScoreImage = pWriterPlainNormLeft.render(tScoreTxt)
   tImage.copyPixels(tScoreImage, tScoreImage.rect + rect(130, -5 + tOffset, 130, -5 + tOffset), tScoreImage.rect)
   return(tImage)
-  exit
 end
 
-on showJoinedPlayer(me, tdata)
+on showJoinedPlayer me, tdata 
   tStrId = string(tdata.getAt(#id))
   if pJoinedPlayers.findPos(tStrId) = 0 then
     pJoinedPlayers.add(tStrId)
@@ -283,10 +276,9 @@ on showJoinedPlayer(me, tdata)
   me.showPlayerIcon(#joined, tdata)
   me.showJoinedPlayersNum()
   return(1)
-  exit
 end
 
-on showRemovedPlayer(me, tStrId)
+on showRemovedPlayer me, tStrId 
   if pJoinedPlayers.findPos(tStrId) = 0 then
     return(0)
   end if
@@ -294,10 +286,9 @@ on showRemovedPlayer(me, tStrId)
   me.showPlayerIcon(0, [#id:tStrId])
   me.showJoinedPlayersNum()
   return(1)
-  exit
 end
 
-on showPlayerIcon(me, tIcon, tdata)
+on showPlayerIcon me, tIcon, tdata 
   tWndObj = getWindow(pWindowID)
   if tWndObj = 0 then
     return(0)
@@ -331,10 +322,9 @@ on showPlayerIcon(me, tIcon, tdata)
   tImage.copyPixels(tStarImg, tStarImg.rect + rect(109, 1 + 16 * tMyPlayerNum - 1, 109, 1 + 16 * tMyPlayerNum - 1), tStarImg.rect)
   tElem.feedImage(tImage)
   return(1)
-  exit
 end
 
-on showJoinedPlayersNum(me)
+on showJoinedPlayersNum me 
   tWndObj = getWindow(pWindowID)
   if tWndObj = 0 then
     return(0)
@@ -344,10 +334,9 @@ on showJoinedPlayersNum(me)
     return(0)
   end if
   return(tElem.setText(replaceChunks(getText("gs_joinedplayers"), "\\x", pJoinedPlayers.count)))
-  exit
 end
 
-on startResetCountdown(me, tSecondsLeft)
+on startResetCountdown me, tSecondsLeft 
   if tSecondsLeft <= 0 then
     return(0)
   end if
@@ -358,22 +347,18 @@ on startResetCountdown(me, tSecondsLeft)
   createTimeout(pTimeOutID, 1000, #renderCountdownTimer, me.getID(), pCountdownEndTime, tSecondsLeft)
   me.renderCountdownTimer()
   return(1)
-  exit
 end
 
-on convertToMinSec(me, tTime)
-  the showInstanceList = tTime.fullgamestatus_time
-  tMin = ERROR
-  the showInstance = tTime.fullgamestatus_time
-  tSec = ERROR / 1000
+on convertToMinSec me, tTime 
+  tMin = tTime / 60000
+  tSec = tTime mod 60000 / 1000
   if tSec < 10 then
     tSec = "0" & tSec
   end if
   return([tMin, tSec])
-  exit
 end
 
-on renderCountdownTimer(me)
+on renderCountdownTimer me 
   if pCountdownEndTime = 0 then
     return(0)
   end if
@@ -392,31 +377,29 @@ on renderCountdownTimer(me)
   tTime = me.convertToMinSec(tEndTime - the milliSeconds)
   tTimeStr = tTime.getAt(1) & ":" & tTime.getAt(2)
   tElem.setText(replaceChunks(getText("gs_timetojoin"), "\\x", tTimeStr))
-  exit
 end
 
-on eventProc(me, tEvent, tSprID, tParam)
-  if me = "bb_button_playAgn" then
+on eventProc me, tEvent, tSprID, tParam 
+  if tSprID = "bb_button_playAgn" then
     if me.getGameSystem() = 0 then
       return(0)
     end if
     me.getGameSystem().rejoinGame()
   else
-    if me = "bb_button_leaveGam2" then
+    if tSprID = "bb_button_leaveGam2" then
       if me.getGameSystem() = 0 then
         return(0)
       end if
       me.getGameSystem().enterLounge()
     else
-      if me <> "bb_link_shrink" then
-        if me = "bb_link_expand" then
+      if tSprID <> "bb_link_shrink" then
+        if tSprID = "bb_link_expand" then
           me.toggleWindowMode()
         else
-          if me = "gs_button_buytickets" then
+          if tSprID = "gs_button_buytickets" then
             executeMessage(#show_ticketWindow)
           end if
         end if
-        exit
       end if
     end if
   end if

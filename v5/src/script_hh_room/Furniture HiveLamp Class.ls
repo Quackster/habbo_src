@@ -1,4 +1,6 @@
-on prepare(me, tdata)
+property pActive, pKill, pTimer, pLastFrm, pLastAnm, pSwitch
+
+on prepare me, tdata 
   removeEventBroker(me.getPropRef(#pSprList, 1).spriteNum)
   removeEventBroker(me.getPropRef(#pSprList, 2).spriteNum)
   removeEventBroker(me.getPropRef(#pSprList, 3).spriteNum)
@@ -11,19 +13,17 @@ on prepare(me, tdata)
   pLastAnm = 0
   pTimer = 1
   return(1)
-  exit
 end
 
-on updateStuffdata(me, tProp, tValue)
+on updateStuffdata me, tProp, tValue 
   if tValue = "ON" then
     me.setOn()
   else
     me.setOff()
   end if
-  exit
 end
 
-on update(me)
+on update me 
   if pActive then
     if me.count(#pSprList) < 3 then
       return()
@@ -92,24 +92,21 @@ on update(me)
       pActive = 0
     end if
   end if
-  exit
 end
 
-on setOn(me)
+on setOn me 
   pSwitch = 1
   pKill = 0
   pActive = 1
-  exit
 end
 
-on setOff(me)
+on setOff me 
   pSwitch = 0
   pKill = 1
   pActive = 1
-  exit
 end
 
-on select(me)
+on select me 
   if the doubleClick then
     if pSwitch then
       tStr = "OFF"
@@ -119,5 +116,4 @@ on select(me)
     getThread(#room).getComponent().getRoomConnection().send(#room, "SETSTUFFDATA /" & me.getID() & "/" & "SWITCH" & "/" & tStr)
   end if
   return(1)
-  exit
 end

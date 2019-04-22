@@ -1,25 +1,24 @@
-on construct(me)
+property pAssetLoadingList, pCallbackList, pDynamicDownloader, pImageLibraryURL
+
+on construct me 
   pCallbackObj = void()
   pCallbackMethod = void()
   pDynamicDownloader = void()
   pImageLibraryURL = getVariable("image.library.url")
   pCallbackList = []
   pAssetLoadingList = []
-  exit
 end
 
-on deconstruct(me)
-  exit
+on deconstruct me 
 end
 
-on isAssetDownloading(me, tAssetId)
+on isAssetDownloading me, tAssetId 
   return(pAssetLoadingList.getPos(tAssetId) <> 0)
-  exit
 end
 
-on defineCallback(me, tCallBackObj, tMethod)
+on defineCallback me, tCallBackObj, tMethod 
   tCallbackReg = 1
-  repeat while me <= tMethod
+  repeat while pCallbackList <= tMethod
     tCallback = getAt(tMethod, tCallBackObj)
     if tCallback.getAt(#obj) = tCallBackObj and tCallback.getAt(#method) = tMethod then
       tCallbackReg = 0
@@ -28,10 +27,9 @@ on defineCallback(me, tCallBackObj, tMethod)
   if tCallbackReg then
     pCallbackList.add([#obj:tCallBackObj, #method:tMethod])
   end if
-  exit
 end
 
-on removeCallback(me, tCallBackObj, tMethod)
+on removeCallback me, tCallBackObj, tMethod 
   i = 1
   repeat while i <= pCallbackList.count
     tCallback = pCallbackList.getAt(i)
@@ -41,10 +39,9 @@ on removeCallback(me, tCallBackObj, tMethod)
     end if
     i = i + 1
   end repeat
-  exit
 end
 
-on registerDownload(me, ttype, tAssetId, tProps)
+on registerDownload me, ttype, tAssetId, tProps 
   if voidp(pDynamicDownloader) then
     pDynamicDownloader = getThread(#dynamicdownloader).getComponent()
   end if
@@ -65,19 +62,17 @@ on registerDownload(me, ttype, tAssetId, tProps)
       end if
     end if
   end if
-  exit
 end
 
-on downloadCallback(me, tName, tSuccess, tProps)
+on downloadCallback me, tName, tSuccess, tProps 
   if tSuccess then
     if ilk(tName) = #propList then
       tProps = tName
     end if
-    repeat while me <= tSuccess
+    repeat while pCallbackList <= tSuccess
       tCallback = getAt(tSuccess, tName)
       call(tCallback.getAt(#method), tCallback.getAt(#obj), tProps)
     end repeat
     pAssetLoadingList.deleteOne(tProps.getAt(#assetId))
   end if
-  exit
 end

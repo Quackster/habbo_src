@@ -1,4 +1,6 @@
-on construct(me)
+property pMsgStruct, pXtra, pHost, pPort, pLogMode, pConnectionOk, pConnectionSecured, pDecoder, pCommandsPntr, pEncryptionOn, pListenersPntr, pConnectionShouldBeKilled, pLastContent, pLogfield
+
+on construct me 
   pEncryptionOn = 0
   pMsgStruct = getStructVariable("struct.message")
   pMsgStruct.setaProp(#connection, me.getID())
@@ -9,15 +11,13 @@ on construct(me)
   pListenersPntr = getStructVariable("struct.pointer")
   me.setLogMode(getIntVariable("connection.log.level", 0))
   return(1)
-  exit
 end
 
-on deconstruct(me)
+on deconstruct me 
   return(me.disconnect(1))
-  exit
 end
 
-on connect(me, tHost, tPort)
+on connect me, tHost, tPort 
   pHost = tHost
   pPort = tPort
   pXtra = new(xtra("Multiuser"))
@@ -33,10 +33,9 @@ on connect(me, tHost, tPort)
     me.log("Connection initialized:" && me.getID() && pHost && pPort)
   end if
   return(1)
-  exit
 end
 
-on disconnect(me, tControlled)
+on disconnect me, tControlled 
   if tControlled <> 1 then
     me.forwardMsg("DISCONNECT")
   else
@@ -52,30 +51,26 @@ on disconnect(me, tControlled)
     error(me, "Connection disconnected:" && me.getID(), #disconnect)
   end if
   return(1)
-  exit
 end
 
-on connectionReady(me)
+on connectionReady me 
   return(pConnectionOk and pConnectionSecured)
-  exit
 end
 
-on setDecoder(me, tDecoder)
+on setDecoder me, tDecoder 
   if not objectp(tDecoder) then
     return(error(me, "Decoder object expected:" && tDecoder, #setDecoder))
   else
     pDecoder = tDecoder
     return(1)
   end if
-  exit
 end
 
-on getDecoder(me)
+on getDecoder me 
   return(pDecoder)
-  exit
 end
 
-on setLogMode(me, tMode)
+on setLogMode me, tMode 
   if tMode.ilk <> #integer then
     return(error(me, "Invalid argument:" && tMode, #setLogMode))
   end if
@@ -89,22 +84,19 @@ on setLogMode(me, tMode)
     end if
   end if
   return(1)
-  exit
 end
 
-on getLogMode(me)
+on getLogMode me 
   return(pLogMode)
-  exit
 end
 
-on setEncryption(me, tBoolean)
+on setEncryption me, tBoolean 
   pEncryptionOn = tBoolean
   pConnectionSecured = 1
   return(1)
-  exit
 end
 
-on send(me, tCmd, tMsg)
+on send me, tCmd, tMsg 
   if not pConnectionOk and objectp(pXtra) then
     return(error(me, "Connection not ready:" && me.getID(), #send))
   end if
@@ -138,45 +130,42 @@ on send(me, tCmd, tMsg)
   tMsg = tCmd & tL3 & tL2 & tL1 & tMsg
   pXtra.sendNetMessage(0, 0, tMsg)
   return(1)
-  exit
 end
 
-on getWaitingMessagesCount(me)
+on getWaitingMessagesCount me 
   return(pXtra.getNumberWaitingNetMessages())
-  exit
 end
 
-on processWaitingMessages(me, tCount)
+on processWaitingMessages me, tCount 
   if voidp(tCount) then
     tCount = 1
   end if
   return(pXtra.checkNetMessages(tCount))
-  exit
 end
 
-on getProperty(me, tProp)
-  if me = #xtra then
+on getProperty me, tProp 
+  if tProp = #xtra then
     return(pXtra)
   else
-    if me = #host then
+    if tProp = #host then
       return(pHost)
     else
-      if me = #port then
+      if tProp = #port then
         return(pPort)
       else
-        if me = #decoder then
+        if tProp = #decoder then
           return(me.getDecoder())
         else
-          if me = #logmode then
+          if tProp = #logmode then
             return(me.getLogMode())
           else
-            if me = #listener then
+            if tProp = #listener then
               return(pListenersPntr)
             else
-              if me = #commands then
+              if tProp = #commands then
                 return(pCommandsPntr)
               else
-                if me = #message then
+                if tProp = #message then
                   return(pMsgStruct)
                 end if
               end if
@@ -187,17 +176,16 @@ on getProperty(me, tProp)
     end if
   end if
   return(0)
-  exit
 end
 
-on setProperty(me, tProp, tValue)
-  if me = #decoder then
+on setProperty me, tProp, tValue 
+  if tProp = #decoder then
     return(me.setDecoder(tValue))
   else
-    if me = #logmode then
+    if tProp = #logmode then
       return(me.setLogMode(tValue))
     else
-      if me = #listener then
+      if tProp = #listener then
         if tValue.ilk = #struct then
           pListenersPntr = tValue
           return(1)
@@ -205,7 +193,7 @@ on setProperty(me, tProp, tValue)
           return(0)
         end if
       else
-        if me = #commands then
+        if tProp = #commands then
           if tValue.ilk = #struct then
             pCommandsPntr = tValue
             return(1)
@@ -217,10 +205,9 @@ on setProperty(me, tProp, tValue)
     end if
   end if
   return(0)
-  exit
 end
 
-on print(me)
+on print me 
   tStr = ""
   if symbolp(me.getID()) then
   end if
@@ -229,7 +216,7 @@ on print(me)
     i = 1
     repeat while i <= count(tMsgsList)
       tCallbackList = tMsgsList.getAt(i)
-      repeat while me <= undefined
+      repeat while "#" <= undefined
         tCallback = getAt(undefined, undefined)
       end repeat
       i = 1 + i
@@ -237,10 +224,9 @@ on print(me)
   end if
   put(tStr & "\r")
   return(1)
-  exit
 end
 
-on xtraMsgHandler(me)
+on xtraMsgHandler me 
   if pConnectionShouldBeKilled <> 0 then
     return(0)
   end if
@@ -294,10 +280,9 @@ on xtraMsgHandler(me)
       i = 1 + i
     end repeat
   end if
-  exit
 end
 
-on forwardMsg(me, tMessage)
+on forwardMsg me, tMessage 
   if pConnectionShouldBeKilled = 1 then
     return(0)
   end if
@@ -333,17 +318,15 @@ on forwardMsg(me, tMessage)
     exit repeat
   end if
   error(me, "Listener not found:" && tSubject && "/" && me.getID(), #forwardMsg)
-  exit
 end
 
-on log(me, tMsg)
-  if me = 1 then
+on log me, tMsg 
+  if pLogMode = 1 then
     put("[Connection" && me.getID() & "] :" && tMsg)
   else
-    if me = 2 then
+    if pLogMode = 2 then
       if ilk(pLogfield, #member) then
       end if
     end if
   end if
-  exit
 end

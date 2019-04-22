@@ -1,6 +1,8 @@
-on construct(me)
+property pWndID, pObjList, pWriterObj, pListHeight
+
+on construct me 
   pWndID = "Furniture Chooser."
-  pObjList = []
+  pObjList = [:]
   tMetrics = getStructVariable("struct.font.plain")
   tMetrics.setaProp(#lineHeight, 14)
   createWriter(me.getID() && "Writer", tMetrics)
@@ -23,16 +25,15 @@ on construct(me)
   registerMessage(#activeObjectsUpdated, me.getID(), #update)
   registerMessage(#itemObjectsUpdated, me.getID(), #update)
   return(1)
-  exit
 end
 
-on deconstruct(me)
+on deconstruct me 
   if windowExists(pWndID) then
     removeWindow(pWndID)
   end if
   pWriterObj = void()
   removeWriter(me.getID() && "Writer")
-  pObjList = []
+  pObjList = [:]
   unregisterMessage(#leaveRoom, me.getID())
   unregisterMessage(#changeRoom, me.getID())
   unregisterMessage(#enterRoom, me.getID())
@@ -41,20 +42,17 @@ on deconstruct(me)
   unregisterMessage(#activeObjectsUpdated, me.getID())
   unregisterMessage(#itemObjectsUpdated, me.getID())
   return(1)
-  exit
 end
 
-on showList(me)
+on showList me 
   return(me.update())
-  exit
 end
 
-on close(me)
+on close me 
   return(removeObject(me.getID()))
-  exit
 end
 
-on update(me)
+on update me 
   if not threadExists(#room) then
     return(removeObject(me.getID()))
   end if
@@ -63,11 +61,11 @@ on update(me)
   end if
   tRoomComponent = getThread(#room).getComponent()
   if not objectp(tRoomComponent) then
-    return([])
+    return([:])
   end if
   tActiveObjList = tRoomComponent.getActiveObject(#list)
   tItemObjList = tRoomComponent.getItemObject(#list)
-  pObjList = []
+  pObjList = [:]
   pObjList.sort()
   tClickAction = ""
   tMoverClientId = 0
@@ -77,7 +75,7 @@ on update(me)
     tClickAction = getThread(#room).getInterface().getProperty(#clickAction)
   end if
   tAdminChooser = getObject(#session).get("user_rights").getOne("fuse_any_room_controller")
-  repeat while me <= undefined
+  repeat while tActiveObjList <= undefined
     tObj = getAt(undefined, undefined)
     if tAdminChooser then
       pObjList.setaProp("a" & tObj.getID(), "Id:" & tObj.getID() && tObj.getLocation() && tObj.getInfo().name)
@@ -85,7 +83,7 @@ on update(me)
       pObjList.setaProp("a" & tObj.getID(), tObj.getInfo().name)
     end if
   end repeat
-  repeat while me <= undefined
+  repeat while tActiveObjList <= undefined
     tObj = getAt(undefined, undefined)
     if tAdminChooser then
       pObjList.setaProp("i" & tObj.getID(), "Id:" & tObj.getID() && tObj.getLocation() && tObj.getInfo().name)
@@ -104,22 +102,20 @@ on update(me)
   tElem.feedImage(tImg)
   pListHeight = tImg.height
   return(1)
-  exit
 end
 
-on clear(me)
-  pObjList = []
+on clear me 
+  pObjList = [:]
   pListHeight = 0
   getWindow(pWndID).getElement("list").feedImage(image(1, 1, 8))
   return(1)
-  exit
 end
 
-on eventProcChooser(me, tEvent, tSprID, tParam)
-  if me = "close" then
+on eventProcChooser me, tEvent, tSprID, tParam 
+  if tSprID = "close" then
     return(removeObject(me.getID()))
   else
-    if me = "list" then
+    if tSprID = "list" then
       tCount = count(pObjList)
       if tCount = 0 then
         return(0)
@@ -178,5 +174,4 @@ on eventProcChooser(me, tEvent, tSprID, tParam)
       end if
     end if
   end if
-  exit
 end

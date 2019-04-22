@@ -1,6 +1,8 @@
-on construct(me)
-  pValidPartProps = []
-  pValidPartGroups = []
+property pFigurePartListLoadedFlag, pState, pAvailableSetListLoadedFlag
+
+on construct me 
+  pValidPartProps = [:]
+  pValidPartGroups = [:]
   pFigurePartListLoadedFlag = 0
   pAvailableSetListLoadedFlag = 0
   setVariable("figurepartlist.loaded", 0)
@@ -11,10 +13,9 @@ on construct(me)
   registerMessage(#hide_registration, me.getID(), #closeFigureCreator)
   registerMessage(#userlogin, me.getID(), #getAvailableSetList)
   return(me.updateState("loadFigurePartList"))
-  exit
 end
 
-on deconstruct(me)
+on deconstruct me 
   unregisterMessage(#enterRoom, me.getID())
   unregisterMessage(#changeRoom, me.getID())
   unregisterMessage(#leaveRoom, me.getID())
@@ -22,25 +23,21 @@ on deconstruct(me)
   unregisterMessage(#hide_registration, me.getID())
   unregisterMessage(#userlogin, me.getID())
   return(me.updateState("reset"))
-  exit
 end
 
-on openFigureCreator(me)
+on openFigureCreator me 
   return(me.updateState("openFigureCreator"))
-  exit
 end
 
-on openFigureUpdate(me)
+on openFigureUpdate me 
   return(me.updateState("openFigureUpdate"))
-  exit
 end
 
-on closeFigureCreator(me)
+on closeFigureCreator me 
   return(me.getInterface().closeFigureCreator())
-  exit
 end
 
-on checkUserName(me, tNameStr)
+on checkUserName me, tNameStr 
   if objectExists(#string_validator) then
     if not getObject(#string_validator).validateString(tNameStr) then
       tFailed = getObject(#string_validator).getFailedChar()
@@ -54,10 +51,9 @@ on checkUserName(me, tNameStr)
     getConnection(getVariable("connection.info.id")).send(#info, "APPROVENAME" && tNameStr)
   end if
   return(1)
-  exit
 end
 
-on sendNewFigureDataToServer(me, tPropList)
+on sendNewFigureDataToServer me, tPropList 
   if not voidp(tPropList.getAt("figure")) then
     tFigure = me.GenerateFigureDataToServerMode(tPropList.getAt("figure"), tPropList.getAt("sex"))
     tPropList.setAt("figure", tFigure.getAt("figuretoServer"))
@@ -87,17 +83,16 @@ on sendNewFigureDataToServer(me, tPropList)
   else
     return(error(me, "Connection not found:" && getVariable("connection.info.id"), #sendNewFigureDataToServer))
   end if
-  exit
 end
 
-on sendFigureUpdateToServer(me, tPropList)
+on sendFigureUpdateToServer me, tPropList 
   if not voidp(tPropList.getAt("figure")) then
     tFigure = me.GenerateFigureDataToServerMode(tPropList.getAt("figure"), tPropList.getAt("sex"))
     tPropList.setAt("figure", tFigure.getAt("figuretoServer"))
   end if
   if not voidp(tPropList.getAt("password")) then
-    if me <> "" then
-      if me = void() then
+    if tPropList.getAt("password") <> "" then
+      if tPropList.getAt("password") = void() then
         return(error(me, "Password was reseted, abort update!", #sendFigureUpdateToServer))
       end if
       tMsg = ""
@@ -123,12 +118,11 @@ on sendFigureUpdateToServer(me, tPropList)
       else
         return(error(me, "Connection not found:" && getVariable("connection.info.id"), #sendFigureUpdateToServer))
       end if
-      exit
     end if
   end if
 end
 
-on newFigureReady(me)
+on newFigureReady me 
   getObject(#session).set("user_new_registration", 1)
   me.closeFigureCreator()
   me.updateState("start")
@@ -136,10 +130,9 @@ on newFigureReady(me)
     getThread(#navigator).getComponent().updateState("connectionOk")
   end if
   return(1)
-  exit
 end
 
-on figureUpdateReady(me)
+on figureUpdateReady me 
   if connectionExists(getVariable("connection.info.id")) then
     getConnection(getVariable("connection.info.id")).send(#info, "INFORETRIEVE" && getObject(#session).get(#userName) && getObject(#session).get(#password))
   else
@@ -147,45 +140,41 @@ on figureUpdateReady(me)
   end if
   me.closeFigureCreator()
   return(me.updateState("start"))
-  exit
 end
 
-on setAvailableSetList(me, tList)
+on setAvailableSetList me, tList 
   if pFigurePartListLoadedFlag and not voidp(tList) then
     me.initializeSelectablePartList(tList)
     pAvailableSetListLoadedFlag = 1
-    if me = "openFigureCreator" then
+    if pState = "openFigureCreator" then
       return(me.updateState("openFigureCreator"))
     else
-      if me = "openFigureUpdate" then
+      if pState = "openFigureUpdate" then
         return(me.updateState("openFigureUpdate"))
       end if
     end if
   end if
-  exit
 end
 
-on getAvailableSetList(me)
+on getAvailableSetList me 
   if pFigurePartListLoadedFlag = 1 and pAvailableSetListLoadedFlag = 0 then
     if connectionExists(getVariable("connection.info.id")) then
       getConnection(getVariable("connection.info.id")).send(#info, "GETAVAILABLESETS")
     end if
   end if
-  exit
 end
 
-on getState(me)
+on getState me 
   return(pState)
-  exit
 end
 
-on updateState(me, tstate, tProps)
-  if me = "reset" then
+on updateState me, tstate, tProps 
+  if tstate = "reset" then
     pState = tstate
     me.construct()
     return(0)
   else
-    if me = "loadFigurePartList" then
+    if tstate = "loadFigurePartList" then
       pState = tstate
       tURL = getVariable("external.figurepartlist.txt")
       tMem = tURL
@@ -199,7 +188,7 @@ on updateState(me, tstate, tProps)
       tmember = queueDownload(tURL, tMem, #field, 1)
       return(registerDownloadCallback(tmember, #updateState, me.getID(), "initialize"))
     else
-      if me = "initialize" then
+      if tstate = "initialize" then
         pState = tstate
         tMemName = getVariable("external.figurepartlist.txt")
         if tMemName = 0 then
@@ -223,11 +212,11 @@ on updateState(me, tstate, tProps)
         end if
         return(me.updateState("start"))
       else
-        if me = "start" then
+        if tstate = "start" then
           pState = tstate
           return(1)
         else
-          if me = "openFigureCreator" then
+          if tstate = "openFigureCreator" then
             pState = tstate
             if threadExists(#navigator) and not connectionExists(getVariable("connection.info.id")) then
               getThread(#navigator).getComponent().updateState("connection")
@@ -241,7 +230,7 @@ on updateState(me, tstate, tProps)
             end if
             return(1)
           else
-            if me = "openFigureUpdate" then
+            if tstate = "openFigureUpdate" then
               pState = tstate
               if pAvailableSetListLoadedFlag = 0 then
                 return(me.getAvailableSetList())
@@ -258,5 +247,4 @@ on updateState(me, tstate, tProps)
       end if
     end if
   end if
-  exit
 end

@@ -1,4 +1,6 @@
-on construct(me)
+property pUpdateIntervalId, pFriendDataContainer, pFriendRequestContainer, pReadyFlag, pSentFriendRequests, pNewMail, pHabboSearchResults, pHabboSearchLastString
+
+on construct me 
   tStamp = ""
   tNo = 1
   repeat while tNo <= 100
@@ -12,6 +14,7 @@ on construct(me)
   repeat while tCharNo <= tStamp.length
     tChar = chars(tStamp, tCharNo, tCharNo)
     tChar = charToNum(tChar)
+    tChar = tChar * tCharNo + 309203
     tReceipt.setAt(tCharNo, tChar)
     tCharNo = 1 + tCharNo
   end repeat
@@ -24,15 +27,14 @@ on construct(me)
   pFriendRequestContainer = createObject(getUniqueID(), "Friend Request List Container")
   pReadyFlag = 0
   pNewMail = 0
-  pHabboSearchResults = [#friends:[], #habbos:[]]
+  pHabboSearchResults = [#friends:[:], #habbos:[:]]
   pHabboSearchLastString = ""
   pSentFriendRequests = []
   registerMessage(#externalFriendRequest, me.getID(), #externalFriendRequest)
   return(1)
-  exit
 end
 
-on deconstruct(me)
+on deconstruct me 
   if timeoutExists(pUpdateIntervalId) then
     removeTimeout(pUpdateIntervalId)
   end if
@@ -40,49 +42,43 @@ on deconstruct(me)
   pFriendDataContainer.deconstruct()
   pFriendRequestContainer.deconstruct()
   return(1)
-  exit
 end
 
-on setFriendListInited(me)
+on setFriendListInited me 
   tInterval = getVariable("fr.update.interval")
   createTimeout(pUpdateIntervalId, tInterval, #requestFriendListUpdate, me.getID(), void(), 0)
   executeMessage(#friendListReady)
   pReadyFlag = 1
-  exit
 end
 
-on isFriendListInited(me)
+on isFriendListInited me 
   return(pReadyFlag)
-  exit
 end
 
-on populateCategoryData(me, tdata)
+on populateCategoryData me, tdata 
   pFriendDataContainer.populateCategoryData(tdata)
   me.getInterface().changeCategory(void())
-  exit
 end
 
-on populateFriendData(me, tdata)
+on populateFriendData me, tdata 
   pFriendDataContainer.populateFriendData(tdata)
-  exit
 end
 
-on addFriend(me, tFriendData)
+on addFriend me, tFriendData 
   if listp(tFriendData) then
     pSentFriendRequests.deleteOne(tFriendData.getaProp(#name))
   end if
   pFriendDataContainer.addFriend(tFriendData)
   me.getInterface().addFriend(tFriendData)
-  exit
 end
 
-on updateFriend(me, tFriendData, tHoldRender)
+on updateFriend me, tFriendData, tHoldRender 
   if ilk(tFriendData) <> #propList then
     return(0)
   end if
   tOldFriendData = pFriendDataContainer.getFriendByID(tFriendData.getAt(#id))
   if ilk(tOldFriendData) <> #propList then
-    tOldFriendData = []
+    tOldFriendData = [:]
   end if
   pSentFriendRequests.deleteOne(tFriendData.getaProp(#name))
   if tOldFriendData.getAt(#categoryId) <> tFriendData.getAt(#categoryId) then
@@ -102,10 +98,9 @@ on updateFriend(me, tFriendData, tHoldRender)
     me.getInterface().updateFriend(tFriendData, tHoldRender)
   end if
   executeMessage(#friendDataUpdated, tFriendData.getAt(#id))
-  exit
 end
 
-on removeFriend(me, tFriendID)
+on removeFriend me, tFriendID 
   tFriendData = me.getFriendByID(tFriendID)
   if tFriendData = 0 then
     return(0)
@@ -113,16 +108,14 @@ on removeFriend(me, tFriendID)
   tCategoryID = tFriendData.getAt(#categoryId)
   pFriendDataContainer.removeFriend(tFriendID)
   me.getInterface().removeFriend(tFriendID, tCategoryID)
-  exit
 end
 
-on addFriendRequest(me, tRequestData)
+on addFriendRequest me, tRequestData 
   pFriendRequestContainer.addRequest(tRequestData)
   me.getInterface().addFriendRequest(tRequestData)
-  exit
 end
 
-on setUnreadMailCount(me, tCount)
+on setUnreadMailCount me, tCount 
   if tCount > 0 then
     pNewMail = 1
     me.getInterface().activateMailIcon(1)
@@ -133,20 +126,18 @@ on setUnreadMailCount(me, tCount)
     me.getInterface().endInboxBlink()
   end if
   me.updateFriendListIconStatus()
-  exit
 end
 
-on newMailFrom(me, tUserID)
+on newMailFrom me, tUserID 
   pNewMail = 1
   me.updateFriendListIconStatus()
   me.getInterface().activateMailIcon(1)
   tSoundMemName = getVariable("fr.new.mail.sound")
   playSound(tSoundMemName, #cut, [#loopCount:1, #infiniteloop:0, #volume:255])
   me.getInterface().startInboxBlink()
-  exit
 end
 
-on notifyFriendRequests(me)
+on notifyFriendRequests me 
   tPendingList = me.getPendingFriendRequests()
   tPendingCount = tPendingList.count
   executeMessage(#updateFriendRequestCount, tPendingCount)
@@ -156,10 +147,9 @@ on notifyFriendRequests(me)
     me.getInterface().removeCategoryHighlight(-2)
   end if
   me.updateFriendListIconStatus()
-  exit
 end
 
-on updateFriendListIconStatus(me)
+on updateFriendListIconStatus me 
   tActive = 0
   tFrList = me.getPendingFriendRequests()
   if ilk(tFrList) = #propList then
@@ -172,29 +162,26 @@ on updateFriendListIconStatus(me)
     tActive = 1
   end if
   executeMessage(#updateFriendListIcon, tActive)
-  exit
 end
 
-on setFriendLimits(me, tUserLimit, tNormalLimit, tExtendedLimit)
+on setFriendLimits me, tUserLimit, tNormalLimit, tExtendedLimit 
   pFriendDataContainer.setListLimit(tUserLimit)
-  exit
 end
 
-on isFriendListFull(me)
+on isFriendListFull me 
   return(pFriendDataContainer.isListFull())
-  exit
 end
 
-on updateFriendRequest(me, tRequestData, tstate)
+on updateFriendRequest me, tRequestData, tstate 
   if not ilk(tRequestData) = #propList then
     return(0)
   end if
-  if me = #rejected then
+  if tstate = #rejected then
     tMsg = [#integer:0, #integer:1, #integer:integer(tRequestData.getAt(#id))]
     tConn = getConnection(getVariable("connection.info.id"))
     tConn.send("FRIENDLIST_DECLINEFRIEND", tMsg)
   else
-    if me = #accepted then
+    if tstate = #accepted then
       tMsg = [#integer:1, #integer:integer(tRequestData.getAt(#id))]
       tConn = getConnection(getVariable("connection.info.id"))
       tConn.send("FRIENDLIST_ACCEPTFRIEND", tMsg)
@@ -203,10 +190,9 @@ on updateFriendRequest(me, tRequestData, tstate)
   tRequestData.setAt(#state, tstate)
   pFriendRequestContainer.updateRequest(tRequestData)
   me.notifyFriendRequests()
-  exit
 end
 
-on handleAllRequests(me, tstate)
+on handleAllRequests me, tstate 
   if not connectionExists(getVariable("connection.info.id")) then
     return(0)
   end if
@@ -214,10 +200,10 @@ on handleAllRequests(me, tstate)
   if tRequests.count = 0 then
     return(1)
   end if
-  tMsgList = []
+  tMsgList = [:]
   tMsgList.addProp(#integer, 0)
   tMsgList.addProp(#integer, tRequests.count)
-  repeat while me <= undefined
+  repeat while tRequests <= undefined
     tRequest = getAt(undefined, tstate)
     tID = tRequest.getaProp(#id)
     tMsgList.addProp(#integer, integer(tID))
@@ -232,67 +218,59 @@ on handleAllRequests(me, tstate)
   end if
   me.notifyFriendRequests()
   return(1)
-  exit
 end
 
-on getPendingFriendRequests(me)
+on getPendingFriendRequests me 
   return(pFriendRequestContainer.getPendingRequests().duplicate())
-  exit
 end
 
-on sendRemoveFriend(me, tFriendID)
+on sendRemoveFriend me, tFriendID 
   if connectionExists(getVariable("connection.info.id")) then
     getConnection(getVariable("connection.info.id")).send("FRIENDLIST_REMOVEFRIEND", [#integer:1, #integer:integer(tFriendID)])
   end if
-  exit
 end
 
-on getFriendByID(me, tFriendID)
+on getFriendByID me, tFriendID 
   tList = pFriendDataContainer.getFriendByID(tFriendID)
   if ilk(tList) = #propList then
     return(tList.duplicate())
   else
     return(0)
   end if
-  exit
 end
 
-on getFriendByName(me, tName)
+on getFriendByName me, tName 
   tList = pFriendDataContainer.getFriendByName(tName)
   if ilk(tList) = #propList then
     return(tList.duplicate())
   else
     return(0)
   end if
-  exit
 end
 
-on getFriendsInCategory(me, tCategoryID)
+on getFriendsInCategory me, tCategoryID 
   tFriends = pFriendDataContainer.getFriendsInCategory(tCategoryID)
   if ilk(tFriends) = #propList then
     return(tFriends.duplicate())
   else
     return(0)
   end if
-  exit
 end
 
-on getCategoryList(me)
+on getCategoryList me 
   tList = pFriendDataContainer.getCategoryList()
   if ilk(tList) = #propList then
     return(tList.duplicate())
   else
     return(0)
   end if
-  exit
 end
 
-on getCategoryName(me, tID)
+on getCategoryName me, tID 
   return(pFriendDataContainer.getCategoryName(tID))
-  exit
 end
 
-on getItemCountForcategory(me, tCategoryID)
+on getItemCountForcategory me, tCategoryID 
   if tCategoryID >= -1 then
     tList = pFriendDataContainer.getFriendsInCategory(tCategoryID)
   else
@@ -310,17 +288,15 @@ on getItemCountForcategory(me, tCategoryID)
     tCount = 0
   end if
   return(tCount)
-  exit
 end
 
-on requestFriendListUpdate(me)
+on requestFriendListUpdate me 
   if connectionExists(getVariable("connection.info.id")) then
     getConnection(getVariable("connection.info.id")).send("FRIENDLIST_UPDATE")
   end if
-  exit
 end
 
-on externalFriendRequest(me, tTargetUserName)
+on externalFriendRequest me, tTargetUserName 
   if isFriendListFull() then
     executeMessage(#alert, "console_fr_limit_exceeded_error")
     return(0)
@@ -338,18 +314,16 @@ on externalFriendRequest(me, tTargetUserName)
   if connectionExists(getVariable("connection.info.id")) then
     getConnection(getVariable("connection.info.id")).send("FRIENDLIST_FRIENDREQUEST", [#string:tTargetUserName])
   end if
-  exit
 end
 
-on sendAskForFriendRequests(me)
+on sendAskForFriendRequests me 
   pFriendRequestList = []
   if connectionExists(getVariable("connection.info.id")) then
     getConnection(getVariable("connection.info.id")).send("FRIENDLIST_GETFRIENDREQUESTS")
   end if
-  exit
 end
 
-on sendHabboSearch(me, tSearchString)
+on sendHabboSearch me, tSearchString 
   if not stringp(tSearchString) then
     return(error(me, "Search string must be stringp()", #sendHabboSearch))
   end if
@@ -363,11 +337,10 @@ on sendHabboSearch(me, tSearchString)
   if connectionExists(getVariable("connection.info.id")) then
     getConnection(getVariable("connection.info.id")).send("MESSENGER_HABBOSEARCH", [#string:tSearchString])
   end if
-  exit
 end
 
-on setFriendRequestResult(me, tdata)
-  tErrorList = []
+on setFriendRequestResult me, tdata 
+  tErrorList = [:]
   tNamesPerAlert = 10
   tNames = "\r"
   tNameNum = 1
@@ -375,19 +348,19 @@ on setFriendRequestResult(me, tdata)
     tName = tErrorList.getPropAt(tNameNum)
     pSentFriendRequests.deleteOne(tName)
     tNames = tNames & "\r" & tName
-    if me = 1 then
+    if tErrorList.getAt(tNameNum) = 1 then
       tReason = getText("console_fr_limit_exceeded_error")
     else
-      if me = 2 then
+      if tErrorList.getAt(tNameNum) = 2 then
         tReason = getText("console_target_friend_list_full")
       else
-        if me = 3 then
+        if tErrorList.getAt(tNameNum) = 3 then
           tReason = getText("console_target_does_not_accept")
         else
-          if me = 4 then
+          if tErrorList.getAt(tNameNum) = 4 then
             tReason = getText("console_friend_request_not_found")
           else
-            if me = 42 then
+            if tErrorList.getAt(tNameNum) = 42 then
               tReason = getText("console_concurrency_error")
             end if
           end if
@@ -406,12 +379,11 @@ on setFriendRequestResult(me, tdata)
     tMessage = getText("console_friend_request_error") & tNames
     executeMessage(#alert, [#Msg:tMessage])
   end if
-  exit
 end
 
-on setHabboSearchResults(me, tResultsFriends, tResultsHabbos)
+on setHabboSearchResults me, tResultsFriends, tResultsHabbos 
   pHabboSearchResults.setAt(#friends, tResultsFriends)
-  repeat while me <= tResultsHabbos
+  repeat while tResultsHabbos <= tResultsHabbos
     tItem = getAt(tResultsHabbos, tResultsFriends)
     if pSentFriendRequests.findPos(tItem.getaProp(#name)) then
       tItem.setaProp(#fr_pending, 1)
@@ -419,15 +391,12 @@ on setHabboSearchResults(me, tResultsFriends, tResultsHabbos)
   end repeat
   pHabboSearchResults.setAt(#habbos, tResultsHabbos)
   me.getInterface().updateCategoryCounts()
-  exit
 end
 
-on getHabboSearchResults(me)
+on getHabboSearchResults me 
   return(pHabboSearchResults)
-  exit
 end
 
-on getHabboSearchLastString(me)
+on getHabboSearchLastString me 
   return(pHabboSearchLastString)
-  exit
 end

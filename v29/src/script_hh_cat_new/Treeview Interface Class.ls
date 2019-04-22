@@ -1,39 +1,36 @@
-on construct(me)
+property pData, pimage, pClickAreas, pwidth, pheight
+
+on construct me 
   pData = void()
   pimage = void()
   pwidth = 0
   pheight = 0
   pClickAreas = []
-  exit
 end
 
-on deconstruct(me)
+on deconstruct me 
   pData = void()
-  exit
 end
 
-on feedData(me, tdata)
+on feedData me, tdata 
   pData = tdata
   pData.getRootNode().setState(#open)
-  exit
 end
 
-on define(me, tProps)
+on define me, tProps 
   pwidth = tProps.getAt(#width)
   pheight = tProps.getAt(#height)
   pClickAreas = []
-  exit
 end
 
-on getImage(me)
+on getImage me 
   if voidp(pimage) then
     me.render()
   end if
   return(pimage)
-  exit
 end
 
-on appendRenderToImage(me, tImageDest, tImageSrc, tRectDest, tRectSrc)
+on appendRenderToImage me, tImageDest, tImageSrc, tRectDest, tRectSrc 
   if tImageDest.height > tRectDest.bottom then
     tImageDest.copyPixels(tImageSrc, tRectDest, tRectSrc, [#useFastQuads:1])
     return(tImageDest)
@@ -43,10 +40,9 @@ on appendRenderToImage(me, tImageDest, tImageSrc, tRectDest, tRectSrc)
     tImageNew.copyPixels(tImageSrc, tRectDest, tRectSrc, [#useFastQuads:1])
     return(tImageNew)
   end if
-  exit
 end
 
-on renderNode(me, tNode, tOffsetY)
+on renderNode me, tNode, tOffsetY 
   if not tNode = pData.getRootNode() and not tNode.getData(#navigateable) then
     return(tOffsetY)
   end if
@@ -57,42 +53,38 @@ on renderNode(me, tNode, tOffsetY)
     tOffsetY = tOffsetY + tNodeImage.height
   end if
   if tNode.getState() = #open and tNode.getChildren().count > 0 then
-    repeat while me <= tOffsetY
+    repeat while tNode.getChildren() <= tOffsetY
       tChild = getAt(tOffsetY, tNode)
       tOffsetY = me.renderNode(tChild, tOffsetY)
     end repeat
   end if
   return(tOffsetY)
-  exit
 end
 
-on render(me)
+on render me 
   pimage = image(pwidth, pheight, 32)
   pClickAreas = []
   tOffsetY = 0
   me.renderNode(pData.getRootNode(), tOffsetY)
-  exit
 end
 
-on selectNode(me, tNode, tSelectedNode)
+on selectNode me, tNode, tSelectedNode 
   if tNode = tSelectedNode then
     tNode.select(1)
   else
     tNode.select(0)
   end if
-  repeat while me <= tSelectedNode
+  repeat while tNode.getChildren() <= tSelectedNode
     tChild = getAt(tSelectedNode, tNode)
     me.selectNode(tChild, tSelectedNode)
   end repeat
-  exit
 end
 
-on select(me, tNodeObj)
+on select me, tNodeObj 
   me.selectNode(pData.getRootNode(), tNodeObj)
-  exit
 end
 
-on simulateClickByName(me, tNodeName)
+on simulateClickByName me, tNodeName 
   if ilk(pClickAreas) <> #list then
     return(0)
   end if
@@ -107,13 +99,12 @@ on simulateClickByName(me, tNodeName)
           i = 1 + i
         end if
         me.handleClick(tClickLoc)
-        exit
       end if
     end if
   end repeat
 end
 
-on handleClick(me, tloc)
+on handleClick me, tloc 
   if ilk(tloc) <> #point then
     return()
   end if
@@ -138,7 +129,7 @@ on handleClick(me, tloc)
   end if
   if tNode.getData(#level) <= 1 then
     pData.getRootNode().setState(#open)
-    repeat while me <= undefined
+    repeat while pData.getRootNode().getChildren() <= undefined
       tChild = getAt(undefined, tloc)
       if tNode <> tChild then
         tChild.setState(#closed)
@@ -151,5 +142,4 @@ on handleClick(me, tloc)
     pData.handlePageRequest(tNode.getData(#pageid))
   end if
   return(1)
-  exit
 end

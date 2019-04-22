@@ -1,16 +1,16 @@
-on construct(me)
-  exit
+property pSprite
+
+on construct me 
 end
 
-on deconstruct(me)
+on deconstruct me 
   if ilk(pSprite) = #sprite then
     releaseSprite(pSprite.spriteNum)
   end if
   pSprite = void()
-  exit
 end
 
-on define(me, tUserID)
+on define me, tUserID 
   tUserObj = getThread(#room).getComponent().getUserObject(tUserID)
   if not tUserObj then
     return(0)
@@ -29,10 +29,9 @@ on define(me, tUserID)
   pSprite.ink = 8
   pSprite.locZ = getIntVariable("window.default.locz") - 4000
   receiveUpdate(me.getID())
-  exit
 end
 
-on update(me)
+on update me 
   pSprite.loc = pSprite.loc + point(0, -10)
   if pSprite.blend > 0 then
     pSprite.blend = pSprite.blend - 10
@@ -41,5 +40,4 @@ on update(me)
     removeUpdate(me.getID())
     me.deconstruct()
   end if
-  exit
 end

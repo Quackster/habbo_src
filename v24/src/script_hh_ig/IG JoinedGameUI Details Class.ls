@@ -1,4 +1,6 @@
-on addWindows(me, tView)
+property pOwnerFlag, pPreviousLayout, pCurrentText
+
+on addWindows me, tView 
   me.pWindowID = "jg"
   tWrapObjRef = me.getWindowWrapper()
   if tWrapObjRef = 0 then
@@ -7,10 +9,9 @@ on addWindows(me, tView)
   tWrapObjRef.initSet(me.pWindowSetId, 1)
   tWrapObjRef.addOneWindow(me.getWindowId(), void(), me.pWindowSetId)
   return(1)
-  exit
 end
 
-on render(me, tView)
+on render me, tView 
   tListService = me.getIGComponent("GameList")
   if tListService = 0 then
     return(0)
@@ -55,26 +56,24 @@ on render(me, tView)
     i = 1 + i
   end repeat
   return(1)
-  exit
 end
 
-on renderProperty(me, tKey, tValue)
-  if me = #players_required then
+on renderProperty me, tKey, tValue 
+  if tKey = #players_required then
     return(me.renderCanStart(tValue))
   else
-    if me = #game_type_icon then
+    if tKey = #game_type_icon then
       return(me.renderType(tValue))
     else
-      if me = #level_name then
+      if tKey = #level_name then
         return(me.renderName(tValue))
       end if
     end if
   end if
   return(0)
-  exit
 end
 
-on renderCanStart(me, tValue)
+on renderCanStart me, tValue 
   if not listp(tValue) then
     tstate = 1
   end if
@@ -128,10 +127,9 @@ on renderCanStart(me, tValue)
   tElem.moveTo(tOffsetH, tElem.getProperty(#locY))
   tElem.resizeTo(tImage.width, tImage.height)
   return(1)
-  exit
 end
 
-on renderType(me, tValue)
+on renderType me, tValue 
   tWndObj = getWindow(me.getWindowId())
   if tWndObj = 0 then
     return(0)
@@ -144,10 +142,9 @@ on renderType(me, tValue)
     tElem.feedImage(tValue)
   end if
   return(1)
-  exit
 end
 
-on renderName(me, tValue)
+on renderName me, tValue 
   tWndObj = getWindow(me.getWindowId())
   if tWndObj = 0 then
     return(0)
@@ -158,10 +155,9 @@ on renderName(me, tValue)
   end if
   tElem.setText(tValue)
   return(1)
-  exit
 end
 
-on renderTeams(me, tGameRef)
+on renderTeams me, tGameRef 
   tWndObj = getWindow(me.getWindowId())
   if tWndObj = 0 then
     return(0)
@@ -193,10 +189,9 @@ on renderTeams(me, tGameRef)
     tTeamIndex = 1 + tTeamIndex
   end repeat
   return(1)
-  exit
 end
 
-on renderNoPlayer(me, tRequired, tTeamIndex, tPlayerIndex)
+on renderNoPlayer me, tRequired, tTeamIndex, tPlayerIndex 
   tWndObj = getWindow(me.getWindowId())
   if tWndObj = 0 then
     return(0)
@@ -229,10 +224,9 @@ on renderNoPlayer(me, tRequired, tTeamIndex, tPlayerIndex)
     tElement.hide()
   end if
   return(1)
-  exit
 end
 
-on renderPlayer(me, tInfo, tTeamIndex, tPlayerIndex, tOwnerFlag)
+on renderPlayer me, tInfo, tTeamIndex, tPlayerIndex, tOwnerFlag 
   tWndObj = getWindow(me.getWindowId())
   if tWndObj = 0 then
     return(0)
@@ -269,10 +263,9 @@ on renderPlayer(me, tInfo, tTeamIndex, tPlayerIndex, tOwnerFlag)
     end if
   end if
   return(1)
-  exit
 end
 
-on setStartButtonState(me, towner, tstate)
+on setStartButtonState me, towner, tstate 
   tWndObj = getWindow(me.getWindowId())
   if tWndObj = 0 then
     return(0)
@@ -294,21 +287,19 @@ on setStartButtonState(me, towner, tstate)
     tElement.hide()
   end if
   return(1)
-  exit
 end
 
-on eventProcMouseDown(me, tEvent, tSprID, tParam, tWndID)
+on eventProcMouseDown me, tEvent, tSprID, tParam, tWndID 
   tListService = me.getIGComponent("GameList")
   if tListService = 0 then
     return(0)
   end if
-  if me = "ig_change_team.button" then
+  if tSprID = "ig_change_team.button" then
     return(tListService.setNextTeamInJoinedGame())
   else
-    if me = "ig_icon_gamelist" then
+    if tSprID = "ig_icon_gamelist" then
       return(me.ChangeWindowView("GameList"))
     end if
   end if
   return(1)
-  exit
 end

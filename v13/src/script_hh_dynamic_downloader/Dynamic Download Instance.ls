@@ -1,21 +1,21 @@
-on construct(me)
+property pListenerList, pAssetId, pAssetType, pDownloadURL, pAllowindexing
+
+on construct me 
   pListenerList = []
   pAssetId = void()
   pDownloadID = void()
   pAllowindexing = 0
-  exit
 end
 
-on addCallbackListener(me, tObjectID, tHandlerName, tCallbackParams)
+on addCallbackListener me, tObjectID, tHandlerName, tCallbackParams 
   tNewListener = [#objectID:tObjectID, #handlerName:tHandlerName, #callbackParams:tCallbackParams]
   pListenerList.add(tNewListener)
-  exit
 end
 
-on purgeCallbacks(me, tSuccess)
+on purgeCallbacks me, tSuccess 
   tTimeoutName = "dyndownload" & the milliSeconds
   tCounter = 1
-  repeat while me <= undefined
+  repeat while pListenerList <= undefined
     tListener = getAt(undefined, tSuccess)
     tObject = getObject(tListener.getAt(#objectID))
     tHandler = tListener.getAt(#handlerName)
@@ -28,35 +28,29 @@ on purgeCallbacks(me, tSuccess)
     tCounter = tCounter + 1
   end repeat
   pListenerList = []
-  exit
 end
 
-on setAssetId(me, tAssetId)
+on setAssetId me, tAssetId 
   pAssetId = tAssetId
-  exit
 end
 
-on getAssetId(me)
+on getAssetId me 
   return(pAssetId)
-  exit
 end
 
-on setAssetType(me, tAssetType)
+on setAssetType me, tAssetType 
   pAssetType = tAssetType
-  exit
 end
 
-on getAssetType(me)
+on getAssetType me 
   return(pAssetType)
-  exit
 end
 
-on setDownloadName(me, tURL)
+on setDownloadName me, tURL 
   pDownloadURL = tURL
-  exit
 end
 
-on getDownloadName(me)
+on getDownloadName me 
   tOffset = offset("?", pDownloadURL)
   if tOffset then
     tDownloadURLNoParams = pDownloadURL.getProp(#char, 1, tOffset - 1)
@@ -64,20 +58,16 @@ on getDownloadName(me)
     tDownloadURLNoParams = pDownloadURL
   end if
   return(tDownloadURLNoParams)
-  exit
 end
 
-on setIndexing(me, tAllowIndexing)
+on setIndexing me, tAllowIndexing 
   pAllowindexing = tAllowIndexing
-  exit
 end
 
-on getIndexing(me)
+on getIndexing me 
   return(pAllowindexing)
-  exit
 end
 
-on sendTimeoutCallbacks(me, tArguments)
+on sendTimeoutCallbacks me, tArguments 
   call(tArguments.getAt(1), tArguments.getAt(2), tArguments.getAt(3), tArguments.getAt(4), tArguments.getAt(5))
-  exit
 end

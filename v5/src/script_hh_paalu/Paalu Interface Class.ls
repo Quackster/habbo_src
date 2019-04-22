@@ -1,17 +1,18 @@
-on construct(me)
+property pWndID, pArrowSpr, pCurrTime, pCurrAct, pKeyList, pCycleTime, pOwnPlayer, pCurrBal, pActive
+
+on construct me 
   pWndID = "PaaluWindow"
   pActive = 0
-  pKeyList = getVariableValue("paalu.key.list", [])
+  pKeyList = getVariableValue("paalu.key.list", [:])
   pCycleTime = getIntVariable("paalu.cycle.time", 100)
   pCurrAct = "-"
   pArrowSpr = void()
   pOwnPlayer = void()
   pCurrBal = 0
   return(1)
-  exit
 end
 
-on deconstruct(me)
+on deconstruct me 
   pActive = 0
   pArrowSpr = void()
   pOwnPlayer = void()
@@ -20,10 +21,9 @@ on deconstruct(me)
   end if
   removeUpdate(me.getID())
   return(1)
-  exit
 end
 
-on prepare(me, tOwnPlayerObj)
+on prepare me, tOwnPlayerObj 
   if windowExists(pWndID) then
     return(0)
   end if
@@ -47,19 +47,17 @@ on prepare(me, tOwnPlayerObj)
   pCurrBal = 0
   pActive = 0
   return(1)
-  exit
 end
 
-on start(me)
+on start me 
   pActive = 1
   the keyboardFocusSprite = 0
   receiveUpdate(me.getID())
   startTimer()
   return(1)
-  exit
 end
 
-on stop(me)
+on stop me 
   pActive = 0
   pArrowSpr = void()
   pOwnPlayer = void()
@@ -67,10 +65,9 @@ on stop(me)
   removeUpdate(me.getID())
   the keyboardFocusSprite = -1
   return(1)
-  exit
 end
 
-on update(me)
+on update me 
   the keyboardFocusSprite = 0
   tTime = the milliSeconds - pCurrTime
   tKey = the key
@@ -100,12 +97,11 @@ on update(me)
   end if
   tBalance = pOwnPlayer.getBalance()
   tBalOff = tBalance - pCurrBal
-  pCurrBal = pCurrBal + tBalOff / 0
+  pCurrBal = pCurrBal + tBalOff / 4
   pArrowSpr.rotation = pCurrBal
-  exit
 end
 
-on resetDialog(me)
+on resetDialog me 
   tWndObj = getWindow(pWndID)
   if not tWndObj then
     return()
@@ -119,33 +115,29 @@ on resetDialog(me)
     end if
     i = 1 + i
   end repeat
-  exit
 end
 
-on sendAction(me)
+on sendAction me 
   if pActive then
     getThread(#room).getComponent().getRoomConnection().send(#room, "PTM" && pKeyList.getAt(pCurrAct))
   end if
-  exit
 end
 
-on selectKey(me, tAction)
+on selectKey me, tAction 
   tmember = member(getmemnum("paaluUI_butt_" & tAction & "_1"))
   if tmember.number > 0 then
     getWindow(pWndID).getElement("button" && tAction).getProperty(#sprite).member = tmember
   end if
-  exit
 end
 
-on highLightKey(me, tAction)
+on highLightKey me, tAction 
   tmember = member(getmemnum("paaluUI_butt_" & tAction & "_2"))
   if tmember.number > 0 then
     getWindow(pWndID).getElement("button" && tAction).getProperty(#sprite).member = tmember
   end if
-  exit
 end
 
-on eventProcPaalu(me, tEvent, tSprID, tParam)
+on eventProcPaalu me, tEvent, tSprID, tParam 
   if tSprID.getProp(#word, 1) = "button" then
     tAction = tSprID.getProp(#word, 2)
     if pCurrAct <> tAction then
@@ -156,5 +148,4 @@ on eventProcPaalu(me, tEvent, tSprID, tParam)
       pCurrAct = "-"
     end if
   end if
-  exit
 end

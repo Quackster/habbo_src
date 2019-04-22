@@ -1,5 +1,7 @@
-on construct(me)
-  pLastEventData = []
+property pClsList, pDefLocX, pDefLocY, pModalID, pLockLocZ, pLastEventData
+
+on construct me 
+  pLastEventData = [:]
   pLockLocZ = 0
   pDefLocX = getIntVariable("window.default.locx", 100)
   pDefLocY = getIntVariable("window.default.locy", 100)
@@ -8,7 +10,7 @@ on construct(me)
   me.setProperty(#defaultLocZ, getIntVariable("window.default.locz", 0))
   me.pBoundary = rect(0, 0, undefined.width, undefined.height) + getVariableValue("window.boundary.limit")
   me.pInstanceClass = getClassVariable("window.instance.class")
-  pClsList = []
+  pClsList = [:]
   pModalID = #modal
   pClsList.setAt(#wrapper, getClassVariable("window.wrapper.class"))
   pClsList.setAt(#unique, getClassVariable("window.unique.class"))
@@ -22,14 +24,13 @@ on construct(me)
     createObject(#layout_parser, getClassVariable("layout.parser.class"))
   end if
   return(1)
-  exit
 end
 
-on create(me, tID, tLayout, tLocX, tLocY, tSpecial)
-  if me = #modal then
+on create me, tID, tLayout, tLocX, tLocY, tSpecial 
+  if tSpecial = #modal then
     return(me.modal(tID, tLayout))
   else
-    if me = #modalcorner then
+    if tSpecial = #modalcorner then
       return(me.modal(tID, tLayout, #corner))
     end if
   end if
@@ -61,7 +62,7 @@ on create(me, tID, tLayout, tLocX, tLocY, tSpecial)
   if not tItem then
     return(error(me, "Failed to create window object:" && tID, #create, #major))
   end if
-  tProps = []
+  tProps = [:]
   tProps.setAt(#locX, tX)
   tProps.setAt(#locY, tY)
   tProps.setAt(#locZ, me.pAvailableLocZ)
@@ -80,10 +81,9 @@ on create(me, tID, tLayout, tLocX, tLocY, tSpecial)
   pAvailableLocZ = pAvailableLocZ + tItem.getProperty(#sprCount)
   me.Activate()
   return(1)
-  exit
 end
 
-on Remove(me, tID)
+on Remove me, tID 
   tWndObj = me.GET(tID)
   if tWndObj = 0 then
     return(0)
@@ -114,10 +114,9 @@ on Remove(me, tID)
   end if
   me.Activate(tNextActive)
   return(1)
-  exit
 end
 
-on Activate(me, tID)
+on Activate me, tID 
   if pLockLocZ then
     return(0)
   end if
@@ -143,11 +142,11 @@ on Activate(me, tID)
   me.deleteOne(tID)
   me.append(tID)
   me.pAvailableLocZ = me.pDefaultLocZ
-  repeat while me <= undefined
+  repeat while me.pItemList <= undefined
     tCurrID = getAt(undefined, tID)
     tWndObj = me.GET(tCurrID)
     tWndObj.setDeactive()
-    repeat while me <= undefined
+    repeat while me.pItemList <= undefined
       tSpr = getAt(undefined, tID)
       tSpr.locZ = me.pAvailableLocZ
       me.pAvailableLocZ = me.pAvailableLocZ + 1
@@ -155,28 +154,26 @@ on Activate(me, tID)
   end repeat
   me.pActiveItem = tID
   return(me.GET(tID).setActive())
-  exit
 end
 
-on reorder(me, tNewOrder)
+on reorder me, tNewOrder 
   if tNewOrder = me.pItemList then
     return(1)
   end if
   me.pItemList = tNewOrder
   me.pAvailableLocZ = me.pDefaultLocZ
-  repeat while me <= undefined
+  repeat while me.pItemList <= undefined
     tCurrID = getAt(undefined, tNewOrder)
     tWndObj = me.GET(tCurrID)
-    repeat while me <= undefined
+    repeat while me.pItemList <= undefined
       tSpr = getAt(undefined, tNewOrder)
       tSpr.locZ = me.pAvailableLocZ
       me.pAvailableLocZ = me.pAvailableLocZ + 1
     end repeat
   end repeat
-  exit
 end
 
-on deactivate(me, tID)
+on deactivate me, tID 
   if me.exists(tID) then
     if not me.GET(tID).getProperty(#modal) then
       me.deleteOne(tID)
@@ -186,22 +183,19 @@ on deactivate(me, tID)
     end if
   end if
   return(0)
-  exit
 end
 
-on lock(me)
+on lock me 
   pLockLocZ = 1
   return(1)
-  exit
 end
 
-on unlock(me)
+on unlock me 
   pLockLocZ = 0
   return(1)
-  exit
 end
 
-on modal(me, tID, tLayout, tPosition)
+on modal me, tID, tLayout, tPosition 
   if voidp(tPosition) then
     tPosition = #center
   end if
@@ -209,10 +203,10 @@ on modal(me, tID, tLayout, tPosition)
     return(0)
   end if
   tWndObj = me.GET(tID)
-  if me = #center then
+  if tPosition = #center then
     tWndObj.center()
   else
-    if me = #corner then
+    if tPosition = #corner then
       tWndObj.moveTo(0, 0)
     end if
   end if
@@ -233,17 +227,14 @@ on modal(me, tID, tLayout, tPosition)
   me.pActiveItem = tID
   me.Activate(tID)
   return(1)
-  exit
 end
 
-on registerWindowEvent(me, tTitle, tSprID, tEvent)
+on registerWindowEvent me, tTitle, tSprID, tEvent 
   pLastEventData.setAt(#title, tTitle)
   pLastEventData.setAt(#sprite, tSprID)
   pLastEventData.setAt(#event, tEvent)
-  exit
 end
 
-on getLastEvent(me)
+on getLastEvent me 
   return(pLastEventData.getAt(#title) & "-" & pLastEventData.getAt(#sprite) & "-" & pLastEventData.getAt(#event))
-  exit
 end

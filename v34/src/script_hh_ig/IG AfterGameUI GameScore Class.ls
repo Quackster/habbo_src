@@ -1,4 +1,4 @@
-on addWindows(me)
+on addWindows me 
   me.pWindowID = "a"
   tService = me.getIGComponent("AfterGame")
   if tService = 0 then
@@ -56,10 +56,9 @@ on addWindows(me)
     end repeat
     tTeamPos = 1 + tTeamPos
   end repeat
-  exit
 end
 
-on displayPlayerLeft(me, tTeamId, tPlayerPos)
+on displayPlayerLeft me, tTeamId, tPlayerPos 
   me.setPlayerFlags(me.getWindowId(tTeamId), tPlayerPos, tTeamId)
   tWndObj = getWindow(me.getWindowId(tTeamId))
   if tWndObj = 0 then
@@ -83,10 +82,9 @@ on displayPlayerLeft(me, tTeamId, tPlayerPos)
   end if
   tElem.hide()
   return(1)
-  exit
 end
 
-on displayPlayerRejoined(me, tTeamPos, tPlayerPos)
+on displayPlayerRejoined me, tTeamPos, tPlayerPos 
   tWndObj = getWindow(me.getWindowId(tTeamPos))
   if tWndObj = 0 then
     return(0)
@@ -103,10 +101,9 @@ on displayPlayerRejoined(me, tTeamPos, tPlayerPos)
   tElem.feedImage(tImage)
   tElem.moveBy(tElem.getProperty(#width) - tImage.width / 2, tElem.getProperty(#height) - tImage.height / 2)
   return(1)
-  exit
 end
 
-on setPlayerFlags(me, tWndID, tPlayerPos, tTeamId, tItemInfo, tGameRef)
+on setPlayerFlags me, tWndID, tPlayerPos, tTeamId, tItemInfo, tGameRef 
   tID = me.getBasicFlagId() & "_p_" & tTeamId & "_" & tPlayerPos
   if me.existsFlagObject(tID) then
     return(1)
@@ -134,10 +131,9 @@ on setPlayerFlags(me, tWndID, tPlayerPos, tTeamId, tItemInfo, tGameRef)
     end if
   end if
   me.setInfoFlag(tID, tWndID, tElemID, tFlagType, tColorDark, tItemInfo)
-  exit
 end
 
-on setTeamFlags(me, tWndID, tItemInfo, tTeamId, tGameRef)
+on setTeamFlags me, tWndID, tItemInfo, tTeamId, tGameRef 
   tID = me.getBasicFlagId() & "_t_" & tTeamId
   me.removeFlagObject(tID)
   tElemID = "ig_score_team"
@@ -153,10 +149,9 @@ on setTeamFlags(me, tWndID, tItemInfo, tTeamId, tGameRef)
     tColorDark = me.getTeamColorDark(tTeamId)
     me.setInfoFlag(tID, tWndID, tElemID, tFlagType, tColorDark, tItemInfo)
   end if
-  exit
 end
 
-on setTeamScore(me, tWndID, tTeamIndex, tScore)
+on setTeamScore me, tWndID, tTeamIndex, tScore 
   tWndObj = getWindow(tWndID)
   if tWndObj = 0 then
     return(0)
@@ -172,10 +167,9 @@ on setTeamScore(me, tWndID, tTeamIndex, tScore)
   end if
   tElem.setText(tScore)
   return(1)
-  exit
 end
 
-on setScoreWindowPlayer(me, tTeamPos, tPlayerPos, tPlayerInfo, tPlayerActive)
+on setScoreWindowPlayer me, tTeamPos, tPlayerPos, tPlayerInfo, tPlayerActive 
   tWndID = me.getWindowId(tTeamPos)
   if tPlayerInfo <> 0 then
     tOwnUser = tPlayerInfo.getaProp(#name) = me.getOwnPlayerName()
@@ -232,10 +226,9 @@ on setScoreWindowPlayer(me, tTeamPos, tPlayerPos, tPlayerInfo, tPlayerActive)
     end if
   end if
   return(1)
-  exit
 end
 
-on setScoreWindowIcon(me, tWndID, tTeamPosition)
+on setScoreWindowIcon me, tWndID, tTeamPosition 
   tWndObj = getWindow(tWndID)
   if tWndObj = 0 then
     return(0)
@@ -250,5 +243,4 @@ on setScoreWindowIcon(me, tWndID, tTeamPosition)
   end if
   tElem.setProperty(#image, member(tMemNum).image)
   return(1)
-  exit
 end

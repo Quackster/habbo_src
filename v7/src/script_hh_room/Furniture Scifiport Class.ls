@@ -1,4 +1,4 @@
-on prepare(me, tdata)
+on prepare me, tdata 
   if tdata.getAt("STATUS") = "O" then
     me.setOn()
     me.pChanges = 1
@@ -7,20 +7,18 @@ on prepare(me, tdata)
     me.pChanges = 0
   end if
   return(1)
-  exit
 end
 
-on updateStuffdata(me, tProp, tValue)
+on updateStuffdata me, tProp, tValue 
   if tValue = "O" then
     me.setOn()
   else
     me.setOff()
   end if
   me.pChanges = 1
-  exit
 end
 
-on update(me)
+on update me 
   if not me.pChanges then
     return()
   end if
@@ -28,10 +26,9 @@ on update(me)
     return()
   end if
   return(me.updateScifiPort())
-  exit
 end
 
-on updateScifiPort(me)
+on updateScifiPort me 
   if me.count(#pSprList) < 4 then
     return(0)
   end if
@@ -46,20 +43,17 @@ on updateScifiPort(me)
   end if
   me.pChanges = 0
   return(1)
-  exit
 end
 
-on setOn(me)
+on setOn me 
   me.pActive = 1
-  exit
 end
 
-on setOff(me)
+on setOff me 
   me.pActive = 0
-  exit
 end
 
-on select(me)
+on select me 
   if the doubleClick then
     if me.pActive then
       tStr = "C"
@@ -69,5 +63,4 @@ on select(me)
     getThread(#room).getComponent().getRoomConnection().send("SETSTUFFDATA", me.getID() & "/" & "STATUS" & "/" & tStr)
   end if
   return(1)
-  exit
 end

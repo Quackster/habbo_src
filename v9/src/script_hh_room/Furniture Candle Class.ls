@@ -1,4 +1,6 @@
-on prepare(me, tdata)
+property pActive, pTimer, pLastFrm, pItem, pData
+
+on prepare me, tdata 
   i = 2
   repeat while i <= me.count(#pSprList)
     removeEventBroker(me.getPropRef(#pSprList, i).spriteNum)
@@ -24,19 +26,17 @@ on prepare(me, tdata)
   pLastFrm = 0
   pTimer = 1
   return(1)
-  exit
 end
 
-on updateStuffdata(me, tValue)
+on updateStuffdata me, tValue 
   if tValue = "ON" then
     me.setOn()
   else
     me.setOff()
   end if
-  exit
 end
 
-on update(me)
+on update me 
   if pActive then
     pTimer = not pTimer
     if pTimer then
@@ -48,21 +48,18 @@ on update(me)
       me.setAnimMembersToFrame(pLastFrm)
     end if
   end if
-  exit
 end
 
-on setOn(me)
+on setOn me 
   pActive = 1
-  exit
 end
 
-on setOff(me)
+on setOff me 
   me.setAnimMembersToFrame(0)
   pActive = 0
-  exit
 end
 
-on select(me)
+on select me 
   if the doubleClick then
     if pActive then
       tStr = "OFF"
@@ -72,10 +69,9 @@ on select(me)
     getThread(#room).getComponent().getRoomConnection().send("SETSTUFFDATA", [#string:string(me.getID()), #string:tStr])
   end if
   return(1)
-  exit
 end
 
-on setAnimMembersToFrame(me, tFrame)
+on setAnimMembersToFrame me, tFrame 
   tCharNum = charToNum("a")
   i = 2
   repeat while i <= me.count(#pSprList)
@@ -89,5 +85,4 @@ on setAnimMembersToFrame(me, tFrame)
     end if
     i = 1 + i
   end repeat
-  exit
 end

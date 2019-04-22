@@ -1,6 +1,6 @@
-on prepare(me)
+on prepare me 
   me.pBlend = me.getProp(#pProps, #blend)
-  me.pButtonImg = []
+  me.pButtonImg = [:]
   if voidp(me.pFixedSize) then
     me.pFixedSize = 0
   end if
@@ -20,16 +20,14 @@ on prepare(me)
   me.width = me.pwidth
   me.height = me.pheight
   return(1)
-  exit
 end
 
-on changeState(me, tstate)
+on changeState me, tstate 
   me.pimage = me.createButtonImg(tstate)
   me.render()
-  exit
 end
 
-on UpdateImageObjects(me, tPalette, tstate, tMemName)
+on UpdateImageObjects me, tPalette, tstate, tMemName 
   if voidp(tPalette) then
     tPalette = me.pPalette
   else
@@ -54,15 +52,12 @@ on UpdateImageObjects(me, tPalette, tstate, tMemName)
     tImage.paletteRef = tPalette
   end if
   me.addProp(symbol(tstate), tImage)
-  exit
 end
 
-on createButtonImg(me, tstate)
+on createButtonImg me, tstate 
   return(me.getProp(tstate))
-  exit
 end
 
-on handlers()
+on handlers  
   return([])
-  exit
 end

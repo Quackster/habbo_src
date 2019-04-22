@@ -1,9 +1,11 @@
-on construct(me)
+property pNumOfColorBoxies, pPageData, pSmallImg, pSelectedProduct, pLastProductNum, pSelectedOrderNum, pSelectedColorNum
+
+on construct me 
   tCataloguePage = getThread(#catalogue).getInterface().getCatalogWindow()
   if not tCataloguePage then
     return(error(me, "Couldn't access catalogue window!", #construct))
   end if
-  pPageData = []
+  pPageData = [:]
   pSmallImg = image(32, 32, 24)
   pSelectedOrderNum = 1
   pSelectedColorNum = 1
@@ -20,14 +22,13 @@ on construct(me)
   end repeat
   tButtonList = []
   return(1)
-  exit
 end
 
-on define(me, tPageProps)
+on define me, tPageProps 
   if tPageProps.ilk <> #propList then
     return(error(me, "Incorrect Catalogue page data", #define))
   end if
-  pPageData = []
+  pPageData = [:]
   pPageData.sort()
   if not voidp(tPageProps.getAt("productList")) then
     tProducts = tPageProps.getAt("productList")
@@ -40,7 +41,7 @@ on define(me, tPageProps)
           tClass = tClass.getProp(#char, 1, offset("*", tClass) - 1)
         end if
         if voidp(pPageData.getAt(tClass)) then
-          pPageData.setAt(tClass, [])
+          pPageData.setAt(tClass, [:])
           pPageData.getAt(tClass).sort()
         end if
         pPageData.getAt(tClass).addProp(tProducts.getAt(f).getAt("class"), tProducts.getAt(f))
@@ -55,16 +56,15 @@ on define(me, tPageProps)
     selectProduct(me, 1)
     renderProductColors(me, 1)
   end if
-  exit
 end
 
-on renderSmallIcons(me, tstate, tPram)
+on renderSmallIcons me, tstate, tPram 
   tCataloguePage = getThread(#catalogue).getInterface().getCatalogWindow()
   if not tCataloguePage then
     return(error(me, "Couldn't access catalogue window!", #renderSmallIcons))
   end if
   tWndObj = tCataloguePage
-  if me = void() then
+  if tstate = void() then
     tFirst = 1
     tLast = pPageData.count
     f = 1
@@ -78,8 +78,8 @@ on renderSmallIcons(me, tstate, tPram)
     end repeat
     exit repeat
   end if
-  if me <> #hilite then
-    if me = #unhilite then
+  if tstate <> #hilite then
+    if tstate = #unhilite then
       tFirst = tPram
       tLast = tPram
     else
@@ -117,11 +117,10 @@ on renderSmallIcons(me, tstate, tPram)
       end if
       f = 1 + f
     end repeat
-    exit
   end if
 end
 
-on renderProductColors(me, tOrderNum)
+on renderProductColors me, tOrderNum 
   if not integerp(tOrderNum) then
     return(error(me, "Incorrect value", #renderProductColors))
   end if
@@ -174,10 +173,9 @@ on renderProductColors(me, tOrderNum)
       f = 1 + f
     end repeat
   end if
-  exit
 end
 
-on selectProduct(me, tOrderNum)
+on selectProduct me, tOrderNum 
   tCataloguePage = getThread(#catalogue).getInterface().getCatalogWindow()
   if not tCataloguePage then
     return(error(me, "Couldn't access catalogue window!", #selectProduct))
@@ -226,10 +224,9 @@ on selectProduct(me, tOrderNum)
   renderSmallIcons(me, #hilite, tOrderNum)
   renderSmallIcons(me, #unhilite, pLastProductNum)
   pLastProductNum = pSelectedOrderNum
-  exit
 end
 
-on selectColor(me, tOrderNum)
+on selectColor me, tOrderNum 
   if voidp(pSelectedOrderNum) then
     return()
   end if
@@ -256,10 +253,9 @@ on selectColor(me, tOrderNum)
   pSelectedColorNum = tOrderNum
   pSelectedProduct = pPageData.getAt(pSelectedOrderNum).getAt(pSelectedColorNum)
   getThread(#catalogue).getInterface().showPreviewImage(pSelectedProduct)
-  exit
 end
 
-on eventProc(me, tEvent, tSprID, tProp)
+on eventProc me, tEvent, tSprID, tProp 
   if tEvent = #mouseDown then
     if tSprID contains "ctlg_small_img_" then
       tItemDeLimiter = the itemDelimiter
@@ -287,5 +283,4 @@ on eventProc(me, tEvent, tSprID, tProp)
     end if
   end if
   return(1)
-  exit
 end

@@ -1,19 +1,19 @@
-on handle_error(me, tMsg, tConnection)
+on handle_error me, tMsg, tConnection 
   error(me, tConnection & ":" && tMsg, #handle_error)
-  if me = "Incorrect flat password" then
+  if tMsg = "Incorrect flat password" then
     if threadExists(#navigator) then
       getThread(#navigator).getComponent().flatAccessResult(tMsg)
     end if
   else
-    if me = "Password required" then
+    if tMsg = "Password required" then
       if threadExists(#navigator) then
         getThread(#navigator).getComponent().flatAccessResult(tMsg)
       end if
     else
-      if me = "weird error" then
+      if tMsg = "weird error" then
         executeMessage(#leaveRoom)
       else
-        if me = "Not owner" then
+        if tMsg = "Not owner" then
           getObject(#session).set("room_controller", 0)
           me.getInterface().hideInterface(#hide)
         else
@@ -24,14 +24,13 @@ on handle_error(me, tMsg, tConnection)
       end if
     end if
   end if
-  exit
 end
 
-on handle_users(me, tList)
+on handle_users me, tList 
   if count(tList) = 0 then
     me.getComponent().validateUserObjects(0)
   else
-    repeat while me <= undefined
+    repeat while tList <= undefined
       tuser = getAt(undefined, tList)
       me.getComponent().validateUserObjects(tuser)
     end repeat
@@ -40,91 +39,82 @@ on handle_users(me, tList)
       me.getInterface().eventProcUserObj(#selection, tName)
     end if
   end if
-  exit
 end
 
-on handle_OBJECTS(me, tList)
+on handle_OBJECTS me, tList 
   if count(tList) > 0 then
-    repeat while me <= undefined
+    repeat while tList <= undefined
       tObj = getAt(undefined, tList)
       me.getComponent().validatePassiveObjects(tObj)
     end repeat
   else
     me.getComponent().validatePassiveObjects(0)
   end if
-  exit
 end
 
-on handle_active_objects(me, tList)
+on handle_active_objects me, tList 
   if count(tList) > 0 then
-    repeat while me <= undefined
+    repeat while tList <= undefined
       tObj = getAt(undefined, tList)
       me.getComponent().validateActiveObjects(tObj)
     end repeat
   else
     me.getComponent().validateActiveObjects(0)
   end if
-  exit
 end
 
-on handle_activeobject_update(me, tObj)
+on handle_activeobject_update me, tObj 
   if me.getComponent().activeObjectExists(tObj.getAt(#id)) then
     me.getComponent().getActiveObject(tObj.getAt(#id)).define(tObj)
   else
     return(error(me, "Active object not found:" && tObj.getAt(#id), #handle_activeobject_update))
   end if
-  exit
 end
 
-on handle_items(me, tList)
+on handle_items me, tList 
   if count(tList) > 0 then
-    repeat while me <= undefined
+    repeat while tList <= undefined
       tItem = getAt(undefined, tList)
       me.getComponent().validateItemObjects(tItem)
     end repeat
   else
     me.getComponent().validateItemObjects(0)
   end if
-  exit
 end
 
-on handle_stuffdataupdate(me, tMsg)
+on handle_stuffdataupdate me, tMsg 
   if me.getComponent().activeObjectExists(tMsg.getAt(#target)) then
     call(#updateStuffdata, [me.getComponent().getActiveObject(tMsg.getAt(#target))], tMsg.getAt(#key), tMsg.getAt(#value))
   else
     return(error(me, "Active object not found:" && tMsg.getAt(#target), #handle_stuffdataupdate))
   end if
-  exit
 end
 
-on handle_presentopen(me, tMsg)
+on handle_presentopen me, tMsg 
   tCardObj = "PackageCardObj"
   if objectExists(tCardObj) then
     getObject(tCardObj).showContent(tMsg)
   else
     error(me, "Package card obj not found!", #handle_presentopen)
   end if
-  exit
 end
 
-on handle_stripinfo(me, tMsg)
+on handle_stripinfo me, tMsg 
   tInventory = me.getInterface().getContainer()
   tInventory.updateStripItems(tMsg.getAt(#objects))
   tInventory.setStripItemCount(tMsg.getAt(#count))
   tInventory.open(1)
   tInventory.refresh()
-  exit
 end
 
-on handle_addstripitem(me, tMsg)
+on handle_addstripitem me, tMsg 
   tInventory = me.getInterface().getContainer()
   tInventory.appendStripItem(tMsg.getAt(#objects).getAt(1))
   tInventory.open(1)
   tInventory.refresh()
-  exit
 end
 
-on handle_door_in(me, tMsg)
+on handle_door_in me, tMsg 
   tDoorObj = me.getComponent().getActiveObject(tMsg.getAt(#door))
   if tDoorObj <> 0 then
     tDoorObj.animate(18)
@@ -134,20 +124,18 @@ on handle_door_in(me, tMsg)
   else
     return(0)
   end if
-  exit
 end
 
-on handle_door_out(me, tMsg)
+on handle_door_out me, tMsg 
   tDoorObj = me.getComponent().getActiveObject(tMsg.getAt(#door))
   if tDoorObj <> 0 then
     tDoorObj.animate()
   else
     return(0)
   end if
-  exit
 end
 
-on handle_doorflat(me, tMsg)
+on handle_doorflat me, tMsg 
   if getObject(#session).exists("current_door_ID") then
     tDoorID = getObject(#session).get("current_door_ID")
     tDoorObj = me.getComponent().getActiveObject(tDoorID)
@@ -155,5 +143,4 @@ on handle_doorflat(me, tMsg)
       tDoorObj.startTeleport(tMsg)
     end if
   end if
-  exit
 end

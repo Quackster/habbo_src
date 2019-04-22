@@ -1,5 +1,7 @@
-on createTemplateHuman(me, tSize, tdir, tAction, tActionProps)
-  tProps = []
+property pBodyPartObjects
+
+on createTemplateHuman me, tSize, tdir, tAction, tActionProps 
+  tProps = [:]
   if not objectExists(#temp_humanobj_figurecreator) then
     if not createObject(#temp_humanobj_figurecreator, "Human Template Class") then
       return(error(me, "Failed to init temporary human object!", #createTemplateHuman))
@@ -17,28 +19,26 @@ on createTemplateHuman(me, tSize, tdir, tAction, tActionProps)
     end if
     tmember = getObject(#temp_humanobj_figurecreator).define(tProps)
   end if
-  if me = "remove" then
+  if tAction = "remove" then
     removeObject(#temp_humanobj_figurecreator)
   else
-    if me = "reset" then
+    if tAction = "reset" then
       call(#resetTemplateHuman, [getObject(#temp_humanobj_figurecreator)])
     else
       call(symbol("action_" & tAction), [getObject(#temp_humanobj_figurecreator)], tActionProps)
     end if
   end if
   return(tmember)
-  exit
 end
 
-on getHumanPartImg(me, tPartList, tFigure, tdir, tSize, tAction, tAnimFrame)
+on getHumanPartImg me, tPartList, tFigure, tdir, tSize, tAction, tAnimFrame 
   me.createTemplateParts(tFigure, tPartList, tdir, tSize)
   tHumanImg = image(64, 102, 16)
   me.getPartImg(tPartList, tHumanImg, tdir, tSize, tAction, tAnimFrame)
   return(tHumanImg)
-  exit
 end
 
-on createHumanPartPreview(me, tWindowTitle, tElement, tPartList, tFigure)
+on createHumanPartPreview me, tWindowTitle, tElement, tPartList, tFigure 
   if voidp(tFigure) then
     tFigure = getObject(#session).get("user_figure")
     if tFigure.ilk = #propList then
@@ -50,19 +50,18 @@ on createHumanPartPreview(me, tWindowTitle, tElement, tPartList, tFigure)
   me.createTemplateParts(tFigure, tPartList, 3)
   me.setParts(tFigure, tPartList)
   me.feedHumanPreview(tWindowTitle, tElement, tPartList)
-  exit
 end
 
-on setParts(me, tFigure, tPartList)
-  repeat while me <= tPartList
+on setParts me, tFigure, tPartList 
+  repeat while tPartList <= tPartList
     tPart = getAt(tPartList, tFigure)
     if not tPart contains "it" then
       tmodel = tFigure.getAt(tPart).getAt("model")
       tColor = tFigure.getAt(tPart).getAt("color")
-      if me = 1 then
+      if tPartList = 1 then
         tmodel = "00" & tmodel
       else
-        if me = 2 then
+        if tPartList = 2 then
           tmodel = "0" & tmodel
         end if
       end if
@@ -72,17 +71,16 @@ on setParts(me, tFigure, tPartList)
       end if
     end if
   end repeat
-  exit
 end
 
-on createTemplateParts(me, tFigure, tPartList, tdir, tSize)
+on createTemplateParts me, tFigure, tPartList, tdir, tSize 
   if voidp(tSize) then
     pPeopleSize = "h"
   end if
   pBuffer = image(1, 1, 8)
   pFlipList = [0, 1, 2, 3, 2, 1, 0, 7]
-  pBodyPartObjects = []
-  repeat while me <= tPartList
+  pBodyPartObjects = [:]
+  repeat while tPartList <= tPartList
     tPart = getAt(tPartList, tFigure)
     if not tPart contains "it" then
       tmodel = tFigure.getAt(tPart).getAt("model")
@@ -90,10 +88,10 @@ on createTemplateParts(me, tFigure, tPartList, tdir, tSize)
       tDirection = tdir
       tAction = "std"
       tAncestor = me
-      if me = 1 then
+      if tPartList = 1 then
         tmodel = "00" & tmodel
       else
-        if me = 2 then
+        if tPartList = 2 then
           tmodel = "0" & tmodel
         end if
       end if
@@ -102,10 +100,9 @@ on createTemplateParts(me, tFigure, tPartList, tdir, tSize)
       pBodyPartObjects.addProp(tPart, tTempPartObj)
     end if
   end repeat
-  exit
 end
 
-on feedHumanPreview(me, tWindowTitle, tElemID, tPartList)
+on feedHumanPreview me, tWindowTitle, tElemID, tPartList 
   if not voidp(pBodyPartObjects) and windowExists(tWindowTitle) then
     tElem = getWindow(tWindowTitle).getElement(tElemID)
     tTempPartImg = image(64, 102, 16)
@@ -119,18 +116,16 @@ on feedHumanPreview(me, tWindowTitle, tElemID, tPartList)
     tElem.clearImage()
     tElem.feedImage(tPrewImg)
   end if
-  exit
 end
 
-on getPartImg(me, tPartList, tImg, tdir, tSize)
+on getPartImg me, tPartList, tImg, tdir, tSize 
   if tPartList.ilk <> #list then
     list(tPartList)
   end if
-  repeat while me <= tImg
+  repeat while tPartList <= tImg
     tPart = getAt(tImg, tPartList)
     if not tPart contains "it" then
       call(#copyPicture, [pBodyPartObjects.getAt(tPart)], tImg, tdir, tSize)
     end if
   end repeat
-  exit
 end

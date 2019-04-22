@@ -1,12 +1,13 @@
-on define(me, tPart, tmodel, tColor, tDirection, tAction, tBody, tFlipPart)
+property pUnderWater, pSwimProps
+
+on define me, tPart, tmodel, tColor, tDirection, tAction, tBody, tFlipPart 
   pSwimProps = [#maskImage:0, #ink:0, #bgColor:rgb(0, 156, 156), #color:rgb(0, 156, 156), #blend:60]
   callAncestor(#define, [me], tPart, tmodel, tColor, tDirection, tAction, tBody, tFlipPart)
   pUnderWater = 1
   return(1)
-  exit
 end
 
-on update(me, tForcedUpdate, tRectMod)
+on update me, tForcedUpdate, tRectMod 
   callAncestor(#update, [me], tForcedUpdate, tRectMod)
   if pUnderWater and me.pSwim then
     i = 1
@@ -21,10 +22,9 @@ on update(me, tForcedUpdate, tRectMod)
       i = 1 + i
     end repeat
   end if
-  exit
 end
 
-on render(me)
+on render me 
   callAncestor(#render, [me])
   i = 1
   repeat while i <= me.count(#pLayerPropList)
@@ -40,25 +40,22 @@ on render(me)
     end if
     i = 1 + i
   end repeat
-  exit
 end
 
-on defineInk(me, tInk)
+on defineInk me, tInk 
   callAncestor(#defineInk, [me], tInk)
   if me.count(#pLayerPropList) > 0 then
     pSwimProps.setAt(#ink, me.getPropRef(#pLayerPropList, 1).getAt("drawProps").getAt(#ink))
     return(1)
   end if
   return(0)
-  exit
 end
 
-on setUnderWater(me, tUnderWater)
+on setUnderWater me, tUnderWater 
   pUnderWater = tUnderWater
-  exit
 end
 
-on getMemberNumber(me, tdir, tHumanSize, tAction, tAnimFrame, tLayerIndex)
+on getMemberNumber me, tdir, tHumanSize, tAction, tAnimFrame, tLayerIndex 
   tArray = callAncestor(#getMemberNumber, [me], tdir, tHumanSize, tAction, tAnimFrame, tLayerIndex)
   tMemNum = tArray.getAt(#memberNumber)
   if tMemNum = 0 then
@@ -80,5 +77,4 @@ on getMemberNumber(me, tdir, tHumanSize, tAction, tAnimFrame, tLayerIndex)
     tArray = callAncestor(#getMemberNumber, [me], tdir, tHumanSize, tAction, tAnimFrame, tLayerIndex, tmodel)
   end if
   return(tArray)
-  exit
 end

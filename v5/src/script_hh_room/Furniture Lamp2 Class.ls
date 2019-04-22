@@ -1,4 +1,6 @@
-on prepare(me, tdata)
+property pActive, pSwitch
+
+on prepare me, tdata 
   if me.count(#pSprList) > 1 then
     removeEventBroker(me.getPropRef(#pSprList, 2).spriteNum)
   end if
@@ -8,19 +10,17 @@ on prepare(me, tdata)
     me.setOff()
   end if
   return(1)
-  exit
 end
 
-on updateStuffdata(me, tProp, tValue)
+on updateStuffdata me, tProp, tValue 
   if tValue = "ON" then
     me.setOn()
   else
     me.setOff()
   end if
-  exit
 end
 
-on update(me)
+on update me 
   if pActive then
     if me.count(#pSprList) < 2 then
       return()
@@ -43,22 +43,19 @@ on update(me)
     end if
     pActive = 0
   end if
-  exit
 end
 
-on setOn(me)
+on setOn me 
   pSwitch = 1
   pActive = 1
-  exit
 end
 
-on setOff(me)
+on setOff me 
   pSwitch = 0
   pActive = 1
-  exit
 end
 
-on select(me)
+on select me 
   if the doubleClick then
     if pSwitch then
       tStr = "OFF"
@@ -68,5 +65,4 @@ on select(me)
     getThread(#room).getComponent().getRoomConnection().send(#room, "SETSTUFFDATA /" & me.getID() & "/" & "SWITCHON" & "/" & tStr)
   end if
   return(1)
-  exit
 end

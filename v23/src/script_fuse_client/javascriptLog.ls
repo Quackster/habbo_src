@@ -1,8 +1,8 @@
-on newJavaScriptLog()
+on newJavaScriptLog  
 end
 
-on JavaScriptLog()
+on JavaScriptLog  
 end
 
-on _call()
+on _call  
 end

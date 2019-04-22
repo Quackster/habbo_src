@@ -1,4 +1,6 @@
-on prepare(me)
+property pProp, pMaxWidth, pFixedSize, pButtonText, pAlignment, pBlend, pClickPass, pButtonImg, pCachedImgs, pOrigWidth
+
+on prepare me 
   tField = me.getProp(#pProps, #type) & me.getProp(#pProps, #model) & ".element"
   pProp = getObject(#layout_parser).parse(tField)
   if pProp = 0 then
@@ -11,7 +13,7 @@ on prepare(me)
   pAlignment = me.getProp(#pProps, #alignment)
   pButtonText = getText(me.getProp(#pProps, #key))
   pBlend = me.getProp(#pProps, #blend)
-  pCachedImgs = []
+  pCachedImgs = [:]
   if not integerp(pMaxWidth) then
     pMaxWidth = 300
   end if
@@ -20,10 +22,9 @@ on prepare(me)
   end if
   me.UpdateImageObjects(void(), #up)
   return(me.setButtonImage())
-  exit
 end
 
-on setButtonImage(me)
+on setButtonImage me 
   tOrigWidth = me.pwidth
   me.pimage = me.createButtonImg(pButtonText, #up)
   tTempOffset = member.regPoint
@@ -44,43 +45,38 @@ on setButtonImage(me)
   pSprite.width = me.pwidth
   pSprite.height = me.pheight
   return(1)
-  exit
 end
 
-on Activate(me)
+on Activate me 
   pSprite.blend = 100
   pBlend = 100
   return(1)
-  exit
 end
 
-on deactivate(me)
+on deactivate me 
   me.changeState(#up)
   pSprite.blend = 50
   pBlend = 50
   return(1)
-  exit
 end
 
-on setText(me, tText)
+on setText me, tText 
   pButtonText = tText
-  pCachedImgs = []
+  pCachedImgs = [:]
   return(me.setButtonImage())
-  exit
 end
 
-on mouseDown(me)
-  if me or pSprite.blend < 100 then
+on mouseDown me 
+  if pBlend < 100 or pSprite.blend < 100 then
     return(0)
   end if
   pClickPass = 1
   me.changeState(#down)
   return(1)
-  exit
 end
 
-on mouseUp(me)
-  if me or pSprite.blend < 100 then
+on mouseUp me 
+  if pBlend < 100 or pSprite.blend < 100 then
     return(0)
   end if
   if pClickPass = 0 then
@@ -89,34 +85,30 @@ on mouseUp(me)
   pClickPass = 0
   me.changeState(#up)
   return(1)
-  exit
 end
 
-on mouseUpOutSide(me)
-  if me or pSprite.blend < 100 then
+on mouseUpOutSide me 
+  if pBlend < 100 or pSprite.blend < 100 then
     return(0)
   end if
   pClickPass = 0
   me.changeState(#up)
   return(0)
-  exit
 end
 
-on render(me)
+on render me 
   undefined.fill(undefined.rect, rgb(255, 255, 255))
   undefined.copyPixels(me.pimage, undefined.rect, me.rect, me.pParams)
-  exit
 end
 
-on changeState(me, tstate)
+on changeState me, tstate 
   me.UpdateImageObjects(void(), tstate)
   me.pimage = me.createButtonImg(pButtonText, tstate)
   me.render()
-  exit
 end
 
-on UpdateImageObjects(me, tPalette, tstate)
-  pButtonImg = []
+on UpdateImageObjects me, tPalette, tstate 
+  pButtonImg = [:]
   if voidp(tPalette) then
     tPalette = me.pPalette
   else
@@ -124,7 +116,7 @@ on UpdateImageObjects(me, tPalette, tstate)
       tPalette = member(getmemnum(tPalette))
     end if
   end if
-  repeat while me <= tstate
+  repeat while [#left, #middle, #right] <= tstate
     f = getAt(tstate, tPalette)
     tDesc = pProp.getAt(tstate).getAt(#members).getAt(f)
     tmember = member(getmemnum(tDesc.getAt(#member)))
@@ -142,10 +134,9 @@ on UpdateImageObjects(me, tPalette, tstate)
     end if
     pButtonImg.addProp(symbol(f), tImage)
   end repeat
-  exit
 end
 
-on createButtonImg(me, tText, tstate)
+on createButtonImg me, tText, tstate 
   if not voidp(pCachedImgs.getAt(tstate)) then
     return(pCachedImgs.getAt(tstate))
   end if
@@ -213,16 +204,16 @@ on createButtonImg(me, tText, tstate)
   tEndPointY = tNewImg.height
   tStartPointX = 0
   tEndPointX = 0
-  repeat while me <= tstate
+  repeat while [#left, #middle, #right] <= tstate
     i = getAt(tstate, tText)
     tStartPointX = tEndPointX
-    if me = #left then
+    if [#left, #middle, #right] = #left then
       tEndPointX = tEndPointX + pButtonImg.getProp(i).width
     else
-      if me = #middle then
+      if [#left, #middle, #right] = #middle then
         tEndPointX = tEndPointX + tWidth - pButtonImg.getProp(#left).width - pButtonImg.getProp(#right).width
       else
-        if me = #right then
+        if [#left, #middle, #right] = #right then
           tEndPointX = tEndPointX + pButtonImg.getProp(i).width
         end if
       end if
@@ -231,13 +222,13 @@ on createButtonImg(me, tText, tstate)
     tNewImg.copyPixels(pButtonImg.getProp(i), tdestrect, pButtonImg.getProp(i).rect)
   end repeat
   tDstRect = tTextImg.rect + rect(0, tMarginV, 0, tMarginV)
-  if me = #left then
+  if [#left, #middle, #right] = #left then
     tDstRect = tDstRect + rect(pButtonImg.getProp(#left).width, 0, pButtonImg.getProp(#left).width, 0)
   else
-    if me = #center then
+    if [#left, #middle, #right] = #center then
       tDstRect = tDstRect + rect(tNewImg.width / 2, 0, tNewImg.width / 2, 0) - rect(tTextWidth / 2, 0, tTextWidth / 2, 0)
     else
-      if me = #right then
+      if [#left, #middle, #right] = #right then
         tDstRect = tDstRect + rect(tNewImg.width, 0, tNewImg.width, 0) - rect(tTextWidth + pButtonImg.getProp(#right).width, 0, tTextWidth + pButtonImg.getProp(#right).width, 0)
       end if
     end if
@@ -245,26 +236,23 @@ on createButtonImg(me, tText, tstate)
   tNewImg.copyPixels(tTextImg, tDstRect, tTextImg.rect, [#ink:36])
   pCachedImgs.setAt(tstate, tNewImg)
   return(tNewImg)
-  exit
 end
 
-on flipH(me, tImg)
+on flipH me, tImg 
   tImage = image(tImg.width, tImg.height, tImg.depth, tImg.paletteRef)
   tQuad = [point(tImg.width, 0), point(0, 0), point(0, tImg.height), point(tImg.width, tImg.height)]
   tImage.copyPixels(tImg, tQuad, tImg.rect)
   return(tImage)
-  exit
 end
 
-on flipV(me, tImg)
+on flipV me, tImg 
   tImage = image(tImg.width, tImg.height, tImg.depth, tImg.paletteRef)
   tQuad = [point(0, tImg.height), point(tImg.width, tImg.height), point(tImg.width, 0), point(0, 0)]
   tImage.copyPixels(tImg, tQuad, tImg.rect)
   return(tImage)
-  exit
 end
 
-on getTextWidth(me, tTextMem)
+on getTextWidth me, tTextMem 
   tOrigWidth = pMaxWidth
   tOrigHeight = 30
   tStoreRect = tTextMem.rect
@@ -274,10 +262,8 @@ on getTextWidth(me, tTextMem)
   tTextWidth = tImage.trimWhiteSpace().width
   tTextMem.rect = tStoreRect
   return(tTextWidth)
-  exit
 end
 
-on handlers()
+on handlers  
   return([])
-  exit
 end

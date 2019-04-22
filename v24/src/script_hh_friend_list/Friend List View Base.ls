@@ -1,4 +1,4 @@
-on getViewImage(me)
+on getViewImage me 
   if me.count(#pContentList) = 0 then
     tID = getUniqueID()
     createWriter(tID)
@@ -17,10 +17,9 @@ on getViewImage(me)
   tImage = me.renderBackgroundImage()
   tImage.copyPixels(me.pListImg, me.rect, me.rect, [#ink:36])
   return(tImage)
-  exit
 end
 
-on insertImageTo(me, tSourceImg, tTargetImg, tPosV)
+on insertImageTo me, tSourceImg, tTargetImg, tPosV 
   tNewImg = image(tTargetImg.width, tTargetImg.height + tSourceImg.height, 32)
   tTopRect = rect(0, 0, tTargetImg.width, tPosV)
   tNewImg.copyPixels(tTargetImg, tTopRect, tTopRect)
@@ -30,17 +29,15 @@ on insertImageTo(me, tSourceImg, tTargetImg, tPosV)
   tdestrect = tSourceRect + rect(0, tSourceImg.height, 0, tSourceImg.height)
   tNewImg.copyPixels(tTargetImg, tdestrect, tSourceRect)
   return(tNewImg)
-  exit
 end
 
-on updateImagePart(me, tSourceImg, tTargetImg, tPosV)
+on updateImagePart me, tSourceImg, tTargetImg, tPosV 
   tdestrect = rect(0, tPosV, tSourceImg.width, tPosV + tSourceImg.height)
   tTargetImg.copyPixels(tSourceImg, tdestrect, tSourceImg.rect)
   return(tTargetImg)
-  exit
 end
 
-on removeImagePart(me, tImage, tStartPosV, tEndPosV)
+on removeImagePart me, tImage, tStartPosV, tEndPosV 
   tNewImg = image(me.pItemWidth, tImage.height - tEndPosV - tStartPosV, 32)
   tTopRect = rect(0, 0, tImage.width, tStartPosV)
   tNewImg.copyPixels(tImage, tTopRect, tTopRect)
@@ -48,5 +45,4 @@ on removeImagePart(me, tImage, tStartPosV, tEndPosV)
   tdestrect = rect(0, tStartPosV, tImage.width, tNewImg.height)
   tNewImg.copyPixels(tImage, tdestrect, tSourceRect)
   return(tNewImg)
-  exit
 end

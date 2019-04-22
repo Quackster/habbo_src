@@ -1,25 +1,26 @@
-on define(me, tSprite, ttype)
+property pmodel, pDelayCounter, pDirection, pSprite, pProps, pOffset
+
+on define me, tSprite, ttype 
   pSprite = tSprite
   pOffset = [0, 0]
   pmodel = "boat_" & ttype
   pDelayCounter = 1
-  if me = "boat_1" then
+  if pmodel = "boat_1" then
     pProps = [#left:point(723, 335), #right:point(371, 511), #leftlimit:370, #rightlimit:720]
   else
-    if me = "boat_2" then
+    if pmodel = "boat_2" then
       pProps = [#left:point(375, 284), #right:point(215, 500), #leftlimit:500, #rightlimit:275, #turn:510]
     else
-      if me = "boat_3" then
+      if pmodel = "boat_3" then
         pProps = [#left:point(314, 230), #right:point(250, 520), #leftlimit:500, #rightlimit:230, #turn:570]
       end if
     end if
   end if
   me.reset()
   return(1)
-  exit
 end
 
-on reset(me)
+on reset me 
   if pDelayCounter <= 0 then
     pDelayCounter = random(8) * 10
   end if
@@ -34,14 +35,14 @@ on reset(me)
     end if
   else
     if pDirection = #left then
-      repeat while me <= undefined
+      repeat while pSprite <= undefined
         tSpr = getAt(undefined, undefined)
         tSpr.flipH = 1
         tSpr.loc = pProps.getAt(#left)
       end repeat
       pOffset = [2, 1]
     else
-      repeat while me <= undefined
+      repeat while pSprite <= undefined
         tSpr = getAt(undefined, undefined)
         tSpr.flipH = 0
         tSpr.loc = pProps.getAt(#right)
@@ -51,10 +52,9 @@ on reset(me)
     pSprite.getAt(2).ink = 41
     pSprite.getAt(2).backColor = random(150) + 20
   end if
-  exit
 end
 
-on update(me)
+on update me 
   if pDelayCounter > 0 then
     pDelayCounter = pDelayCounter - 1
     return(1)
@@ -65,7 +65,7 @@ on update(me)
       return(me.reset())
     end if
   else
-    repeat while me <= undefined
+    repeat while pSprite <= undefined
       tSpr = getAt(undefined, undefined)
       tSpr.loc = tSpr.loc + pOffset
     end repeat
@@ -75,18 +75,17 @@ on update(me)
     if pSprite.getAt(1).locH > pProps.getAt(#turn) then
       if pDirection = #left then
         pOffset = [-2, 1]
-        repeat while me <= undefined
+        repeat while pSprite <= undefined
           tSpr = getAt(undefined, undefined)
           tSpr.flipH = 0
         end repeat
       else
         pOffset = [-2, -1]
-        repeat while me <= undefined
+        repeat while pSprite <= undefined
           tSpr = getAt(undefined, undefined)
           tSpr.flipH = 1
         end repeat
       end if
     end if
   end if
-  exit
 end

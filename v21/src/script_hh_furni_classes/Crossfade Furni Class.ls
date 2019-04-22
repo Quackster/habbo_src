@@ -1,4 +1,6 @@
-on define(me, tProps)
+property pAnimLength, pBlendSpriteList, pActiveLayer, pActiveLayerNew, pCounter, pCrossFadeLength
+
+on define me, tProps 
   pAnimLength = 20
   pCrossFadeLength = pAnimLength / 2
   tRetVal = callAncestor(#define, [me], tProps)
@@ -11,10 +13,9 @@ on define(me, tProps)
     i = 1 + i
   end repeat
   return(tRetVal)
-  exit
 end
 
-on update(me)
+on update me 
   if not voidp(pActiveLayer) and not voidp(pActiveLayerNew) then
     if pCounter > pAnimLength - pCrossFadeLength then
       tDelta = pCounter - pAnimLength - pCrossFadeLength
@@ -42,10 +43,9 @@ on update(me)
     end if
   end if
   return(callAncestor(#update, [me]))
-  exit
 end
 
-on setState(me, tNewState)
+on setState me, tNewState 
   tNewState = value(tNewState)
   if tNewState = 2 then
     pCounter = 1
@@ -74,14 +74,13 @@ on setState(me, tNewState)
   tRetVal = callAncestor(#setState, [me], tNewState)
   me.initBlends()
   return(tRetVal)
-  exit
 end
 
-on initBlends(me)
+on initBlends me 
   if voidp(pBlendSpriteList) then
     return(0)
   end if
-  repeat while me <= undefined
+  repeat while pBlendSpriteList <= undefined
     i = getAt(undefined, undefined)
     if me.count(#pSprList) >= i then
       if i = pActiveLayer then
@@ -92,5 +91,4 @@ on initBlends(me)
     end if
   end repeat
   return(1)
-  exit
 end

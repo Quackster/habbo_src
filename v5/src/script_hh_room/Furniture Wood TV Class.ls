@@ -1,4 +1,6 @@
-on prepare(me, tdata)
+property pChannelNum, pChanges, pTvFrame, pActive
+
+on prepare me, tdata 
   pTvFrame = 0
   if tdata.getAt("CHANNEL") = "ON" then
     pChanges = 1
@@ -10,10 +12,9 @@ on prepare(me, tdata)
     pChannel = 1
   end if
   return(1)
-  exit
 end
 
-on updateStuffdata(me, tProp, tValue)
+on updateStuffdata me, tProp, tValue 
   if tValue = "OFF" then
     pActive = 0
   else
@@ -24,10 +25,9 @@ on updateStuffdata(me, tProp, tValue)
     end if
   end if
   pChanges = 1
-  exit
 end
 
-on update(me)
+on update me 
   if not pChanges then
     return()
   end if
@@ -41,13 +41,13 @@ on update(me)
     the itemDelimiter = "_"
     tTmpName = tName.getProp(#item, 1, tName.count(#item) - 1) & "_"
     the itemDelimiter = tDelim
-    if me = 1 then
+    if me.getPropRef(#pSprList, 3) = 1 then
       tNewName = tTmpName & random(10)
     else
-      if me = 2 then
+      if me.getPropRef(#pSprList, 3) = 2 then
         tNewName = tTmpName & 10 + random(5)
       else
-        if me = 3 then
+        if me.getPropRef(#pSprList, 3) = 3 then
           tNewName = tTmpName & 15 + random(5)
         end if
       end if
@@ -71,23 +71,20 @@ on update(me)
     pChanges = 0
   end if
   me.getPropRef(#pSprList, 3).locZ = me.getPropRef(#pSprList, 2).locZ + 2
-  exit
 end
 
-on setOn(me)
+on setOn me 
   pActive = 1
   pChannelNum = random(3)
   getThread(#room).getComponent().getRoomConnection().send(#room, "SETSTUFFDATA /" & me.getID() & "/" & "CHANNEL" & "/" & pChannelNum)
-  exit
 end
 
-on setOff(me)
+on setOff me 
   pActive = 0
   getThread(#room).getComponent().getRoomConnection().send(#room, "SETSTUFFDATA /" & me.getID() & "/" & "CHANNEL" & "/" & "OFF")
-  exit
 end
 
-on select(me)
+on select me 
   if the doubleClick then
     if pActive then
       me.setOff()
@@ -96,5 +93,4 @@ on select(me)
     end if
   end if
   return(1)
-  exit
 end

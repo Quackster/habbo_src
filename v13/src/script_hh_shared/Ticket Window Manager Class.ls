@@ -1,4 +1,6 @@
-on construct(me)
+property pWndID, pGiftActive, pChosenAmount
+
+on construct me 
   pWndID = getText("ph_tickets_title")
   pChosenAmount = 1
   pGiftActive = 0
@@ -8,10 +10,9 @@ on construct(me)
   registerMessage(#leaveRoom, me.getID(), #hideTicketWindow)
   registerMessage(#changeRoom, me.getID(), #hideTicketWindow)
   return(1)
-  exit
 end
 
-on deconstruct(me)
+on deconstruct me 
   unregisterMessage(#show_ticketWindow, me.getID())
   unregisterMessage(#hide_ticketwindow, me.getID())
   unregisterMessage(#enterRoom, me.getID())
@@ -21,14 +22,13 @@ on deconstruct(me)
     removeWindow(pWndID)
   end if
   return(1)
-  exit
 end
 
-on showTicketWindow(me)
+on showTicketWindow me 
   if windowExists(pWndID) then
     return(1)
   end if
-  tList = []
+  tList = [:]
   tList.setAt("showDialog", 1)
   executeMessage(#getHotelClosingStatus, tList)
   if tList.getAt("retval") = 1 then
@@ -47,10 +47,9 @@ on showTicketWindow(me)
   tWndObj.registerProcedure(#eventProcTicketsWindow, me.getID(), #mouseUp)
   tWndObj.registerProcedure(#eventProcTicketsWindow, me.getID(), #keyDown)
   return(1)
-  exit
 end
 
-on ChangeWindowView(me, tView)
+on ChangeWindowView me, tView 
   if not windowExists(pWndID) then
     return(1)
   end if
@@ -71,25 +70,23 @@ on ChangeWindowView(me, tView)
   end if
   me.activateGiftBox(pGiftActive)
   return(me.setCheckBox(pChosenAmount))
-  exit
 end
 
-on hideTicketWindow(me)
+on hideTicketWindow me 
   if windowExists(pWndID) then
     removeWindow(pWndID)
   end if
   pChosenAmount = 1
   pGiftActive = 0
   return(1)
-  exit
 end
 
-on eventProcTicketsWindow(me, tEvent, tSprID, tParam, tWndID)
+on eventProcTicketsWindow me, tEvent, tSprID, tParam, tWndID 
   if tEvent = #mouseUp then
-    if me = "close" then
+    if tSprID = "close" then
       me.hideTicketWindow()
     else
-      if me = "ph_tickets_buy_button" then
+      if tSprID = "ph_tickets_buy_button" then
         if pGiftActive then
           tName = getWindow(tWndID).getElement("ph_tickets_namefield").getText()
         else
@@ -100,28 +97,28 @@ on eventProcTicketsWindow(me, tEvent, tSprID, tParam, tWndID)
           me.hideTicketWindow()
         end if
       else
-        if me = "tickets_checkbox_1" then
+        if tSprID = "tickets_checkbox_1" then
           me.setCheckBox(1)
           pChosenAmount = 1
         else
-          if me = "tickets_checkbox_2" then
+          if tSprID = "tickets_checkbox_2" then
             me.setCheckBox(2)
             pChosenAmount = 2
           else
-            if me = "tickets_button_info_1" then
+            if tSprID = "tickets_button_info_1" then
               return(me.ChangeWindowView("habbo_ph_ticketinfo1.window"))
             else
-              if me = "tickets_button_info_2" then
+              if tSprID = "tickets_button_info_2" then
                 return(me.ChangeWindowView("habbo_ph_ticketinfo2.window"))
               else
-                if me = "tickets_button_info_hide" then
+                if tSprID = "tickets_button_info_hide" then
                   return(me.ChangeWindowView("habbo_ph_tickets.window"))
                 else
-                  if me = "tickets_gift_check" then
+                  if tSprID = "tickets_gift_check" then
                     pGiftActive = not pGiftActive
                     me.activateGiftBox(pGiftActive)
                   else
-                    if me = "ph_tickets_cancel_button" then
+                    if tSprID = "ph_tickets_cancel_button" then
                       me.hideTicketWindow()
                     end if
                   end if
@@ -133,10 +130,9 @@ on eventProcTicketsWindow(me, tEvent, tSprID, tParam, tWndID)
       end if
     end if
   end if
-  exit
 end
 
-on setCheckBox(me, tNr)
+on setCheckBox me, tNr 
   if not windowExists(pWndID) then
     return(0)
   end if
@@ -156,19 +152,17 @@ on setCheckBox(me, tNr)
     i = 1 + i
   end repeat
   return(1)
-  exit
 end
 
-on buyGameTickets(me, tName)
+on buyGameTickets me, tName 
   tParams = [#integer:pChosenAmount, #string:tName]
   if connectionExists(getVariable("connection.info.id")) then
     getConnection(getVariable("connection.info.id")).send("BTCKS", tParams)
   end if
   return(1)
-  exit
 end
 
-on activateGiftBox(me, tActive)
+on activateGiftBox me, tActive 
   if not windowExists(pWndID) then
     return(0)
   end if
@@ -189,5 +183,4 @@ on activateGiftBox(me, tActive)
     tWndObj.getElement("ph_tickets_gift_bg").setProperty(#visible, 0)
     tWndObj.getElement("ph_tickets_namefield").setProperty(#visible, 0)
   end if
-  exit
 end

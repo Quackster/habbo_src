@@ -1,4 +1,4 @@
-on initResources(me, tFontProps)
+on initResources me, tFontProps 
   tMemNum = getResourceManager().getmemnum("visual window text")
   if tMemNum = 0 then
     tMemNum = getResourceManager().createMember("visual window text", #text)
@@ -23,5 +23,4 @@ on initResources(me, tFontProps)
     me.pTextMem = member(tMemNum)
   end if
   return(1)
-  exit
 end

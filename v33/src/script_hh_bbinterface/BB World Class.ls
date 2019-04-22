@@ -1,4 +1,6 @@
-on construct(me)
+property pTileImages, pPriorityTaskList, pSecondaryTaskList, pPriorityTilesPerUpdate, pGeometry, pSprite, pBuffer, pMember
+
+on construct me 
   pPriorityTilesPerUpdate = 4
   pPriorityTaskList = []
   pSecondaryTaskList = []
@@ -16,34 +18,32 @@ on construct(me)
     tTeamId = 1 + tTeamId
   end repeat
   return(1)
-  exit
 end
 
-on deconstruct(me)
+on deconstruct me 
   removeUpdate(me.getID())
   me.clearAll()
-  exit
 end
 
-on Refresh(me, tTopic, tdata)
-  if me = #fullgamestatus_tiles then
+on Refresh me, tTopic, tdata 
+  if tTopic = #fullgamestatus_tiles then
     me.initBuffer()
     receiveUpdate(me.getID())
     me.Refresh(#gamestatus_flood, tdata)
   else
-    if me = #gamereset then
+    if tTopic = #gamereset then
       me.initBuffer()
       receiveUpdate(me.getID())
     else
-      if me = #gamestatus_tiles then
-        repeat while me <= tdata
+      if tTopic = #gamestatus_tiles then
+        repeat while tTopic <= tdata
           tTileProps = getAt(tdata, tTopic)
           pPriorityTaskList.add(tTileProps)
           me.removeSecondaryTask(tTileProps)
         end repeat
       else
-        if me = #gamestatus_flood then
-          repeat while me <= tdata
+        if tTopic = #gamestatus_flood then
+          repeat while tTopic <= tdata
             tTileProps = getAt(tdata, tTopic)
             pSecondaryTaskList.add(tTileProps)
           end repeat
@@ -51,10 +51,9 @@ on Refresh(me, tTopic, tdata)
       end if
     end if
   end if
-  exit
 end
 
-on update(me)
+on update me 
   if pPriorityTaskList.count = 0 then
     if pSecondaryTaskList.count = 0 then
       return(1)
@@ -75,10 +74,9 @@ on update(me)
     end repeat
   end if
   return(1)
-  exit
 end
 
-on removeSecondaryTask(me, tProps)
+on removeSecondaryTask me, tProps 
   tLocX = tProps.getAt(#locX)
   tLocY = tProps.getAt(#locY)
   i = 1
@@ -91,10 +89,9 @@ on removeSecondaryTask(me, tProps)
     i = 1 + i
   end repeat
   return(1)
-  exit
 end
 
-on render(me, tProps)
+on render me, tProps 
   if not ilk(tProps) = #propList then
     return(0)
   end if
@@ -116,10 +113,9 @@ on render(me, tProps)
   tTargetRect = tImage.rect + rect(tScreenLoc.getAt(1), tScreenLoc.getAt(2), tScreenLoc.getAt(1), tScreenLoc.getAt(2))
   pBuffer.copyPixels(tImage, tTargetRect, tImage.rect, [#ink:36])
   return(1)
-  exit
 end
 
-on initBuffer(me)
+on initBuffer me 
   pPriorityTaskList = []
   pSecondaryTaskList = []
   tName = "__bounce_tempworld"
@@ -143,15 +139,13 @@ on initBuffer(me)
   pBuffer = pMember.image
   pSprite.setMember(pMember)
   return(1)
-  exit
 end
 
-on clearAll(me)
+on clearAll me 
   pBuffer = void()
   if pMember <> void() then
     removeMember(pMember.name)
   end if
   pMember = void()
   return(1)
-  exit
 end

@@ -1,21 +1,19 @@
-on construct(me)
+on construct me 
   return(1)
-  exit
 end
 
-on deconstruct(me)
+on deconstruct me 
   return(1)
-  exit
 end
 
-on Refresh(me, tTopic, tdata)
+on Refresh me, tTopic, tdata 
   if tdata = 0 then
     return(0)
   end if
-  if me = "game_deleted" then
+  if tdata.getAt(#reason) = "game_deleted" then
     tAlertStr = "gs_error_game_deleted"
   else
-    if me = "nocredits" then
+    if tdata.getAt(#reason) = "nocredits" then
       tAlertStr = "gs_error_nocredits"
     else
       tAlertStr = "gs_error_" & tdata.getAt(#request) & "_" & tdata.getAt(#reason)
@@ -25,5 +23,4 @@ on Refresh(me, tTopic, tdata)
     end if
   end if
   return(executeMessage(#alert, [#id:"gs_error", #Msg:tAlertStr]))
-  exit
 end

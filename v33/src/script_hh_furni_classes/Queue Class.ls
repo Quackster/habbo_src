@@ -1,4 +1,6 @@
-on prepare(me, tdata)
+property pState, pAnimate, pFrameCounter, pMaxSkipFrames, pAnimFrame, pAnimLayer, pAnimStartTime, pAnimationTime
+
+on prepare me, tdata 
   pAnimationTime = 600
   pMaxSkipFrames = 1
   pAnimFrame = 0
@@ -19,22 +21,19 @@ on prepare(me, tdata)
   end repeat
   pAnimLayer = numToChar(charToNum("a") + me.count(#pSprList) - 1)
   return(1)
-  exit
 end
 
-on updateStuffdata(me, tValue)
+on updateStuffdata me, tValue 
   pState = tValue
-  exit
 end
 
-on setAnimation(me, tValue)
+on setAnimation me, tValue 
   pAnimate = 1
   pAnimStartTime = the milliSeconds
   return(1)
-  exit
 end
 
-on update(me)
+on update me 
   if pState < 2 then
     return(1)
   else
@@ -63,5 +62,4 @@ on update(me)
       end if
     end if
   end if
-  exit
 end

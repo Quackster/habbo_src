@@ -1,14 +1,15 @@
-on construct(me)
+property pPhotoMember, pWindowID, pPhotoCache, pLastPhotoData, pPhotoText, pPhotoTime, pFilm, pItemId, pLocX, pLocY, pPhotoId
+
+on construct me 
   pWindowID = #photo_window
-  pPhotoCache = []
+  pPhotoCache = [:]
   pPhotoMember = void()
   createWriter(#photo_timestamp_writer_black, [#color:rgb(0, 0, 0)])
   createWriter(#photo_timestamp_writer_white, [#color:rgb(255, 255, 240)])
   return(1)
-  exit
 end
 
-on deconstruct(me)
+on deconstruct me 
   if pPhotoMember.ilk = #member then
     removeMember(pPhotoMember.name)
     pPhotoMember = void()
@@ -19,10 +20,9 @@ on deconstruct(me)
   removeWriter(#photo_timestamp_writer_black)
   removeWriter(#photo_timestamp_writer_white)
   return(1)
-  exit
 end
 
-on storePicture(me, tmember, tText)
+on storePicture me, tmember, tText 
   if not voidp(tText) then
     tText = getStringServices().convertSpecialChars(tText, 1)
     tText = replaceChunks(tText, "\\", "")
@@ -32,17 +32,15 @@ on storePicture(me, tmember, tText)
   addMessageToBinaryQueue("PHOTOTXT /" & tText)
   storeBinaryData(tdata, me.getID())
   pLastPhotoData = tdata
-  exit
 end
 
-on binaryDataStored(me, tid)
+on binaryDataStored me, tid 
   me.getInterface().saveOk()
   pPhotoCache.setaProp(tid, pLastPhotoData)
   pLastPhotoData = void()
-  exit
 end
 
-on binaryDataReceived(me, tdata, tid)
+on binaryDataReceived me, tdata, tid 
   if ilk(tdata) <> #propList then
     return(0)
   end if
@@ -81,10 +79,9 @@ on binaryDataReceived(me, tdata, tid)
     end if
   end if
   getWindow(pWindowID).getElement("photo_picture").setProperty(#buffer, pPhotoMember)
-  exit
 end
 
-on openPhoto(me, tItemID, tLocX, tLocY)
+on openPhoto me, tItemID, tLocX, tLocY 
   if windowExists(pWindowID) then
     removeWindow(pWindowID)
   end if
@@ -92,36 +89,32 @@ on openPhoto(me, tItemID, tLocX, tLocY)
   pLocY = tLocY
   registerMessage(symbol("itemdata_received" & tItemID), me.getID(), #setItemData)
   getConnection(getVariable("connection.room.id")).send("G_IDATA", tItemID)
-  exit
 end
 
-on countCS(me, tImg)
+on countCS me, tImg 
   tL = [3, 2, 73, 28, 83, 21, 43, 90, 92, 91, 37, 4, 3, 84, 12, 102, 103, 108, 97, 43, 44, 89, 109, 65, 61, -4, 76]
   tA = 0
   tW = tImg.width
   tH = tImg.height
   i = 1
   repeat while i <= 100
-    tA = ERROR mod ERROR mod tA + tImg.getPixel(i mod tW, i * i mod tH).paletteIndex * tL.getAt(i mod tL.count + 1).undefined
+    tA = tA + tImg.getPixel(i mod tW, i * i mod tH).paletteIndex * tL.getAt(i mod tL.count + 1) mod 85000
     i = 1 + i
   end repeat
   return(tA)
-  exit
 end
 
-on setFilm(me, tFilm)
+on setFilm me, tFilm 
   pFilm = tFilm
   me.getInterface().setButtonHilites()
   me.getInterface().updateFilm()
-  exit
 end
 
-on getFilm(me)
+on getFilm me 
   return(pFilm)
-  exit
 end
 
-on setItemData(me, tMsg)
+on setItemData me, tMsg 
   pItemId = tMsg.getAt(#id)
   pPhotoId = tMsg.getAt(#text).getPropRef(#line, 1).getProp(#word, 1)
   tAuthId = tMsg.getAt(#text).getPropRef(#line, 1).getProp(#word, 2)
@@ -155,10 +148,9 @@ on setItemData(me, tMsg)
   if not towner and not tCanRemovePhotos then
     tWndObj.getElement("photo_remove").setProperty(#visible, 0)
   end if
-  exit
 end
 
-on convertScandinavianUTF8(me, tString)
+on convertScandinavianUTF8 me, tString 
   if tString.length < 6 then
     return(tString)
   end if
@@ -179,18 +171,16 @@ on convertScandinavianUTF8(me, tString)
     i = 1 + i
   end repeat
   return(tOutputStr)
-  exit
 end
 
-on eventProcPhotoMouseDown(me, tEvent, tElemID, tParam)
-  if me = "photo_close" then
+on eventProcPhotoMouseDown me, tEvent, tElemID, tParam 
+  if tElemID = "photo_close" then
     removeWindow(pWindowID)
   else
-    if me = "photo_remove" then
+    if tElemID = "photo_remove" then
       if getThread("room").getComponent().getRoomConnection().send("REMOVEITEM", pItemId) then
         removeWindow(pWindowID)
       end if
     end if
   end if
-  exit
 end

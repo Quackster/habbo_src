@@ -1,14 +1,12 @@
-on construct(me)
+on construct me 
   return(1)
-  exit
 end
 
-on deconstruct(me)
+on deconstruct me 
   return(1)
-  exit
 end
 
-on testForLineOfSight(me, tLineOfSightTester, tX1, tY1, tX2, tY2, tBlockingLevel, tExcludeFirst, tExcludeLast)
+on testForLineOfSight me, tLineOfSightTester, tX1, tY1, tX2, tY2, tBlockingLevel, tExcludeFirst, tExcludeLast 
   tDeltaX = tX2 - tX1
   tDeltaY = tY2 - tY1
   tDump = 0
@@ -383,5 +381,4 @@ on testForLineOfSight(me, tLineOfSightTester, tX1, tY1, tX2, tY2, tBlockingLevel
     tY = 255 + tY
   end repeat
   return(1)
-  exit
 end

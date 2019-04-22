@@ -1,10 +1,12 @@
-on construct(me)
+property pGeometry, pPeopleSize, pPartListSubSet, pPartListFull, pFlipPartList, pSprite, pMatteSpr, pShadowSpr, pTypingSprite, pFXManager, pExtraObjs, pCanvasSize, pMember, pInfoStruct, pName, pClass, pCustom, pAnimating, pDirection, pXFactor, pLocX, pLocY, pLocH, pHeadDir, pQueuesWithObj, pSync, pPreviousLoc, pDancing, pFx, pExtraObjsActive, pPartList, pMainAction, pScreenLoc, pPartIndex, pCtrlType, pTrading, pCarrying, pXP, pWebID, pGroupId, pStatusInGroup, pUserIsTyping, pCurrentAnim, pFrozenAnimFrame, pAnimCounter, pEyesClosed, pSleeping, pTalking, pMoving, pMoveStart, pMoveTime, pDestLScreen, pStartLScreen, pWaving, pUserTypingStartTime, pChanges, pFlipList, pDefShadowMem, pBuffer, pCorrectLocZ, pRestingHeight, pShadowFix, pBaseLocZ, pAlphaColor, pUpdateRect, pRawFigure, pPartActionList, pColors, pLeftHandUp, pRightHandUp, pPartOrderOld, pCanvasName, pPartClass
+
+on construct me 
   pFrozenAnimFrame = 0
   pID = 0
   pWebID = void()
   pName = ""
   pPartList = []
-  pPartIndex = []
+  pPartIndex = [:]
   pFlipList = [0, 1, 2, 3, 2, 1, 0, 7]
   pLocFix = point(0, 0)
   pUpdateRect = rect(0, 0, 0, 0)
@@ -31,16 +33,16 @@ on construct(me)
   pCtrlType = 0
   pAnimating = 0
   pSwim = 0
-  pBadges = []
+  pBadges = [:]
   pCurrentAnim = ""
   pAlphaColor = rgb(255, 255, 255)
   pSync = 1
-  pColors = []
+  pColors = [:]
   pModState = 0
-  pExtraObjs = []
-  pExtraObjsActive = []
+  pExtraObjs = [:]
+  pExtraObjsActive = [:]
   pDefShadowMem = member(0)
-  pInfoStruct = []
+  pInfoStruct = [:]
   pQueuesWithObj = 0
   pXP = 0
   pGeometry = getThread(#room).getInterface().getGeometry()
@@ -53,14 +55,14 @@ on construct(me)
   pStatusInGroup = void()
   pBaseLocZ = 0
   pPeopleSize = getVariable("human.size.64")
-  pRawFigure = []
+  pRawFigure = [:]
   pPartOrderOld = ""
   pUserIsTyping = 0
   pUserTypingStartTime = 0
   pCanvasName = "Canvas:" & getUniqueID()
   tSubSetList = ["figure", "head", "speak", "gesture", "eye", "handRight", "handLeft", "walk", "sit", "itemRight"]
-  pPartListSubSet = []
-  repeat while me <= undefined
+  pPartListSubSet = [:]
+  repeat while tSubSetList <= undefined
     tSubSet = getAt(undefined, undefined)
     tSetName = "human.partset." & tSubSet & "." & pPeopleSize
     if not variableExists(tSetName) then
@@ -76,20 +78,19 @@ on construct(me)
   end if
   pFlipPartList = getVariable("human.parts.flipList")
   if ilk(pFlipPartList) <> #propList then
-    pFlipPartList = []
+    pFlipPartList = [:]
   end if
   pPartActionList = void()
   pLeftHandUp = 0
   pRightHandUp = 0
   return(1)
-  exit
 end
 
-on deconstruct(me)
+on deconstruct me 
   pGeometry = void()
   pPartList = []
-  pPartIndex = []
-  pInfoStruct = []
+  pPartIndex = [:]
+  pInfoStruct = [:]
   me.resetSpriteColors()
   if not voidp(pSprite) then
     releaseSprite(pSprite.spriteNum)
@@ -112,16 +113,15 @@ on deconstruct(me)
   pFXManager = void()
   pFx = 0
   call(#deconstruct, pExtraObjs)
-  pExtraObjsActive = []
+  pExtraObjsActive = [:]
   pExtraObjs = void()
   pShadowSpr = void()
   pMatteSpr = void()
   pSprite = void()
   return(1)
-  exit
 end
 
-on define(me, tdata)
+on define me, tdata 
   me.setup(tdata)
   if not memberExists(me.getCanvasName()) then
     createMember(me.getCanvasName(), #bitmap)
@@ -155,7 +155,7 @@ on define(me, tdata)
   pInfoStruct.setAt(#custom, pCustom)
   pInfoStruct.setAt(#image, me.getPicture())
   pInfoStruct.setAt(#ctrl, "furniture")
-  pInfoStruct.setAt(#badges, [])
+  pInfoStruct.setAt(#badges, [:])
   tThread = getThread(#room)
   if tThread <> 0 then
     tInterface = tThread.getInterface()
@@ -170,10 +170,9 @@ on define(me, tdata)
     end if
   end if
   return(1)
-  exit
 end
 
-on changeFigureAndData(me, tdata)
+on changeFigureAndData me, tdata 
   if tdata <> void() then
     pSex = tdata.getAt(#sex)
     pCustom = tdata.getAt(#custom)
@@ -191,10 +190,9 @@ on changeFigureAndData(me, tdata)
   me.render(1)
   me.reDraw()
   pInfoStruct.setAt(#image, me.getPicture())
-  exit
 end
 
-on setup(me, tdata)
+on setup me, tdata 
   pName = tdata.getAt(#name)
   pClass = tdata.getAt(#class)
   pCustom = tdata.getAt(#custom)
@@ -240,10 +238,9 @@ on setup(me, tdata)
   me.resetValues(pLocX, pLocY, pLocH, pHeadDir, pDirection)
   me.Refresh(pLocX, pLocY, pLocH, pDirection)
   pSync = 0
-  exit
 end
 
-on update(me)
+on update me 
   if pQueuesWithObj then
     me.prepare()
     me.render()
@@ -255,10 +252,9 @@ on update(me)
       me.render()
     end if
   end if
-  exit
 end
 
-on resetSpriteColors(me)
+on resetSpriteColors me 
   if ilk(pSprite) = #sprite then
     pSprite.ink = 36
     pSprite.blend = 100
@@ -277,10 +273,9 @@ on resetSpriteColors(me)
     pShadowSpr.bgColor = paletteIndex(0)
     pShadowSpr.foreColor = 255
   end if
-  exit
 end
 
-on resetValues(me, tX, tY, tH, tDirHead, tDirBody, tActionList)
+on resetValues me, tX, tY, tH, tDirHead, tDirBody, tActionList 
   if tActionList = void() then
     tActionList = []
   end if
@@ -324,10 +319,9 @@ on resetValues(me, tX, tY, tH, tDirHead, tDirBody, tActionList)
   if pExtraObjs.count > 0 then
     call(#Refresh, pExtraObjs)
   end if
-  exit
 end
 
-on Refresh(me, tX, tY, tH)
+on Refresh me, tX, tY, tH 
   if pQueuesWithObj and pPreviousLoc = [tX, tY, tH] then
     return(1)
   end if
@@ -348,45 +342,37 @@ on Refresh(me, tX, tY, tH)
     i = i + 1
   end repeat
   pChanges = 1
-  exit
 end
 
-on select(me)
+on select me 
   return(1)
-  exit
 end
 
-on getName(me)
+on getName me 
   return(pName)
-  exit
 end
 
-on getClass(me)
+on getClass me 
   return("user")
-  exit
 end
 
-on getCustom(me)
+on getCustom me 
   return(pCustom)
-  exit
 end
 
-on getLocation(me)
+on getLocation me 
   return([pLocX, pLocY, pLocH])
-  exit
 end
 
-on getScrLocation(me)
+on getScrLocation me 
   return(pScreenLoc)
-  exit
 end
 
-on getTileCenter(me)
+on getTileCenter me 
   return(point(pScreenLoc.getAt(1) + pXFactor / 2, pScreenLoc.getAt(2)))
-  exit
 end
 
-on getPartLocation(me, tPart)
+on getPartLocation me, tPart 
   if voidp(pPartIndex.getAt(tPart)) then
     return(void())
   end if
@@ -397,28 +383,24 @@ on getPartLocation(me, tPart)
     tloc = point(pSprite.getProp(#rect, 1) + pSprite.width / 2, pSprite.getProp(#rect, 2) + pSprite.height / 2)
   end if
   return(tloc)
-  exit
 end
 
-on getDirection(me)
+on getDirection me 
   return(pDirection)
-  exit
 end
 
-on getPartColor(me, tPart)
+on getPartColor me, tPart 
   if voidp(pPartIndex.getAt(tPart)) then
     return(void())
   end if
   return(pPartList.getAt(pPartIndex.getAt(tPart)).getColor())
-  exit
 end
 
-on getPicture(me, tImg)
+on getPicture me, tImg 
   return(me.getPartialPicture(#Full, tImg, 4, "h"))
-  exit
 end
 
-on getPartialPicture(me, tPartList, tImg, tDirection, tPeopleSize)
+on getPartialPicture me, tPartList, tImg, tDirection, tPeopleSize 
   if tPartList.ilk <> #list then
     tPartName = ""
     if tPartList = #head then
@@ -466,7 +448,7 @@ on getPartialPicture(me, tPartList, tImg, tDirection, tPeopleSize)
     exit repeat
   end if
   tPartDefinition = getVariableValue(tPartOrder)
-  repeat while me <= tImg
+  repeat while tPartDefinition <= tImg
     tPartSymbol = getAt(tImg, tPartList)
     if not voidp(pPartIndex.getAt(tPartSymbol)) then
       if tPartList.findPos(tPartSymbol) > 0 then
@@ -476,10 +458,9 @@ on getPartialPicture(me, tPartList, tImg, tDirection, tPeopleSize)
   end repeat
   call(#copyPicture, tTempPartList, tCanvas, tDirection, tPeopleSize)
   return(tCanvas)
-  exit
 end
 
-on getInfo(me)
+on getInfo me 
   if pCtrlType = "" then
     pInfoStruct.setAt(#ctrl, "furniture")
   else
@@ -504,64 +485,61 @@ on getInfo(me)
   pInfoStruct.setaProp(#xp, pXP)
   pInfoStruct.setaProp(#FX, me.getCurrentEffectState())
   return(pInfoStruct)
-  exit
 end
 
-on getWebID(me)
+on getWebID me 
   return(pWebID)
-  exit
 end
 
-on getSprites(me)
+on getSprites me 
   if ilk(pShadowSpr) = #sprite then
     return([pSprite, pShadowSpr, pMatteSpr])
   else
     return([pSprite, pMatteSpr])
   end if
-  exit
 end
 
-on getProperty(me, tPropID)
-  if me = #carrying then
+on getProperty me, tPropID 
+  if tPropID = #carrying then
     return(pCarrying)
   else
-    if me = #direction then
+    if tPropID = #direction then
       return(pDirection)
     else
-      if me = #dancing then
+      if tPropID = #dancing then
         return(pDancing)
       else
-        if me = #FX then
+        if tPropID = #FX then
           return(pFx)
         else
-          if me = #loc then
+          if tPropID = #loc then
             return([pLocX, pLocY, pLocH])
           else
-            if me = #mainAction then
+            if tPropID = #mainAction then
               return(pMainAction)
             else
-              if me = #moving then
+              if tPropID = #moving then
                 return(me.pMoving)
               else
-                if me = #badges then
+                if tPropID = #badges then
                   return(me.pBadges)
                 else
-                  if me = #swimming then
+                  if tPropID = #swimming then
                     return(me.pSwim)
                   else
-                    if me = #groupID then
+                    if tPropID = #groupID then
                       return(pGroupId)
                     else
-                      if me = #groupstatus then
+                      if tPropID = #groupstatus then
                         return(pStatusInGroup)
                       else
-                        if me = #typing then
+                        if tPropID = #typing then
                           return(pUserIsTyping)
                         else
-                          if me = #peoplesize then
+                          if tPropID = #peoplesize then
                             return(pPeopleSize)
                           else
-                            if me = #locZ then
+                            if tPropID = #locZ then
                               if pSprite.ilk = #sprite then
                                 return(pSprite.locZ)
                               end if
@@ -581,23 +559,21 @@ on getProperty(me, tPropID)
       end if
     end if
   end if
-  exit
 end
 
-on setProperty(me, tPropID, tValue)
-  if me = #groupID then
+on setProperty me, tPropID, tValue 
+  if tPropID = #groupID then
     pGroupId = tValue
   else
-    if me = #groupstatus then
+    if tPropID = #groupstatus then
       pStatusInGroup = tValue
     else
       return(0)
     end if
   end if
-  exit
 end
 
-on setUserTypingStatus(me, tValue)
+on setUserTypingStatus me, tValue 
   if tValue = 1 then
     if ilk(pTypingSprite) <> #sprite then
       pTypingSprite = sprite(reserveSprite(me.getID()))
@@ -619,10 +595,9 @@ on setUserTypingStatus(me, tValue)
       pUserTypingStartTime = 0
     end if
   end if
-  exit
 end
 
-on updateTypingSpriteLoc(me)
+on updateTypingSpriteLoc me 
   if ilk(pTypingSprite) = #sprite and ilk(pSprite) = #sprite then
     tOffset = point(57, -75)
     tOffsetLocZ = 30
@@ -633,23 +608,20 @@ on updateTypingSpriteLoc(me)
     pTypingSprite.visible = pSprite.visible
     pTypingSprite.locZ = pSprite.locZ + tOffsetLocZ
   end if
-  exit
 end
 
-on getPartCarrying(me, tPart)
+on getPartCarrying me, tPart 
   if pPartListSubSet.getAt("handRight").findPos(tPart) and me.getProperty(#carrying) then
     return(1)
   end if
   return(0)
-  exit
 end
 
-on isInSwimsuit(me)
+on isInSwimsuit me 
   return(0)
-  exit
 end
 
-on closeEyes(me)
+on closeEyes me 
   if pMainAction = "lay" then
     me.definePartListAction(pPartListSubSet.getAt("eye"), "ley")
   else
@@ -657,10 +629,9 @@ on closeEyes(me)
   end if
   pEyesClosed = 1
   pChanges = 1
-  exit
 end
 
-on openEyes(me)
+on openEyes me 
   if pMainAction = "lay" then
     me.definePartListAction(pPartListSubSet.getAt("eye"), "lay")
   else
@@ -668,10 +639,9 @@ on openEyes(me)
   end if
   pEyesClosed = 0
   pChanges = 1
-  exit
 end
 
-on startAnimation(me, tMemName)
+on startAnimation me, tMemName 
   if tMemName = pCurrentAnim then
     return(0)
   end if
@@ -688,10 +658,10 @@ on startAnimation(me, tMemName)
     if tChar <> "#" and tChar <> "" then
       tPart = tList.getPropRef(#line, i).getProp(#item, 1)
       tAnim = tList.getPropRef(#line, i).getProp(#item, 2)
-      if me = "leftHandUp" then
+      if tPart = "leftHandUp" then
         pLeftHandUp = 1
       else
-        if me = "all" then
+        if tPart = "all" then
           call(#setAnimation, pPartList, "all", tAnim)
           call(#setAnimation, [pFXManager], "all", tAnim)
         else
@@ -705,25 +675,22 @@ on startAnimation(me, tMemName)
   the itemDelimiter = tTempDelim
   pAnimating = 1
   pCurrentAnim = tMemName
-  exit
 end
 
-on stopAnimation(me)
+on stopAnimation me 
   pAnimating = 0
   pCurrentAnim = ""
   call(#remAnimation, pPartList)
   me.resetSpriteColors()
-  exit
 end
 
-on resumeAnimation(me)
+on resumeAnimation me 
   tMemName = pCurrentAnim
   pCurrentAnim = ""
   me.startAnimation(tMemName)
-  exit
 end
 
-on show(me)
+on show me 
   pSprite.visible = 1
   pMatteSpr.visible = 1
   if ilk(pShadowSpr) = #sprite then
@@ -731,15 +698,14 @@ on show(me)
   end if
   me.updateTypingSpriteLoc()
   tFXSprites = me.getEffectSpriteProps()
-  repeat while me <= undefined
+  repeat while tFXSprites <= undefined
     tProps = getAt(undefined, undefined)
     tsprite = tProps.getaProp(#sprite)
     tsprite.visible = 1
   end repeat
-  exit
 end
 
-on hide(me)
+on hide me 
   pSprite.visible = 0
   pMatteSpr.visible = 0
   if ilk(pShadowSpr) = #sprite then
@@ -747,23 +713,21 @@ on hide(me)
   end if
   me.updateTypingSpriteLoc()
   tFXSprites = me.getEffectSpriteProps()
-  repeat while me <= undefined
+  repeat while tFXSprites <= undefined
     tProps = getAt(undefined, undefined)
     tsprite = tProps.getaProp(#sprite)
     tsprite.visible = 0
   end repeat
-  exit
 end
 
-on draw(me, tRGB)
+on draw me, tRGB 
   if ilk(tRGB) <> #color then
     tRGB = rgb(255, 0, 0)
   end if
   pMember.draw(image.rect, [#shapeType:#rect, #color:tRGB])
-  exit
 end
 
-on prepare(me)
+on prepare me 
   if not pFrozenAnimFrame then
     pAnimCounter = pAnimCounter + 1 mod 4
   else
@@ -786,8 +750,8 @@ on prepare(me)
   end if
   if pMoving then
     tFactor = float(the milliSeconds - pMoveStart) / pMoveTime
-    if tFactor > 0 then
-      tFactor = 0
+    if tFactor > 1 then
+      tFactor = 1
     end if
     pScreenLoc = pDestLScreen - pStartLScreen * tFactor + pStartLScreen
     pChanges = 1
@@ -806,10 +770,9 @@ on prepare(me)
     pUserTypingStartTime = 0
     me.setUserTypingStatus(0)
   end if
-  exit
 end
 
-on render(me, tForceUpdate)
+on render me, tForceUpdate 
   call(#update, pExtraObjs)
   if not pChanges then
     return()
@@ -909,7 +872,7 @@ on render(me, tForceUpdate)
   end if
   me.updateTypingSpriteLoc()
   pBuffer.fill(pBuffer.rect, pAlphaColor)
-  repeat while me <= undefined
+  repeat while pPartList <= undefined
     tPart = getAt(undefined, tForceUpdate)
     tRectMod = [0, 0, 0, 0]
     if tPart.pPart = "ey" then
@@ -924,28 +887,25 @@ on render(me, tForceUpdate)
   image.copyPixels(pBuffer, pUpdateRect, pUpdateRect)
   pUpdateRect = rect(0, 0, 0, 0)
   me.updateEffects()
-  exit
 end
 
-on reDraw(me)
+on reDraw me 
   pBuffer.fill(pBuffer.rect, pAlphaColor)
   call(#render, pPartList)
   image.copyPixels(pBuffer, pBuffer.rect, pBuffer.rect)
-  exit
 end
 
-on getClearedFigurePartList(me, tmodels)
+on getClearedFigurePartList me, tmodels 
   return(me.getSpecificClearedFigurePartList(tmodels, me.getPartListNameBase()))
-  exit
 end
 
-on getSpecificClearedFigurePartList(me, tmodels, tListName)
+on getSpecificClearedFigurePartList me, tmodels, tListName 
   tPartList = getVariableValue(tListName & "." & pPeopleSize)
   if tPartList.ilk <> #list then
     return([])
   end if
   tPartListLegal = tPartList.duplicate()
-  repeat while me <= tListName
+  repeat while pPartListSubSet.getAt("figure") <= tListName
     tPart = getAt(tListName, tmodels)
     tPos = tPartList.findPos(tPart)
     if tPos > 0 then
@@ -970,20 +930,18 @@ on getSpecificClearedFigurePartList(me, tmodels, tListName)
     i = 1 + i
   end repeat
   tExcludedParts = me.getEffectExcludedPartIndex()
-  repeat while me <= tListName
+  repeat while pPartListSubSet.getAt("figure") <= tListName
     tPartId = getAt(tListName, tmodels)
     tPartList.deleteOne(tPartId)
   end repeat
   return(tPartList)
-  exit
 end
 
-on getRawFigure(me)
+on getRawFigure me 
   return(pRawFigure)
-  exit
 end
 
-on setPartLists(me, tmodels)
+on setPartLists me, tmodels 
   if voidp(pPartActionList) then
     me.resetAction()
   end if
@@ -994,7 +952,7 @@ on setPartLists(me, tmodels)
     pRawFigure = tmodels
   end if
   tPartDefinition = me.getClearedFigurePartList(tmodels)
-  tCurrentPartList = []
+  tCurrentPartList = [:]
   i = pPartList.count
   repeat while i >= 1
     tPartObj = pPartList.getAt(i)
@@ -1007,16 +965,16 @@ on setPartLists(me, tmodels)
     end if
     i = 255 + i
   end repeat
-  pPartIndex = []
-  pColors = []
+  pPartIndex = [:]
+  pColors = [:]
   tAnimationList = getVariable("human.parts.animationList")
   if ilk(tAnimationList) <> #propList then
-    tAnimationList = []
+    tAnimationList = [:]
   end if
   i = 1
   repeat while i <= tPartDefinition.count
     tPartSymbol = tPartDefinition.getAt(i)
-    tmodel = []
+    tmodel = [:]
     tmodel.setAt("model", [])
     tmodel.setAt("color", [])
     if not voidp(tmodels.getAt(tPartSymbol)) then
@@ -1102,10 +1060,9 @@ on setPartLists(me, tmodels)
     i = 1 + i
   end repeat
   return(1)
-  exit
 end
 
-on arrangeParts(me, tOrderName)
+on arrangeParts me, tOrderName 
   tPartOrder = ""
   tDirData = ""
   if not voidp(pDirection) then
@@ -1143,7 +1100,7 @@ on arrangeParts(me, tOrderName)
       pFXManager.alignEffectBodyparts(tPartDefinition, pDirection)
     end if
     tTempPartList = []
-    repeat while me <= undefined
+    repeat while tPartDefinition <= undefined
       tPartSymbol = getAt(undefined, tOrderName)
       if not voidp(pPartIndex.getAt(tPartSymbol)) then
         tTempPartList.append(pPartList.getAt(pPartIndex.getAt(tPartSymbol)))
@@ -1160,25 +1117,22 @@ on arrangeParts(me, tOrderName)
     pPartIndex.setAt(pPartList.getAt(i).pPart, i)
     i = 1 + i
   end repeat
-  exit
 end
 
-on flipImage(me, tImg_a)
+on flipImage me, tImg_a 
   tImg_b = image(tImg_a.width, tImg_a.height, tImg_a.depth)
   tQuad = [point(tImg_a.width, 0), point(0, 0), point(0, tImg_a.height), point(tImg_a.width, tImg_a.height)]
   tImg_b.copyPixels(tImg_a, tQuad, tImg_a.rect)
   return(tImg_b)
-  exit
 end
 
-on getCanvasName(me)
+on getCanvasName me 
   return(pCanvasName)
-  exit
 end
 
-on getDefinedPartList(me, tPartNameList)
+on getDefinedPartList me, tPartNameList 
   tPartList = []
-  repeat while me <= undefined
+  repeat while tPartNameList <= undefined
     tPartName = getAt(undefined, tPartNameList)
     if not voidp(pPartIndex.getAt(tPartName)) then
       tPos = pPartIndex.getAt(tPartName)
@@ -1186,32 +1140,30 @@ on getDefinedPartList(me, tPartNameList)
     end if
   end repeat
   return(tPartList)
-  exit
 end
 
-on definePartListAction(me, tPartList, tAction)
+on definePartListAction me, tPartList, tAction 
   if voidp(pPartActionList) then
     me.resetAction()
   end if
-  repeat while me <= tAction
+  repeat while tPartList <= tAction
     tPart = getAt(tAction, tPartList)
     pPartActionList.setAt(tPart, tAction)
   end repeat
   call(#defineAct, me.getDefinedPartList(tPartList), tAction)
-  exit
 end
 
-on resetAction(me)
+on resetAction me 
   pMainAction = "std"
   pLeftHandUp = 0
   pRightHandUp = 0
   if voidp(pPartActionList) then
-    pPartActionList = []
+    pPartActionList = [:]
   end if
   if pPartActionList.count = 0 then
     tPartList = getVariableValue(me.getPartListNameBase() & "." & pPeopleSize)
     if tPartList.ilk = #list then
-      repeat while me <= undefined
+      repeat while tPartList <= undefined
         tPart = getAt(undefined, undefined)
         pPartActionList.setAt(tPart, pMainAction)
       end repeat
@@ -1224,28 +1176,24 @@ on resetAction(me)
     end repeat
   end if
   call(#setModel, me.getDefinedPartList(pPartListSubSet.getAt("itemRight")), "0")
-  exit
 end
 
-on getPartClass(me, tPartSymbol)
+on getPartClass me, tPartSymbol 
   return(pPartClass)
-  exit
 end
 
-on getPartListNameBase(me)
+on getPartListNameBase me 
   return("human.parts")
-  exit
 end
 
-on releaseShadowSprite(me)
+on releaseShadowSprite me 
   if ilk(pShadowSpr) = #sprite then
     releaseSprite(pShadowSpr.spriteNum)
     pShadowSpr = void()
   end if
-  exit
 end
 
-on action_mv(me, tProps)
+on action_mv me, tProps 
   pMainAction = "wlk"
   pMoving = 1
   pBaseLocZ = 0
@@ -1260,10 +1208,9 @@ on action_mv(me, tProps)
   pStartLScreen = pGeometry.getScreenCoordinate(pLocX, pLocY, pLocH)
   pDestLScreen = pGeometry.getScreenCoordinate(tLocX, tLocY, tLocH)
   me.definePartListAction(pPartListSubSet.getAt("walk"), "wlk")
-  exit
 end
 
-on action_sld(me, tProps)
+on action_sld me, tProps 
   pMoving = 1
   pBaseLocZ = 0
   tDelim = the itemDelimiter
@@ -1283,44 +1230,42 @@ on action_sld(me, tProps)
   else
     pMoveStart = tStartTime
   end if
-  exit
 end
 
-on action_sit(me, tProps)
+on action_sit me, tProps 
   me.definePartListAction(pPartListSubSet.getAt("sit"), "sit")
   pMainAction = "sit"
-  pRestingHeight = getLocalFloat(tProps.getProp(#word, 2)) - 0
+  pRestingHeight = getLocalFloat(tProps.getProp(#word, 2)) - 1
   pScreenLoc = pGeometry.getScreenCoordinate(pLocX, pLocY, pLocH + pRestingHeight)
   tIsInQueue = integer(tProps.getProp(#word, 3))
   pQueuesWithObj = tIsInQueue
-  exit
 end
 
-on action_lay(me, tProps)
+on action_lay me, tProps 
   pMainAction = "lay"
   pCarrying = 0
   tRestingHeight = getLocalFloat(tProps.getProp(#word, 2))
   if tRestingHeight < 0 then
-    pRestingHeight = abs(tRestingHeight) - 0
+    pRestingHeight = abs(tRestingHeight) - 1
     tZOffset = 0
   else
-    pRestingHeight = tRestingHeight - 0
+    pRestingHeight = tRestingHeight - 1
     tZOffset = 2000
   end if
   pScreenLoc = pGeometry.getScreenCoordinate(pLocX, pLocY, pLocH + pRestingHeight)
   if pXFactor < 33 then
-    if me = 2 then
+    if pFlipList.getAt(pDirection + 1) = 2 then
       pScreenLoc = pScreenLoc + [-10, 18, tZOffset]
     else
-      if me = 0 then
+      if pFlipList.getAt(pDirection + 1) = 0 then
         pScreenLoc = pScreenLoc + [-17, 18, tZOffset]
       end if
     end if
   else
-    if me = 2 then
+    if pFlipList.getAt(pDirection + 1) = 2 then
       pScreenLoc = pScreenLoc + [10, 30, tZOffset]
     else
-      if me = 0 then
+      if pFlipList.getAt(pDirection + 1) = 0 then
         pScreenLoc = pScreenLoc + [-47, 32, tZOffset]
       end if
     end if
@@ -1336,10 +1281,9 @@ on action_lay(me, tProps)
     pHeadDir = 4
   end if
   call(#defineDir, pPartList, pDirection)
-  exit
 end
 
-on carryObject(me, tProps, tDefaultItem, tDefaultItemPublic)
+on carryObject me, tProps, tDefaultItem, tDefaultItemPublic 
   tItem = tProps.getProp(#word, 2)
   tItemInt = integer(tItem)
   tItemString = string(tItem)
@@ -1365,25 +1309,21 @@ on carryObject(me, tProps, tDefaultItem, tDefaultItemPublic)
       call(#setModel, me.getDefinedPartList(pPartListSubSet.getAt("itemRight")), tCarryItm)
     end if
   end if
-  exit
 end
 
-on action_carryd(me, tProps)
+on action_carryd me, tProps 
   me.carryObject(tProps, "1", "1")
-  exit
 end
 
-on action_carryf(me, tProps)
+on action_carryf me, tProps 
   me.carryObject(tProps, "1", "4")
-  exit
 end
 
-on action_cri(me, tProps)
+on action_cri me, tProps 
   me.carryObject(tProps, "75", "1")
-  exit
 end
 
-on useObject(me, tProps, tDefaultItem, tDefaultItemPublic)
+on useObject me, tProps, tDefaultItem, tDefaultItemPublic 
   tItem = tProps.getProp(#word, 2)
   tItemInt = integer(tItem)
   tItemString = string(tItem)
@@ -1411,31 +1351,27 @@ on useObject(me, tProps, tDefaultItem, tDefaultItemPublic)
       pRightHandUp = 1
     end if
   end if
-  exit
 end
 
-on action_usei(me, tProps)
+on action_usei me, tProps 
   if not me.pFx then
     me.useObject(tProps, "1", "1")
   end if
-  exit
 end
 
-on action_drink(me, tProps)
+on action_drink me, tProps 
   if not me.pFx then
     me.useObject(tProps, "1", "1")
   end if
-  exit
 end
 
-on action_eat(me, tProps)
+on action_eat me, tProps 
   if not me.pFx then
     me.useObject(tProps, "1", "4")
   end if
-  exit
 end
 
-on action_talk(me, tProps)
+on action_talk me, tProps 
   if pPeopleSize = "sh" then
     if pMainAction = "lay" then
       pTalking = 0
@@ -1443,10 +1379,9 @@ on action_talk(me, tProps)
     end if
   end if
   pTalking = 1
-  exit
 end
 
-on action_gest(me, tProps)
+on action_gest me, tProps 
   if pPeopleSize = "sh" then
     return(0)
   end if
@@ -1463,16 +1398,14 @@ on action_gest(me, tProps)
       me.definePartListAction(pPartListSubSet.getAt("head"), "ohd")
     end if
   end if
-  exit
 end
 
-on action_wave(me, tProps)
+on action_wave me, tProps 
   pWaving = 1
   pLeftHandUp = 1
-  exit
 end
 
-on action_dance(me, tProps)
+on action_dance me, tProps 
   me.clearEffects()
   tStyleNum = tProps.getProp(#word, 2)
   pDancing = integer(tStyleNum)
@@ -1482,38 +1415,32 @@ on action_dance(me, tProps)
   tStyle = "dance." & pDancing
   me.startAnimation(tStyle)
   executeMessage(#updateInfostandAvatar)
-  exit
 end
 
-on action_ohd(me)
+on action_ohd me 
   if not me.pFx then
     me.definePartListAction(pPartListSubSet.getAt("head"), "ohd")
     me.definePartListAction(pPartListSubSet.getAt("handRight"), "ohd")
   end if
-  exit
 end
 
-on action_trd(me)
+on action_trd me 
   pTrading = 1
-  exit
 end
 
-on action_sleep(me)
+on action_sleep me 
   pSleeping = 1
-  exit
 end
 
-on action_flatctrl(me, tProps)
+on action_flatctrl me, tProps 
   pCtrlType = tProps.getProp(#word, 2)
-  exit
 end
 
-on action_mod(me, tProps)
+on action_mod me, tProps 
   pModState = tProps.getProp(#word, 2)
-  exit
 end
 
-on action_sign(me, props)
+on action_sign me, props 
   if not me.pFx then
     tSignMem = "sign" & props.getProp(#word, 2)
     if getmemnum(tSignMem) = 0 then
@@ -1528,10 +1455,9 @@ on action_sign(me, props)
     call(#show_sign, pExtraObjs, ["sprite":pSprite, "direction":pDirection, "signmember":tSignMem])
     pLeftHandUp = 1
   end if
-  exit
 end
 
-on action_joingame(me, tProps)
+on action_joingame me, tProps 
   if tProps.count(#word) < 3 then
     return(0)
   end if
@@ -1545,10 +1471,9 @@ on action_joingame(me, tProps)
     pExtraObjs.setaProp(tSignObjID, tObject)
   end if
   call(#show_ig_icon, pExtraObjs, ["userid":me.getID(), "gameid":tProps.getProp(#word, 2), "gametype":tProps.getProp(#word, 3), "locz":pSprite.locZ])
-  exit
 end
 
-on action_fx(me, tProps)
+on action_fx me, tProps 
   if tProps = void() then
     return(0)
   end if
@@ -1570,10 +1495,9 @@ on action_fx(me, tProps)
   me.pFx = tID
   executeMessage(#updateInfostandAvatar)
   return(1)
-  exit
 end
 
-on validateFxForActionList(me, tActionDefs, tActionIndex)
+on validateFxForActionList me, tActionDefs, tActionIndex 
   if ilk(tActionDefs) <> #list then
     return(0)
   end if
@@ -1582,7 +1506,7 @@ on validateFxForActionList(me, tActionDefs, tActionIndex)
   end if
   tEffectID = void()
   tActions = []
-  repeat while me <= tActionIndex
+  repeat while tActionDefs <= tActionIndex
     tAction = getAt(tActionIndex, tActionDefs)
     if ilk(tAction) = #propList then
       if tAction.getaProp(#name) = "fx" then
@@ -1614,7 +1538,7 @@ on validateFxForActionList(me, tActionDefs, tActionIndex)
   end if
   tAllow = 1
   tRemovedActions = []
-  repeat while me <= tActionIndex
+  repeat while tActionDefs <= tActionIndex
     tAction = getAt(tActionIndex, tActionDefs)
     if tBlackList.getOne(tAction) then
       if tWhiteList.getOne(tAction) then
@@ -1643,79 +1567,69 @@ on validateFxForActionList(me, tActionDefs, tActionIndex)
     tNumAction = 255 + tNumAction
   end repeat
   return(tAllow)
-  exit
 end
 
-on getEffectDirOffset(me)
+on getEffectDirOffset me 
   if pFXManager = 0 then
     return(0)
   end if
   return(pFXManager.getEffectDirOffset())
-  exit
 end
 
-on getEffectShadowName(me)
+on getEffectShadowName me 
   if pFXManager = 0 then
     return([])
   end if
   return(pFXManager.getEffectShadowName())
-  exit
 end
 
-on getEffectSpriteProps(me)
+on getEffectSpriteProps me 
   if pFXManager = 0 then
     return([])
   end if
   return(pFXManager.getEffectSpriteProps())
-  exit
 end
 
-on getEffectAddedPartIndex(me)
+on getEffectAddedPartIndex me 
   if pFXManager = 0 then
     return([])
   end if
   return(pFXManager.getEffectAddedPartIndex())
-  exit
 end
 
-on getEffectExcludedPartIndex(me)
+on getEffectExcludedPartIndex me 
   if pFXManager = 0 then
     return([])
   end if
   return(pFXManager.getEffectExcludedPartIndex())
-  exit
 end
 
-on updateEffects(me)
+on updateEffects me 
   if pFXManager = 0 then
     return(1)
   end if
   pFXManager.updateEffects(me)
-  exit
 end
 
-on clearEffects(me)
+on clearEffects me 
   if pFXManager <> 0 then
     pFXManager.clearEffects(me)
   end if
   me.pFx = 0
   return(1)
-  exit
 end
 
-on getCurrentEffectState(me)
+on getCurrentEffectState me 
   if pFXManager = 0 then
     return(void())
   end if
   return(pFXManager.getCurrentEffectState())
-  exit
 end
 
-on getEffectManager(me)
+on getEffectManager me 
   if objectp(pFXManager) then
     return(pFXManager)
   end if
   pFXManager = createObject(#temp, "Avatar Effect Manager")
   return(pFXManager)
-  exit
 end

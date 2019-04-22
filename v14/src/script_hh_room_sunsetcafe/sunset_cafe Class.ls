@@ -1,4 +1,6 @@
-on construct(me)
+property pItemObjList, pDiscoStyleList, pDiscoStyle, pAnimThisUpdate, pSin, pSpriteList, pLightTimer, pDiscoCounter, pColorOrder, pGlowList
+
+on construct me 
   pItemObjList = []
   receiveUpdate(me.getID())
   tVisObj = getThread(#room).getInterface().getRoomVisualizer()
@@ -35,29 +37,25 @@ on construct(me)
     i = 1 + i
   end repeat
   return(1)
-  exit
 end
 
-on deconstruct(me)
+on deconstruct me 
   return(removeUpdate(me.getID()))
-  exit
 end
 
-on prepare(me)
+on prepare me 
   return(receiveUpdate(me.getID()))
-  exit
 end
 
-on showprogram(me, tMsg)
+on showprogram me, tMsg 
   if voidp(tMsg) then
     return(0)
   end if
   tNum = tMsg.getAt(#show_command)
   return(me.changeDiscoStyle(tNum))
-  exit
 end
 
-on changeDiscoStyle(me, tNr)
+on changeDiscoStyle me, tNr 
   if tNr = void() then
     pDiscoStyle = pDiscoStyle + 1
   else
@@ -69,10 +67,9 @@ on changeDiscoStyle(me, tNr)
   pSin = 22.4
   pDiscoCounter = 100
   return(1)
-  exit
 end
 
-on update(me)
+on update me 
   call(#update, pItemObjList)
   pAnimThisUpdate = not pAnimThisUpdate
   if not pAnimThisUpdate then
@@ -99,10 +96,9 @@ on update(me)
   pDiscoCounter = pDiscoCounter + 1
   pLightTimer = the milliSeconds
   me.ColorTiles(tStyle, tOrCols, tMultip, tSpeed, tRange, tHorz)
-  exit
 end
 
-on ColorTiles(me, tStyle, tOrCols, tMultiplier, tSpeed, tRange, tHorz)
+on ColorTiles me, tStyle, tOrCols, tMultiplier, tSpeed, tRange, tHorz 
   pActiveColors = tRange
   i = 1
   repeat while i <= pSpriteList.count
@@ -111,25 +107,25 @@ on ColorTiles(me, tStyle, tOrCols, tMultiplier, tSpeed, tRange, tHorz)
       tX = 6
     end if
     tY = i - 1 / 6 + 1
-    if me = "#vertRotateSin" then
+    if tStyle = "#vertRotateSin" then
       tColNum = me.vertRotateSin(tX, tY, tOrCols, tMultiplier, tSpeed, pActiveColors)
     else
-      if me = "#vertRotate" then
+      if tStyle = "#vertRotate" then
         tColNum = me.vertRotate(tX, tY, tOrCols, tMultiplier, tSpeed, pActiveColors)
       else
-        if me = "#centerRotateMovX" then
+        if tStyle = "#centerRotateMovX" then
           tColNum = me.centerRotateMovX(tX, tY, tOrCols, tMultiplier, tSpeed, pActiveColors)
         else
-          if me = "#centerRotateMovXY" then
+          if tStyle = "#centerRotateMovXY" then
             tColNum = me.centerRotateMovXY(tX, tY, tOrCols, tMultiplier, tSpeed, pActiveColors)
           else
-            if me = "#centerRotate" then
+            if tStyle = "#centerRotate" then
               tColNum = me.centerRotate(tX, tY, tOrCols, tMultiplier, tSpeed, pActiveColors)
             else
-              if me = "#randomColor" then
+              if tStyle = "#randomColor" then
                 tColNum = me.randomColor(tX, tY, tOrCols, tMultiplier, tSpeed, pActiveColors)
               else
-                if me = "#chessBoard" then
+                if tStyle = "#chessBoard" then
                   tColNum = me.chessBoard(tX, tY, tOrCols, tMultiplier, tSpeed, pActiveColors)
                 else
                   return(0)
@@ -145,15 +141,13 @@ on ColorTiles(me, tStyle, tOrCols, tMultiplier, tSpeed, tRange, tHorz)
     pGlowList.getAt(i).member = getMember("light_disco_" & pColorOrder.getAt(tNum))
     i = 1 + i
   end repeat
-  exit
 end
 
-on randomColor(me, tX, tY, tOrCols, tMultiplier, tSpeed, tRange)
+on randomColor me, tX, tY, tOrCols, tMultiplier, tSpeed, tRange 
   return(random(100))
-  exit
 end
 
-on chessBoard(me, tX, tY, tOrCols, tMultiplier, tSpeed, tRange)
+on chessBoard me, tX, tY, tOrCols, tMultiplier, tSpeed, tRange 
   tPhase = pDiscoCounter mod 2
   tCols = []
   k = 1
@@ -168,10 +162,9 @@ on chessBoard(me, tX, tY, tOrCols, tMultiplier, tSpeed, tRange)
     k = 1 + k
   end repeat
   return(tCols.getAt(1))
-  exit
 end
 
-on vertRotateSin(me, tX, tY, tOrCols, tMultiplier, tSpeed, tRange)
+on vertRotateSin me, tX, tY, tOrCols, tMultiplier, tSpeed, tRange 
   tCols = []
   k = 1
   repeat while k <= 3
@@ -187,10 +180,9 @@ on vertRotateSin(me, tX, tY, tOrCols, tMultiplier, tSpeed, tRange)
     k = 1 + k
   end repeat
   return(tCols.getAt(1))
-  exit
 end
 
-on vertRotate(me, tX, tY, tOrCols, tMultiplier, tSpeed, tRange)
+on vertRotate me, tX, tY, tOrCols, tMultiplier, tSpeed, tRange 
   tCols = []
   k = 1
   repeat while k <= 3
@@ -206,10 +198,9 @@ on vertRotate(me, tX, tY, tOrCols, tMultiplier, tSpeed, tRange)
     k = 1 + k
   end repeat
   return(tCols.getAt(1))
-  exit
 end
 
-on centerRotateMovX(me, tX, tY, tOrCols, tMultiplier, tSpeed, tRange)
+on centerRotateMovX me, tX, tY, tOrCols, tMultiplier, tSpeed, tRange 
   tCols = []
   tRow = abs(pDiscoCounter mod 12 - 6)
   tCenterX = tRow
@@ -217,10 +208,9 @@ on centerRotateMovX(me, tX, tY, tOrCols, tMultiplier, tSpeed, tRange)
   tCenterMultiplier = abs(tX - tCenterX) + abs(tY - tCenterY)
   tMultiplier = tMultiplier * tCenterMultiplier
   return(tRow + tX)
-  exit
 end
 
-on centerRotateMovXY(me, tX, tY, tOrCols, tMultiplier, tSpeed, tRange)
+on centerRotateMovXY me, tX, tY, tOrCols, tMultiplier, tSpeed, tRange 
   tCols = []
   tPlace = pDiscoCounter mod 18
   if tPlace < 6 then
@@ -244,7 +234,7 @@ on centerRotateMovXY(me, tX, tY, tOrCols, tMultiplier, tSpeed, tRange)
   tMultiplier = tMultiplier * tCenterMultiplier
   k = 1
   repeat while k <= 3
-    tCols.setAt(k, tOrCols.getAt(k) + tX + tY + tMultiplier * pSin * tSpeed / 0)
+    tCols.setAt(k, tOrCols.getAt(k) + tX + tY + tMultiplier * pSin * tSpeed / 7)
     tMax = tRange.getAt(k + 3)
     tMin = tRange.getAt(k)
     if tCols.getAt(k) > tMax then
@@ -256,10 +246,9 @@ on centerRotateMovXY(me, tX, tY, tOrCols, tMultiplier, tSpeed, tRange)
     k = 1 + k
   end repeat
   return(tCols.getAt(1))
-  exit
 end
 
-on centerRotate(me, tX, tY, tOrCols, tMultiplier, tSpeed, tRange)
+on centerRotate me, tX, tY, tOrCols, tMultiplier, tSpeed, tRange 
   tCenterX = 3
   tCenterY = 3
   tCenterMultiplier = abs(tX - tCenterX) + abs(tY - tCenterY)
@@ -279,10 +268,9 @@ on centerRotate(me, tX, tY, tOrCols, tMultiplier, tSpeed, tRange)
     k = 1 + k
   end repeat
   return(tCols.getAt(1))
-  exit
 end
 
-on getSpriteList(me)
+on getSpriteList me 
   pSpriteList = []
   tObj = getThread(#room).getInterface().getRoomVisualizer()
   if tObj = 0 then
@@ -301,5 +289,4 @@ on getSpriteList(me)
     i = 1 + i
   end repeat
   return(1)
-  exit
 end

@@ -1,22 +1,21 @@
-on construct(me)
+property pVisible, pTargetElementID
+
+on construct me 
   pVisible = 0
   registerMessage(#toggle_ig, me.getID(), #hide)
   return(1)
-  exit
 end
 
-on deconstruct(me)
+on deconstruct me 
   unregisterMessage(#toggle_ig, me.getID())
   return(1)
-  exit
 end
 
-on Init(me, tTargetElementID)
+on Init me, tTargetElementID 
   pTargetElementID = tTargetElementID
-  exit
 end
 
-on show(me)
+on show me 
   if pVisible then
     return(1)
   end if
@@ -42,10 +41,9 @@ on show(me)
   tRenderObj.setTarget(pTargetElementID)
   pVisible = 1
   return(1)
-  exit
 end
 
-on hide(me)
+on hide me 
   if not pVisible then
     return(1)
   end if
@@ -56,5 +54,4 @@ on hide(me)
   end if
   tService.removeIGComponent("Recommended")
   return(1)
-  exit
 end

@@ -1,19 +1,19 @@
-on construct(me)
+property pItemList, pWriterClass, pPlainStruct
+
+on construct me 
   pWriterClass = getClassVariable("writer.instance.class")
   pPlainStruct = getStructVariable("struct.font.plain")
-  pItemList = []
+  pItemList = [:]
   return(1)
-  exit
 end
 
-on deconstruct(me)
+on deconstruct me 
   call(#deconstruct, pItemList)
-  pItemList = []
+  pItemList = [:]
   return(1)
-  exit
 end
 
-on create(me, tID, tMetrics)
+on create me, tID, tMetrics 
   if voidp(tID) then
     return(error(me, "Failed to create writer. Writer ID was void", #create, #major))
   end if
@@ -24,7 +24,7 @@ on create(me, tID, tMetrics)
   if not tObj then
     return(0)
   end if
-  if me = #struct then
+  if tMetrics.ilk = #struct then
     tObj.setFont(tMetrics)
   else
     tObj.setFont(pPlainStruct)
@@ -33,34 +33,29 @@ on create(me, tID, tMetrics)
   pItemList.setAt(tID, tObj)
   tObj.setID(tID)
   return(1)
-  exit
 end
 
-on Remove(me, tID)
+on Remove me, tID 
   tObj = pItemList.getaProp(tID)
   if voidp(tObj) then
     return(error(me, "Writer not found:" && tID, #Remove, #minor))
   end if
   tObj.deconstruct()
   return(pItemList.deleteProp(tID))
-  exit
 end
 
-on GET(me, tID)
+on GET me, tID 
   tObj = pItemList.getaProp(tID)
   if voidp(tObj) then
     return(0)
   end if
   return(tObj)
-  exit
 end
 
-on exists(me, tID)
+on exists me, tID 
   return(not voidp(pItemList.getaProp(tID)))
-  exit
 end
 
-on handlers()
+on handlers  
   return([])
-  exit
 end

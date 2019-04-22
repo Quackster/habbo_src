@@ -1,5 +1,7 @@
-on construct(me)
-  pItemDataDB = []
+property pItemDataDB
+
+on construct me 
+  pItemDataDB = [:]
   tItemIndex = getmemnum("Poster Index List")
   if not tItemIndex then
     return(1)
@@ -18,15 +20,13 @@ on construct(me)
   end repeat
   the itemDelimiter = tDelim
   return(1)
-  exit
 end
 
-on getPosterData(me, ttype)
+on getPosterData me, ttype 
   tdata = pItemDataDB.getAt(ttype)
   if voidp(tdata) then
     return(0)
   else
     return(tdata)
   end if
-  exit
 end

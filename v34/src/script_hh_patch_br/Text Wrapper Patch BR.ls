@@ -1,4 +1,4 @@
-on createImgFromTxt(me)
+on createImgFromTxt me 
   pTextMem.rect = rect(0, 0, me.pOwnW, me.pOwnH)
   if not listp(me.getProp(#pFontData, #fontStyle)) then
     tList = []
@@ -96,5 +96,4 @@ on createImgFromTxt(me)
   end if
   me.copyPixels(pimage.rect, me, pimage.rect, [#ink:8])
   return(1)
-  exit
 end

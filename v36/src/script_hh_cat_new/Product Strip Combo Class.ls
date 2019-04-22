@@ -1,15 +1,13 @@
-on construct(me)
+on construct me 
   callAncestor(#construct, [me])
   return(1)
-  exit
 end
 
-on deconstruct(me)
+on deconstruct me 
   return(callAncestor(#deconstruct, [me]))
-  exit
 end
 
-on resolveSmallPreview(me, tOffer)
+on resolveSmallPreview me, tOffer 
   if not objectp(tOffer) then
     return(error(me, "Invalid input format", #resolveSmallPreview, #minor))
   end if
@@ -26,10 +24,8 @@ on resolveSmallPreview(me, tOffer)
   else
     return(ancestor.resolveSmallPreview(tOffer))
   end if
-  exit
 end
 
-on refreshDownloadingSlots(me)
+on refreshDownloadingSlots me 
   return(ancestor.refreshDownloadingSlots())
-  exit
 end

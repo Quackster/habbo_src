@@ -1,4 +1,6 @@
-on setKey(me, tMyKey, tMode)
+property i, pKey, pSbox, j
+
+on setKey me, tMyKey, tMode 
   if undefined <> void() then
     if undefined.traceScript then
       return(0)
@@ -16,8 +18,8 @@ on setKey(me, tMyKey, tMode)
       tMode = #artificialKey
     end if
   end if
-  if me <> #old then
-    if me = void() then
+  if tMode <> #old then
+    if tMode = void() then
       i = 0
       repeat while i <= 255
         pKey.setAt(i + 1, charToNum(tMyKeyS.getProp(#char, i mod length(tMyKeyS) + 1)))
@@ -26,7 +28,7 @@ on setKey(me, tMyKey, tMode)
       end repeat
       exit repeat
     end if
-    if me = #artificialKey then
+    if tMode = #artificialKey then
       len = bitAnd(tMyKey, 248) / 8
       if len < 20 then
         len = len + 20
@@ -52,7 +54,7 @@ on setKey(me, tMyKey, tMode)
       end repeat
       exit repeat
     end if
-    if me = #new then
+    if tMode = #new then
       i = 0
       repeat while i <= 255
         pKey.setAt(i + 1, i)
@@ -80,11 +82,10 @@ on setKey(me, tMyKey, tMode)
     end repeat
     i = 0
     j = 0
-    exit
   end if
 end
 
-on encipher(me, tdata)
+on encipher me, tdata 
   if undefined <> void() then
     if undefined.traceScript then
       return(0)
@@ -116,10 +117,9 @@ on encipher(me, tdata)
     a = 1 + a
   end repeat
   return(tCipher)
-  exit
 end
 
-on decipher(me, tdata)
+on decipher me, tdata 
   if undefined <> void() then
     if undefined.traceScript then
       return(0)
@@ -141,10 +141,9 @@ on decipher(me, tdata)
     a = 1 + a
   end repeat
   return(tCipher)
-  exit
 end
 
-on createKey(me)
+on createKey me 
   if undefined <> void() then
     if undefined.traceScript then
       return(0)
@@ -155,14 +154,14 @@ on createKey(me)
   tCharacters = "abcdefghijklmnopqrstuvwxyz1234567890"
   tSeed = the randomSeed
   the randomSeed = the milliSeconds
-  tLength = ERROR + abs(random(0) mod tKeyLengthVariation)
+  tLength = tKeyMinLength + abs(random(65536) mod tKeyLengthVariation)
   tTable = ""
   tKey = ""
   i = 1
   repeat while i <= tLength
-    c = random(0) mod tCharacters.length + 1.getProp()
+    c = tCharacters.getProp(#char, random(65536) mod tCharacters.length + 1)
     tTable = tTable & c
-    c = tCharacters.getProp(tCharacters, random(0) mod tCharacters.length + 1)
+    c = tCharacters.getProp(#char, random(65536) mod tCharacters.length + 1)
     tTable = tTable & c
     tKey = tKey & c
     i = 1 + i
@@ -170,40 +169,33 @@ on createKey(me)
   tCodedKey = tTable & tKey
   the randomSeed = tSeed
   return(tCodedKey)
-  exit
 end
 
-on bitshiftright(me, x, n)
+on bitshiftright me, x, n 
   return(bitOr(x / power(2, n), 0))
-  exit
 end
 
-on preMixDecodeSbox(me, tTestData, tCount)
+on preMixDecodeSbox me, tTestData, tCount 
   k = 1
   repeat while k <= tCount
     me.decipher(tTestData)
     k = 1 + k
   end repeat
-  exit
 end
 
-on preMixEncodeSbox(me, tTestData, tCount)
+on preMixEncodeSbox me, tTestData, tCount 
   l = 1
   repeat while l <= tCount
     me.encipher(tTestData)
     l = 1 + l
   end repeat
-  exit
 end
 
-on enableLog(me, tMemberName)
-  exit
+on enableLog me, tMemberName 
 end
 
-on setLog(me, tTextMember)
-  exit
+on setLog me, tTextMember 
 end
 
-on dumpState(me)
-  exit
+on dumpState me 
 end

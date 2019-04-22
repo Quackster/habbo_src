@@ -1,4 +1,6 @@
-on define(me, tProps)
+property pPalette, pProps, pType, pimage, pDepth, pParams, pLocX, pLocY, pwidth, pheight, pScaleH, pScaleV, pBuffer, pSprite
+
+on define me, tProps 
   pID = tProps.getAt(#id)
   pMotherId = tProps.getAt(#mother)
   pType = tProps.getAt(#type)
@@ -42,7 +44,7 @@ on define(me, tProps)
   if me.getProp(#pProps, #flipV) then
     me.flipV()
   end if
-  pParams = []
+  pParams = [:]
   if tProps.getAt(#blend) < 100 then
     pParams.setAt(#blend, tProps.getAt(#blend))
   end if
@@ -59,106 +61,98 @@ on define(me, tProps)
     pParams = void()
   end if
   return(1)
-  exit
 end
 
-on prepare(me)
-  exit
+on prepare me 
 end
 
-on moveTo(me, tLocX, tLocY)
+on moveTo me, tLocX, tLocY 
   pLocX = tLocX
   pLocY = tLocY
   me.render()
-  exit
 end
 
-on moveBy(me, tOffX, tOffY)
+on moveBy me, tOffX, tOffY 
   pLocX = pLocX + tOffX
   pLocY = pLocY + tOffY
   me.render()
-  exit
 end
 
-on resizeTo(me, tX, tY)
+on resizeTo me, tX, tY 
   tOffX = tX - pwidth
   tOffY = tY - pheight
   return(me.resizeBy(tOffX, tOffY))
-  exit
 end
 
-on resizeBy(me, tOffH, tOffV)
-  if me = #move then
+on resizeBy me, tOffH, tOffV 
+  if pScaleH = #move then
     pLocX = pLocX + tOffH
   else
-    if me = #center then
+    if pScaleH = #center then
       pLocX = pLocX + tOffH / 2
     else
-      if me = #scale then
+      if pScaleH = #scale then
         pwidth = pwidth + tOffH
       end if
     end if
   end if
-  if me = #move then
+  if pScaleH = #move then
     pLocY = pLocY + tOffV
   else
-    if me = #center then
+    if pScaleH = #center then
       pLocY = pLocY + tOffV / 2
     else
-      if me = #scale then
+      if pScaleH = #scale then
         pheight = pheight + tOffV
       end if
     end if
   end if
   me.render()
-  exit
 end
 
-on flipH(me)
+on flipH me 
   tImage = image(pimage.width, pimage.height, pimage.depth, pimage.paletteRef)
   tQuad = [point(pimage.width, 0), point(0, 0), point(0, pimage.height), point(pimage.width, pimage.height)]
   tImage.copyPixels(pimage, tQuad, pimage.rect)
   me.pimage = tImage
-  exit
 end
 
-on flipV(me)
+on flipV me 
   tImage = image(pimage.width, pimage.height, pimage.depth, pimage.paletteRef)
   tQuad = [point(0, pimage.height), point(pimage.width, pimage.height), point(pimage.width, 0), point(0, 0)]
   tImage.copyPixels(pimage, tQuad, pimage.rect)
   pimage = tImage
-  exit
 end
 
-on getProperty(me, tProp)
-  if me = #buffer then
+on getProperty me, tProp 
+  if tProp = #buffer then
     return(pBuffer)
   else
-    if me = #sprite then
+    if tProp = #sprite then
       return(pSprite)
     else
-      if me = #width then
+      if tProp = #width then
         return(pwidth)
       else
-        if me = #height then
+        if tProp = #height then
           return(pheight)
         else
-          if me = #locX then
+          if tProp = #locX then
             return(pLocX)
           else
-            if me = #locY then
+            if tProp = #locY then
               return(pLocY)
             else
-              if me = #scaleH then
+              if tProp = #scaleH then
                 return(pScaleH)
               else
-                if me = #scaleV then
+                if tProp = #scaleV then
                   return(pScaleV)
                 else
-                  if me = #depth then
+                  if tProp = #depth then
                     return(pDepth)
                   else
-                    if me = #palette then
+                    if tProp = #palette then
                       return(pPalette)
                     else
                       return(0)
@@ -172,21 +166,18 @@ on getProperty(me, tProp)
       end if
     end if
   end if
-  exit
 end
 
-on render(me)
+on render me 
   tTargetRect = rect(pLocX, pLocY, pLocX + pwidth, pLocY + pheight)
   tSourceRect = pimage.rect
   pBuffer.copyPixels(pimage, tTargetRect, tSourceRect, pParams)
-  exit
 end
 
-on draw(me, tRGB)
+on draw me, tRGB 
   if not ilk(tRGB, #color) then
     tRGB = rgb(0, 0, 255)
   end if
   tTargetRect = rect(pLocX, pLocY, pLocX + pwidth, pLocY + pheight)
   pBuffer.draw(tTargetRect, [#shapeType:#rect, #color:tRGB])
-  exit
 end

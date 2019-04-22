@@ -1,4 +1,4 @@
-on eventProcMouseDown(me, tEvent, tSprID, tParam, tWndID)
+on eventProcMouseDown me, tEvent, tSprID, tParam, tWndID 
   tService = me.getIGComponent("LevelList")
   if tService = 0 then
     return(0)
@@ -14,5 +14,4 @@ on eventProcMouseDown(me, tEvent, tSprID, tParam, tWndID)
     tSprID = tSprID.getProp(#char, 1, tSprID.length - 1)
   end if
   return(0)
-  exit
 end

@@ -1,61 +1,55 @@
-on test(me)
+property pItemList, pMaxItems
+
+on test me 
   tItem = [#type:#newbadge, #value:"ACH_RegistrationDuration" & random(10)]
   me.createItem(tItem)
-  exit
 end
 
-on construct(me)
+on construct me 
   pBaseClassName = "Infofeed Item Base Class"
-  pItemList = []
+  pItemList = [:]
   pMaxItems = 10
   return(1)
-  exit
 end
 
-on deconstruct(me)
+on deconstruct me 
   me.removeAllItems()
   return(1)
-  exit
 end
 
-on getItem(me, tID)
+on getItem me, tID 
   if voidp(tID) then
     return(0)
   end if
   return(pItemList.getaProp(tID))
-  exit
 end
 
-on getItemCount(me)
+on getItemCount me 
   return(pItemList.count)
-  exit
 end
 
-on getItemPos(me, tID)
+on getItemPos me, tID 
   if voidp(tID) then
     return(0)
   end if
   return(pItemList.findPos(tID))
-  exit
 end
 
-on getFirstItemId(me)
+on getFirstItemId me 
   if pItemList.count = 0 then
     return(-1)
   end if
   return(pItemList.getPropAt(1))
-  exit
 end
 
-on getLatestItemId(me)
+on getLatestItemId me 
   if pItemList.count = 0 then
     return(-1)
   end if
   return(pItemList.getPropAt(pItemList.count))
-  exit
 end
 
-on getPreviousFrom(me, tID)
+on getPreviousFrom me, tID 
   if voidp(tID) then
     return(-1)
   end if
@@ -64,10 +58,9 @@ on getPreviousFrom(me, tID)
     return(me.getFirstItemId())
   end if
   return(pItemList.getPropAt(tPos - 1))
-  exit
 end
 
-on getNextFrom(me, tID)
+on getNextFrom me, tID 
   if voidp(tID) then
     return(-1)
   end if
@@ -76,10 +69,9 @@ on getNextFrom(me, tID)
     return(me.getLatestItemId())
   end if
   return(pItemList.getPropAt(tPos + 1))
-  exit
 end
 
-on createItem(me, tStruct)
+on createItem me, tStruct 
   if not listp(tStruct) then
     return(0)
   end if
@@ -102,10 +94,9 @@ on createItem(me, tStruct)
   me.purgeItems()
   me.getInterface().itemCreated(tID)
   return(1)
-  exit
 end
 
-on purgeItems(me)
+on purgeItems me 
   if pItemList.count <= pMaxItems then
     return(1)
   end if
@@ -113,23 +104,20 @@ on purgeItems(me)
     pItemList.deleteAt(1)
   end repeat
   return(1)
-  exit
 end
 
-on removeAllItems(me)
-  repeat while me <= undefined
+on removeAllItems me 
+  repeat while pItemList <= undefined
     tItem = getAt(undefined, undefined)
     tItem.deconstruct()
   end repeat
-  pItemList = []
-  exit
+  pItemList = [:]
 end
 
-on getItemClass(me, ttype)
+on getItemClass me, ttype 
   tClassName = "Infofeed Item" && ttype && "Class"
   if getmemnum(tClassName) > 0 then
     return([me.pBaseClassName, tClassName])
   end if
   return(me.pBaseClassName)
-  exit
 end

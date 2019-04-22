@@ -1,4 +1,6 @@
-on prepare(me, tdata)
+property pValue, pActive
+
+on prepare me, tdata 
   pActive = 1
   pValue = integer(tdata.getAt(#stuffdata))
   if not integerp(pValue) then
@@ -11,10 +13,9 @@ on prepare(me, tdata)
     pValue = 0
   end if
   return(1)
-  exit
 end
 
-on select(me)
+on select me 
   if me.count(#pSprList) < 2 then
     return(0)
   end if
@@ -52,20 +53,18 @@ on select(me)
     end if
   end if
   return(1)
-  exit
 end
 
-on diceThrown(me, tValue)
+on diceThrown me, tValue 
   pActive = 1
   if tValue > 6 then
     pValue = 0
   else
     pValue = tValue
   end if
-  exit
 end
 
-on update(me)
+on update me 
   if pActive then
     if me.count(#pSprList) < 2 then
       return(0)
@@ -91,5 +90,4 @@ on update(me)
     tsprite.width = tmember.width
     tsprite.height = tmember.height
   end if
-  exit
 end

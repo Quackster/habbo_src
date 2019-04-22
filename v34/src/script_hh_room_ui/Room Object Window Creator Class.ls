@@ -1,4 +1,6 @@
-on construct(me)
+property pScroller, pWriterBold, pWriterPlain, pModBadgeList, pExtensionOpenedID, pExtensionClosedID
+
+on construct me 
   pModBadgeList = getVariableValue("moderator.badgelist")
   pExtensionClosedID = "roomnfo_ext_right"
   pExtensionOpenedID = "roomnfo_ext_close"
@@ -16,16 +18,14 @@ on construct(me)
   createWriter(tWriterId, tPlain)
   pWriterPlain = getWriter(tWriterId)
   return(1)
-  exit
 end
 
-on deconstruct(me)
+on deconstruct me 
   removeObject(pScroller.getID())
   return(1)
-  exit
 end
 
-on initWindow(me, tID, ttype)
+on initWindow me, tID, ttype 
   if not windowExists(tID) then
     tBaseWindowType = "obj_disp_base.window"
     createWindow(tID, tBaseWindowType, 9999, 9999)
@@ -38,10 +38,9 @@ on initWindow(me, tID, ttype)
   mergeWindow(tID, ttype)
   getWindowManager().unlock()
   return(tWndObj)
-  exit
 end
 
-on createFurnitureWindow(me, tID, tProps)
+on createFurnitureWindow me, tID, tProps 
   tSessionObj = getObject(#session)
   tRoomController = tSessionObj.GET("room_controller")
   tRoomOwner = tSessionObj.GET("room_owner")
@@ -51,7 +50,7 @@ on createFurnitureWindow(me, tID, tProps)
     tExpireTime = -1
   end if
   if tExpireTime > -1 and tRoomController or tRoomOwner or tAnyRoomController > 0 then
-    tExpireTimeLeft = tExpireTime - the milliSeconds / 0 / 60
+    tExpireTimeLeft = tExpireTime - the milliSeconds / 1000 / 60
     tExpireTimeLeft = max([0, tExpireTimeLeft])
     tWndObj = me.initWindow(tID, "obj_disp_furni_expire.window")
     if tWndObj <> 0 then
@@ -83,10 +82,9 @@ on createFurnitureWindow(me, tID, tProps)
   tWndObj.getElement("room_obj_disp_avatar").feedImage(tImage)
   tWndObj.lock()
   return(1)
-  exit
 end
 
-on createMottoWindow(me, tID, tProps, tSelectedObj, tBadgeObjID, tShowTags)
+on createMottoWindow me, tID, tProps, tSelectedObj, tBadgeObjID, tShowTags 
   tWndObj = me.initWindow(tID, "obj_disp_motto.window")
   if tWndObj.elementExists("room_obj_disp_name") then
     tNameImage = pWriterBold.render(tProps.getAt(#name)).duplicate()
@@ -115,10 +113,9 @@ on createMottoWindow(me, tID, tProps, tSelectedObj, tBadgeObjID, tShowTags)
   end if
   tWndObj.lock()
   return(1)
-  exit
 end
 
-on createHumanWindow(me, tID, tProps, tSelectedObj, tBadgeObjID, tShowTags)
+on createHumanWindow me, tID, tProps, tSelectedObj, tBadgeObjID, tShowTags 
   tWndObj = me.initWindow(tID, "obj_disp_avatar.window")
   if not tWndObj.elementExists("room_obj_disp_avatar") then
     return(error(me, "Avatar element missing.", #createHumanWindow, #major))
@@ -130,7 +127,7 @@ on createHumanWindow(me, tID, tProps, tSelectedObj, tBadgeObjID, tShowTags)
   end if
   tBadges = tProps.getAt(#badges)
   if tBadges.ilk <> #propList then
-    tBadges = []
+    tBadges = [:]
   end if
   tMaxBadgeIndex = 0
   i = 1
@@ -151,10 +148,9 @@ on createHumanWindow(me, tID, tProps, tSelectedObj, tBadgeObjID, tShowTags)
   end if
   tWndObj.lock()
   return(1)
-  exit
 end
 
-on createBotWindow(me, tID, tProps)
+on createBotWindow me, tID, tProps 
   tWndObj = me.initWindow(tID, "obj_disp_bot.window")
   tNameImage = pWriterBold.render(tProps.getAt(#name)).duplicate()
   tWndObj.getElement("room_obj_disp_name").feedImage(tNameImage)
@@ -163,10 +159,9 @@ on createBotWindow(me, tID, tProps)
   pScroller.setScroll(1)
   tWndObj.lock()
   return(1)
-  exit
 end
 
-on createPetWindow(me, tID, tProps)
+on createPetWindow me, tID, tProps 
   tWndObj = me.initWindow(tID, "obj_disp_pet.window")
   tNameImage = pWriterBold.render(tProps.getAt(#name)).duplicate()
   tWndObj.getElement("room_obj_disp_name").feedImage(tNameImage)
@@ -176,10 +171,9 @@ on createPetWindow(me, tID, tProps)
   tWndObj.getElement("room_obj_disp_avatar").feedImage(tProps.getAt(#image))
   tWndObj.lock()
   return(1)
-  exit
 end
 
-on createActionsHumanWindow(me, tID, tTargetUserName, tShowButtons)
+on createActionsHumanWindow me, tID, tTargetUserName, tShowButtons 
   tSessionObj = getObject(#session)
   tUserRights = tSessionObj.GET("user_rights")
   if tTargetUserName = tSessionObj.GET("user_name") then
@@ -188,7 +182,7 @@ on createActionsHumanWindow(me, tID, tTargetUserName, tShowButtons)
       return(0)
     end if
     tWindowModel = "obj_disp_actions_own.window"
-    tButtonList = []
+    tButtonList = [:]
     tButtonList.setAt("fx", #visible)
     tButtonList.setAt("wave", #visible)
     tButtonList.setAt("dance", #hidden)
@@ -225,7 +219,7 @@ on createActionsHumanWindow(me, tID, tTargetUserName, tShowButtons)
       tButtonList.setAt("dance", tDanceButtonState)
     end if
   else
-    tButtonList = []
+    tButtonList = [:]
     tButtonList.setAt("friend", #visible)
     tButtonList.setAt("respect", #visible)
     tButtonList.setAt("trade", #visible)
@@ -322,11 +316,10 @@ on createActionsHumanWindow(me, tID, tTargetUserName, tShowButtons)
   end if
   tWndObj.lock()
   return(tID)
-  exit
 end
 
-on createActionsFurniWindow(me, tID, tClass, tShowButtons)
-  tButtonList = []
+on createActionsFurniWindow me, tID, tClass, tShowButtons 
+  tButtonList = [:]
   tButtonList.setAt("move", #hidden)
   tButtonList.setAt("rotate", #hidden)
   tButtonList.setAt("pick", #hidden)
@@ -375,10 +368,9 @@ on createActionsFurniWindow(me, tID, tClass, tShowButtons)
   me.scaleButtonWindow(tID, tButtonList, tShowButtons)
   tWndObj.lock()
   return(tID)
-  exit
 end
 
-on showHideTags(me, tID, tShowTags)
+on showHideTags me, tID, tShowTags 
   tWndObj = getWindow(tID)
   if not tWndObj.elementExists("object_displayer_toggle_tags_icon") then
     return(0)
@@ -400,10 +392,9 @@ on showHideTags(me, tID, tShowTags)
       tTextElem.setText(getText("object_displayer_show_tags"))
     end if
   end if
-  exit
 end
 
-on scaleButtonWindow(me, tID, tButtonList, tShowButtons)
+on scaleButtonWindow me, tID, tButtonList, tShowButtons 
   tWndObj = getWindow(tID)
   if tShowButtons = 0 then
     tIndex = 1
@@ -454,16 +445,16 @@ on scaleButtonWindow(me, tID, tButtonList, tShowButtons)
         tMaxWidth = tOffsetV
       end if
     end if
-    if me = #visible then
+    if the stage = #visible then
       tElement.moveTo(tLeftPos, tCurrentButtonTopPos)
       tLeftPos = tLeftPos + tElemWidth + tButtonVertMargins
     else
-      if me = #deactive then
+      if the stage = #deactive then
         tElement.moveTo(tLeftPos, tCurrentButtonTopPos)
         tLeftPos = tLeftPos + tElemWidth + tButtonVertMargins
         tElement.deactivate()
       else
-        if me = #hidden then
+        if the stage = #hidden then
           tElement.setProperty(#visible, 0)
         end if
       end if
@@ -472,14 +463,13 @@ on scaleButtonWindow(me, tID, tButtonList, tShowButtons)
   end repeat
   tStackHeight = tLine * tButtonHeight + tButtonVertMargins + 2 * tButtonVertMargins
   me.resizeWindowTo(tID, tMaxWidth, tStackHeight)
-  exit
 end
 
-on createLinksWindow(me, tID, tFormat)
-  if me = #own then
+on createLinksWindow me, tID, tFormat 
+  if tFormat = #own then
     tWindowModel = "obj_disp_links_own.window"
   else
-    if me = #peer then
+    if tFormat = #peer then
       tWindowModel = "obj_disp_links_peer.window"
     end if
   end if
@@ -499,18 +489,16 @@ on createLinksWindow(me, tID, tFormat)
   end if
   tWndObj.lock()
   return(tID)
-  exit
 end
 
-on createUserTagsWindow(me, tID)
+on createUserTagsWindow me, tID 
   tWindowModel = "obj_disp_user_tags.window"
   tWndObj = me.initWindow(tID, tWindowModel)
   tWndObj.lock()
   return(tID)
-  exit
 end
 
-on createUserXpWindow(me, tID, tXP)
+on createUserXpWindow me, tID, tXP 
   tWindowModel = "obj_disp_xp.window"
   tWndObj = me.initWindow(tID, tWindowModel)
   if tWndObj = 0 then
@@ -523,10 +511,9 @@ on createUserXpWindow(me, tID, tXP)
   end if
   tElem.setText(replaceChunks(getText("object_displayer_xp"), "\\xp", tXP))
   return(tID)
-  exit
 end
 
-on createUserFxWindow(me, tID, tFx)
+on createUserFxWindow me, tID, tFx 
   tWindowModel = "obj_disp_fx.window"
   tWndObj = me.initWindow(tID, tWindowModel)
   if tWndObj = 0 then
@@ -554,29 +541,25 @@ on createUserFxWindow(me, tID, tFx)
   tText = replaceChunks(tText, "%t", tMin & ":" & tSec)
   tElem.setText(tText)
   return(tID)
-  exit
 end
 
-on createBottomWindow(me, tID)
+on createBottomWindow me, tID 
   tWndObj = me.initWindow(tID, "obj_disp_bottom.window")
   tWndObj.lock()
   return(tID)
-  exit
 end
 
-on resizeWindowBy(me, tID, tX, tY)
+on resizeWindowBy me, tID, tX, tY 
   tWndObj = getWindow(tID)
   tWndObj.resizeBy(tX, tY)
-  exit
 end
 
-on resizeWindowTo(me, tID, tX, tY)
+on resizeWindowTo me, tID, tX, tY 
   tWndObj = getWindow(tID)
   tWndObj.resizeTo(tX, tY)
-  exit
 end
 
-on clearWindow(me, tWindowID)
+on clearWindow me, tWindowID 
   if not windowExists(tWindowID) then
     return(0)
   end if
@@ -587,10 +570,9 @@ on clearWindow(me, tWindowID)
     pScroller.setScroll(0)
   end if
   return(1)
-  exit
 end
 
-on getRespectCount(me)
+on getRespectCount me 
   tSession = getObject(#session)
   if tSession = 0 then
     return(0)
@@ -599,10 +581,9 @@ on getRespectCount(me)
     return(-1)
   end if
   return(tSession.GET(#user_respect_ticket_count))
-  exit
 end
 
-on updateFXDropDown(me, tWndObj)
+on updateFXDropDown me, tWndObj 
   if tWndObj = 0 then
     return(0)
   end if
@@ -668,5 +649,4 @@ on updateFXDropDown(me, tWndObj)
   end if
   tElem.updateData(tNewTextList, tNewKeyList, void(), void(), tNewTextList2)
   return(1)
-  exit
 end

@@ -1,8 +1,10 @@
-on deconstruct(me)
+property pPersistentFurniData, pNameBase, pLayerDataList, pStateSequenceList, pInkList, pBlendList, pIsAnimatingList, pFrameRepeatList, pFrameNumberList, pLoopCountList, pFrameNumberList2, pInitialized, pState, pStateIndex
+
+on deconstruct me 
   pStateSequenceList = []
   pStateIndex = 1
   pState = 1
-  pLayerDataList = []
+  pLayerDataList = [:]
   pFrameNumberList = []
   pFrameNumberList2 = []
   pLoopCountList = []
@@ -14,17 +16,16 @@ on deconstruct(me)
   pIsAnimatingList = []
   pInitialized = 0
   callAncestor(#deconstruct, [me])
-  exit
 end
 
-on define(me, tProps)
+on define me, tProps 
   if voidp(pPersistentFurniData) then
     pPersistentFurniData = getThread("dynamicdownloader").getComponent().getPersistentFurniDataObject()
   end if
   pStateSequenceList = []
   pStateIndex = 1
   pState = 1
-  pLayerDataList = []
+  pLayerDataList = [:]
   pFrameNumberList = []
   pFrameNumberList2 = []
   pLoopCountList = []
@@ -49,9 +50,9 @@ on define(me, tProps)
         pStateSequenceList = tdata.getAt(#states)
         pLayerDataList = tdata.getAt(#layers)
         if voidp(pLayerDataList) then
-          pLayerDataList = []
+          pLayerDataList = [:]
         end if
-        tLayerDataList = []
+        tLayerDataList = [:]
         i = 1
         repeat while i <= pLayerDataList.count
           tProp = string(pLayerDataList.getPropAt(i))
@@ -111,18 +112,16 @@ on define(me, tProps)
     end if
   end if
   return(callAncestor(#define, [me], tProps))
-  exit
 end
 
-on select(me)
+on select me 
   if the doubleClick then
     me.getNextState()
   end if
   return(1)
-  exit
 end
 
-on update(me)
+on update me 
   if pIsAnimatingList.findPos(1) = 0 then
     return(1)
   end if
@@ -188,20 +187,17 @@ on update(me)
     tLayer = 1 + tLayer
   end repeat
   return(1)
-  exit
 end
 
-on hasURL(me)
+on hasURL me 
   return(textExists("item_ad_url_" & me.pClass))
-  exit
 end
 
-on GetUrl(me)
+on GetUrl me 
   return(getText("item_ad_url_" & me.pClass))
-  exit
 end
 
-on solveMembers(me)
+on solveMembers me 
   tMembersFound = 0
   tCount = 1
   if pLayerDataList.count > 0 then
@@ -282,13 +278,12 @@ on solveMembers(me)
         else
           return(1)
         end if
-        exit
       end if
     end if
   end repeat
 end
 
-on updateLocation(me)
+on updateLocation me 
   callAncestor(#updateLocation, [me])
   tDirection = me.pDirection
   if ilk(tDirection) = #string then
@@ -321,15 +316,13 @@ on updateLocation(me)
       tLayer = 1 + tLayer
     end repeat
   end if
-  exit
 end
 
-on postProcessLayer(me, tLayer)
+on postProcessLayer me, tLayer 
   return(1)
-  exit
 end
 
-on getMemberName(me, tLayer)
+on getMemberName me, tLayer 
   if offset("s_", pNameBase) = 1 then
     tName = "s_" & me.pDirection && pNameBase.getProp(#char, 3, pNameBase.length)
   else
@@ -346,10 +339,9 @@ on getMemberName(me, tLayer)
     end if
   end if
   return(tName)
-  exit
 end
 
-on getFrameList(me, tLayer)
+on getFrameList me, tLayer 
   if not voidp(tLayer) then
     if not voidp(pLayerDataList.getAt(tLayer)) then
       tLayerData = pLayerDataList.getAt(tLayer)
@@ -364,10 +356,9 @@ on getFrameList(me, tLayer)
     end if
   end if
   return(void())
-  exit
 end
 
-on setState(me, tNewState)
+on setState me, tNewState 
   tLayer = 1
   repeat while tLayer <= pLayerDataList.count
     pLoopCountList.setAt(tLayer, 0)
@@ -433,10 +424,9 @@ on setState(me, tNewState)
     return(1)
   end if
   return(0)
-  exit
 end
 
-on getNextState(me)
+on getNextState me 
   if pStateSequenceList.count < 1 then
     return(0)
   end if
@@ -454,10 +444,9 @@ on getNextState(me)
     return(0)
   end if
   return(getThread(#room).getComponent().getRoomConnection().send("SETITEMSTATE", [#string:string(me.id), #integer:tStateNew]))
-  exit
 end
 
-on validateStateSequenceList(me)
+on validateStateSequenceList me 
   tstatelist = []
   tIndex = 1
   repeat while tIndex <= pStateSequenceList.count
@@ -498,10 +487,9 @@ on validateStateSequenceList(me)
     tIndex = 1 + tIndex
   end repeat
   return(1)
-  exit
 end
 
-on resetFrameNumbers(me)
+on resetFrameNumbers me 
   pFrameRepeatList = []
   pIsAnimatingList = []
   pFrameNumberList = []
@@ -514,10 +502,9 @@ on resetFrameNumbers(me)
     pIsAnimatingList.setAt(i, 1)
     i = 1 + i
   end repeat
-  exit
 end
 
-on solveInk(me, tPart)
+on solveInk me, tPart 
   tName = pNameBase
   if memberExists(tName & ".props") then
     tPropList = value(member(getmemnum(tName & ".props")).text)
@@ -532,10 +519,9 @@ on solveInk(me, tPart)
     end if
   end if
   return(8)
-  exit
 end
 
-on solveBlend(me, tPart)
+on solveBlend me, tPart 
   tName = pNameBase
   if memberExists(tName & ".props") then
     tPropList = value(member(getmemnum(tName & ".props")).text)
@@ -550,10 +536,9 @@ on solveBlend(me, tPart)
     end if
   end if
   return(100)
-  exit
 end
 
-on solveLocShift(me, tPart, tdir)
+on solveLocShift me, tPart, tdir 
   tName = pNameBase
   if not memberExists(tName & ".props") then
     return(0)
@@ -578,10 +563,9 @@ on solveLocShift(me, tPart, tdir)
     end if
   end if
   return(0)
-  exit
 end
 
-on solveLocZ(me, tPart, tdir)
+on solveLocZ me, tPart, tdir 
   tName = pNameBase
   if not memberExists(tName & ".props") then
     return(charToNum(string(tPart)) - charToNum("a") + 1)
@@ -607,10 +591,9 @@ on solveLocZ(me, tPart, tdir)
     end if
   end if
   return(tPropList.getAt(tPart).getAt(#zshift).getAt(tdir + 1))
-  exit
 end
 
-on solveTransparency(me, tPart)
+on solveTransparency me, tPart 
   tName = pNameBase
   if memberExists(tName & ".props") then
     tPropList = value(member(getmemnum(tName & ".props")).text)
@@ -625,5 +608,4 @@ on solveTransparency(me, tPart)
     end if
   end if
   return(0)
-  exit
 end

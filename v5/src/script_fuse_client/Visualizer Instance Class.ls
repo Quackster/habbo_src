@@ -1,4 +1,6 @@
-on construct(me)
+property pSpriteList, pLayout, pLocX, pLocY, pBoundary, pwidth, pheight, pActSprList, pVisible, pDragFlag, pLocZ, pSpriteData, pTitle, pDragOffset
+
+on construct me 
   pTitle = me.getID()
   pLayout = []
   pLocX = 0
@@ -9,15 +11,14 @@ on construct(me)
   pVisible = 1
   pSpriteList = []
   pSpriteData = []
-  pActSprList = []
+  pActSprList = [:]
   pDragFlag = 0
   pDragOffset = [0, 0]
   pBoundary = rect(0, 0, undefined.width, undefined.height) + [-1000, -1000, 1000, 1000]
   return(1)
-  exit
 end
 
-on deconstruct(me)
+on deconstruct me 
   removeUpdate(me.getID())
   i = 1
   repeat while i <= pSpriteList.count
@@ -26,13 +27,12 @@ on deconstruct(me)
   end repeat
   pSpriteList = []
   pSpriteData = []
-  pActSprList = []
+  pActSprList = [:]
   pBoundary = []
   return(1)
-  exit
 end
 
-on define(me, tProps)
+on define me, tProps 
   if voidp(tProps) then
     return(0)
   end if
@@ -52,10 +52,9 @@ on define(me, tProps)
     pBoundary = tProps.getAt(#boundary)
   end if
   return(me.open(pLayout))
-  exit
 end
 
-on open(me, tLayout)
+on open me, tLayout 
   if voidp(tLayout) then
     tLayout = pLayout
   end if
@@ -69,20 +68,17 @@ on open(me, tLayout)
     pSpriteList = []
   end if
   return(me.buildVisual(pLayout))
-  exit
 end
 
-on close(me)
+on close me 
   return(me.remove(me.getID))
-  exit
 end
 
-on moveTo(me, tX, tY)
+on moveTo me, tX, tY 
   me.moveBy(tX - pLocX, tY - pLocY)
-  exit
 end
 
-on moveBy(me, tOffX, tOffY)
+on moveBy me, tOffX, tOffY 
   if pLocX + tOffX < pBoundary.getAt(1) then
     tOffX = pBoundary.getAt(1) - pLocX
   end if
@@ -98,10 +94,9 @@ on moveBy(me, tOffX, tOffY)
   pLocX = pLocX + tOffX
   pLocY = pLocY + tOffY
   me.moveXY(tOffX, tOffY)
-  exit
 end
 
-on moveZ(me, tZ)
+on moveZ me, tZ 
   if not integerp(tZ) then
     return(error(me, "Integer expected:" && tZ, #moveZ))
   end if
@@ -111,80 +106,69 @@ on moveZ(me, tZ)
     i = 1 + i
   end repeat
   pLocZ = tZ
-  exit
 end
 
-on getSprite(me, tid)
+on getSprite me, tid 
   return(pActSprList.getAt(tid))
-  exit
 end
 
-on getSprById(me, tid)
+on getSprById me, tid 
   return(pActSprList.getAt(tid))
-  exit
 end
 
-on getSpriteByID(me, tid)
+on getSpriteByID me, tid 
   return(pActSprList.getAt(tid))
-  exit
 end
 
-on spriteExists(me, tid)
+on spriteExists me, tid 
   return(not voidp(pActSprList.getAt(tid)))
-  exit
 end
 
-on moveSprBy(me, tid, tX, tY)
+on moveSprBy me, tid, tX, tY 
   tSprite = pActSprList.getAt(tid)
   if voidp(tSprite) then
     return(error(me, "Sprite not found:" && tid, #moveSprBy))
   end if
   tSprite.loc = tSprite.loc + [tX, tY]
   return(me.refresh())
-  exit
 end
 
-on moveSprTo(me, tid, tX, tY)
+on moveSprTo me, tid, tX, tY 
   tSprite = pActSprList.getAt(tid)
   if voidp(tSprite) then
     return(error(me, "Sprite not found:" && tid, #moveSprTo))
   end if
   tSprite.loc = point(tX, tY)
   return(me.refresh())
-  exit
 end
 
-on setActive(me)
+on setActive me 
   return(1)
-  exit
 end
 
-on setDeactive(me)
+on setDeactive me 
   return(1)
-  exit
 end
 
-on hide(me)
+on hide me 
   if pVisible = 1 then
     pVisible = 0
     me.moveX(10000)
     return(1)
   end if
   return(0)
-  exit
 end
 
-on show(me)
+on show me 
   if pVisible = 0 then
     pVisible = 1
     me.moveX(-10000)
     return(1)
   end if
   return(0)
-  exit
 end
 
-on drag(me, tBoolean)
+on drag me, tBoolean 
   if tBoolean = 1 and pDragFlag = 0 then
     pDragOffset = the mouseLoc - [pLocX, pLocY]
     receiveUpdate(me.getID())
@@ -196,47 +180,46 @@ on drag(me, tBoolean)
     end if
   end if
   return(1)
-  exit
 end
 
-on getProperty(me, tProp)
-  if me = #layout then
+on getProperty me, tProp 
+  if tProp = #layout then
     return(pLayout)
   else
-    if me = #locX then
+    if tProp = #locX then
       return(pLocX)
     else
-      if me = #locY then
+      if tProp = #locY then
         return(pLocY)
       else
-        if me = #locZ then
+        if tProp = #locZ then
           return(pLocZ)
         else
-          if me = #boundary then
+          if tProp = #boundary then
             return(pBoundary)
           else
-            if me = #width then
+            if tProp = #width then
               return(pwidth)
             else
-              if me = #height then
+              if tProp = #height then
                 return(pheight)
               else
-                if me = #sprCount then
+                if tProp = #sprCount then
                   return(pSpriteList.count)
                 else
-                  if me = #spriteList then
+                  if tProp = #spriteList then
                     return(pSpriteList)
                   else
-                    if me = #spriteData then
+                    if tProp = #spriteData then
                       return(pSpriteData)
                     else
-                      if me = #visible then
+                      if tProp = #visible then
                         return(pVisible)
                       else
-                        if me = #title then
+                        if tProp = #title then
                           return(pTitle)
                         else
-                          if me = #id then
+                          if tProp = #id then
                             return(me.getID())
                           end if
                         end if
@@ -252,34 +235,33 @@ on getProperty(me, tProp)
     end if
   end if
   return(0)
-  exit
 end
 
-on setProperty(me, tProp, tValue)
-  if me = #layout then
+on setProperty me, tProp, tValue 
+  if tProp = #layout then
     return(me.open(tValue))
   else
-    if me = #locX then
+    if tProp = #locX then
       return(me.moveX(tValue))
     else
-      if me = #locY then
+      if tProp = #locY then
         return(me.moveY(tValue))
       else
-        if me = #locZ then
+        if tProp = #locZ then
           return(me.moveZ(tValue))
         else
-          if me = #boundary then
+          if tProp = #boundary then
             pBoundary = tValue
             return(1)
           else
-            if me = #visible then
+            if tProp = #visible then
               if tValue then
                 return(me.show())
               else
                 return(me.hide())
               end if
             else
-              if me = #title then
+              if tProp = #title then
                 pTitle = tValue
                 return(1)
               end if
@@ -290,49 +272,39 @@ on setProperty(me, tProp, tValue)
     end if
   end if
   return(0)
-  exit
 end
 
-on moveX(me, tOffX)
+on moveX me, tOffX 
   i = 1
   repeat while i <= pSpriteList.count
     pSpriteList.getAt(i).locH = pSpriteList.getAt(i).locH + tOffX
     i = 1 + i
   end repeat
-  exit
 end
 
-on moveY(me, tOffY)
+on moveY me, tOffY 
   i = 1
   repeat while i <= pSpriteList.count
     pSpriteList.getAt(i).locV = pSpriteList.getAt(i).locV + tOffY
     i = 1 + i
   end repeat
-  exit
 end
 
-on moveXY(me, tOffX, tOffY)
+on moveXY me, tOffX, tOffY 
   i = 1
   repeat while i <= pSpriteList.count
     pSpriteList.getAt(i).loc = pSpriteList.getAt(i).loc + [tOffX, tOffY]
     i = 1 + i
   end repeat
-  exit
 end
 
-on update(me)
+on update me 
   me.moveTo(the mouseH - pDragOffset.getAt(1), the mouseV - pDragOffset.getAt(2))
-  exit
 end
 
-on refresh(me)
-  the undefined = ERROR.deconstructSpecialServices
-  exit
-  exit
-  the undefined = undefined.deconstructSpecialServices
-  rect
-  tRect = ERROR
-  repeat while me <= undefined
+on refresh me 
+  tRect = rect(100000, 100000, -100000, -100000)
+  repeat while pSpriteList <= undefined
     tSpr = getAt(undefined, undefined)
     if tSpr.locH < tRect.getAt(1) then
       tRect.setAt(1, tSpr.locH)
@@ -359,10 +331,9 @@ on refresh(me)
     end repeat
   end if
   return(1)
-  exit
 end
 
-on buildVisual(me, tLayout)
+on buildVisual me, tLayout 
   tLayout = getObjectManager().get(#layout_parser).parse(tLayout)
   if not listp(tLayout) then
     return(error(me, "Invalid visualizer definition:" && tLayout, #buildVisual))
@@ -441,11 +412,10 @@ on buildVisual(me, tLayout)
         end if
         pActSprList.setAt(tLayout.getAt(i).getAt(#id), tSpr)
       end if
-      pSpriteData.setAt(i, [])
+      pSpriteData.setAt(i, [:])
       pSpriteList.append(tSpr)
     end if
     i = 1 + i
   end repeat
   return(me.refresh())
-  exit
 end

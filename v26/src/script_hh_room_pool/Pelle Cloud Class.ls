@@ -1,4 +1,6 @@
-on prepare(me, tsprite, tStartPntX)
+property pSprite, pAnimFrm, pSpeed, pStartPntX
+
+on prepare me, tsprite, tStartPntX 
   pSprite = tsprite
   pStartPntX = tStartPntX
   tRand = random(tStartPntX)
@@ -14,10 +16,9 @@ on prepare(me, tsprite, tStartPntX)
   pSprite.width = tmember.width
   pSprite.height = tmember.height
   return(1)
-  exit
 end
 
-on update(me)
+on update me 
   pAnimFrm = pAnimFrm + 1
   if pAnimFrm mod pSpeed = 0 then
     pSprite.locH = pSprite.locH - 1
@@ -28,10 +29,9 @@ on update(me)
       me.reset()
     end if
   end if
-  exit
 end
 
-on reset(me)
+on reset me 
   pSpeed = random(3) - 1
   tmember = member(getmemnum("pilvi" & random(5)))
   pSprite.locH = pStartPntX
@@ -39,5 +39,4 @@ on reset(me)
   pSprite.member = tmember
   pSprite.width = tmember.width
   pSprite.height = tmember.height
-  exit
 end

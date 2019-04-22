@@ -1,13 +1,13 @@
-on construct(me)
-  pRequestList = []
-  exit
+property pRequestList
+
+on construct me 
+  pRequestList = [:]
 end
 
-on deconstruct(me)
-  exit
+on deconstruct me 
 end
 
-on addRequest(me, tRequestData)
+on addRequest me, tRequestData 
   if ilk(tRequestData) <> #propList then
     return(0)
   end if
@@ -17,10 +17,9 @@ on addRequest(me, tRequestData)
     pRequestList.deleteAt(tPrevIndex)
   end if
   pRequestList.setAt(tUserID, tRequestData)
-  exit
 end
 
-on updateRequest(me, tRequestData)
+on updateRequest me, tRequestData 
   if ilk(tRequestData) <> #propList then
     return(0)
   end if
@@ -39,21 +38,19 @@ on updateRequest(me, tRequestData)
     end repeat
     pRequestList.setAt(tUserID, tRequestProps.duplicate())
   end if
-  exit
 end
 
-on getRequestByUserID(me, tUserID)
+on getRequestByUserID me, tUserID 
   tRequest = pRequestList.getAt(string(tUserID))
   if voidp(tRequest) then
     return(0)
   else
     return(tRequest)
   end if
-  exit
 end
 
-on getPendingRequests(me)
-  tPendingList = []
+on getPendingRequests me 
+  tPendingList = [:]
   tMaxAmount = getVariable("fr.requests.max.visible")
   tNo = 1
   repeat while tNo <= pRequestList.count
@@ -65,12 +62,11 @@ on getPendingRequests(me)
         tNo = 1 + tNo
       end if
       return(tPendingList)
-      exit
     end if
   end repeat
 end
 
-on cleanUpHandled(me)
+on cleanUpHandled me 
   tNo = 1
   repeat while tNo <= pRequestList.count
     tRequest = pRequestList.getAt(tNo)
@@ -79,5 +75,4 @@ on cleanUpHandled(me)
     end if
     tNo = 1 + tNo
   end repeat
-  exit
 end

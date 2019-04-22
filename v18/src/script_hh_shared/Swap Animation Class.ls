@@ -1,21 +1,21 @@
-on construct(me)
+property pPrefs, pMemberClass, pPaletteClass, pFrameList, pAnimStopped, pInitDelayCounter, pAnimDelayCounter, pCurrentFrame, pAnimLoopCounter
+
+on construct me 
   pFrameList = []
   pPrefs = []
   pCurrentFrame = 0
   pAnimLoopCounter = 1
   pAnimStopped = 1
   return(1)
-  exit
 end
 
-on deconstruct(me)
+on deconstruct me 
   removeUpdate(me.getID())
   pAnimStopped = 1
   return(1)
-  exit
 end
 
-on define(me, tPrefs)
+on define me, tPrefs 
   pPrefs = tPrefs
   if pPrefs.getAt(#animType) = #memberSwap then
     tMem = member.name
@@ -51,28 +51,25 @@ on define(me, tPrefs)
   pAnimStopped = 0
   receiveUpdate(me.getID())
   return(1)
-  exit
 end
 
-on setInitDelay(me)
+on setInitDelay me 
   if pPrefs.getAt(#initDelayType) = #random then
     pInitDelayCounter = random(pPrefs.getAt(#initDelay))
   else
     pInitDelayCounter = pPrefs.getAt(#initDelay)
   end if
-  exit
 end
 
-on setAnimDelay(me)
+on setAnimDelay me 
   if pPrefs.getAt(#animDelayType) = #random then
     pAnimDelayCounter = random(pPrefs.getAt(#animDelay))
   else
     pAnimDelayCounter = pPrefs.getAt(#animDelay)
   end if
-  exit
 end
 
-on update(me)
+on update me 
   if pAnimStopped then
     return(0)
   end if
@@ -84,10 +81,9 @@ on update(me)
       me.setAnimDelay()
     end if
   end if
-  exit
 end
 
-on advanceAnimFrame(me)
+on advanceAnimFrame me 
   if pAnimStopped then
     return(0)
   end if
@@ -125,5 +121,4 @@ on advanceAnimFrame(me)
       end if
     end if
   end if
-  exit
 end

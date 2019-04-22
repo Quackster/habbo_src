@@ -1,4 +1,6 @@
-on define(me, tdata)
+property pPelleFigure, pFigure, pSwim, pSwimAnimCount, pSwimAndStay, pPhFigure
+
+on define me, tdata 
   me.pPartClass = value(getThread(#room).getComponent().getClassContainer().GET("swimpart"))
   pPhFigure = tdata.getAt(#phfigure)
   pFigure = tdata.getAt(#figure)
@@ -10,9 +12,9 @@ on define(me, tdata)
   end if
   tSubSetList = ["swim"]
   if voidp(me.pPartListSubSet) then
-    me.pPartListSubSet = []
+    me.pPartListSubSet = [:]
   end if
-  repeat while me <= undefined
+  repeat while tSubSetList <= undefined
     tSubSet = getAt(undefined, tdata)
     tSetName = "human.partset." & tSubSet & "." & me.pPeopleSize
     if not variableExists(tSetName) then
@@ -23,31 +25,26 @@ on define(me, tdata)
     end if
   end repeat
   return(1)
-  exit
 end
 
-on changeFigureAndData(me, tdata)
+on changeFigureAndData me, tdata 
   tdata.setAt(#figure, me.fixSwimmerFigure(tdata.getAt(#figure)))
   callAncestor(#changeFigureAndData, [me], tdata)
-  exit
 end
 
-on getPelleFigure(me)
+on getPelleFigure me 
   return(pPelleFigure)
-  exit
 end
 
-on getFigure(me)
+on getFigure me 
   return(pFigure)
-  exit
 end
 
-on isSwimming(me)
+on isSwimming me 
   return(pSwim)
-  exit
 end
 
-on resetValues(me, tX, tY, tH, tDirHead, tDirBody)
+on resetValues me, tX, tY, tH, tDirHead, tDirBody 
   me.pMoving = 0
   me.pDancing = 0
   me.pTalking = 0
@@ -86,10 +83,9 @@ on resetValues(me, tX, tY, tH, tDirHead, tDirBody)
     call(#Refresh, me.pExtraObjs)
   end if
   return(1)
-  exit
 end
 
-on Refresh(me, tX, tY, tH)
+on Refresh me, tX, tY, tH 
   me.arrangeParts()
   me.pSync = 0
   me.pChanges = 1
@@ -103,18 +99,16 @@ on Refresh(me, tX, tY, tH)
     end if
     i = i + 1
   end repeat
-  exit
 end
 
-on getPartListNameBase(me)
+on getPartListNameBase me 
   return("swimmer.parts")
-  exit
 end
 
-on setPartLists(me, tmodels)
+on setPartLists me, tmodels 
   tmodels = me.fixSwimmerFigure(tmodels)
   callAncestor(#setPartLists, [me], tmodels)
-  pPelleFigure = []
+  pPelleFigure = [:]
   tDirectionOld = me.pDirection
   tActionOld = me.pMainAction
   me.pDirection = 3
@@ -143,10 +137,9 @@ on setPartLists(me, tmodels)
     me.resumeAnimation()
   end if
   return(1)
-  exit
 end
 
-on prepare(me)
+on prepare me 
   if pSwim then
     if me.pMoving then
       pSwimAndStay = 0
@@ -204,11 +197,11 @@ on prepare(me)
     end if
   end if
   if me.pMoving then
-    tFactor = float(the milliSeconds - me.pMoveStart) / me.pMoveTime * 0
-    if tFactor > 0 then
-      tFactor = 0
+    tFactor = float(the milliSeconds - me.pMoveStart) / me.pMoveTime * 1
+    if tFactor > 1 then
+      tFactor = 1
     end if
-    me.pScreenLoc = me.pDestLScreen - me.pStartLScreen * 0 * tFactor + me.pStartLScreen
+    me.pScreenLoc = me.pDestLScreen - me.pStartLScreen * 1 * tFactor + me.pStartLScreen
     me.pChanges = 1
   end if
   if me.pWaving then
@@ -220,10 +213,9 @@ on prepare(me)
     me.pAnimating = 1
     me.pChanges = 1
   end if
-  exit
 end
 
-on render(me)
+on render me 
   call(#update, me.pExtraObjs)
   if not me.pChanges then
     return()
@@ -276,17 +268,15 @@ on render(me)
   end if
   call(#update, me.pPartList, 0, tRectMod)
   image.copyPixels(me.pBuffer, me.pUpdateRect, me.pUpdateRect)
-  exit
 end
 
-on isInSwimsuit(me)
+on isInSwimsuit me 
   return(1)
-  exit
 end
 
-on fixSwimmerFigure(me, tFigure)
+on fixSwimmerFigure me, tFigure 
   tPredefinedParts = ["rh", "lh", "ch", "bd"]
-  repeat while me <= undefined
+  repeat while tPredefinedParts <= undefined
     tPrePart = getAt(undefined, tFigure)
     tOccurrenceCount = 0
     tItemNo = 1
@@ -309,7 +299,7 @@ on fixSwimmerFigure(me, tFigure)
   end if
   tColor = pPhFigure.getAt("color")
   tFigure.setAt("ch", ["model":tphModel, "color":tColor])
-  repeat while me <= undefined
+  repeat while tPredefinedParts <= undefined
     f = getAt(undefined, tFigure)
     if voidp(tFigure.getAt(f)) then
       tFigure.setAt(f, ["model":"1", "color":rgb("#EEEEEE")])
@@ -326,16 +316,14 @@ on fixSwimmerFigure(me, tFigure)
   tFigure.getAt("lh").setAt("model", "s" & tBodyModel.getProp(#char, 2, 3))
   tFigure.getAt("rh").setAt("model", "s" & tBodyModel.getProp(#char, 2, 3))
   return(tFigure)
-  exit
 end
 
-on action_swim(me, props)
+on action_swim me, props 
   me.stopAnimation()
   pSwim = 1
-  exit
 end
 
-on action_mv(me, tProps)
+on action_mv me, tProps 
   me.pMoving = 1
   tDelim = the itemDelimiter
   the itemDelimiter = ","
@@ -347,15 +335,12 @@ on action_mv(me, tProps)
   me.pStartLScreen = pGeometry.getScreenCoordinate(me.pLocX, me.pLocY, me.pLocH)
   me.pDestLScreen = pGeometry.getScreenCoordinate(tLocX, tLocY, tLocH)
   me.pMoveStart = the milliSeconds
-  exit
 end
 
-on action_fx(me, tProps)
+on action_fx me, tProps 
   return(1)
-  exit
 end
 
-on persist_fx(me, ttype)
+on persist_fx me, ttype 
   return(1)
-  exit
 end

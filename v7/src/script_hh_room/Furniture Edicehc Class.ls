@@ -1,4 +1,6 @@
-on prepare(me, tdata)
+property pValue, pChanges, pActive, pAnimStart
+
+on prepare me, tdata 
   pChanges = 1
   pAnimStart = 0
   if not voidp(tdata.getAt("VALUE")) then
@@ -9,10 +11,9 @@ on prepare(me, tdata)
   pActive = integer(pValue) > 0
   me.update()
   return(1)
-  exit
 end
 
-on select(me)
+on select me 
   if me.count(#pSprList) < 2 then
     return(0)
   end if
@@ -48,10 +49,9 @@ on select(me)
     end if
   end if
   return(1)
-  exit
 end
 
-on diceThrown(me, tValue)
+on diceThrown me, tValue 
   pChanges = 1
   pValue = tValue
   if pValue > 0 then
@@ -60,10 +60,9 @@ on diceThrown(me, tValue)
   else
     pActive = 0
   end if
-  exit
 end
 
-on update(me)
+on update me 
   if me.count(#pSprList) < 3 then
     return()
   end if
@@ -104,5 +103,4 @@ on update(me)
   tSprite2.member = tMember2
   tSprite2.width = tMember2.width
   tSprite2.height = tMember2.height
-  exit
 end

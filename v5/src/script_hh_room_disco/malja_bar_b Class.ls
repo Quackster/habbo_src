@@ -1,14 +1,14 @@
-on showprogram(me, tMsg)
+on showprogram me, tMsg 
   if listp(tMsg) then
     tDst = tMsg.getAt(#show_dest)
     tCmd = tMsg.getAt(#show_command)
     tNum = tMsg.getAt(#show_params)
     tSpr = getThread(#room).getInterface().getRoomVisualizer().getSprById("show_" & tDst)
     if tSpr <> 0 then
-      if me = "setfloor" then
+      if tCmd = "setfloor" then
         member.paletteRef = member(getmemnum("chrome_floorpalette" & tNum))
       else
-        if me = "fade" then
+        if tCmd = "fade" then
           tSpr.color = rgb("#" & tNum)
         end if
       end if
@@ -16,5 +16,4 @@ on showprogram(me, tMsg)
       error(me, "Sprite not found:" && "show_" & tDst, #showprogram)
     end if
   end if
-  exit
 end

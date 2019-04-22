@@ -1,4 +1,6 @@
-on construct(me)
+property pXFactor, pSprList, pAltitude, pClass, pName, pCustom, pLocX, pLocY, pLocH, pDirection, pPartColors, pDimensions, pAnimFrame, pLoczList, pCorrectLocZ
+
+on construct me 
   pClass = ""
   pName = ""
   pCustom = ""
@@ -19,20 +21,18 @@ on construct(me)
     pCorrectLocZ = 1
   end if
   return(1)
-  exit
 end
 
-on deconstruct(me)
-  repeat while me <= undefined
+on deconstruct me 
+  repeat while pSprList <= undefined
     tSpr = getAt(undefined, undefined)
     releaseSprite(tSpr.spriteNum)
   end repeat
   pSprList = []
   return(1)
-  exit
 end
 
-on define(me, tdata)
+on define me, tdata 
   pClass = tdata.getAt(#class)
   pName = tdata.getAt(#name)
   pCustom = tdata.getAt(#custom)
@@ -54,11 +54,10 @@ on define(me, tdata)
   end if
   me.updateLocation()
   return(1)
-  exit
 end
 
-on getInfo(me)
-  tInfo = []
+on getInfo me 
+  tInfo = [:]
   tInfo.setAt(#name, pName)
   tInfo.setAt(#class, pClass)
   tInfo.setAt(#custom, pCustom)
@@ -66,41 +65,35 @@ on getInfo(me)
     tInfo.setAt(#image, member(getmemnum(pClass & "_small")).image)
   end if
   return(tInfo)
-  exit
 end
 
-on getCustom(me)
+on getCustom me 
   return(pCustom)
-  exit
 end
 
-on getSprites(me)
+on getSprites me 
   return(pSprList)
-  exit
 end
 
-on select(me)
+on select me 
   return(0)
-  exit
 end
 
-on moveTo(me, tX, tY, tH)
+on moveTo me, tX, tY, tH 
   pLocX = tX
   pLocY = tY
   pLocH = tH + pAltitude
   me.updateLocation()
-  exit
 end
 
-on moveBy(me, tX, tY, tH)
+on moveBy me, tX, tY, tH 
   pLocX = pLocX + tX
   pLocY = pLocY + tY
   pLocH = pLocH + tH
   me.updateLocation()
-  exit
 end
 
-on rotate(me, tChange)
+on rotate me, tChange 
   tName = member.name
   tDirection = pDirection
   if voidp(tChange) then
@@ -122,20 +115,17 @@ on rotate(me, tChange)
     return(error(me, "Direction for object not found:" && pClass && tDirection.getAt(1), #rotate))
   end if
   getThread(#room).getComponent().getRoomConnection().send(#room, "MOVESTUFF" && me.getID() && me.pLocX && me.pLocY && tDirection.getAt(1))
-  exit
 end
 
-on prepare(me, tdata)
+on prepare me, tdata 
   return(1)
-  exit
 end
 
-on relocate(me)
+on relocate me 
   return(1)
-  exit
 end
 
-on solveColors(me, tpartColors)
+on solveColors me, tpartColors 
   if voidp(tpartColors) then
     tpartColors = "0,0,0"
   end if
@@ -153,28 +143,25 @@ on solveColors(me, tpartColors)
     j = 1 + j
   end repeat
   the itemDelimiter = tDelim
-  exit
 end
 
-on solveInk(me, tPart)
+on solveInk me, tPart 
   tInkField = getmemnum(pClass & "_" & tPart & ".ink")
   if tInkField > 0 then
     return(integer(field(0)))
   end if
   return(8)
-  exit
 end
 
-on solveBlend(me, tPart)
+on solveBlend me, tPart 
   tBlendField = getmemnum(pClass & "_" & tPart & ".blend")
   if tBlendField > 0 then
     return(integer(field(0)))
   end if
   return(100)
-  exit
 end
 
-on solveLocZ(me, tPart, tdir)
+on solveLocZ me, tPart, tdir 
   if not memberExists(pClass & "_" & tPart & ".zshift") then
     return(0)
   end if
@@ -182,12 +169,11 @@ on solveLocZ(me, tPart, tdir)
     tdir = 0
   end if
   return(integer(field(0).getProp(#line, tdir + 1)))
-  exit
 end
 
-on solveMembers(me)
+on solveMembers me 
   if pSprList.count > 0 then
-    repeat while me <= undefined
+    repeat while pSprList <= undefined
       tSpr = getAt(undefined, undefined)
       releaseSprite(tSpr.spriteNum)
     end repeat
@@ -314,13 +300,12 @@ on solveMembers(me)
   else
     return(error(me, "Couldn't define members:" && pClass, #solveMembers))
   end if
-  exit
 end
 
-on updateLocation(me)
+on updateLocation me 
   tScreenLocs = getThread(#room).getInterface().getGeometry().getScreenCoordinate(pLocX, pLocY, pLocH)
   i = 0
-  repeat while me <= undefined
+  repeat while pSprList <= undefined
     tSpr = getAt(undefined, undefined)
     i = i + 1
     tSpr.locH = tScreenLocs.getAt(1)
@@ -336,5 +321,4 @@ on updateLocation(me)
     end if
   end repeat
   me.relocate()
-  exit
 end

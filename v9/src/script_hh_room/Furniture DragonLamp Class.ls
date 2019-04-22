@@ -1,4 +1,6 @@
-on prepare(me, tdata)
+property pActive, pKill, pSync, pAnimFrame, pSwitch
+
+on prepare me, tdata 
   if me.count(#pSprList) < 7 then
     return(0)
   end if
@@ -14,19 +16,17 @@ on prepare(me, tdata)
   end if
   pSync = 1
   return(1)
-  exit
 end
 
-on updateStuffdata(me, tValue)
+on updateStuffdata me, tValue 
   if tValue = "ON" then
     me.setOn()
   else
     me.setOff()
   end if
-  exit
 end
 
-on update(me)
+on update me 
   if pActive then
     if me.count(#pSprList) < 7 then
       return(0)
@@ -40,7 +40,7 @@ on update(me)
         end if
         tFlameNameA = undefined.name
         if tFlameNameA.getProp(#char, tFlameNameA.length - 1, tFlameNameA.length) = "_0" then
-          repeat while me <= undefined
+          repeat while [3, 5, 7] <= undefined
             tSprNum = getAt(undefined, undefined)
             tFlameNameA = undefined.name
             tFlameNameA = tFlameNameA.getProp(#char, 1, tFlameNameA.length - 1) & "1"
@@ -63,7 +63,7 @@ on update(me)
       end if
     else
       pActive = 0
-      repeat while me <= undefined
+      repeat while [3, 5, 7] <= undefined
         tSprNum = getAt(undefined, undefined)
         tFlameNameA = undefined.name
         tFlameNameA = tFlameNameA.getProp(#char, 1, tFlameNameA.length - 1) & "0"
@@ -76,24 +76,21 @@ on update(me)
       end repeat
     end if
   end if
-  exit
 end
 
-on setOn(me)
+on setOn me 
   pSwitch = 1
   pKill = 0
   pActive = 1
-  exit
 end
 
-on setOff(me)
+on setOff me 
   pSwitch = 0
   pKill = 1
   pActive = 1
-  exit
 end
 
-on select(me)
+on select me 
   if the doubleClick then
     if pSwitch then
       tStr = "OFF"
@@ -103,5 +100,4 @@ on select(me)
     getThread(#room).getComponent().getRoomConnection().send("SETSTUFFDATA", [#string:string(me.getID()), #string:tStr])
   end if
   return(1)
-  exit
 end

@@ -1,14 +1,12 @@
-on construct(me)
+on construct me 
   return(me.regMsgList(1))
-  exit
 end
 
-on deconstruct(me)
+on deconstruct me 
   return(me.regMsgList(0))
-  exit
 end
 
-on handle_song_info(me, tMsg)
+on handle_song_info me, tMsg 
   tSongID = tMsg.GetIntFrom()
   tName = tMsg.GetStrFrom()
   tName = convertSpecialChars(tName, 0)
@@ -44,10 +42,9 @@ on handle_song_info(me, tMsg)
   end repeat
   the itemDelimiter = tDelim
   me.getComponent().parseSongData(tdata, tSongID, tName)
-  exit
 end
 
-on handle_machine_sound_packages(me, tMsg)
+on handle_machine_sound_packages me, tMsg 
   if voidp(tMsg.connection) then
     return(0)
   end if
@@ -72,10 +69,9 @@ on handle_machine_sound_packages(me, tMsg)
   me.getComponent().setSoundSetCount(tFilledSlots)
   me.getComponent().removeSoundSetInsertLock()
   return(1)
-  exit
 end
 
-on handle_user_sound_packages(me, tMsg)
+on handle_user_sound_packages me, tMsg 
   if voidp(tMsg.connection) then
     return(0)
   end if
@@ -88,25 +84,21 @@ on handle_user_sound_packages(me, tMsg)
     i = 1 + i
   end repeat
   return(me.getComponent().updateSetList(tList))
-  exit
 end
 
-on handle_invalid_song_name(me, tMsg)
+on handle_invalid_song_name me, tMsg 
   return(me.getComponent().handleInvalidSongName())
-  exit
 end
 
-on handle_song_list(me, tMsg)
+on handle_song_list me, tMsg 
   return(me.getComponent().parseSongList(tMsg))
-  exit
 end
 
-on handle_play_list(me, tMsg)
+on handle_play_list me, tMsg 
   return(me.getComponent().parsePlaylist(tMsg))
-  exit
 end
 
-on handle_song_missing_packages(me, tMsg)
+on handle_song_missing_packages me, tMsg 
   tCount = tMsg.GetIntFrom()
   tList = []
   i = 1
@@ -116,40 +108,34 @@ on handle_song_missing_packages(me, tMsg)
     i = 1 + i
   end repeat
   return(me.getComponent().handleMissingPackages(tList))
-  exit
 end
 
-on handle_play_list_invalid(me, tMsg)
+on handle_play_list_invalid me, tMsg 
   tCount = tMsg.GetIntFrom()
   return(me.getComponent().handleListFull(tCount, "playlist"))
-  exit
 end
 
-on handle_song_list_full(me, tMsg)
+on handle_song_list_full me, tMsg 
   tCount = tMsg.GetIntFrom()
   return(me.getComponent().handleListFull(tCount, "songlist"))
-  exit
 end
 
-on handle_new_song(me, tMsg)
+on handle_new_song me, tMsg 
   tID = tMsg.GetIntFrom()
   tName = tMsg.GetStrFrom()
   tName = convertSpecialChars(tName, 0)
   return(me.getComponent().updateEditorSong(tID, tName))
-  exit
 end
 
-on handle_user_song_disks(me, tMsg)
+on handle_user_song_disks me, tMsg 
   return(me.getComponent().parseUserDisks(tMsg))
-  exit
 end
 
-on handle_jukebox_disks(me, tMsg)
+on handle_jukebox_disks me, tMsg 
   return(me.getComponent().parseJukeboxDisks(tMsg))
-  exit
 end
 
-on handle_jukebox_song_added(me, tMsg)
+on handle_jukebox_song_added me, tMsg 
   tID = tMsg.GetIntFrom()
   tLength = tMsg.GetIntFrom()
   tName = tMsg.GetStrFrom()
@@ -157,31 +143,26 @@ on handle_jukebox_song_added(me, tMsg)
   tName = convertSpecialChars(tName, 0)
   tAuthor = convertSpecialChars(tAuthor, 0)
   return(me.getComponent().insertPlaylistSong(tID, tLength, tName, tAuthor))
-  exit
 end
 
-on handle_song_locked(me, tMsg)
+on handle_song_locked me, tMsg 
   return(me.getComponent().handleSongLocked())
-  exit
 end
 
-on handle_jukebox_playlist_full(me, tMsg)
+on handle_jukebox_playlist_full me, tMsg 
   return(me.getComponent().handleJukeBoxPlaylistFull())
-  exit
 end
 
-on handle_invalid_song_length(me, tMsg)
+on handle_invalid_song_length me, tMsg 
   return(me.getComponent().handleInvalidSongLength())
-  exit
 end
 
-on handle_song_saved(me, tMsg)
+on handle_song_saved me, tMsg 
   return(me.getComponent().updateEditorSong(void(), void()))
-  exit
 end
 
-on regMsgList(me, tBool)
-  tMsgs = []
+on regMsgList me, tBool 
+  tMsgs = [:]
   tMsgs.setaProp(300, #handle_song_info)
   tMsgs.setaProp(301, #handle_machine_sound_packages)
   tMsgs.setaProp(302, #handle_user_sound_packages)
@@ -199,7 +180,7 @@ on regMsgList(me, tBool)
   tMsgs.setaProp(337, #handle_jukebox_playlist_full)
   tMsgs.setaProp(338, #handle_invalid_song_length)
   tMsgs.setaProp(339, #handle_song_saved)
-  tCmds = []
+  tCmds = [:]
   tCmds.setaProp("INSERT_SOUND_PACKAGE", 219)
   tCmds.setaProp("EJECT_SOUND_PACKAGE", 220)
   tCmds.setaProp("GET_SONG_INFO", 221)
@@ -227,5 +208,4 @@ on regMsgList(me, tBool)
     unregisterCommands(getVariable("connection.info.id"), me.getID(), tCmds)
   end if
   return(1)
-  exit
 end

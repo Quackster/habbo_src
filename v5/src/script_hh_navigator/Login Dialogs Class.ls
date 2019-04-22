@@ -1,11 +1,12 @@
-on construct(me)
+property pTempPassword, pConnectionId
+
+on construct me 
   pConnectionId = getVariable("connection.info.id")
   pTempPassword = []
   return(1)
-  exit
 end
 
-on deconstruct(me)
+on deconstruct me 
   if windowExists(#login_a) then
     removeWindow(#login_a)
   end if
@@ -13,10 +14,9 @@ on deconstruct(me)
     removeWindow(#login_b)
   end if
   return(1)
-  exit
 end
 
-on showLogin(me)
+on showLogin me 
   getObject(#session).set(#userName, "")
   getObject(#session).set(#password, "")
   pTempPassword = []
@@ -35,10 +35,9 @@ on showLogin(me)
     tWndObj.getElement("login_username").setFocus(1)
   end if
   return(1)
-  exit
 end
 
-on hideLogin(me)
+on hideLogin me 
   if windowExists(#login_a) then
     removeWindow(#login_a)
   end if
@@ -46,17 +45,16 @@ on hideLogin(me)
     removeWindow(#login_b)
   end if
   return(1)
-  exit
 end
 
-on tryLogin(me)
+on tryLogin me 
   if not windowExists(#login_b) then
     return(error(me, "Window not found:" && #login_b, #tryLogin))
   end if
   tWndObj = getWindow(#login_b)
   tUserName = tWndObj.getElement("login_username").getText()
   tPassword = ""
-  repeat while me <= undefined
+  repeat while pTempPassword <= undefined
     tChar = getAt(undefined, undefined)
   end repeat
   if tUserName = "" then
@@ -78,10 +76,9 @@ on tryLogin(me)
   me.blinkConnection()
   getThread(#navigator).getComponent().updateState("connection")
   return(1)
-  exit
 end
 
-on blinkConnection(me)
+on blinkConnection me 
   if not windowExists(#login_b) then
     return(0)
   end if
@@ -97,10 +94,9 @@ on blinkConnection(me)
   end if
   tElem.setProperty(#visible, not tElem.getProperty(#visible))
   return(createTimeout(#login_blinker, 500, #blinkConnection, me.getID(), void(), 1))
-  exit
 end
 
-on showUserFound(me)
+on showUserFound me 
   if windowExists(#login_b) then
     getWindow(#login_b).unmerge()
   else
@@ -119,18 +115,16 @@ on showUserFound(me)
     me.hideLogin()
   end if
   return(1)
-  exit
 end
 
-on myHabboSmile(me)
+on myHabboSmile me 
   if threadExists(#registration) then
     getThread(#registration).getComponent().createTemplateHuman("h", 3, "gest", "temp sml")
   end if
   me.delay(1200, #stopWaving)
-  exit
 end
 
-on stopWaving(me)
+on stopWaving me 
   if threadExists(#registration) then
     getThread(#registration).getComponent().createTemplateHuman("h", 3, "reset")
     getThread(#registration).getComponent().createTemplateHuman("h", 3, "gest", "temp sml")
@@ -139,10 +133,9 @@ on stopWaving(me)
     getThread(#registration).getComponent().createTemplateHuman("h", 3, "remove")
   end if
   me.delay(400, #hideLogin)
-  exit
 end
 
-on forgottenpw(me)
+on forgottenpw me 
   if not createWindow(#login_b, "habbo_simple.window", 444, 230) then
     return(0)
   end if
@@ -153,16 +146,15 @@ on forgottenpw(me)
   end if
   getThread(#navigator).getComponent().updateState("forgottenPassWord")
   return(1)
-  exit
 end
 
-on eventProcLogin(me, tEvent, tSprID, tParam)
-  if me = #mouseUp then
-    if me = "login_ok" then
+on eventProcLogin me, tEvent, tSprID, tParam 
+  if tEvent = #mouseUp then
+    if tEvent = "login_ok" then
       me.tryLogin()
       return(1)
     else
-      if me = "login_createUser" then
+      if tEvent = "login_createUser" then
         if getWindow(#login_a).getElement(tSprID).getProperty(#blend) = 100 then
           if windowExists(#login_a) then
             removeWindow(#login_a)
@@ -174,7 +166,7 @@ on eventProcLogin(me, tEvent, tSprID, tParam)
           return(1)
         end if
       else
-        if me = "login_forgotten" then
+        if tEvent = "login_forgotten" then
           if getWindow(#login_b).getElement(tSprID).getProperty(#blend) = 100 then
             return(me.forgottenpw())
           end if
@@ -182,24 +174,24 @@ on eventProcLogin(me, tEvent, tSprID, tParam)
       end if
     end if
   else
-    if me = #keyDown then
+    if tEvent = #keyDown then
       if the keyCode = 36 then
         me.tryLogin()
         return(1)
       end if
-      if me = "login_password" then
-        if me = 48 then
+      if tEvent = "login_password" then
+        if tEvent = 48 then
           return(0)
         else
-          if me = 49 then
+          if tEvent = 49 then
             return(1)
           else
-            if me = 51 then
+            if tEvent = 51 then
               if pTempPassword.count > 0 then
                 pTempPassword.deleteAt(pTempPassword.count)
               end if
             else
-              if me = 117 then
+              if tEvent = 117 then
                 pTempPassword = []
               else
                 tValidKeys = getVariable("permitted.name.chars", "1234567890qwertyuiopasdfghjklzxcvbnm_-=+?!@<>:.,")
@@ -216,7 +208,7 @@ on eventProcLogin(me, tEvent, tSprID, tParam)
           end if
         end if
         tStr = ""
-        repeat while me <= tSprID
+        repeat while tEvent <= tSprID
           tChar = getAt(tSprID, tEvent)
         end repeat
         getWindow(#login_b).getElement(tSprID).setText(tStr)
@@ -227,15 +219,14 @@ on eventProcLogin(me, tEvent, tSprID, tParam)
     end if
   end if
   return(0)
-  exit
 end
 
-on eventProcForgottenpw(me, tEvent, tSprID, tParm)
+on eventProcForgottenpw me, tEvent, tSprID, tParm 
   if tEvent = #mouseUp then
-    if me = "forgottenpw_back" then
+    if tSprID = "forgottenpw_back" then
       getThread(#navigator).getComponent().updateState("login")
     else
-      if me = "forgottenpw_emailpw" then
+      if tSprID = "forgottenpw_emailpw" then
         tName = getWindow(#login_b).getElement("forgottenpw_name").getText()
         tMail = getWindow(#login_b).getElement("forgottenpw_email").getText()
         if connectionExists(pConnectionId) then
@@ -250,11 +241,10 @@ on eventProcForgottenpw(me, tEvent, tSprID, tParm)
         getWindow(#login_b).merge("habbo_forgotten2.window")
         getWindow(#login_b).registerProcedure(#eventProcForgottenpw, me.getID(), #mouseUp)
       else
-        if me = "forgottenpw_ok" then
+        if tSprID = "forgottenpw_ok" then
           getThread(#navigator).getComponent().updateState("login")
         end if
       end if
     end if
   end if
-  exit
 end

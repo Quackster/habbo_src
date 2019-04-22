@@ -1,4 +1,6 @@
-on construct(me)
+property pCountWriterID, pwidth, pheight, pCellWidth, pMarginLeft, pMarginRight, pCellHeight, pMarginTop, pMarginBottom, pDealList, pImageWidth, pImageHeight, pNumberPosX, pNumberPosY, pAlign
+
+on construct me 
   pCellWidth = getVariable("catalogue.deal.cellwidth")
   pCellHeight = getVariable("catalogue.deal.cellheight")
   pwidth = getVariable("catalogue.deal.gridwidth")
@@ -18,23 +20,21 @@ on construct(me)
       pAlign = 2
     end if
   end if
-  pDealList = []
+  pDealList = [:]
   pCountWriterID = getUniqueID()
   tBold = getStructVariable("struct.font.bold")
   tMetrics = [#font:tBold.getaProp(#font), #fontStyle:tBold.getaProp(#fontStyle), #color:rgb("#FFFFCC")]
   createWriter(pCountWriterID, tMetrics)
   return(1)
-  exit
 end
 
-on deconstruct(me)
-  pDealList = []
+on deconstruct me 
+  pDealList = [:]
   removeWriter(pCountWriterID)
   return(1)
-  exit
 end
 
-on define(me, tDealList, tCellWidth, tCellHeight, tWidth, tHeight, tNumberPosX, tNumberPosY)
+on define me, tDealList, tCellWidth, tCellHeight, tWidth, tHeight, tNumberPosX, tNumberPosY 
   pDealList = tDealList.duplicate()
   if integerp(tCellWidth) then
     pCellWidth = tCellWidth
@@ -63,10 +63,9 @@ on define(me, tDealList, tCellWidth, tCellHeight, tWidth, tHeight, tNumberPosX, 
   pImageWidth = pwidth * pCellWidth + 1 + pMarginLeft + pMarginRight
   pImageHeight = pheight * pCellHeight + 1 + pMarginTop + pMarginBottom
   return(1)
-  exit
 end
 
-on getPicture(me, tImg)
+on getPicture me, tImg 
   tCanvas = me.drawBackground()
   tLimit = pDealList.count()
   if pheight * pwidth < tLimit then
@@ -106,10 +105,9 @@ on getPicture(me, tImg)
     tImg.copyPixels(tCanvas, tdestrect, tCanvas.rect, [#ink:36])
   end if
   return(tImg.trimWhiteSpace())
-  exit
 end
 
-on renderDealPreviewImage(me, tDealNumber, tDealList, tWidth, tHeight)
+on renderDealPreviewImage me, tDealNumber, tDealList, tWidth, tHeight 
   if tDealList.count = 0 then
     return(void())
   end if
@@ -147,10 +145,9 @@ on renderDealPreviewImage(me, tDealNumber, tDealList, tWidth, tHeight)
     tRenderedImage = tBackgroundImage.trimWhiteSpace()
   end if
   return(tRenderedImage)
-  exit
 end
 
-on drawBackground(me)
+on drawBackground me 
   tCanvas = image(pImageWidth, pImageHeight, 32)
   tFlipFlag = 0
   if memberExists("ctlg_dyndeal_background") then
@@ -158,10 +155,9 @@ on drawBackground(me)
     tCanvas.copyPixels(tImage, tImage.rect, tImage.rect)
   end if
   return(tCanvas)
-  exit
 end
 
-on drawItem(me, tCanvas, tImage, tIndex, tCount)
+on drawItem me, tCanvas, tImage, tIndex, tCount 
   tX = tIndex - 1 mod pwidth * pCellWidth + pMarginLeft
   tY = tIndex - 1 / pwidth * pCellHeight + pMarginTop
   tCenteredX = tX + pCellWidth - tImage.getProp(#rect, 3) - tImage.getProp(#rect, 1) / 2
@@ -180,10 +176,9 @@ on drawItem(me, tCanvas, tImage, tIndex, tCount)
     end if
     tCanvas.copyPixels(tCountImg, tCountImg.rect + rect(tCenteredX, tCenteredY, tCenteredX, tCenteredY), tCountImg.rect, [#ink:36])
   end if
-  exit
 end
 
-on getImage(me, tClass)
+on getImage me, tClass 
   if not voidp(tClass) then
     if tClass contains "*" then
       tSmallMem = tClass & "_small"
@@ -199,10 +194,9 @@ on getImage(me, tClass)
     end if
   end if
   return(getmemnum("no_icon_small"))
-  exit
 end
 
-on getNumberImage(me, tNumber)
+on getNumberImage me, tNumber 
   tCountImg = image(80, 20, 32)
   tTemp = integer(tNumber)
   tDigit = []
@@ -259,10 +253,9 @@ on getNumberImage(me, tNumber)
     i = 255 + i
   end repeat
   return(tCountImg.trimWhiteSpace())
-  exit
 end
 
-on getClassAsset(me, tClassName)
+on getClassAsset me, tClassName 
   if ilk(tClassName) <> #string then
     return("")
   end if
@@ -271,5 +264,4 @@ on getClassAsset(me, tClassName)
     tClass = tClass.getProp(#char, 1, offset("*", tClass) - 1)
   end if
   return(tClass)
-  exit
 end

@@ -1,4 +1,6 @@
-on define(me, tSprite)
+property pCurrentLoc, pXEnd, pXSpeed, pYSpeed, pSprite, pDelayAmount
+
+on define me, tSprite 
   pSprite = tSprite
   pXStart = 730
   pXEnd = 280
@@ -6,16 +8,14 @@ on define(me, tSprite)
   pYSpeed = 0.3
   me.reset()
   return(1)
-  exit
 end
 
-on reset(me)
+on reset me 
   pCurrentLoc = [730, 430]
   pDelayAmount = random(20) + 40
-  exit
 end
 
-on update(me)
+on update me 
   if pCurrentLoc.getAt(1) > pXEnd then
     pCurrentLoc.setAt(1, pCurrentLoc.getAt(1) - pXSpeed)
     pCurrentLoc.setAt(2, pCurrentLoc.getAt(2) - pYSpeed)
@@ -27,5 +27,4 @@ on update(me)
       me.reset()
     end if
   end if
-  exit
 end

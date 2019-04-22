@@ -1,18 +1,18 @@
-on prepare(me, tdata)
+property pActive, pUpdateFrame, pLastFrm
+
+on prepare me, tdata 
   if tdata.count = 0 then
     tdata = [#stuffdata:"0"]
   end if
   me.updateStuffdata(tdata.getAt(#stuffdata))
   return(1)
-  exit
 end
 
-on updateRuntimeData(me, tValue)
+on updateRuntimeData me, tValue 
   return(1)
-  exit
 end
 
-on updateStuffdata(me, tValue)
+on updateStuffdata me, tValue 
   if tValue = "1" then
     pUpdateFrame = 0
     pActive = 1
@@ -35,10 +35,9 @@ on updateStuffdata(me, tValue)
       end repeat
     end if
   end if
-  exit
 end
 
-on update(me)
+on update me 
   if pActive then
     pUpdateFrame = not pUpdateFrame
     if pUpdateFrame then
@@ -55,5 +54,4 @@ on update(me)
       end repeat
     end if
   end if
-  exit
 end

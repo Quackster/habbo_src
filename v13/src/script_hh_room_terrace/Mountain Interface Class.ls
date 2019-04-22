@@ -1,9 +1,11 @@
-on construct(me)
+property pActLoc, pKoppiWndID, pUserMem, pUserSpr, pUserName, pState, pSpeed, pCurLoc, pElevSpr_a, pElevSpr_b, pLocAnimList, pLocAnimIndx, pEndLoc, pSwimSuitModel, pSwimSuitColor, pSwimSuitIndex
+
+on construct me 
   pKoppiWndID = "dew_pukukoppi"
   pUserName = ""
   tVisual = getThread(#room).getInterface().getRoomVisualizer()
   pState = #ready
-  pSpeed = 0
+  pSpeed = 1
   pActLoc = point(102, 308)
   pEndLoc = point(-14, 424)
   pCurLoc = pActLoc
@@ -28,10 +30,9 @@ on construct(me)
     tsprite.registerProcedure(#eventProcDew, me.getID(), #mouseUp)
   end if
   return(1)
-  exit
 end
 
-on deconstruct(me)
+on deconstruct me 
   if objectExists("Figure_System_Mountain") then
     removeObject("Figure_System_Mountain")
   end if
@@ -39,10 +40,9 @@ on deconstruct(me)
     removeWindow(pKoppiWndID)
   end if
   return(removePrepare(me.getID()))
-  exit
 end
 
-on openPukukoppi(me)
+on openPukukoppi me 
   if not objectExists("Figure_System_Mountain") then
     return(error(me, "Figure system object not found", #openPukukoppi))
   end if
@@ -69,24 +69,21 @@ on openPukukoppi(me)
   tWndObj.registerProcedure(#eventProcPukukoppi, me.getID(), #mouseUp)
   me.createFigurePrew()
   return(1)
-  exit
 end
 
-on closePukukoppi(me)
+on closePukukoppi me 
   if windowExists(pKoppiWndID) then
     pSwimSuitIndex = 1
     removeWindow(pKoppiWndID)
   end if
-  exit
 end
 
-on openTicketWindow(me)
+on openTicketWindow me 
   executeMessage(#show_ticketWindow)
   return(1)
-  exit
 end
 
-on doTheDew(me, tUserName)
+on doTheDew me, tUserName 
   return(0)
   if not getThread(#room).getComponent().userObjectExists(tUserName) then
     return(error(me, "User not found:" && tUserName, #doTheDew))
@@ -113,40 +110,37 @@ on doTheDew(me, tUserName)
   if pState = #ready then
     pState = #action
   end if
-  exit
 end
 
-on prepare(me)
-  if me = #ready then
+on prepare me 
+  if pState = #ready then
   else
-    if me = #action then
+    if pState = #action then
       me.executeEscape()
     else
-      if me = #return then
+      if pState = #return then
         me.executeReturn()
       end if
     end if
   end if
-  exit
 end
 
-on executeEscape(me)
+on executeEscape me 
   pSpeed = pSpeed * 1.2
   pCurLoc = pCurLoc + [-pSpeed, pSpeed]
   pElevSpr_a.loc = pCurLoc
   pElevSpr_b.loc = pElevSpr_b.loc + [pSpeed, -pSpeed]
   pUserSpr.loc = pUserSpr.loc + [-pSpeed, pSpeed]
   if pCurLoc.getAt(1) < -20 then
-    pSpeed = 0
+    pSpeed = 1
     pCurLoc = pActLoc
     pElevSpr_b.flipH = 1
     pElevSpr_b.loc = pActLoc + [-17, -11] + [pElevSpr_b.width, 0]
     pState = #return
   end if
-  exit
 end
 
-on executeReturn(me)
+on executeReturn me 
   pElevSpr_b.loc = pElevSpr_b.loc + pLocAnimList.getAt(pLocAnimIndx)
   pLocAnimIndx = pLocAnimIndx + 1
   if pLocAnimIndx = pLocAnimList.count then
@@ -162,10 +156,9 @@ on executeReturn(me)
     end if
     pUserName = ""
   end if
-  exit
 end
 
-on createFigurePrew(me)
+on createFigurePrew me 
   if not objectExists("Figure_Preview") then
     return(error(me, "Figure preview not found!", #createFigurePrew))
   end if
@@ -192,10 +185,9 @@ on createFigurePrew(me)
   tPrewImg.copyPixels(tHumanImg, tdestrect, tHumanImg.rect)
   tWndObj.getElement("preview_img").feedImage(tPrewImg)
   tWndObj.getElement("preview_color").setProperty(#bgColor, pSwimSuitColor)
-  exit
 end
 
-on changeSwimSuitColor(me, tPart, tButtonDir)
+on changeSwimSuitColor me, tPart, tButtonDir 
   if not objectExists("Figure_System_Mountain") then
     return(error(me, "Figure system Mountain object not found", #changeSwimSuitColor))
   end if
@@ -224,17 +216,16 @@ on changeSwimSuitColor(me, tPart, tButtonDir)
     pSwimSuitColor = tColor
   end if
   me.createFigurePrew()
-  exit
 end
 
-on eventProcPukukoppi(me, tEvent, tSprID, tParam)
+on eventProcPukukoppi me, tEvent, tSprID, tParam 
   if tEvent = #mouseUp then
-    if me = "exit" then
+    if tSprID = "exit" then
       me.closePukukoppi()
       getConnection(getVariable("connection.room.id")).send("SWIMSUIT")
       getConnection(getVariable("connection.room.id")).send("CLOSE_UIMAKOPPI")
     else
-      if me = "go" then
+      if tSprID = "go" then
         me.closePukukoppi()
         tTempDelim = the itemDelimiter
         the itemDelimiter = ","
@@ -248,16 +239,16 @@ on eventProcPukukoppi(me, tEvent, tSprID, tParam)
         getConnection(getVariable("connection.room.id")).send("SWIMSUIT", tswimsuit)
         getConnection(getVariable("connection.room.id")).send("CLOSE_UIMAKOPPI")
       else
-        if me = "dew" then
+        if tSprID = "dew" then
           getConnection(getVariable("connection.room.id")).send("SWIMSUIT")
           getConnection(getVariable("connection.room.id")).send("CHANGESHRT")
           getConnection(getVariable("connection.info.id")).send("REFRESHFIGURE")
           getConnection(getVariable("connection.room.id")).send("CLOSE_UIMAKOPPI")
         else
-          if me = "prev" then
+          if tSprID = "prev" then
             me.changeSwimSuitColor("ch", -1)
           else
-            if me = "next" then
+            if tSprID = "next" then
               me.changeSwimSuitColor("ch", 1)
             end if
           end if
@@ -265,12 +256,11 @@ on eventProcPukukoppi(me, tEvent, tSprID, tParam)
       end if
     end if
   end if
-  exit
 end
 
-on eventProcDew(me, tEvent, tSprID, tParam)
+on eventProcDew me, tEvent, tSprID, tParam 
   if tEvent = #mouseUp then
-    if me = "pool_teleport" then
+    if tSprID = "pool_teleport" then
       tName = getObject(#session).get("user_name")
       tObj = getThread(#room).getComponent().getUserObject(tName)
       if not tObj then
@@ -284,10 +274,10 @@ on eventProcDew(me, tEvent, tSprID, tParam)
         end if
       end if
     else
-      if me = "ticket_box" then
+      if tSprID = "ticket_box" then
         return(me.openTicketWindow())
       else
-        if me = "highscore_table" then
+        if tSprID = "highscore_table" then
           return(openNetPage("url_peeloscore"))
         else
           put(tSprID)
@@ -296,5 +286,4 @@ on eventProcDew(me, tEvent, tSprID, tParam)
     end if
   end if
   return(0)
-  exit
 end

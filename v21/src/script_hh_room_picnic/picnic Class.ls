@@ -1,4 +1,6 @@
-on construct(me)
+property pItemObjList
+
+on construct me 
   pItemObjList = []
   receiveUpdate(me.getID())
   tVisObj = getThread(#room).getInterface().getRoomVisualizer()
@@ -13,17 +15,14 @@ on construct(me)
     end if
     i = i + 1
   end repeat
-  exit
 end
 
-on deconstruct(me)
+on deconstruct me 
   call(#deconstruct, pItemObjList)
   pItemObjList = []
   return(removeUpdate(me.getID()))
-  exit
 end
 
-on update(me)
+on update me 
   call(#update, pItemObjList)
-  exit
 end

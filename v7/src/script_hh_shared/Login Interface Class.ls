@@ -1,11 +1,12 @@
-on construct(me)
+property pTempPassword
+
+on construct me 
   pConnectionId = getVariable("connection.info.id")
   pTempPassword = []
   return(1)
-  exit
 end
 
-on deconstruct(me)
+on deconstruct me 
   if windowExists(#login_a) then
     removeWindow(#login_a)
   end if
@@ -13,10 +14,9 @@ on deconstruct(me)
     removeWindow(#login_b)
   end if
   return(1)
-  exit
 end
 
-on showLogin(me)
+on showLogin me 
   getObject(#session).set(#userName, "")
   getObject(#session).set(#password, "")
   pTempPassword = []
@@ -35,10 +35,9 @@ on showLogin(me)
     tWndObj.getElement("login_username").setFocus(1)
   end if
   return(1)
-  exit
 end
 
-on hideLogin(me)
+on hideLogin me 
   if windowExists(#login_a) then
     removeWindow(#login_a)
   end if
@@ -46,10 +45,9 @@ on hideLogin(me)
     removeWindow(#login_b)
   end if
   return(1)
-  exit
 end
 
-on showDisconnect(me)
+on showDisconnect me 
   createWindow(#error, "error.window", 0, 0, #modal)
   tWndObj = getWindow(#error)
   tWndObj.getElement("error_title").setText(getText("Alert_ConnectionFailure"))
@@ -57,17 +55,16 @@ on showDisconnect(me)
   tWndObj.registerClient(me.getID())
   tWndObj.registerProcedure(#eventProcDisconnect, me.getID(), #mouseUp)
   the keyboardFocusSprite = 0
-  exit
 end
 
-on tryLogin(me)
+on tryLogin me 
   if not windowExists(#login_b) then
     return(error(me, "Window not found:" && #login_b, #eventProcLogin))
   end if
   tWndObj = getWindow(#login_b)
   tUserName = tWndObj.getElement("login_username").getText()
   tPassword = ""
-  repeat while me <= undefined
+  repeat while pTempPassword <= undefined
     tChar = getAt(undefined, undefined)
   end repeat
   if tUserName = "" then
@@ -89,10 +86,9 @@ on tryLogin(me)
   me.blinkConnection()
   me.getComponent().setaProp(#pOkToLogin, 1)
   return(me.getComponent().connect())
-  exit
 end
 
-on blinkConnection(me)
+on blinkConnection me 
   if not windowExists(#login_b) then
     return(0)
   end if
@@ -108,10 +104,9 @@ on blinkConnection(me)
   end if
   tElem.setProperty(#visible, not tElem.getProperty(#visible))
   return(createTimeout(#login_blinker, 500, #blinkConnection, me.getID(), void(), 1))
-  exit
 end
 
-on showUserFound(me)
+on showUserFound me 
   if windowExists(#login_b) then
     getWindow(#login_b).unmerge()
   else
@@ -130,33 +125,30 @@ on showUserFound(me)
     me.hideLogin()
   end if
   return(1)
-  exit
 end
 
-on myHabboSmile(me)
+on myHabboSmile me 
   if objectExists("Figure_Preview") then
     getObject("Figure_Preview").createTemplateHuman("h", 3, "gest", "temp sml")
   end if
   me.delay(1200, #stopWaving)
-  exit
 end
 
-on stopWaving(me)
+on stopWaving me 
   if objectExists("Figure_Preview") then
     getObject("Figure_Preview").createTemplateHuman("h", 3, "reset")
     getObject("Figure_Preview").createTemplateHuman("h", 3, "gest", "temp sml")
     getObject("Figure_Preview").createTemplateHuman("h", 3, "remove")
   end if
   me.delay(400, #hideLogin)
-  exit
 end
 
-on eventProcLogin(me, tEvent, tSprID, tParam)
-  if me = #mouseUp then
-    if me = "login_ok" then
+on eventProcLogin me, tEvent, tSprID, tParam 
+  if tEvent = #mouseUp then
+    if tEvent = "login_ok" then
       return(me.tryLogin())
     else
-      if me = "login_createUser" then
+      if tEvent = "login_createUser" then
         if getWindow(#login_a).getElement(tSprID).getProperty(#blend) = 100 then
           if windowExists(#login_a) then
             removeWindow(#login_a)
@@ -168,7 +160,7 @@ on eventProcLogin(me, tEvent, tSprID, tParam)
           return(1)
         end if
       else
-        if me = "login_forgotten" then
+        if tEvent = "login_forgotten" then
           if getWindow(#login_b).getElement(tSprID).getProperty(#blend) = 100 then
             openNetPage(getText("login_forgottenPassword_url"))
           end if
@@ -176,24 +168,24 @@ on eventProcLogin(me, tEvent, tSprID, tParam)
       end if
     end if
   else
-    if me = #keyDown then
+    if tEvent = #keyDown then
       if the keyCode = 36 then
         me.tryLogin()
         return(1)
       end if
-      if me = "login_password" then
-        if me = 48 then
+      if tEvent = "login_password" then
+        if tEvent = 48 then
           return(0)
         else
-          if me = 49 then
+          if tEvent = 49 then
             return(1)
           else
-            if me = 51 then
+            if tEvent = 51 then
               if pTempPassword.count > 0 then
                 pTempPassword.deleteAt(pTempPassword.count)
               end if
             else
-              if me = 117 then
+              if tEvent = 117 then
                 pTempPassword = []
               else
                 tASCII = charToNum(the key)
@@ -207,7 +199,7 @@ on eventProcLogin(me, tEvent, tSprID, tParam)
           end if
         end if
         tStr = ""
-        repeat while me <= tSprID
+        repeat while tEvent <= tSprID
           tChar = getAt(tSprID, tEvent)
         end repeat
         getWindow(#login_b).getElement(tSprID).setText(tStr)
@@ -218,15 +210,13 @@ on eventProcLogin(me, tEvent, tSprID, tParam)
     end if
   end if
   return(0)
-  exit
 end
 
-on eventProcDisconnect(me, tEvent, tElemID, tParam)
+on eventProcDisconnect me, tEvent, tElemID, tParam 
   if tEvent = #mouseUp then
     if tElemID = "error_close" then
       removeWindow(#error)
       resetClient()
     end if
   end if
-  exit
 end

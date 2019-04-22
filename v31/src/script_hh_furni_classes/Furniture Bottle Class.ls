@@ -1,4 +1,6 @@
-on prepare(me, tdata)
+property pRollDir, pChanges, pRolling, pRollingStartTime, pRollAnimDir, pRollingDirection
+
+on prepare me, tdata 
   if tdata.findPos(#stuffdata) then
     pRollDir = integer(tdata.getAt(#stuffdata))
     if pRollDir < 0 or pRollDir > 7 then
@@ -9,10 +11,9 @@ on prepare(me, tdata)
   pRolling = 0
   me.update()
   return(1)
-  exit
 end
 
-on diceThrown(me, tValue)
+on diceThrown me, tValue 
   if tValue >= 0 then
     pRollDir = tValue
     pRolling = 1
@@ -21,10 +22,9 @@ on diceThrown(me, tValue)
     me.startRolling()
   end if
   return(1)
-  exit
 end
 
-on update(me)
+on update me 
   if not pChanges then
     return()
   end if
@@ -44,13 +44,12 @@ on update(me)
     pChanges = 0
   end if
   return(1)
-  exit
 end
 
-on roll(me)
+on roll me 
   if pRolling and the milliSeconds - pRollingStartTime < 3300 or voidp(pRollDir) then
     tTime = the milliSeconds - pRollingStartTime
-    f = tTime * 0 / 0 * 3.14159 * 0
+    f = tTime * 1 / 3200 * 3.14159 * 0.5
     pRollAnimDir = pRollAnimDir + cos(f) * float(pRollingDirection)
     me.setProp(#pDirection, 1, abs(integer(pRollAnimDir) mod 8))
     me.setProp(#pDirection, 2, abs(integer(pRollAnimDir) mod 8))
@@ -59,10 +58,9 @@ on roll(me)
     pChanges = 1
   end if
   return(1)
-  exit
 end
 
-on startRolling(me)
+on startRolling me 
   pRollDir = void()
   pRollingStartTime = the milliSeconds
   pRollAnimDir = me.getProp(#pDirection, 1)
@@ -74,13 +72,11 @@ on startRolling(me)
   pRolling = 1
   pChanges = 1
   return(1)
-  exit
 end
 
-on select(me)
+on select me 
   if the doubleClick and pRolling = 0 then
     getThread(#room).getComponent().getRoomConnection().send("THROW_DICE", [#integer:integer(me.getID())])
   end if
   return(1)
-  exit
 end

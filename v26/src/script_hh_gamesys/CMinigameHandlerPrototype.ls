@@ -1,47 +1,38 @@
-on construct(me)
+property m_bSyncState
+
+on construct me 
   return(1)
-  exit
 end
 
-on deconstruct(me)
+on deconstruct me 
   return(1)
-  exit
 end
 
-on SetSyncState(me, i_bVal)
+on SetSyncState me, i_bVal 
   m_bSyncState = i_bVal
-  exit
 end
 
-on OnStartStage(me, i_iTime)
-  exit
+on OnStartStage me, i_iTime 
 end
 
-on OnEndStage(me, i_iTime, i_ar_params)
-  exit
+on OnEndStage me, i_iTime, i_ar_params 
 end
 
-on OnLoadStage(me, i_sName)
-  exit
+on OnLoadStage me, i_sName 
 end
 
-on OnJoin(me)
-  exit
+on OnJoin me 
 end
 
-on OnLeave(me)
-  exit
+on OnLeave me 
 end
 
-on OnEvent(me, i_iEvent, i_ar_iData)
-  exit
+on OnEvent me, i_iEvent, i_ar_iData 
 end
 
-on OnPrepareRoom(me, a_iRoomCode)
-  exit
+on OnPrepareRoom me, a_iRoomCode 
 end
 
-on GetSyncState(me)
+on GetSyncState me 
   return(m_bSyncState)
-  exit
 end

@@ -1,9 +1,10 @@
-on construct(me)
+property pRoomIndex
+
+on construct me 
   return(1)
-  exit
 end
 
-on deconstruct(me)
+on deconstruct me 
   me.removeRoomObject()
   pRoomComponentObj = void()
   if not getObject(#session).exists("user_index") then
@@ -18,10 +19,9 @@ on deconstruct(me)
     end if
   end if
   return(1)
-  exit
 end
 
-on define(me, tdata)
+on define me, tdata 
   if tdata.getAt(#room_index) < 0 then
     return(error(me, "Invalid room index for avatar:" && tdata, #define))
   end if
@@ -31,64 +31,57 @@ on define(me, tdata)
     getObject(#session).set("user_game_index", tdata.getAt(#id))
   end if
   return(me.createRoomObject(tdata))
-  exit
 end
 
-on gameObjectMoveDone(me, tX, tY, tH, tDirHead, tDirBody, tAction)
+on gameObjectMoveDone me, tX, tY, tH, tDirHead, tDirBody, tAction 
   tUserObject = me.getRoomObject()
   if tUserObject = 0 then
     return(0)
   end if
   return(tUserObject.gameObjectMoveDone(tX, tY, tH, tDirHead, tDirBody, tAction))
-  exit
 end
 
-on gameObjectAction(me, tAction, tdata)
+on gameObjectAction me, tAction, tdata 
   tUserObject = me.getRoomObject()
   if tUserObject = 0 then
     return(0)
   end if
   return(tUserObject.gameObjectAction(tAction, tdata))
-  exit
 end
 
-on gameObjectRefreshLocation(me, tX, tY, tH, tDirHead, tDirBody)
+on gameObjectRefreshLocation me, tX, tY, tH, tDirHead, tDirBody 
   tUserObject = me.getRoomObject()
   if tUserObject = 0 then
     return(0)
   end if
   return(tUserObject.resetValues(tX, tY, tH, tDirHead, tDirBody))
-  exit
 end
 
-on gameObjectNewMoveTarget(me, tX, tY, tH, tDirHead, tDirBody, tAction)
+on gameObjectNewMoveTarget me, tX, tY, tH, tDirHead, tDirBody, tAction 
   tUserObject = me.getRoomObject()
   if tUserObject = 0 then
     return(0)
   end if
   return(tUserObject.gameObjectNewMoveTarget(tX, tY, tH, tDirHead, tDirBody, tAction))
-  exit
 end
 
-on getPicture(me)
+on getPicture me 
   tUserObject = me.getRoomObject()
   if tUserObject = 0 then
     return(0)
   end if
   return(tUserObject.getPicture())
-  exit
 end
 
-on getRoomObject(me)
+on getRoomObject me 
   tRoomComponentObj = getObject(#room_component)
   if tRoomComponentObj = 0 then
     return(error(me, "Room component unavailable!", #getRoomObject))
   end if
   return(tRoomComponentObj.getUserObject(pRoomIndex))
-  exit
 end
 
-on createRoomObject(me, tdata)
+on createRoomObject me, tdata 
   tRoomComponentObj = getObject(#room_component)
   if tRoomComponentObj = 0 then
     return(error(me, "Room component unavailable!", #createRoomObject))
@@ -126,10 +119,9 @@ on createRoomObject(me, tdata)
   else
     return(1)
   end if
-  exit
 end
 
-on removeRoomObject(me)
+on removeRoomObject me 
   tRoomComponentObj = getObject(#room_component)
   if tRoomComponentObj = 0 then
     return(error(me, "Room component unavailable!", #removeRoomObject))
@@ -141,5 +133,4 @@ on removeRoomObject(me)
     return(1)
   end if
   return(tRoomComponentObj.removeUserObject(pRoomIndex))
-  exit
 end

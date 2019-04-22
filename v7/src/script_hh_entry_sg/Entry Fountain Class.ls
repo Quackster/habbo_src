@@ -1,4 +1,6 @@
-on define(me, tSprite, tmodel)
+property pStartFrame, pDelayCounter, pDelayAmount, pFrame, pLastFrame, pSprite, pFountainModel
+
+on define me, tSprite, tmodel 
   pSprite = tSprite
   pDelayAmount = 0
   pDelayCounter = 0
@@ -7,10 +9,9 @@ on define(me, tSprite, tmodel)
   pFrame = pStartFrame
   pFountainModel = tmodel
   return(1)
-  exit
 end
 
-on update(me)
+on update me 
   if pDelayCounter < pDelayAmount then
     pDelayCounter = pDelayCounter + 1
     return(1)
@@ -21,5 +22,4 @@ on update(me)
     pFrame = pStartFrame
   end if
   pSprite.castNum = getmemnum(pFountainModel & pFrame)
-  exit
 end

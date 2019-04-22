@@ -1,4 +1,6 @@
-on construct(me)
+property pBubbleList
+
+on construct me 
   pBubbleList = []
   i = 1
   repeat while i <= 10
@@ -8,16 +10,13 @@ on construct(me)
     i = 1 + i
   end repeat
   return(receiveUpdate(me.getID()))
-  exit
 end
 
-on deconstruct(me)
+on deconstruct me 
   pBubbleList = []
   return(removeUpdate(me.getID()))
-  exit
 end
 
-on update(me)
+on update me 
   call(#update, pBubbleList)
-  exit
 end

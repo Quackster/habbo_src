@@ -1,4 +1,6 @@
-on construct(me)
+property pCardWndID, pMessage, pPackageID, pIconColor, pIconType, pIconCode, pNoIconPlaceholderName
+
+on construct me 
   pMessage = ""
   pPackageID = ""
   pCardWndID = "Card" && getUniqueID()
@@ -9,28 +11,25 @@ on construct(me)
   pIconCode = void()
   pIconColor = void()
   return(1)
-  exit
 end
 
-on deconstruct(me)
+on deconstruct me 
   if windowExists(pCardWndID) then
     removeWindow(pCardWndID)
   end if
   unregisterMessage(#leaveRoom, me.getID())
   unregisterMessage(#changeRoom, me.getID())
   return(1)
-  exit
 end
 
-on define(me, tProps)
+on define me, tProps 
   pPackageID = tProps.getAt(#id)
   pMessage = tProps.getAt(#Msg)
   me.showCard(tProps.getAt(#loc) + [0, -220])
   return(1)
-  exit
 end
 
-on showCard(me, tloc)
+on showCard me, tloc 
   if windowExists(pCardWndID) then
     removeWindow(pCardWndID)
   end if
@@ -56,25 +55,22 @@ on showCard(me, tloc)
   tWndObj.registerProcedure(#eventProcCard, me.getID(), #mouseUp)
   tWndObj.getElement("package_msg").setText(pMessage)
   return(1)
-  exit
 end
 
-on hideCard(me)
+on hideCard me 
   unregisterMessage(#leaveRoom, me.getID())
   unregisterMessage(#changeRoom, me.getID())
   if windowExists(pCardWndID) then
     removeWindow(pCardWndID)
   end if
   return(1)
-  exit
 end
 
-on openPresent(me)
+on openPresent me 
   return(getThread(#room).getComponent().getRoomConnection().send("PRESENTOPEN", pPackageID))
-  exit
 end
 
-on showContent(me, tdata)
+on showContent me, tdata 
   if not windowExists(pCardWndID) then
     return(0)
   end if
@@ -130,20 +126,18 @@ on showContent(me, tdata)
     tImg = image.duplicate()
   end if
   me.feedIconToCard(tImg)
-  exit
 end
 
-on packetIconDownloadCallback(me, tDownloadedClass)
+on packetIconDownloadCallback me, tDownloadedClass 
   if tDownloadedClass contains "poster" then
     tImg = getObject("Preview_renderer").renderPreviewImage(void(), void(), pIconColor, pIconCode)
   else
     tImg = getObject("Preview_renderer").renderPreviewImage(void(), void(), pIconColor, pIconType)
   end if
   me.feedIconToCard(tImg)
-  exit
 end
 
-on feedIconToCard(me, tImg)
+on feedIconToCard me, tImg 
   if ilk(tImg) <> #image then
     return(error(me, "tImg is not an #image", #feedIconToCard))
   end if
@@ -161,19 +155,17 @@ on feedIconToCard(me, tImg)
   tWndObj.getElement("card_icon").hide()
   tWndObj.getElement("small_img").setProperty(#blend, 100)
   tWndObj.getElement("open_package").hide()
-  exit
 end
 
-on eventProcCard(me, tEvent, tElemID, tParam)
+on eventProcCard me, tEvent, tElemID, tParam 
   if tEvent <> #mouseUp then
     return(0)
   end if
-  if me = "close" then
+  if tElemID = "close" then
     return(me.hideCard())
   else
-    if me = "open_package" then
+    if tElemID = "open_package" then
       return(me.openPresent())
     end if
   end if
-  exit
 end

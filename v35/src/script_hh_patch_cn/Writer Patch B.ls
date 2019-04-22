@@ -1,4 +1,4 @@
-on render(me, tText, tRect)
+on render me, tText, tRect 
   pMember.text = tText
   if tRect.ilk = #rect then
     if pMember.width <> tRect.width then
@@ -42,10 +42,9 @@ on render(me, tText, tRect)
     end if
   end if
   return(pMember.image)
-  exit
 end
 
-on render_tryout(me, tText, tRect, tLineSpace)
+on render_tryout me, tText, tRect, tLineSpace 
   tMem = me.pMember
   tMem.text = tText
   tOrigRect = tMem.rect
@@ -61,5 +60,4 @@ on render_tryout(me, tText, tRect, tLineSpace)
   tMem.bgColor = tOrigBgColor
   tProperImage = tMem.image
   return(tProperImage)
-  exit
 end

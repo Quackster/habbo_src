@@ -1,46 +1,45 @@
-on construct(me)
+property pObjectCache
+
+on construct me 
   return(1)
-  exit
 end
 
-on deconstruct(me)
+on deconstruct me 
   pObjectCache = void()
   return(1)
-  exit
 end
 
-on Refresh(me, tTopic, tdata)
-  if me = #gameend then
+on Refresh me, tTopic, tdata 
+  if tTopic = #gameend then
     if getObject(#session).exists("user_game_index") then
       me.getGameSystem().executeGameObjectEvent(getObject(#session).get("user_game_index"), #gameend)
     end if
   else
-    if me = #update_game_object then
+    if tTopic = #update_game_object then
       return(me.updateGameObject(tdata))
     else
-      if me = #verify_game_object_id_list then
+      if tTopic = #verify_game_object_id_list then
         return(me.verifyGameObjectList(tdata))
       else
-        if me <> #snowwar_event_0 then
-          if me = #create_game_object then
+        if tTopic <> #snowwar_event_0 then
+          if tTopic = #create_game_object then
             return(me.createGameObject(tdata))
           else
-            if me <> #snowwar_event_1 then
-              if me = #remove_game_object then
+            if tTopic <> #snowwar_event_1 then
+              if tTopic = #remove_game_object then
                 return(me.removeGameObject(tdata.getAt(#id)))
               else
-                if me = #snowwar_event_8 then
+                if tTopic = #snowwar_event_8 then
                   playSound("LS-throw")
                   return(me.createSnowballGameObject(tdata))
                 else
-                  if me = #world_ready then
+                  if tTopic = #world_ready then
                     return(me.createStoredObjects())
                   else
                     return(error(me, "Undefined event!" && tTopic && "for" && me.pID, #Refresh))
                   end if
                 end if
               end if
-              exit
             end if
           end if
         end if
@@ -49,19 +48,18 @@ on Refresh(me, tTopic, tdata)
   end if
 end
 
-on createStoredObjects(me)
+on createStoredObjects me 
   if pObjectCache = void() then
     return(1)
   end if
-  repeat while me <= undefined
+  repeat while pObjectCache <= undefined
     tDataObject = getAt(undefined, undefined)
     me.createGameObject(tDataObject)
   end repeat
   pObjectCache = void()
-  exit
 end
 
-on createGameObject(me, tDataObject)
+on createGameObject me, tDataObject 
   tGameSystem = me.getGameSystem()
   if tGameSystem.getWorldReady() = 0 then
     if pObjectCache = void() then
@@ -78,10 +76,9 @@ on createGameObject(me, tDataObject)
   tGameObject.setGameObjectProperty(tDataObject)
   tGameObject.define(tDataObject)
   return(1)
-  exit
 end
 
-on updateGameObject(me, tDataObject)
+on updateGameObject me, tDataObject 
   tGameSystem = me.getGameSystem()
   tGameObject = tGameSystem.getGameObject(tDataObject.getAt(#id))
   if tGameObject = 0 then
@@ -99,33 +96,30 @@ on updateGameObject(me, tDataObject)
   end repeat
   tGameSystem.updateGameObject(tDataObject.getAt(#id), tDataObject.getAt(#objectDataStruct))
   return(tGameObject.define(tDataObject))
-  exit
 end
 
-on removeGameObject(me, tObjectID)
+on removeGameObject me, tObjectID 
   tGameSystem = me.getGameSystem()
   return(tGameSystem.removeGameObject(tObjectID))
-  exit
 end
 
-on verifyGameObjectList(me, tObjectIdList)
+on verifyGameObjectList me, tObjectIdList 
   tGameSystem = me.getGameSystem()
   tAllGameObjectIds = tGameSystem.getGameObjectIdsOfType(#all)
-  repeat while me <= undefined
+  repeat while tAllGameObjectIds <= undefined
     tObjectID = getAt(undefined, tObjectIdList)
     if tObjectIdList.getPos(tObjectID) < 1 then
       tGameSystem.removeGameObject(tObjectID)
     end if
   end repeat
   return(1)
-  exit
 end
 
-on createSnowballGameObject(me, tdata)
+on createSnowballGameObject me, tdata 
   tGameSystem = me.getGameSystem()
   tThrowerObject = tGameSystem.getGameObject(string(tdata.int_thrower_id))
   tThrowerLoc = tThrowerObject.getLocation()
-  tGameObjectStruct = []
+  tGameObjectStruct = [:]
   tGameObjectStruct.addProp(#type, 1)
   tGameObjectStruct.addProp(#int_id, tdata.int_id)
   tGameObjectStruct.addProp(#id, tdata.id)
@@ -144,5 +138,4 @@ on createSnowballGameObject(me, tdata)
   tObject.define(tGameObjectStruct)
   tObject.calculateFlightPath(tGameObjectStruct, tdata.targetX, tdata.targetY)
   return(1)
-  exit
 end

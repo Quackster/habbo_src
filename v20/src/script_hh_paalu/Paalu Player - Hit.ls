@@ -1,4 +1,6 @@
-on construct(me)
+property pDirection, pSprite, pActive, pAnimOffset, pCounter, pLocOffset
+
+on construct me 
   pSprite = sprite(reserveSprite("Paalu violence dir:" && pDirection))
   pSprite.member = member(getmemnum("paalu hit" && pDirection && random(4)))
   pSprite.visible = 0
@@ -6,10 +8,9 @@ on construct(me)
   pActive = 0
   pCounter = 0
   return(1)
-  exit
 end
 
-on deconstruct(me)
+on deconstruct me 
   if ilk(pSprite, #sprite) then
     releaseSprite(pSprite.spriteNum)
   end if
@@ -17,10 +18,9 @@ on deconstruct(me)
   pActive = 0
   pCounter = 0
   return(1)
-  exit
 end
 
-on define(me, tPart, tProps)
+on define me, tPart, tProps 
   pDirection = tProps.getAt(#Dir)
   if pDirection = 0 then
     pAnimOffset = point(0, 0)
@@ -33,14 +33,12 @@ on define(me, tPart, tProps)
   pActive = 0
   pCounter = 0
   return(1)
-  exit
 end
 
-on reset(me)
-  exit
+on reset me 
 end
 
-on prepare(me)
+on prepare me 
   if voidp(pSprite) then
     return()
   end if
@@ -53,14 +51,12 @@ on prepare(me)
       pSprite.visible = 0
     end if
   end if
-  exit
 end
 
-on render(me)
-  exit
+on render me 
 end
 
-on status(me, tAction, tBalance, tSprLoc, tSprLocZ, tHit)
+on status me, tAction, tBalance, tSprLoc, tSprLocZ, tHit 
   if tHit then
     pActive = 1
     pSprite.member = member(getmemnum("paalu hit" && pDirection && random(4)))
@@ -69,5 +65,4 @@ on status(me, tAction, tBalance, tSprLoc, tSprLocZ, tHit)
     pSprite.visible = 1
     pCounter = 0
   end if
-  exit
 end

@@ -1,4 +1,6 @@
-on construct(me)
+property pTreeView, pWndObj, pLastOpenedPage, pInfoWindowID, pWndID, pCurrentPageObj
+
+on construct me 
   pWndObj = void()
   pCurrentPageObj = void()
   pTreeView = void()
@@ -14,10 +16,9 @@ on construct(me)
   registerMessage(#show_hide_catalogue, me.getID(), #showHideCatalogue)
   registerMessage(#updateCatalogPurse, me.getID(), #updatePurseSaldo)
   registerMessage(#playPixelPurchaseSound, me.getID(), #playPixelPurchaseSound)
-  exit
 end
 
-on deconstruct(me)
+on deconstruct me 
   me.destroyWindow()
   if objectExists("catalogue_deal_preview_object") then
     removeObject("catalogue_deal_preview_object")
@@ -30,19 +31,17 @@ on deconstruct(me)
   unregisterMessage(#show_hide_catalogue, me.getID())
   unregisterMessage(#updateCatalogPurse, me.getID())
   unregisterMessage(#playPixelPurchaseSound, me.getID())
-  exit
 end
 
-on displayPage(me, tPageID)
+on displayPage me, tPageID 
   tPageData = me.getComponent().getPageData(tPageID)
   me.showWindow()
   me.showPage(tPageData)
   me.updateTreeView()
   pLastOpenedPage = tPageID
-  exit
 end
 
-on updateTreeView(me)
+on updateTreeView me 
   tTreeviewImage = pTreeView.getInterface().getImage()
   tDestElement = pWndObj.getElement("ctlg_pages")
   if voidp(tDestElement) or tDestElement = 0 then
@@ -57,29 +56,25 @@ on updateTreeView(me)
     pWndObj.getElement("ctlg_pages_scroll").hide()
   end if
   tDestElement.feedImage(tTreeviewImage)
-  exit
 end
 
-on showCatalogue(me)
+on showCatalogue me 
   me.getComponent().prepareFrontPage()
-  exit
 end
 
-on hideCatalogue(me)
+on hideCatalogue me 
   me.destroyWindow()
-  exit
 end
 
-on showHideCatalogue(me)
+on showHideCatalogue me 
   if voidp(pWndObj) then
     me.showCatalogue()
   else
     me.hideCatalogue()
   end if
-  exit
 end
 
-on updatePurseSaldo(me)
+on updatePurseSaldo me 
   if objectp(pWndObj) then
     tSaldo = getObject(#session).GET("user_walletbalance")
     if integerp(tSaldo) then
@@ -90,15 +85,13 @@ on updatePurseSaldo(me)
       pWndObj.getElement("catalog_pixels_bottom").setText(tPixels && getText("pixels", "Pixels"))
     end if
   end if
-  exit
 end
 
-on getLastOpenedPage(me)
+on getLastOpenedPage me 
   return(pLastOpenedPage)
-  exit
 end
 
-on showVoucherRedeemOk(me, tProductName, tProductDesc)
+on showVoucherRedeemOk me, tProductName, tProductDesc 
   if not createWindow(pInfoWindowID, "habbo_simple.window", void(), void(), #modal) then
     return(error(me, "Couldn't create window to show purchase info!", #showNoBalance, #major))
   end if
@@ -117,13 +110,12 @@ on showVoucherRedeemOk(me, tProductName, tProductDesc)
   tWndObj.getElement("habbo_message_text_b").setText(tMsgA)
   tWndObj.registerClient(me.getID())
   tWndObj.registerProcedure(#hidePurchaseOk, me.getID(), #mouseUp)
-  -- UNK_80 16899
+  tWndObj.setProperty(#locZ, 22000000)
   tWndObj.lock(1)
   return(1)
-  exit
 end
 
-on showVoucherRedeemError(me, tError)
+on showVoucherRedeemError me, tError 
   if not createWindow(pInfoWindowID, "habbo_simple.window", void(), void(), #modal) then
     return(error(me, "Couldn't create window to show purchase info!", #showNoBalance, #major))
   end if
@@ -149,13 +141,12 @@ on showVoucherRedeemError(me, tError)
   end if
   tWndObj.registerClient(me.getID())
   tWndObj.registerProcedure(#hidePurchaseOk, me.getID(), #mouseUp)
-  -- UNK_80 16899
+  tWndObj.setProperty(#locZ, 22000000)
   tWndObj.lock(1)
   return(1)
-  exit
 end
 
-on showCatalogWasPublishedDialog(me)
+on showCatalogWasPublishedDialog me 
   if not createWindow(pInfoWindowID, "habbo_simple.window", void(), void(), #modal) then
     return(error(me, "Couldn't create window to show purchase info!", #showNoBalance, #major))
   end if
@@ -169,20 +160,17 @@ on showCatalogWasPublishedDialog(me)
   tWndObj.registerProcedure(#hidePurchaseOk, me.getID(), #mouseUp)
   tWndObj.lock(1)
   return(1)
-  exit
 end
 
-on isVisible(me)
+on isVisible me 
   return(objectp(pWndObj))
-  exit
 end
 
-on playPixelPurchaseSound(me)
+on playPixelPurchaseSound me 
   playSound("plim_2", #queue, [#loopCount:1, #infiniteloop:0, #volume:255])
-  exit
 end
 
-on showWindow(me)
+on showWindow me 
   if voidp(pWndObj) then
     pWndID = "Catalogue"
     if not createWindow(pWndID, "habbo_catalogue.window") then
@@ -211,10 +199,9 @@ on showWindow(me)
     pWndObj.getElement("catalog_get_pixels_bottom").hide()
   end if
   me.updatePurseSaldo()
-  exit
 end
 
-on destroyWindow(me)
+on destroyWindow me 
   if objectp(pWndObj) then
     if windowExists(pWndID) then
       removeWindow(pWndID)
@@ -233,10 +220,9 @@ on destroyWindow(me)
     end if
   end if
   pTreeView = void()
-  exit
 end
 
-on showPage(me, tPageData)
+on showPage me, tPageData 
   if objectp(pCurrentPageObj) then
     pCurrentPageObj.unmergeWindow(pWndObj)
     removeObject(pCurrentPageObj.getID())
@@ -252,28 +238,26 @@ on showPage(me, tPageData)
   end if
   pCurrentPageObj.define(tPageData)
   pCurrentPageObj.mergeWindow(pWndObj)
-  exit
 end
 
-on activateTreeviewNodeByName(me, tNodeName)
+on activateTreeviewNodeByName me, tNodeName 
   pTreeView.getInterface().simulateClickByName(tNodeName)
   me.updateTreeView()
-  exit
 end
 
-on eventProcCatalogue(me, tEvent, tSprID, tProp)
+on eventProcCatalogue me, tEvent, tSprID, tProp 
   if tEvent = #mouseUp then
-    if me = "ctlg_pages" then
+    if tSprID = "ctlg_pages" then
       pTreeView.getInterface().handleClick(tProp)
       me.updateTreeView()
     else
-      if me = "close" then
+      if tSprID = "close" then
         me.destroyWindow()
       else
-        if me = "catalog_get_pixels_bottom" then
+        if tSprID = "catalog_get_pixels_bottom" then
           me.getComponent().preparePixelsInfoPage()
         else
-          if me = "catalog_get_credits_bottom" then
+          if tSprID = "catalog_get_credits_bottom" then
             me.getComponent().prepareCreditsInfoPage()
           end if
         end if
@@ -283,23 +267,20 @@ on eventProcCatalogue(me, tEvent, tSprID, tProp)
   if objectp(pCurrentPageObj) then
     pCurrentPageObj.handleClick(tEvent, tSprID, tProp)
   end if
-  exit
 end
 
-on getCatalogWindow(me)
+on getCatalogWindow me 
   return(pWndObj)
-  exit
 end
 
-on getSelectedProduct(me)
+on getSelectedProduct me 
   if objectp(pCurrentPageObj) then
     return(pCurrentPageObj.pSelectedProduct)
   end if
-  return([])
-  exit
+  return([:])
 end
 
-on showPreviewImage(me, tProps, tElemID)
+on showPreviewImage me, tProps, tElemID 
   tWndObj = pWndObj
   if voidp(tElemID) then
     tElemID = "ctlg_teaserimg_1"
@@ -330,10 +311,9 @@ on showPreviewImage(me, tProps, tElemID)
     tElem.feedImage(tDestImg)
   end if
   return(1)
-  exit
 end
 
-on renderPreviewImage(me, tProps)
+on renderPreviewImage me, tProps 
   if not voidp(tProps.getAt("dealList")) then
     if not objectExists("ctlg_dealpreviewObj") then
       tObj = createObject("ctlg_dealpreviewObj", ["Deal Preview Class"])
@@ -384,7 +364,7 @@ on renderPreviewImage(me, tProps)
     else
       tObjectType = tProps.getAt("objectType")
     end if
-    tdata = []
+    tdata = [:]
     tdata.setAt(#id, "ctlg_previewObj")
     tdata.setAt(#class, tClass)
     tdata.setAt(#name, tClass)
@@ -405,10 +385,9 @@ on renderPreviewImage(me, tProps)
     tImage = tObj.getPicture()
   end if
   return(tImage)
-  exit
 end
 
-on showNoBalance(me, tNotEnoughCredits, tNotEnoughPixels)
+on showNoBalance me, tNotEnoughCredits, tNotEnoughPixels 
   if windowExists(pInfoWindowID) then
     return(0)
   end if
@@ -445,13 +424,12 @@ on showNoBalance(me, tNotEnoughCredits, tNotEnoughPixels)
   tWndObj.getElement("habbo_message_text_a").setText(tMsgA)
   tWndObj.registerClient(me.getID())
   tWndObj.registerProcedure(#hidePurchaseOk, me.getID(), #mouseUp)
-  -- UNK_80 16899
+  tWndObj.setProperty(#locZ, 22000000)
   tWndObj.lock(1)
   return(1)
-  exit
 end
 
-on showPurchaseOk(me)
+on showPurchaseOk me 
   if not createWindow(pInfoWindowID, "habbo_basic.window", void(), void(), #modal) then
     return(0)
   end if
@@ -462,13 +440,12 @@ on showPurchaseOk(me)
   tWndObj.registerClient(me.getID())
   tWndObj.registerProcedure(#hidePurchaseOk, me.getID(), #mouseUp)
   tWndObj.center()
-  -- UNK_80 16899
+  tWndObj.setProperty(#locZ, 22000000)
   tWndObj.getElement("habbo_message_text_b").setText(getText("catalog_itsurs"))
   return(1)
-  exit
 end
 
-on hidePurchaseOk(me, tOptionalEvent, tOptionalSprID)
+on hidePurchaseOk me, tOptionalEvent, tOptionalSprID 
   if tOptionalEvent = #mouseUp then
     if stringp(tOptionalSprID) then
       if tOptionalSprID = "close" or tOptionalSprID = "habbo_message_ok" or tOptionalSprID = "button_cancel" or tOptionalSprID = "alert_ok" then
@@ -500,14 +477,12 @@ on hidePurchaseOk(me, tOptionalEvent, tOptionalSprID)
     end if
   end if
   return(1)
-  exit
 end
 
-on getClassAsset(me, tClassName)
+on getClassAsset me, tClassName 
   tClass = tClassName
   if tClass contains "*" then
     tClass = tClass.getProp(#char, 1, offset("*", tClass) - 1)
   end if
   return(tClass)
-  exit
 end

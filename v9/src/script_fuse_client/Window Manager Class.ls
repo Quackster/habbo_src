@@ -1,4 +1,6 @@
-on construct(me)
+property pClsList, pDefLocX, pDefLocY, pModalID, pLockLocZ
+
+on construct me 
   pLockLocZ = 0
   pDefLocX = getIntVariable("window.default.locx", 100)
   pDefLocY = getIntVariable("window.default.locy", 100)
@@ -7,7 +9,7 @@ on construct(me)
   me.setProperty(#defaultLocZ, getIntVariable("window.default.locz", 0))
   0.pBoundary = rect(the stage, rect.width, the stage, rect.height) + getVariableValue("window.boundary.limit")
   me.pInstanceClass = getClassVariable("window.instance.class")
-  pClsList = []
+  pClsList = [:]
   pModalID = #modal
   pClsList.setAt(#wrapper, getClassVariable("window.wrapper.class"))
   pClsList.setAt(#unique, getClassVariable("window.unique.class"))
@@ -21,11 +23,10 @@ on construct(me)
     createObject(#layout_parser, getClassVariable("layout.parser.class"))
   end if
   return(1)
-  exit
 end
 
-on create(me, tid, tLayout, tLocX, tLocY, tSpecial)
-  if me = #modal then
+on create me, tid, tLayout, tLocX, tLocY, tSpecial 
+  if tSpecial = #modal then
     return(me.modal(tid, tLayout))
   end if
   if voidp(tLayout) then
@@ -56,7 +57,7 @@ on create(me, tid, tLayout, tLocX, tLocY, tSpecial)
   if not tItem then
     return(error(me, "Failed to create window object:" && tid, #create))
   end if
-  tProps = []
+  tProps = [:]
   tProps.setAt(#locX, tX)
   tProps.setAt(#locY, tY)
   tProps.setAt(#locZ, me.pAvailableLocZ)
@@ -75,10 +76,9 @@ on create(me, tid, tLayout, tLocX, tLocY, tSpecial)
   pAvailableLocZ = pAvailableLocZ + tItem.getProperty(#sprCount)
   me.Activate()
   return(1)
-  exit
 end
 
-on Remove(me, tid)
+on Remove me, tid 
   tWndObj = me.get(tid)
   if tWndObj = 0 then
     return(0)
@@ -109,10 +109,9 @@ on Remove(me, tid)
   end if
   me.Activate(tNextActive)
   return(1)
-  exit
 end
 
-on Activate(me, tid)
+on Activate me, tid 
   if pLockLocZ then
     return(0)
   end if
@@ -138,11 +137,11 @@ on Activate(me, tid)
   me.deleteOne(tid)
   me.append(tid)
   me.pAvailableLocZ = me.pDefaultLocZ
-  repeat while me <= undefined
+  repeat while me.pItemList <= undefined
     tCurrID = getAt(undefined, tid)
     tWndObj = me.get(tCurrID)
     tWndObj.setDeactive()
-    repeat while me <= undefined
+    repeat while me.pItemList <= undefined
       tSpr = getAt(undefined, tid)
       tSpr.locZ = me.pAvailableLocZ
       me.pAvailableLocZ = me.pAvailableLocZ + 1
@@ -150,10 +149,9 @@ on Activate(me, tid)
   end repeat
   me.pActiveItem = tid
   return(me.get(tid).setActive())
-  exit
 end
 
-on deactivate(me, tid)
+on deactivate me, tid 
   if me.exists(tid) then
     if not me.get(tid).getProperty(#modal) then
       me.deleteOne(tid)
@@ -163,22 +161,19 @@ on deactivate(me, tid)
     end if
   end if
   return(0)
-  exit
 end
 
-on lock(me)
+on lock me 
   pLockLocZ = 1
   return(1)
-  exit
 end
 
-on unlock(me)
+on unlock me 
   pLockLocZ = 0
   return(1)
-  exit
 end
 
-on modal(me, tid, tLayout)
+on modal me, tid, tLayout 
   if not me.create(tid, tLayout) then
     return(0)
   end if
@@ -201,5 +196,4 @@ on modal(me, tid, tLayout)
   me.pActiveItem = tid
   me.Activate(tid)
   return(1)
-  exit
 end

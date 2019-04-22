@@ -1,4 +1,6 @@
-on construct(me)
+property pBottomBarId, pWindowTitle, pSwimSuitModel, pSwimSuitColor, pSwimSuitIndex, pNewMsgCount, pNewBuddyReq, pMessengerFlash, pFloodblocking, pFloodTimer, pFloodEnterCount, pSignState, pOldPosV, pOldPosH, pSignImg
+
+on construct me 
   pWindowTitle = "pellehyppy"
   pBottomBarId = "RoomBarID"
   pSignState = void()
@@ -8,20 +10,18 @@ on construct(me)
     getObject("Figure_System_Pool").define(["type":"member", "source":"swimfigure_ids_"])
   end if
   return(removeWindow(pBottomBarId))
-  exit
 end
 
-on deconstruct(me)
+on deconstruct me 
   if objectExists("Figure_System_Pool") then
     removeObject("Figure_System_Pool")
   end if
   me.closeUimaKoppi()
   me.hideRoomBar()
   return(1)
-  exit
 end
 
-on openUimakoppi(me)
+on openUimakoppi me 
   pSwimSuitIndex = 1
   if getObject(#session).GET("user_sex") = "F" then
     pSwimSuitModel = "s01"
@@ -30,18 +30,16 @@ on openUimakoppi(me)
   end if
   me.getDefaultSwimSuitColor()
   me.changeUimakoppiWindow("ph_swimsuit.window", "uimakoppi")
-  exit
 end
 
-on closeUimaKoppi(me)
+on closeUimaKoppi me 
   if windowExists("uimakoppi") then
     pSwimSuitIndex = 1
     removeWindow("uimakoppi")
   end if
-  exit
 end
 
-on changeUimakoppiWindow(me, tWindowName, tWindowTitle)
+on changeUimakoppiWindow me, tWindowName, tWindowTitle 
   if voidp(tWindowTitle) then
     tWindowTitle = pWindowTitle
   end if
@@ -54,10 +52,9 @@ on changeUimakoppiWindow(me, tWindowName, tWindowTitle)
   tWndObj.registerProcedure(#eventProcUimakoppi, me.getID(), #keyDown)
   me.createFigurePrew()
   return(1)
-  exit
 end
 
-on createFigurePrew(me)
+on createFigurePrew me 
   if not objectExists("Figure_Preview") then
     return(error(me, "Figure preview not found!", #createFigurePrew))
   end if
@@ -90,10 +87,9 @@ on createFigurePrew(me)
   if tWndObj.elementExists("ph_swimsuit.preview") then
     tWndObj.getElement("ph_swimsuit.preview").setProperty(#bgColor, pSwimSuitColor)
   end if
-  exit
 end
 
-on getDefaultSwimSuitColor(me)
+on getDefaultSwimSuitColor me 
   if not objectExists("Figure_System_Pool") then
     return(error(me, "Figure system Pool object not found", #getDefaultSwimSuitColor))
   end if
@@ -107,10 +103,9 @@ on getDefaultSwimSuitColor(me)
     tColor = rgb(tPartProps.getAt("color"))
     pSwimSuitColor = tColor
   end if
-  exit
 end
 
-on changeSwimSuitColor(me, tPart, tButtonDir)
+on changeSwimSuitColor me, tPart, tButtonDir 
   if not objectExists("Figure_System_Pool") then
     return(error(me, "Figure system Pool object not found", #changeSwimSuitColor))
   end if
@@ -144,17 +139,16 @@ on changeSwimSuitColor(me, tPart, tButtonDir)
     pSwimSuitColor = tColor
   end if
   me.createFigurePrew()
-  exit
 end
 
-on eventProcUimakoppi(me, tEvent, tSprID, tParam)
+on eventProcUimakoppi me, tEvent, tSprID, tParam 
   if tEvent = #mouseUp then
-    if me = "ph_swimsuit_exitbutton" then
+    if tSprID = "ph_swimsuit_exitbutton" then
       me.closeUimaKoppi()
       getConnection(getVariable("connection.room.id")).send("SWIMSUIT")
       getConnection(getVariable("connection.room.id")).send("CLOSE_UIMAKOPPI")
     else
-      if me = "ph_swimsuit_gobutton" then
+      if tSprID = "ph_swimsuit_gobutton" then
         me.closeUimaKoppi()
         tTempDelim = the itemDelimiter
         the itemDelimiter = ","
@@ -168,20 +162,19 @@ on eventProcUimakoppi(me, tEvent, tSprID, tParam)
         getConnection(getVariable("connection.room.id")).send("SWIMSUIT", tswimsuit)
         getConnection(getVariable("connection.room.id")).send("CLOSE_UIMAKOPPI")
       else
-        if me = "ph_swimsuit.left.button" then
+        if tSprID = "ph_swimsuit.left.button" then
           me.changeSwimSuitColor("ch", -1)
         else
-          if me = "ph_swimsuit.right.button" then
+          if tSprID = "ph_swimsuit.right.button" then
             me.changeSwimSuitColor("ch", 1)
           end if
         end if
       end if
     end if
   end if
-  exit
 end
 
-on showRoomBar(me, tRoomData)
+on showRoomBar me, tRoomData 
   if not windowExists(pBottomBarId) then
     createWindow(pBottomBarId, "room_pellehyppy_bar.window", 0, 486)
     tWndObj = getWindow(pBottomBarId)
@@ -206,10 +199,9 @@ on showRoomBar(me, tRoomData)
     return(1)
   end if
   return(0)
-  exit
 end
 
-on hideRoomBar(me)
+on hideRoomBar me 
   unregisterMessage(#updateMessageCount, me.getID())
   unregisterMessage(#updateBuddyrequestCount, me.getID())
   if timeoutExists(#flash_messenger_icon) then
@@ -220,28 +212,25 @@ on hideRoomBar(me)
   end if
   pSignImg = void()
   return(1)
-  exit
 end
 
-on deactivateChatField(me)
+on deactivateChatField me 
   if not windowExists(pBottomBarId) then
     return(0)
   end if
   getWindow(pBottomBarId).getElement("chat_field").setEdit(0)
   return(1)
-  exit
 end
 
-on activateChatField(me)
+on activateChatField me 
   if not windowExists(pBottomBarId) then
     return(0)
   end if
   getWindow(pBottomBarId).getElement("chat_field").setEdit(1)
   return(1)
-  exit
 end
 
-on updateMessageCount(me, tMsgCount)
+on updateMessageCount me, tMsgCount 
   if windowExists(pBottomBarId) then
     pNewMsgCount = value(tMsgCount)
     if pNewMsgCount > 0 then
@@ -249,10 +238,9 @@ on updateMessageCount(me, tMsgCount)
     end if
   end if
   return(1)
-  exit
 end
 
-on updateBuddyrequestCount(me, tReqCount)
+on updateBuddyrequestCount me, tReqCount 
   if windowExists(pBottomBarId) then
     pNewBuddyReq = value(tReqCount)
     if pNewBuddyReq > 0 then
@@ -260,10 +248,9 @@ on updateBuddyrequestCount(me, tReqCount)
     end if
   end if
   return(1)
-  exit
 end
 
-on flashMessengerIcon(me)
+on flashMessengerIcon me 
   tWndObj = getWindow(pBottomBarId)
   if tWndObj = 0 then
     return(0)
@@ -288,10 +275,9 @@ on flashMessengerIcon(me)
   end if
   tWndObj.getElement("int_messenger_image").getProperty(#sprite).setMember(member(getmemnum(tmember)))
   return(1)
-  exit
 end
 
-on eventProcRoomBar(me, tEvent, tSprID, tParam)
+on eventProcRoomBar me, tEvent, tSprID, tParam 
   tWndObj = getWindow(pBottomBarId)
   if tWndObj.getElement(tSprID).getProperty(#blend) < 100 then
     return(0)
@@ -342,19 +328,19 @@ on eventProcRoomBar(me, tEvent, tSprID, tParam)
   end if
   if tEvent = #mouseUp then
     if tWndObj.getElement(tSprID).getProperty(#blend) = 100 then
-      if me = "int_messenger_image" then
+      if tSprID = "int_messenger_image" then
         executeMessage(#show_hide_messenger)
       else
-        if me = "int_nav_image" then
+        if tSprID = "int_nav_image" then
           executeMessage(#show_hide_navigator)
         else
-          if me = "int_speechmode_dropmenu" then
+          if tSprID = "int_speechmode_dropmenu" then
             getThread(#room).getComponent().setChatMode(tParam)
           else
-            if me = "int_purse_image" then
+            if tSprID = "int_purse_image" then
               executeMessage(#openGeneralDialog, #purse)
             else
-              if me = "int_help_image" then
+              if tSprID = "int_help_image" then
                 executeMessage(#openGeneralDialog, #help)
               end if
             end if
@@ -436,13 +422,11 @@ on eventProcRoomBar(me, tEvent, tSprID, tParam)
       end if
     end if
   end if
-  exit
 end
 
-on flipImage(me, tImg_a)
+on flipImage me, tImg_a 
   tImg_b = image(tImg_a.width, tImg_a.height, tImg_a.depth)
   tQuad = [point(tImg_a.width, 0), point(0, 0), point(0, tImg_a.height), point(tImg_a.width, tImg_a.height)]
   tImg_b.copyPixels(tImg_a, tQuad, tImg_a.rect)
   return(tImg_b)
-  exit
 end

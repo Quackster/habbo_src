@@ -1,16 +1,16 @@
-on construct(me)
-  pContent = []
+property pContent, pLocX, pLocY, pType, x, y, z, pTileWidth, pGameSystem
+
+on construct me 
+  pContent = [:]
   return(1)
-  exit
 end
 
-on deconstruct(me)
+on deconstruct me 
   pContent = void()
   return(1)
-  exit
 end
 
-on define(me, tLocX, tLocY, tWorldX, tWorldY, tWidth, ttype, tFramework)
+on define me, tLocX, tLocY, tWorldX, tWorldY, tWidth, ttype, tFramework 
   pLocX = tLocX
   pLocY = tLocY
   x = tWorldX
@@ -18,51 +18,48 @@ on define(me, tLocX, tLocY, tWorldX, tWorldY, tWidth, ttype, tFramework)
   z = 0
   pTileWidth = tWidth
   pType = ttype
-  pContent = []
+  pContent = [:]
   pGameSystem = tFramework
   return(1)
-  exit
 end
 
-on addContent(me, tItemID, tItemProps)
+on addContent me, tItemID, tItemProps 
   pContent.addProp(tItemID, tItemProps)
   return(1)
-  exit
 end
 
-on removeContent(me, tItemID)
+on removeContent me, tItemID 
   pContent.deleteProp(tItemID)
   return(1)
-  exit
 end
 
-on getTileNeighborInDirection(me, tdir)
+on getTileNeighborInDirection me, tdir 
   tGameSystem = me.getGameSystem()
   if tGameSystem = 0 then
     return(0)
   end if
-  if me = 0 then
+  if tdir = 0 then
     return(tGameSystem.getTile(pLocX, pLocY - 1))
   else
-    if me = 1 then
+    if tdir = 1 then
       return(tGameSystem.getTile(pLocX + 1, pLocY - 1))
     else
-      if me = 2 then
+      if tdir = 2 then
         return(tGameSystem.getTile(pLocX + 1, pLocY))
       else
-        if me = 3 then
+        if tdir = 3 then
           return(tGameSystem.getTile(pLocX + 1, pLocY + 1))
         else
-          if me = 4 then
+          if tdir = 4 then
             return(tGameSystem.getTile(pLocX, pLocY + 1))
           else
-            if me = 5 then
+            if tdir = 5 then
               return(tGameSystem.getTile(pLocX - 1, pLocY + 1))
             else
-              if me = 6 then
+              if tdir = 6 then
                 return(tGameSystem.getTile(pLocX - 1, pLocY))
               else
-                if me = 7 then
+                if tdir = 7 then
                   return(tGameSystem.getTile(pLocX - 1, pLocY - 1))
                 else
                   return(error(me, "Invalid direction for tile:" && tdir, #getTileNeighborInDirection))
@@ -74,65 +71,53 @@ on getTileNeighborInDirection(me, tdir)
       end if
     end if
   end if
-  exit
 end
 
-on getX(me)
+on getX me 
   return(pLocX)
-  exit
 end
 
-on getY(me)
+on getY me 
   return(pLocY)
-  exit
 end
 
-on getType(me)
+on getType me 
   return(pType)
-  exit
 end
 
-on getWorldX(me)
+on getWorldX me 
   return(x)
-  exit
 end
 
-on getWorldY(me)
+on getWorldY me 
   return(y)
-  exit
 end
 
-on getWorldZ(me)
+on getWorldZ me 
   return(z)
-  exit
 end
 
-on getWorldCoordinate(me)
+on getWorldCoordinate me 
   return([#x:x, #y:y, #z:z])
-  exit
 end
 
-on getLocation(me)
+on getLocation me 
   return([#x:pLocX, #y:pLocY])
-  exit
 end
 
-on getDiameter(me)
+on getDiameter me 
   return(pTileWidth * 100)
-  exit
 end
 
-on locationIsInTileRange(me, tLocX, tLocY)
+on locationIsInTileRange me, tLocX, tLocY 
   return(abs(pLocX - tLocX) <= 1 and abs(pLocY - tLocY) <= 1)
-  exit
 end
 
-on worldLocationIsInTileRange(me, tLocX, tLocY)
+on worldLocationIsInTileRange me, tLocX, tLocY 
   return(abs(x - tLocX) < pTileWidth * 100 and abs(y - tLocY) < pTileWidth * 100)
-  exit
 end
 
-on isInDistance(me, tLocX, tLocY, tDistance)
+on isInDistance me, tLocX, tLocY, tDistance 
   tDistanceX = abs(tLocX - x)
   tDistanceY = abs(tLocY - y)
   if tDistanceY > tDistance or tDistanceX > tDistance then
@@ -142,51 +127,43 @@ on isInDistance(me, tLocX, tLocY, tDistance)
     return(1)
   end if
   return(0)
-  exit
 end
 
-on isBlockingLineOfSight(me)
+on isBlockingLineOfSight me 
   put("* DEFAULT isBlockingLineOfSight, override!")
   return(0)
-  exit
 end
 
-on isAvailable(me)
+on isAvailable me 
   return(not me.isOccupied() and me.isFloorTile())
-  exit
 end
 
-on isOccupied(me)
+on isOccupied me 
   return(pContent.count > 0)
-  exit
 end
 
-on getOccupiedHeight(me)
+on getOccupiedHeight me 
   if pContent.count = 0 then
     return(0)
   end if
   tMaxHeight = 0
-  repeat while me <= undefined
+  repeat while pContent <= undefined
     tItem = getAt(undefined, undefined)
     if tItem.getaProp(#height) > tMaxHeight then
       tMaxHeight = tItem.getaProp(#height)
     end if
   end repeat
   return(tMaxHeight)
-  exit
 end
 
-on isFloorTile(me)
+on isFloorTile me 
   return(integerp(integer(pType)))
-  exit
 end
 
-on dump(me)
+on dump me 
   return("Tile:" && pLocX & "," & pLocY & ":" && me.isAvailable() && me.getOccupiedHeight())
-  exit
 end
 
-on getGameSystem(me)
+on getGameSystem me 
   return(pGameSystem)
-  exit
 end

@@ -1,4 +1,6 @@
-on construct(me)
+property pCurtainsLocZ, pSplashs, pTimer
+
+on construct me 
   pTimer = 0
   createObject("dew_clouds", "Mountain Clouds Class")
   createObject("dew_camera", "FUSE screen Class")
@@ -7,10 +9,9 @@ on construct(me)
   receivePrepare(me.getID())
   me.prepareRoom()
   return(1)
-  exit
 end
 
-on deconstruct(me)
+on deconstruct me 
   removePrepare(me.getID())
   removeObject("dew_clouds")
   removeObject("dew_camera")
@@ -18,11 +19,10 @@ on deconstruct(me)
   closeThread(#mountain)
   closeThread(#paalu)
   return(1)
-  exit
 end
 
-on prepareRoom(me)
-  pCurtainsLocZ = []
+on prepareRoom me 
+  pCurtainsLocZ = [:]
   f = 1
   repeat while f <= 2
     tsprite = getThread(#room).getInterface().getRoomVisualizer().getSprById("curtains" & f)
@@ -30,8 +30,8 @@ on prepareRoom(me)
     tsprite.locZ = tsprite.locZ - 2000
     f = 1 + f
   end repeat
-  tProps = []
-  pSplashs = []
+  tProps = [:]
+  pSplashs = [:]
   pSplashs.addProp("Splash0", createObject(#temp, "AnimSprite Class"))
   tProps.setAt(#visible, 0)
   tProps.setAt(#AnimFrames, 10)
@@ -41,10 +41,9 @@ on prepareRoom(me)
   pSplashs.getAt("Splash0").setData(tProps)
   createObject(#waterripples, "Water Ripple Effects Class")
   getObject(#waterripples).Init("vesi1")
-  exit
 end
 
-on showprogram(me, tMsg)
+on showprogram me, tMsg 
   if not voidp(tMsg) then
     tDest = tMsg.getAt(#show_dest)
     tCommand = tMsg.getAt(#show_command)
@@ -63,15 +62,14 @@ on showprogram(me, tMsg)
       end if
     end if
   end if
-  exit
 end
 
-on curtains(me, tID, tCommand)
-  if me = "open" then
+on curtains me, tID, tCommand 
+  if tCommand = "open" then
     tmember = member(getmemnum("dew_verho_auki"))
     tlocz = pCurtainsLocZ.getAt(tID) - 2000
   else
-    if me = "close" then
+    if tCommand = "close" then
       tmember = member(getmemnum("dew_verho_kiinni"))
       tlocz = pCurtainsLocZ.getAt(tID) - 1000
     end if
@@ -83,17 +81,15 @@ on curtains(me, tID, tCommand)
   tRoomVis.getSprById(tID).setMember(tmember)
   tRoomVis.getSprById(tID).locZ = tlocz
   return(1)
-  exit
 end
 
-on splash(me, tDest, tCommand)
+on splash me, tDest, tCommand 
   if not voidp(pSplashs.getAt(tDest)) then
     call(#Activate, pSplashs.getAt(tDest))
   end if
-  exit
 end
 
-on prepare(me)
+on prepare me 
   pTimer = not pTimer
   tRoomVis = getThread(#room).getInterface().getRoomVisualizer()
   if pTimer then
@@ -106,5 +102,4 @@ on prepare(me)
   if pSplashs.count > 0 then
     call(#updateSplashs, pSplashs)
   end if
-  exit
 end

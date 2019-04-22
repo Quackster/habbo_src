@@ -1,4 +1,6 @@
-on construct(me)
+property pDecoder, pToolTipSpr, pToolTipMem, pSavedHook, pCatchFlag, pToolTipAct, pToolTipDel, pToolTipID, pLastCursor, pCurrCursor, pUniqueSeed
+
+on construct me 
   pCatchFlag = 0
   pSavedHook = 0
   pToolTipAct = getIntVariable("tooltip.active", 0)
@@ -10,10 +12,9 @@ on construct(me)
   pDecoder = createObject(#temp, getClassVariable("connection.decoder.class"))
   pDecoder.setKey("sulake1Unique2Key3Generator")
   return(1)
-  exit
 end
 
-on deconstruct(me)
+on deconstruct me 
   if not voidp(pToolTipSpr) then
     releaseSprite(pToolTipSpr.spriteNum)
   end if
@@ -22,25 +23,22 @@ on deconstruct(me)
   end if
   pDecoder = void()
   return(1)
-  exit
 end
 
-on try(me)
+on try me 
   pCatchFlag = 0
   pSavedHook = the alertHook
   the alertHook = me
   return(1)
-  exit
 end
 
-on catch(me)
+on catch me 
   the alertHook = pSavedHook
   return(pCatchFlag)
   return(0)
-  exit
 end
 
-on createToolTip(me, tText)
+on createToolTip me, tText 
   if pToolTipAct then
     if voidp(pToolTipMem) then
       me.prepareToolTip()
@@ -57,10 +55,9 @@ on createToolTip(me, tText)
     pToolTipID = the milliSeconds
     return(me.delay(pToolTipDel, #renderToolTip, pToolTipID))
   end if
-  exit
 end
 
-on removeToolTip(me, tNextID)
+on removeToolTip me, tNextID 
   if pToolTipAct then
     if voidp(tNextID) or pToolTipID = tNextID then
       pToolTipID = void()
@@ -68,10 +65,9 @@ on removeToolTip(me, tNextID)
       return(1)
     end if
   end if
-  exit
 end
 
-on renderToolTip(me, tNextID)
+on renderToolTip me, tNextID 
   if pToolTipAct then
     if tNextID <> pToolTipID or voidp(pToolTipID) then
       return(0)
@@ -80,29 +76,28 @@ on renderToolTip(me, tNextID)
     pToolTipSpr.visible = 1
     me.delay(pToolTipDel * 2, #removeToolTip, pToolTipID)
   end if
-  exit
 end
 
-on setcursor(me, ttype)
-  if me = void() then
+on setcursor me, ttype 
+  if ttype = void() then
     ttype = 0
   else
-    if me = #arrow then
+    if ttype = #arrow then
       ttype = 0
     else
-      if me = #ibeam then
+      if ttype = #ibeam then
         ttype = 1
       else
-        if me = #crosshair then
+        if ttype = #crosshair then
           ttype = 2
         else
-          if me = #crossbar then
+          if ttype = #crossbar then
             ttype = 3
           else
-            if me = #timer then
+            if ttype = #timer then
               ttype = 4
             else
-              if me = #previous then
+              if ttype = #previous then
                 ttype = pLastCursor
               end if
             end if
@@ -115,10 +110,9 @@ on setcursor(me, ttype)
   pLastCursor = pCurrCursor
   pCurrCursor = ttype
   return(1)
-  exit
 end
 
-on openNetPage(me, tURL_key, tTarget)
+on openNetPage me, tURL_key, tTarget 
   if not stringp(tURL_key) then
     return(0)
   end if
@@ -151,10 +145,9 @@ on openNetPage(me, tURL_key, tTarget)
   gotoNetPage(tURL, tResolvedTarget)
   put("Open page:" && tURL && "target:" && tResolvedTarget)
   return(1)
-  exit
 end
 
-on showLoadingBar(me, tLoadID, tProps)
+on showLoadingBar me, tLoadID, tProps 
   tObj = createObject(#random, getClassVariable("loading.bar.class"))
   if tObj = 0 then
     return(error(me, "Couldn't create loading bar instance!", #showLoadingBar, #major))
@@ -164,16 +157,14 @@ on showLoadingBar(me, tLoadID, tProps)
     return(error(me, "Couldn't initialize loading bar instance!", #showLoadingBar, #major))
   end if
   return(tObj.getID())
-  exit
 end
 
-on getUniqueID(me)
+on getUniqueID me 
   pUniqueSeed = pUniqueSeed + 1
   return("uid:" & pUniqueSeed & ":" & the milliSeconds)
-  exit
 end
 
-on getMachineID(me)
+on getMachineID me 
   tMachineID = string(getPref(getVariable("pref.value.id")))
   tMachineID = replaceChunks(tMachineID, numToChar(10), "")
   tMachineID = replaceChunks(tMachineID, numToChar(13), "")
@@ -185,19 +176,17 @@ on getMachineID(me)
     setPref(getVariable("pref.value.id"), "#" & tMachineID)
   end if
   return(tMachineID)
-  exit
 end
 
-on getMoviePath(me)
+on getMoviePath me 
   tVariableID = "system.v1"
   if not variableExists(tVariableID) then
     setVariable(tVariableID, obfuscate(the moviePath))
   end if
   return(deobfuscate(getVariable(tVariableID)))
-  exit
 end
 
-on getDomainPart(me, tPath)
+on getDomainPart me, tPath 
   if voidp(tPath) then
     return("")
   end if
@@ -221,10 +210,9 @@ on getDomainPart(me, tPath)
   tPath = tPath.getProp(#item, 1)
   the itemDelimiter = tDelim
   return(tPath)
-  exit
 end
 
-on getPredefinedURL(me, tURL)
+on getPredefinedURL me, tURL 
   if tURL contains "http://%predefined%/" then
     if variableExists("url.prefix") then
       tReplace = "http://%predefined%"
@@ -238,19 +226,17 @@ on getPredefinedURL(me, tURL)
     end if
   end if
   return(tURL)
-  exit
 end
 
-on getExtVarPath(me)
+on getExtVarPath me 
   tVariableID = "system.v2"
   if not variableExists(tVariableID) then
     return(getVariableManager().GET("external.variables.txt"))
   end if
   return(deobfuscate(getVariable(tVariableID)))
-  exit
 end
 
-on sendProcessTracking(me, tStepValue)
+on sendProcessTracking me, tStepValue 
   if not variableExists("processlog.enabled") then
     return(0)
   end if
@@ -259,10 +245,9 @@ on sendProcessTracking(me, tStepValue)
   end if
   tJsHandler = script("javascriptLog").newJavaScriptLog()
   tJsHandler.call(tStepValue)
-  exit
 end
 
-on secretDecode(me, tKey)
+on secretDecode me, tKey 
   tLength = tKey.length
   if tLength mod 2 = 1 then
     tLength = tLength - 1
@@ -288,10 +273,9 @@ on secretDecode(me, tKey)
     i = 1 + i
   end repeat
   return(tCheckSum)
-  exit
 end
 
-on readValueFromField(me, tField, tDelimiter, tSearchedKey)
+on readValueFromField me, tField, tDelimiter, tSearchedKey 
   tStr = field(0)
   tDelim = the itemDelimiter
   if voidp(tDelimiter) then
@@ -331,10 +315,9 @@ on readValueFromField(me, tField, tDelimiter, tSearchedKey)
   end repeat
   the itemDelimiter = tDelim
   return(0)
-  exit
 end
 
-on addRandomParamToURL(me, tURL)
+on addRandomParamToURL me, tURL 
   tRandomParamName = "randp"
   tSeparator = "?"
   if tURL contains "?" then
@@ -342,35 +325,31 @@ on addRandomParamToURL(me, tURL)
   end if
   tURL = tURL & tSeparator & tRandomParamName & random(999) & "=1"
   return(tURL)
-  exit
 end
 
-on print(me, tObj, tMsg)
+on print me, tObj, tMsg 
   tObj = string(tObj)
   tObj = tObj.getProp(#word, 2, tObj.count(#word) - 2)
   tObj = tObj.getProp(#char, 2, length(tObj))
   put("Print:" & "\r" & "\t" && "Object: " && tObj & "\r" & "\t" && "Message:" && tMsg)
-  exit
 end
 
-on generateMachineId(me, tMaxLength)
+on generateMachineId me, tMaxLength 
   tMachineID = string(the milliSeconds) & string(the time) & string(the date)
   tLocaleDelimiters = [".", ",", ":", ";", "/", "\\", "am", "pm", " ", "-", "AM", "PM", numToChar(10), numToChar(13)]
-  repeat while me <= undefined
+  repeat while tLocaleDelimiters <= undefined
     tDelimiter = getAt(undefined, tMaxLength)
     tMachineID = replaceChunks(tMachineID, tDelimiter, "")
   end repeat
   tMachineID = chars(tMachineID, 1, tMaxLength)
   return(tMachineID)
-  exit
 end
 
-on setExtVarPath(me, tURL)
+on setExtVarPath me, tURL 
   return(setVariable("system.v2", obfuscate(tURL)))
-  exit
 end
 
-on prepareToolTip(me)
+on prepareToolTip me 
   if pToolTipAct then
     tFontStruct = getStructVariable("struct.font.tooltip")
     pToolTipMem = member(createMember("ToolTip Text", #field))
@@ -386,29 +365,27 @@ on prepareToolTip(me)
     pToolTipSpr = sprite(reserveSprite(me.getID()))
     pToolTipSpr.member = pToolTipMem
     pToolTipSpr.visible = 0
-    ERROR.locZ = 0
+    pToolTipSpr.locZ = 200000000
     pToolTipID = void()
     pToolTipDel = getIntVariable("tooltip.delay", 2000)
   end if
-  exit
 end
 
-on alertHook(me)
+on alertHook me 
   pCatchFlag = 1
   the alertHook = pSavedHook
   return(1)
-  exit
 end
 
-on getReceipt(me, tStamp)
+on getReceipt me, tStamp 
   tReceipt = []
   tCharNo = 1
   repeat while tCharNo <= tStamp.length
     tChar = chars(tStamp, tCharNo, tCharNo)
     tChar = charToNum(tChar)
+    tChar = tChar * tCharNo + 309203
     tReceipt.setAt(tCharNo, tChar)
     tCharNo = 1 + tCharNo
   end repeat
   return(tReceipt)
-  exit
 end

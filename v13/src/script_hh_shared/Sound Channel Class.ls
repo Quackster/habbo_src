@@ -1,4 +1,6 @@
-on define(me, tChannelNum)
+property pChannelNum, pVolume, pMuted, pReserved, pEndTime
+
+on define me, tChannelNum 
   pChannelNum = tChannelNum
   tChannel = sound(pChannelNum)
   if ilk(tChannel) <> #instance then
@@ -10,10 +12,9 @@ on define(me, tChannelNum)
   pVolume = 255
   pReserved = 0
   return(1)
-  exit
 end
 
-on setSoundState(me, tstate)
+on setSoundState me, tstate 
   if tstate then
     sound(pChannelNum).volume = pVolume
     pMuted = 0
@@ -21,20 +22,18 @@ on setSoundState(me, tstate)
     sound(pChannelNum).volume = 0
     pMuted = 1
   end if
-  exit
 end
 
-on reset(me)
+on reset me 
   pEndTime = 0
   tChannel = sound(pChannelNum)
   tChannel.setPlayList([])
   tChannel.stop()
   pReserved = 0
   return(1)
-  exit
 end
 
-on play(me, tSoundObj)
+on play me, tSoundObj 
   tmember = tSoundObj.getMember()
   if tmember = 0 then
     return(0)
@@ -60,10 +59,9 @@ on play(me, tSoundObj)
   end if
   tChannel.play([#member:tmember, #loopCount:tLoopCount])
   return(pChannelNum)
-  exit
 end
 
-on queue(me, tSoundObj)
+on queue me, tSoundObj 
   tmember = tSoundObj.getMember()
   if tmember = 0 then
     return(0)
@@ -73,16 +71,14 @@ on queue(me, tSoundObj)
   pVolume = tProps.getAt(#volume)
   sound(pChannelNum).queue(tProps)
   return(1)
-  exit
 end
 
-on startPlaying(me)
+on startPlaying me 
   sound(pChannelNum).play()
   return(1)
-  exit
 end
 
-on getTimeRemaining(me)
+on getTimeRemaining me 
   tChannel = sound(pChannelNum)
   if not tChannel.isBusy() and not pReserved then
     return(0)
@@ -95,28 +91,24 @@ on getTimeRemaining(me)
     tDurationLeft = 0
   end if
   if pReserved and tDurationLeft = 0 then
-    the undefined = ERROR.tPartCount
+    tDurationLeft = 100000
   end if
   return(tDurationLeft)
-  exit
 end
 
-on setReserved(me)
+on setReserved me 
   pReserved = 1
-  exit
 end
 
-on getIsReserved(me)
+on getIsReserved me 
   return(pReserved)
-  exit
 end
 
-on dump(me)
+on dump me 
   tChannel = sound(pChannelNum)
   tName = "<none>"
   if tChannel.isBusy() then
     tName = member.name
   end if
   put("* Channel" && pChannelNum & " - Playtime left:" && me.getTimeRemaining() && "Now playing:" && tName && "Queue:" && tChannel.getPlaylist().count)
-  exit
 end

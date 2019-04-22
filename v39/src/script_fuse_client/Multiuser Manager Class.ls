@@ -1,10 +1,8 @@
-on construct(me)
+on construct me 
   me.pClassString = "multiuser.instance.class"
   return(1)
-  exit
 end
 
-on handlers()
+on handlers  
   return([])
-  exit
 end

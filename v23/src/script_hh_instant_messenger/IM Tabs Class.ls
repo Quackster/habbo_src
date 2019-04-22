@@ -1,7 +1,9 @@
-on construct(me)
-  pTabData = []
-  pHeadImages = []
-  pRects = []
+property pMaxTabs, pTabWidth, pTabHeight, pTabPieces, pTabsImage, pTabData, pFirstShownTab, pRects, pHeadImages
+
+on construct me 
+  pTabData = [:]
+  pHeadImages = [:]
+  pRects = [:]
   pFirstShownTab = 1
   pMaxTabs = 7
   pTabWidth = 30
@@ -10,16 +12,14 @@ on construct(me)
   me.initTabPieces()
   me.renderTabs()
   return(1)
-  exit
 end
 
-on deconstruct(me)
+on deconstruct me 
   return(1)
-  exit
 end
 
-on initTabPieces(me)
-  pTabPieces = []
+on initTabPieces me 
+  pTabPieces = [:]
   pTabPieces.setaProp(#Active, undefined.duplicate())
   pTabPieces.setaProp(#inactive, undefined.duplicate())
   pTabPieces.setaProp(#highlighted, undefined.duplicate())
@@ -29,15 +29,13 @@ on initTabPieces(me)
   pTabPieces.setaProp(#leftArrowHighlighted, undefined.duplicate())
   pTabPieces.setaProp(#rightArrowHighlighted, undefined.duplicate())
   pTabPieces.setaProp(#tempHead, undefined.duplicate())
-  exit
 end
 
-on getImage(me)
+on getImage me 
   return(pTabsImage)
-  exit
 end
 
-on addTab(me, tTabID)
+on addTab me, tTabID 
   if pTabData.findPos(tTabID) > 0 then
     return(0)
   end if
@@ -45,14 +43,13 @@ on addTab(me, tTabID)
   pTabData.setaProp(tTabID, tTab)
   me.highlightTab(tTabID)
   me.renderTabs()
-  exit
 end
 
-on activateTab(me, tTabID)
+on activateTab me, tTabID 
   if voidp(pTabData.getaProp(tTabID)) then
     me.addTab(tTabID)
   end if
-  repeat while me <= undefined
+  repeat while pTabData <= undefined
     tTab = getAt(undefined, tTabID)
     if tTab.getAt(#state) = #Active then
       tTab.setAt(#state, #inactive)
@@ -62,10 +59,9 @@ on activateTab(me, tTabID)
   tTab.setAt(#state, #Active)
   me.renderTabs()
   return(1)
-  exit
 end
 
-on highlightTab(me, tTabID)
+on highlightTab me, tTabID 
   if voidp(pTabData.findPos(tTabID)) then
     me.addTab(tTabID)
   end if
@@ -75,16 +71,14 @@ on highlightTab(me, tTabID)
   end if
   tTab.setAt(#state, #highlighted)
   me.renderTabs()
-  exit
 end
 
-on showTab(me, tTabID)
+on showTab me, tTabID 
   tPos = pTabData.findPos(tTabID)
   me.setFirstShownTab(tPos)
-  exit
 end
 
-on setFirstShownTab(me, tTabNum)
+on setFirstShownTab me, tTabNum 
   pFirstShownTab = tTabNum
   if pFirstShownTab > pTabData.count - pMaxTabs then
     pFirstShownTab = pTabData.count - pMaxTabs + 1
@@ -93,41 +87,36 @@ on setFirstShownTab(me, tTabNum)
     pFirstShownTab = 1
   end if
   me.renderTabs()
-  exit
 end
 
-on removeTab(me, tTabID)
+on removeTab me, tTabID 
   tPos = pTabData.findPos(tTabID)
   if tPos = 0 then
     return(0)
   end if
   pTabData.deleteProp(tTabID)
   me.setFirstShownTab(pFirstShownTab - 1)
-  exit
 end
 
-on removeAllTabs(me)
-  pTabData = []
-  pHeadImages = []
-  pRects = []
+on removeAllTabs me 
+  pTabData = [:]
+  pHeadImages = [:]
+  pRects = [:]
   me.renderTabs()
-  exit
 end
 
-on scrollLeft(me)
+on scrollLeft me 
   me.setFirstShownTab(pFirstShownTab - pMaxTabs + 2)
-  exit
 end
 
-on scrollRight(me)
+on scrollRight me 
   me.setFirstShownTab(pFirstShownTab + pMaxTabs - 2)
-  exit
 end
 
-on renderTabs(me)
+on renderTabs me 
   tBgImage = pTabPieces.getaProp(#background)
   pTabsImage.copyPixels(tBgImage, pTabsImage.rect, tBgImage.rect)
-  pRects = []
+  pRects = [:]
   tTabPos = 1
   repeat while tTabPos <= pMaxTabs
     tTabNum = pFirstShownTab - 1 + tTabPos
@@ -165,10 +154,9 @@ on renderTabs(me)
     end if
   end repeat
   return(1)
-  exit
 end
 
-on getArrowImage(me, tdir)
+on getArrowImage me, tdir 
   tHighlightLeft = 0
   tHighlightRight = 0
   tLastShownTab = pFirstShownTab + pMaxTabs - 1
@@ -198,10 +186,9 @@ on getArrowImage(me, tdir)
     end if
   end if
   return(image(1, 1, 32))
-  exit
 end
 
-on getIdAt(me, tpoint)
+on getIdAt me, tpoint 
   if ilk(tpoint) <> #point then
     return(0)
   end if
@@ -214,23 +201,21 @@ on getIdAt(me, tpoint)
     tRectNum = 1 + tRectNum
   end repeat
   return(0)
-  exit
 end
 
-on getTabImage(me, tTabData)
+on getTabImage me, tTabData 
   tUserID = tTabData.getaProp(#id)
   tstate = tTabData.getaProp(#state)
   tTabImage = pTabPieces.getaProp(tstate).duplicate()
   tHeadImage = me.getHeadImage(tUserID)
-  tMarginH = tTabImage.width - tHeadImage.width * 0
-  tMarginV = tTabImage.height - tHeadImage.height * 0
+  tMarginH = tTabImage.width - tHeadImage.width * 0.5
+  tMarginV = tTabImage.height - tHeadImage.height * 0.5
   tMargin = rect(tMarginH, tMarginV, tMarginH, tMarginV)
   tTabImage.copyPixels(tHeadImage, tHeadImage.rect + tMargin, tHeadImage.rect, [#ink:36])
   return(tTabImage)
-  exit
 end
 
-on getHeadImage(me, tUserID)
+on getHeadImage me, tUserID 
   tHeadImage = pHeadImages.getaProp(tUserID)
   if voidp(tHeadImage) then
     tFriend = getObject(#friend_list_component).getFriendByID(tUserID)
@@ -240,17 +225,15 @@ on getHeadImage(me, tUserID)
     pHeadImages.setaProp(tUserID, tHeadImage)
   end if
   return(tHeadImage)
-  exit
 end
 
-on updateHeadImage(me, tTabID, tFigure, tGender)
+on updateHeadImage me, tTabID, tFigure, tGender 
   tHeadImage = me.renderHeadImage(tFigure, tGender)
   pHeadImages.setaProp(tTabID, tHeadImage)
   me.renderTabs()
-  exit
 end
 
-on renderHeadImage(me, tFigure, tGender)
+on renderHeadImage me, tFigure, tGender 
   if voidp(tFigure) or tFigure = "" then
     return(pTabPieces.getaProp(#tempHead))
   end if
@@ -259,5 +242,4 @@ on renderHeadImage(me, tFigure, tGender)
   tParsedFigure = tFigureParser.parseFigure(tFigure, tGender, "user")
   tHeadImage = tPreviewObj.getHumanPartImg(#head, tParsedFigure, 2, "sh")
   return(tHeadImage)
-  exit
 end

@@ -1,4 +1,6 @@
-on define(me, tPart, tProps)
+property pDirection, pDefOffset, pimage, pBalOffList, pAnimFrm, pAction, pHitOffset, pCurOffset, pActOffset
+
+on define me, tPart, tProps 
   if tProps.getAt(#Dir) = 4 then
     pDirection = 3
     pDefOffset = rect(1, 0, 1, 0)
@@ -47,31 +49,27 @@ on define(me, tPart, tProps)
   pAction = ""
   pAnimFrm = 0
   return(1)
-  exit
 end
 
-on status(me, tAction, tBalance)
+on status me, tAction, tBalance 
   pAction = tAction
   pBalance = tBalance
   pCurOffset = pBalOffList.getAt(pBalance + 1)
   pAnimFrm = 0
-  exit
 end
 
-on prepare(me)
+on prepare me 
   pAnimFrm = pAnimFrm + 1
   pActOffset = [0, 0, 0, 0]
   if pAnimFrm = 1 then
-    if me <> "hit1" then
-      if me = "hit2" then
+    if pAction <> "hit1" then
+      if pAction = "hit2" then
         pActOffset = pHitOffset
       end if
-      exit
     end if
   end if
 end
 
-on render(me, tBuffer)
+on render me, tBuffer 
   tBuffer.copyPixels(pimage, pimage.rect + pCurOffset + pActOffset, pimage.rect, [#ink:36])
-  exit
 end

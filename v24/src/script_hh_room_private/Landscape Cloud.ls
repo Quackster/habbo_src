@@ -1,9 +1,11 @@
-on construct(me)
+property pTypeAdjusts, pType, pLoc, pTurnPoint, pImageLeft, pImageRight, pMinLocV, pInitMinV, pInitMaxV, pNeedsAdjustV, pMatteLeft, pMatteRight
+
+on construct me 
   pSkip = 0
-  pTypeAdjusts = []
-  pTypeAdjusts.setAt("0", [])
-  pTypeAdjusts.setAt("1", [])
-  pTypeAdjusts.setAt("2", [])
+  pTypeAdjusts = [:]
+  pTypeAdjusts.setAt("0", [:])
+  pTypeAdjusts.setAt("1", [:])
+  pTypeAdjusts.setAt("2", [:])
   pTypeAdjusts.getAt("0").setAt(#turnOffV, 10)
   pTypeAdjusts.getAt("1").setAt(#turnOffV, 12)
   pTypeAdjusts.getAt("2").setAt(#turnOffV, 6)
@@ -11,15 +13,13 @@ on construct(me)
   pTypeAdjusts.getAt("1").setAt(#adjustV, 11)
   pTypeAdjusts.getAt("2").setAt(#adjustV, 7)
   return(1)
-  exit
 end
 
-on deconstruct(me)
+on deconstruct me 
   return(1)
-  exit
 end
 
-on define(me, tProps)
+on define me, tProps 
   pType = string(tProps.getaProp(#type))
   pTurnPoint = tProps.getaProp(#turnpoint)
   pInitMinV = tProps.getaProp(#initminv)
@@ -35,16 +35,14 @@ on define(me, tProps)
   else
     pNeedsAdjustV = 0
   end if
-  exit
 end
 
-on getLocV(me, tLocH)
+on getLocV me, tLocH 
   tLocV = abs(tLocH - pTurnPoint / 2) + pMinLocV
   return(tLocV)
-  exit
 end
 
-on randomizeLoc(me, tAlignToLeft)
+on randomizeLoc me, tAlignToLeft 
   tMinV = pInitMinV
   tMaxV = pInitMaxV
   if ilk(pImageLeft) = #image then
@@ -66,10 +64,9 @@ on randomizeLoc(me, tAlignToLeft)
   pLoc = point(tLocX, tLocY)
   pMinLocV = pLoc.getAt(2) - abs(pTurnPoint - pLoc.getAt(1)) / 2
   pNeedsAdjustV = 1
-  exit
 end
 
-on updateAnim(me)
+on updateAnim me 
   pLoc.setAt(1, pLoc.getAt(1) + 1)
   pLoc.setAt(2, me.getLocV(pLoc.getAt(1)))
   if pNeedsAdjustV and pLoc.getAt(1) > pTurnPoint then
@@ -78,10 +75,9 @@ on updateAnim(me)
   if the stage > rect.width then
     me.randomizeLoc(1)
   end if
-  exit
 end
 
-on render(me, tImage)
+on render me, tImage 
   if pLoc.getAt(1) + pImageLeft.width < pTurnPoint then
     tSourceImage = pImageLeft
     tMatte = pMatteLeft
@@ -105,5 +101,4 @@ on render(me, tImage)
   end if
   tTargetRect = tSourceImage.rect + rect(pLoc.getAt(1), pLoc.getAt(2), pLoc.getAt(1), pLoc.getAt(2))
   tImage.copyPixels(tSourceImage, tTargetRect, tSourceImage.rect, [#maskImage:tMatte])
-  exit
 end

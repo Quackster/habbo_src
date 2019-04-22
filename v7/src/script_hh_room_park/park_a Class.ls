@@ -1,30 +1,29 @@
-on construct(me)
+property pAnimCounter, pAnimList, pCurrentFrm
+
+on construct me 
   pAnimCounter = 0
   pCurrentFrm = 1
   pAnimList = [1, 2, 3, 4, 5, 6, 7]
   initThread("hubu.index")
   return(receiveUpdate(me.getID()))
-  exit
 end
 
-on deconstruct(me)
+on deconstruct me 
   removeUpdate(me.getID())
   closeThread(#hubu)
   return(1)
-  exit
 end
 
-on prepare(me)
+on prepare me 
   tRoomVis = getThread(#room).getInterface().getRoomVisualizer()
-  repeat while me <= undefined
+  repeat while ["bus", "hubu_kiosk_1", "hubu_kiosk_2", "hubu_kiosk_3", "hubu_kiosk_4", "hubu_kiosk_5"] <= undefined
     tid = getAt(undefined, undefined)
     tSprite = tRoomVis.getSprById(tid)
     registerProcedure(tSprite, #parkAEventProc, me.getID(), #mouseDown)
   end repeat
-  exit
 end
 
-on showprogram(me, tMsg)
+on showprogram me, tMsg 
   if voidp(tMsg) then
     return(0)
   end if
@@ -34,14 +33,13 @@ on showprogram(me, tMsg)
   if tDst contains "bus" then
     me.busDoor(tDst, tCmd)
   end if
-  exit
 end
 
-on busDoor(me, tid, tCommand)
-  if me = "open" then
+on busDoor me, tid, tCommand 
+  if tCommand = "open" then
     tMem = member(getmemnum("park_bussioviopen"))
   else
-    if me = "close" then
+    if tCommand = "close" then
       tMem = member(getmemnum("park_bussi_ovi"))
     end if
   end if
@@ -50,10 +48,9 @@ on busDoor(me, tid, tCommand)
     return(0)
   end if
   tRoomVis.getSprById(tid).setMember(tMem)
-  exit
 end
 
-on parkAEventProc(me, tEvent, tSprID, tParm)
+on parkAEventProc me, tEvent, tSprID, tParm 
   tConnection = getThread(#room).getComponent().getRoomConnection()
   if tConnection = 0 then
     return(0)
@@ -62,19 +59,19 @@ on parkAEventProc(me, tEvent, tSprID, tParm)
     tConnection.send("TRYBUS")
   else
     if tSprID contains "hubu_kiosk" then
-      if me = "hubu_kiosk_1" then
+      if tSprID = "hubu_kiosk_1" then
         tKioskLoc = "12 20"
       else
-        if me = "hubu_kiosk_2" then
+        if tSprID = "hubu_kiosk_2" then
           tKioskLoc = "12 21"
         else
-          if me = "hubu_kiosk_3" then
+          if tSprID = "hubu_kiosk_3" then
             tKioskLoc = "12 22"
           else
-            if me = "hubu_kiosk_4" then
+            if tSprID = "hubu_kiosk_4" then
               tKioskLoc = "12 23"
             else
-              if me = "hubu_kiosk_5" then
+              if tSprID = "hubu_kiosk_5" then
                 tKioskLoc = "12 24"
               end if
             end if
@@ -88,20 +85,18 @@ on parkAEventProc(me, tEvent, tSprID, tParm)
       tConnection.send("MOVE", tKioskLoc)
     end if
   end if
-  exit
 end
 
-on ChangeWindowView(me, tWindowTitle, tWindowName, tX, tY)
+on ChangeWindowView me, tWindowTitle, tWindowName, tX, tY 
   createWindow(tWindowTitle, tWindowName, void(), void(), #modal)
   tWndObj = getWindow(tWindowTitle)
   tWndObj.center()
   tWndObj.registerClient(me.getID())
   tWndObj.registerProcedure(#hubuEventProc, me.getID(), #mouseUp)
   tWndObj.registerProcedure(#hubuEventProc, me.getID(), #keyDown)
-  exit
 end
 
-on hubuEventProc(me, tEvent, tSprID, tParm)
+on hubuEventProc me, tEvent, tSprID, tParm 
   if tSprID contains "hubukiosk_navibutton" then
     tWindow = "hubu_kiosk_" & tSprID.getProp(#char, tSprID.count(#char)) & ".window"
     me.ChangeWindowView("hubukiosk", tWindow)
@@ -128,10 +123,9 @@ on hubuEventProc(me, tEvent, tSprID, tParm)
       end if
     end if
   end if
-  exit
 end
 
-on update(me)
+on update me 
   if pAnimCounter > 2 then
     tNextFrm = pAnimList.getAt(random(pAnimList.count))
     pAnimList.deleteOne(tNextFrm)
@@ -146,5 +140,4 @@ on update(me)
     pAnimCounter = 0
   end if
   pAnimCounter = pAnimCounter + 1
-  exit
 end

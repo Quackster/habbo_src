@@ -1,12 +1,13 @@
-on construct(me)
+property pJumpButtonsWnd, pTicketCountWnd, pNumOfPhTickets
+
+on construct me 
   pNumOfPhTickets = 0
   pJumpButtonsWnd = "pool_helpbuttons"
   pTicketCountWnd = "pool_ticketcount"
   return(1)
-  exit
 end
 
-on deconstruct(me)
+on deconstruct me 
   if objectExists(#jumpingpelle_obj) then
     removeObject(#jumpingpelle_obj)
   end if
@@ -27,45 +28,38 @@ on deconstruct(me)
   end if
   pJumpinPelleObj = void()
   return(1)
-  exit
 end
 
-on openUimakoppi(me)
+on openUimakoppi me 
   me.getInterface().openUimakoppi()
-  exit
 end
 
-on closeUimaKoppi(me)
+on closeUimaKoppi me 
   me.getInterface().closeUimaKoppi()
-  exit
 end
 
-on setNumOfPhTickets(me, tMsg)
+on setNumOfPhTickets me, tMsg 
   pNumOfPhTickets = tMsg
   return(1)
-  exit
 end
 
-on getNumOfPhTickets(me)
+on getNumOfPhTickets me 
   return(pNumOfPhTickets)
-  exit
 end
 
-on poolUpView(me, tMode)
+on poolUpView me, tMode 
   if not visualizerExists(#pooltower) then
     createVisualizer(#pooltower, "pool_tower.room")
-    -- UNK_C0 4326055
-    exit
+    getVisualizer(#pooltower).moveZ(19000000)
   end if
   if not objectExists(#poolclouds) then
     createObject(#poolclouds, "poolClouds Class")
   end if
   executeMessage(#hide_messenger)
   executeMessage(#hide_navigator)
-  exit
 end
 
-on poolDownView(me)
+on poolDownView me 
   if windowExists(pJumpButtonsWnd) then
     removeWindow(pJumpButtonsWnd)
   end if
@@ -78,10 +72,9 @@ on poolDownView(me)
   if visualizerExists(#pooltower) then
     removeVisualizer(#pooltower)
   end if
-  exit
 end
 
-on jumpingPlaceOk(me)
+on jumpingPlaceOk me 
   executeMessage(#roomStatistic, "jumpplace")
   me.getInterface().deactivateChatField()
   getConnection(getVariable("connection.room.id")).send(#room, "JUMPSTART")
@@ -89,8 +82,7 @@ on jumpingPlaceOk(me)
   createWindow(pJumpButtonsWnd, "ph_instructions.window", 20, 20)
   tWndObj = getWindow(pJumpButtonsWnd)
   tWndObj.registerClient(me.getID())
-  -- UNK_E8 4326055
-  exit
+  tWndObj.moveZ(19000040)
   tWndObj.lock()
   tUserName = getObject(#session).get("user_name")
   tUserObj = getThread(#room).getComponent().getUserObject(tUserName)
@@ -98,10 +90,9 @@ on jumpingPlaceOk(me)
   createObject(#jumpingpelle_obj, "Jumping Pelle Class", "Pelle KeyDown Class")
   getObject(#jumpingpelle_obj).Init(tUserName, tFigure, 0)
   return(1)
-  exit
 end
 
-on jumpPlayPack(me, tMsg)
+on jumpPlayPack me, tMsg 
   if objectExists(#jumpingpelle_obj) then
     removeObject(#jumpingpelle_obj)
   end if
@@ -118,15 +109,13 @@ on jumpPlayPack(me, tMsg)
   if objectExists(#pool_fuse_screen) then
     getObject(#pool_fuse_screen).fuseShow_showtext(tMsg.getAt("name"))
   end if
-  exit
 end
 
-on sendSign(me, tSign)
+on sendSign me, tSign 
   getConnection(getVariable("connection.room.id")).send(#room, "Sign " & tSign)
-  exit
 end
 
-on buyPoolTickets(me, tName)
+on buyPoolTickets me, tName 
   if not connectionExists(getVariable("connection.info.id")) then
     return(error(me, "Connection not found:" && getVariable("connection.info.id"), #buyPoolTickets))
   end if
@@ -137,10 +126,9 @@ on buyPoolTickets(me, tName)
     tName = getObject(#session).get("user_name")
   end if
   getConnection(getVariable("connection.info.id")).send(#info, "BTCKS /" & tName)
-  exit
 end
 
-on sendJumpPerf(me, tJumpData)
+on sendJumpPerf me, tJumpData 
   tUserObj = getThread(#room).getComponent().getUserObject(getObject(#session).get("user_name"))
   tName = getObject(#session).get("user_name")
   tFigure = getObject(#session).get("user_figure").duplicate()
@@ -154,5 +142,4 @@ on sendJumpPerf(me, tJumpData)
   tPHFigure = "ch=" & tPHFigure.getAt("model") & "/" & tColor
   tJump = tName & "\r" & tFigure & "\r" & tPHFigure & "\r" & tJumpData
   getConnection(getVariable("connection.room.id")).send(#room, "JUMPPERF" && tJump)
-  exit
 end

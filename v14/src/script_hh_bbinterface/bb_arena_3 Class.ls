@@ -1,29 +1,28 @@
-on construct(me)
+property pRoomGeometry, pFrameworkId, pLastGameClickCoordinate, pConnection
+
+on construct me 
   pFrameworkId = getVariable("bb.gamesystem.id")
   executeMessage(#gamesystem_getfacade, getVariable("bb.gamesystem.id"))
   registerMessage(#spectatorMode_off, me.getID(), #handleSpectatorModeOff)
   me.registerEventProc(1)
   return(1)
-  exit
 end
 
-on deconstruct(me)
+on deconstruct me 
   pConnection = void()
   me.registerEventProc(0)
   executeMessage(#gamesystem_removefacade, getVariable("bb.gamesystem.id"))
   return(1)
-  exit
 end
 
-on prepare(me)
+on prepare me 
   if getObject(#room_interface) <> 0 then
     getObject(#room_interface).hideInfoStand()
   end if
   return(1)
-  exit
 end
 
-on registerEventProc(me, tBoolean)
+on registerEventProc me, tBoolean 
   tRoomThread = getThread(#room)
   if tRoomThread = 0 then
     return(0)
@@ -50,10 +49,9 @@ on registerEventProc(me, tBoolean)
       call(#removeProcedure, tSprList, #mouseUp)
     end if
   end if
-  exit
 end
 
-on eventProcRoom(me, tEvent, tSprID, tParam)
+on eventProcRoom me, tEvent, tSprID, tParam 
   if tEvent = #mouseDown then
     if tSprID = "floor" then
       tloc = pRoomGeometry.getWorldCoordinate(the mouseH, the mouseV)
@@ -62,10 +60,9 @@ on eventProcRoom(me, tEvent, tSprID, tParam)
       end if
     end if
   end if
-  exit
 end
 
-on sendMoveGoal(me, tloc)
+on sendMoveGoal me, tloc 
   tFramework = getObject(pFrameworkId)
   if tFramework = 0 then
     return(0)
@@ -84,21 +81,18 @@ on sendMoveGoal(me, tloc)
   else
     return(tConnection.send("MOVE", [#short:tloc.getAt(1), #short:tloc.getAt(2)]))
   end if
-  exit
 end
 
-on handleSpectatorModeOff(me)
+on handleSpectatorModeOff me 
   if getObject(pFrameworkId) = 0 then
     return(0)
   end if
   getObject(pFrameworkId).enterLounge()
-  exit
 end
 
-on getRoomConnection(me)
+on getRoomConnection me 
   if pConnection = 0 then
     pConnection = getConnection(getVariable("connection.info.id"))
   end if
   return(pConnection)
-  exit
 end

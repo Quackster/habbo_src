@@ -1,4 +1,6 @@
-on construct(me)
+property pClass, pObjectType, pLayerProps, pLoczList, pDirection, pPartColors, pDimensions, pAnimFrame
+
+on construct me 
   pClass = ""
   pName = ""
   pCustom = ""
@@ -9,16 +11,14 @@ on construct(me)
   pLayerProps = []
   pObjectType = ""
   return(1)
-  exit
 end
 
-on deconstruct(me)
+on deconstruct me 
   pLayerProps = []
   return(1)
-  exit
 end
 
-on define(me, tdata)
+on define me, tdata 
   pClass = tdata.getAt(#class)
   pName = tdata.getAt(#name)
   pCustom = tdata.getAt(#custom)
@@ -28,13 +28,13 @@ on define(me, tdata)
   if pClass contains "*" then
     pClass = pClass.getProp(#char, 1, offset("*", pClass) - 1)
   end if
-  if me = "s" then
+  if pObjectType = "s" then
     me.solveColors(tdata.getAt(#colors))
     if me.solveStuffMembers() = 0 then
       return(0)
     end if
   else
-    if me = "i" then
+    if pObjectType = "i" then
       pPartColors = []
       if me.solveItemMembers() = 0 then
         return(0)
@@ -42,10 +42,9 @@ on define(me, tdata)
     end if
   end if
   return(1)
-  exit
 end
 
-on getPicture(me, tImg)
+on getPicture me, tImg 
   if pLayerProps.ilk <> #list then
     return(error(me, "Properties not found!!!", #getImage))
   end if
@@ -55,14 +54,14 @@ on getPicture(me, tImg)
   tCanvas = image(300, 300, 24)
   tCanvas.fill(tCanvas.rect, rgb(255, 255, 255))
   tFlipFlag = 0
-  if me = "i" then
+  if pObjectType = "i" then
     tProps = pLayerProps.getAt(1)
     tMemNum = tProps.getAt(#member)
     tImage = member(tMemNum).image
     tCanvas = tImage.duplicate()
   else
-    if me = "s" then
-      tTempLayerProps = []
+    if pObjectType = "s" then
+      tTempLayerProps = [:]
       tTempLayerProps.sort()
       f = 1
       repeat while f <= pLayerProps.count
@@ -99,10 +98,9 @@ on getPicture(me, tImg)
     tImg.copyPixels(tCanvas, tdestrect, tCanvas.rect, [#ink:36])
   end if
   return(tImg.trimWhiteSpace())
-  exit
 end
 
-on solveColors(me, tpartColors)
+on solveColors me, tpartColors 
   if voidp(tpartColors) then
     tpartColors = "0,0,0"
   end if
@@ -120,28 +118,25 @@ on solveColors(me, tpartColors)
     j = 1 + j
   end repeat
   the itemDelimiter = tDelim
-  exit
 end
 
-on solveInk(me, tPart)
+on solveInk me, tPart 
   tInkField = getmemnum(pClass & "_" & tPart & ".ink")
   if tInkField > 0 then
     return(integer(field(0)))
   end if
   return(8)
-  exit
 end
 
-on solveBlend(me, tPart)
+on solveBlend me, tPart 
   tBlendField = getmemnum(pClass & "_" & tPart & ".blend")
   if tBlendField > 0 then
     return(integer(field(0)))
   end if
   return(100)
-  exit
 end
 
-on solveStuffMembers(me)
+on solveStuffMembers me 
   tMemNum = 1
   i = charToNum("a")
   j = 1
@@ -201,7 +196,7 @@ on solveStuffMembers(me)
       else
         tFlipH = 0
       end if
-      tProps = []
+      tProps = [:]
       tProps.setAt(#member, tMemNum)
       tProps.setAt(#width, member(tMemNum).width)
       tProps.setAt(#height, member(tMemNum).height)
@@ -226,16 +221,15 @@ on solveStuffMembers(me)
   else
     return(error(me, "Couldn't define members:" && pClass, #solveStuffMembers))
   end if
-  exit
 end
 
-on solveItemMembers(me)
+on solveItemMembers me 
   tMemNum = 0
   pLayerProps = []
   tMemName = "rightwall" && pClass
   tMemNum = getmemnum(tMemName)
   if tMemNum <> 0 then
-    tProps = []
+    tProps = [:]
     tProps.setAt(#member, tMemNum)
     pLayerProps.append(tProps)
   end if
@@ -244,10 +238,9 @@ on solveItemMembers(me)
   else
     return(error(me, "Couldn't define members:" && pClass, #solveItemMembers))
   end if
-  exit
 end
 
-on solveLocZ(me, tPart, tdir)
+on solveLocZ me, tPart, tdir 
   if not memberExists(pClass & "_" & tPart & ".zshift") then
     return(charToNum(tPart))
   end if
@@ -255,5 +248,4 @@ on solveLocZ(me, tPart, tdir)
     tdir = 0
   end if
   return(getmemnum(pClass & "_" & tPart & ".zshift") + integer(field(0).getProp(#line, tdir + 1)))
-  exit
 end

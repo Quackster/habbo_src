@@ -1,4 +1,4 @@
-on construct(me)
+on construct me 
   pBounceAnimCount = 1
   pBallClass = ["Bodypart Class EX", "Bouncing Bodypart Class"]
   me.pDirChange = 1
@@ -7,28 +7,25 @@ on construct(me)
     return(0)
   end if
   return(me.construct())
-  exit
 end
 
-on deconstruct(me)
+on deconstruct me 
   if not objectp(me.ancestor) then
     return(1)
   end if
   return(me.deconstruct())
-  exit
 end
 
-on select(me)
+on select me 
   return(0)
-  exit
 end
 
-on prepare(me)
+on prepare me 
   tScreenLoc = me.duplicate()
   if me.pMoving then
     tFactor = float(the milliSeconds - me.pMoveStart) / me.pMoveTime
-    if tFactor > 0 then
-      tFactor = 0
+    if tFactor > 1 then
+      tFactor = 1
     end if
     me.pScreenLoc = me.pDestLScreen - me.pStartLScreen * tFactor + me.pStartLScreen
     me.adjustScreenLoc(1)
@@ -41,34 +38,31 @@ on prepare(me)
   if tScreenLoc <> me.pScreenLoc then
     me.pLocChange = 1
   end if
-  exit
 end
 
-on adjustScreenLoc(me, tBouncing)
+on adjustScreenLoc me, tBouncing 
   if tBouncing then
-    tBounceLocV = [0, -0, -0, -1.2, -0, -0, -0]
+    tBounceLocV = [0, -0.5, -1, -1.2, -1, -0.5, -0]
   else
-    tBounceLocV = [0, -0.3, -0.4, -0, -0.4, -0.1]
+    tBounceLocV = [0, -0.3, -0.4, -0.5, -0.4, -0.1]
   end if
   me.pBounceAnimCount = me.pBounceAnimCount + 1
   if me.pBounceAnimCount > tBounceLocV.count then
     me.pBounceAnimCount = 1
   end if
   me.setProp(#pScreenLoc, 2, me.getProp(#pScreenLoc, 2) + 10 * tBounceLocV.getAt(me.pBounceAnimCount))
-  exit
 end
 
-on update(me)
+on update me 
   me.pSync = not me.pSync
   if me.pSync then
     me.prepare()
   else
     me.render()
   end if
-  exit
 end
 
-on render(me)
+on render me 
   if not me.pChanges then
     return(1)
   end if
@@ -117,10 +111,9 @@ on render(me)
   call(#update, me.pPartList)
   image.copyPixels(me.pBuffer, me.pUpdateRect, me.pUpdateRect)
   return(1)
-  exit
 end
 
-on setHumanSpriteLoc(me)
+on setHumanSpriteLoc me 
   tOffZ = 2
   me.locH = me.getProp(#pScreenLoc, 1)
   me.locV = me.getProp(#pScreenLoc, 2)
@@ -130,10 +123,9 @@ on setHumanSpriteLoc(me)
   me.loc = me.loc + [me.pShadowFix, 0]
   me.locZ = me.locZ - 3
   return(1)
-  exit
 end
 
-on setBallColor(me, tColor)
+on setBallColor me, tColor 
   tBallPart = me.getProp(#pPartList, me.getProp(#pPartIndex, "bl"))
   if tBallPart <> void() then
     tBallPart.setColor(tColor)
@@ -143,10 +135,9 @@ on setBallColor(me, tColor)
   me.pDirChange = 1
   me.render()
   return(1)
-  exit
 end
 
-on setPartLists(me, tmodels)
+on setPartLists me, tmodels 
   me.pMainAction = "sit"
   me.pPartList = []
   tPartDefinition = getVariableValue("bouncing.human.parts.sh")
@@ -154,7 +145,7 @@ on setPartLists(me, tmodels)
   repeat while i <= tPartDefinition.count
     tPartSymbol = tPartDefinition.getAt(i)
     if voidp(tmodels.getAt(tPartSymbol)) then
-      tmodels.setAt(tPartSymbol, [])
+      tmodels.setAt(tPartSymbol, [:])
     end if
     if voidp(tmodels.getAt(tPartSymbol).getAt("model")) then
       tmodels.getAt(tPartSymbol).setAt("model", "001")
@@ -191,7 +182,7 @@ on setPartLists(me, tmodels)
     me.setaProp(tPartSymbol, tColor)
     i = 1 + i
   end repeat
-  me.pPartIndex = []
+  me.pPartIndex = [:]
   i = 1
   repeat while i <= me.count(#pPartList)
     me.setProp(#pPartIndex, me.getPropRef(#pPartList, i).pPart, i)
@@ -201,10 +192,9 @@ on setPartLists(me, tmodels)
   call(#defineActMultiple, me.pPartList, "sit", ["bd", "lg", "sh"])
   call(#defineActMultiple, me.pPartList, "crr", ["lh", "rh", "ls", "rs"])
   return(1)
-  exit
 end
 
-on getPicture(me, tImg)
+on getPicture me, tImg 
   if voidp(tImg) then
     tCanvas = image(32, 62, 32)
   else
@@ -212,7 +202,7 @@ on getPicture(me, tImg)
   end if
   tPartDefinition = getVariableValue("human.parts.sh")
   tTempPartList = []
-  repeat while me <= undefined
+  repeat while tPartDefinition <= undefined
     tPartSymbol = getAt(undefined, tImg)
     if not voidp(me.getProp(#pPartIndex, tPartSymbol)) then
       tTempPartList.append(me.getProp(#pPartList, me.getProp(#pPartIndex, tPartSymbol)))
@@ -220,18 +210,16 @@ on getPicture(me, tImg)
   end repeat
   call(#copyPicture, tTempPartList, tCanvas, "2", "sh")
   return(tCanvas)
-  exit
 end
 
-on Refresh(me, tX, tY, tH)
+on Refresh me, tX, tY, tH 
   call(#defineDir, me.pPartList, me.pDirection)
   call(#defineDirMultiple, me.pPartList, me.pDirection, ["hd", "hr", "ey", "fc"])
   me.arrangeParts()
   return(1)
-  exit
 end
 
-on resetValues(me, tX, tY, tH, tDirHead, tDirBody)
+on resetValues me, tX, tY, tH, tDirHead, tDirBody 
   tDirHead = tDirBody
   me.pMoving = 0
   me.pDancing = 0
@@ -256,10 +244,9 @@ on resetValues(me, tX, tY, tH, tDirHead, tDirBody)
   me.pHeadDir = tDirHead
   me.pChanges = 1
   return(1)
-  exit
 end
 
-on action_mv(me, tProps)
+on action_mv me, tProps 
   me.pMainAction = "sit"
   me.pMoving = 1
   tDelim = the itemDelimiter
@@ -275,5 +262,4 @@ on action_mv(me, tProps)
   me.pMoveStart = the milliSeconds
   call(#defineActMultiple, me.pPartList, "sit", ["bd", "lg", "sh"])
   call(#defineActMultiple, me.pPartList, "crr", ["lh", "rh", "ls", "rs"])
-  exit
 end

@@ -1,42 +1,39 @@
-on construct(me)
+property pConnectionId, pQueue
+
+on construct me 
   pConnectionId = getVariable("connection.mus.id", #mus)
-  pCallBacks = []
+  pCallBacks = [:]
   pQueue = []
   return(me.registerCmds(1))
-  exit
 end
 
-on deconstruct(me)
+on deconstruct me 
   me.registerCmds(0)
   return(removeMultiuser(pConnectionId))
-  exit
 end
 
-on retrieveData(me, tid, tAuth, tCallBackObj)
+on retrieveData me, tid, tAuth, tCallBackObj 
   pQueue.add([#type:#retrieve, #id:tid, #auth:tAuth, #callback:tCallBackObj])
   if count(pQueue) = 1 or not multiuserExists(pConnectionId) then
     me.next()
   end if
-  exit
 end
 
-on storeData(me, tdata, tCallBackObj)
+on storeData me, tdata, tCallBackObj 
   pQueue.add([#type:#store, #data:tdata, #callback:tCallBackObj])
   if count(pQueue) = 1 or not multiuserExists(pConnectionId) then
     me.next()
   end if
-  exit
 end
 
-on addMessageToQueue(me, tMsg)
+on addMessageToQueue me, tMsg 
   pQueue.add([#type:#fusemsg, #message:tMsg])
   if count(pQueue) = 1 or not multiuserExists(pConnectionId) then
     me.next()
   end if
-  exit
 end
 
-on checkConnection(me)
+on checkConnection me 
   if not multiuserExists(pConnectionId) then
     return(error(me, "MUS connection not found:" && pConnectionId, #checkConnection))
   end if
@@ -46,10 +43,9 @@ on checkConnection(me)
   else
     me.delay(1000, #checkConnection)
   end if
-  exit
 end
 
-on next(me)
+on next me 
   if not multiuserExists(pConnectionId) then
     createMultiuser(pConnectionId, getVariable("connection.mus.host"), getIntVariable("connection.mus.port"))
     getMultiuser(pConnectionId).registerBinaryDataHandler(me.getID(), #binaryDataReceived)
@@ -58,13 +54,13 @@ on next(me)
     if getMultiuser(pConnectionId).connectionReady() then
       if count(pQueue) > 0 then
         tTask = pQueue.getAt(1)
-        if me = #store then
+        if tTask.type = #store then
           return(getMultiuser(pConnectionId).sendBinary(tTask.data))
         else
-          if me = #retrieve then
+          if tTask.type = #retrieve then
             return(getMultiuser(pConnectionId).send("GETBINDATA" && tTask.id && tTask.auth))
           else
-            if me = #fusemsg then
+            if tTask.type = #fusemsg then
               pQueue.deleteAt(1)
               getMultiuser(pConnectionId).send(tTask.message)
               me.next()
@@ -75,10 +71,9 @@ on next(me)
       end if
     end if
   end if
-  exit
 end
 
-on binaryDataStored(me, tMsg)
+on binaryDataStored me, tMsg 
   tTask = pQueue.getAt(1)
   if tTask.getAt(#callback) <> void() then
     tObject = getObject(tTask.getAt(#callback))
@@ -88,16 +83,14 @@ on binaryDataStored(me, tMsg)
   end if
   pQueue.deleteAt(1)
   me.next()
-  exit
 end
 
-on binaryDataAuthKeyError(me)
+on binaryDataAuthKeyError me 
   pQueue.deleteAt(1)
   me.next()
-  exit
 end
 
-on binaryDataReceived(me, tdata)
+on binaryDataReceived me, tdata 
   tTask = pQueue.getAt(1)
   pQueue.deleteAt(1)
   if tTask.getAt(#callback) <> void() then
@@ -107,11 +100,10 @@ on binaryDataReceived(me, tdata)
     end if
   end if
   me.next()
-  exit
 end
 
-on registerCmds(me, tBool)
-  tList = []
+on registerCmds me, tBool 
+  tList = [:]
   tList.setAt("BINDATA_SAVED", #binaryDataStored)
   tList.setAt("BINDATA_AUTHKEYERROR", #binaryDataAuthKeyError)
   tList.setAt("DISCONNECT", #deconstruct)
@@ -122,9 +114,7 @@ on registerCmds(me, tBool)
   else
     return(getMultiuserManager().unregisterListener(pConnectionId, me.getID(), tList))
   end if
-  exit
 end
 
-on foo(me)
-  exit
+on foo me 
 end

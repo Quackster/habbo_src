@@ -1,27 +1,26 @@
-on construct(me)
+property pWindowID
+
+on construct me 
   pWindowID = #invitationWindowID
   registerMessage(#hideInvitation, me.getID(), #close)
   registerMessage(#enterRoom, me.getID(), #close)
   registerMessage(#leaveRoom, me.getID(), #close)
   registerMessage(#changeRoom, me.getID(), #close)
   return(1)
-  exit
 end
 
-on deconstruct(me)
+on deconstruct me 
   if windowExists(pWindowID) then
     removeWindow(pWindowID)
   end if
   return(1)
-  exit
 end
 
-on close(me)
+on close me 
   return(removeObject(me.getID()))
-  exit
 end
 
-on align(me, tWindowID, tElemID)
+on align me, tWindowID, tElemID 
   if not windowExists(tWindowID) then
     return(0)
   end if
@@ -56,10 +55,9 @@ on align(me, tWindowID, tElemID)
   end if
   tInvitationWindow.moveTo(tLocX, tLocY)
   return(1)
-  exit
 end
 
-on show(me, tdata, tWindowID, tElemID)
+on show me, tdata, tWindowID, tElemID 
   if tdata.ilk <> #propList then
     return(0)
   end if
@@ -83,25 +81,23 @@ on show(me, tdata, tWindowID, tElemID)
   tNo = getText("no")
   tWindow.getElement("invitation_button_deny_text").setText(tNo)
   tWindow.show()
-  exit
 end
 
-on eventProcInvitation(me, tEvent, tSprID)
-  if me <> "invitation_button_accept" then
-    if me = "invitation_button_accept_text" then
+on eventProcInvitation me, tEvent, tSprID 
+  if tSprID <> "invitation_button_accept" then
+    if tSprID = "invitation_button_accept_text" then
       executeMessage(#acceptInvitation)
       me.close()
     else
-      if me <> "invitation_button_deny" then
-        if me = "invitation_button_deny_text" then
+      if tSprID <> "invitation_button_deny" then
+        if tSprID = "invitation_button_deny_text" then
           executeMessage(#rejectInvitation)
           me.close()
         else
-          if me = "popup_button_close" then
+          if tSprID = "popup_button_close" then
             me.close()
           end if
         end if
-        exit
       end if
     end if
   end if

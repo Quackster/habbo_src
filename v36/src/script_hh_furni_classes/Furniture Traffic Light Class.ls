@@ -1,25 +1,23 @@
-on prepare(me, tdata)
+on prepare me, tdata 
   me.setState(tdata.getAt(#stuffdata))
   return(1)
-  exit
 end
 
-on updateStuffdata(me, tValue)
+on updateStuffdata me, tValue 
   me.setState(tValue)
-  exit
 end
 
-on setState(me, tValue)
+on setState me, tValue 
   tValue = integer(tValue)
   if me.count(#pSprList) < 3 then
     return(0)
   end if
   pState = tValue
-  if me = 0 then
+  if tValue = 0 then
     me.switchMember("c", "0")
     me.getPropRef(#pSprList, 3).visible = 1
   else
-    if me = 1 then
+    if tValue = 1 then
       me.switchMember("c", "1")
       me.getPropRef(#pSprList, 3).visible = 1
     else
@@ -27,10 +25,9 @@ on setState(me, tValue)
     end if
   end if
   return(1)
-  exit
 end
 
-on switchMember(me, tPart, tNewMem)
+on switchMember me, tPart, tNewMem 
   tSprNum = ["a", "b", "c", "d", "e", "f"].getPos(tPart)
   if me.count(#pSprList) < tSprNum or tSprNum = 0 then
     return(0)
@@ -44,10 +41,9 @@ on switchMember(me, tPart, tNewMem)
     me.getPropRef(#pSprList, tSprNum).height = tmember.height
   end if
   return(1)
-  exit
 end
 
-on select(me)
+on select me 
   if the doubleClick then
     tUserObj = getThread(#room).getComponent().getOwnUser()
     if not tUserObj then
@@ -59,5 +55,4 @@ on select(me)
     getThread(#room).getComponent().getRoomConnection().send("USEFURNITURE", [#integer:integer(me.getID()), #integer:0])
   end if
   return(1)
-  exit
 end

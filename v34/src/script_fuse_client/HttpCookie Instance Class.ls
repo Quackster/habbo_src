@@ -1,4 +1,6 @@
-on define(me, tMemName, tdata)
+property pDestination, pPort, pCookies, pMemName, pStatus, pServer, pType, pNetDone, pCallBack, pRedirectNetID, pRedirectUrl, pMUXtra, pMaxBytes, pUserAgent, pData, pHttpVersion, pNetError, pNetRequest, pCRLF, pNetResult, pRedirectType, pMemNum, pTarget
+
+on define me, tMemName, tdata 
   pStatus = #initializing
   pMemName = tMemName
   pMemNum = tdata.getAt(#memNum)
@@ -27,18 +29,17 @@ on define(me, tMemName, tdata)
   pUserAgent = "HTTP-CLASS/" & pVERSION
   pHttpVersion = "1.1"
   pMaxBytes = 16 * 1024
-  pData = []
+  pData = [:]
   pNetDone = 0
   if pCookies = void() then
-    pCookies = []
+    pCookies = [:]
   end if
   pRedirectNetID = void()
   return(me.sendRequest())
-  exit
 end
 
-on separateURL(me, tURL)
-  tUrlParts = []
+on separateURL me, tURL 
+  tUrlParts = [:]
   tURL = replaceChunks(tURL, "http://", "")
   tDestinationOffset = offset("/", tURL)
   tServerURL = chars(tURL, 1, tDestinationOffset - 1)
@@ -51,30 +52,28 @@ on separateURL(me, tURL)
     tPort = integer(chars(tServerURL, tPortOffset + 1, tServerURL.length))
   end if
   return([#server:tServer, #destination:tDestination, #port:tPort])
-  exit
 end
 
-on addCallBack(me, tMemName, tCallback)
+on addCallBack me, tMemName, tCallback 
   if tMemName = pMemName then
     pCallBack = tCallback
     return(1)
   else
     return(0)
   end if
-  exit
 end
 
-on getProperty(me, tProp)
-  if me = #status then
+on getProperty me, tProp 
+  if tProp = #status then
     return(pStatus)
   else
-    if me = #url then
+    if tProp = #url then
       return(pServer & pDestination)
     else
-      if me = #type then
+      if tProp = #type then
         return(pType)
       else
-        if me = #Percent then
+        if tProp = #Percent then
           if pNetDone then
             return(100)
           else
@@ -86,10 +85,9 @@ on getProperty(me, tProp)
       end if
     end if
   end if
-  exit
 end
 
-on update(me)
+on update me 
   if pNetDone then
     if pStatus = #error or pStatus = #LOADING then
       pStatus = #complete
@@ -108,10 +106,9 @@ on update(me)
     end if
   end if
   return(0)
-  exit
 end
 
-on sendRequest(me)
+on sendRequest me 
   pNetResult = void()
   pNetDone = 0
   pNetError = 0
@@ -129,10 +126,9 @@ on sendRequest(me)
     pNetDone = 1
     return(0)
   end if
-  exit
 end
 
-on getStoredCookies(me, tDomain)
+on getStoredCookies me, tDomain 
   if the traceScript then
     return(0)
   end if
@@ -154,22 +150,21 @@ on getStoredCookies(me, tDomain)
   tCookiePrefLoc = getVariable("httpcookie.pref.name")
   tAllCookies = getValueByType(getPref(tCookiePrefLoc), #propList)
   if ilk(tAllCookies) <> #propList then
-    tAllCookies = []
+    tAllCookies = [:]
   end if
   tThisDomainCookies = tAllCookies.getAt(tDomain)
   if ilk(tThisDomainCookies) <> #propList then
-    tThisDomainCookies = []
+    tThisDomainCookies = [:]
   end if
   tFlatCookieList = []
-  repeat while me <= undefined
+  repeat while tThisDomainCookies <= undefined
     tUniqueCookie = getAt(undefined, tDomain)
     tFlatCookieList.add(tUniqueCookie)
   end repeat
   return(tFlatCookieList)
-  exit
 end
 
-on setStoredCookies(me, tDomain, tNewCookies)
+on setStoredCookies me, tDomain, tNewCookies 
   if the traceScript then
     return(0)
   end if
@@ -191,23 +186,22 @@ on setStoredCookies(me, tDomain, tNewCookies)
   tCookiePrefLoc = getVariable("httpcookie.pref.name")
   tAllCookies = getValueByType(getPref(tCookiePrefLoc), #propList)
   if ilk(tAllCookies) <> #propList then
-    tAllCookies = []
+    tAllCookies = [:]
   end if
   tThisDomainCookies = tAllCookies.getAt(tDomain)
   if ilk(tThisDomainCookies) <> #propList then
-    tThisDomainCookies = []
+    tThisDomainCookies = [:]
   end if
-  repeat while me <= tNewCookies
+  repeat while tNewCookies <= tNewCookies
     tNewCookie = getAt(tNewCookies, tDomain)
     tNewCookieID = tNewCookie.getAt(1)
     tThisDomainCookies.setAt(tNewCookieID, tNewCookie)
   end repeat
   tAllCookies.setAt(tDomain, tThisDomainCookies)
   setPref(tCookiePrefLoc, tAllCookies & "")
-  exit
 end
 
-on createNetRequest(me)
+on createNetRequest me 
   tCmd = ""
   tHeaders = []
   tBody = ""
@@ -221,7 +215,7 @@ on createNetRequest(me)
   tHeaders.add("Accept-Charset: ISO-8859-1")
   pCookies = me.getStoredCookies(pServer)
   tCookieString = ""
-  repeat while me <= undefined
+  repeat while pCookies <= undefined
     tCookie = getAt(undefined, undefined)
     if pDestination starts tCookie.getAt("path") then
       if tCookieString <> "" then
@@ -237,10 +231,9 @@ on createNetRequest(me)
   tMethod = "GET"
   tCmd = tMethod && tDestination && "HTTP/" & pHttpVersion
   return(["cmd":tCmd, "headers":tHeaders, "body":tBody])
-  exit
 end
 
-on messageHandler(me)
+on messageHandler me 
   tMsg = pMUXtra.getNetMessage()
   pNetError = tMsg.errorCode
   tSenderId = tMsg.senderID
@@ -262,20 +255,18 @@ on messageHandler(me)
   else
     me.handleContentResponse(tMsg, tContent)
   end if
-  exit
 end
 
-on handleHelloResponse(me, tMsg)
+on handleHelloResponse me, tMsg 
   pNetRequest = me.createNetRequest()
   tHttpStr = pNetRequest.getAt("cmd") & pCRLF
-  repeat while me <= undefined
+  repeat while pNetRequest.getAt("headers") <= undefined
     tHeader = getAt(undefined, tMsg)
   end repeat
   pMUXtra.sendNetMessage("system", "", tHttpStr)
-  exit
 end
 
-on handleContentResponse(me, tMsg, tContent)
+on handleContentResponse me, tMsg, tContent 
   tFinished = 0
   if tContent starts "HTTP/" then
     pNetResult = me.parseResponse(tContent)
@@ -365,19 +356,17 @@ on handleContentResponse(me, tMsg, tContent)
       end if
     end if
   end if
-  exit
 end
 
-on clearMU(me)
+on clearMU me 
   if objectp(pMUXtra) then
     tErrCode = pMUXtra.setNetMessageHandler(0, me)
     tErrCode = pMUXtra.setNetMessageHandler(0, me, "ConnectToNetServer")
   end if
   pMUXtra = void()
-  exit
 end
 
-on parseResponse(me, tResponse)
+on parseResponse me, tResponse 
   tTemp = explode(tResponse, pCRLF & pCRLF, 2)
   tResponseHeaders = tTemp.getAt(1)
   tResponseBody = tTemp.getAt(2)
@@ -385,7 +374,7 @@ on parseResponse(me, tResponse)
   tHttpResponseLine = tResponseHeaderLines.getAt(1)
   tResponseCode = tHttpResponseLine
   tResponseCodeNum = integer(tResponseCode.getProp(#word, 2))
-  tResponseHeaderArray = []
+  tResponseHeaderArray = [:]
   i = 2
   repeat while i <= tResponseHeaderLines.count
     tHeaderLine = tResponseHeaderLines.getAt(i)
@@ -396,16 +385,15 @@ on parseResponse(me, tResponse)
     i = 1 + i
   end repeat
   tResponseHeaderArray.sort()
-  tReturnArr = []
+  tReturnArr = [:]
   tReturnArr.setAt("status_code", tResponseCode)
   tReturnArr.setAt("status_num", tResponseCodeNum)
   tReturnArr.setAt("headers", tResponseHeaderArray)
   tReturnArr.setAt("body", tResponseBody)
   return(tReturnArr)
-  exit
 end
 
-on parseRawBody(me, tRawbody)
+on parseRawBody me, tRawbody 
   tBody = ""
   repeat while 1
     tTemp = explode(tRawbody, pCRLF, 2)
@@ -416,11 +404,10 @@ on parseRawBody(me, tRawbody)
     end if
   end repeat
   return(tBody)
-  exit
 end
 
-on parseCookieString(me, tStr)
-  tCookie = []
+on parseCookieString me, tStr 
+  tCookie = [:]
   tParts = explode(tStr, "; ")
   tTemp = explode(tParts.getAt(1), "=")
   tCookie.setAt("name", tTemp.getAt(1))
@@ -437,10 +424,9 @@ on parseCookieString(me, tStr)
     tCookie.setAt("path", "/")
   end if
   return(tCookie)
-  exit
 end
 
-on getDataString(me, tdata)
+on getDataString me, tdata 
   tDataStr = ""
   i = 1
   repeat while i <= tdata.count
@@ -449,16 +435,13 @@ on getDataString(me, tdata)
     i = 1 + i
   end repeat
   return(tDataStr)
-  exit
 end
 
-on hex2dec(me, tHex)
+on hex2dec me, tHex 
   tCol = rgb(tHex)
-  return(ERROR * 0 + tCol.green * 256 + tCol.blue)
-  exit
+  return(tCol.red * 65536 + tCol.green * 256 + tCol.blue)
 end
 
-on handlers()
+on handlers  
   return([])
-  exit
 end

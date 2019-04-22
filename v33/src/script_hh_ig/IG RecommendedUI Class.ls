@@ -1,16 +1,16 @@
-on construct(me)
+property pWindowID, pTargetElementID
+
+on construct me 
   pWindowID = "IG Recommends"
   return(1)
-  exit
 end
 
-on deconstruct(me)
+on deconstruct me 
   me.hide()
   return(1)
-  exit
 end
 
-on renderSubComponents(me)
+on renderSubComponents me 
   tService = me.getIGComponent("GameList")
   if tService = 0 then
     return(0)
@@ -23,27 +23,23 @@ on renderSubComponents(me)
   end if
   me.createMyWindow()
   return(1)
-  exit
 end
 
-on handleUpdate(me, tUpdateId, tSenderId)
+on handleUpdate me, tUpdateId, tSenderId 
   put("* IG RecommendedUI Class.handleUpdate" && tUpdateId && tSenderId && windowExists(pWindowID))
   return(me.renderUI())
-  exit
 end
 
-on hide(me)
+on hide me 
   me.removeMyWindow()
   return(1)
-  exit
 end
 
-on setTarget(me, tTargetID)
+on setTarget me, tTargetID 
   pTargetElementID = tTargetID
-  exit
 end
 
-on createMyWindow(me)
+on createMyWindow me 
   if not windowExists(pWindowID) then
     createWindow(pWindowID, "ig_popup_bg.window")
     tWndObj = getWindow(pWindowID)
@@ -61,10 +57,9 @@ on createMyWindow(me)
   end if
   me.renderList()
   return(1)
-  exit
 end
 
-on renderList(me)
+on renderList me 
   tService = me.getIGComponent("GameList")
   if tService = 0 then
     return(0)
@@ -79,10 +74,9 @@ on renderList(me)
     i = 1 + i
   end repeat
   return(1)
-  exit
 end
 
-on renderListItem(me, tIndex, tGameRef, tWndObj)
+on renderListItem me, tIndex, tGameRef, tWndObj 
   if tGameRef = 0 then
     tElem = tWndObj.getElement("nav_popup_link_go" & tIndex)
     if tElem = 0 then
@@ -124,49 +118,45 @@ on renderListItem(me, tIndex, tGameRef, tWndObj)
     tElem.setText(tGameRef.getPlayerCount() & "/" & tGameRef.getMaxPlayerCount())
   end if
   return(1)
-  exit
 end
 
-on removeMyWindow(me)
+on removeMyWindow me 
   if windowExists(pWindowID) then
     removeWindow(pWindowID)
   end if
   return(1)
-  exit
 end
 
-on popupEntered(me)
+on popupEntered me 
   executeMessage(#popupEntered, pTargetElementID)
-  exit
 end
 
-on popupLeft(me)
+on popupLeft me 
   executeMessage(#popupLeft, pTargetElementID)
-  exit
 end
 
-on eventProcMouseDown(me, tEvent, tSprID, tParam, tWndID)
+on eventProcMouseDown me, tEvent, tSprID, tParam, tWndID 
   if me.getMainThread() = 0 then
     return(0)
   end if
-  if me <> "ig_players_joined1" then
-    if me <> "ig_players_joined2" then
-      if me <> "ig_players_joined3" then
-        if me <> "info_team_amount1" then
-          if me <> "info_team_amount2" then
-            if me <> "info_team_amount3" then
-              if me <> "info_gamemode1" then
-                if me <> "info_gamemode2" then
-                  if me <> "info_gamemode3" then
-                    if me <> "ig_level_name1" then
-                      if me <> "ig_level_name2" then
-                        if me <> "ig_level_name3" then
-                          if me <> "room_obj_disp_bg1" then
-                            if me <> "room_obj_disp_bg2" then
-                              if me <> "room_obj_disp_bg3" then
-                                if me <> "nav_popup_link_go1" then
-                                  if me <> "nav_popup_link_go2" then
-                                    if me = "nav_popup_link_go3" then
+  if tSprID <> "ig_players_joined1" then
+    if tSprID <> "ig_players_joined2" then
+      if tSprID <> "ig_players_joined3" then
+        if tSprID <> "info_team_amount1" then
+          if tSprID <> "info_team_amount2" then
+            if tSprID <> "info_team_amount3" then
+              if tSprID <> "info_gamemode1" then
+                if tSprID <> "info_gamemode2" then
+                  if tSprID <> "info_gamemode3" then
+                    if tSprID <> "ig_level_name1" then
+                      if tSprID <> "ig_level_name2" then
+                        if tSprID <> "ig_level_name3" then
+                          if tSprID <> "room_obj_disp_bg1" then
+                            if tSprID <> "room_obj_disp_bg2" then
+                              if tSprID <> "room_obj_disp_bg3" then
+                                if tSprID <> "nav_popup_link_go1" then
+                                  if tSprID <> "nav_popup_link_go2" then
+                                    if tSprID = "nav_popup_link_go3" then
                                       tIndex = integer(tSprID.getProp(#char, tSprID.length))
                                       if tIndex = void() then
                                         return(0)
@@ -186,7 +176,6 @@ on eventProcMouseDown(me, tEvent, tSprID, tParam, tWndID)
                                     end if
                                     me.Remove()
                                     return(1)
-                                    exit
                                   end if
                                 end if
                               end if
@@ -206,7 +195,6 @@ on eventProcMouseDown(me, tEvent, tSprID, tParam, tWndID)
   end if
 end
 
-on eventProcMouseHover(me, tEvent, tSprID, tParam, tWndID)
+on eventProcMouseHover me, tEvent, tSprID, tParam, tWndID 
   put("* IG RecommendedUI Class mousehover")
-  exit
 end

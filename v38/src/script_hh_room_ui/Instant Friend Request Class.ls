@@ -1,26 +1,25 @@
-on construct(me)
+property pWindowID, pData, pParentWindowID, pParentElementID, pParentObjId
+
+on construct me 
   pWindowID = "Instant Friend Request Window"
   return(1)
-  exit
 end
 
-on deconstruct(me)
+on deconstruct me 
   if windowExists(pWindowID) then
     removeWindow(pWindowID)
   end if
   return(1)
-  exit
 end
 
-on define(me, tParentWindowID, tParentElementID, tdata, tParentObjId)
+on define me, tParentWindowID, tParentElementID, tdata, tParentObjId 
   pParentWindowID = tParentWindowID
   pParentElementID = tParentElementID
   pData = tdata
   pParentObjId = tParentObjId
-  exit
 end
 
-on show(me)
+on show me 
   if pData.ilk <> #propList then
     return(0)
   end if
@@ -53,10 +52,9 @@ on show(me)
   if not me.align() then
     return(0)
   end if
-  exit
 end
 
-on align(me)
+on align me 
   if not windowExists(pParentWindowID) then
     return(0)
   end if
@@ -89,25 +87,24 @@ on align(me)
   end if
   tRequestWindow.moveTo(tLocX, tLocY)
   return(1)
-  exit
 end
 
-on eventProcRequest(me, tEvent, tSprID)
-  if me = "button_accept" then
+on eventProcRequest me, tEvent, tSprID 
+  if tSprID = "button_accept" then
     if objectExists(pParentObjId) then
       tParent = getObject(pParentObjId)
       tParent.confirmFriendRequest(1, pData.getAt(#id))
       createTimeout(#room_bar_extension_next_update, 1000, #viewNextItemInStack, pParentObjId, void(), 1)
     end if
   else
-    if me = "button_deny" then
+    if tSprID = "button_deny" then
       if objectExists(pParentObjId) then
         tParent = getObject(pParentObjId)
         tParent.confirmFriendRequest(0, pData.getAt(#id))
         createTimeout(#room_bar_extension_next_update, 1000, #viewNextItemInStack, pParentObjId, void(), 1)
       end if
     else
-      if me = "user_head" then
+      if tSprID = "user_head" then
         if listp(pData) then
           tRoomComp = getThread(#room).getComponent()
           tRoomInterface = getThread(#room).getInterface()
@@ -117,7 +114,7 @@ on eventProcRequest(me, tEvent, tSprID)
           end if
         end if
       else
-        if me = "popup_button_close" then
+        if tSprID = "popup_button_close" then
           if objectExists(pParentObjId) then
             tParent = getObject(pParentObjId)
             tParent.ignoreInstantFriendRequests()
@@ -127,5 +124,4 @@ on eventProcRequest(me, tEvent, tSprID)
       end if
     end if
   end if
-  exit
 end

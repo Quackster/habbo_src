@@ -1,4 +1,6 @@
-on showInfo(me, tWindowList, tdata, tMode)
+property pXP
+
+on showInfo me, tWindowList, tdata, tMode 
   if not listp(tdata) then
     return(0)
   end if
@@ -34,23 +36,20 @@ on showInfo(me, tWindowList, tdata, tMode)
   end if
   tElem.setText(replaceChunks(getText("ig_tip_xp_value"), "\\xp", string(tdata.getaProp(#xp_total))))
   return(1)
-  exit
 end
 
-on getTitleText(me)
+on getTitleText me 
   if pXP = void() then
     pXP = 0
   end if
   return(replaceChunks(getText("ig_ag_flag_xp_title"), "\\xp", pXP))
-  exit
 end
 
-on getLayout(me, tMode)
+on getLayout me, tMode 
   if tMode then
     tLayout = ["ig_ag_tip_title_exp.window", "ig_ag_tip_xp.window"]
   else
     tLayout = ["ig_ag_tip_title.window"]
   end if
   return(tLayout)
-  exit
 end

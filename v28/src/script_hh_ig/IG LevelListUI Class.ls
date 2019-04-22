@@ -1,16 +1,14 @@
-on construct(me)
+on construct me 
   me.construct()
   me.pViewModeComponents = [#info:["List", "Details"], #highscore:["List", "Highscore"]]
   return(1)
-  exit
 end
 
-on deconstruct(me)
+on deconstruct me 
   return(me.deconstruct())
-  exit
 end
 
-on renderProperty(me, tKey, tValue)
+on renderProperty me, tKey, tValue 
   if me.pViewMode <> #info then
     return(1)
   end if
@@ -19,10 +17,9 @@ on renderProperty(me, tKey, tValue)
     return(0)
   end if
   return(tComponent.renderProperty(tKey, tValue))
-  exit
 end
 
-on getGameTypeHandlerClass(me, tGameType)
+on getGameTypeHandlerClass me, tGameType 
   tGameTypeService = me.getIGComponent("GameTypes")
   if tGameTypeService = 0 then
     return(0)
@@ -35,10 +32,9 @@ on getGameTypeHandlerClass(me, tGameType)
     tClass = ["IG LevelListUI Details Class", tMemName]
   end if
   return(tClass)
-  exit
 end
 
-on getSubComponent(me, tID, tAddIfMissing)
+on getSubComponent me, tID, tAddIfMissing 
   tObject = me.getaProp(tID)
   if tObject <> 0 then
     return(tObject)
@@ -60,10 +56,9 @@ on getSubComponent(me, tID, tAddIfMissing)
     tClass = me.getGameTypeHandlerClass(tItemRef.getProperty(#game_type))
   end if
   return(me.initializeSubComponent(tID, tClass))
-  exit
 end
 
-on eventProcMouseDown(me, tEvent, tSprID, tParam, tWndID)
+on eventProcMouseDown me, tEvent, tSprID, tParam, tWndID 
   tService = me.getMasterIGComponent()
   if tService = 0 then
     return(0)
@@ -79,7 +74,7 @@ on eventProcMouseDown(me, tEvent, tSprID, tParam, tWndID)
   if tSprID.getProp(#char, tSprID.length) = "_" then
     tSprID = tSprID.getProp(#char, 1, tSprID.length - 1)
   end if
-  if me = "ig_gamelist" then
+  if tSprID = "ig_gamelist" then
     if ilk(tParam) <> #point then
       return(0)
     end if
@@ -94,23 +89,23 @@ on eventProcMouseDown(me, tEvent, tSprID, tParam, tWndID)
     end if
     return(0)
   else
-    if me = "ig_icon_team_amount" then
+    if tSprID = "ig_icon_team_amount" then
       return(tService.setProperty(#number_of_teams, tIntParam))
     else
-      if me = "ig_game_availability" then
+      if tSprID = "ig_game_availability" then
         return(tService.setProperty(#private, tIntParam))
       else
-        if me = "create_confirmation.button" then
+        if tSprID = "create_confirmation.button" then
           return(tService.createGame())
         else
-          if me = "create_cancel.button" then
+          if tSprID = "create_cancel.button" then
             return(tService.selectLevel(-1, 1))
           else
-            if me = "ig_tab_highscores" then
+            if tSprID = "ig_tab_highscores" then
               return(me.setViewMode(#highscore))
             else
-              if me <> "ig_level_name" then
-                if me = "ig_tab_gameinfo" then
+              if tSprID <> "ig_level_name" then
+                if tSprID = "ig_tab_gameinfo" then
                   return(me.setViewMode(#info))
                 end if
                 if me.pViewMode <> #info then
@@ -124,7 +119,6 @@ on eventProcMouseDown(me, tEvent, tSprID, tParam, tWndID)
                   return(tComponent.eventProcMouseDown(tEvent, tSprID, tParam, tWndID, tIntParam))
                 end if
                 return(0)
-                exit
               end if
             end if
           end if
@@ -134,11 +128,10 @@ on eventProcMouseDown(me, tEvent, tSprID, tParam, tWndID)
   end if
 end
 
-on eventProcMouseHover(me, tEvent, tSprID, tParam, tWndID)
+on eventProcMouseHover me, tEvent, tSprID, tParam, tWndID 
   tComponent = me.getSubComponent("Details", 0)
   if tComponent <> 0 then
     return(call(#eventProcMouseHover, [tComponent], tEvent, tSprID, tParam, tWndID))
   end if
   return(0)
-  exit
 end

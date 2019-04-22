@@ -1,4 +1,6 @@
-on construct(me)
+property pPurseWriterID, pPurseBigTextWriterID, pPurseBigTextWriter2ID, pWindowTitle, pVoucherWindowTitle, pAnimImage, pVoucherInputState, pState, pFrameCounter, pQuad, pPageList, pPages, pValueField, pPageView, pPageLineHeight, pAdMemNum, pItemObjList, pOpenWindow, pClickURL, pDataReceived
+
+on construct me 
   pWindowTitle = getText("win_purse", "Habbo Purse")
   pVoucherWindowTitle = getText("win_voucher", "Habbo Credit Code")
   pVoucherInputState = 1
@@ -37,10 +39,9 @@ on construct(me)
     pValueField = 0
   end if
   return(1)
-  exit
 end
 
-on deconstruct(me)
+on deconstruct me 
   removeUpdate(me.getID())
   removeWindow(pWindowTitle)
   removeWindow(pVoucherWindowTitle)
@@ -49,29 +50,26 @@ on deconstruct(me)
     removeTimeout("flyTimer")
   end if
   return(1)
-  exit
 end
 
-on showHidePurse(me, tHideOrRemove)
+on showHidePurse me, tHideOrRemove 
   if windowExists(pWindowTitle) then
     me.hidePurse()
   else
     me.showPurse()
   end if
-  exit
 end
 
-on showPurse(me)
+on showPurse me 
   if not windowExists(pWindowTitle) then
     me.changePurseWindowView("purse.window")
     return(1)
   else
     return(0)
   end if
-  exit
 end
 
-on hidePurse(me, tHideOrRemove)
+on hidePurse me, tHideOrRemove 
   if voidp(tHideOrRemove) then
     tHideOrRemove = #remove
   end if
@@ -86,10 +84,9 @@ on hidePurse(me, tHideOrRemove)
     removeTimeout("flyTimer")
   end if
   return(1)
-  exit
 end
 
-on showPurseLoader(me, tdata)
+on showPurseLoader me, tdata 
   tWndObj = getWindow(pWindowTitle)
   tBg = tWndObj.getElement("loading_bg")
   tAnim = tWndObj.getElement("loading_anim")
@@ -97,14 +94,14 @@ on showPurseLoader(me, tdata)
   tPrev = tWndObj.getElement("taction_prev")
   tPages = tWndObj.getElement("taction_pages")
   tNext = tWndObj.getElement("taction_next")
-  if me = 0 then
+  if tdata = 0 then
     tBg.setProperty(#blend, 0)
     tAnim.setProperty(#blend, 0)
     tText.setProperty(#blend, 0)
     removeUpdate(me.getID())
     pState = 0
   else
-    if me = 1 then
+    if tdata = 1 then
       tBg.setProperty(#blend, 90)
       tAnim.setProperty(#blend, 100)
       tText.setProperty(#blend, 100)
@@ -115,10 +112,9 @@ on showPurseLoader(me, tdata)
       pState = 1
     end if
   end if
-  exit
 end
 
-on showLoading(me)
+on showLoading me 
   tWndObj = getWindow(pWindowTitle)
   if not tWndObj then
     return(0)
@@ -129,10 +125,9 @@ on showLoading(me)
   end if
   update(me)
   receiveUpdate(me.getID())
-  exit
 end
 
-on setVoucherInput(me, tstate)
+on setVoucherInput me, tstate 
   pVoucherInputState = tstate
   if not windowExists(pVoucherWindowTitle) then
     return(1)
@@ -151,10 +146,9 @@ on setVoucherInput(me, tstate)
   tWndObj.getElement("voucher_exit").setProperty(#cursor, tCursor)
   tWndObj.getElement("voucher_send").setProperty(#cursor, tCursor)
   return(1)
-  exit
 end
 
-on showVoucherWindow(me)
+on showVoucherWindow me 
   if not windowExists(pVoucherWindowTitle) then
     createWindow(pVoucherWindowTitle, "habbo_basic.window")
     tWndObj = getWindow(pVoucherWindowTitle)
@@ -172,18 +166,16 @@ on showVoucherWindow(me)
     me.setVoucherInput(pVoucherInputState)
     tWndObj.registerProcedure(#eventProcPurse, me.getID(), #mouseUp)
   end if
-  exit
 end
 
-on hideVoucherWindow(me)
+on hideVoucherWindow me 
   if windowExists(pVoucherWindowTitle) then
     removeWindow(pVoucherWindowTitle)
   end if
   return(1)
-  exit
 end
 
-on update(me)
+on update me 
   if not pState then
     return()
   end if
@@ -211,10 +203,9 @@ on update(me)
     pFrameCounter = 1
   end if
   pFrameCounter = pFrameCounter + 1
-  exit
 end
 
-on showPages(me, tList)
+on showPages me, tList 
   if not voidp(tList) then
     pPageList = tList
     pPages = count(pPageList)
@@ -224,10 +215,9 @@ on showPages(me, tList)
     me.changePurseWindowView("PurseNoTransactions.window")
     me.showPurseLoader(0)
   end if
-  exit
 end
 
-on drawPage(me, tPageNo)
+on drawPage me, tPageNo 
   if tPageNo <= pPages and tPageNo > 0 then
     tWndObj = getWindow(pWindowTitle)
     tDate = []
@@ -266,28 +256,28 @@ on drawPage(me, tPageNo)
     tPrev.setText(tPrevTtx)
     tNextTtx = getText("next_onearrowed", "Next >")
     tNext.setText(tNextTtx)
-    if me = pPages = 1 then
+    if 1 = pPages = 1 then
       tPrev.setProperty(#blend, 50)
       tPrev.setProperty(#cursor, 0)
       tNext.setProperty(#blend, 50)
       tNext.setProperty(#cursor, 0)
       return(1)
     else
-      if me = pPageView < pPages and pPageView > 1 then
+      if 1 = pPageView < pPages and pPageView > 1 then
         tPrev.setProperty(#blend, 100)
         tPrev.setProperty(#cursor, "cursor.finger")
         tNext.setProperty(#blend, 100)
         tNext.setProperty(#cursor, "cursor.finger")
         return(1)
       else
-        if me = pPageView < pPages and pPageView = 1 then
+        if 1 = pPageView < pPages and pPageView = 1 then
           tPrev.setProperty(#blend, 50)
           tPrev.setProperty(#cursor, 0)
           tNext.setProperty(#blend, 100)
           tNext.setProperty(#cursor, "cursor.finger")
           return(1)
         else
-          if me = pPageView = pPages then
+          if 1 = pPageView = pPages then
             tPrev.setProperty(#blend, 100)
             tPrev.setProperty(#cursor, "cursor.finger")
             tNext.setProperty(#blend, 50)
@@ -300,10 +290,9 @@ on drawPage(me, tPageNo)
   else
     return(0)
   end if
-  exit
 end
 
-on drawColumns(me, tElementName, tList, tLeftMarg)
+on drawColumns me, tElementName, tList, tLeftMarg 
   tWndObj = getWindow(pWindowTitle)
   tWriteObj = getWriter(pPurseWriterID)
   if tWndObj.elementExists(tElementName) then
@@ -336,10 +325,9 @@ on drawColumns(me, tElementName, tList, tLeftMarg)
     end repeat
     tElem.feedImage(tPageListImg.duplicate())
   end if
-  exit
 end
 
-on getPurseAd(me, tSourceURL, tClickURL)
+on getPurseAd me, tSourceURL, tClickURL 
   if tSourceURL = "" then
     tSourceURL = void()
   end if
@@ -356,10 +344,9 @@ on getPurseAd(me, tSourceURL, tClickURL)
       pClickURL = tClickURL
     end if
   end if
-  exit
 end
 
-on showPurseAd(me)
+on showPurseAd me 
   tWndObj = getWindow(pWindowTitle)
   if memberExists("purse-ad") and tWndObj.elementExists("trans_ad") then
     tWndObj = getWindow(pWindowTitle)
@@ -396,10 +383,9 @@ on showPurseAd(me)
   else
     return(0)
   end if
-  exit
 end
 
-on changePurseWindowView(me, tWindowName)
+on changePurseWindowView me, tWindowName 
   if tWindowName = "purse.window" then
     if not createWindow(pWindowTitle, tWindowName) then
       return(0)
@@ -415,7 +401,7 @@ on changePurseWindowView(me, tWindowName)
   tWndObj.registerProcedure(#eventProcPurse, me.getID(), #mouseDown)
   tWndObj.center()
   pOpenWindow = tWindowName
-  if me = "purse.window" then
+  if tWindowName = "purse.window" then
     i = 1
     repeat while 1
       if tWndObj.elementExists("fly_" & i) then
@@ -444,7 +430,7 @@ on changePurseWindowView(me, tWindowName)
     end if
     me.drawPurseCoins(tSaldo)
   else
-    if me = "PurseTransactions2.window" then
+    if tWindowName = "PurseTransactions2.window" then
       if not tWndObj.merge("PurseTransactions2.window") then
         return(tWndObj.close())
       end if
@@ -503,7 +489,7 @@ on changePurseWindowView(me, tWindowName)
         tWndObj.getElement("loading").setText(tTxt1)
       end if
     else
-      if me = "PurseTransactions.window" then
+      if tWindowName = "PurseTransactions.window" then
         if not tWndObj.merge("PurseTransactions.window") then
           return(tWndObj.close())
         end if
@@ -558,7 +544,7 @@ on changePurseWindowView(me, tWindowName)
           tWndObj.getElement("loading").setText(tTxt1)
         end if
       else
-        if me = "PurseNoTransactions.window" then
+        if tWindowName = "PurseNoTransactions.window" then
           if not tWndObj.merge("PurseNoTransactions.window") then
             return(tWndObj.close())
           end if
@@ -601,10 +587,9 @@ on changePurseWindowView(me, tWindowName)
       end if
     end if
   end if
-  exit
 end
 
-on drawPurseCoins(me, tCoinAmount)
+on drawPurseCoins me, tCoinAmount 
   tWndObj = getWindow(pWindowTitle)
   if tWndObj = 0 then
     return(0)
@@ -619,13 +604,13 @@ on drawPurseCoins(me, tCoinAmount)
   tSourceImg1 = member(getmemnum(tImage1)).image
   tSourceImg2 = member(getmemnum(tImage2)).image
   tdestrect = tDestImg.rect
-  if me <> tCoinAmount = 0 then
-    if me = tCoinAmount = void() then
+  if 1 <> tCoinAmount = 0 then
+    if 1 = tCoinAmount = void() then
       tElem.clearBuffer()
       tElem.clearImage()
       me.drawFlies()
     else
-      if me = tCoinAmount > 100 then
+      if 1 = tCoinAmount > 100 then
         if timeoutExists("flyTimer") then
           removeTimeout("flyTimer")
           call(#hideFlies, pItemObjList)
@@ -637,7 +622,7 @@ on drawPurseCoins(me, tCoinAmount)
         tDestImg.copyPixels(tSourceImg2, tRectList, tRect)
         tElem.feedImage(tDestImg)
       else
-        if me = tCoinAmount > 0 and tCoinAmount <= 100 then
+        if 1 = tCoinAmount > 0 and tCoinAmount <= 100 then
           tElem.clearBuffer()
           tElem.clearImage()
           if timeoutExists("flyTimer") then
@@ -670,11 +655,10 @@ on drawPurseCoins(me, tCoinAmount)
         end if
       end if
     end if
-    exit
   end if
 end
 
-on drawFlies(me)
+on drawFlies me 
   tWndObj = getWindow(pWindowTitle)
   pItemObjList = []
   i = 1
@@ -691,17 +675,15 @@ on drawFlies(me)
   if not timeoutExists("flyTimer") then
     createTimeout("flyTimer", 120, #fliesFly, me.getID(), void(), 0)
   end if
-  exit
 end
 
-on fliesFly(me)
+on fliesFly me 
   if pOpenWindow = "purse.window" then
     call(#animateFly, pItemObjList)
   end if
-  exit
 end
 
-on checkSaldo(me, tElement)
+on checkSaldo me, tElement 
   if getObject(#session).exists("user_walletbalance") then
     tSaldo = getObject(#session).get("user_walletbalance")
   else
@@ -728,15 +710,13 @@ on checkSaldo(me, tElement)
     end if
   end if
   return(tSaldo)
-  exit
 end
 
-on dataReceived(me)
+on dataReceived me 
   pDataReceived = 1
-  exit
 end
 
-on updateSaldoView(me)
+on updateSaldoView me 
   if windowExists(pWindowTitle) then
     tWndObj = getWindow(pWindowTitle)
     if pOpenWindow = "purse.window" then
@@ -744,10 +724,9 @@ on updateSaldoView(me)
       me.drawPurseCoins(tSaldo)
     end if
   end if
-  exit
 end
 
-on eventProcPurse(me, tEvent, tElemID, tParm)
+on eventProcPurse me, tEvent, tElemID, tParm 
   if not voidp(pClickURL) then
     tWndObj = getWindow(pWindowTitle)
     tElem = tWndObj.getElement("trans_ad")
@@ -763,12 +742,12 @@ on eventProcPurse(me, tEvent, tElemID, tParm)
     end if
   end if
   if tEvent = #mouseUp then
-    if me = "trans_ad" then
+    if tElemID = "trans_ad" then
       if not voidp(pClickURL) then
         openNetPage(pClickURL)
       end if
     else
-      if me = "purse_view" then
+      if tElemID = "purse_view" then
         if pValueField then
           tWnd = "PurseTransactions.window"
         else
@@ -789,13 +768,13 @@ on eventProcPurse(me, tEvent, tElemID, tParm)
           removeTimeout("flyTimer")
         end if
       else
-        if me = "taction_next" then
+        if tElemID = "taction_next" then
           me.drawPage(pPageView + 1)
         else
-          if me = "taction_prev" then
+          if tElemID = "taction_prev" then
             me.drawPage(pPageView - 1)
           else
-            if me = "purse_buy" then
+            if tElemID = "purse_buy" then
               tSession = getObject(#session)
               if tSession.get("user_rights").getOne("can_buy_credits") then
                 tURL = getText("url_purselink")
@@ -808,12 +787,12 @@ on eventProcPurse(me, tEvent, tElemID, tParm)
               end if
               openNetPage(tURL, "_new")
             else
-              if me = "purse_voucher" then
+              if tElemID = "purse_voucher" then
                 if getObject(#session).get("conf_voucher") then
                   me.showVoucherWindow()
                 end if
               else
-                if me = "voucher_send" then
+                if tElemID = "voucher_send" then
                   if not pVoucherInputState then
                     return(0)
                   end if
@@ -827,13 +806,13 @@ on eventProcPurse(me, tEvent, tElemID, tParm)
                   me.setVoucherInput(0)
                   me.getComponent().sendVoucherCode(tCode)
                 else
-                  if me = "voucher_help" then
+                  if tElemID = "voucher_help" then
                     openNetPage(getText("purse_vouchers_helpurl"))
                   else
-                    if me = "voucher_exit" then
+                    if tElemID = "voucher_exit" then
                       me.hideVoucherWindow()
                     else
-                      if me = "close" then
+                      if tElemID = "close" then
                         me.hidePurse()
                       end if
                     end if
@@ -846,5 +825,4 @@ on eventProcPurse(me, tEvent, tElemID, tParm)
       end if
     end if
   end if
-  exit
 end

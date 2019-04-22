@@ -1,4 +1,6 @@
-on construct(me)
+property pTutorWindowID, pPose, pTutorWindow
+
+on construct me 
   me.pTutorWindowID = "Tutor_character"
   createWindow(pTutorWindowID, "guide_character.window")
   me.pTutorWindow = getWindow(pTutorWindowID)
@@ -11,21 +13,18 @@ on construct(me)
   me.pDefPosY = 310
   me.pPose = 1
   return(1)
-  exit
 end
 
-on deconstruct(me)
+on deconstruct me 
   removeObject(me.getID())
   removeWindow(me.getProperty(#id))
-  exit
 end
 
-on hideLinks(me)
+on hideLinks me 
   me.setLinks(void())
-  exit
 end
 
-on update(me)
+on update me 
   tWindowList = getWindowIDList()
   tPosTutor = tWindowList.getPos(me.pTutorWindowID)
   if tPosTutor > 0 then
@@ -39,10 +38,9 @@ on update(me)
   tWindowList.add(me.getProperty(#windowId))
   getWindowManager().reorder(tWindowList)
   me.update()
-  exit
 end
 
-on setProperties(me, tProperties)
+on setProperties me, tProperties 
   if not listp(tProperties) then
     return(0)
   end if
@@ -51,23 +49,21 @@ on setProperties(me, tProperties)
     me.setProperty(tProperties.getPropAt(i), tProperties.getAt(i))
     i = 1 + i
   end repeat
-  exit
 end
 
-on getProperty(me, tProp)
-  if me = #sex then
+on getProperty me, tProp 
+  if tProp = #sex then
     return(me.pSex)
   end if
-  exit
 end
 
-on setProperty(me, tProperty, tValue)
-  if me = #textKey then
+on setProperty me, tProperty, tValue 
+  if tProperty = #textKey then
     tText = getText(tValue)
     tText = replaceChunks(tText, "\\n", "\r" & "\r")
     me.setText(tText)
   else
-    if me = #offsetx then
+    if tProperty = #offsetx then
       tValue = value(tValue)
       if not tValue then
         me.pPosX = me.pDefPosX
@@ -76,7 +72,7 @@ on setProperty(me, tProperty, tValue)
       end if
       me.moveTo(me.pPosX, me.pPosY)
     else
-      if me = #offsety then
+      if tProperty = #offsety then
         tValue = value(tValue)
         if not tValue then
           me.pPosY = me.pDefPosY
@@ -85,7 +81,7 @@ on setProperty(me, tProperty, tValue)
         end if
         me.moveTo(me.pPosX, me.pPosY)
       else
-        if me = #links then
+        if tProperty = #links then
           me.setLinks(tValue)
           if tValue.ilk = #propList then
             if not voidp(tValue.getaProp(#menu)) then
@@ -93,24 +89,23 @@ on setProperty(me, tProperty, tValue)
             end if
           end if
         else
-          if me = #sex then
+          if tProperty = #sex then
             me.pSex = tValue
             me.updateImage()
           else
-            if me <> #pose then
-              if me = #direction then
+            if tProperty <> #pose then
+              if tProperty = #direction then
                 me.pPose = tValue
                 me.updateImage()
               else
-                if me = #topics then
+                if tProperty = #topics then
                   me.pTopicList = tValue
                 else
-                  if me = #statuses then
+                  if tProperty = #statuses then
                     me.setCheckmarks(tValue)
                   end if
                 end if
               end if
-              exit
             end if
           end if
         end if
@@ -119,31 +114,28 @@ on setProperty(me, tProperty, tValue)
   end if
 end
 
-on moveTo(me, tX, tY)
+on moveTo me, tX, tY 
   me.pPosX = tX
   me.pPosY = tY
   me.moveTo(me.pPosX, me.pPosY)
   me.update()
-  exit
 end
 
-on hide(me)
+on hide me 
   me.hide()
   me.hide()
-  exit
 end
 
-on show(me)
+on show me 
   if voidp(me.pimage) then
     return(0)
   end if
   me.updateImage()
   me.show()
   me.show()
-  exit
 end
 
-on updateImage(me)
+on updateImage me 
   if voidp(me.pSex) or voidp(pPose) then
     return(0)
   end if
@@ -169,10 +161,9 @@ on updateImage(me)
   end if
   tImageElem.resizeTo(me.width, me.height, 1)
   me.updateShadow()
-  exit
 end
 
-on updateShadow(me)
+on updateShadow me 
   tShadow = image(me.width, me.height, 8)
   tBlack = image(me.width, me.height, 8)
   tBlack.fill(tBlack.rect, rgb("#000000"))
@@ -184,5 +175,4 @@ on updateShadow(me)
     tElem.flipH()
     tElem.render()
   end if
-  exit
 end

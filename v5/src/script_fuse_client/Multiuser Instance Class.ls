@@ -1,19 +1,19 @@
-on construct(me)
+property pXtra, pHost, pPort, pConnectionOk, pBinDataCallback, pListenersPntr, pCommandsPntr, pMsgStruct, pConnectionShouldBeKilled
+
+on construct me 
   pDecoder = 0
   pBinDataCallback = [#client:"", #method:void()]
   pConnectionShouldBeKilled = 0
   pCommandsPntr = getStructVariable("struct.pointer")
   pListenersPntr = getStructVariable("struct.pointer")
   return(1)
-  exit
 end
 
-on deconstruct(me)
+on deconstruct me 
   return(me.disconnect(1))
-  exit
 end
 
-on connect(me, tHost, tPort)
+on connect me, tHost, tPort 
   pHost = tHost
   pPort = tPort
   pXtra = new(xtra("Multiuser"))
@@ -25,10 +25,9 @@ on connect(me, tHost, tPort)
     return(error(me, "Creation of callback failed:" && tErrCode, #connect))
   end if
   return(1)
-  exit
 end
 
-on disconnect(me, tControlled)
+on disconnect me, tControlled 
   if tControlled <> 1 then
     me.forwardMsg("DISCONNECT")
   else
@@ -43,15 +42,13 @@ on disconnect(me, tControlled)
     error(me, "Connection disconnected:" && me.getID(), #disconnect)
   end if
   return(1)
-  exit
 end
 
-on connectionReady(me)
+on connectionReady me 
   return(pConnectionOk)
-  exit
 end
 
-on send(me, tMsg)
+on send me, tMsg 
   if pConnectionOk and objectp(pXtra) then
     tMsg = replaceChunks(tMsg, "�", "&auml;")
     tMsg = replaceChunks(tMsg, "�", "&ouml;")
@@ -64,50 +61,45 @@ on send(me, tMsg)
     return(error(me, "Connection not ready:" && me.getID(), #send))
   end if
   return(1)
-  exit
 end
 
-on sendBinary(me, tObject)
+on sendBinary me, tObject 
   if pConnectionOk and objectp(pXtra) then
     return(pXtra.sendNetMessage("*", "BINDATA", tObject))
   end if
-  exit
 end
 
-on registerBinaryDataHandler(me, tObjID, tMethod)
+on registerBinaryDataHandler me, tObjID, tMethod 
   pBinDataCallback.client = tObjID
   pBinDataCallback.method = tMethod
   return(1)
-  exit
 end
 
-on getWaitingMessagesCount(me)
+on getWaitingMessagesCount me 
   return(pXtra.getNumberWaitingNetMessages())
-  exit
 end
 
-on processWaitingMessages(me, tCount)
+on processWaitingMessages me, tCount 
   if voidp(tCount) then
     tCount = 1
   end if
   return(pXtra.checkNetMessages(tCount))
-  exit
 end
 
-on getProperty(me, tProp)
-  if me = #host then
+on getProperty me, tProp 
+  if tProp = #host then
     return(pHost)
   else
-    if me = #port then
+    if tProp = #port then
       return(pPort)
     else
-      if me = #listener then
+      if tProp = #listener then
         return(pListenersPntr)
       else
-        if me = #commands then
+        if tProp = #commands then
           return(pCommandsPntr)
         else
-          if me = #message then
+          if tProp = #message then
             return(pMsgStruct)
           end if
         end if
@@ -115,11 +107,10 @@ on getProperty(me, tProp)
     end if
   end if
   return(0)
-  exit
 end
 
-on setProperty(me, tProp, tValue)
-  if me = #listener then
+on setProperty me, tProp, tValue 
+  if tProp = #listener then
     if tValue.ilk = #struct then
       pListenersPntr = tValue
       return(1)
@@ -127,7 +118,7 @@ on setProperty(me, tProp, tValue)
       return(0)
     end if
   else
-    if me = #commands then
+    if tProp = #commands then
       if tValue.ilk = #struct then
         pCommandsPntr = tValue
         return(1)
@@ -139,10 +130,9 @@ on setProperty(me, tProp, tValue)
     end if
   end if
   return(0)
-  exit
 end
 
-on xtraMsgHandler(me)
+on xtraMsgHandler me 
   if pConnectionShouldBeKilled <> 0 then
     return(0)
   end if
@@ -154,10 +144,10 @@ on xtraMsgHandler(me)
     me.disconnect()
     return(0)
   end if
-  if me = #string then
+  if tContent.ilk = #string then
     me.forwardMsg(tNewMsg.subject & "\r" & tContent)
   else
-    if me = #void then
+    if tContent.ilk = #void then
       error(me, "Message content is VOID!!!", #xtraMsgHandler)
     else
       if voidp(pBinDataCallback.method) then
@@ -169,10 +159,9 @@ on xtraMsgHandler(me)
       call(pBinDataCallback.method, getObject(pBinDataCallback.client), tContent)
     end if
   end if
-  exit
 end
 
-on forwardMsg(me, tMessage)
+on forwardMsg me, tMessage 
   if pConnectionShouldBeKilled = 1 then
     return(0)
   end if
@@ -205,5 +194,4 @@ on forwardMsg(me, tMessage)
     exit repeat
   end if
   error(me, "Listener not found:" && tSubject && "/" && me.getID(), #forwardMsg)
-  exit
 end

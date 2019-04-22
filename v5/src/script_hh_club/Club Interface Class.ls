@@ -1,4 +1,6 @@
-on construct(me)
+property pConnectionId, pDialogId, pConfirmDialogId, pPrice, pPurchaseMode, pParentPermission
+
+on construct me 
   pPrice = value(getText("habboclub_price1"))
   pDays = value(getText("habboclub_price1.days"))
   pDialogId = "clubinfo1"
@@ -7,17 +9,16 @@ on construct(me)
   registerMessage(#show_clubinfo, me.getID(), #show_clubinfo)
   registerMessage(#notify, me.getID(), #notify)
   return(1)
-  exit
 end
 
-on notify(me, ttype)
-  if me = "1001" then
+on notify me, ttype 
+  if ttype = "1001" then
     executeMessage(#alert, [#msg:"epsnotify_1001"])
     if connectionExists(pConnectionId) then
       removeConnection(pConnectionId)
     end if
   else
-    if me = "550" then
+    if ttype = "550" then
       me.setupWindow()
       tWndObj = getWindow(pDialogId)
       tWndObj.moveTo(200, 200)
@@ -25,10 +26,9 @@ on notify(me, ttype)
       me.setupInfoWindow()
     end if
   end if
-  exit
 end
 
-on setupContinueWindow(me)
+on setupContinueWindow me 
   tClubInfo = me.getComponent().getStatus()
   tWndObj = getWindow(pDialogId)
   tText1 = getText("habboclub_txt1.member")
@@ -41,15 +41,13 @@ on setupContinueWindow(me)
     tWndObj.getElement("habboclub_txt3").setProperty(#blend, 30)
   end if
   me.setParentPermission(0)
-  exit
 end
 
-on setupInfoWindow(me)
+on setupInfoWindow me 
   getWindow(pDialogId).registerProcedure(#eventProcDialogMousedown, me.getID(), #mouseDown)
-  exit
 end
 
-on setParentPermission(me, tBool)
+on setParentPermission me, tBool 
   if tBool then
     tImage = member(getmemnum("button.checkbox.on")).image
   else
@@ -58,10 +56,9 @@ on setParentPermission(me, tBool)
   getWindow(pDialogId).getElement("parent_permission_checkbox").setProperty(#image, tImage)
   pParentPermission = tBool
   return(1)
-  exit
 end
 
-on openConfirmDialog(me, tMode)
+on openConfirmDialog me, tMode 
   pPurchaseMode = tMode
   if windowExists(pConfirmDialogId) then
     removeWindow(pConfirmDialogId)
@@ -79,11 +76,10 @@ on openConfirmDialog(me, tMode)
   tWndObj.getElement("habboclub_confirm_body").setText(tText2)
   tWndObj.registerProcedure(#eventProcConfirmMousedown, me.getID(), #mouseDown)
   return(1)
-  exit
 end
 
-on eventProcConfirmMousedown(me, tEvent, tSprID, tParam)
-  if me = "button_ok" then
+on eventProcConfirmMousedown me, tEvent, tSprID, tParam 
+  if tSprID = "button_ok" then
     if pPurchaseMode = #subscribe then
       me.getComponent().subscribe(me.pDays)
     else
@@ -94,26 +90,25 @@ on eventProcConfirmMousedown(me, tEvent, tSprID, tParam)
     removeWindow(pConfirmDialogId)
     return(1)
   else
-    if me = "button_cancel" then
+    if tSprID = "button_cancel" then
       removeWindow(pConfirmDialogId)
       return(1)
     end if
   end if
-  exit
 end
 
-on eventProcDialogMousedown(me, tEvent, tSprID, tParam)
+on eventProcDialogMousedown me, tEvent, tSprID, tParam 
   tClubInfo = me.getComponent().getStatus()
-  if me = "club_txt_intro2" then
+  if tSprID = "club_txt_intro2" then
     tWndObj = getWindow(pDialogId)
     tWndObj.unmerge()
     tWndObj.merge("habbo_club_activation.window")
     me.setParentPermission(0)
   else
-    if me = "parent_permission_checkbox" then
+    if tSprID = "parent_permission_checkbox" then
       me.setParentPermission(not pParentPermission)
     else
-      if me = "habboclub_continue" then
+      if tSprID = "habboclub_continue" then
         if tClubInfo.getAt(#daysLeft) > 59 then
           return(1)
         end if
@@ -123,14 +118,14 @@ on eventProcDialogMousedown(me, tEvent, tSprID, tParam)
           me.openConfirmDialog(#extend)
         end if
       else
-        if me = "habboclub_activate" then
+        if tSprID = "habboclub_activate" then
           if pParentPermission = 0 then
             executeMessage(#alert, [#msg:"habboclub_require_parent_permission"])
           else
             me.openConfirmDialog(#subscribe)
           end if
         else
-          if me = "close" then
+          if tSprID = "close" then
             removeWindow(me.pDialogId)
           end if
         end if
@@ -138,10 +133,9 @@ on eventProcDialogMousedown(me, tEvent, tSprID, tParam)
     end if
   end if
   return(1)
-  exit
 end
 
-on setupWindow(me)
+on setupWindow me 
   if windowExists(pDialogId) then
     removeWindow(pDialogId)
   end if
@@ -149,10 +143,9 @@ on setupWindow(me)
   tWndObj = getWindow(pDialogId)
   tWndObj.setProperty(#title, getText("club_habbo.window.title"))
   tWndObj.merge("habbo_full.window")
-  exit
 end
 
-on show_clubinfo(me)
+on show_clubinfo me 
   tClubInfo = me.getComponent().getStatus()
   if tClubInfo <> 0 then
     if not windowExists(pDialogId) then
@@ -171,20 +164,18 @@ on show_clubinfo(me)
     end if
   end if
   return(1)
-  exit
 end
 
-on updateClubStatus(me, tStatus)
+on updateClubStatus me, tStatus 
   if tStatus.getAt(#status) = "active" then
     if windowExists(pDialogId) then
       removeWindow(pDialogId)
       me.show_clubinfo()
     end if
   end if
-  exit
 end
 
-on subscriptionOkConfirmed(me)
+on subscriptionOkConfirmed me 
   if windowExists(pDialogId) then
     removeWindow(pDialogId)
     me.setupWindow()
@@ -195,5 +186,4 @@ on subscriptionOkConfirmed(me)
     tTxt = replaceChunks(tTxt, "%email%", tEmail)
     tWndObj.getElement("club_txt_thanks").setText(tTxt)
   end if
-  exit
 end

@@ -1,4 +1,6 @@
-on construct(me)
+property pPageItemDownloader, pStripData, pTargetElement, pPersistentFurniData, pDealPreviewObj, pDealNumber, pSmallItemWidth, pSmallItemHeight, pPersistentCatalogData
+
+on construct me 
   pPageItemDownloader = getThread(#catalogue).getComponent().getPageItemDownloader()
   pPersistentFurniData = void()
   pPersistentCatalogData = void()
@@ -15,49 +17,42 @@ on construct(me)
   pNumberPosY = getVariable("catalogue.deal.numberpos.y")
   pPageId = -1
   return(1)
-  exit
 end
 
-on deconstruct(me)
+on deconstruct me 
   pPageItemDownloader.removeCallback(me, #downloadCompleted)
   pStripData = void()
   return(1)
-  exit
 end
 
-on define(me, tdata, tWidth, tHeight, tPageID)
+on define me, tdata, tWidth, tHeight, tPageID 
   me.pPageId = tPageID
   me.pStripData = tdata
   me.resolveMembers()
-  exit
 end
 
-on setStripItemState(me, tItemIndex, tstate)
+on setStripItemState me, tItemIndex, tstate 
   pStripData.getAt(tItemIndex).setAt(#state, tstate)
-  exit
 end
 
-on setTargetElement(me, tElement, tScroll)
+on setTargetElement me, tElement, tScroll 
   pTargetElement = tElement
   pwidth = pTargetElement.getProperty(#width)
   pheight = pTargetElement.getProperty(#height)
   pTargetScroll = tScroll
-  exit
 end
 
-on selectItemAt(me, tloc)
+on selectItemAt me, tloc 
   return()
-  exit
 end
 
-on getSelectedItem(me)
+on getSelectedItem me 
   return()
-  exit
 end
 
-on convertOfferListToDeallist(me, tOfferList)
+on convertOfferListToDeallist me, tOfferList 
   tDealList = []
-  repeat while me <= undefined
+  repeat while tOfferList <= undefined
     tOffer = getAt(undefined, tOfferList)
     tFurniProps = pPersistentFurniData.getProps(tOffer.getAt(#type), tOffer.getAt(#classID))
     if voidp(tFurniProps) then
@@ -67,10 +62,9 @@ on convertOfferListToDeallist(me, tOfferList)
     end if
   end repeat
   return(tDealList)
-  exit
 end
 
-on resolveSmallPreview(me, tOffer)
+on resolveSmallPreview me, tOffer 
   tPrevMember = "ctlg_pic_"
   tOfferName = tOffer.getAt(#offername)
   if memberExists(tPrevMember & "small_" & tOfferName) then
@@ -104,10 +98,9 @@ on resolveSmallPreview(me, tOffer)
     return(pDealPreviewObj.renderDealPreviewImage(pDealNumber, me.convertOfferListToDeallist(tOffer.getAt(#content)), pSmallItemWidth, pSmallItemHeight))
   end if
   return(void())
-  exit
 end
 
-on resolveMembers(me)
+on resolveMembers me 
   if voidp(pPersistentFurniData) then
     pPersistentFurniData = getThread("dynamicdownloader").getComponent().getPersistentFurniDataObject()
   end if
@@ -119,7 +112,7 @@ on resolveMembers(me)
     return(error(me, "Stripdata missing", #resolveMembers))
   end if
   i = 0
-  repeat while me <= undefined
+  repeat while pStripData <= undefined
     tProduct = getAt(undefined, undefined)
     i = i + 1
     tOffer = tProduct.getAt(#offerList).getAt(1)
@@ -140,7 +133,7 @@ on resolveMembers(me)
           tObjectLoadList.add([#assetId:tClass, #type:#furni, #props:[#itemIndex:i, #pageid:me.pPageId]])
         end if
         if tOffer.getAt(#content).count > 1 then
-          repeat while me <= undefined
+          repeat while pStripData <= undefined
             tDealItem = getAt(undefined, undefined)
             tFurniProps = pPersistentFurniData.getProps(tDealItem.getAt(#type), tDealItem.getAt(#classID))
             if not listp(tFurniProps) then
@@ -157,25 +150,23 @@ on resolveMembers(me)
         end if
       end if
       pPageItemDownloader.defineCallback(me, #downloadCompleted)
-      repeat while me <= undefined
+      repeat while pStripData <= undefined
         tLoadObject = getAt(undefined, undefined)
         pPageItemDownloader.registerDownload(tLoadObject.getAt(#type), tLoadObject.getAt(#assetId), tLoadObject.getAt(#props))
       end repeat
-      exit
     end if
   end repeat
 end
 
-on getClassAsset(me, tClassName)
+on getClassAsset me, tClassName 
   tClass = tClassName
   if tClass contains "*" then
     tClass = tClass.getProp(#char, 1, offset("*", tClass) - 1)
   end if
   return(tClass)
-  exit
 end
 
-on downloadCompleted(me, tProps)
+on downloadCompleted me, tProps 
   if tProps.getAt(#props).getaProp(#imagedownload) then
     return()
   end if
@@ -192,5 +183,4 @@ on downloadCompleted(me, tProps)
     pStripData.getAt(tItemIndex).setaProp(#smallPreview, tSmallPrev)
   end if
   return()
-  exit
 end

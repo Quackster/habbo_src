@@ -1,4 +1,6 @@
-on construct(me)
+property pConnectionId, pQueue, pHandshakeFinished, pUseCrypto, pCrypto, pTimeOutID
+
+on construct me 
   if _player <> void() then
     if _player.traceScript or _player.traceScript then
       return(0)
@@ -8,48 +10,43 @@ on construct(me)
   _player.traceScript = 0
   pConnectionId = getVariable("connection.mus.id", #mus)
   pTimeOutID = "mus_close_delay"
-  pCallBacks = []
+  pCallBacks = [:]
   pQueue = []
   pCrypto = createObject(#temp, ["RC4 Class"])
   pUseCrypto = 0
   pHandshakeFinished = 0
   return(me.registerCmds(1))
-  exit
 end
 
-on deconstruct(me)
+on deconstruct me 
   me.registerCmds(0)
   pHandshakeFinished = 0
   pUseCrypto = 0
   return(removeMultiuser(pConnectionId))
-  exit
 end
 
-on retrieveData(me, tID, tAuth, tCallBackObj)
+on retrieveData me, tID, tAuth, tCallBackObj 
   pQueue.add([#type:#retrieve, #id:tID, #auth:tAuth, #callback:tCallBackObj])
   if count(pQueue) = 1 or not multiuserExists(pConnectionId) then
     me.next()
   end if
-  exit
 end
 
-on storeData(me, tdata, tCallBackObj)
+on storeData me, tdata, tCallBackObj 
   pQueue.add([#type:#store, #data:tdata, #callback:tCallBackObj])
   if count(pQueue) = 1 or not multiuserExists(pConnectionId) then
     me.next()
   end if
-  exit
 end
 
-on addMessageToQueue(me, tMsg)
+on addMessageToQueue me, tMsg 
   pQueue.add([#type:#fusemsg, #message:tMsg])
   if count(pQueue) = 1 or not multiuserExists(pConnectionId) then
     me.next()
   end if
-  exit
 end
 
-on checkConnection(me)
+on checkConnection me 
   if not multiuserExists(pConnectionId) then
     return(error(me, "MUS connection not found:" && pConnectionId, #checkConnection, #minor))
   end if
@@ -65,10 +62,9 @@ on checkConnection(me)
   else
     me.delay(1000, #checkConnection)
   end if
-  exit
 end
 
-on next(me)
+on next me 
   if not multiuserExists(pConnectionId) then
     createMultiuser(pConnectionId, getVariable("connection.mus.host"), getIntVariable("connection.mus.port"))
     getMultiuser(pConnectionId).registerBinaryDataHandler(me.getID(), #binaryDataReceived)
@@ -80,13 +76,13 @@ on next(me)
       end if
       if count(pQueue) > 0 then
         tTask = pQueue.getAt(1)
-        if me = #store then
+        if tTask.type = #store then
           return(getMultiuser(pConnectionId).sendBinary(tTask.data))
         else
-          if me = #retrieve then
+          if tTask.type = #retrieve then
             return(getMultiuser(pConnectionId).send("GETBINDATA" && tTask.id && tTask.auth))
           else
-            if me = #fusemsg then
+            if tTask.type = #fusemsg then
               pQueue.deleteAt(1)
               getMultiuser(pConnectionId).send(tTask.message)
               me.next()
@@ -99,10 +95,9 @@ on next(me)
       end if
     end if
   end if
-  exit
 end
 
-on binaryDataStored(me, tMsg)
+on binaryDataStored me, tMsg 
   tTask = pQueue.getAt(1)
   if tTask.getAt(#callback) <> void() then
     tObject = getObject(tTask.getAt(#callback))
@@ -112,16 +107,14 @@ on binaryDataStored(me, tMsg)
   end if
   pQueue.deleteAt(1)
   me.next()
-  exit
 end
 
-on binaryDataAuthKeyError(me)
+on binaryDataAuthKeyError me 
   pQueue.deleteAt(1)
   me.next()
-  exit
 end
 
-on binaryDataReceived(me, tdata)
+on binaryDataReceived me, tdata 
   tTask = pQueue.getAt(1)
   pQueue.deleteAt(1)
   if tTask.getAt(#callback) <> void() then
@@ -131,18 +124,16 @@ on binaryDataReceived(me, tdata)
     end if
   end if
   me.next()
-  exit
 end
 
-on delayedClosing(me)
+on delayedClosing me 
   if multiuserExists(pConnectionId) and count(pQueue) = 0 then
     removeMultiuser(pConnectionId)
   end if
-  exit
 end
 
-on registerCmds(me, tBool)
-  tList = []
+on registerCmds me, tBool 
+  tList = [:]
   tList.setAt("BINDATA_SAVED", #binaryDataStored)
   tList.setAt("BINDATA_AUTHKEYERROR", #binaryDataAuthKeyError)
   tList.setAt("DISCONNECT", #deconstruct)
@@ -153,14 +144,12 @@ on registerCmds(me, tBool)
   else
     return(getMultiuserManager().unregisterListener(pConnectionId, me.getID(), tList))
   end if
-  exit
 end
 
-on foo(me)
-  exit
+on foo me 
 end
 
-on helloReply(me, tMsg)
+on helloReply me, tMsg 
   tSecretKey = tMsg.getAt(#content)
   tSecretKey = integer(tSecretKey)
   if voidp(tSecretKey) or tSecretKey = "" or tSecretKey = 0 then
@@ -170,5 +159,4 @@ on helloReply(me, tMsg)
     pUseCrypto = 1
   end if
   pHandshakeFinished = 1
-  exit
 end

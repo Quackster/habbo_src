@@ -1,5 +1,7 @@
-on construct(me)
-  pData = []
+property pwidth, pheight, pData, pCustomText, pOnline, pLocation, pLastTime, pMsgCount, pCacheImage, pSelected, pName, pID, pWebLinkRect, pMsgLinkRect, pFollowLinkRect, pNeedUpdate, pNameNeedUpdate, pWriterName, pLeftMarg, pCacheNameImg, pTopMarg, pFriendNameOffset, pMsgsNeedUpdate, pWriterMsgs, pLastNeedUpdate, pLocationNeedUpdate, pWriterLast, pLineHeight, pFriendLastOffset, pCacheOnlineImg, pCacheWebLinkImg, pMissNeedUpdate, pWriterText, pFriendPerMsgOffset, pDotLineImg
+
+on construct me 
+  pData = [:]
   pID = ""
   pCustomText = ""
   pOnline = 0
@@ -34,10 +36,9 @@ on construct(me)
     pFriendPerMsgOffset = getVariable("messenger_friend_permsg_offset")
   end if
   return(1)
-  exit
 end
 
-on define(me, tdata, tProps)
+on define me, tdata, tProps 
   pData = tdata
   pID = tdata.id
   pName = tdata.name
@@ -51,10 +52,9 @@ on define(me, tdata, tProps)
   pWriterText = getWriter(tProps.writer_text)
   pNeedUpdate = 1
   me.update()
-  exit
 end
 
-on update(me)
+on update me 
   pOnline = pData.online
   if pData.customText <> pCustomText then
     pCustomText = pData.customText
@@ -79,10 +79,9 @@ on update(me)
     pMsgsNeedUpdate = 1
     pNeedUpdate = 1
   end if
-  exit
 end
 
-on select(me, tClickPoint, tBuffer, tPosition)
+on select me, tClickPoint, tBuffer, tPosition 
   tPos = tPosition * pheight
   tRect = pCacheImage.rect + rect(0, 1, -4, -2) + [0, tPos, 0, tPos]
   if pSelected then
@@ -94,15 +93,13 @@ on select(me, tClickPoint, tBuffer, tPosition)
   end if
   getThread(#messenger).getInterface().buddySelectOrNot(pName, pID, pSelected)
   return(1)
-  exit
 end
 
-on unselect(me)
+on unselect me 
   pSelected = 0
-  exit
 end
 
-on clickAt(me, tpoint, tBuffer, tPosition)
+on clickAt me, tpoint, tBuffer, tPosition 
   if me.checkLink(tpoint, #messages) then
     tMsgStruct = getThread(#messenger).getComponent().getMessageBySenderId(pID)
     getThread(#messenger).getInterface().renderMessage(tMsgStruct)
@@ -123,48 +120,45 @@ on clickAt(me, tpoint, tBuffer, tPosition)
   end if
   me.select(tpoint, tBuffer, tPosition)
   return(1)
-  exit
 end
 
-on checkLinks(me, tpoint)
+on checkLinks me, tpoint 
   tLinks = [#home, #messages, #follow]
-  repeat while me <= undefined
+  repeat while tLinks <= undefined
     tLink = getAt(undefined, tpoint)
     if me.checkLink(tpoint, tLink) then
       return(1)
     end if
   end repeat
   return(0)
-  exit
 end
 
-on checkLink(me, tpoint, tLink)
+on checkLink me, tpoint, tLink 
   if tpoint.ilk <> #point then
     return(error(me, "Invalid point", #checkLink, #major))
   end if
   if getThread(#messenger).getInterface().getSelectedBuddiesCount() > 1 then
     return(0)
   end if
-  if me = #home then
+  if tLink = #home then
     return(tpoint.inside(pWebLinkRect))
   else
-    if me = #messages then
+    if tLink = #messages then
       if pMsgCount = 0 then
         return(0)
       end if
       return(tpoint.inside(pMsgLinkRect))
     else
-      if me = #follow then
+      if tLink = #follow then
         return(tpoint.inside(pFollowLinkRect))
       else
         return(error(me, "Unknown link:" && tLink, #checkLink, #major))
       end if
     end if
   end if
-  exit
 end
 
-on render(me, tBuffer, tPosition)
+on render me, tBuffer, tPosition 
   tPosition = tPosition - 1
   if pData.update then
     pNeedUpdate = 1
@@ -280,5 +274,4 @@ on render(me, tBuffer, tPosition)
     tBuffer.copyPixels(pCacheImage, tDstRect, pCacheImage.rect)
     pData.update = 0
   end if
-  exit
 end

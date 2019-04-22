@@ -1,27 +1,24 @@
-on setID(me, tid)
+on setID me, tid 
   callAncestor(#setID, [me], tid)
   executeMessage(#sound_machine_created, me.getID(), 1)
   return(1)
-  exit
 end
 
-on deconstruct(me)
+on deconstruct me 
   executeMessage(#sound_machine_removed, me.getID())
   callAncestor(#deconstruct, [me])
   return(1)
-  exit
 end
 
-on define(me, tProps)
+on define me, tProps 
   tRetVal = callAncestor(#define, [me], tProps)
   if voidp(tProps.getAt(#stripId)) then
     executeMessage(#sound_machine_defined, me.getID())
   end if
   return(1)
-  exit
 end
 
-on select(me)
+on select me 
   towner = 0
   tSession = getObject(#session)
   if tSession <> 0 then
@@ -39,19 +36,17 @@ on select(me)
     return(callAncestor(#select, [me]))
   end if
   return(1)
-  exit
 end
 
-on changeState(me, tStateOn)
+on changeState me, tStateOn 
   tNewState = 1
   if tStateOn then
     tNewState = 2
   end if
   return(getThread(#room).getComponent().getRoomConnection().send("SETSTUFFDATA", [#string:string(me.getID()), #string:string(tNewState)]))
-  exit
 end
 
-on setState(me, tNewState)
+on setState me, tNewState 
   callAncestor(#setState, [me], tNewState)
   if voidp(tNewState) then
     return(0)
@@ -61,5 +56,4 @@ on setState(me, tNewState)
     tStateOn = 1
   end if
   executeMessage(#sound_machine_set_state, [#id:me.getID(), #furniOn:tStateOn])
-  exit
 end

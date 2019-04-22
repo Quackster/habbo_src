@@ -1,17 +1,17 @@
-on construct(me)
+property pSprite, pStartloc, pMember, pPulseState, pStopLoc, pProps
+
+on construct me 
   pMember = member(getmemnum("bb2_pwrupbubble.pulse"))
-  pProps = []
+  pProps = [:]
   return(1)
-  exit
 end
 
-on deconstruct(me)
-  pProps = []
+on deconstruct me 
+  pProps = [:]
   return(1)
-  exit
 end
 
-on definePulse(me)
+on definePulse me 
   pPulseState = #Opening
   pSprite = sprite(me.GET(#sprite))
   pStartloc = me.GET(#humanLoc) + point(0, -20)
@@ -20,20 +20,18 @@ on definePulse(me)
   pSprite.member = pMember
   pSprite.color = me.GET(#balloonColor)
   return(1)
-  exit
 end
 
-on removePulse(me)
+on removePulse me 
   if voidp(pSprite) then
     return(0)
   end if
   pSprite.locV = -1000
   pPulseState = #hide
   return(1)
-  exit
 end
 
-on OpeningBalloon(me, tLocV)
+on OpeningBalloon me, tLocV 
   if pPulseState <> #Opening then
     return(0)
   end if
@@ -44,20 +42,17 @@ on OpeningBalloon(me, tLocV)
     pStartloc = pStartloc + point(0, tLocV)
     pSprite.loc = pStartloc
   end if
-  exit
 end
 
-on set(me, tKey, tValue)
+on set me, tKey, tValue 
   pProps.setAt(tKey, tValue)
   return(1)
-  exit
 end
 
-on GET(me, tKey)
+on GET me, tKey 
   tValue = pProps.getAt(tKey)
   if voidp(tValue) then
     tValue = 0
   end if
   return(tValue)
-  exit
 end

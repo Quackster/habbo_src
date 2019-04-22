@@ -1,22 +1,21 @@
-on construct(me)
+property pSoundPackagePreviewPrefix, pLastPlayTime, pPlayTimeoutMillis
+
+on construct me 
   pSoundPackagePreviewPrefix = "sound_set_preview_"
   pPlayTimeoutMillis = 1000
   pLastPlayTime = 0
   return(1)
-  exit
 end
 
-on deconstruct(me)
+on deconstruct me 
   return(1)
-  exit
 end
 
-on define(me, tPageProps)
+on define me, tPageProps 
   me.setPreviewState(#hidden)
-  exit
 end
 
-on setPreviewState(me, tstate)
+on setPreviewState me, tstate 
   tWindowObj = getThread(#catalogue).getInterface().getCatalogWindow()
   if not tWindowObj then
     tWindowObj = void()
@@ -35,17 +34,17 @@ on setPreviewState(me, tstate)
   end if
   tTextElem = tWindowObj.getElement(tPreviewTextElem)
   tIconElem = tWindowObj.getElement(tPreviewIconElem)
-  if me = #hidden then
+  if tstate = #hidden then
     tTextElem.setProperty(#visible, 0)
     tIconElem.setProperty(#visible, 0)
   else
-    if me = #download then
+    if tstate = #download then
       tTextElem.setProperty(#visible, 1)
       tTextElem.setText(getText("preview_downloading"))
       tIconElem.setProperty(#visible, 1)
       tIconElem.setProperty(#blend, 50)
     else
-      if me = #playable then
+      if tstate = #playable then
         tTextElem.setProperty(#visible, 1)
         tTextElem.setText(getText("play_preview"))
         tIconElem.setProperty(#visible, 1)
@@ -53,10 +52,9 @@ on setPreviewState(me, tstate)
       end if
     end if
   end if
-  exit
 end
 
-on prepareItemPreview(me, tItem)
+on prepareItemPreview me, tItem 
   tSoundSetClass = tItem.getAt(#class)
   tDelim = the itemDelimiter
   the itemDelimiter = "_"
@@ -74,10 +72,9 @@ on prepareItemPreview(me, tItem)
   else
     me.setPreviewState(#playable)
   end if
-  exit
 end
 
-on soundDownloadCompleted(me, tPreviewPackage)
+on soundDownloadCompleted me, tPreviewPackage 
   tThread = getThread(#catalogue)
   tCatInterface = tThread.getInterface()
   tSelectedProduct = tCatInterface.getSelectedProduct()
@@ -89,10 +86,9 @@ on soundDownloadCompleted(me, tPreviewPackage)
   if tSelectedProductPreviewNo = tPreviewPackageNo then
     me.setPreviewState(#playable)
   end if
-  exit
 end
 
-on playPreviewOfSelected(me)
+on playPreviewOfSelected me 
   if the milliSeconds - pLastPlayTime < pPlayTimeoutMillis then
     return(0)
   end if
@@ -108,10 +104,9 @@ on playPreviewOfSelected(me)
   if memberExists(tPreviewPackage) then
     playSound(tPreviewPackage, #cut, [#loopCount:1, #infiniteloop:0, #volume:255])
   end if
-  exit
 end
 
-on eventProc(me, tEvent, tSprID, tProp)
+on eventProc me, tEvent, tSprID, tProp 
   tThread = getThread(#catalogue)
   tCatInterface = tThread.getInterface()
   tSelectedProduct = tCatInterface.getSelectedProduct()
@@ -127,10 +122,9 @@ on eventProc(me, tEvent, tSprID, tProp)
         me.setPreviewState(#hidden)
       end if
     else
-      if me = "play_preview_icon" then
+      if tSprID = "play_preview_icon" then
         me.playPreviewOfSelected()
       end if
     end if
   end if
-  exit
 end

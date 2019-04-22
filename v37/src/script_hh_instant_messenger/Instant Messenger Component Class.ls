@@ -1,4 +1,6 @@
-on construct(me)
+property pInvitees, pChats, pFriends, pShowModNotification, pUserId
+
+on construct me 
   tStamp = ""
   tNo = 1
   repeat while tNo <= 100
@@ -12,6 +14,7 @@ on construct(me)
   repeat while tCharNo <= tStamp.length
     tChar = chars(tStamp, tCharNo, tCharNo)
     tChar = charToNum(tChar)
+    tChar = tChar * tCharNo + 309203
     tReceipt.setAt(tCharNo, tChar)
     tCharNo = 1 + tCharNo
   end repeat
@@ -19,29 +22,26 @@ on construct(me)
     error(me, "Invalid build structure", #checkDataLoaded, #critical)
     return(0)
   end if
-  pChats = []
-  pFriends = []
+  pChats = [:]
+  pFriends = [:]
   pInvitees = []
   registerMessage(#userlogin, me.getID(), #setUserID)
   registerMessage(#startIMChat, me.getID(), #startIMChat)
   registerMessage(#friendDataUpdated, me.getID(), #updateChat)
   pShowModNotification = 1
   return(1)
-  exit
 end
 
-on deconstruct(me)
+on deconstruct me 
   unregisterMessage(#startIMChat, me.getID())
   return(1)
-  exit
 end
 
-on setUserID(me)
+on setUserID me 
   pUserId = getObject(#session).GET("user_user_id")
-  exit
 end
 
-on startIMChat(me, tReceiverName, tText)
+on startIMChat me, tReceiverName, tText 
   if not threadExists(#friend_list) then
     return(0)
   end if
@@ -60,34 +60,31 @@ on startIMChat(me, tReceiverName, tText)
   me.getInterface().activateChat(tReceiverID)
   me.getInterface().openIMWindow()
   me.updateChat(tReceiverID)
-  exit
 end
 
-on inviteFriends(me, tIDList)
+on inviteFriends me, tIDList 
   if not listp(tIDList) then
     return(0)
   end if
   pInvitees = tIDList
   me.getInterface().showInvitationWindow(pInvitees.count)
-  exit
 end
 
-on sendInvitation(me, tInvitationText)
+on sendInvitation me, tInvitationText 
   if pInvitees.count = 0 then
     return(0)
   end if
-  tMsg = []
+  tMsg = [:]
   tMsg.addProp(#integer, pInvitees.count)
-  repeat while me <= undefined
+  repeat while pInvitees <= undefined
     tID = getAt(undefined, tInvitationText)
     tMsg.addProp(#integer, integer(tID))
   end repeat
   tMsg.addProp(#string, tInvitationText)
   return(getConnection(getVariable("connection.info.id")).send("FRIEND_INVITE", tMsg))
-  exit
 end
 
-on addChat(me, tChatID, tDontPlaySound)
+on addChat me, tChatID, tDontPlaySound 
   if not voidp(pChats.getaProp(tChatID)) then
     return(0)
   end if
@@ -105,10 +102,9 @@ on addChat(me, tChatID, tDontPlaySound)
     pShowModNotification = 0
   end if
   return(1)
-  exit
 end
 
-on updateChat(me, tChatID)
+on updateChat me, tChatID 
   if voidp(tChatID) then
     return(0)
   end if
@@ -134,25 +130,22 @@ on updateChat(me, tChatID)
   end if
   pFriends.setaProp(tChatID, tFriendUpdated)
   me.getInterface().updateInterface()
-  exit
 end
 
-on removeChat(me, tChatID)
+on removeChat me, tChatID 
   if pChats.findPos(tChatID) = 0 then
     return(0)
   end if
   me.getInterface().removeChat(tChatID)
   return(1)
-  exit
 end
 
-on removeAllChats(me)
-  pChats = []
+on removeAllChats me 
+  pChats = [:]
   me.getInterface().removeAllChats()
-  exit
 end
 
-on getChat(me, tChatID)
+on getChat me, tChatID 
   tChat = pChats.getaProp(tChatID)
   if voidp(tChat) then
     if not me.addChat(tChatID) then
@@ -161,33 +154,31 @@ on getChat(me, tChatID)
     tChat = pChats.getaProp(tChatID)
   end if
   return(tChat)
-  exit
 end
 
-on receiveMessage(me, tSenderId, tText)
-  tEntry = []
+on receiveMessage me, tSenderId, tText 
+  tEntry = [:]
   tEntry.setaProp(#type, #message)
   tEntry.setaProp(#userID, tSenderId)
   tEntry.setaProp(#Msg, tText)
   tEntry.setaProp(#time, the time)
   me.addMessage(tSenderId, tEntry)
-  exit
 end
 
-on receiveError(me, tChatID, ttype)
-  if me = 3 then
+on receiveError me, tChatID, ttype 
+  if ttype = 3 then
     tTextKey = "im_error_receiver_muted"
   else
-    if me = 4 then
+    if ttype = 4 then
       tTextKey = "im_error_sender_muted"
     else
-      if me = 5 then
+      if ttype = 5 then
         tTextKey = "im_error_offline"
       else
-        if me = 6 then
+        if ttype = 6 then
           tTextKey = "im_error_not_friend"
         else
-          if me = 7 then
+          if ttype = 7 then
             tTextKey = "im_error_busy"
           else
             tTextKey = "im_error_undefined"
@@ -196,73 +187,66 @@ on receiveError(me, tChatID, ttype)
       end if
     end if
   end if
-  tEntry = []
+  tEntry = [:]
   tEntry.setaProp(#type, #error)
   tEntry.setaProp(#Msg, getText(tTextKey))
   tEntry.setaProp(#time, the time)
   me.addMessage(tChatID, tEntry)
-  exit
 end
 
-on receiveNotification(me, tChatID, ttype)
+on receiveNotification me, tChatID, ttype 
   tTextKey = "im_notification_" & string(ttype)
-  tEntry = []
+  tEntry = [:]
   tEntry.setaProp(#type, #notification)
   tEntry.setaProp(#Msg, getText(tTextKey))
   tEntry.setaProp(#time, the time)
   me.addMessage(tChatID, tEntry)
-  exit
 end
 
-on receiveInvitation(me, tChatID, tText)
+on receiveInvitation me, tChatID, tText 
   tText = getText("im_invitation") & "\r" & "\r" & tText
-  tEntry = []
+  tEntry = [:]
   tEntry.setaProp(#type, #invitation)
   tEntry.setaProp(#userID, tChatID)
   tEntry.setaProp(#Msg, tText)
   tEntry.setaProp(#time, the time)
   me.addMessage(tChatID, tEntry)
-  exit
 end
 
-on sendMessage(me, tReceiverID, tText)
+on sendMessage me, tReceiverID, tText 
   if voidp(tReceiverID) then
     return(0)
   end if
-  tEntry = []
+  tEntry = [:]
   tEntry.setaProp(#type, #message)
   tEntry.setaProp(#userID, pUserId)
   tEntry.setaProp(#Msg, tText)
   tEntry.setaProp(#time, the time)
   me.addMessage(tReceiverID, tEntry)
   tText = getStringServices().convertSpecialChars(tText, 1)
-  tdata = []
+  tdata = [:]
   tdata.addProp(#integer, integer(tReceiverID))
   tdata.addProp(#string, tText)
   return(getConnection(getVariable("connection.info.id")).send("MESSENGER_SENDMSG", tdata))
-  exit
 end
 
-on addMessage(me, tChatID, tEntry)
+on addMessage me, tChatID, tEntry 
   tChat = me.getChat(tChatID)
   if not tChat then
     return(0)
   end if
   tChat.add(tEntry)
   me.getInterface().addMessage(tChatID, tEntry)
-  exit
 end
 
-on updateFriend(me, tUserID)
+on updateFriend me, tUserID 
   if not objectExists(#friend_list_component) then
     return(error(me, "Can't find friend list component", #getFriend, #major))
   end if
   tFriend = getObject(#friend_list_component).getFriendByID(tUserID)
   return(tFriend)
-  exit
 end
 
-on getFriend(me, tUserID)
+on getFriend me, tUserID 
   return(pFriends.getaProp(tUserID))
-  exit
 end

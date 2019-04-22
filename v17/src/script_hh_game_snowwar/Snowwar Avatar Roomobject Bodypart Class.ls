@@ -1,32 +1,30 @@
-on changePartData(me, tmodel, tColor)
+on changePartData me, tmodel, tColor 
   if me.pPart = "bd" then
     return(1)
   end if
   return(ancestor.changePartData(tmodel, tColor))
-  exit
 end
 
-on defineActExplicit(me, tAct, tTargetPartList)
+on defineActExplicit me, tAct, tTargetPartList 
   if tTargetPartList.getOne(me.pPart) then
     me.pAction = tAct
   end if
-  exit
 end
 
-on update(me)
+on update me 
   tAnimCntr = 0
   tAction = me.pAction
   tPart = me.pPart
   tdir = me.getProp(#pFlipList, me.pDirection + 1)
-  if me <> "bd" then
-    if me <> "lg" then
-      if me = "sh" then
+  if me.pPart <> "bd" then
+    if me.pPart <> "lg" then
+      if me.pPart = "sh" then
         if me.pAction = "wlk" then
           tAnimCntr = me.pAnimCounter
         end if
       else
-        if me <> "lh" then
-          if me = "ls" then
+        if me.pPart <> "lh" then
+          if me.pPart = "ls" then
             if me.pDirection = tdir then
               if not voidp(me.pActionLh) then
                 tAction = me.pActionLh
@@ -45,15 +43,15 @@ on update(me)
                 if ["crr", "drk", "ohd"].getPos(tAction) <> 0 then
                   if me.pDirection >= 4 then
                     me.pXFix = -40
-                    tPart = me & pPart.getProp(#char, 2)
+                    tPart = me.pPart & pPart.getProp(#char, 2)
                   end if
                   tdir = me.pDirection
                 end if
               end if
             end if
           else
-            if me <> "rh" then
-              if me = "rs" then
+            if me.pPart <> "rh" then
+              if me.pPart = "rs" then
                 if me.pDirection = tdir then
                   if not voidp(me.pActionRh) then
                     tAction = me.pActionRh
@@ -68,20 +66,20 @@ on update(me)
                 else
                   if tAction = "wav" then
                     tAnimCntr = me.pAnimCounter mod 2
-                    tPart = me & pPart.getProp(#char, 2)
+                    tPart = me.pPart & pPart.getProp(#char, 2)
                     tdir = me.pDirection
                   else
                     if tAction = "sig" then
                       tAnimCntr = 0
-                      tPart = me & pPart.getProp(#char, 2)
+                      tPart = me.pPart & pPart.getProp(#char, 2)
                       tdir = me.pDirection
                       tAction = "wav"
                     end if
                   end if
                 end if
               else
-                if me <> "hd" then
-                  if me = "fc" then
+                if me.pPart <> "hd" then
+                  if me.pPart = "fc" then
                     if me.pTalking then
                       if me.pAction = "lay" then
                         tAction = "lsp"
@@ -91,20 +89,20 @@ on update(me)
                       tAnimCntr = me.pAnimCounter mod 2
                     end if
                   else
-                    if me = "ey" then
+                    if me.pPart = "ey" then
                       if me.pTalking and me.pAction <> "lay" and me.pAnimCounter mod 2 = 0 then
                         me.pYFix = -1
                       end if
                     else
-                      if me <> "hr" then
-                        if me = "hrb" then
+                      if me.pPart <> "hr" then
+                        if me.pPart = "hrb" then
                           if me.pTalking and me.pAnimCounter mod 2 = 0 then
                             if me.pAction <> "lay" then
                               tAction = "spk"
                             end if
                           end if
                         else
-                          if me = "ri" then
+                          if me.pPart = "ri" then
                             if not me.pCarrying then
                               me.pMemString = ""
                               if me.width > 0 then
@@ -117,7 +115,7 @@ on update(me)
                               tdir = me.pDirection
                             end if
                           else
-                            if me = "li" then
+                            if me.pPart = "li" then
                               tAction = me.pActionLh
                               tdir = me.pDirection
                             end if
@@ -140,7 +138,7 @@ on update(me)
                             tLocFix = me.pLocFix
                             if me.pFlipH then
                               me.pCacheImage = me.flipHorizontal(me.pCacheImage)
-                              tX = me + pBuffer.width
+                              tX = me.pPart + pBuffer.width
                               tLocFix = point(-me.getProp(#pLocFix, 1), me.getProp(#pLocFix, 2))
                               if me.pPeopleSize = "sh" then
                                 tX = tX - 2
@@ -159,7 +157,6 @@ on update(me)
                         me.pXFix = 0
                         me.pYFix = 0
                         pBuffer.copyPixels(me.pCacheImage, me.pCacheRectA, me.pCacheRectB, me.pDrawProps)
-                        exit
                       end if
                     end if
                   end if

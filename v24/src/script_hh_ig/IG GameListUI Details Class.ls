@@ -1,4 +1,4 @@
-on render(me)
+on render me 
   me.pWindowID = "list_det"
   tWrapObjRef = me.getWindowWrapper()
   if tWrapObjRef = 0 then
@@ -44,22 +44,20 @@ on render(me)
   me.renderButtons()
   tWrapObjRef.render()
   return(1)
-  exit
 end
 
-on renderProperty(me, tKey, tValue)
-  if me = #game_type_icon then
+on renderProperty me, tKey, tValue 
+  if tKey = #game_type_icon then
     return(me.renderType(tValue))
   else
-    if me = #level_name then
+    if tKey = #level_name then
       return(me.renderName(tValue))
     end if
   end if
   return(0)
-  exit
 end
 
-on renderType(me, tValue)
+on renderType me, tValue 
   tWndObj = getWindow(me.getWindowId())
   if tWndObj = 0 then
     return(0)
@@ -72,10 +70,9 @@ on renderType(me, tValue)
     tElem.feedImage(tValue)
   end if
   return(1)
-  exit
 end
 
-on renderName(me, tValue)
+on renderName me, tValue 
   tWndObj = getWindow(me.getWindowId())
   if tWndObj = 0 then
     return(0)
@@ -86,10 +83,9 @@ on renderName(me, tValue)
   end if
   tElem.setText(tValue)
   return(1)
-  exit
 end
 
-on renderButtons(me)
+on renderButtons me 
   tWrapObjRef = me.getWindowWrapper()
   if tWrapObjRef = 0 then
     return(0)
@@ -116,10 +112,9 @@ on renderButtons(me)
     tWrapObjRef.replaceOneWindow(me.getWindowId("btn_j"), tLayout, 1)
   end if
   return(1)
-  exit
 end
 
-on renderTeams(me, tGameRef)
+on renderTeams me, tGameRef 
   tWndObj = getWindow(me.getWindowId())
   if tWndObj = 0 then
     return(0)
@@ -150,10 +145,9 @@ on renderTeams(me, tGameRef)
     tTeamIndex = 1 + tTeamIndex
   end repeat
   return(1)
-  exit
 end
 
-on renderNoPlayer(me, tRequired, tTeamIndex, tPlayerIndex)
+on renderNoPlayer me, tRequired, tTeamIndex, tPlayerIndex 
   tWndObj = getWindow(me.getWindowId())
   if tWndObj = 0 then
     return(0)
@@ -186,10 +180,9 @@ on renderNoPlayer(me, tRequired, tTeamIndex, tPlayerIndex)
     tElement.hide()
   end if
   return(1)
-  exit
 end
 
-on renderPlayer(me, tInfo, tTeamIndex, tPlayerIndex, tOwnerFlag)
+on renderPlayer me, tInfo, tTeamIndex, tPlayerIndex, tOwnerFlag 
   tWndObj = getWindow(me.getWindowId())
   if tWndObj = 0 then
     return(0)
@@ -232,5 +225,4 @@ on renderPlayer(me, tInfo, tTeamIndex, tPlayerIndex, tOwnerFlag)
     end if
   end if
   return(1)
-  exit
 end

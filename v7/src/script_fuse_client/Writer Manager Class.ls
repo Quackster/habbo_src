@@ -1,19 +1,19 @@
-on construct(me)
+property pItemList, pWriterClass, pPlainStruct
+
+on construct me 
   pWriterClass = getClassVariable("writer.instance.class")
   pPlainStruct = getStructVariable("struct.font.plain")
-  pItemList = []
+  pItemList = [:]
   return(1)
-  exit
 end
 
-on deconstruct(me)
+on deconstruct me 
   call(#deconstruct, pItemList)
-  pItemList = []
+  pItemList = [:]
   return(1)
-  exit
 end
 
-on create(me, tid, tMetrics)
+on create me, tid, tMetrics 
   if not voidp(pItemList.getAt(tid)) then
     return(error(me, "Writer already exists:" && tid, #create))
   end if
@@ -21,7 +21,7 @@ on create(me, tid, tMetrics)
   if not tObj then
     return(0)
   end if
-  if me = #struct then
+  if tMetrics.ilk = #struct then
     tObj.setFont(tMetrics)
   else
     tObj.setFont(pPlainStruct)
@@ -30,29 +30,25 @@ on create(me, tid, tMetrics)
   pItemList.setAt(tid, tObj)
   tObj.setID(tid)
   return(1)
-  exit
 end
 
-on remove(me, tid)
+on remove me, tid 
   tObj = pItemList.getAt(tid)
   if voidp(tObj) then
     return(error(me, "Writer not found:" && tid, #remove))
   end if
   tObj.deconstruct()
   return(pItemList.deleteProp(tid))
-  exit
 end
 
-on get(me, tid)
+on get me, tid 
   tObj = pItemList.getAt(tid)
   if voidp(tObj) then
     return(0)
   end if
   return(tObj)
-  exit
 end
 
-on exists(me, tid)
+on exists me, tid 
   return(not voidp(pItemList.getAt(tid)))
-  exit
 end

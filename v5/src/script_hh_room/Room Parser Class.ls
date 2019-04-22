@@ -1,71 +1,58 @@
-on construct(me)
+property pLastStatusOK, pStatusPeriod
+
+on construct me 
   pLastStatusOK = the milliSeconds
-  -- UNK_C8 4391575
-  -- UNK_2
-  if ERROR then
-    -- UNK_2
-    return(0.regMsgList(1))
-    exit
-  end if
+  pStatusPeriod = getIntVariable("room.status.period", 45000)
+  return(me.regMsgList(1))
 end
 
-on deconstruct(me)
+on deconstruct me 
   return(me.regMsgList(0))
-  exit
 end
 
-on parse_opc_ok(me, tMsg)
+on parse_opc_ok me, tMsg 
   if me.getComponent().getRoomID() = "private" then
     me.getComponent().roomConnected(void(), tMsg.subject)
   end if
-  exit
 end
 
-on parse_clc(me)
+on parse_clc me 
   me.getComponent().roomDisconnected()
-  exit
 end
 
-on parse_youaremod(me, tMsg)
+on parse_youaremod me, tMsg 
   getObject(#session).set("moderator", tMsg.getProp(#line, 2))
-  exit
 end
 
-on parse_flat_letin(me, tMsg)
+on parse_flat_letin me, tMsg 
   executeMessage("flat_letin")
   me.getComponent().roomConnected(void(), tMsg.subject)
-  exit
 end
 
-on parse_room_ready(me, tMsg)
+on parse_room_ready me, tMsg 
   me.getComponent().roomConnected(tMsg.getProp(#word, 1), tMsg.subject)
-  exit
 end
 
-on parse_logout(me, tMsg)
+on parse_logout me, tMsg 
   tuser = tMsg.getProp(#word, 1)
   if tuser <> getObject(#session).get("user_name") then
     me.getComponent().removeUserObject(tuser)
   end if
-  exit
 end
 
-on parse_disconnect(me)
+on parse_disconnect me 
   me.getComponent().roomDisconnected()
-  exit
 end
 
-on parse_error(me, tMsg)
+on parse_error me, tMsg 
   me.getHandler().handle_error(tMsg.content, tMsg.connection)
-  exit
 end
 
-on parse_doorbell_ringing(me, tMsg)
+on parse_doorbell_ringing me, tMsg 
   me.getInterface().showDoorBell(tMsg.content)
-  exit
 end
 
-on parse_status(me, tMsg)
+on parse_status me, tMsg 
   tList = []
   tCount = tMsg.count(#line)
   tDelim = the itemDelimiter
@@ -74,7 +61,7 @@ on parse_status(me, tMsg)
   repeat while i <= tCount
     tLine = tMsg.getProp(#line, i)
     if length(tLine) > 5 then
-      tuser = []
+      tuser = [:]
       tuser.setAt(#id, tLine.getPropRef(#item, 1).getProp(#word, 1))
       tloc = tLine.getPropRef(#item, 1).getProp(#word, 2)
       the itemDelimiter = ","
@@ -98,12 +85,12 @@ on parse_status(me, tMsg)
     i = 1 + i
   end repeat
   the itemDelimiter = tDelim
-  repeat while me <= undefined
+  repeat while tList <= undefined
     tuser = getAt(undefined, tMsg)
     tUserObj = me.getComponent().getUserObject(tuser.getAt(#id))
     if tUserObj <> 0 then
       tUserObj.refresh(tuser.getAt(#x), tuser.getAt(#y), tuser.getAt(#h), tuser.getAt(#dirHead), tuser.getAt(#dirBody))
-      repeat while me <= undefined
+      repeat while tList <= undefined
         tAction = getAt(undefined, tMsg)
         call(symbol("action_" & tAction.getAt(#name)), [tUserObj], tAction.getAt(#params))
       end repeat
@@ -113,23 +100,21 @@ on parse_status(me, tMsg)
     getConnection(tMsg.connection).send(#room, "STATUSOK")
     pLastStatusOK = the milliSeconds
   end if
-  exit
 end
 
-on parse_chat(me, tMsg)
+on parse_chat me, tMsg 
   tuser = tMsg.getProp(#word, 1)
   tChat = tMsg.getProp(#word, 2, tMsg.count(#word))
   tProp = [#command:tMsg.subject, #id:tuser, #message:tChat]
   if me.getComponent().userObjectExists(tuser) then
     me.getComponent().getBalloon().createBalloon(tProp)
   end if
-  exit
 end
 
-on parse_users(me, tMsg)
+on parse_users me, tMsg 
   tCount = tMsg.count(#line)
   tDelim = the itemDelimiter
-  tList = []
+  tList = [:]
   tuser = ""
   if not threadExists(#registration) then
     error(me, "Registration thread not found!", #parse_users)
@@ -140,32 +125,32 @@ on parse_users(me, tMsg)
     tLine = tMsg.getProp(#line, f)
     tProp = tLine.getProp(#char, 1)
     tdata = tLine.getProp(#char, 3, length(tLine))
-    if me = "n" then
+    if tProp = "n" then
       tuser = tdata
-      tList.setAt(tuser, [])
+      tList.setAt(tuser, [:])
       tList.getAt(tuser).setAt(#id, tuser)
       tList.getAt(tuser).setAt(#direction, [0, 0])
       tList.getAt(tuser).setAt(#class, "user")
     else
-      if me = "f" then
+      if tProp = "f" then
         tList.getAt(tuser).setAt(#figure, tdata)
       else
-        if me = "l" then
+        if tProp = "l" then
           tList.getAt(tuser).setAt(#x, integer(tdata.getProp(#word, 1)))
           tList.getAt(tuser).setAt(#y, integer(tdata.getProp(#word, 2)))
           tList.getAt(tuser).setAt(#h, integer(tdata.getProp(#word, 3)))
         else
-          if me = "c" then
+          if tProp = "c" then
             tList.getAt(tuser).setAt(#custom, tdata)
           else
-            if me = "s" then
+            if tProp = "s" then
               if tdata.getProp(#char, 1) = "F" or tdata.getProp(#char, 1) = "f" then
                 tList.getAt(tuser).setAt(#sex, "F")
               else
                 tList.getAt(tuser).setAt(#sex, "M")
               end if
             else
-              if me = "p" then
+              if tProp = "p" then
                 if tdata contains "ch=s" then
                   the itemDelimiter = "/"
                   tmodel = tdata.getProp(#char, 4, 6)
@@ -192,16 +177,15 @@ on parse_users(me, tMsg)
     f = 1 + f
   end repeat
   tFigureParser = getThread(#registration).getComponent()
-  repeat while me <= undefined
+  repeat while tProp <= undefined
     tuser = getAt(undefined, tMsg)
     tuser.setAt(#figure, tFigureParser.parseFigure(tuser.getAt(#figure), tuser.getAt(#sex), tuser.getAt(#class)))
   end repeat
   the itemDelimiter = tDelim
   me.getHandler().handle_users(tList)
-  exit
 end
 
-on parse_showprogram(me, tMsg)
+on parse_showprogram me, tMsg 
   tLine = tMsg.content
   tDst = tLine.getProp(#word, 1)
   tCmd = tLine.getProp(#word, 2)
@@ -211,22 +195,20 @@ on parse_showprogram(me, tMsg)
   if objectp(tObj) then
     call(#showprogram, [tObj], tList)
   end if
-  exit
 end
 
-on parse_heightmap(me, tMsg)
+on parse_heightmap me, tMsg 
   me.getComponent().validateHeightMap(tMsg.content)
-  exit
 end
 
-on parse_objects(me, tMsg)
+on parse_objects me, tMsg 
   tList = []
   tCount = tMsg.count(#line)
   i = 2
   repeat while i <= tCount
     tLine = tMsg.getProp(#line, i)
     if length(tLine) > 5 then
-      tObj = []
+      tObj = [:]
       tObj.setAt(#id, tLine.getProp(#word, 1))
       tObj.setAt(#class, tLine.getProp(#word, 2))
       tObj.setAt(#x, integer(tLine.getProp(#word, 3)))
@@ -250,10 +232,9 @@ on parse_objects(me, tMsg)
     i = 1 + i
   end repeat
   me.getHandler().handle_OBJECTS(tList)
-  exit
 end
 
-on parse_active_objects(me, tMsg)
+on parse_active_objects me, tMsg 
   tList = []
   tCount = tMsg.count(#line)
   tDelim = the itemDelimiter
@@ -265,7 +246,7 @@ on parse_active_objects(me, tMsg)
       the itemDelimiter = "/"
       tstate = tLine.getProp(#item, 1)
       the itemDelimiter = ","
-      tObj = []
+      tObj = [:]
       tObj.setAt(#id, tstate.getProp(#item, 1))
       tOther = tstate.getProp(#char, offset(",", tstate) + 1, length(tstate))
       tObj.setAt(#class, tOther.getProp(#word, 1))
@@ -279,7 +260,7 @@ on parse_active_objects(me, tMsg)
       tObj.setAt(#altitude, float(tOther.getProp(#word, 7)))
       tObj.setAt(#colors, tOther.getProp(#word, 8))
       the itemDelimiter = "/"
-      tObj.setAt(#props, [])
+      tObj.setAt(#props, [:])
       tObj.setAt(#name, tLine.getProp(#item, 2))
       tObj.setAt(#custom, tLine.getProp(#item, 3))
       tBool = 1
@@ -302,15 +283,13 @@ on parse_active_objects(me, tMsg)
   end repeat
   the itemDelimiter = tDelim
   me.getHandler().handle_active_objects(tList)
-  exit
 end
 
-on parse_activeobject_remove(me, tMsg)
+on parse_activeobject_remove me, tMsg 
   me.getComponent().removeActiveObject(tMsg.getProp(#word, 1))
-  exit
 end
 
-on parse_activeobject_update(me, tMsg)
+on parse_activeobject_update me, tMsg 
   tLine = tMsg.getProp(#line, 1)
   if tLine = "" then
     return(0)
@@ -319,7 +298,7 @@ on parse_activeobject_update(me, tMsg)
   the itemDelimiter = "/"
   tstate = tLine.getProp(#item, 1)
   the itemDelimiter = ","
-  tObj = []
+  tObj = [:]
   tObj.setAt(#id, tstate.getProp(#item, 1))
   tOther = tstate.getProp(#char, offset(",", tstate) + 1, length(tstate))
   tObj.setAt(#class, tOther.getProp(#word, 1))
@@ -333,7 +312,7 @@ on parse_activeobject_update(me, tMsg)
   tObj.setAt(#altitude, float(tOther.getProp(#word, 7)))
   tObj.setAt(#colors, tOther.getProp(#word, 8))
   the itemDelimiter = "/"
-  tObj.setAt(#props, [])
+  tObj.setAt(#props, [:])
   tObj.setAt(#name, tLine.getProp(#item, 2))
   tObj.setAt(#custom, tLine.getProp(#item, 3))
   tBool = 1
@@ -350,10 +329,9 @@ on parse_activeobject_update(me, tMsg)
   end repeat
   the itemDelimiter = tDelim
   me.getHandler().handle_activeobject_update(tObj)
-  exit
 end
 
-on parse_items(me, tMsg)
+on parse_items me, tMsg 
   tList = []
   tDelim = the itemDelimiter
   i = 1
@@ -361,7 +339,7 @@ on parse_items(me, tMsg)
     the itemDelimiter = "\t"
     tLine = tMsg.getProp(#line, i)
     if tLine <> "" then
-      tObj = []
+      tObj = [:]
       tObj.setAt(#id, tLine.getProp(#item, 1))
       tObj.setAt(#class, tLine.getProp(#item, 2))
       tObj.setAt(#owner, tLine.getProp(#item, 3))
@@ -388,10 +366,10 @@ on parse_items(me, tMsg)
         tObj.setAt(#local_x, value(tLocalLoc.getProp(#item, 1)))
         tObj.setAt(#local_y, value(tLocalLoc.getProp(#item, 2)))
         tDirChar = tLocString.getProp(#word, 3)
-        if me = "r" then
+        if tDirChar = "r" then
           tObj.setAt(#direction, "rightwall")
         else
-          if me = "l" then
+          if tDirChar = "l" then
             tObj.setAt(#direction, "leftwall")
           end if
         end if
@@ -403,42 +381,36 @@ on parse_items(me, tMsg)
   end repeat
   the itemDelimiter = tDelim
   me.getHandler().handle_items(tList)
-  exit
 end
 
-on parse_removeitem(me, tMsg)
+on parse_removeitem me, tMsg 
   me.getComponent().removeItemObject(tMsg.content)
-  exit
 end
 
-on parse_updateitem(me)
+on parse_updateitem me 
   error(me, "Unfinished method!!!", #parse_updateitem)
-  exit
 end
 
-on parse_stuffdataupdate(me, tMsg)
+on parse_stuffdataupdate me, tMsg 
   tDelim = the itemDelimiter
   the itemDelimiter = "/"
   tLine = tMsg.getProp(#line, 1)
   tProps = [#target:tLine.getProp(#item, 1), #key:tLine.getProp(#item, 3), #value:tLine.getProp(#item, 4)]
   the itemDelimiter = tDelim
   me.getHandler().handle_stuffdataupdate(tProps)
-  exit
 end
 
-on parse_presentopen(me, tMsg)
+on parse_presentopen me, tMsg 
   ttype = tMsg.getProp(#line, 2)
   tCode = tMsg.getProp(#line, 3)
   me.getHandler().handle_presentopen([#type:ttype, #code:tCode])
-  exit
 end
 
-on parse_present_nottimeyet(me, tMsg)
+on parse_present_nottimeyet me, tMsg 
   put("Hands off! Christmas presents can't be opened until December 24th (6pm GMT).")
-  exit
 end
 
-on parse_flatproperty(me, tMsg)
+on parse_flatproperty me, tMsg 
   tDelim = the itemDelimiter
   the itemDelimiter = "/"
   tLine = tMsg.content
@@ -450,25 +422,23 @@ on parse_flatproperty(me, tMsg)
   else
     error(me, "Private room program not found!", #handle_flatproperty)
   end if
-  exit
 end
 
-on parse_room_rights(me, tMsg)
-  if me = "YOUARECONTROLLER" then
+on parse_room_rights me, tMsg 
+  if tMsg.subject = "YOUARECONTROLLER" then
     getObject(#session).set("room_controller", 1)
   else
-    if me = "YOUNOTCONTROLLER" then
+    if tMsg.subject = "YOUNOTCONTROLLER" then
       getObject(#session).set("room_controller", 0)
     else
-      if me = "YOUAREOWNER" then
+      if tMsg.subject = "YOUAREOWNER" then
         getObject(#session).set("room_owner", 1)
       end if
     end if
   end if
-  exit
 end
 
-on parse_stripinfo(me, tMsg)
+on parse_stripinfo me, tMsg 
   tProps = [#objects:[], #count:0]
   tDelim = the itemDelimiter
   tProps.setAt(#count, integer(tMsg.getProp(#line, tMsg.count(#line))))
@@ -483,13 +453,13 @@ on parse_stripinfo(me, tMsg)
       the itemDelimiter = "|"
       if tItem.count(#item) < 2 then
       else
-        tObj = []
+        tObj = [:]
         tObj.setAt(#stripId, tItem.getProp(#item, 2))
         tObj.setAt(#striptype, tItem.getProp(#item, 4))
         tObj.setAt(#id, tItem.getProp(#item, 5))
         tObj.setAt(#class, tItem.getProp(#item, 6))
         tObj.setAt(#name, tItem.getProp(#item, 7))
-        if me = "S" then
+        if tObj.getAt(#striptype) = "S" then
           tObj.setAt(#striptype, "active")
           tObj.setAt(#custom, tItem.getProp(#item, 8))
           tObj.setAt(#dimensions, [integer(tItem.getProp(#item, 9)), integer(tItem.getProp(#item, 10))])
@@ -505,7 +475,7 @@ on parse_stripinfo(me, tMsg)
             tObj.setAt(#stripColor, 0)
           end if
         else
-          if me = "I" then
+          if tObj.getAt(#striptype) = "I" then
             tObj.setAt(#striptype, "item")
             tObj.setAt(#props, tItem.getProp(#item, 8))
             tObj.setAt(#custom, tItem.getProp(#item, 9))
@@ -517,41 +487,36 @@ on parse_stripinfo(me, tMsg)
     end if
   end repeat
   the itemDelimiter = tDelim
-  if me = "STRIPINFO" then
+  if tObj.getAt(#striptype) = "STRIPINFO" then
     me.getHandler().handle_stripinfo(tProps)
   else
-    if me = "ADDSTRIPITEM" then
+    if tObj.getAt(#striptype) = "ADDSTRIPITEM" then
       me.getHandler().handle_addstripitem(tProps)
     else
-      if me = "TRADE_ITEMS" then
+      if tObj.getAt(#striptype) = "TRADE_ITEMS" then
         return(tProps)
       end if
     end if
   end if
-  exit
 end
 
-on parse_stripupdated(me, tMsg)
+on parse_stripupdated me, tMsg 
   getConnection(tMsg.connection).send(#room, "GETSTRIP new")
-  exit
 end
 
-on parse_removestripitem(me, tMsg)
+on parse_removestripitem me, tMsg 
   me.getInterface().getContainer().removeStripItem(tMsg.getProp(#word, 1))
-  exit
 end
 
-on parse_youarenotallowed(me)
+on parse_youarenotallowed me 
   executeMessage(#alert, [#msg:"trade_youarenotallowed", #id:"youarenotallowed"])
-  exit
 end
 
-on parse_othernotallowed(me)
+on parse_othernotallowed me 
   executeMessage(#alert, [#msg:"trade_othernotallowed", #id:"othernotallowed"])
-  exit
 end
 
-on parse_idata(me, tMsg)
+on parse_idata me, tMsg 
   tDelim = the itemDelimiter
   the itemDelimiter = "\t"
   tid = integer(tMsg.getPropRef(#line, 1).getProp(#item, 1))
@@ -559,15 +524,14 @@ on parse_idata(me, tMsg)
   the itemDelimiter = tDelim
   tProps = [#id:tid, #text:tText]
   executeMessage(symbol("itemdata_received" & tid), tProps)
-  exit
 end
 
-on parse_trade_items(me, tMsg)
-  tMessage = []
+on parse_trade_items me, tMsg 
+  tMessage = [:]
   i = 1
   repeat while i <= 2
     tLine = tMsg.getProp(#line, i)
-    tdata = []
+    tdata = [:]
     tdata.setAt(#accept, tLine.getProp(#word, 2))
     tItemStr = "Kludgetus" & "\r" & tLine.getProp(#word, 3, tLine.count(#word)) & "\r" & 1
     tdata.setAt(#items, me.parse_stripinfo([#subject:"TRADE_ITEMS", #content:tItemStr]).getaProp(#objects))
@@ -575,16 +539,14 @@ on parse_trade_items(me, tMsg)
     i = 1 + i
   end repeat
   me.getInterface().getSafeTrader().refresh(tMessage)
-  exit
 end
 
-on parse_trade_close(me, tMsg)
+on parse_trade_close me, tMsg 
   me.getInterface().getSafeTrader().close()
   getConnection(tMsg.connection).send(#room, "GETSTRIP new")
-  exit
 end
 
-on parse_trade_accept(me, tMsg)
+on parse_trade_accept me, tMsg 
   tDelim = the itemDelimiter
   the itemDelimiter = "/"
   tuser = tMsg.getProp(#item, 1)
@@ -598,15 +560,13 @@ on parse_trade_accept(me, tMsg)
   end if
   the itemDelimiter = tDelim
   me.getInterface().getSafeTrader().accept(tuser, tValue)
-  exit
 end
 
-on parse_trade_completed(me, tMsg)
+on parse_trade_completed me, tMsg 
   me.getInterface().getSafeTrader().complete()
-  exit
 end
 
-on parse_door_in(me, tMsg)
+on parse_door_in me, tMsg 
   tDelim = the itemDelimiter
   the itemDelimiter = "/"
   tDoor = tMsg.getProp(#item, 1)
@@ -615,10 +575,9 @@ on parse_door_in(me, tMsg)
   the itemDelimiter = tDelim
   tProps = [#door:tDoor, #user:tuser, #param:tParam]
   me.getHandler().handle_door_in(tProps)
-  exit
 end
 
-on parse_door_out(me, tMsg)
+on parse_door_out me, tMsg 
   tDelim = the itemDelimiter
   the itemDelimiter = "/"
   tDoor = tMsg.getProp(#item, 1)
@@ -627,10 +586,9 @@ on parse_door_out(me, tMsg)
   the itemDelimiter = tDelim
   tProps = [#door:tDoor, #user:tuser, #param:tParam]
   me.getHandler().handle_door_out(tProps)
-  exit
 end
 
-on parse_doorflat(me, tMsg)
+on parse_doorflat me, tMsg 
   tDelim = the itemDelimiter
   the itemDelimiter = "/"
   tStr = tMsg.content
@@ -648,10 +606,9 @@ on parse_doorflat(me, tMsg)
   the itemDelimiter = tDelim
   tMsg = [#name:tName, #owner:towner, #door:"open", #id:tFlatID, #ip:tip, #port:tPort, #teleport:tDoorID]
   me.getHandler().handle_doorflat(tMsg)
-  exit
 end
 
-on parse_doordeleted(me, tMsg)
+on parse_doordeleted me, tMsg 
   if getObject(#session).exists("current_door_ID") then
     tDoorID = getObject(#session).get("current_door_ID")
     tDoorObj = me.getComponent().getActiveObject(tDoorID)
@@ -659,20 +616,18 @@ on parse_doordeleted(me, tMsg)
       tDoorObj.kickOut()
     end if
   end if
-  exit
 end
 
-on parse_dice_value(me, tMsg)
+on parse_dice_value me, tMsg 
   tid = tMsg.getProp(#word, 2)
   tValue = integer(tMsg.getProp(#word, 3) - tid * 38)
   if me.getComponent().activeObjectExists(tid) then
     me.getComponent().getActiveObject(tid).diceThrown(tValue)
   end if
-  exit
 end
 
-on regMsgList(me, tBool)
-  tMsgs = []
+on regMsgList me, tBool 
+  tMsgs = [:]
   tMsgs.setAt("OPC_OK", #parse_opc_ok)
   tMsgs.setAt("CLC", #parse_clc)
   tMsgs.setAt("YOUAREMOD", #parse_youaremod)
@@ -720,7 +675,7 @@ on regMsgList(me, tBool)
   tMsgs.setAt("DOOR_IN", #parse_door_in)
   tMsgs.setAt("DOOR_OUT", #parse_door_out)
   tMsgs.setAt("DICE_VALUE", #parse_dice_value)
-  tCmds = []
+  tCmds = [:]
   tCmds.setAt(#room_directory, numToChar(128) & numToChar(130))
   if tBool then
     registerListener(getVariable("connection.room.id"), me.getID(), tMsgs)
@@ -729,7 +684,7 @@ on regMsgList(me, tBool)
     unregisterListener(getVariable("connection.room.id"), me.getID(), tMsgs)
     unregisterCommands(getVariable("connection.room.id"), me.getID(), tCmds)
   end if
-  tMsgs = []
+  tMsgs = [:]
   tMsgs.setAt("DOORFLAT", #parse_doorflat)
   tMsgs.setAt("DOORDELETED", #parse_doordeleted)
   tMsgs.setAt("DOORNOTINSTALLED", #parse_doordeleted)
@@ -739,5 +694,4 @@ on regMsgList(me, tBool)
     unregisterListener(getVariable("connection.info.id"), me.getID(), tMsgs)
   end if
   return(1)
-  exit
 end

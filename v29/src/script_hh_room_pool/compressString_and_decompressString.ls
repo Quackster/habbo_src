@@ -1,4 +1,4 @@
-on compressString(str)
+on compressString str 
   strC = ""
   i = 1
   repeat while i <= length(str)
@@ -17,10 +17,9 @@ on compressString(str)
     i = 1 + i
   end repeat
   return(strC)
-  exit
 end
 
-on decompressString(strC)
+on decompressString strC 
   str = ""
   i = 1
   repeat while i <= length(strC)
@@ -40,10 +39,9 @@ on decompressString(strC)
     i = 1 + i
   end repeat
   return(str)
-  exit
 end
 
-on int2hex(aint)
+on int2hex aint 
   digits = "0123456789ABCDEF"
   h = ""
   if aint <= 0 then
@@ -59,10 +57,9 @@ on int2hex(aint)
     hexstr = "0" & hexstr
   end if
   return(hexstr)
-  exit
 end
 
-on hex2int(ahex)
+on hex2int ahex 
   digits = "0123456789ABCDEF"
   base = 1
   tot = 0
@@ -73,5 +70,4 @@ on hex2int(ahex)
     base = base * 16
   end repeat
   return(tot)
-  exit
 end

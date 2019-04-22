@@ -1,18 +1,18 @@
-on construct(me)
+property pMaxOffset, pWindowID, pElemName, pDelay, pScrollOn, pDelayLeft, pOffset, pSpeed
+
+on construct me 
   pScrollOn = 0
   pOffset = 0
   pSpeed = 1
   pDelay = 36
   return(1)
-  exit
 end
 
-on deconstruct(me)
+on deconstruct me 
   return(1)
-  exit
 end
 
-on registerElement(me, tWindowID, tElementName)
+on registerElement me, tWindowID, tElementName 
   tValidParams = me.checkWindowAndElemExistence(tWindowID, tElementName)
   if not tValidParams then
     return(0)
@@ -29,20 +29,18 @@ on registerElement(me, tWindowID, tElementName)
     me.centerText()
   end if
   return(1)
-  exit
 end
 
-on centerText(me)
+on centerText me 
   if not me.checkWindowAndElemExistence() then
     return(0)
   end if
   tElem = getWindow(pWindowID).getElement(pElemName)
   tElem.adjustOffsetTo(pMaxOffset / 2, 0)
   return(1)
-  exit
 end
 
-on checkWindowAndElemExistence(me, tWindowID, tElementName)
+on checkWindowAndElemExistence me, tWindowID, tElementName 
   if voidp(tWindowID) and voidp(tElementName) then
     tWindowID = pWindowID
     tElementName = pElemName
@@ -55,10 +53,9 @@ on checkWindowAndElemExistence(me, tWindowID, tElementName)
     return(0)
   end if
   return(1)
-  exit
 end
 
-on setScroll(me, tScrollOn)
+on setScroll me, tScrollOn 
   if not me.checkWindowAndElemExistence(pWindowID, pElemName) then
     pScrollOn = 0
     return(0)
@@ -75,17 +72,15 @@ on setScroll(me, tScrollOn)
     removeUpdate(me.getID())
   end if
   return(1)
-  exit
 end
 
-on resetScroll(me)
+on resetScroll me 
   pDelayLeft = pDelay
   pOffset = 0
   pSpeed = 1
-  exit
 end
 
-on update(me)
+on update me 
   if not pScrollOn then
     return(0)
   end if
@@ -107,5 +102,4 @@ on update(me)
   tElem = getWindow(pWindowID).getElement(pElemName)
   tElem.adjustOffsetTo(pOffset, 0)
   return(1)
-  exit
 end

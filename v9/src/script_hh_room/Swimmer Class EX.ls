@@ -1,4 +1,6 @@
-on define(me, tdata)
+property pPelleFigure, pFigure, pSwim, pPhFigure, pSwimAnimCount, pSwimAndStay
+
+on define me, tdata 
   pPhFigure = tdata.getAt(#phfigure)
   pFigure = tdata.getAt(#figure)
   pSwimAnimCount = 0
@@ -43,25 +45,21 @@ on define(me, tdata)
   me.setProp(#pInfoStruct, #ctrl, "furniture")
   me.setProp(#pInfoStruct, #badge, " ")
   return(1)
-  exit
 end
 
-on getPelleFigure(me)
+on getPelleFigure me 
   return(pPelleFigure)
-  exit
 end
 
-on getFigure(me)
+on getFigure me 
   return(pFigure)
-  exit
 end
 
-on isSwimming(me)
+on isSwimming me 
   return(pSwim)
-  exit
 end
 
-on resetValues(me, tX, tY, tH, tDirHead, tDirBody)
+on resetValues me, tX, tY, tH, tDirHead, tDirBody 
   me.pMoving = 0
   me.pDancing = 0
   me.pTalking = 0
@@ -83,16 +81,16 @@ on resetValues(me, tX, tY, tH, tDirHead, tDirBody)
   end if
   if tDirBody <> me.getProp(#pFlipList, tDirBody + 1) then
     if tDirBody <> tDirHead then
-      if me = 4 then
+      if tDirHead = 4 then
         tDirHead = 2
       else
-        if me = 5 then
+        if tDirHead = 5 then
           tDirHead = 1
         else
-          if me = 6 then
+          if tDirHead = 6 then
             tDirHead = 4
           else
-            if me = 7 then
+            if tDirHead = 7 then
               tDirHead = 5
             end if
           end if
@@ -113,17 +111,15 @@ on resetValues(me, tX, tY, tH, tDirHead, tDirBody)
     call(#Refresh, me.pExtraObjs)
   end if
   return(1)
-  exit
 end
 
-on Refresh(me, tX, tY, tH)
+on Refresh me, tX, tY, tH 
   me.arrangeParts()
   me.pSync = 0
   me.pChanges = 1
-  exit
 end
 
-on setPartLists(me, tmodels)
+on setPartLists me, tmodels 
   tAction = me.pMainAction
   me.pPartList = []
   if me.pSex = "F" then
@@ -133,7 +129,7 @@ on setPartLists(me, tmodels)
   end if
   tColor = pPhFigure.getAt("color")
   tmodels.setAt("ch", ["model":tphModel, "color":tColor])
-  repeat while me <= undefined
+  repeat while ["bd", "lh", "rh"] <= undefined
     f = getAt(undefined, tmodels)
     if voidp(tmodels.getAt(f)) then
       tmodels.setAt(f, ["model":"001", "color":rgb("#EEEEEE")])
@@ -148,7 +144,7 @@ on setPartLists(me, tmodels)
   repeat while i <= tPartDefinition.count
     tPartSymbol = tPartDefinition.getAt(i)
     if voidp(tmodels.getAt(tPartSymbol)) then
-      tmodels.setAt(tPartSymbol, [])
+      tmodels.setAt(tPartSymbol, [:])
     end if
     if voidp(tmodels.getAt(tPartSymbol).getAt("model")) then
       tmodels.getAt(tPartSymbol).setAt("model", "001")
@@ -177,17 +173,16 @@ on setPartLists(me, tmodels)
     me.setaProp(tPartSymbol, tColor)
     i = 1 + i
   end repeat
-  me.pPartIndex = []
+  me.pPartIndex = [:]
   i = 1
   repeat while i <= me.count(#pPartList)
     me.setProp(#pPartIndex, me.getPropRef(#pPartList, i).pPart, i)
     i = 1 + i
   end repeat
   return(1)
-  exit
 end
 
-on arrangeParts(me)
+on arrangeParts me 
   tRH = me.getProp(#pPartList, me.getProp(#pPartIndex, "rh"))
   tRI = me.getProp(#pPartList, me.getProp(#pPartIndex, "ri"))
   me.deleteAt(me.getProp(#pPartIndex, "rh"))
@@ -217,7 +212,7 @@ on arrangeParts(me)
   tLI = me.getProp(#pPartList, me.getProp(#pPartIndex, "li"))
   me.deleteAt(me.getProp(#pPartIndex, "lh"))
   me.deleteAt(me.getProp(#pPartIndex, "li"))
-  if me = 3 then
+  if me.pDirection = 3 then
     me.addAt(8, tLI)
     me.addAt(9, tLH)
   else
@@ -229,10 +224,9 @@ on arrangeParts(me)
     me.setProp(#pPartIndex, me.getPropRef(#pPartList, i).pPart, i)
     i = 1 + i
   end repeat
-  exit
 end
 
-on prepare(me)
+on prepare me 
   if pSwim then
     if me.pMoving then
       pSwimAndStay = 0
@@ -290,11 +284,11 @@ on prepare(me)
     end if
   end if
   if me.pMoving then
-    tFactor = float(the milliSeconds - me.pMoveStart) / me.pMoveTime * 0
-    if tFactor > 0 then
-      tFactor = 0
+    tFactor = float(the milliSeconds - me.pMoveStart) / me.pMoveTime * 1
+    if tFactor > 1 then
+      tFactor = 1
     end if
-    me.pScreenLoc = me.pDestLScreen - me.pStartLScreen * 0 * tFactor + me.pStartLScreen
+    me.pScreenLoc = me.pDestLScreen - me.pStartLScreen * 1 * tFactor + me.pStartLScreen
     me.pChanges = 1
   end if
   if me.pWaving then
@@ -306,10 +300,9 @@ on prepare(me)
     me.pAnimating = 1
     me.pChanges = 1
   end if
-  exit
 end
 
-on render(me)
+on render me 
   if not me.pChanges then
     return()
   end if
@@ -370,15 +363,13 @@ on render(me)
     me.pUpdateRect = me.pUpdateRect + [14, 0, 14, 0]
   end if
   undefined.copyPixels(me.pBuffer, me.pUpdateRect, me.pUpdateRect)
-  exit
 end
 
-on action_swim(me, props)
+on action_swim me, props 
   pSwim = 1
-  exit
 end
 
-on action_mv(me, tProps)
+on action_mv me, tProps 
   me.pMoving = 1
   tDelim = the itemDelimiter
   the itemDelimiter = ","
@@ -390,5 +381,4 @@ on action_mv(me, tProps)
   me.pStartLScreen = me.getScreenCoordinate(me.pLocX, me.pLocY, me.pLocH)
   me.pDestLScreen = me.getScreenCoordinate(tLocX, tLocY, tLocH)
   me.pMoveStart = the milliSeconds
-  exit
 end

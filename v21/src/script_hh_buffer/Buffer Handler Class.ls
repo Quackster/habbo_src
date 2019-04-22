@@ -1,18 +1,16 @@
-on construct(me)
+on construct me 
   return(me.regMsgList(1))
-  exit
 end
 
-on deconstruct(me)
+on deconstruct me 
   return(me.regMsgList(0))
-  exit
 end
 
-on parseActiveObject(me, tConn)
+on parseActiveObject me, tConn 
   if not tConn then
     return(0)
   end if
-  tObj = []
+  tObj = [:]
   tObj.setAt(#id, tConn.GetStrFrom())
   tObj.setAt(#class, tConn.GetStrFrom())
   tObj.setAt(#x, tConn.GetIntFrom())
@@ -32,15 +30,14 @@ on parseActiveObject(me, tConn)
   end if
   tObj.setAt(#props, [#runtimedata:tRuntimeData, #extra:tExtra, #stuffdata:tStuffData])
   return(tObj)
-  exit
 end
 
-on handle_stuffdataupdate(me, tMsg)
+on handle_stuffdataupdate me, tMsg 
   tConn = tMsg.connection
   if not tConn then
     return(0)
   end if
-  tMsgTemp = []
+  tMsgTemp = [:]
   tIndex = 1
   repeat while tIndex <= tMsg.count
     tProp = tMsg.getPropAt(tIndex)
@@ -50,15 +47,13 @@ on handle_stuffdataupdate(me, tMsg)
   end repeat
   tTargetID = tConn.GetStrFrom()
   return(me.getComponent().bufferMessage(tMsgTemp, tTargetID, "active"))
-  exit
 end
 
-on handle_activeobject_remove(me, tMsg)
+on handle_activeobject_remove me, tMsg 
   return(tMsg.removeObject(content.getProp(#word, 1), "active"))
-  exit
 end
 
-on handle_activeobject_update(me, tMsg)
+on handle_activeobject_update me, tMsg 
   if ilk(tMsg) <> #propList then
     return(0)
   end if
@@ -66,7 +61,7 @@ on handle_activeobject_update(me, tMsg)
   if not tConn then
     return(0)
   end if
-  tMsgTemp = []
+  tMsgTemp = [:]
   tIndex = 1
   repeat while tIndex <= tMsg.count
     tProp = tMsg.getPropAt(tIndex)
@@ -80,28 +75,25 @@ on handle_activeobject_update(me, tMsg)
   end if
   tID = tObj.getAt(#id)
   return(me.getComponent().bufferMessage(tMsgTemp, tID, "active"))
-  exit
 end
 
-on handle_removeitem(me, tMsg)
+on handle_removeitem me, tMsg 
   return(tMsg.removeObject(content.getProp(#word, 1), "item"))
-  exit
 end
 
-on handle_updateitem(me, tMsg)
+on handle_updateitem me, tMsg 
   tID = content.getProp(#word, 1)
   return(me.getComponent().bufferMessage(tMsg, tID, "item"))
-  exit
 end
 
-on regMsgList(me, tBool)
-  tMsgs = []
+on regMsgList me, tBool 
+  tMsgs = [:]
   tMsgs.setaProp(88, #handle_stuffdataupdate)
   tMsgs.setaProp(94, #handle_activeobject_remove)
   tMsgs.setaProp(95, #handle_activeobject_update)
   tMsgs.setaProp(84, #handle_removeitem)
   tMsgs.setaProp(85, #handle_updateitem)
-  tCmds = []
+  tCmds = [:]
   if tBool then
     registerListener(getVariable("connection.room.id"), me.getID(), tMsgs)
     registerCommands(getVariable("connection.room.id"), me.getID(), tCmds)
@@ -110,5 +102,4 @@ on regMsgList(me, tBool)
     unregisterCommands(getVariable("connection.room.id"), me.getID(), tCmds)
   end if
   return(1)
-  exit
 end

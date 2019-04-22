@@ -1,31 +1,29 @@
-on new(me)
+property pTimeStamps, pTimeoutName, pTimeoutsPerSec, pMeasuringStart
+
+on new me 
   pTimeStamps = []
   pTimeoutName = "response meter"
   pTimeoutsPerSec = 48
   pMeasuringStart = the milliSeconds
   return(me)
-  exit
 end
 
-on handleTimeout(me)
+on handleTimeout me 
   pTimeStamps.add(the milliSeconds)
-  exit
 end
 
-on startMeasuring(me)
+on startMeasuring me 
   pTimeStamps = []
   pMeasuringStart = the milliSeconds
   -- UNK_B3 719
   t = ERROR
-  exit
 end
 
-on stopMeasuring(me)
+on stopMeasuring me 
   timeout(pTimeoutName).forget()
-  exit
 end
 
-on printGraph(me)
+on printGraph me 
   tTotalTime = pTimeStamps.getAt(pTimeStamps.count) - pMeasuringStart
   tExpectedCount = tTotalTime / 1000 / pTimeoutsPerSec - 1
   put("Timeout per second :" & pTimeoutsPerSec)
@@ -45,10 +43,9 @@ on printGraph(me)
     put("Late : " & tLate & " ms, skipped : " & integer(tTime - tLastTime / 1000 / pTimeoutsPerSec) - 1)
     i = 1 + i
   end repeat
-  exit
 end
 
-on getSkipCountAsString(me)
+on getSkipCountAsString me 
   tOut = ""
   tTotalTime = pTimeStamps.getAt(pTimeStamps.count) - pMeasuringStart
   tExpectedCount = tTotalTime / 1000 / pTimeoutsPerSec - 1
@@ -67,5 +64,4 @@ on getSkipCountAsString(me)
     i = 1 + i
   end repeat
   return(tOut)
-  exit
 end

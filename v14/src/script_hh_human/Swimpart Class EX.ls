@@ -1,10 +1,11 @@
-on deconstruct(me)
+property pPart, pAction, pDirection, pYFix, pXFix, pActionLh, pActionRh, pmodel, pLastLocFix, pMemString, pCacheRectA, pCacheImage, pDrawProps, pCacheRectB, pSwimProps, pAnimation, pAnimFrame, pTotalFrame
+
+on deconstruct me 
   ancestor = void()
   return(1)
-  exit
 end
 
-on define(me, tPart, tmodel, tColor, tDirection, tAction, tAncestor)
+on define me, tPart, tmodel, tColor, tDirection, tAction, tAncestor 
   ancestor = tAncestor
   pPart = tPart
   pmodel = tmodel
@@ -33,10 +34,9 @@ on define(me, tPart, tmodel, tColor, tDirection, tAction, tAncestor)
   pAnimFrame = 1
   pTotalFrame = 1
   return(1)
-  exit
 end
 
-on update(me)
+on update me 
   tAnimCounter = 0
   tAction = pAction
   tPart = pPart
@@ -51,31 +51,31 @@ on update(me)
     else
       tSizeMultiplier = 1
     end if
-    if me = 0 then
+    if tAncestorDir = 0 then
       pYFix = pYFix + pXFix / 2
       pXFix = pXFix / 2
     else
-      if me = 1 then
+      if tAncestorDir = 1 then
         pYFix = pYFix + pXFix
         pXFix = 0
       else
-        if me = 2 then
+        if tAncestorDir = 2 then
           pYFix = pYFix - pXFix / 2
           pXFix = pXFix / 2
         else
-          if me = 4 then
+          if tAncestorDir = 4 then
             pYFix = pYFix + pXFix / 2
             pXFix = -pXFix / 2
           else
-            if me = 5 then
+            if tAncestorDir = 5 then
               pYFix = pYFix - pXFix
               pXFix = 0
             else
-              if me = 6 then
+              if tAncestorDir = 6 then
                 pYFix = pYFix - pXFix / 2
                 pXFix = -pXFix / 2
               else
-                if me = 7 then
+                if tAncestorDir = 7 then
                   pXFix = -pXFix
                 end if
               end if
@@ -87,16 +87,16 @@ on update(me)
     pXFix = pXFix * tSizeMultiplier
     pYFix = pYFix * tSizeMultiplier
   else
-    if me <> "bd" then
-      if me <> "lg" then
-        if me = "sh" then
+    if tAncestorDir <> "bd" then
+      if tAncestorDir <> "lg" then
+        if tAncestorDir = "sh" then
           tUnderWater = 1
           if pAction = "wlk" or pAction = "swm" or pAction = "sws" then
             tAnimCounter = me.pAnimCounter
           end if
         else
-          if me <> "lh" then
-            if me = "ls" then
+          if tAncestorDir <> "lh" then
+            if tAncestorDir = "ls" then
               tUnderWater = 1
               if pDirection = tdir then
                 if not voidp(pActionLh) then
@@ -122,8 +122,8 @@ on update(me)
                 end if
               end if
             else
-              if me <> "rh" then
-                if me = "rs" then
+              if tAncestorDir <> "rh" then
+                if tAncestorDir = "rs" then
                   tUnderWater = 1
                   if pDirection = tdir then
                     if not voidp(pActionRh) then
@@ -145,8 +145,8 @@ on update(me)
                     end if
                   end if
                 else
-                  if me <> "hd" then
-                    if me = "fc" then
+                  if tAncestorDir <> "hd" then
+                    if tAncestorDir = "fc" then
                       tUnderWater = 0
                       if me.pTalking then
                         if pAction = "lay" then
@@ -157,13 +157,13 @@ on update(me)
                         tAnimCounter = me.pAnimCounter mod 2
                       end if
                     else
-                      if me = "ey" then
+                      if tAncestorDir = "ey" then
                         tUnderWater = 0
                         if me.pTalking and pAction <> "lay" and me.pAnimCounter mod 2 = 0 then
                           pYFix = -1
                         end if
                       else
-                        if me = "hr" then
+                        if tAncestorDir = "hr" then
                           tUnderWater = 0
                           if me.pTalking and me.pAnimCounter mod 2 = 0 then
                             if pAction <> "lay" then
@@ -171,14 +171,14 @@ on update(me)
                             end if
                           end if
                         else
-                          if me = "ri" then
+                          if tAncestorDir = "ri" then
                             if not me.pCarrying then
                               return()
                             end if
                             tAction = pActionRh
                             tdir = pDirection
                           else
-                            if me = "li" then
+                            if tAncestorDir = "li" then
                               tAction = pActionLh
                               tdir = pDirection
                             else
@@ -219,7 +219,6 @@ on update(me)
                       pSwimProps.setAt(#maskImage, pDrawProps.getAt(#maskImage))
                       pBuffer.copyPixels(pCacheImage, pCacheRectA + tRectMod, pCacheRectB, pSwimProps)
                     end if
-                    exit
                   end if
                 end if
               end if
@@ -231,7 +230,7 @@ on update(me)
   end if
 end
 
-on render(me)
+on render me 
   if memberExists(pMemString) then
     pBuffer.copyPixels(pCacheRectB, pCacheRectA, pCacheRectB, pDrawProps)
     if me.pSwim then
@@ -239,40 +238,35 @@ on render(me)
       pBuffer.copyPixels(pCacheImage, pCacheRectA + [pXFix, pYFix, pXFix, pYFix] + rect(me.pLocFix, me.pLocFix), pCacheRectB, pSwimProps)
     end if
   end if
-  exit
 end
 
-on setItemObj(me, tmodel)
+on setItemObj me, tmodel 
   if pPart <> "ri" and pPart <> "li" then
     return()
   end if
   pmodel = tmodel
-  exit
 end
 
-on defineDir(me, tdir, tPart)
+on defineDir me, tdir, tPart 
   if voidp(tPart) or tPart = pPart then
     pDirection = tdir
   end if
-  exit
 end
 
-on defineDirMultiple(me, tdir, tTargetPartList)
+on defineDirMultiple me, tdir, tTargetPartList 
   if tTargetPartList.getPos(pPart) = 0 then
     return()
   end if
   pDirection = tdir
-  exit
 end
 
-on defineAct(me, tAct, tTargetPartList)
+on defineAct me, tAct, tTargetPartList 
   if pAction = "std" then
     pAction = tAct
   end if
-  exit
 end
 
-on defineActMultiple(me, tAct, tTargetPartList)
+on defineActMultiple me, tAct, tTargetPartList 
   if tTargetPartList.getPos(pPart) = 0 then
     return()
   end if
@@ -282,21 +276,20 @@ on defineActMultiple(me, tAct, tTargetPartList)
   if pPart = "ey" and tAct = "std" then
     pAction = "std"
   end if
-  exit
 end
 
-on defineInk(me, tInk)
+on defineInk me, tInk 
   if voidp(tInk) then
-    if me = "ey" then
+    if pPart = "ey" then
       tInk = 36
     else
-      if me = "sd" then
+      if pPart = "sd" then
         tInk = 32
       else
-        if me = "ri" then
+        if pPart = "ri" then
           tInk = 8
         else
-          if me = "li" then
+          if pPart = "li" then
             tInk = 8
           else
             tInk = 41
@@ -308,15 +301,13 @@ on defineInk(me, tInk)
   pDrawProps.setAt(#ink, tInk)
   pSwimProps.setAt(#ink, tInk)
   return(1)
-  exit
 end
 
-on setModel(me, tmodel)
+on setModel me, tmodel 
   pmodel = tmodel
-  exit
 end
 
-on setColor(me, tColor)
+on setColor me, tColor 
   if voidp(tColor) then
     return(0)
   end if
@@ -329,47 +320,39 @@ on setColor(me, tColor)
     pDrawProps.setAt(#bgColor, rgb(255, 255, 255))
   end if
   return(1)
-  exit
 end
 
-on doHandWork(me, tAct)
+on doHandWork me, tAct 
   if ["lh", "ls", "li", "rh", "rs", "ri"].getOne(pPart) <> 0 then
     pAction = tAct
   end if
-  exit
 end
 
-on doHandWorkLeft(me, tAct)
+on doHandWorkLeft me, tAct 
   pActionLh = tAct
-  exit
 end
 
-on doHandWorkRight(me, tAct)
+on doHandWorkRight me, tAct 
   pActionRh = tAct
-  exit
 end
 
-on layDown(me)
+on layDown me 
   pAction = "lay"
-  exit
 end
 
-on getCurrentMember(me)
+on getCurrentMember me 
   return(pMemString)
-  exit
 end
 
-on getColor(me)
+on getColor me 
   return(pDrawProps.getAt(#bgColor))
-  exit
 end
 
-on getDirection(me)
+on getDirection me 
   return(pDirection)
-  exit
 end
 
-on getLocation(me)
+on getLocation me 
   if voidp(pMemString) then
     return(0)
   end if
@@ -381,15 +364,13 @@ on getLocation(me)
   tCenterPoint = point(tImgRect.width / 2, tImgRect.height / 2)
   tRegPoint = member(tMemNum).regPoint
   return(tRegPoint * -1 + tCenterPoint)
-  exit
 end
 
-on getPartID(me)
+on getPartID me 
   return(pPart)
-  exit
 end
 
-on copyPicture(me, tImg, tdir, tHumanSize, tAction, tAnimFrame)
+on copyPicture me, tImg, tdir, tHumanSize, tAction, tAnimFrame 
   if voidp(tdir) then
     tdir = "2"
   end if
@@ -421,17 +402,15 @@ on copyPicture(me, tImg, tdir, tHumanSize, tAction, tAnimFrame)
   tMatte = tImage.createMatte()
   tImg.copyPixels(tImage, tRect, tImage.rect, [#maskImage:tMatte, #ink:pDrawProps.getAt(#ink), #bgColor:pDrawProps.getAt(#bgColor)])
   return(1)
-  exit
 end
 
-on reset(me, tSwimFlag)
+on reset me, tSwimFlag 
   pAction = "std"
   pActionLh = void()
   pActionRh = void()
-  exit
 end
 
-on changePartData(me, tmodel, tColor)
+on changePartData me, tmodel, tColor 
   if voidp(tmodel) or voidp(tColor) then
     return(0)
   end if
@@ -445,27 +424,24 @@ on changePartData(me, tmodel, tColor)
   pMemString = implode(tMemNameList, "_")
   tForced = 1
   me.update(tForced)
-  exit
 end
 
-on setAnimation(me, tPart, tAnim)
+on setAnimation me, tPart, tAnim 
   if tPart <> pPart then
     return()
   end if
   pAnimation = value(tAnim)
   pTotalFrame = pAnimation.getAt(1).count
   pAnimFrame = 1
-  exit
 end
 
-on remAnimation(me)
+on remAnimation me 
   pAnimation = 0
   pAnimFrame = 1
   pTotalFrame = 1
-  exit
 end
 
-on animate(me)
+on animate me 
   if not pAnimation then
     return("")
   end if
@@ -486,5 +462,4 @@ on animate(me)
     pAnimFrame = 1
   end if
   return(tMemName)
-  exit
 end

@@ -1,4 +1,6 @@
-on construct(me)
+property pWndID, pObjList, pWriterObj, pListHeight
+
+on construct me 
   pWndID = "Chooser."
   pObjMode = #user
   pObjList = []
@@ -17,10 +19,9 @@ on construct(me)
   registerMessage(#create_user, me.getID(), #update)
   registerMessage(#remove_user, me.getID(), #update)
   return(me.update())
-  exit
 end
 
-on deconstruct(me)
+on deconstruct me 
   if windowExists(pWndID) then
     removeWindow(pWndID)
   end if
@@ -33,17 +34,16 @@ on deconstruct(me)
   unregisterMessage(#create_user, me.getID())
   unregisterMessage(#remove_user, me.getID())
   return(1)
-  exit
 end
 
-on setMode(me, tMode)
-  if me = #user then
+on setMode me, tMode 
+  if tMode = #user then
     pObjMode = #user
   else
-    if me = #Active then
+    if tMode = #Active then
       pObjMode = #Active
     else
-      if me = #item then
+      if tMode = #item then
         pObjMode = #item
       else
         return(error(me, "Unsupported obj type:" && tMode, #setMode))
@@ -51,10 +51,9 @@ on setMode(me, tMode)
     end if
   end if
   return(me.update())
-  exit
 end
 
-on update(me)
+on update me 
   if not threadExists(#room) then
     return(removeObject(me.getID()))
   end if
@@ -64,12 +63,12 @@ on update(me)
   pObjList = []
   pObjList.sort()
   tObjList = getThread(#room).getComponent().getUserObject(#list)
-  repeat while me <= undefined
+  repeat while tObjList <= undefined
     tObj = getAt(undefined, undefined)
     pObjList.add(tObj.getID())
   end repeat
   tObjStr = ""
-  repeat while me <= undefined
+  repeat while tObjList <= undefined
     tName = getAt(undefined, undefined)
     tObjStr = tObjStr && tName & "\r"
   end repeat
@@ -79,22 +78,20 @@ on update(me)
   tElem.feedImage(tImg)
   pListHeight = tImg.height
   return(1)
-  exit
 end
 
-on clear(me)
+on clear me 
   pObjList = []
   pListHeight = 0
   getWindow(pWndID).getElement("list").feedImage(image(1, 1, 8))
   return(1)
-  exit
 end
 
-on eventProcChooser(me, tEvent, tSprID, tParam)
-  if me = "close" then
+on eventProcChooser me, tEvent, tSprID, tParam 
+  if tSprID = "close" then
     return(removeObject(me.getID()))
   else
-    if me = "list" then
+    if tSprID = "list" then
       tCount = count(pObjList)
       if tCount = 0 then
         return(0)
@@ -114,5 +111,4 @@ on eventProcChooser(me, tEvent, tSprID, tParam)
       getThread(#room).getInterface().getArrowHiliter().show(tObjID, 1)
     end if
   end if
-  exit
 end

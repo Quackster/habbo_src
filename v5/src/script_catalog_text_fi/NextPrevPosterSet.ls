@@ -1,11 +1,12 @@
-on beginSprite(me)
+property spriteNum, pDirection
+
+on beginSprite me 
   if member("poster_indexList").text.count(#line) <= 10 then
     sprite(spriteNum).blend = 40
   end if
-  exit
 end
 
-on mouseUp(me)
+on mouseUp me 
   if sprite(spriteNum).blend < 100 then
     return()
   end if
@@ -14,12 +15,10 @@ on mouseUp(me)
   else
     sendAllSprites(#prevPosterSet)
   end if
-  exit
 end
 
-on getPropertyDescriptionList()
-  description = []
+on getPropertyDescriptionList  
+  description = [:]
   addProp(description, #pDirection, [#default:#next, #format:#symbol, #comment:"This button shows next/prev poster set..."])
   return(description)
-  exit
 end

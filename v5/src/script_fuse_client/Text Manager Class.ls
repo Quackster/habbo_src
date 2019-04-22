@@ -1,4 +1,4 @@
-on get(me, tKey, tDefault)
+on get me, tKey, tDefault 
   tText = me.getProp(#pItemList, tKey)
   if voidp(tText) then
     tError = "Text not found:" && tKey
@@ -11,10 +11,9 @@ on get(me, tKey, tDefault)
     error(me, tError, #get)
   end if
   return(tText)
-  exit
 end
 
-on dump(me, tField, tDelimiter)
+on dump me, tField, tDelimiter 
   if not memberExists(tField) then
     return(error(me, "Field member expected:" && tField, #dump))
   end if
@@ -49,5 +48,4 @@ on dump(me, tField, tDelimiter)
   end repeat
   the itemDelimiter = tDelim
   return(1)
-  exit
 end

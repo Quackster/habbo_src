@@ -1,17 +1,17 @@
-on construct(me)
+property pErrorLock, pWindowID, pCurrentErrorIndex
+
+on construct me 
   pWindowID = getText("error_report")
   pCurrentErrorIndex = 1
   pErrorLock = 0
   return(1)
-  exit
 end
 
-on deconstruct(me)
+on deconstruct me 
   return(1)
-  exit
 end
 
-on showErrors(me)
+on showErrors me 
   if pErrorLock then
     return(1)
   end if
@@ -33,10 +33,9 @@ on showErrors(me)
   end if
   me.updateErrorView()
   pErrorLock = 0
-  exit
 end
 
-on showPreviousError(me)
+on showPreviousError me 
   tTriedErrorIndex = pCurrentErrorIndex - 1
   tReportList = me.getComponent().getErrorLists()
   if tTriedErrorIndex < 1 or tReportList.count = 0 then
@@ -44,10 +43,9 @@ on showPreviousError(me)
   end if
   pCurrentErrorIndex = tTriedErrorIndex
   me.updateErrorView()
-  exit
 end
 
-on showNextError(me)
+on showNextError me 
   tTriedErrorIndex = pCurrentErrorIndex + 1
   tReportList = me.getComponent().getErrorLists()
   if tTriedErrorIndex > tReportList.count then
@@ -55,10 +53,9 @@ on showNextError(me)
   end if
   pCurrentErrorIndex = tTriedErrorIndex
   me.updateErrorView()
-  exit
 end
 
-on updateErrorView(me)
+on updateErrorView me 
   tWndObj = getWindow(pWindowID)
   tIndexOfCurrentReport = pCurrentErrorIndex
   tReportList = me.getComponent().getErrorLists()
@@ -68,7 +65,7 @@ on updateErrorView(me)
   if tElement <> 0 then
     tElement.setText(tCounts)
   end if
-  tTexts = []
+  tTexts = [:]
   tTexts.setAt("error_report_errorid", "ID:" && tErrorReport.getAt(#errorId))
   tExplainText = ""
   if not voidp(tErrorReport.getAt(#time)) then
@@ -92,10 +89,9 @@ on updateErrorView(me)
     end if
     tIndex = 1 + tIndex
   end repeat
-  exit
 end
 
-on hideErrorReportWindow(me)
+on hideErrorReportWindow me 
   if not windowExists(pWindowID) then
     return(0)
   end if
@@ -103,24 +99,22 @@ on hideErrorReportWindow(me)
   pCurrentErrorIndex = 1
   tWndObj = getWindow(pWindowID)
   tWndObj.close()
-  exit
 end
 
-on eventProcErrorReport(me, tEvent, tElemID, tParams)
+on eventProcErrorReport me, tEvent, tElemID, tParams 
   if tEvent = #mouseUp then
-    if me <> "error_report_ok" then
-      if me = "close" then
+    if tElemID <> "error_report_ok" then
+      if tElemID = "close" then
         me.hideErrorReportWindow()
       else
-        if me = "error_report_prev" then
+        if tElemID = "error_report_prev" then
           me.showPreviousError()
         else
-          if me = "error_report_next" then
+          if tElemID = "error_report_next" then
             me.showNextError()
           end if
         end if
       end if
-      exit
     end if
   end if
 end

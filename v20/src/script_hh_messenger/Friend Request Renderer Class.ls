@@ -1,53 +1,48 @@
-on construct(me)
+property pCurrentPageIndex, pWindowID, pRequestsPerPage, pPageCount, pRequestList
+
+on construct me 
   pRequestList = []
   pWindowID = ""
   pCurrentPageIndex = 1
   pRequestsPerPage = 5
   pPageCount = 0
   return(1)
-  exit
 end
 
-on deconstruct(me)
+on deconstruct me 
   return(1)
-  exit
 end
 
-on Init(me, tWindowName)
+on Init me, tWindowName 
   pWindowID = tWindowName
   pCurrentPageIndex = 1
   me.updateView()
-  exit
 end
 
-on showNextPage(me)
+on showNextPage me 
   pCurrentPageIndex = pCurrentPageIndex + 1
   me.updateView()
-  exit
 end
 
-on showPreviousPage(me)
+on showPreviousPage me 
   pCurrentPageIndex = pCurrentPageIndex - 1
   me.updateView()
-  exit
 end
 
-on clearRequests(me)
+on clearRequests me 
   pRequestList = []
   pCurrentPageIndex = 1
-  exit
 end
 
-on isBuddyListFull(me)
+on isBuddyListFull me 
   tListLimits = getThread(#messenger).getInterface().getBuddyListLimits()
   tLimit = tListLimits.getAt(#own)
   tBuddyData = getThread(#messenger).getComponent().getBuddyData()
   tFriendsAmount = tBuddyData.getAt(#buddies).count
   return(not tFriendsAmount < tLimit)
-  exit
 end
 
-on updateView(me)
+on updateView me 
   if not windowExists(pWindowID) then
     return(0)
   end if
@@ -87,10 +82,9 @@ on updateView(me)
     tOptionsElem.setProperty(#visible, 0)
   end if
   return(1)
-  exit
 end
 
-on updateListItemView(me, tItemNumber)
+on updateListItemView me, tItemNumber 
   if not windowExists(pWindowID) then
     return(0)
   end if
@@ -112,16 +106,16 @@ on updateListItemView(me, tItemNumber)
       tAcceptElem.setProperty(#visible, 0)
       tDeclineElem.setProperty(#visible, 0)
       tDecisionElem.setProperty(#visible, 1)
-      if me = #accepted then
+      if tstate = #accepted then
         tDecisionElem.setText(getText("friend_request_accepted"))
       else
-        if me = #declined then
+        if tstate = #declined then
           tDecisionElem.setText(getText("friend_request_declined"))
         else
-          if me = #failed then
+          if tstate = #failed then
             tDecisionElem.setText(getText("friend_request_failed"))
           else
-            if me = #sent then
+            if tstate = #sent then
               tDecisionElem.setProperty(#visible, 0)
             else
               error(me, "Unknown request state", #updateListItemView, #minor)
@@ -136,10 +130,9 @@ on updateListItemView(me, tItemNumber)
     tAcceptElem.setProperty(#visible, 0)
     tDeclineElem.setProperty(#visible, 0)
   end if
-  exit
 end
 
-on confirmRequest(me, tItemNo, tAccept)
+on confirmRequest me, tItemNo, tAccept 
   tstate = pRequestList.getAt(tItemNo).getaProp(#state)
   if tstate <> #pending then
     return(error(me, "Friend request already confirmed.", #confirm, #major))
@@ -157,14 +150,12 @@ on confirmRequest(me, tItemNo, tAccept)
   end if
   me.updateView()
   return(1)
-  exit
 end
 
-on getUserId(me, tItemNo)
+on getUserId me, tItemNo 
   if tItemNo < 1 or tItemNo > pRequestList.count then
     return(0)
   end if
   tUserID = pRequestList.getAt(tItemNo).getaProp(#webID)
   return(tUserID)
-  exit
 end

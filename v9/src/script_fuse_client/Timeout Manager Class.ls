@@ -1,10 +1,9 @@
-on construct(me)
-  me.pItemList = []
+on construct me 
+  me.pItemList = [:]
   return(1)
-  exit
 end
 
-on deconstruct(me)
+on deconstruct me 
   tObjMngr = getObjectManager()
   i = 1
   repeat while i <= me.count(#pItemList)
@@ -14,12 +13,11 @@ on deconstruct(me)
     end if
     i = 1 + i
   end repeat
-  me.pItemList = []
+  me.pItemList = [:]
   return(1)
-  exit
 end
 
-on create(me, tid, tTime, tHandler, tClientID, tArgument, tIterations)
+on create me, tid, tTime, tHandler, tClientID, tArgument, tIterations 
   if me.exists(tid) then
     return(error(me, "Timeout already registered:" && tid, #create))
   end if
@@ -41,7 +39,7 @@ on create(me, tid, tTime, tHandler, tClientID, tArgument, tIterations)
   end if
   tUniqueId = "Timeout" && getUniqueID()
   tObjMngr.create(tUniqueId, timeout(tUniqueId).new(tTime, #executeTimeOut, me))
-  tList = []
+  tList = [:]
   tList.setAt(#uniqueid, tUniqueId)
   tList.setAt(#handler, tHandler)
   tList.setAt(#client, tClientID)
@@ -50,10 +48,9 @@ on create(me, tid, tTime, tHandler, tClientID, tArgument, tIterations)
   tList.setAt(#count, 0)
   me.setProp(#pItemList, tid, tList)
   return(1)
-  exit
 end
 
-on get(me, tid)
+on get me, tid 
   if not me.exists(tid) then
     return(error(me, "Item not found:" && tid, #get))
   end if
@@ -68,10 +65,9 @@ on get(me, tid)
       return(me.Remove(tid))
     end if
   end if
-  exit
 end
 
-on Remove(me, tid)
+on Remove me, tid 
   if not me.exists(tid) then
     return(error(me, "Item not found:" && tid, #Remove))
   end if
@@ -84,15 +80,13 @@ on Remove(me, tid)
     tObjMngr.Remove(me.getPropRef(#pItemList, tid).getAt(#uniqueid))
   end if
   return(me.deleteProp(tid))
-  exit
 end
 
-on exists(me, tid)
+on exists me, tid 
   return(listp(me.getProp(#pItemList, tid)))
-  exit
 end
 
-on executeTimeOut(me, tTimeout)
+on executeTimeOut me, tTimeout 
   i = 1
   repeat while i <= me.count(#pItemList)
     if me.getPropRef(#pItemList, i).getAt(#uniqueid) = tTimeout.name then
@@ -121,5 +115,4 @@ on executeTimeOut(me, tTimeout)
     end if
   end if
   return(1)
-  exit
 end

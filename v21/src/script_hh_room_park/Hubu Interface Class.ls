@@ -1,19 +1,19 @@
-on construct(me)
+property pHubuWndID, pTimerStart, pTimerBarHeight, pTimerBarLocY
+
+on construct me 
   pHubuWndID = getText("hubu_win", "Hubu")
   return(1)
-  exit
 end
 
-on deconstruct(me)
+on deconstruct me 
   removeUpdate(me.getID())
   if windowExists(pHubuWndID) then
     removeWindow(pHubuWndID)
   end if
   return(1)
-  exit
 end
 
-on showBusClosed(me, tMsg)
+on showBusClosed me, tMsg 
   if windowExists(pHubuWndID) then
     removeWindow(pHubuWndID)
   end if
@@ -30,10 +30,9 @@ on showBusClosed(me, tMsg)
     tWndObj.getElement("hubu_info_link2").setProperty(#visible, 0)
   end if
   return(1)
-  exit
 end
 
-on showVoteQuestion(me, tQuestion, tChoiceList)
+on showVoteQuestion me, tQuestion, tChoiceList 
   if windowExists(pHubuWndID) then
     removeWindow(pHubuWndID)
   end if
@@ -78,10 +77,9 @@ on showVoteQuestion(me, tQuestion, tChoiceList)
   pTimerBarLocY = tWndObj.getElement("time_bar").getProperty(#locY)
   receiveUpdate(me.getID())
   return(1)
-  exit
 end
 
-on showVoteWait(me)
+on showVoteWait me 
   tWndObj = getWindow(pHubuWndID)
   i = 1
   repeat while i <= 6
@@ -91,10 +89,9 @@ on showVoteWait(me)
     i = 1 + i
   end repeat
   return(1)
-  exit
 end
 
-on showVoteResults(me, tTotalVotes, tVoteResults)
+on showVoteResults me, tTotalVotes, tVoteResults 
   removeUpdate(me.getID())
   if not windowExists(pHubuWndID) then
     return(error(me, "Vote window is closed!", #showVoteResults))
@@ -118,17 +115,16 @@ on showVoteResults(me, tTotalVotes, tVoteResults)
     i = 1 + i
   end repeat
   return(1)
-  exit
 end
 
-on update(me)
+on update me 
   tWndObj = getWindow(pHubuWndID)
   if tWndObj = 0 then
     return(removeUpdate(me.getID()))
   end if
-  tTime = float(the milliSeconds - pTimerStart) / 0
-  if tTime > 0 then
-    tTime = 0
+  tTime = float(the milliSeconds - pTimerStart) / 30000
+  if tTime > 1 then
+    tTime = 1
   end if
   tSecsLeft = integer(30 - float(the milliSeconds - pTimerStart) * 0.001)
   if tSecsLeft < 0 then
@@ -141,10 +137,9 @@ on update(me)
   tWndObj.getElement("hubu_time").setText(tSecsLeft && "s.")
   tWndObj.getElement("time_bar").setProperty(#height, tNewHeight)
   tWndObj.getElement("time_bar").setProperty(#locY, pTimerBarLocY + pTimerBarHeight - tNewHeight)
-  exit
 end
 
-on eventProcHubu(me, tEvent, tSprID, tParam)
+on eventProcHubu me, tEvent, tSprID, tParam 
   if tEvent <> #mouseUp then
     return(0)
   end if
@@ -166,5 +161,4 @@ on eventProcHubu(me, tEvent, tSprID, tParam)
       end if
     end if
   end if
-  exit
 end

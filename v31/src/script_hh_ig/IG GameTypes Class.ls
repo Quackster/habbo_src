@@ -1,21 +1,20 @@
-on construct(me)
-  pGameTypeObjectList = []
+property pGameTypeObjectList
+
+on construct me 
+  pGameTypeObjectList = [:]
   return(1)
-  exit
 end
 
-on deconstruct(me)
-  pGameTypeObjectList = []
+on deconstruct me 
+  pGameTypeObjectList = [:]
   return(me.deconstruct())
-  exit
 end
 
-on getGameTypeCount(me)
+on getGameTypeCount me 
   return(3)
-  exit
 end
 
-on convertGamePropsForCreate(me, tGameType, tParams)
+on convertGamePropsForCreate me, tGameType, tParams 
   tFormat = me.getAction(tGameType, #get_create_defaults)
   if not listp(tFormat) then
     return(0)
@@ -37,7 +36,7 @@ on convertGamePropsForCreate(me, tGameType, tParams)
     if ilk(tParamValue) <> tFormatIlk then
       return(error(me, tFormatKey && "type mismatch." && ilk(tParamValue) && tFormatIlk, #convertGamePropsForCreate))
     end if
-    if me = #integer then
+    if tFormatIlk = #integer then
       tMax = tFormatItem.getaProp(#max)
       if not voidp(tMax) and tParamValue > tMax then
         return(0)
@@ -48,13 +47,13 @@ on convertGamePropsForCreate(me, tGameType, tParams)
       end if
       tOutputList.append(tParamValue)
     else
-      if me = #string then
+      if tFormatIlk = #string then
         if tParamValue = "" then
           return(0)
         end if
         tOutputList.append(tParamValue)
       else
-        if me = #list then
+        if tFormatIlk = #list then
           if tParamValue = "" then
             return(0)
           end if
@@ -67,7 +66,7 @@ on convertGamePropsForCreate(me, tGameType, tParams)
           end repeat
           exit repeat
         end if
-        if me = #not_for_server then
+        if tFormatIlk = #not_for_server then
           nothing()
         end if
       end if
@@ -75,35 +74,32 @@ on convertGamePropsForCreate(me, tGameType, tParams)
     i = 1 + i
   end repeat
   return(tOutputList)
-  exit
 end
 
-on getAction(me, tGameType, tKey, tParam1, tParam2)
+on getAction me, tGameType, tKey, tParam1, tParam2 
   tTypeObject = me.getGameTypeInformation(tGameType)
   if tTypeObject = 0 then
     return(0)
   end if
   return(tTypeObject.getAction(tKey, tParam1, tParam2))
-  exit
 end
 
-on getGameTypeString(me, tGameType)
-  if me = 0 then
+on getGameTypeString me, tGameType 
+  if tGameType = 0 then
     return("Snowwar")
   else
-    if me = 1 then
+    if tGameType = 1 then
       return("BB")
     else
-      if me = 2 then
+      if tGameType = 2 then
         return("GemHunt")
       end if
     end if
   end if
   return(0)
-  exit
 end
 
-on getGameTypeInformation(me, tGameType)
+on getGameTypeInformation me, tGameType 
   if voidp(tGameType) then
     return(0)
   end if
@@ -118,5 +114,4 @@ on getGameTypeInformation(me, tGameType)
   end if
   pGameTypeObjectList.setaProp(tGameType, tTypeObject)
   return(tTypeObject)
-  exit
 end

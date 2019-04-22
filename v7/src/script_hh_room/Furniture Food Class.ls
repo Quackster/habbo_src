@@ -1,12 +1,11 @@
-on prepare(me, tdata)
+on prepare me, tdata 
   if tdata.count = 0 then
     tdata = ["foo":"0"]
   end if
   return(me.updateStuffdata(tdata.getPropAt(1), tdata.getAt(1)))
-  exit
 end
 
-on updateStuffdata(me, tProp, tValue)
+on updateStuffdata me, tProp, tValue 
   tCount = integer(tValue)
   if not ilk(tCount, #integer) then
     tCount = 0
@@ -20,5 +19,4 @@ on updateStuffdata(me, tProp, tValue)
     i = 1 + i
   end repeat
   return(1)
-  exit
 end

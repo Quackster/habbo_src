@@ -1,4 +1,6 @@
-on define(me, tsprite, tCount)
+property pDirection, pSprite, pmodel, pDelayCounter, pOffset
+
+on define me, tsprite, tCount 
   if tCount mod 2 = 1 then
     tDirection = #right
   else
@@ -9,10 +11,9 @@ on define(me, tsprite, tCount)
   pDirection = tDirection
   me.reset()
   return(1)
-  exit
 end
 
-on reset(me)
+on reset me 
   if random(2) = 2 then
     pDelayCounter = random(25) * 10
   else
@@ -36,10 +37,9 @@ on reset(me)
   pSprite.ink = 41
   pSprite.backColor = random(150) + 20
   return(1)
-  exit
 end
 
-on update(me)
+on update me 
   if pDelayCounter > 0 then
     pDelayCounter = pDelayCounter - 1
     return(1)
@@ -57,5 +57,4 @@ on update(me)
     end if
   end if
   return(1)
-  exit
 end

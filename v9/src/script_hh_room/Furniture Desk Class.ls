@@ -1,4 +1,6 @@
-on prepare(me, tdata)
+property pChanges, pActive
+
+on prepare me, tdata 
   if tdata.getAt(#stuffdata) = "ON" then
     me.setOn()
     pChanges = 1
@@ -7,20 +9,18 @@ on prepare(me, tdata)
     pChanges = 0
   end if
   return(1)
-  exit
 end
 
-on updateStuffdata(me, tValue)
+on updateStuffdata me, tValue 
   if tValue = "ON" then
     me.setOn()
   else
     me.setOff()
   end if
   pChanges = 1
-  exit
 end
 
-on update(me)
+on update me 
   if not pChanges then
     return()
   end if
@@ -48,20 +48,17 @@ on update(me)
     me.getPropRef(#pSprList, 5).height = tmember.height
   end if
   pChanges = 0
-  exit
 end
 
-on setOn(me)
+on setOn me 
   pActive = 1
-  exit
 end
 
-on setOff(me)
+on setOff me 
   pActive = 0
-  exit
 end
 
-on select(me)
+on select me 
   if the doubleClick then
     if pActive then
       tStr = "OFF"
@@ -73,5 +70,4 @@ on select(me)
     getThread(#room).getComponent().getRoomConnection().send("MOVE", [#short:me.pLocX, #short:me.pLocY])
   end if
   return(1)
-  exit
 end

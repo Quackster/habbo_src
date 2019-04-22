@@ -1,4 +1,6 @@
-on construct(me)
+property pOfferWindowID, pPollWindowID, pThanksWindowID, pConfirmWindowID
+
+on construct me 
   pPollWindowID = getText("poll_window")
   pOfferWindowID = getText("poll_offer_window")
   pThanksWindowID = getText("poll_thanks_window")
@@ -6,17 +8,15 @@ on construct(me)
   registerMessage(#leaveRoom, me.getID(), #hideWindows)
   registerMessage(#changeRoom, me.getID(), #hideWindows)
   return(1)
-  exit
 end
 
-on deconstruct(me)
+on deconstruct me 
   unregisterMessage(#leaveRoom, me.getID())
   unregisterMessage(#changeRoom, me.getID())
   return(1)
-  exit
 end
 
-on showOffer(me, tDescription)
+on showOffer me, tDescription 
   me.hideOffer()
   if not createWindow(pOfferWindowID, "habbo_full.window", void(), void()) then
     return(error(me, "Failed to open Poll offer window!!!", #showOffer))
@@ -45,19 +45,17 @@ on showOffer(me, tDescription)
     end if
   end if
   return(1)
-  exit
 end
 
-on hideOffer(me)
+on hideOffer me 
   if windowExists(pOfferWindowID) then
     return(removeWindow(pOfferWindowID))
   else
     return(0)
   end if
-  exit
 end
 
-on showQuestion(me)
+on showQuestion me 
   tWndObj = getWindow(pPollWindowID)
   if tWndObj <> 0 then
     return(1)
@@ -138,19 +136,17 @@ on showQuestion(me)
     end if
   end if
   return(1)
-  exit
 end
 
-on hideQuestion(me)
+on hideQuestion me 
   if windowExists(pPollWindowID) then
     return(removeWindow(pPollWindowID))
   else
     return(0)
   end if
-  exit
 end
 
-on showThanks(me)
+on showThanks me 
   me.hideThanks()
   if not createWindow(pThanksWindowID, "habbo_full.window", void(), void()) then
     return(error(me, "Failed to open Poll thanks window!!!", #showThanks))
@@ -180,36 +176,32 @@ on showThanks(me)
     end if
   end if
   return(1)
-  exit
 end
 
-on hideThanks(me)
+on hideThanks me 
   if windowExists(pThanksWindowID) then
     return(removeWindow(pThanksWindowID))
   else
     return(0)
   end if
-  exit
 end
 
-on hideConfirm(me)
+on hideConfirm me 
   if windowExists(pConfirmWindowID) then
     return(removeWindow(pConfirmWindowID))
   else
     return(0)
   end if
-  exit
 end
 
-on hideWindows(me)
+on hideWindows me 
   me.hideQuestion()
   me.hideConfirm()
   me.hideOffer()
   me.hideThanks()
-  exit
 end
 
-on confirmAction(me, tAction)
+on confirmAction me, tAction 
   tResult = me.getComponent().confirmAction(tAction)
   if tResult then
     if not windowExists(pConfirmWindowID) then
@@ -238,16 +230,14 @@ on confirmAction(me, tAction)
     end if
   end if
   return(tResult)
-  exit
 end
 
-on ShowAlert(me, ttype)
+on ShowAlert me, ttype 
   tTextId = "poll_alert_" & ttype
   executeMessage(#alert, [#Msg:tTextId, #modal:1])
-  exit
 end
 
-on duplicateWindowRecording(me, tNameBase, tOriginalIDPart, tTargetIDPart)
+on duplicateWindowRecording me, tNameBase, tOriginalIDPart, tTargetIDPart 
   tSourceMemName = tNameBase & tOriginalIDPart & ".window"
   tSourceMember = member(tSourceMemName)
   if tSourceMember.name <> tSourceMemName then
@@ -270,10 +260,9 @@ on duplicateWindowRecording(me, tNameBase, tOriginalIDPart, tTargetIDPart)
   tText = replaceChunks(tText, tOriginalIDPart, tTargetIDPart)
   tTargetMember.text = tText
   return(1)
-  exit
 end
 
-on updateSelectionButtons(me)
+on updateSelectionButtons me 
   tWndObj = getWindow(pPollWindowID)
   if tWndObj = 0 then
     return(0)
@@ -298,33 +287,31 @@ on updateSelectionButtons(me)
     i = 1 + i
   end repeat
   return(1)
-  exit
 end
 
-on eventProcOffer(me, tEvent, tSprID, tParam, tWndID)
+on eventProcOffer me, tEvent, tSprID, tParam, tWndID 
   if tEvent = #mouseUp then
-    if me <> "close" then
-      if me = "poll_offer_cancel" then
+    if tSprID <> "close" then
+      if tSprID = "poll_offer_cancel" then
         me.getComponent().rejectPoll()
         me.hideOffer()
       else
-        if me = "poll_offer_ok" then
+        if tSprID = "poll_offer_ok" then
           me.getComponent().acceptPoll()
           me.hideOffer()
         end if
       end if
-      exit
     end if
   end if
 end
 
-on eventProcQuestion(me, tEvent, tSprID, tParam, tWndID)
+on eventProcQuestion me, tEvent, tSprID, tParam, tWndID 
   if tEvent = #mouseUp then
-    if me <> "close" then
-      if me = "poll_question_cancel" then
+    if tSprID <> "close" then
+      if tSprID = "poll_question_cancel" then
         me.confirmAction("cancel")
       else
-        if me = "poll_question_ok" then
+        if tSprID = "poll_question_ok" then
           tWndObj = getWindow(pPollWindowID)
           if tWndObj <> 0 then
             tElem = tWndObj.getElement("poll_answer")
@@ -351,36 +338,33 @@ on eventProcQuestion(me, tEvent, tSprID, tParam, tWndID)
         end if
       end if
       return(1)
-      exit
     end if
   end if
 end
 
-on eventProcThanks(me, tEvent, tSprID, tParam, tWndID)
+on eventProcThanks me, tEvent, tSprID, tParam, tWndID 
   if tEvent = #mouseUp then
-    if me <> "close" then
-      if me = "poll_thanks_ok" then
+    if tSprID <> "close" then
+      if tSprID = "poll_thanks_ok" then
         me.hideThanks()
       end if
       return(1)
-      exit
     end if
   end if
 end
 
-on eventProcConfirm(me, tEvent, tSprID, tParam, tWndID)
+on eventProcConfirm me, tEvent, tSprID, tParam, tWndID 
   if tEvent = #mouseUp then
-    if me <> "close" then
-      if me = "habbo_decision_cancel" then
+    if tSprID <> "close" then
+      if tSprID = "habbo_decision_cancel" then
         me.hideConfirm()
       else
-        if me = "habbo_decision_ok" then
+        if tSprID = "habbo_decision_ok" then
           me.getComponent().actionConfirmed()
           me.hideConfirm()
         end if
       end if
       return(1)
-      exit
     end if
   end if
 end

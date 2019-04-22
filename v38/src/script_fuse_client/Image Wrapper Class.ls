@@ -1,4 +1,6 @@
-on prepare(me)
+property pOwnX, pOwnY, pOwnW, pOwnH, pScrolls, pOffX, pOffY, pUpdateLock
+
+on prepare me 
   pOffX = 0
   pOffY = 0
   pOwnW = me.getProp(#pProps, #width)
@@ -21,10 +23,9 @@ on prepare(me)
     me.flipV()
   end if
   return(1)
-  exit
 end
 
-on feedImage(me, tImage)
+on feedImage me, tImage 
   if not ilk(tImage) = #image then
     return(error(me, "Image object expected!" && tImage, #feedImage, #minor))
   end if
@@ -36,21 +37,18 @@ on feedImage(me, tImage)
   me.registerScroll()
   pUpdateLock = 0
   return(1)
-  exit
 end
 
-on clearImage(me)
+on clearImage me 
   tTargetRect = rect(pOwnX, pOwnY, pOwnX + pOwnW, pOwnY + pOwnH)
   return(undefined.fill(tTargetRect, me.getProp(#pProps, #bgColor)))
-  exit
 end
 
-on clearBuffer(me)
+on clearBuffer me 
   return(me.fill(me.rect, me.getProp(#pProps, #bgColor)))
-  exit
 end
 
-on registerScroll(me, tID)
+on registerScroll me, tID 
   if voidp(pScrolls) then
     me.prepare()
   end if
@@ -66,77 +64,68 @@ on registerScroll(me, tID)
   tSourceRect = rect(pOffX, pOffY, pOffX + pOwnW, pOffY + pOwnH)
   tScrollList = []
   tWndObj = getWindowManager().GET(me.pMotherId)
-  repeat while me <= undefined
+  repeat while pScrolls <= undefined
     tScrollId = getAt(undefined, tID)
     tScrollList.add(tWndObj.getElement(tScrollId))
   end repeat
   call(#updateData, tScrollList, tSourceRect, me.rect)
-  exit
 end
 
-on adjustOffsetTo(me, tX, tY)
+on adjustOffsetTo me, tX, tY 
   pOffX = tX
   pOffY = tY
   if not pUpdateLock then
     me.clearImage()
     me.render()
   end if
-  exit
 end
 
-on adjustOffsetBy(me, tOffX, tOffY)
+on adjustOffsetBy me, tOffX, tOffY 
   pOffX = pOffX + tOffX
   pOffY = pOffY + tOffY
   if not pUpdateLock then
     me.clearImage()
     me.render()
   end if
-  exit
 end
 
-on adjustXOffsetTo(me, tX)
+on adjustXOffsetTo me, tX 
   me.adjustOffsetTo(tX, pOffY)
-  exit
 end
 
-on adjustYOffsetTo(me, tY)
+on adjustYOffsetTo me, tY 
   me.adjustOffsetTo(pOffX, tY)
-  exit
 end
 
-on setOffsetX(me, tX)
+on setOffsetX me, tX 
   me.adjustOffsetTo(tX, pOffY)
-  exit
 end
 
-on setOffsetY(me, tY)
+on setOffsetY me, tY 
   me.adjustOffsetTo(pOffX, tY)
-  exit
 end
 
-on getOffsetX(me)
+on getOffsetX me 
   return(pOffX)
-  exit
 end
 
-on getOffsetY(me)
+on getOffsetY me 
   return(pOffY)
-  exit
 end
 
-on resizeBy(me, tOffH, tOffV, tForcedTag)
+on resizeBy me, tOffH, tOffV, tForcedTag 
   if tOffH <> 0 or tOffV <> 0 then
     if me.getProp(#pProps, #style) = #unique then
-      if me = #move then
+      if me.pScaleH = #move then
         me.moveBy(tOffH, 0)
       else
-        if me = #scale then
+        if me.pScaleH = #scale then
           me.pwidth = me.pwidth + tOffH
         else
-          if me = #center then
+          if me.pScaleH = #center then
             me.moveBy(tOffH / 2, 0)
           else
-            if me = #fixed then
+            if me.pScaleH = #fixed then
               if tForcedTag then
                 me.pwidth = me.pwidth + tOffH
               end if
@@ -144,16 +133,16 @@ on resizeBy(me, tOffH, tOffV, tForcedTag)
           end if
         end if
       end if
-      if me = #move then
+      if me.pScaleH = #move then
         me.moveBy(0, tOffV)
       else
-        if me = #scale then
+        if me.pScaleH = #scale then
           me.pheight = me.pheight + tOffV
         else
-          if me = #center then
+          if me.pScaleH = #center then
             me.moveBy(0, tOffV / 2)
           else
-            if me = #fixed then
+            if me.pScaleH = #fixed then
               if tForcedTag then
                 me.pheight = me.pheight + tOffV
               end if
@@ -174,16 +163,16 @@ on resizeBy(me, tOffH, tOffV, tForcedTag)
       pSprite.width = pOwnW
       pSprite.height = pOwnH
     else
-      if me = #move then
+      if me.pScaleH = #move then
         pOwnX = pOwnX + tOffH
       else
-        if me = #scale then
+        if me.pScaleH = #scale then
           pOwnW = pOwnW + tOffH
         else
-          if me = #center then
+          if me.pScaleH = #center then
             pOwnX = pOwnX + tOffH / 2
           else
-            if me = #fixed then
+            if me.pScaleH = #fixed then
               if tForcedTag then
                 me.width = pSprite.width + tOffH
                 pOwnW = pSprite.width
@@ -192,16 +181,16 @@ on resizeBy(me, tOffH, tOffV, tForcedTag)
           end if
         end if
       end if
-      if me = #move then
+      if me.pScaleH = #move then
         pOwnY = pOwnY + tOffV
       else
-        if me = #scale then
+        if me.pScaleH = #scale then
           pOwnH = pOwnH + tOffV
         else
-          if me = #center then
+          if me.pScaleH = #center then
             pOwnY = pOwnY + tOffV / 2
           else
-            if me = #fixed then
+            if me.pScaleH = #fixed then
               if tForcedTag then
                 me.height = pSprite.height + tOffV
                 pOwnV = pSprite.height
@@ -214,35 +203,29 @@ on resizeBy(me, tOffH, tOffV, tForcedTag)
     me.registerScroll()
     me.render()
   end if
-  exit
 end
 
-on render(me)
+on render me 
   if not me.pVisible then
     return()
   end if
   tTargetRect = rect(pOwnX, pOwnY, pOwnX + pOwnW, pOwnY + pOwnH)
   tSourceRect = rect(pOffX, pOffY, pOffX + pOwnW, pOffY + pOwnH)
   undefined.copyPixels(me.pimage, tTargetRect, tSourceRect, me.pParams)
-  exit
 end
 
-on mouseDown(me)
-  return(point(the mouseV, me - pSprite.locV + pOwnY + pOffY))
-  exit
+on mouseDown me 
+  return(point(the mouseV, the mouseH - pSprite.locV + pOwnY + pOffY))
 end
 
-on mouseUp(me)
-  return(point(the mouseV, me - pSprite.locV + pOwnY + pOffY))
-  exit
+on mouseUp me 
+  return(point(the mouseV, the mouseH - pSprite.locV + pOwnY + pOffY))
 end
 
-on mouseWithin(me)
-  return(point(the mouseV, me - pSprite.locV + pOwnY + pOffY))
-  exit
+on mouseWithin me 
+  return(point(the mouseV, the mouseH - pSprite.locV + pOwnY + pOffY))
 end
 
-on handlers()
+on handlers  
   return([])
-  exit
 end

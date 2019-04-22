@@ -1,15 +1,16 @@
-on deconstruct(me)
-  repeat while me <= undefined
+property pLastUpdate, pState, pFrame
+
+on deconstruct me 
+  repeat while me.pSprList <= undefined
     tSpr = getAt(undefined, undefined)
     releaseSprite(tSpr.spriteNum)
   end repeat
   me.pSprList = []
   pState = 3
   return(1)
-  exit
 end
 
-on prepare(me, tdata)
+on prepare me, tdata 
   tValue = integer(tdata.getAt(#stuffdata))
   if tValue = 0 then
     me.setOff()
@@ -19,10 +20,9 @@ on prepare(me, tdata)
   pFrame = 0
   pLastUpdate = the milliSeconds
   return(1)
-  exit
 end
 
-on updateStuffdata(me, tValue)
+on updateStuffdata me, tValue 
   pFrame = 0
   pLastUpdate = the milliSeconds
   tValue = integer(tValue)
@@ -31,10 +31,9 @@ on updateStuffdata(me, tValue)
   else
     me.setOn()
   end if
-  exit
 end
 
-on update(me)
+on update me 
   if the milliSeconds < pLastUpdate then
     return()
   end if
@@ -72,22 +71,18 @@ on update(me)
       end if
     end if
   end if
-  exit
 end
 
-on setOn(me)
+on setOn me 
   pState = 1
-  exit
 end
 
-on setOff(me)
+on setOff me 
   pState = 2
-  exit
 end
 
-on select(me)
+on select me 
   if the doubleClick then
     getThread(#room).getComponent().getRoomConnection().send("USEFURNITURE", [#integer:integer(me.getID()), #integer:0])
   end if
-  exit
 end

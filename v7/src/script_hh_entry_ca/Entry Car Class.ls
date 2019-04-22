@@ -1,14 +1,15 @@
-on define(me, tSprite, tDirection)
+property pDirection, pSprite, pOffset, pTurnPnt
+
+on define me, tSprite, tDirection 
   pSprite = tSprite
   pOffset = [0, 0]
   pTurnPnt = 0
   pDirection = tDirection
   me.reset()
   return(1)
-  exit
 end
 
-on reset(me)
+on reset me 
   tmodel = ["car2", "car_b2"].getAt(random(2))
   if pDirection = #left then
     pSprite.castNum = getmemnum(tmodel)
@@ -27,10 +28,9 @@ on reset(me)
   pSprite.height = member.height
   pSprite.ink = 41
   pSprite.backColor = random(150) + 20
-  exit
 end
 
-on update(me)
+on update me 
   pSprite.loc = pSprite.loc + pOffset
   if pSprite.locH = pTurnPnt then
     pOffset.setAt(2, -pOffset.getAt(2))
@@ -43,5 +43,4 @@ on update(me)
   if pSprite.locV > 510 then
     return(me.reset())
   end if
-  exit
 end

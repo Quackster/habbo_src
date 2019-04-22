@@ -1,22 +1,22 @@
-on define(me, tProps)
+property pStateCount, pTargetState, pRunning
+
+on define me, tProps 
   pRunning = 0
   pTargetState = 0
   tRetVal = callAncestor(#define, [me], tProps)
   pStateCount = me.count(#pStateSequenceList) - 2 / 3
   pRunning = 1
   return(tRetVal)
-  exit
 end
 
-on select(me)
+on select me 
   if the doubleClick then
     getThread(#room).getComponent().getRoomConnection().send("SPIN_WHEEL_OF_FORTUNE", [#integer:value(me.getID())])
   end if
   return(1)
-  exit
 end
 
-on update(me)
+on update me 
   if pIsAnimatingList.findPos(1) = 0 then
     if me.pState = pStateCount * 3 + 1 then
       me.setState(pStateCount * 3 + 2)
@@ -36,10 +36,9 @@ on update(me)
     end if
   end if
   return(callAncestor(#update, [me]))
-  exit
 end
 
-on setState(me, tNewState)
+on setState me, tNewState 
   tNewState = value(tNewState)
   if tNewState = -1 then
     if pRunning then
@@ -60,5 +59,4 @@ on setState(me, tNewState)
     tRetVal = callAncestor(#setState, [me], tNewState)
   end if
   return(tRetVal)
-  exit
 end

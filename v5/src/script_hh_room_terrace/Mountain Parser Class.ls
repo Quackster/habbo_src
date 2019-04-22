@@ -1,46 +1,38 @@
-on construct(me)
+on construct me 
   return(me.regMsgList(1))
-  exit
 end
 
-on deconsturct(me)
+on deconsturct me 
   return(me.regMsgList(0))
-  exit
 end
 
-on parse_open_uimakoppi(me, tMsg)
+on parse_open_uimakoppi me, tMsg 
   me.getInterface().openPukukoppi()
-  exit
 end
 
-on parse_close_uimakoppi(me, tMsg)
+on parse_close_uimakoppi me, tMsg 
   me.getInterface().closePukukoppi()
-  exit
 end
 
-on parse_md_exit(me, tMsg)
+on parse_md_exit me, tMsg 
   me.getInterface().doTheDew(tMsg.content)
-  exit
 end
 
-on parse_tickets(me, tMsg)
+on parse_tickets me, tMsg 
   me.getComponent().setTicketCount(integer(tMsg.getProp(#word, 1)))
-  exit
 end
 
-on parse_tickets_buy(me, tMsg)
+on parse_tickets_buy me, tMsg 
   me.getComponent().setTicketCount(integer(tMsg.getProp(#word, 1)))
   me.getInterface().openTicketWnd(1)
-  exit
 end
 
-on parse_no_tickets(me, tMsg)
+on parse_no_tickets me, tMsg 
   me.getInterface().openTicketWnd()
-  exit
 end
 
-on regMsgList(me, tBool)
-  tList = []
+on regMsgList me, tBool 
+  tList = [:]
   tList.setAt("OPEN_UIMAKOPPI", #parse_open_uimakoppi)
   tList.setAt("CLOSE_UIMAKOPPI", #parse_close_uimakoppi)
   tList.setAt("MD_EXIT", #parse_md_exit)
@@ -55,5 +47,4 @@ on regMsgList(me, tBool)
     unregisterListener(getVariable("connection.info.id"), me.getID(), ["PH_TICKETS_BUY":#parse_tickets_buy])
   end if
   return(1)
-  exit
 end

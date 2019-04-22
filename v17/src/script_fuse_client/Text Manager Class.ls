@@ -1,4 +1,4 @@
-on GET(me, tKey, tDefault)
+on GET me, tKey, tDefault 
   tText = me.getProp(#pItemList, tKey)
   if voidp(tText) then
     tError = "Text not found:" && tKey
@@ -11,10 +11,9 @@ on GET(me, tKey, tDefault)
     error(me, tError, #GET, #minor)
   end if
   return(tText)
-  exit
 end
 
-on dump(me, tField, tDelimiter)
+on dump me, tField, tDelimiter 
   if not memberExists(tField) then
     return(error(me, "Field member expected:" && tField, #dump, #major))
   end if
@@ -34,7 +33,7 @@ on dump(me, tField, tDelimiter)
   end repeat
   tDelim = the itemDelimiter
   the itemDelimiter = "="
-  repeat while me <= tDelimiter
+  repeat while tField <= tDelimiter
     tStr = getAt(tDelimiter, tField)
     tLineNo = 1
     repeat while tLineNo <= tStr.count(#line)
@@ -58,5 +57,4 @@ on dump(me, tField, tDelimiter)
   end repeat
   the itemDelimiter = tDelim
   return(1)
-  exit
 end

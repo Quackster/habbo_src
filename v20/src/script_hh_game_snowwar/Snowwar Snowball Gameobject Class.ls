@@ -1,13 +1,14 @@
-on deconstruct(me)
+property pConstants, pVelocityTable, pSprite, pSpriteSd, pSpriteOwnerId
+
+on deconstruct me 
   pVelocityTable = void()
   pConstants = void()
   me.resetTargets()
   me.removeSprites()
   return(1)
-  exit
 end
 
-on define(me, tdata)
+on define me, tdata 
   me.SetConstants()
   tGameSystem = getObject(#snowwar_gamesystem)
   pVelocityTable = tGameSystem.GetVelocityTable()
@@ -16,10 +17,9 @@ on define(me, tdata)
   me.setGameObjectProperty(#gameobject_collisionshape_radius, getVariable("snowwar.object_snowball.collisionshape_radius"))
   me.createSprites(tdata.getAt(#x), tdata.getAt(#y), tdata.getAt(#z))
   return(1)
-  exit
 end
 
-on calculateFlightPath(me, tdata, tTargetX, tTargetY)
+on calculateFlightPath me, tdata, tTargetX, tTargetY 
   me.SetConstants()
   tGameSystem = me.getGameSystem()
   pVelocityTable = tGameSystem.GetVelocityTable()
@@ -50,10 +50,9 @@ on calculateFlightPath(me, tdata, tTargetX, tTargetY)
   me.setProp(#pGameObjectSyncValues, #parabola_offset, me.getProp(#pGameObjectSyncValues, #time_to_live) / 2)
   me.createSprites(tX, tY, tZ)
   return(1)
-  exit
 end
 
-on calculateFrameMovement(me)
+on calculateFrameMovement me 
   if me.pKilled then
     return(void())
   end if
@@ -90,10 +89,9 @@ on calculateFrameMovement(me)
     return(me.Remove())
   end if
   return(1)
-  exit
 end
 
-on testCollisionWithGround(me)
+on testCollisionWithGround me 
   tLocation3D = me.getLocation()
   if tLocation3D.z < 1 then
     return(1)
@@ -106,10 +104,9 @@ on testCollisionWithGround(me)
     return(1)
   end if
   return(0)
-  exit
 end
 
-on moveSprites(me, tNewX, tNewY, tNewZ)
+on moveSprites me, tNewX, tNewY, tNewZ 
   if ilk(pSprite) <> #sprite then
     return(0)
   end if
@@ -127,20 +124,18 @@ on moveSprites(me, tNewX, tNewY, tNewZ)
   pSpriteSd.loc = point(tloc.getAt(1), tloc.getAt(2))
   pSpriteSd.locZ = tloc.getAt(3)
   return(1)
-  exit
 end
 
-on createSprites(me, tX, tY, tZ)
+on createSprites me, tX, tY, tZ 
   me.removeSprites()
   pSprite = sprite(reserveSprite(pSpriteOwnerId))
   pSprite.member = member(getmemnum("snowball"))
   pSpriteSd = sprite(reserveSprite(pSpriteOwnerId))
   pSpriteSd.member = member(getmemnum("snowball_sd"))
   return(me.moveSprites(tX, tY, tZ))
-  exit
 end
 
-on removeSprites(me)
+on removeSprites me 
   if ilk(pSprite) = #sprite then
     releaseSprite(pSprite.spriteNum)
   end if
@@ -150,11 +145,10 @@ on removeSprites(me)
   pSprite = void()
   pSpriteSd = void()
   return(1)
-  exit
 end
 
-on SetConstants(me)
-  pConstants = []
+on SetConstants me 
+  pConstants = [:]
   pConstants.setAt(#TRAJECTORY_QUICK_THROW, 0)
   pConstants.setAt(#TRAJECTORY_SHORT_LOB, 1)
   pConstants.setAt(#TRAJECTORY_LONG_LOB, 2)
@@ -167,5 +161,4 @@ on SetConstants(me)
   pConstants.setAt(#SHORT_LOB_HEIGHT_LEVEL, getIntVariable("SHORT_LOB_HEIGHT_LEVEL"))
   pConstants.setAt(#LONG_LOB_HEIGHT_LEVEL, getIntVariable("LONG_LOB_HEIGHT_LEVEL"))
   return(1)
-  exit
 end

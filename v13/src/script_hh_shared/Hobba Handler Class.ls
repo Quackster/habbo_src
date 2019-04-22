@@ -1,15 +1,13 @@
-on construct(me)
+on construct me 
   return(me.regMsgList(1))
-  exit
 end
 
-on deconstruct(me)
+on deconstruct me 
   return(me.regMsgList(0))
-  exit
 end
 
-on handle_cryforhelp(me, tMsg)
-  tProps = []
+on handle_cryforhelp me, tMsg 
+  tProps = [:]
   tConn = tMsg.getaProp(#connection)
   tProps = [#picker:""]
   tProps.setAt(#cry_id, tConn.GetStrFrom())
@@ -46,41 +44,37 @@ on handle_cryforhelp(me, tMsg)
   if tProps.getAt(#sender) <> "[AUTOMATIC]" then
     me.getComponent().receive_cryforhelp(tProps)
   end if
-  exit
 end
 
-on handle_delete_cry(me, tMsg)
+on handle_delete_cry me, tMsg 
   tConn = tMsg.getaProp(#connection)
   tid = tConn.GetStrFrom()
   me.getComponent().deleteCry(tid)
-  exit
 end
 
-on handle_picked_cry(me, tMsg)
+on handle_picked_cry me, tMsg 
   tConn = tMsg.getaProp(#connection)
   tid = tConn.GetStrFrom()
   tPicker = tConn.GetStrFrom()
   tProps = [#picker:tPicker, #cry_id:tid]
   me.getComponent().receive_pickedCry(tProps)
-  exit
 end
 
-on handle_cry_reply(me, tMsg)
+on handle_cry_reply me, tMsg 
   tConn = tMsg.getaProp(#connection)
   tText = convertSpecialChars(tConn.GetStrFrom(), 0)
   tText = replaceChunks(tText, "<br>", "\r")
   executeMessage(#alert, [#title:"hobba_message_from", #Msg:tText])
   return(1)
-  exit
 end
 
-on regMsgList(me, tBool)
-  tMsgs = []
+on regMsgList me, tBool 
+  tMsgs = [:]
   tMsgs.setaProp(148, #handle_cryforhelp)
   tMsgs.setaProp(149, #handle_picked_cry)
   tMsgs.setaProp(273, #handle_delete_cry)
   tMsgs.setaProp(274, #handle_cry_reply)
-  tCmds = []
+  tCmds = [:]
   tCmds.setaProp("PICK_CRYFORHELP", 48)
   tCmds.setaProp("CRYFORHELP", 86)
   tCmds.setaProp("CHANGECALLCATEGORY", 198)
@@ -94,5 +88,4 @@ on regMsgList(me, tBool)
     unregisterCommands(getVariable("connection.info.id"), me.getID(), tCmds)
   end if
   return(1)
-  exit
 end

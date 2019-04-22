@@ -1,4 +1,6 @@
-on construct(me)
+property pErrorCache, pCacheSize, pDebugLevel
+
+on construct me 
   if not the runMode contains "Author" then
     the alertHook = me
   end if
@@ -6,16 +8,14 @@ on construct(me)
   pErrorCache = ""
   pCacheSize = 30
   return(1)
-  exit
 end
 
-on deconstruct(me)
+on deconstruct me 
   the alertHook = 0
   return(1)
-  exit
 end
 
-on error(me, tObject, tMsg, tMethod)
+on error me, tObject, tMsg, tMethod 
   if objectp(tObject) then
     tObject = string(tObject)
     tObject = tObject.getProp(#word, 2, tObject.count(#word) - 2)
@@ -45,27 +45,25 @@ on error(me, tObject, tMsg, tMethod)
   if pErrorCache.count(#line) > pCacheSize then
     pErrorCache = pErrorCache.getProp(#line, pErrorCache.count(#line) - pCacheSize, pErrorCache.count(#line))
   end if
-  if me = 1 then
+  if pDebugLevel = 1 then
     put("Error:" & tError)
   else
-    if me = 2 then
+    if pDebugLevel = 2 then
       put("Error:" & tError)
     else
       put("Error:" & tError)
     end if
   end if
   return(0)
-  exit
 end
 
-on SystemAlert(me, tObject, tMsg, tMethod)
+on SystemAlert me, tObject, tMsg, tMethod 
   me.error(tObject, tMsg, tMethod)
   me.SendMailAlert(tObject, tMsg, tMethod)
   return(0)
-  exit
 end
 
-on SendMailAlert(me, tErr, tMsgA, tMsgB)
+on SendMailAlert me, tErr, tMsgA, tMsgB 
   if the runMode = "Author" then
     return(0)
   end if
@@ -133,10 +131,9 @@ on SendMailAlert(me, tErr, tMsgA, tMsgB)
     getConnection(getVariableValue("server.mail.connection")).send("SENDEMAIL" & "\r" & tMailMsg)
   end if
   return(0)
-  exit
 end
 
-on sendErrorReport(me, tErr, tMsgA, tMsgB)
+on sendErrorReport me, tErr, tMsgA, tMsgB 
   if not objectExists(#session) then
     return(0)
   end if
@@ -192,7 +189,7 @@ on sendErrorReport(me, tErr, tMsgA, tMsgB)
   if tVarList.getAt("user_walletbalance").ilk = #void then
     tVarList.setAt("user_walletbalance", "Not defined")
   end if
-  tErrProps = []
+  tErrProps = [:]
   tErrProps.setAt("ie", tErr)
   tErrProps.setAt("im", tMsgA & "," && tMsgB)
   tErrProps.setAt("ic", getObject(#session).get("client_version"))
@@ -219,24 +216,22 @@ on sendErrorReport(me, tErr, tMsgA, tMsgB)
   tErrProps.setAt("cs", tCheckSum1 + tCheckSum2 / value(tEndTime.getProp(#char, 8)) + 1)
   put(tErrProps)
   return(0)
-  exit
 end
 
-on setDebugLevel(me, tDebugLevel)
+on setDebugLevel me, tDebugLevel 
   if not integerp(tDebugLevel) then
     return(0)
   end if
   pDebugLevel = tDebugLevel
-  if float(the productVersion.getProp(#char, 1, 3)) >= 0 then
+  if float(the productVersion.getProp(#char, 1, 3)) >= 8.5 then
     if pDebugLevel > 0 then
       the debugPlaybackEnabled = 1
     end if
   end if
   return(1)
-  exit
 end
 
-on setErrorEmailAddress(me, tMailAddress)
+on setErrorEmailAddress me, tMailAddress 
   if not stringp(tMailAddress) then
     return(0)
   end if
@@ -245,35 +240,30 @@ on setErrorEmailAddress(me, tMailAddress)
   end if
   pAuthorAddress = tMailAddress
   return(1)
-  exit
 end
 
-on print(me)
+on print me 
   put("Errors:" & "\r" & pErrorCache)
   return(1)
-  exit
 end
 
-on alertHook(me, tErr, tMsgA, tMsgB)
+on alertHook me, tErr, tMsgA, tMsgB 
   me.SendMailAlert(tErr, tMsgA, tMsgB)
   me.sendErrorReport(tErr, tMsgA, tMsgB)
   me.showErrorDialog()
   pauseUpdate()
   return(1)
-  exit
 end
 
-on showErrorDialog(me)
+on showErrorDialog me 
   createWindow(#error, "error.window", 0, 0, #modal)
   registerClient(#error, me.getID())
   registerProcedure(#error, #eventProcError, me.getID(), #mouseUp)
   return(1)
-  exit
 end
 
-on eventProcError(me, tEvent, tSprID, tParam)
+on eventProcError me, tEvent, tSprID, tParam 
   if tEvent = #mouseUp and tSprID = "error_close" then
     resetClient()
   end if
-  exit
 end

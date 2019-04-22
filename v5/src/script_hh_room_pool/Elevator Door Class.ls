@@ -1,16 +1,16 @@
-on construct(me)
+property pMode
+
+on construct me 
   pMode = #close
   return(1)
-  exit
 end
 
-on setDoorMode(me, tMode)
+on setDoorMode me, tMode 
   pMode = symbol(tMode)
   me.updateDoor()
-  exit
 end
 
-on updateDoor(me)
+on updateDoor me 
   if pMode = #open then
     tMem = member(getmemnum("towerdoor_2"))
   else
@@ -21,5 +21,4 @@ on updateDoor(me)
     return(0)
   end if
   tRoomVis.getSprById("lift_door").setMember(tMem)
-  exit
 end

@@ -1,4 +1,6 @@
-on define(me, tIndex, tLocH)
+property pAreaWidth, pSprite, pMiddle, pMuutos, pFromLeft, pMaksimi, pDivPi, pMuutos2, v, vm, pAreaHeight
+
+on define me, tIndex, tLocH 
   pSprite = getThread(#room).getInterface().getRoomVisualizer().getSprById("bubble" & tIndex)
   pAreaWidth = 20
   pAreaHeight = 220
@@ -8,20 +10,18 @@ on define(me, tIndex, tLocH)
   pSprite.locV = pSprite.locV
   v = random(100)
   return(1)
-  exit
 end
 
-on replace(me)
+on replace me 
   v = 0
   vm = random(3)
   pMiddle = pSprite.width + random(pAreaWidth) - pSprite.width
   pMuutos = random(10)
   pMuutos2 = random(20)
   pMaksimi = pAreaWidth - pAreaWidth - pMiddle / 2
-  exit
 end
 
-on update(me)
+on update me 
   pMuutos = pMuutos + 7
   pSprite.locH = pFromLeft + pMiddle - pMaksimi * sin(pMuutos * pDivPi) * sin(pMuutos2 * pDivPi)
   pSprite.locV = v / 3
@@ -29,5 +29,4 @@ on update(me)
   if v / 3 >= pAreaHeight then
     me.replace()
   end if
-  exit
 end

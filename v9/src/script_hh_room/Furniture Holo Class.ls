@@ -1,4 +1,6 @@
-on prepare(me, tdata)
+property pActive, pDelay, pAnimFrm
+
+on prepare me, tdata 
   pActive = 0
   pAnimFrm = 0
   pDelay = 1
@@ -8,19 +10,17 @@ on prepare(me, tdata)
     me.setOff()
   end if
   return(1)
-  exit
 end
 
-on updateStuffdata(me, tValue)
+on updateStuffdata me, tValue 
   if tValue = "ON" then
     me.setOn()
   else
     me.setOff()
   end if
-  exit
 end
 
-on update(me)
+on update me 
   if not pActive then
     return()
   end if
@@ -50,10 +50,9 @@ on update(me)
     end if
   end if
   pDelay = pDelay + 1 mod 4
-  exit
 end
 
-on setHoloLight(me)
+on setHoloLight me 
   if me.count(#pSprList) = 0 then
     return()
   end if
@@ -84,22 +83,19 @@ on setHoloLight(me)
   me.getPropRef(#pSprList, 4).width = tmember.width
   me.getPropRef(#pSprList, 4).height = tmember.height
   me.getPropRef(#pSprList, 4).ink = 33
-  exit
 end
 
-on setOn(me)
+on setOn me 
   pActive = 1
   me.setHoloLight()
-  exit
 end
 
-on setOff(me)
+on setOff me 
   pActive = 0
   me.setHoloLight()
-  exit
 end
 
-on select(me)
+on select me 
   if the doubleClick then
     if pActive = 1 then
       tOnString = "OFF"
@@ -108,5 +104,4 @@ on select(me)
     end if
     getThread(#room).getComponent().getRoomConnection().send("SETSTUFFDATA", [#string:string(me.getID()), #string:tOnString])
   end if
-  exit
 end

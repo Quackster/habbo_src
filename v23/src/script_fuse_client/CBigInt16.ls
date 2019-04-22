@@ -1,4 +1,6 @@
-on construct(this)
+property m_iBitsPerWord, m_iBitMask, m_ar_iValue, m_iLength
+
+on construct this 
   m_ar_iValue = []
   m_iLength = 0
   m_iBitsPerWord = 12
@@ -10,10 +12,9 @@ on construct(this)
   end repeat
   m_iCarryMask = bitOr(m_iBitMask * 2, 1)
   return(1)
-  exit
 end
 
-on setup(this, a_vInput)
+on setup this, a_vInput 
   if this = #integer then
     t_iValue = a_vInput
     t_iLength = 4 * 8 + 7 / m_iBitsPerWord
@@ -39,10 +40,9 @@ on setup(this, a_vInput)
     m_ar_iValue = a_vInput.duplicate()
     m_iValue = a_vInput.m_iValue
   end if
-  exit
 end
 
-on multiply(this, a_rOperand)
+on multiply this, a_rOperand 
   t_ar_iResult = []
   t_ar_iResult.addAt(m_iLength + a_rOperand.m_iLength, 0)
   i = 1
@@ -64,10 +64,9 @@ on multiply(this, a_rOperand)
   t_rBigInt = createObject(#temp, "CBigInt16")
   t_rBigInt.setup(t_ar_iResult)
   return(t_rBigInt)
-  exit
 end
 
-on power(this, a_rBigIntExp, a_rBigIntMod)
+on power this, a_rBigIntExp, a_rBigIntMod 
   t_rResult = createObject(#temp, "CBigInt16")
   t_rBase = this
   n = 1
@@ -82,30 +81,25 @@ on power(this, a_rBigIntExp, a_rBigIntMod)
     n = 1 + n
   end repeat
   return(t_rResult)
-  exit
 end
 
-on Compare(this, a_rOperand)
+on Compare this, a_rOperand 
   if m_iLength = a_rOperand.m_iLength then
   end if
   return(0)
-  exit
 end
 
-on Modulo(this, a_rModulus)
-  exit
+on Modulo this, a_rModulus 
 end
 
-on toString(this)
+on toString this 
   return("")
-  exit
 end
 
-on FromString(this, a_sHex)
-  exit
+on FromString this, a_sHex 
 end
 
-on BitRight(this, n, s)
+on BitRight this, n, s 
   s = s mod 32
   if n > 0 then
     return(bitOr(n / power(2, s), 0))
@@ -118,5 +112,4 @@ on BitRight(this, n, s)
       return(i)
     end if
   end if
-  exit
 end

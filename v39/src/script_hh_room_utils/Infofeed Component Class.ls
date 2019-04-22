@@ -1,62 +1,56 @@
-on test(me)
+property pItemList, pCallbackList, pMaxItems
+
+on test me 
   tItem = [#type:#newbadge, #value:"ACH_RegistrationDuration" & random(10)]
   me.createItem(tItem)
-  exit
 end
 
-on construct(me)
+on construct me 
   pBaseClassName = "Infofeed Item Base Class"
-  pItemList = []
+  pItemList = [:]
   pMaxItems = integer(getIntVariable("infofeed.maxitems.count"))
   pCallbackList = []
   return(1)
-  exit
 end
 
-on deconstruct(me)
+on deconstruct me 
   me.removeAllItems()
   return(1)
-  exit
 end
 
-on getItem(me, tID)
+on getItem me, tID 
   if voidp(tID) then
     return(0)
   end if
   return(pItemList.getaProp(tID))
-  exit
 end
 
-on getItemCount(me)
+on getItemCount me 
   return(pItemList.count)
-  exit
 end
 
-on getItemPos(me, tID)
+on getItemPos me, tID 
   if voidp(tID) then
     return(0)
   end if
   return(pItemList.findPos(tID))
-  exit
 end
 
-on getFirstItemId(me)
+on getFirstItemId me 
   if pItemList.count = 0 then
     return(-1)
   end if
   return(pItemList.getPropAt(1))
-  exit
 end
 
-on getLatestItemId(me)
+on getLatestItemId me 
   if pItemList.count = 0 then
     return(-1)
   end if
   return(pItemList.getPropAt(pItemList.count))
-  exit
 end
 
-on getPreviousFrom(me, tID)
+on getPreviousFrom me, tID 
   if voidp(tID) then
     return(-1)
   end if
@@ -65,10 +59,9 @@ on getPreviousFrom(me, tID)
     return(me.getFirstItemId())
   end if
   return(pItemList.getPropAt(tPos - 1))
-  exit
 end
 
-on getNextFrom(me, tID)
+on getNextFrom me, tID 
   if voidp(tID) then
     return(-1)
   end if
@@ -77,22 +70,20 @@ on getNextFrom(me, tID)
     return(me.getLatestItemId())
   end if
   return(pItemList.getPropAt(tPos + 1))
-  exit
 end
 
-on registerButtonCallback(me, ttype, tMethod, tObject)
+on registerButtonCallback me, ttype, tMethod, tObject 
   if ttype <> #prev and ttype <> #next then
     return(error(me, "Only allowed types are #prev and #next", #registerButtonCallback, #minor))
   end if
-  tCallbackItem = []
+  tCallbackItem = [:]
   tCallbackItem.setAt(#type, ttype)
   tCallbackItem.setAt(#method, tMethod)
   tCallbackItem.setAt(#object, tObject)
   pCallbackList.add(tCallbackItem)
-  exit
 end
 
-on removeButtonCallback(me, ttype, tMethod, tObject)
+on removeButtonCallback me, ttype, tMethod, tObject 
   i = 1
   repeat while i <= pCallbackList.count
     tItem = pCallbackList.getAt(i)
@@ -102,32 +93,29 @@ on removeButtonCallback(me, ttype, tMethod, tObject)
     end if
     i = 1 + i
   end repeat
-  exit
 end
 
-on executeNextCallbacks(me, tItemID)
+on executeNextCallbacks me, tItemID 
   tInfofeedItem = me.getItem(tItemID)
-  repeat while me <= undefined
+  repeat while pCallbackList <= undefined
     tItem = getAt(undefined, tItemID)
     if tItem.getAt(#type) = #next then
       call(tItem.getAt(#method), [tItem.getAt(#object)], tInfofeedItem)
     end if
   end repeat
-  exit
 end
 
-on executePrevCallbacks(me, tItemID)
+on executePrevCallbacks me, tItemID 
   tInfofeedItem = me.getItem(tItemID)
-  repeat while me <= undefined
+  repeat while pCallbackList <= undefined
     tItem = getAt(undefined, tItemID)
     if tItem.getAt(#type) = #prev then
       call(tItem.getAt(#method), [tItem.getAt(#object)], tInfofeedItem)
     end if
   end repeat
-  exit
 end
 
-on createItem(me, tStruct)
+on createItem me, tStruct 
   if not listp(tStruct) then
     return(0)
   end if
@@ -150,10 +138,9 @@ on createItem(me, tStruct)
   me.purgeItems()
   me.getInterface().itemCreated(tID)
   return(1)
-  exit
 end
 
-on purgeItems(me)
+on purgeItems me 
   if pItemList.count <= pMaxItems then
     return(1)
   end if
@@ -161,23 +148,20 @@ on purgeItems(me)
     pItemList.deleteAt(1)
   end repeat
   return(1)
-  exit
 end
 
-on removeAllItems(me)
-  repeat while me <= undefined
+on removeAllItems me 
+  repeat while pItemList <= undefined
     tItem = getAt(undefined, undefined)
     tItem.deconstruct()
   end repeat
-  pItemList = []
-  exit
+  pItemList = [:]
 end
 
-on getItemClass(me, ttype)
+on getItemClass me, ttype 
   tClassName = "Infofeed Item" && ttype && "Class"
   if getmemnum(tClassName) > 0 then
     return([me.pBaseClassName, tClassName])
   end if
   return(me.pBaseClassName)
-  exit
 end

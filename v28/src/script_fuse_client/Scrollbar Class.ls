@@ -1,10 +1,11 @@
-on deconstruct(me)
+property pAgentID, pParts, pButtonImg, pClientID, pScrollOffset, pClientSourceRect, pScrollStep, pViewClientRect, pClickPass, pState, pRects, pClickPoint, pMaxOffset, pButtonStates, pPageSize
+
+on deconstruct me 
   removeObject(pAgentID)
   return(1)
-  exit
 end
 
-on define(me, tProps)
+on define me, tProps 
   tField = tProps.getAt(#type) & tProps.getAt(#model) & ".element"
   pParts = getObject(#layout_parser).parse(tField)
   if pParts = 0 then
@@ -24,13 +25,13 @@ on define(me, tProps)
   me.pheight = tProps.getAt(#height)
   pClientID = tProps.getAt(#client)
   pScrollStep = tProps.getAt(#offset)
-  pButtonImg = []
+  pButtonImg = [:]
   if variableExists("interface.palette") then
     me.pPalette = member(getmemnum(getVariable("interface.palette")))
   else
     me.pPalette = #systemMac
   end if
-  pRects = []
+  pRects = [:]
   pState = #waitMouseEvent
   pScrollOffset = 0
   pButtonStates = [#top:#up, #bottom:#up, #bar:#up, #lift:#up]
@@ -48,46 +49,44 @@ on define(me, tProps)
   pAgentID = me.getID() && the milliSeconds
   createObject(pAgentID, getClassVariable("event.agent.class"))
   return(1)
-  exit
 end
 
-on prepare(me)
+on prepare me 
   me.width = me.pwidth
   me.height = me.pheight
   call(#registerScroll, [getWindow(me.pMotherId).getElement(pClientID)], me.pID)
-  exit
 end
 
-on getProperty(me, tProp)
-  if me = #width then
+on getProperty me, tProp 
+  if tProp = #width then
     return(me.pwidth)
   else
-    if me = #height then
+    if tProp = #height then
       return(me.pheight)
     else
-      if me = #locH then
+      if tProp = #locH then
         return(me.pLocX)
       else
-        if me = #locV then
+        if tProp = #locV then
           return(me.pLocY)
         else
-          if me = #locX then
+          if tProp = #locX then
             return(me.pLocX)
           else
-            if me = #locY then
+            if tProp = #locY then
               return(me.pLocY)
             else
-              if me = #offset then
+              if tProp = #offset then
                 return(pScrollOffset)
               else
-                if me = #scrollrange then
+                if tProp = #scrollrange then
                   if me.pType = "scrollbarv" then
                     return(pClientSourceRect.getAt(4) - pClientSourceRect.getAt(2))
                   else
                     return(pClientSourceRect.getAt(2) - pClientSourceRect.getAt(1))
                   end if
                 else
-                  if me = #scrollStep then
+                  if tProp = #scrollStep then
                     return(pScrollStep)
                   else
                     return(0)
@@ -100,23 +99,20 @@ on getProperty(me, tProp)
       end if
     end if
   end if
-  exit
 end
 
-on getScrollOffset(me)
+on getScrollOffset me 
   return(pScrollOffset)
-  exit
 end
 
-on setScrollOffset(me, tOffset)
+on setScrollOffset me, tOffset 
   me.sendAdjustOffsetTo(tOffset)
   me.UpdateLiftPosition()
   me.ButtonsStates()
   return(1)
-  exit
 end
 
-on updateData(me, tViewClientRect, tClientSourceRect)
+on updateData me, tViewClientRect, tClientSourceRect 
   pViewClientRect = tViewClientRect
   pClientSourceRect = tClientSourceRect
   if me.pType = "scrollbarv" then
@@ -140,40 +136,37 @@ on updateData(me, tViewClientRect, tClientSourceRect)
   end if
   me.sendAdjustOffsetTo(pScrollOffset)
   me.ButtonsStates()
-  exit
 end
 
-on ScrollBarPercentV(me)
+on ScrollBarPercentV me 
   tHeight = float(pClientSourceRect.height - pViewClientRect.height)
   if tHeight = 0 then
     return(0)
   else
     tPercent = float(pScrollOffset) / tHeight
-    if tPercent > 0 then
-      return(0)
+    if tPercent > 1 then
+      return(1)
     else
       return(tPercent)
     end if
   end if
-  exit
 end
 
-on ScrollBarPercentH(me)
+on ScrollBarPercentH me 
   tWidth = float(pClientSourceRect.width - pViewClientRect.width)
   if tWidth = 0 then
     return(0)
   else
     tPercent = float(pScrollOffset) / tWidth
-    if tPercent > 0 then
-      return(0)
+    if tPercent > 1 then
+      return(1)
     else
       return(tPercent)
     end if
   end if
-  exit
 end
 
-on mouseDown(me)
+on mouseDown me 
   if me.blend < 100 then
     return(0)
   end if
@@ -182,10 +175,9 @@ on mouseDown(me)
   me.ScrollBarMouseEvent(#down)
   me.render()
   return(1)
-  exit
 end
 
-on mouseUp(me)
+on mouseUp me 
   me.initEventAgent(0)
   if me.blend < 100 then
     return(0)
@@ -199,10 +191,9 @@ on mouseUp(me)
   me.ButtonsStates()
   me.render()
   return(1)
-  exit
 end
 
-on mouseWithin(me)
+on mouseWithin me 
   if pState = #lift then
     tMouseH = the mouseH
     tMouseV = the mouseV
@@ -251,10 +242,9 @@ on mouseWithin(me)
       me.ButtonsStates()
     end if
   end if
-  exit
 end
 
-on mouseUpOutSide(me)
+on mouseUpOutSide me 
   if me.blend < 100 then
     return(0)
   end if
@@ -263,10 +253,9 @@ on mouseUpOutSide(me)
   me.ButtonsStates()
   me.render()
   return(0)
-  exit
 end
 
-on UpdateLiftPosition(me)
+on UpdateLiftPosition me 
   if me.pType = "scrollbarv" then
     tMoveAreaV = pRects.getAt(#bar).height - pRects.getAt(#lift).height
     tNewOffset = integer(me.ScrollBarPercentV() * tMoveAreaV)
@@ -276,10 +265,9 @@ on UpdateLiftPosition(me)
     tNewOffset = integer(me.ScrollBarPercentH() * tMoveAreaV)
     pRects.setAt(#lift, rect(tNewOffset + pRects.getAt(#top).width, 0, tNewOffset + pRects.getAt(#top).width + pRects.getAt(#lift).width, pRects.getAt(#lift).height))
   end if
-  exit
 end
 
-on ScrollByLift(me)
+on ScrollByLift me 
   if me.pType = "scrollbarv" then
     tMoveAreaV = pRects.getAt(#bar).height - pRects.getAt(#lift).height
     if tMoveAreaV = 0 then
@@ -298,10 +286,9 @@ on ScrollByLift(me)
     tNowOffset = integer(pClientSourceRect.right - pViewClientRect.width * float(tScrollPercent) / 100)
   end if
   me.sendAdjustOffsetTo(tNowOffset)
-  exit
 end
 
-on sendAdjustOffsetTo(me, tNewOffset)
+on sendAdjustOffsetTo me, tNewOffset 
   if abs(pScrollOffset - tNewOffset) < pScrollStep and tNewOffset < pMaxOffset and tNewOffset > 0 then
     return(1)
   end if
@@ -321,10 +308,9 @@ on sendAdjustOffsetTo(me, tNewOffset)
   else
     call(#setOffsetX, [getWindow(me.pMotherId).getElement(pClientID)], pScrollOffset)
   end if
-  exit
 end
 
-on UpdateImageObjects(me, tPalette, tListStates)
+on UpdateImageObjects me, tPalette, tListStates 
   if voidp(tPalette) then
     tPalette = me.pPalette
   else
@@ -332,9 +318,9 @@ on UpdateImageObjects(me, tPalette, tListStates)
       tPalette = member(getmemnum(tPalette))
     end if
   end if
-  repeat while me <= tListStates
+  repeat while [#top, #lift, #bottom, #bar] <= tListStates
     f = getAt(tListStates, tPalette)
-    repeat while me <= tListStates
+    repeat while [#top, #lift, #bottom, #bar] <= tListStates
       i = getAt(tListStates, tPalette)
       tDesc = pParts.getAt(i).getAt(#members).getAt(f)
       if not voidp(tDesc) then
@@ -360,19 +346,18 @@ on UpdateImageObjects(me, tPalette, tListStates)
     me.DefineRects(f)
   end repeat
   return(tPalette)
-  exit
 end
 
-on DefineRects(me, tElementPart)
+on DefineRects me, tElementPart 
   if me.pType = "scrollbarv" then
     tRect = pButtonImg.getAt(tElementPart & "_up").rect
-    if me = #lift then
+    if tElementPart = #lift then
       tRect = tRect + rect(0, pButtonImg.getAt("top_up").height, 0, pButtonImg.getAt("top_up").height)
     else
-      if me = #bottom then
+      if tElementPart = #bottom then
         tRect = tRect + rect(0, me.pheight - pButtonImg.getAt("bottom_up").height, 0, me.pheight - pButtonImg.getAt("bottom_up").height)
       else
-        if me = #bar then
+        if tElementPart = #bar then
           tRect = tRect + rect(0, pButtonImg.getAt(#top_up).height, 0, me.pheight - pButtonImg.getAt(#bottom_up).height - 1)
         end if
       end if
@@ -380,39 +365,36 @@ on DefineRects(me, tElementPart)
     pRects.addProp(tElementPart, tRect)
   else
     tRect = pButtonImg.getAt(tElementPart & "_up").rect
-    if me = #lift then
+    if tElementPart = #lift then
       tRect = tRect + rect(pButtonImg.getAt("top_up").width, 0, pButtonImg.getAt("top_up").width, 0)
     else
-      if me = #bottom then
+      if tElementPart = #bottom then
         tRect = tRect + rect(me.pwidth - pButtonImg.getAt("bottom_up").width, 0, me.pwidth - pButtonImg.getAt("bottom_up").width, 0)
       else
-        if me = #bar then
+        if tElementPart = #bar then
           tRect = tRect + rect(pButtonImg.getAt(#top_up).width, 0, me.pwidth - pButtonImg.getAt(#bottom_up).width - 1, 0)
         end if
       end if
     end if
     pRects.addProp(tElementPart, tRect)
   end if
-  exit
 end
 
-on DrawSpecificRect(me, tdestrect, tElementPart, tstate)
+on DrawSpecificRect me, tdestrect, tElementPart, tstate 
   tImgPropName = tElementPart & "_" & tstate
   me.copyPixels(pButtonImg.getProp(tImgPropName), tdestrect, pButtonImg.getProp(tImgPropName).rect)
-  exit
 end
 
-on UpdateScrollBar(me, tElementPartList, tstate)
-  repeat while me <= tstate
+on UpdateScrollBar me, tElementPartList, tstate 
+  repeat while tElementPartList <= tstate
     f = getAt(tstate, tElementPartList)
     tDstRect = pRects.getAt(f)
     tImgPropName = f & "_" & tstate
     me.copyPixels(pButtonImg.getProp(tImgPropName), tDstRect, pButtonImg.getProp(tImgPropName).rect, [#ink:36])
   end repeat
-  exit
 end
 
-on ScrollBarMouseEvent(me, tstate)
+on ScrollBarMouseEvent me, tstate 
   if pButtonStates.getAt(#top) = #passive and pButtonStates.getAt(#bottom) = #passive then
     return()
   end if
@@ -486,10 +468,9 @@ on ScrollBarMouseEvent(me, tstate)
       end if
     end if
   end if
-  exit
 end
 
-on ButtonsStates(me)
+on ButtonsStates me 
   if pScrollOffset > 0 and pButtonStates.getAt(#top) <> #up and pState <> #top then
     pButtonStates.setAt(#top, #up)
     me.UpdateScrollBar([#top], #up)
@@ -520,10 +501,9 @@ on ButtonsStates(me)
     end if
   end if
   me.render()
-  exit
 end
 
-on buttonOfClickArea(me, tpoint)
+on buttonOfClickArea me, tpoint 
   tpoint = tpoint - point(me.left, me.top)
   r = 1
   repeat while r <= pRects.count()
@@ -533,10 +513,9 @@ on buttonOfClickArea(me, tpoint)
       r = 1 + r
     end if
   end repeat
-  exit
 end
 
-on initEventAgent(me, tBoolean)
+on initEventAgent me, tBoolean 
   tAgent = getObject(pAgentID)
   if tBoolean then
     tAgent.registerEvent(me, #mouseUp, #mouseUp)
@@ -545,34 +524,33 @@ on initEventAgent(me, tBoolean)
     tAgent.unregisterEvent(#mouseUp)
     tAgent.unregisterEvent(#mouseWithin)
   end if
-  exit
 end
 
-on resizeBy(me, tOffH, tOffV)
+on resizeBy me, tOffH, tOffV 
   if tOffH <> 0 or tOffV <> 0 then
-    if me = #move then
+    if me.pScaleH = #move then
       me.locH = me.locH + tOffH
     else
-      if me = #scale then
+      if me.pScaleH = #scale then
         me.width = me.width + tOffH
       else
-        if me = #center then
+        if me.pScaleH = #center then
           me.locH = me.locH + tOffH / 2
         end if
       end if
     end if
-    if me = #move then
+    if me.pScaleH = #move then
       me.locV = me.locV + tOffV
     else
-      if me = #scale then
+      if me.pScaleH = #scale then
         me.height = me.height + tOffV
       else
-        if me = #center then
+        if me.pScaleH = #center then
           me.locV = me.locV + tOffV / 2
         end if
       end if
     end if
-    pRects = []
+    pRects = [:]
     pState = #waitMouseEvent
     pScrollOffset = 0
     pButtonStates = [#top:#up, #bottom:#up, #bar:#up, #lift:#up]
@@ -596,35 +574,31 @@ on resizeBy(me, tOffH, tOffV)
     me.image = me.pimage
     me.regPoint = tTempOffset
   end if
-  exit
 end
 
-on flipH(me, tImg)
+on flipH me, tImg 
   tImage = image(tImg.width, tImg.height, tImg.depth, tImg.paletteRef)
   tQuad = [point(tImg.width, 0), point(0, 0), point(0, tImg.height), point(tImg.width, tImg.height)]
   tImage.copyPixels(tImg, tQuad, tImg.rect)
   return(tImage)
-  exit
 end
 
-on flipV(me, tImg)
+on flipV me, tImg 
   tImage = image(tImg.width, tImg.height, tImg.depth, tImg.paletteRef)
   tQuad = [point(0, tImg.height), point(tImg.width, tImg.height), point(tImg.width, 0), point(0, 0)]
   tImage.copyPixels(tImg, tQuad, tImg.rect)
   return(tImage)
-  exit
 end
 
-on rotateImg(me, tImg, tDirection)
+on rotateImg me, tImg, tDirection 
   tImage = image(tImg.height, tImg.width, tImg.depth, tImg.paletteRef)
   tQuad = [point(0, 0), point(tImg.height, 0), point(tImg.height, tImg.width), point(0, tImg.width)]
   tQuad = me.RotateQuad(tQuad, tDirection)
   tImage.copyPixels(tImg, tQuad, tImg.rect)
   return(tImage)
-  exit
 end
 
-on RotateQuad(me, tDestquad, tClockwise)
+on RotateQuad me, tDestquad, tClockwise 
   tPnt1 = tDestquad.getAt(1)
   tPnt2 = tDestquad.getAt(2)
   tPnt3 = tDestquad.getAt(3)
@@ -634,5 +608,4 @@ on RotateQuad(me, tDestquad, tClockwise)
   else
     return([tPnt4, tPnt1, tPnt2, tPnt3])
   end if
-  exit
 end

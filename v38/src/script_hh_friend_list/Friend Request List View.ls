@@ -1,6 +1,8 @@
-on construct(me)
+property pContentList, pWriterIdPlain, pItemWidth, pListImg, pItemHeight
+
+on construct me 
   pSelectedFriendID = void()
-  pContentList = []
+  pContentList = [:]
   pContentList.sort()
   pWriterIdPlain = getUniqueID()
   tPlain = getStructVariable("struct.font.plain")
@@ -10,17 +12,15 @@ on construct(me)
   pItemWidth = integer(getVariable("fr.list.panel.width"))
   pListImg = image(pItemWidth, 0, 32)
   pEmptyListText = getText("friend_list_no_requests")
-  exit
 end
 
-on deconstruct(me)
+on deconstruct me 
   pListImg = void()
   removeWriter(pWriterIdPlain)
-  exit
 end
 
-on setListData(me, tdata)
-  pContentList = []
+on setListData me, tdata 
+  pContentList = [:]
   pContentList.sort()
   tNo = 1
   repeat while tNo <= tdata.count
@@ -29,11 +29,10 @@ on setListData(me, tdata)
     pContentList.setAt(tRequestId, tRequest)
     tNo = 1 + tNo
   end repeat
-  exit
 end
 
-on cleanUp(me)
-  tNewList = []
+on cleanUp me 
+  tNewList = [:]
   tNewList.sort()
   tIndex = 1
   repeat while tIndex <= pContentList.count
@@ -54,10 +53,9 @@ on cleanUp(me)
     pListImg = me.insertImageTo(tRequestImg, pListImg.duplicate(), tPosV)
     tIndex = 1 + tIndex
   end repeat
-  exit
 end
 
-on addRequest(me, tRequest)
+on addRequest me, tRequest 
   if ilk(tRequest) <> #propList then
     return(0)
   end if
@@ -67,10 +65,9 @@ on addRequest(me, tRequest)
   tPosV = tIndex - 1 * me.pItemHeight
   tRequestImg = me.renderRequestItem(tRequest)
   pListImg = me.insertImageTo(tRequestImg, pListImg.duplicate(), tPosV)
-  exit
 end
 
-on handleRequestState(me, tRequestId, tstate)
+on handleRequestState me, tRequestId, tstate 
   if pContentList.findPos(string(tRequestId)) = void() then
     return(0)
   end if
@@ -81,10 +78,9 @@ on handleRequestState(me, tRequestId, tstate)
   tPosV = tIndex - 1 * me.pItemHeight
   tRequestImg = me.renderRequestItem(tRequest)
   pListImg = me.updateImagePart(tRequestImg, pListImg.duplicate(), tPosV)
-  exit
 end
 
-on handleAll(me, tstate)
+on handleAll me, tstate 
   tIndex = 1
   repeat while tIndex <= pContentList.count
     tRequest = pContentList.getAt(tIndex)
@@ -97,10 +93,9 @@ on handleAll(me, tstate)
     end if
     tIndex = 1 + tIndex
   end repeat
-  exit
 end
 
-on renderRequestItem(me, tRequestData)
+on renderRequestItem me, tRequestData 
   tNameWriter = getWriter(pWriterIdPlain)
   tItemImg = image(pItemWidth, pItemHeight, 32)
   tName = tRequestData.getAt(#name)
@@ -110,7 +105,7 @@ on renderRequestItem(me, tRequestData)
   tNamePosV = pItemHeight - tNameImg.height / 2
   tdestrect = tSourceRect + rect(tNamePosH, tNamePosV, tNamePosH, tNamePosV)
   tItemImg.copyPixels(tNameImg, tdestrect, tSourceRect)
-  if me = #pending then
+  if tRequestData.getAt(#state) = #pending then
     tAcceptIconImg = getMember(getVariable("fr.requests.accept.icon")).image
     tAcceptIconRect = tAcceptIconImg.rect
     tAcceptIconPosH = integer(getVariable("fr.requests.accept.offset.h"))
@@ -124,7 +119,7 @@ on renderRequestItem(me, tRequestData)
     tdestrect = tRejectIconRect + rect(tRejectIconPosH, tRejectIconPosV, tRejectIconPosH, tRejectIconPosV)
     tItemImg.copyPixels(tRejectIconImg, tdestrect, tRejectIconRect, [#ink:36])
   else
-    if me = #accepted then
+    if tRequestData.getAt(#state) = #accepted then
       tImg = tNameWriter.render(getText("friend_request_accepted"))
       tSourceRect = tImg.rect
       tMargin = integer(getVariable("fr.requests.status.margin.h"))
@@ -133,7 +128,7 @@ on renderRequestItem(me, tRequestData)
       tdestrect = tSourceRect + rect(tPosH, tPosV, tPosH, tPosV)
       tItemImg.copyPixels(tImg, tdestrect, tImg.rect)
     else
-      if me = #rejected then
+      if tRequestData.getAt(#state) = #rejected then
         tImg = tNameWriter.render(getText("friend_request_declined"))
         tSourceRect = tImg.rect
         tMargin = integer(getVariable("fr.requests.status.margin.h"))
@@ -142,7 +137,7 @@ on renderRequestItem(me, tRequestData)
         tdestrect = tSourceRect + rect(tPosH, tPosV, tPosH, tPosV)
         tItemImg.copyPixels(tImg, tdestrect, tImg.rect)
       else
-        if me = #error then
+        if tRequestData.getAt(#state) = #error then
           tImg = tNameWriter.render(getText("friend_request_failed"))
           tSourceRect = tImg.rect
           tMargin = integer(getVariable("fr.requests.status.margin.h"))
@@ -155,10 +150,9 @@ on renderRequestItem(me, tRequestData)
     end if
   end if
   return(tItemImg.duplicate())
-  exit
 end
 
-on renderBackgroundImage(me)
+on renderBackgroundImage me 
   if ilk(pContentList) <> #propList then
     return(image(1, 1, 32))
   end if
@@ -177,12 +171,11 @@ on renderBackgroundImage(me)
     tIndex = 1 + tIndex
   end repeat
   return(tImage)
-  exit
 end
 
-on relayEvent(me, tEvent, tLocX, tLocY)
+on relayEvent me, tEvent, tLocX, tLocY 
   tListIndex = tLocY / me.pItemHeight + 1
-  tEventResult = []
+  tEventResult = [:]
   tEventResult.setAt(#Event, tEvent)
   if tEvent = #mouseWithin then
     return(tEventResult)
@@ -215,5 +208,4 @@ on relayEvent(me, tEvent, tLocX, tLocY)
     end if
   end if
   return(tEventResult)
-  exit
 end

@@ -1,49 +1,46 @@
-on construct(me)
-  pData = []
+property pWriterIdBold, pData
+
+on construct me 
+  pData = [:]
   pWriterIdBold = "if_writer_bold"
   return(1)
-  exit
 end
 
-on deconstruct(me)
-  pData = []
+on deconstruct me 
+  pData = [:]
   if writerExists(pWriterIdBold) then
     removeWriter(pWriterIdBold)
   end if
   return(1)
-  exit
 end
 
-on define(me, tdata)
+on define me, tdata 
   if not listp(tdata) then
     return(error(me, "Invalid data supplied for infofeed item!", #define))
   end if
   pData = tdata.duplicate()
   return(1)
-  exit
 end
 
-on renderMinDefault(me, tWndObj)
+on renderMinDefault me, tWndObj 
   if tWndObj = 0 then
     return(0)
   end if
   tWndObj.merge("if_min_default.window")
   me.feedTitle(tWndObj)
   return(1)
-  exit
 end
 
-on renderMin(me, tWndObj)
+on renderMin me, tWndObj 
   if tWndObj = 0 then
     return(0)
   end if
   tWndObj.merge("if_min.window")
   me.feedTopic(tWndObj)
   return(1)
-  exit
 end
 
-on renderFull(me, tWndObj, tItemPos, tItemCount)
+on renderFull me, tWndObj, tItemPos, tItemCount 
   tIsFirstItem = tItemPos <= 1
   tIsLastItem = tItemPos = tItemCount
   if tWndObj = 0 then
@@ -62,10 +59,9 @@ on renderFull(me, tWndObj, tItemPos, tItemCount)
   me.feedContentText(tWndObj)
   me.feedContentImage(tWndObj)
   return(1)
-  exit
 end
 
-on feedTitle(me, tWndObj)
+on feedTitle me, tWndObj 
   if tWndObj = 0 then
     return(0)
   end if
@@ -90,10 +86,9 @@ on feedTitle(me, tWndObj)
   tWndObj.resizeTo(tImage.width + 38, tWndObj.getProperty(#height))
   removeWriter(pWriterIdBold)
   return(1)
-  exit
 end
 
-on feedTopic(me, tWndObj)
+on feedTopic me, tWndObj 
   if tWndObj = 0 then
     return(0)
   end if
@@ -103,10 +98,9 @@ on feedTopic(me, tWndObj)
   end if
   tElem.setText(getText("if_topic_" & pData.getaProp(#type)))
   return(1)
-  exit
 end
 
-on feedContentText(me, tWndObj)
+on feedContentText me, tWndObj 
   if tWndObj = 0 then
     return(0)
   end if
@@ -121,10 +115,9 @@ on feedContentText(me, tWndObj)
   end if
   tElem.setText(tText)
   return(1)
-  exit
 end
 
-on feedContentImage(me, tWndObj)
+on feedContentImage me, tWndObj 
   if tWndObj = 0 then
     return(0)
   end if
@@ -143,10 +136,9 @@ on feedContentImage(me, tWndObj)
   tImage = member(tMemNum).image
   tElem.feedImage(tImage)
   return(1)
-  exit
 end
 
-on alignIconImage(me, tImage, tWidth, tHeight)
+on alignIconImage me, tImage, tWidth, tHeight 
   if tImage.ilk <> #image then
     return(0)
   end if
@@ -155,5 +147,4 @@ on alignIconImage(me, tImage, tWidth, tHeight)
   tOffsetY = tHeight - tImage.height / 2
   tNewImage.copyPixels(tImage, tImage.rect + rect(tOffsetX, tOffsetY, tOffsetX, tOffsetY), tImage.rect)
   return(tNewImage)
-  exit
 end

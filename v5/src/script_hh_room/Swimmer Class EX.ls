@@ -1,4 +1,6 @@
-on define(me, tdata)
+property pPelleFigure, pFigure, pSwim, pPhFigure, pSwimAnimCount, pSwimAndStay
+
+on define me, tdata 
   pValid = 1
   pPhFigure = tdata.getAt(#phfigure)
   pFigure = tdata.getAt(#figure)
@@ -65,25 +67,21 @@ on define(me, tdata)
   me.setProp(#pInfoStruct, #ctrl, "furniture")
   me.setProp(#pInfoStruct, #badge, 0)
   return(1)
-  exit
 end
 
-on getPelleFigure(me)
+on getPelleFigure me 
   return(pPelleFigure)
-  exit
 end
 
-on getFigure(me)
+on getFigure me 
   return(pFigure)
-  exit
 end
 
-on isSwimming(me)
+on isSwimming me 
   return(pSwim)
-  exit
 end
 
-on refresh(me, tX, tY, tH, tDirHead, tDirBody)
+on refresh me, tX, tY, tH, tDirHead, tDirBody 
   me.pMoving = 0
   me.pDancing = 0
   me.pTalking = 0
@@ -117,10 +115,9 @@ on refresh(me, tX, tY, tH, tDirHead, tDirBody)
   end if
   me.pSync = 0
   me.pChanges = 1
-  exit
 end
 
-on setPartLists(me, tModels)
+on setPartLists me, tModels 
   tAction = me.pMainAction
   me.pPartList = []
   if me.pSex = "F" then
@@ -130,7 +127,7 @@ on setPartLists(me, tModels)
   end if
   tColor = pPhFigure.getAt("color")
   tModels.setAt("ch", ["model":tphModel, "color":tColor])
-  repeat while me <= undefined
+  repeat while ["bd", "lh", "rh"] <= undefined
     f = getAt(undefined, tModels)
     if voidp(tModels.getAt(f)) then
       tModels.setAt(f, ["model":"001", "color":rgb("#EEEEEE")])
@@ -145,7 +142,7 @@ on setPartLists(me, tModels)
   repeat while i <= tPartDefinition.count
     tPartSymbol = tPartDefinition.getAt(i)
     if voidp(tModels.getAt(tPartSymbol)) then
-      tModels.setAt(tPartSymbol, [])
+      tModels.setAt(tPartSymbol, [:])
     end if
     if voidp(tModels.getAt(tPartSymbol).getAt("model")) then
       tModels.getAt(tPartSymbol).setAt("model", "001")
@@ -174,17 +171,16 @@ on setPartLists(me, tModels)
     me.setaProp(tPartSymbol, tColor)
     i = 1 + i
   end repeat
-  me.pPartIndex = []
+  me.pPartIndex = [:]
   i = 1
   repeat while i <= me.count(#pPartList)
     me.setProp(#pPartIndex, me.getPropRef(#pPartList, i).pPart, i)
     i = 1 + i
   end repeat
   return(1)
-  exit
 end
 
-on arrangeParts(me)
+on arrangeParts me 
   tRH = me.getProp(#pPartList, me.getProp(#pPartIndex, "rh"))
   tRI = me.getProp(#pPartList, me.getProp(#pPartIndex, "ri"))
   me.deleteAt(me.getProp(#pPartIndex, "rh"))
@@ -214,7 +210,7 @@ on arrangeParts(me)
   tLI = me.getProp(#pPartList, me.getProp(#pPartIndex, "li"))
   me.deleteAt(me.getProp(#pPartIndex, "lh"))
   me.deleteAt(me.getProp(#pPartIndex, "li"))
-  if me = 3 then
+  if me.pDirection = 3 then
     me.addAt(8, tLI)
     me.addAt(9, tLH)
   else
@@ -226,10 +222,9 @@ on arrangeParts(me)
     me.setProp(#pPartIndex, me.getPropRef(#pPartList, i).pPart, i)
     i = 1 + i
   end repeat
-  exit
 end
 
-on prepare(me)
+on prepare me 
   if pSwim then
     if me.pMoving then
       pSwimAndStay = 0
@@ -287,11 +282,11 @@ on prepare(me)
     end if
   end if
   if me.pMoving then
-    tFactor = float(the milliSeconds - me.pMoveStart) / me.pMoveTime * 0
-    if tFactor > 0 then
-      tFactor = 0
+    tFactor = float(the milliSeconds - me.pMoveStart) / me.pMoveTime * 1
+    if tFactor > 1 then
+      tFactor = 1
     end if
-    me.pScreenLoc = me.pDestLScreen - me.pStartLScreen * 0 * tFactor + me.pStartLScreen
+    me.pScreenLoc = me.pDestLScreen - me.pStartLScreen * 1 * tFactor + me.pStartLScreen
     me.pChanges = 1
   end if
   if me.pWaving then
@@ -302,10 +297,9 @@ on prepare(me)
     me.pAnimating = 1
     me.pChanges = 1
   end if
-  exit
 end
 
-on render(me)
+on render me 
   if not me.pChanges then
     return()
   end if
@@ -366,10 +360,9 @@ on render(me)
     me.pUpdateRect = me.pUpdateRect + [14, 0, 14, 0]
   end if
   image.copyPixels(me.pBuffer, me.pUpdateRect, me.pUpdateRect)
-  exit
 end
 
-on action_mv(me, tProps)
+on action_mv me, tProps 
   me.pMoving = 1
   tDelim = the itemDelimiter
   the itemDelimiter = ","
@@ -385,15 +378,13 @@ on action_mv(me, tProps)
     pSwimShadowH = tLocH
     tLocH = 4
   end if
-  exit
 end
 
-on action_swim(me, props)
+on action_swim me, props 
   pSwim = 1
-  exit
 end
 
-on action_sign(me, props)
+on action_sign me, props 
   if pSwim then
     return()
   end if
@@ -404,5 +395,4 @@ on action_sign(me, props)
     me.addProp(tSignObjID, createObject(#temp, "HumanExtra Sign Class"))
   end if
   call(#show_sign, me.pExtraObjs, ["sprite":me.pSprite, "direction":me.pDirection, "signmember":tSignMem])
-  exit
 end

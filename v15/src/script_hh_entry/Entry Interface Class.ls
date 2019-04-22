@@ -1,4 +1,6 @@
-on construct(me)
+property pSwapAnimations, pEntryVisual, pSignSprList, pItemObjList, pBottomBar, pAnimUpdate, pUpdateTasks, pFirstInit, pViewMaxTime, pViewOpenTime, pViewCloseTime, pNewMsgCount, pNewBuddyRequests, pMessengerFlash, pInActiveIconBlend
+
+on construct me 
   pEntryVisual = "entry_view"
   pBottomBar = "entry_bar"
   pSignSprList = []
@@ -19,22 +21,20 @@ on construct(me)
   registerMessage(#userlogin, me.getID(), #showEntryBar)
   registerMessage(#messenger_ready, me.getID(), #activateIcon)
   return(1)
-  exit
 end
 
-on deconstruct(me)
+on deconstruct me 
   unregisterMessage(#userlogin, me.getID())
   unregisterMessage(#messenger_ready, me.getID())
-  repeat while me <= undefined
+  repeat while pSwapAnimations <= undefined
     tAnimation = getAt(undefined, undefined)
     tAnimation.deconstruct()
   end repeat
   pSwapAnimations = []
   return(me.hideAll())
-  exit
 end
 
-on showHotel(me)
+on showHotel me 
   if not visualizerExists(pEntryVisual) then
     if not createVisualizer(pEntryVisual, "entry.visual") then
       return(0)
@@ -46,7 +46,7 @@ on showHotel(me)
     pSignSprLocV = pSignSprList.getAt(1).locV
     tAnimations = tVisObj.getProperty(#swapAnims)
     if tAnimations <> 0 then
-      repeat while me <= undefined
+      repeat while tAnimations <= undefined
         tAnimation = getAt(undefined, undefined)
         tObj = createObject(#random, getVariableValue("swap.animation.class"))
         if tObj = 0 then
@@ -85,10 +85,9 @@ on showHotel(me)
   receivePrepare(me.getID())
   me.delay(500, #addAnimTask, #openView)
   return(1)
-  exit
 end
 
-on hideHotel(me)
+on hideHotel me 
   if visualizerExists(pEntryVisual) then
     me.addAnimTask(#closeView)
     me.remAnimTask(#animSign)
@@ -97,16 +96,15 @@ on hideHotel(me)
   end if
   pItemObjList = []
   removePrepare(me.getID())
-  repeat while me <= undefined
+  repeat while pSwapAnimations <= undefined
     tAnim = getAt(undefined, undefined)
     tAnim.deconstruct()
   end repeat
   pSwapAnimations = []
   return(1)
-  exit
 end
 
-on showEntryBar(me)
+on showEntryBar me 
   if not windowExists(pBottomBar) then
     if not createWindow(pBottomBar, "entry_bar.window", 0, 535) then
       return(0)
@@ -123,10 +121,9 @@ on showEntryBar(me)
   registerMessage(#updateFigureData, me.getID(), #updateEntryBar)
   registerMessage(#updateClubStatus, me.getID(), #updateClubStatus)
   return(me.updateEntryBar())
-  exit
 end
 
-on hideEntrybar(me)
+on hideEntrybar me 
   unregisterMessage(#updateCreditCount, me.getID())
   unregisterMessage(#updateMessageCount, me.getID())
   unregisterMessage(#updateBuddyrequestCount, me.getID())
@@ -139,17 +136,15 @@ on hideEntrybar(me)
     removeWindow(pBottomBar)
   end if
   return(1)
-  exit
 end
 
-on hideAll(me)
+on hideAll me 
   me.hideHotel()
   me.hideEntrybar()
   return(1)
-  exit
 end
 
-on prepare(me)
+on prepare me 
   pAnimUpdate = not pAnimUpdate
   if pAnimUpdate then
     tVisual = getVisualizer(pEntryVisual)
@@ -158,18 +153,16 @@ on prepare(me)
     end if
     call(#update, pItemObjList)
   end if
-  exit
 end
 
-on update(me)
-  repeat while me <= undefined
+on update me 
+  repeat while pUpdateTasks.duplicate() <= undefined
     tMethod = getAt(undefined, undefined)
     call(tMethod, me)
   end repeat
-  exit
 end
 
-on updateEntryBar(me)
+on updateEntryBar me 
   tWndObj = getWindow(pBottomBar)
   if tWndObj = 0 then
     return(0)
@@ -199,32 +192,29 @@ on updateEntryBar(me)
   me.updateClubStatus(tClub)
   me.createMyHeadIcon()
   return(1)
-  exit
 end
 
-on addAnimTask(me, tMethod)
+on addAnimTask me, tMethod 
   if pUpdateTasks.getPos(tMethod) = 0 then
     pUpdateTasks.add(tMethod)
   end if
   return(receiveUpdate(me.getID()))
-  exit
 end
 
-on remAnimTask(me, tMethod)
+on remAnimTask me, tMethod 
   pUpdateTasks.deleteOne(tMethod)
   if pUpdateTasks.count = 0 then
     removeUpdate(me.getID())
   end if
   return(1)
-  exit
 end
 
-on animSign(me)
+on animSign me 
   tVisObj = getVisualizer(pEntryVisual)
   if tVisObj = 0 then
     return(me.remAnimTask(#animSign))
   end if
-  repeat while me <= undefined
+  repeat while pSignSprList <= undefined
     tSpr = getAt(undefined, undefined)
     tSpr.locV = tSpr.locV + 30
   end repeat
@@ -233,17 +223,16 @@ on animSign(me)
     pSignSprList.getAt(2).locV = 0
     me.remAnimTask(#animSign)
   end if
-  exit
 end
 
-on openView(me)
+on openView me 
   tVisObj = getVisualizer(pEntryVisual)
   if tVisObj = 0 then
     return(me.remAnimTask(#openView))
   end if
   tTopSpr = tVisObj.getSprById("box_top")
   tBotSpr = tVisObj.getSprById("box_bottom")
-  tTimeLeft = pViewMaxTime - the milliSeconds - pViewOpenTime / 0
+  tTimeLeft = pViewMaxTime - the milliSeconds - pViewOpenTime / 1000
   tmoveLeft = tTopSpr.height - abs(tTopSpr.locV)
   if tTimeLeft <= 0 then
     tOffset = abs(tmoveLeft)
@@ -256,17 +245,16 @@ on openView(me)
     me.addAnimTask(#animSign)
     me.remAnimTask(#openView)
   end if
-  exit
 end
 
-on closeView(me)
+on closeView me 
   tVisObj = getVisualizer(pEntryVisual)
   if tVisObj = 0 then
     return(me.remAnimTask(#closeView))
   end if
   tTopSpr = tVisObj.getSprById("box_top")
   tBotSpr = tVisObj.getSprById("box_bottom")
-  tTimeLeft = pViewMaxTime - the milliSeconds - pViewCloseTime / 0
+  tTimeLeft = pViewMaxTime - the milliSeconds - pViewCloseTime / 1000
   tmoveLeft = 0 - abs(tTopSpr.locV)
   if tTimeLeft <= 0 then
     tOffset = abs(tmoveLeft)
@@ -279,10 +267,9 @@ on closeView(me)
     me.remAnimTask(#closeView)
     removeVisualizer(pEntryVisual)
   end if
-  exit
 end
 
-on animEntryBar(me)
+on animEntryBar me 
   tWndObj = getWindow(pBottomBar)
   if tWndObj = 0 then
     return(me.remAnimTask(#animEntryBar))
@@ -296,10 +283,9 @@ on animEntryBar(me)
   if tWndObj.getProperty(#locY) <= 485 then
     me.remAnimTask(#animEntryBar)
   end if
-  exit
 end
 
-on updateCreditCount(me, tCount)
+on updateCreditCount me, tCount 
   tWndObj = getWindow(pBottomBar)
   if tWndObj <> 0 then
     tElement = tWndObj.getElement("own_credits_text")
@@ -309,10 +295,9 @@ on updateCreditCount(me, tCount)
     tElement.setText(tCount && getText("int_credits"))
   end if
   return(1)
-  exit
 end
 
-on updateClubStatus(me, tStatus)
+on updateClubStatus me, tStatus 
   if tStatus.ilk <> #propList then
     return(0)
   end if
@@ -341,10 +326,9 @@ on updateClubStatus(me, tStatus)
     end if
   end if
   return(1)
-  exit
 end
 
-on updateMessageCount(me, tCount)
+on updateMessageCount me, tCount 
   tWndObj = getWindow(pBottomBar)
   if tWndObj <> 0 then
     me.activateIcon(#messenger)
@@ -363,10 +347,9 @@ on updateMessageCount(me, tCount)
     tElem.setText(tText)
     me.flashMessengerIcon()
   end if
-  exit
 end
 
-on updateBuddyrequestCount(me, tCount)
+on updateBuddyrequestCount me, tCount 
   tWndObj = getWindow(pBottomBar)
   if tWndObj <> 0 then
     me.activateIcon(#messenger)
@@ -385,10 +368,9 @@ on updateBuddyrequestCount(me, tCount)
     tElem.setText(tText)
     me.flashMessengerIcon()
   end if
-  exit
 end
 
-on flashMessengerIcon(me)
+on flashMessengerIcon me 
   tWndObj = getWindow(pBottomBar)
   if tWndObj <> 0 then
     if pMessengerFlash then
@@ -417,79 +399,74 @@ on flashMessengerIcon(me)
     end if
     tWndObj.getElement("messenger_icon_image").setProperty(#image, undefined.duplicate())
   end if
-  exit
 end
 
-on activateIcon(me, tIcon)
+on activateIcon me, tIcon 
   if windowExists(pBottomBar) then
-    if me = #navigator then
+    if tIcon = #navigator then
       getWindow(pBottomBar).getElement("nav_icon_image").setProperty(#blend, 100)
     else
-      if me = #messenger then
+      if tIcon = #messenger then
         getWindow(pBottomBar).getElement("messenger_icon_image").setProperty(#blend, 100)
       end if
     end if
   end if
-  exit
 end
 
-on deActivateIcon(me, tIcon)
+on deActivateIcon me, tIcon 
   if windowExists(pBottomBar) then
-    if me = #navigator then
+    if tIcon = #navigator then
       getWindow(pBottomBar).getElement("nav_icon_image").setProperty(#blend, pInActiveIconBlend)
     else
-      if me = #messenger then
+      if tIcon = #messenger then
         getWindow(pBottomBar).getElement("messenger_icon_image").setProperty(#blend, pInActiveIconBlend)
       end if
     end if
   end if
-  exit
 end
 
-on deActivateAllIcons(me)
+on deActivateAllIcons me 
   tIcons = ["messenger"]
   if windowExists(pBottomBar) then
-    repeat while me <= undefined
+    repeat while tIcons <= undefined
       tIcon = getAt(undefined, undefined)
       getWindow(pBottomBar).getElement(tIcon & "_icon_image").setProperty(#blend, pInActiveIconBlend)
     end repeat
   end if
-  exit
 end
 
-on createMyHeadIcon(me)
+on createMyHeadIcon me 
   if objectExists("Figure_Preview") then
     getObject("Figure_Preview").createHumanPartPreview(pBottomBar, "ownhabbo_icon_image", ["hd", "fc", "ey", "hr"])
   end if
-  exit
 end
 
-on eventProcEntryBar(me, tEvent, tSprID, tParam)
-  if me = "help_icon_image" then
+on eventProcEntryBar me, tEvent, tSprID, tParam 
+  if tSprID = "help_icon_image" then
     return(executeMessage(#openGeneralDialog, "help"))
   else
-    if me <> "get_credit_text" then
-      if me = "purse_icon_image" then
+    if tSprID <> "get_credit_text" then
+      if tSprID = "purse_icon_image" then
         return(executeMessage(#openGeneralDialog, "purse"))
       else
-        if me = "nav_icon_image" then
+        if tSprID = "nav_icon_image" then
           return(executeMessage(#show_hide_navigator))
         else
-          if me = "messenger_icon_image" then
+          if tSprID = "messenger_icon_image" then
             return(executeMessage(#show_hide_messenger))
           else
-            if me = "new_messages_text" then
+            if tSprID = "new_messages_text" then
               if pNewMsgCount > 0 then
                 return(executeMessage(#show_hide_messenger))
               end if
             else
-              if me = "friendrequests_text" then
+              if tSprID = "friendrequests_text" then
                 if pNewBuddyRequests > 0 then
                   return(executeMessage(#show_hide_messenger))
                 end if
               else
-                if me <> "update_habboid_text" then
-                  if me = "ownhabbo_icon_image" then
+                if tSprID <> "update_habboid_text" then
+                  if tSprID = "ownhabbo_icon_image" then
                     tAllowModify = 1
                     if getObject(#session).exists("allow_profile_editing") then
                       tAllowModify = getObject(#session).GET("allow_profile_editing")
@@ -502,11 +479,10 @@ on eventProcEntryBar(me, tEvent, tSprID, tParam)
                       openNetPage(getText("url_figure_editor"))
                     end if
                   else
-                    if me <> "club_icon_image" then
-                      if me = "club_bottombar_text2" then
+                    if tSprID <> "club_icon_image" then
+                      if tSprID = "club_bottombar_text2" then
                         return(executeMessage(#show_clubinfo))
                       end if
-                      exit
                     end if
                   end if
                 end if

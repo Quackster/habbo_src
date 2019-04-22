@@ -1,4 +1,4 @@
-on construct(me)
+on construct me 
   the romanLingo = 1
   the inlineImeEnabled = 1
   if the platform contains "windows" then
@@ -55,17 +55,14 @@ on construct(me)
   registerMessage(#Initialize, me.getID(), #delayedPatch)
   registerMessage(#BalloonManagerCreated, me.getID(), #patchBalloonText)
   return(1)
-  exit
 end
 
-on delayedPatch(me)
+on delayedPatch me 
   replaceMember("matik_upp", "matik_upp_jp")
   unregisterMessage(#Initialize, me.getID())
-  exit
 end
 
-on patchBalloonText(me, tProps)
+on patchBalloonText me, tProps 
   tManagerID = tProps.getAt(#objectPointer)
   tManagerID.setProperty("SHOUT", #color, rgb(255, 0, 0))
-  exit
 end

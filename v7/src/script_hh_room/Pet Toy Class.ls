@@ -1,13 +1,14 @@
-on prepare(me, tdata)
+property pActive, pUpdateFrame, pLastFrm, pTimer
+
+on prepare me, tdata 
   if tdata.count = 0 then
     tdata = ["p":"0"]
   end if
   me.updateStuffdata("p", tdata.getAt(1))
   return(1)
-  exit
 end
 
-on updateStuffdata(me, tProp, tValue)
+on updateStuffdata me, tProp, tValue 
   if integer(tValue) = 1 then
     pUpdateFrame = 0
     pActive = 1
@@ -30,10 +31,9 @@ on updateStuffdata(me, tProp, tValue)
       end repeat
     end if
   end if
-  exit
 end
 
-on update(me)
+on update me 
   if pActive then
     pUpdateFrame = not pUpdateFrame
     if pUpdateFrame then
@@ -53,5 +53,4 @@ on update(me)
       end if
     end if
   end if
-  exit
 end

@@ -1,9 +1,11 @@
-on prepare(me, tdata)
+property pTargetData, pDoorOpentimer, pAnimActive, pAnimTime, pProcessActive, pKickTime
+
+on prepare me, tdata 
   pProcessActive = 0
   pAnimActive = 0
   pAnimTime = 10
   pKickTime = 0
-  pTargetData = []
+  pTargetData = [:]
   if me.count(#pSprList) < 3 then
     return(0)
   end if
@@ -19,10 +21,9 @@ on prepare(me, tdata)
     end if
   end if
   return(1)
-  exit
 end
 
-on updateStuffdata(me, tValue)
+on updateStuffdata me, tValue 
   if me.count(#pSprList) < 2 then
     return(0)
   end if
@@ -43,10 +44,9 @@ on updateStuffdata(me, tValue)
     me.getPropRef(#pSprList, 2).height = tmember.height
     pDoorOpentimer = 0
   end if
-  exit
 end
 
-on select(me)
+on select me 
   if the doubleClick then
     tUserObj = getThread(#room).getComponent().getOwnUser()
     if tUserObj = 0 then
@@ -56,28 +56,28 @@ on select(me)
       return(me.tryDoor())
     end if
     tUserIsClose = 0
-    if me = 4 then
+    if me.getProp(#pDirection, 1) = 4 then
       if me.pLocX = tUserObj.pLocX and me.pLocY - tUserObj.pLocY = -1 then
         tUserIsClose = 1
       else
         return(getThread(#room).getComponent().getRoomConnection().send("MOVE", [#short:me.pLocX, #short:me.pLocY + 1]))
       end if
     else
-      if me = 0 then
+      if me.getProp(#pDirection, 1) = 0 then
         if me.pLocX = tUserObj.pLocX and me.pLocY - tUserObj.pLocY = 1 then
           tUserIsClose = 1
         else
           return(getThread(#room).getComponent().getRoomConnection().send("MOVE", [#short:me.pLocX, #short:me.pLocY - 1]))
         end if
       else
-        if me = 2 then
+        if me.getProp(#pDirection, 1) = 2 then
           if me.pLocY = tUserObj.pLocY and me.pLocX - tUserObj.pLocX = -1 then
             tUserIsClose = 1
           else
             return(getThread(#room).getComponent().getRoomConnection().send("MOVE", [#short:me.pLocX + 1, #short:me.pLocY]))
           end if
         else
-          if me = 6 then
+          if me.getProp(#pDirection, 1) = 6 then
             if me.pLocY = tUserObj.pLocY and me.pLocX - tUserObj.pLocX = 1 then
               tUserIsClose = 1
             else
@@ -94,41 +94,36 @@ on select(me)
     end if
   end if
   return(1)
-  exit
 end
 
-on tryDoor(me)
+on tryDoor me 
   getObject(#session).set("current_door_ID", me.getID())
   if connectionExists(getVariable("connection.info.id")) then
     getConnection(getVariable("connection.info.id")).send("GETDOORFLAT", me.getID())
   end if
   return(1)
-  exit
 end
 
-on startTeleport(me, tDataList)
+on startTeleport me, tDataList 
   pTargetData = tDataList
   pProcessActive = 1
   me.animate(50)
   getThread(#room).getComponent().getRoomConnection().send("DOORGOIN", me.getID())
-  exit
 end
 
-on doorLogin(me)
+on doorLogin me 
   pProcessActive = 0
   getObject(#session).set("target_door_ID", pTargetData.getAt(#teleport))
   return(getThread(#room).getComponent().enterDoor(pTargetData))
-  exit
 end
 
-on prepareToKick(me, tIncomer)
+on prepareToKick me, tIncomer 
   if tIncomer = getObject(#session).get("user_name") then
     pKickTime = 20
   end if
-  exit
 end
 
-on kickOut(me)
+on kickOut me 
   tRoom = getThread(#room).getComponent()
   getThread(#room).getComponent().getRoomConnection().send("SETSTUFFDATA", [#string:string(me.getID()), #string:"TRUE"])
   if me.getProp(#pDirection, 1) = 2 then
@@ -136,19 +131,17 @@ on kickOut(me)
   else
     tRoom.getRoomConnection().send("MOVE", [#short:me.pLocX, #short:me.pLocY + 1])
   end if
-  exit
 end
 
-on animate(me, tTime)
+on animate me, tTime 
   if voidp(tTime) then
     tTime = 25
   end if
   pAnimTime = tTime
   pAnimActive = 1
-  exit
 end
 
-on update(me)
+on update me 
   if me.count(#pSprList) < 3 then
     return()
   end if
@@ -193,5 +186,4 @@ on update(me)
       me.kickOut()
     end if
   end if
-  exit
 end

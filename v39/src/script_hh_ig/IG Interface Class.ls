@@ -1,4 +1,6 @@
-on construct(me)
+property pMainWindowWrapperId, pSideWindowWrapperId, pTooltipManager
+
+on construct me 
   pActiveMode = "GameList"
   pMainWindowWrapperId = "ig_window_wrapper"
   pSideWindowWrapperId = "ig_window2_wrapper"
@@ -10,10 +12,9 @@ on construct(me)
   registerMessage(#ig_show_game_rules, me.getID(), #showGameRules)
   registerMessage(#ig_hide_game_rules, me.getID(), #hideGameRules)
   return(1)
-  exit
 end
 
-on deconstruct(me)
+on deconstruct me 
   me.removeTooltipManager()
   removeObject(pMainWindowWrapperId)
   removeObject(pSideWindowWrapperId)
@@ -23,25 +24,23 @@ on deconstruct(me)
   unregisterMessage(#show_game_info, me.getID())
   unregisterMessage(#hide_game_info, me.getID())
   return(1)
-  exit
 end
 
-on toggleWindow(me)
+on toggleWindow me 
   if me.getComponent().getSystemState() <> #ready then
     return(1)
   end if
-  if me = 0 then
+  if me.getWindowVisible() = 0 then
     return(me.showWindow())
   else
-    if me = 1 then
+    if me.getWindowVisible() = 1 then
       return(me.resetToDefaultAndHide())
     end if
   end if
   return(1)
-  exit
 end
 
-on showWindow(me, tMode, tPage)
+on showWindow me, tMode, tPage 
   if me.getComponent().getSystemState() = 0 then
     return(1)
   end if
@@ -56,10 +55,9 @@ on showWindow(me, tMode, tPage)
     me.ChangeWindowView(tMode, tPage)
   end if
   return(1)
-  exit
 end
 
-on hideWindow(me)
+on hideWindow me 
   tComponent = me.getComponent()
   tServiceId = tComponent.getActiveIGComponentId()
   if tServiceId = "JoinedGame" then
@@ -78,10 +76,9 @@ on hideWindow(me)
     return(0)
   end if
   return(tWrapObjRef.hide())
-  exit
 end
 
-on showRecommended(me)
+on showRecommended me 
   if me.getComponent().getSystemState() = 0 then
     return(1)
   end if
@@ -90,19 +87,17 @@ on showRecommended(me)
     tService.show()
   end if
   return(1)
-  exit
 end
 
-on hideRecommended(me)
+on hideRecommended me 
   tService = me.getComponent().getIGComponent("Recommended")
   if tService <> 0 then
     tService.hide()
   end if
   return(1)
-  exit
 end
 
-on showGameRules(me)
+on showGameRules me 
   if me.getComponent().IGComponentExists("GameRules") then
     return(me.hideGameRules())
   end if
@@ -123,15 +118,13 @@ on showGameRules(me)
     tRenderObj.toggle(tGameType)
   end if
   return(1)
-  exit
 end
 
-on hideGameRules(me)
+on hideGameRules me 
   me.getComponent().removeIGComponent("GameRules")
-  exit
 end
 
-on showArenaQueue(me, tQueuePos)
+on showArenaQueue me, tQueuePos 
   tService = me.getComponent().getIGComponent("ArenaQueue")
   if tService = 0 then
     return(0)
@@ -141,15 +134,13 @@ on showArenaQueue(me, tQueuePos)
     tRenderObj.render(tQueuePos)
   end if
   return(1)
-  exit
 end
 
-on hideArenaQueue(me)
+on hideArenaQueue me 
   return(me.getComponent().removeIGComponent("ArenaQueue"))
-  exit
 end
 
-on ChangeWindowView(me, tMode, tPage)
+on ChangeWindowView me, tMode, tPage 
   if me.getComponent().getSystemState() = 0 then
     return(1)
   end if
@@ -186,10 +177,9 @@ on ChangeWindowView(me, tMode, tPage)
     tUIService.renderSubComponents()
   end if
   return(1)
-  exit
 end
 
-on resetToDefaultAndHide(me)
+on resetToDefaultAndHide me 
   tComponent = me.getComponent()
   tComponent.removeIGComponent("Prejoin")
   tComponent.removeIGComponent("Recommended")
@@ -211,10 +201,9 @@ on resetToDefaultAndHide(me)
     me.ChangeWindowView("JoinedGame")
   end if
   return(1)
-  exit
 end
 
-on getUI(me, tMode)
+on getUI me, tMode 
   tService = me.getComponent().getIGComponent(tMode)
   if tService <> 0 then
     tService = tService.getRenderer()
@@ -223,29 +212,25 @@ on getUI(me, tMode)
     return(0)
   end if
   return(tService)
-  exit
 end
 
-on getActiveUI(me)
+on getActiveUI me 
   return(me.getUI(me.getComponent().getActiveIGComponentId()))
-  exit
 end
 
-on showBasicAlert(me, tKey)
+on showBasicAlert me, tKey 
   return(executeMessage(#alert, [#Msg:getText(tKey)]))
-  exit
 end
 
-on getWindowVisible(me)
+on getWindowVisible me 
   tWrapObjRef = me.getMainWindowWrapper()
   if tWrapObjRef = 0 then
     return(0)
   end if
   return(tWrapObjRef.getProperty(#visible))
-  exit
 end
 
-on getMainWindowWrapper(me, tClientID)
+on getMainWindowWrapper me, tClientID 
   tWrapObjRef = getObject(pMainWindowWrapperId)
   if tWrapObjRef = 0 then
     tWrapObjRef = me.createWindowWrapper(pMainWindowWrapperId, tClientID)
@@ -253,14 +238,12 @@ on getMainWindowWrapper(me, tClientID)
       return(0)
     end if
     tWrapObjRef.moveTo(90, 70)
-    -- UNK_40 66
-    -- UNK_2
+    tWrapObjRef.moveZ(1000000)
   end if
   return(tWrapObjRef)
-  exit
 end
 
-on createWindowWrapper(me, tID, tClientID)
+on createWindowWrapper me, tID, tClientID 
   tWrapObjRef = createObject(tID, "Multicomponent Window Wrapper Class")
   if tWrapObjRef = 0 then
     return(0)
@@ -273,56 +256,52 @@ on createWindowWrapper(me, tID, tClientID)
   tWrapObjRef.registerProcedure(#eventProcMouseHover, tClientID, #mouseEnter)
   tWrapObjRef.registerProcedure(#eventProcMouseHover, tClientID, #mouseLeave)
   return(tWrapObjRef)
-  exit
 end
 
-on resetWindowWrapper(me)
+on resetWindowWrapper me 
   tWrapObj = me.getMainWindowWrapper()
   if tWrapObj = 0 then
     return(0)
   end if
   tWrapObj.removeAllParts()
   return(1)
-  exit
 end
 
-on getTooltipManager(me)
+on getTooltipManager me 
   if objectp(pTooltipManager) then
     return(pTooltipManager)
   end if
   pTooltipManager = createObject(#temp, "IG TooltipManager Class")
   return(pTooltipManager)
-  exit
 end
 
-on removeTooltipManager(me)
+on removeTooltipManager me 
   if not objectp(me.pTooltipManager) then
     return(1)
   end if
   pTooltipManager.deconstruct()
   pTooltipManager = void()
   return(1)
-  exit
 end
 
-on eventProcMouseDown(me, tEvent, tSprID, tParam, tWndID, tTargetID)
+on eventProcMouseDown me, tEvent, tSprID, tParam, tWndID, tTargetID 
   tObject = getObject(pMainWindowWrapperId)
   if tObject <> 0 then
     tObject.Activate()
   end if
-  if me <> "creategame.button" then
-    if me = "ig_link_startnew" then
+  if tSprID <> "creategame.button" then
+    if tSprID = "ig_link_startnew" then
       return(me.ChangeWindowView("LevelList"))
     else
-      if me <> "cancel.button" then
-        if me = "create_cancel.button" then
+      if tSprID <> "cancel.button" then
+        if tSprID = "create_cancel.button" then
           return(me.ChangeWindowView("GameList"))
         else
-          if me <> "startgame.button" then
-            if me = "ig_startgame.button" then
+          if tSprID <> "startgame.button" then
+            if tSprID = "ig_startgame.button" then
               return(me.getHandler().send_START_GAME())
             else
-              if me = "ig_close" then
+              if tSprID = "ig_close" then
                 tService = me.getComponent().getIGComponent("GameList")
                 if tService = 0 then
                   return(0)
@@ -343,7 +322,6 @@ on eventProcMouseDown(me, tEvent, tSprID, tParam, tWndID, tTargetID)
               return(0)
             end if
             return(tService.eventProcMouseDown(tEvent, tSprID, tParam, tWndID))
-            exit
           end if
         end if
       end if
@@ -351,7 +329,7 @@ on eventProcMouseDown(me, tEvent, tSprID, tParam, tWndID, tTargetID)
   end if
 end
 
-on eventProcMouseHover(me, tEvent, tSprID, tParam, tWndID, tTargetID)
+on eventProcMouseHover me, tEvent, tSprID, tParam, tWndID, tTargetID 
   if voidp(tTargetID) then
     tService = me.getActiveUI()
   else
@@ -370,10 +348,9 @@ on eventProcMouseHover(me, tEvent, tSprID, tParam, tWndID, tTargetID)
   end if
   tObject.handleEvent(tEvent, tSprID, tWndID)
   return(1)
-  exit
 end
 
-on eventProcMouseDownIcon(me, tEvent, tSprID, tParam, tWndID, tTargetID)
+on eventProcMouseDownIcon me, tEvent, tSprID, tParam, tWndID, tTargetID 
   tComponent = me.getComponent()
   if tComponent.getSystemState() = 0 then
     return(1)
@@ -399,10 +376,9 @@ on eventProcMouseDownIcon(me, tEvent, tSprID, tParam, tWndID, tTargetID)
   end if
   tComponent.displayIGComponentEvent("Prejoin", #show, tGameId, 1)
   return(1)
-  exit
 end
 
-on eventProcRollOverIcon(me, tEvent, tSprID, tParam, tWndID, tTargetID)
+on eventProcRollOverIcon me, tEvent, tSprID, tParam, tWndID, tTargetID 
   if me.getComponent().getSystemState() = 0 then
     return(1)
   end if
@@ -431,5 +407,4 @@ on eventProcRollOverIcon(me, tEvent, tSprID, tParam, tWndID, tTargetID)
     executeMessage(#setRollOverInfo, "")
   end if
   return(1)
-  exit
 end

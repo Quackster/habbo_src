@@ -1,4 +1,6 @@
-on construct(me)
+property pWhiteListEmbedParams, pCrapFixSpr, pFullScreenRefreshSpr, pLogoSpr, pLogoStartTime, pFadingLogo, pCrapFixing, pCrapFixRegionInvalidated
+
+on construct me 
   pWhiteListEmbedParams = []
   pWhiteListEmbedParams.add("client.connection.failed.url")
   pWhiteListEmbedParams.add("external.variables.txt")
@@ -46,7 +48,7 @@ on construct(me)
     pCrapFixSpr.member = member("crap.fixer")
     pCrapFixSpr.width = 560
     pCrapFixSpr.height = 75
-    ERROR.locZ = -0
+    pCrapFixSpr.locZ = -2000000000
     pCrapFixSpr.loc = point(-1, 0)
     pCrapFixSpr.visible = 0
   end if
@@ -57,50 +59,45 @@ on construct(me)
     pFullScreenRefreshSpr.member = member("crap.fixer")
     pFullScreenRefreshSpr.width = undefined.width + 1
     pFullScreenRefreshSpr.height = undefined.height
-    ERROR.locZ = -0
+    pFullScreenRefreshSpr.locZ = -2000000000
     pFullScreenRefreshSpr.loc = point(-1, 0)
     pFullScreenRefreshSpr.visible = 0
   end if
   return(me.updateState("load_variables"))
-  exit
 end
 
-on deconstruct(me)
+on deconstruct me 
   if timeoutExists("client.refresh.timeout") then
     removeTimeout("client.refresh.timeout")
   end if
   unregisterMessage(#invalidateCrapFixRegion, me.getID())
   releaseSprite(pCrapFixSpr.spriteNum)
   return(me.hideLogo())
-  exit
 end
 
-on showLogo(me)
+on showLogo me 
   if memberExists("Logo") then
     tmember = member(getmemnum("Logo"))
     pLogoSpr = sprite(reserveSprite(me.getID()))
     pLogoSpr.member = tmember
     pLogoSpr.ink = 0
     pLogoSpr.blend = 90
-    exit
-    ERROR.locZ = -pLogoSpr.undefined
+    pLogoSpr.locZ = -20000001
     rect.width / 2.loc = point(the stage, rect.height / 2 - tmember.height)
     pLogoStartTime = the milliSeconds
   end if
   return(1)
-  exit
 end
 
-on hideLogo(me)
+on hideLogo me 
   if pLogoSpr.ilk = #sprite then
     releaseSprite(pLogoSpr.spriteNum)
     pLogoSpr = void()
   end if
   return(1)
-  exit
 end
 
-on initTransferToHotelView(me)
+on initTransferToHotelView me 
   tShowLogoForMs = 1000
   tLogoNowShownMs = the milliSeconds - pLogoStartTime
   if tLogoNowShownMs >= tShowLogoForMs then
@@ -108,21 +105,18 @@ on initTransferToHotelView(me)
   else
     createTimeout("init_timeout", tShowLogoForMs - tLogoNowShownMs + 1, #initTransferToHotelView, me.getID(), void(), 1)
   end if
-  exit
 end
 
-on initUpdate(me)
+on initUpdate me 
   pFadingLogo = 1
   receiveUpdate(me.getID())
-  exit
 end
 
-on invalidateCrapFixer(me)
+on invalidateCrapFixer me 
   pCrapFixRegionInvalidated = 1
-  exit
 end
 
-on update(me)
+on update me 
   startProfilingTask("Core Thread::update")
   if pFadingLogo then
     tBlend = 0
@@ -144,10 +138,10 @@ on update(me)
     if ilk(pCrapFixSpr) = #sprite then
       if pCrapFixRegionInvalidated then
         pCrapFixSpr.visible = 1
-        if me = 0 then
+        if pCrapFixSpr = 0 then
           pCrapFixSpr.loc = point(-1, 0)
         else
-          if me = -1 then
+          if pCrapFixSpr = -1 then
             pCrapFixSpr.loc = point(0, 0)
           else
             pCrapFixSpr.loc = point(0, 0)
@@ -158,40 +152,38 @@ on update(me)
     end if
   end if
   finishProfilingTask("Core Thread::update")
-  exit
 end
 
-on assetDownloadCallbacks(me, tAssetId, tSuccess)
+on assetDownloadCallbacks me, tAssetId, tSuccess 
   if tSuccess = 0 then
-    if me <> "load_variables" then
-      if me <> "load_texts" then
-        if me = "load_casts" then
+    if tAssetId <> "load_variables" then
+      if tAssetId <> "load_texts" then
+        if tAssetId = "load_casts" then
           fatalError(["error":tAssetId])
         end if
         return(0)
-        if me = "load_variables" then
+        if tAssetId = "load_variables" then
           me.updateState("load_params")
         else
-          if me = "load_texts" then
+          if tAssetId = "load_texts" then
             me.updateState("load_casts")
           else
-            if me = "load_casts" then
+            if tAssetId = "load_casts" then
               me.updateState("validate_resources")
             else
-              if me = "validate_resources" then
+              if tAssetId = "validate_resources" then
                 me.updateState("validate_resources")
               end if
             end if
           end if
         end if
-        exit
       end if
     end if
   end if
 end
 
-on updateState(me, tstate)
-  if me = "load_variables" then
+on updateState me, tstate 
+  if tstate = "load_variables" then
     pState = tstate
     me.showLogo()
     cursor(4)
@@ -264,7 +256,7 @@ on updateState(me, tstate)
       return(registerDownloadCallback(tMemNum, #assetDownloadCallbacks, me.getID(), tstate))
     end if
   else
-    if me = "load_params" then
+    if tstate = "load_params" then
       pState = tstate
       dumpVariableField(getExtVarPath())
       removeMember(getExtVarPath())
@@ -301,7 +293,7 @@ on updateState(me, tstate)
                   getObject(#session).set("client_url", obfuscate(getVariable("client.reload.url")))
                 end if
                 return(me.updateState("load_texts"))
-                if me = "load_texts" then
+                if tstate = "load_texts" then
                   pState = tstate
                   tURL = getVariable("external.texts.txt") & "&hash=" & getSpecialServices().getSessionHash()
                   tMemName = tURL
@@ -317,7 +309,7 @@ on updateState(me, tstate)
                     return(registerDownloadCallback(tMemNum, #assetDownloadCallbacks, me.getID(), tstate))
                   end if
                 else
-                  if me = "load_casts" then
+                  if tstate = "load_casts" then
                     pState = tstate
                     tTxtFile = getVariable("external.texts.txt") & "&hash=" & getSpecialServices().getSessionHash()
                     if tTxtFile <> 0 then
@@ -347,7 +339,7 @@ on updateState(me, tstate)
                       return(me.updateState("init_threads"))
                     end if
                   else
-                    if me = "validate_resources" then
+                    if tstate = "validate_resources" then
                       pState = tstate
                       tCastList = []
                       tNewList = []
@@ -362,7 +354,7 @@ on updateState(me, tstate)
                         end if
                       end repeat
                       if count(tCastList) > 0 then
-                        repeat while me <= undefined
+                        repeat while tstate <= undefined
                           tCast = getAt(undefined, tstate)
                           if not castExists(tCast) then
                             tNewList.add(tCast)
@@ -379,7 +371,7 @@ on updateState(me, tstate)
                         return(me.updateState("init_threads"))
                       end if
                     else
-                      if me = "init_threads" then
+                      if tstate = "init_threads" then
                         sendProcessTracking(24)
                         pState = tstate
                         cursor(0)
@@ -393,7 +385,6 @@ on updateState(me, tstate)
                     end if
                   end if
                 end if
-                exit
               end if
             end repeat
           end if
@@ -403,23 +394,21 @@ on updateState(me, tstate)
   end if
 end
 
-on fullScreenRefresh(me)
+on fullScreenRefresh me 
   if ilk(pFullScreenRefreshSpr) = #sprite then
     pFullScreenRefreshSpr.visible = 1
-    if me = 0 then
+    if pFullScreenRefreshSpr = 0 then
       pFullScreenRefreshSpr.loc = point(-1, 0)
     else
-      if me = -1 then
+      if pFullScreenRefreshSpr = -1 then
         pFullScreenRefreshSpr.loc = point(0, 0)
       else
         pFullScreenRefreshSpr.loc = point(0, 0)
       end if
     end if
   end if
-  exit
 end
 
-on handlers()
+on handlers  
   return([])
-  exit
 end

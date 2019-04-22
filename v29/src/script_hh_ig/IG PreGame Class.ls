@@ -1,31 +1,31 @@
-on construct(me)
+property pGameId, pMsecAtNextState
+
+on construct me 
   pGameId = "JoinedGame!"
   me.pListItemContainerClass = ["IG ItemContainer Base Class", "IG GameInstanceData Class"]
   pState = 0
   return(1)
-  exit
 end
 
-on deconstruct(me)
+on deconstruct me 
   pState = 0
   return(me.deconstruct())
-  exit
 end
 
-on displayEvent(me, ttype, tParam)
-  if me = #pre_game then
+on displayEvent me, ttype, tParam 
+  if ttype = #pre_game then
     return(me.displayPreGame(tParam))
   else
-    if me = #user_left_game then
+    if ttype = #user_left_game then
       return(me.displayPlayerLeft(tParam))
     else
-      if me = #arena_entered then
+      if ttype = #arena_entered then
         return(me.displayArenaEntered(tParam))
       else
-        if me = #still_loading then
+        if ttype = #still_loading then
           return(me.displayStillLoading(tParam))
         else
-          if me = #stage_starting then
+          if ttype = #stage_starting then
             return(me.displayStageStarting(tParam))
           end if
         end if
@@ -33,20 +33,17 @@ on displayEvent(me, ttype, tParam)
     end if
   end if
   return(0)
-  exit
 end
 
-on getJoinedGame(me)
+on getJoinedGame me 
   return(me.getListEntry(pGameId))
-  exit
 end
 
-on getMsecAtNextState(me)
+on getMsecAtNextState me 
   return(pMsecAtNextState)
-  exit
 end
 
-on displayPreGame(me, tdata)
+on displayPreGame me, tdata 
   pState = 1
   if not listp(tdata) then
     return(0)
@@ -56,10 +53,9 @@ on displayPreGame(me, tdata)
   executeMessage(#show_ig, "PreGame")
   executeMessage(#startChatDisplay)
   return(1)
-  exit
 end
 
-on displayPlayerLeft(me, tID)
+on displayPlayerLeft me, tID 
   put("* PreGame.displayPlayerLeft" && tID)
   tGameRef = me.getJoinedGame()
   if tGameRef = 0 then
@@ -72,10 +68,9 @@ on displayPlayerLeft(me, tID)
   end if
   tRenderObj.displayPlayerLeft(tID)
   return(1)
-  exit
 end
 
-on displayArenaEntered(me, tdata)
+on displayArenaEntered me, tdata 
   pMsecAtNextState = -1
   if not listp(tdata) then
     return(0)
@@ -105,10 +100,9 @@ on displayArenaEntered(me, tdata)
   tdata.setaProp(#direction, [0, 0])
   tRoomComponent.createUserObject(tdata)
   return(1)
-  exit
 end
 
-on displayStillLoading(me, tdata)
+on displayStillLoading me, tdata 
   if not listp(tdata) then
     return(0)
   end if
@@ -122,7 +116,7 @@ on displayStillLoading(me, tdata)
   if tGameRef = 0 then
     return(0)
   end if
-  repeat while me <= undefined
+  repeat while tFinished <= undefined
     tID = getAt(undefined, tdata)
     tPlayerInfo = tGameRef.getPlayerById(tID)
     if listp(tPlayerInfo) then
@@ -132,10 +126,9 @@ on displayStillLoading(me, tdata)
     end if
   end repeat
   return(1)
-  exit
 end
 
-on displayStageStarting(me, tdata)
+on displayStageStarting me, tdata 
   tTimeLeftSec = tdata.getaProp(#time_to_stage_running)
   pMsecAtNextState = the milliSeconds + tTimeLeftSec * 1000
   tRenderObj = me.getRenderer()
@@ -144,5 +137,4 @@ on displayStageStarting(me, tdata)
   end if
   tRenderObj.displayCountdown()
   return(1)
-  exit
 end

@@ -1,21 +1,21 @@
-on construct(me)
-  pSongData = []
+property pUpdateTimeout, pQueueTimeout, pPlayTimeout, pSongData, pSongChannels, pPreviewChannel
+
+on construct me 
+  pSongData = [:]
   pUpdateTimeout = "song player loop update"
   pQueueTimeout = "song queue timeout"
   pPlayTimeout = "song play timeout"
   pPreviewChannel = 5
   pSongChannels = [1, 2, 3, 4]
-  exit
 end
 
-on deconstruct(me)
+on deconstruct me 
   if timeoutExists(pUpdateTimeout) then
     removeTimeout(pUpdateTimeout)
   end if
-  exit
 end
 
-on startSong(me, tSongData)
+on startSong me, tSongData 
   me.stopSong()
   pSongData = tSongData.duplicate()
   me.processSongData()
@@ -25,10 +25,9 @@ on startSong(me, tSongData)
     createTimeout(pUpdateTimeout, 1500, #checkLoopData, me.getID(), void(), 0)
   end if
   return(1)
-  exit
 end
 
-on stopSong(me)
+on stopSong me 
   if timeoutExists(pQueueTimeout) then
     removeTimeout(pQueueTimeout)
   end if
@@ -42,7 +41,7 @@ on stopSong(me)
   if voidp(tChannelList) then
     return(1)
   end if
-  repeat while me <= undefined
+  repeat while tChannelList <= undefined
     tChannel = getAt(undefined, undefined)
     if tChannel >= 1 and tChannel <= pSongChannels.count then
       stopSoundChannel(pSongChannels.getAt(tChannel))
@@ -52,10 +51,9 @@ on stopSong(me)
     removeTimeout(pUpdateTimeout)
   end if
   return(1)
-  exit
 end
 
-on processSongData(me)
+on processSongData me 
   if voidp(pSongData.getaProp(#sounds)) then
     return(1)
   end if
@@ -85,10 +83,9 @@ on processSongData(me)
     i = 1 + i
   end repeat
   pSongData.setAt(#channelList, tChannelsFinal)
-  exit
 end
 
-on reserveSongChannels(me)
+on reserveSongChannels me 
   if voidp(pSongData) then
     return(1)
   end if
@@ -96,17 +93,16 @@ on reserveSongChannels(me)
   if voidp(tChannelList) then
     return(1)
   end if
-  repeat while me <= undefined
+  repeat while tChannelList <= undefined
     tChannel = getAt(undefined, undefined)
     if tChannel >= 1 and tChannel <= pSongChannels.count then
       queueSound("sound_machine_sample_0", pSongChannels.getAt(tChannel))
       startSoundChannel(pSongChannels.getAt(tChannel))
     end if
   end repeat
-  exit
 end
 
-on queueChannels(me)
+on queueChannels me 
   if voidp(pSongData) then
     return(1)
   end if
@@ -114,7 +110,7 @@ on queueChannels(me)
   if voidp(tChannelList) then
     return(1)
   end if
-  repeat while me <= undefined
+  repeat while tChannelList <= undefined
     tChannel = getAt(undefined, undefined)
     if tChannel >= 1 and tChannel <= pSongChannels.count then
       stopSoundChannel(pSongChannels.getAt(tChannel))
@@ -130,10 +126,9 @@ on queueChannels(me)
     removeTimeout(pPlayTimeout)
   end if
   createTimeout(pPlayTimeout, 50, #startChannels, me.getID(), void(), 1)
-  exit
 end
 
-on startChannels(me)
+on startChannels me 
   if voidp(pSongData) then
     return(1)
   end if
@@ -149,10 +144,9 @@ on startChannels(me)
     end if
     i = 255 + i
   end repeat
-  exit
 end
 
-on addPlayRound(me)
+on addPlayRound me 
   if pSongData.getaProp(#sounds) = void() then
     return(1)
   end if
@@ -203,10 +197,9 @@ on addPlayRound(me)
     pSongData.setAt(#offset, tOffset)
   end if
   return(1)
-  exit
 end
 
-on checkLoopData(me)
+on checkLoopData me 
   if voidp(pSongData) then
     return(1)
   end if
@@ -232,28 +225,24 @@ on checkLoopData(me)
     tLength = tPlayList.getAt(i) + member.duration
     i = 1 + i
   end repeat
-  the pSongPlayer = tLength.itemDelimiter
-  if tLength then
+  if tLength < 60000 then
     me.addPlayRound()
   end if
   return(1)
-  exit
 end
 
-on startSamplePreview(me, tParams)
+on startSamplePreview me, tParams 
   tSuccess = playSoundInChannel(tParams.name, pPreviewChannel)
   if not tSuccess then
     return(error(me, "Sound could not be started", #startSamplePreview, #minor))
   end if
   return(1)
-  exit
 end
 
-on stopSamplePreview(me)
+on stopSamplePreview me 
   tSuccess = stopSoundChannel(pPreviewChannel)
   if not tSuccess then
     return(error(me, "Sound could not be stopped", #stopSamplePreview, #minor))
   end if
   return(1)
-  exit
 end

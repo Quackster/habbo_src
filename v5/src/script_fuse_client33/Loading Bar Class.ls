@@ -1,4 +1,6 @@
-on construct(me)
+property pWindowID, pwidth, pheight, pBuffer, pBarRect, pBgColor, pcolor, pTaskId, pReadyFlag, pTaskType, pDrawPoint, pPercent, pOffRect
+
+on construct me 
   tProps = [#bgColor:the stage.bgColor, #color:rgb(128, 128, 128), #width:128, #height:16]
   tProps = getVariableValue("loading.bar.props", tProps)
   pTaskId = ""
@@ -12,10 +14,9 @@ on construct(me)
   pWindowID = ""
   pReadyFlag = 0
   return(1)
-  exit
 end
 
-on deconstruct(me)
+on deconstruct me 
   pTaskId = void()
   removePrepare(me.getID())
   if pWindowID <> "" then
@@ -23,10 +24,9 @@ on deconstruct(me)
     pWindowID = ""
   end if
   return(1)
-  exit
 end
 
-on define(me, tLoadID, tProps)
+on define me, tLoadID, tProps 
   if not stringp(tLoadID) and not symbolp(tLoadID) then
     return(error(me, "Invalid castload task ID:" && tLoadID, #define))
   end if
@@ -77,17 +77,16 @@ on define(me, tLoadID, tProps)
   pBuffer.fill(pBarRect, pBgColor)
   pBuffer.draw(pBarRect, [#color:pcolor, #shapeType:#rect])
   return(receivePrepare(me.getID()))
-  exit
 end
 
-on prepare(me)
+on prepare me 
   if voidp(pTaskId) or pReadyFlag then
     return(removeObject(me.getID()))
   end if
-  if me = #cast then
+  if pTaskType = #cast then
     tPercent = getCastLoadManager().getLoadPercent(pTaskId)
   else
-    if me = #file then
+    if pTaskType = #file then
       tPercent = getDownloadManager().getLoadPercent(pTaskId)
     end if
   end if
@@ -103,9 +102,8 @@ on prepare(me)
   pBuffer.fill(tRect, pcolor)
   pDrawPoint = pPercent * pOffRect.width
   pPercent = tPercent
-  if pPercent >= 0 then
+  if pPercent >= 1 then
     pBuffer.fill(pOffRect, pcolor)
     pReadyFlag = 1
   end if
-  exit
 end

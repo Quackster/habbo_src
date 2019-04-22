@@ -1,4 +1,6 @@
-on construct(me)
+property pLinkWriter
+
+on construct me 
   me.pWindowType = "bubble_links.window"
   me.pTextWidth = 160
   me.Init()
@@ -20,21 +22,18 @@ on construct(me)
   me.pHeightOrig = me.getProperty(#height)
   me.hideLinks()
   return(1)
-  exit
 end
 
-on deconstruct(me)
+on deconstruct me 
   removeWindow(me.getProperty(#id))
-  exit
 end
 
-on setText(me, tText)
+on setText me, tText 
   callAncestor(#setText, [me], tText)
   me.setLinks(me.pLinkList)
-  exit
 end
 
-on setLinks(me, tLinkList, tStatusList)
+on setLinks me, tLinkList, tStatusList 
   me.pLinkList = tLinkList
   tElem = me.getElement("bubble_links")
   if voidp(me.pLinkList) then
@@ -46,7 +45,7 @@ on setLinks(me, tLinkList, tStatusList)
     return(1)
   end if
   tListString = ""
-  repeat while me <= tStatusList
+  repeat while tLinkList <= tStatusList
     tLink = getAt(tStatusList, tLinkList)
     tListString = tListString & getText(tLink) & "\r"
   end repeat
@@ -76,19 +75,17 @@ on setLinks(me, tLinkList, tStatusList)
   if not voidp(tStatusList) then
     me.setCheckmarks(tStatusList, 1)
   end if
-  exit
 end
 
-on hideLinks(me)
+on hideLinks me 
   tElem = me.getElement("bubble_links")
   tElem.hide()
   tTextH = me.getElement("bubble_text").getProperty(#height)
   me.resizeTo(me.pEmptySizeX, me.pEmptySizeY + tTextH)
   me.updatePointer()
-  exit
 end
 
-on setCheckmarks(me, tStatusList, tBlockTextReset)
+on setCheckmarks me, tStatusList, tBlockTextReset 
   tMarkImage = member("checkmark").image
   tLinkElem = me.getElement("bubble_links")
   tLinkImage = tLinkElem.getProperty(#image)
@@ -113,17 +110,15 @@ on setCheckmarks(me, tStatusList, tBlockTextReset)
   if not tBlockTextReset then
     me.setLinks(me.pLinkList, tStatusList)
   end if
-  exit
 end
 
-on blendHandler(me, tEvent, tSpriteID, tParam)
+on blendHandler me, tEvent, tSpriteID, tParam 
   if voidp(me.pLinkList) then
     callAncestor(#blendHandler, [me], tEvent, tSpriteID, tParam)
   end if
-  exit
 end
 
-on eventHandler(me, tEvent, tSpriteID, tParam)
+on eventHandler me, tEvent, tSpriteID, tParam 
   if me.ilk <> #propList then
     return(0)
   end if
@@ -135,5 +130,4 @@ on eventHandler(me, tEvent, tSpriteID, tParam)
     tTopicID = me.getPropAt(tLineNum)
     getThread(#tutorial).getComponent().selectTopic(tTopicID)
   end if
-  exit
 end

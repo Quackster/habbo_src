@@ -1,4 +1,6 @@
-on define(me, tSprite, tDirection)
+property pDirection, pSprite, pOffset, pTurnPnt, pType, pAnimFrame
+
+on define me, tSprite, tDirection 
   pSprite = tSprite
   pOffset = [0, 0]
   pTurnPnt = 0
@@ -7,10 +9,9 @@ on define(me, tSprite, tDirection)
   pAnimFrame = 1
   me.reset()
   return(1)
-  exit
 end
 
-on reset(me)
+on reset me 
   if pDirection = #left then
     if random(2) = 1 then
       tmodel = "car2"
@@ -41,10 +42,9 @@ on reset(me)
     pSprite.ink = 36
     pSprite.backColor = 0
   end if
-  exit
 end
 
-on update(me)
+on update me 
   pSprite.loc = pSprite.loc + pOffset
   if pSprite.locV = pTurnPnt and random(2) = 2 then
     pOffset.setAt(2, -pOffset.getAt(2))
@@ -64,5 +64,4 @@ on update(me)
   if pSprite.locV < 283 or pSprite.locV > 499 or pSprite.locH > 730 then
     return(me.reset())
   end if
-  exit
 end

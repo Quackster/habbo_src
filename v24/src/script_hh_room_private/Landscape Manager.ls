@@ -1,4 +1,6 @@
-on construct(me)
+property pLandscapeMem, pwidth, pheight, pWallMaskMngr, pLandscapeAnimMngr, pWideScreenOffset, pLandscapeBgMngr, pRemoveUpdate
+
+on construct me 
   pLandscapeBgMngr = createObject("landscape_background_manager", "Landscape Background Manager")
   pLandscapeAnimMngr = createObject("landscape_animation_manager", "Landscape Animation Manager")
   pWallMaskMngr = createObject("wall_mask_manager", "Wall Mask Manager")
@@ -24,10 +26,9 @@ on construct(me)
     me.setLandscapeAnimation(1, tRoomType)
   end if
   return(1)
-  exit
 end
 
-on deconstruct(me)
+on deconstruct me 
   if objectExists("landscape_background_manager") then
     removeObject("landscape_background_manager")
   end if
@@ -43,26 +44,23 @@ on deconstruct(me)
   end if
   removeUpdate(me.getID())
   return(1)
-  exit
 end
 
-on insertWallMaskItem(me, tID, tClassID, tloc, tdir, tSize)
+on insertWallMaskItem me, tID, tClassID, tloc, tdir, tSize 
   pWallMaskMngr.insertWallMaskItem(tID, tClassID, tloc, tdir, tSize)
   if pWallMaskMngr.getItemCount() = 1 then
     me.setActivate(1)
   end if
-  exit
 end
 
-on removeWallMaskItem(me, tID)
+on removeWallMaskItem me, tID 
   pWallMaskMngr.removeWallMaskItem(tID)
   if pWallMaskMngr.getItemCount() = 0 then
     me.setActivate(0)
   end if
-  exit
 end
 
-on setActivate(me, tActive)
+on setActivate me, tActive 
   if tActive then
     receiveUpdate(me.getID())
     tViz = me.getRoomVisualizer()
@@ -83,10 +81,9 @@ on setActivate(me, tActive)
     pRemoveUpdate = 1
     pLandscapeAnimMngr.setStopped(1)
   end if
-  exit
 end
 
-on setLandscape(me, tLandscapeID, tRoomType)
+on setLandscape me, tLandscapeID, tRoomType 
   pUseDefaultLandscape = 0
   tDelim = the itemDelimiter
   the itemDelimiter = "_"
@@ -95,7 +92,7 @@ on setLandscape(me, tLandscapeID, tRoomType)
   if tRoomTypeID = "" then
     return(0)
   end if
-  tdata = []
+  tdata = [:]
   tdata.setAt(#width, pwidth)
   tdata.setAt(#height, pheight)
   tdata.setAt(#id, tLandscapeID)
@@ -103,10 +100,9 @@ on setLandscape(me, tLandscapeID, tRoomType)
   tdata.setAt(#offset, pWideScreenOffset)
   pLandscapeBgMngr.define(tdata)
   me.updateLandscape()
-  exit
 end
 
-on setLandscapeAnimation(me, tAnimationID, tRoomType)
+on setLandscapeAnimation me, tAnimationID, tRoomType 
   pUseDefaultLandscapeAnim = 0
   tDelim = the itemDelimiter
   the itemDelimiter = "_"
@@ -115,7 +111,7 @@ on setLandscapeAnimation(me, tAnimationID, tRoomType)
   if tRoomTypeID = "" then
     return(0)
   end if
-  tdata = []
+  tdata = [:]
   tdata.setAt(#width, pwidth)
   tdata.setAt(#height, pheight)
   tdata.setAt(#id, tAnimationID)
@@ -123,10 +119,9 @@ on setLandscapeAnimation(me, tAnimationID, tRoomType)
   tdata.setAt(#offset, pWideScreenOffset)
   pLandscapeAnimMngr.define(tdata)
   me.updateLandscape()
-  exit
 end
 
-on getRoomVisualizer(me)
+on getRoomVisualizer me 
   if threadExists(#room) then
     tInterface = getThread(#room).getInterface()
     tComponent = getThread(#room).getComponent()
@@ -138,10 +133,9 @@ on getRoomVisualizer(me)
     end if
   end if
   return(0)
-  exit
 end
 
-on updateLandscape(me)
+on updateLandscape me 
   tBgImg = pLandscapeBgMngr.getImage()
   tAnimImg = pLandscapeAnimMngr.getImage()
   tMask = pWallMaskMngr.getMask()
@@ -155,10 +149,9 @@ on updateLandscape(me)
       image.copyPixels(tLandscapeImg, tLandscapeImg.rect, tLandscapeImg.rect)
     end if
   end if
-  exit
 end
 
-on update(me)
+on update me 
   if pLandscapeBgMngr.requiresUpdate() or pLandscapeAnimMngr.requiresUpdate() or pWallMaskMngr.requiresUpdate() then
     me.updateLandscape()
     if pRemoveUpdate and not pWallMaskMngr.requiresUpdate() then
@@ -166,5 +159,4 @@ on update(me)
       pRemoveUpdate = 0
     end if
   end if
-  exit
 end

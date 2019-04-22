@@ -1,12 +1,13 @@
-on deconstruct(me)
+property pBlend, pUpdateCounter, pStateCounter
+
+on deconstruct me 
   if windowExists(me.getWindowId()) then
     removeWindow(me.getWindowId())
   end if
   return(me.deconstruct())
-  exit
 end
 
-on addWindows(me)
+on addWindows me 
   me.pWindowID = "go"
   pBlend = 100
   if windowExists(me.getWindowId()) then
@@ -21,10 +22,9 @@ on addWindows(me)
   tWndObj.lock()
   pStateCounter = 30
   return(1)
-  exit
 end
 
-on update(me)
+on update me 
   if pBlend <= 0 then
     return(1)
   end if
@@ -50,5 +50,4 @@ on update(me)
     end if
   end if
   return(1)
-  exit
 end

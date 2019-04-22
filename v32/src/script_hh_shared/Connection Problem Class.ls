@@ -1,4 +1,6 @@
-on construct(me)
+property pDelayLength, pTimeOutID, pWindowID
+
+on construct me 
   pTimeOutID = "connection_problem_timeout"
   pWindowID = "connection_problem_window"
   if variableExists("failed.connection.delay") then
@@ -12,10 +14,9 @@ on construct(me)
   else
     return(createTimeout(pTimeOutID, pDelayLength, #showDialog, me.getID(), void(), 1))
   end if
-  exit
 end
 
-on deconstruct(me)
+on deconstruct me 
   if timeoutExists(pTimeOutID) then
     removeTimeout(pTimeOutID)
   end if
@@ -24,15 +25,13 @@ on deconstruct(me)
   end if
   unregisterMessage(#userlogin, me.getID())
   return(1)
-  exit
 end
 
-on Remove(me)
+on Remove me 
   return(removeObject(me.getID()))
-  exit
 end
 
-on showDialog(me)
+on showDialog me 
   if createWindow(pWindowID) then
     tWndObj = getWindow(pWindowID)
     tWndObj.setProperty(#title, getText("log_problem_title"))
@@ -46,21 +45,19 @@ on showDialog(me)
     tWndObj.registerClient(me.getID())
     tWndObj.registerProcedure(#eventProc, me.getID(), #mouseUp)
   end if
-  exit
 end
 
-on eventProc(me, tEvent, tElemID)
+on eventProc me, tEvent, tElemID 
   if tEvent = #mouseUp then
-    if me <> "close" then
-      if me = "alert_ok" then
+    if tElemID <> "close" then
+      if tElemID = "alert_ok" then
         return(removeObject(me.getID()))
       else
-        if me = "alert_link" then
+        if tElemID = "alert_link" then
           executeMessage(#externalLinkClick, the mouseLoc)
           return(openNetPage(getText("log_problem_url")))
         end if
       end if
-      exit
     end if
   end if
 end

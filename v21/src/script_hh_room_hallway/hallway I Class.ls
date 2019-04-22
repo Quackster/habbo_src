@@ -1,4 +1,4 @@
-on construct(me)
+on construct me 
   tCastLib = "hh_room_hallway"
   tMemberCount = the number of castMembers
   i = 1
@@ -10,10 +10,8 @@ on construct(me)
     i = 1 + i
   end repeat
   return(1)
-  exit
 end
 
-on deconstruct(me)
+on deconstruct me 
   return(1)
-  exit
 end

@@ -1,4 +1,6 @@
-on construct(me)
+property pSquareRoot, pCollision, pObjects, pObjectTypeIndex, pObjectIdIndex, pObjectGroupIndex
+
+on construct me 
   pGeometry = createObject(#temp, getClassVariable("gamesystem.geometry.class"))
   if not objectp(pGeometry) then
     return(error(me, "Cannot create pGeometry.", #construct))
@@ -12,17 +14,16 @@ on construct(me)
     return(error(me, "Cannot create pCollision.", #construct))
   end if
   pCollision.setaProp(#pSquareRoot, pSquareRoot)
-  pObjects = []
-  pObjectTypeIndex = []
-  pObjectGroupIndex = []
+  pObjects = [:]
+  pObjectTypeIndex = [:]
+  pObjectGroupIndex = [:]
   pObjectIdIndex = []
   initIntVector()
   receiveUpdate(me.getID())
   return(1)
-  exit
 end
 
-on deconstruct(me)
+on deconstruct me 
   removeUpdate(me.getID())
   repeat while pObjects.count > 0
     me.removeGameObject(pObjects.getAt(1).getObjectId())
@@ -34,27 +35,23 @@ on deconstruct(me)
   pObjectGroupIndex = void()
   pObjectIdIndex = void()
   return(1)
-  exit
 end
 
-on defineClient(me, tID)
+on defineClient me, tID 
   return(1)
-  exit
 end
 
-on getCollision(me)
+on getCollision me 
   return(pCollision)
-  exit
 end
 
-on update(me)
+on update me 
   call(#update, pObjects)
-  exit
 end
 
-on executeGameObjectEvent(me, tID, tEvent, tdata)
+on executeGameObjectEvent me, tID, tEvent, tdata 
   if tID = #all then
-    repeat while me <= tEvent
+    repeat while pObjects <= tEvent
       tGameObject = getAt(tEvent, tID)
       call(#executeGameObjectEvent, tGameObject, tEvent, tdata)
     end repeat
@@ -66,32 +63,29 @@ on executeGameObjectEvent(me, tID, tEvent, tdata)
   end if
   call(#executeGameObjectEvent, tGameObject, tEvent, tdata)
   return(1)
-  exit
 end
 
-on calculateChecksum(me, tSeed)
+on calculateChecksum me, tSeed 
   tCheckSum = tSeed
-  repeat while me <= undefined
+  repeat while pObjects <= undefined
     tObject = getAt(undefined, tSeed)
     tCheckSum = tCheckSum + tObject.addChecksum()
   end repeat
   return(tCheckSum)
-  exit
 end
 
-on dumpChecksumValues(me)
+on dumpChecksumValues me 
   tText = ""
-  repeat while me <= undefined
+  repeat while pObjects <= undefined
     tObject = getAt(undefined, undefined)
     tText = tText & tObject.dump(1) & "\r"
   end repeat
   return(tText)
-  exit
 end
 
-on createGameObject(me, tObjectId, ttype, tdata)
+on createGameObject me, tObjectId, ttype, tdata 
   if not listp(tdata) then
-    tdata = []
+    tdata = [:]
   end if
   tObjectId = integer(tObjectId)
   tObjectStrId = string(tObjectId)
@@ -130,10 +124,9 @@ on createGameObject(me, tObjectId, ttype, tdata)
   tObject.pGameObjectFinalTarget = me.getWorld().initLocation()
   me.updateGameObject(tObjectStrId, tdata.duplicate())
   return(tObject)
-  exit
 end
 
-on updateGameObject(me, tObjectId, tdata)
+on updateGameObject me, tObjectId, tdata 
   tObjectId = string(tObjectId)
   tObject = me.getGameObject(tObjectId)
   if not listp(tdata) then
@@ -150,10 +143,9 @@ on updateGameObject(me, tObjectId, tdata)
     tObject.setLocation(tdata.x, tdata.y, tdata.z)
   end if
   return(1)
-  exit
 end
 
-on removeGameObject(me, tObjectId)
+on removeGameObject me, tObjectId 
   tObjectId = integer(tObjectId)
   tObjectStrId = string(tObjectId)
   ttype = pObjectTypeIndex.getaProp(tObjectId)
@@ -169,10 +161,9 @@ on removeGameObject(me, tObjectId)
   pObjects.deleteProp(tObjectId)
   pObjectTypeIndex.deleteProp(tObjectId)
   return(1)
-  exit
 end
 
-on executeSubturnMoves(me, tTurnNum, tSubTurnNum)
+on executeSubturnMoves me, tTurnNum, tSubTurnNum 
   tRemoveList = []
   tCount = pObjects.count
   i = 1
@@ -189,23 +180,21 @@ on executeSubturnMoves(me, tTurnNum, tSubTurnNum)
     end if
     i = 1 + i
   end repeat
-  repeat while me <= tSubTurnNum
+  repeat while tRemoveList <= tSubTurnNum
     tObjectId = getAt(tSubTurnNum, tTurnNum)
     me.removeGameObject(tObjectId)
   end repeat
   return(1)
-  exit
 end
 
-on getGameObject(me, tObjectId)
+on getGameObject me, tObjectId 
   if voidp(pObjects) then
     return(0)
   end if
   return(pObjects.getaProp(integer(tObjectId)))
-  exit
 end
 
-on getGameObjectIdsOfType(me, ttype)
+on getGameObjectIdsOfType me, ttype 
   tResult = []
   tCount = pObjectTypeIndex.count
   i = 1
@@ -216,21 +205,18 @@ on getGameObjectIdsOfType(me, ttype)
     i = 1 + i
   end repeat
   return(tResult)
-  exit
 end
 
-on getGameObjectType(me, tObjectId)
+on getGameObjectType me, tObjectId 
   tObjectId = integer(tObjectId)
   return(pObjectTypeIndex.getaProp(tObjectId))
-  exit
 end
 
-on getAllGameObjectIds(me)
+on getAllGameObjectIds me 
   return(pObjectIdIndex.duplicate())
-  exit
 end
 
-on setGameObjectInGroup(me, tGameObjectId, tGroupId)
+on setGameObjectInGroup me, tGameObjectId, tGroupId 
   if tGroupId = void() then
     return(0)
   end if
@@ -239,19 +225,17 @@ on setGameObjectInGroup(me, tGameObjectId, tGroupId)
   end if
   pObjectGroupIndex.getProp(tGroupId).add(tGameObjectId)
   return(1)
-  exit
 end
 
-on removeGameObjectFromAllGroups(me, tGameObjectId)
-  repeat while me <= undefined
+on removeGameObjectFromAllGroups me, tGameObjectId 
+  repeat while pObjectGroupIndex <= undefined
     tGroup = getAt(undefined, tGameObjectId)
     tGroup.deleteOne(tGameObjectId)
   end repeat
   return(1)
-  exit
 end
 
-on removeGameObjectFromGroup(me, tGameObjectId, tGroupId)
+on removeGameObjectFromGroup me, tGameObjectId, tGroupId 
   if tGroupId = void() then
     return(0)
   end if
@@ -260,28 +244,24 @@ on removeGameObjectFromGroup(me, tGameObjectId, tGroupId)
   end if
   pObjectGroupIndex.getProp(tGroupId).deleteOne(tGameObjectId)
   return(1)
-  exit
 end
 
-on getGameObjectGroup(me, tGroupId)
+on getGameObjectGroup me, tGroupId 
   if pObjectGroupIndex.findPos(tGroupId) = 0 then
     return([])
   end if
   return(pObjectGroupIndex.getaProp(tGroupId).duplicate())
-  exit
 end
 
-on dumpGameObjectGroups(me)
+on dumpGameObjectGroups me 
   return(pObjectGroupIndex)
-  exit
 end
 
-on dump(me)
+on dump me 
   tText = ""
-  repeat while me <= undefined
+  repeat while pObjects <= undefined
     tObject = getAt(undefined, undefined)
     tText = tText & tObject.dump() & "\r"
   end repeat
   return(tText)
-  exit
 end

@@ -1,5 +1,7 @@
-on construct(me)
-  pBalloonMargins = [#normal:[], #special:[]]
+property pBalloonMargins, pRenderObj, pMainWindowId, pWindowState, pTournamentLogoMemNum, pGameListPage, pGamesPerPage, pGameParameters, pWatchMode, pTournamentLogoClickURL
+
+on construct me 
+  pBalloonMargins = [#normal:[:], #special:[:]]
   pBalloonMargins.getAt(#normal).setAt(#left, getIntVariable("balloons.leftmargin"))
   pBalloonMargins.getAt(#normal).setAt(#right, getIntVariable("balloons.rightmargin"))
   pBalloonMargins.getAt(#special).setAt(#left, 215)
@@ -10,16 +12,15 @@ on construct(me)
   pGameListPage = 1
   pGamesPerPage = 6
   pGameParameterStructFormat = []
-  pGameParameters = []
+  pGameParameters = [:]
   pRenderObj = createObject(#temp, "SnowwarLoungeMenu Renderer Class")
   pRenderObj.defineWindow(pMainWindowId)
   registerMessage(#alert, me.getID(), #delayedMenuToBack)
   me.delayedMenuToBack()
   return(1)
-  exit
 end
 
-on deconstruct(me)
+on deconstruct me 
   if objectp(pRenderObj) then
     pRenderObj.deconstruct()
   end if
@@ -27,21 +28,18 @@ on deconstruct(me)
   removeWindow(pMainWindowId)
   me.setNormalBalloonMargins()
   return(1)
-  exit
 end
 
-on getWindowState(me)
+on getWindowState me 
   return(pWindowState)
-  exit
 end
 
-on setWindowState(me, tstate)
+on setWindowState me, tstate 
   pWindowState = tstate
   return(1)
-  exit
 end
 
-on setNumTickets(me)
+on setNumTickets me 
   tWndObj = getWindow(pMainWindowId)
   if tWndObj = 0 then
     return(0)
@@ -75,10 +73,9 @@ on setNumTickets(me)
     end if
     return(tElem.setText(tNum))
   end if
-  exit
 end
 
-on setTournamentLogo(me, tdata)
+on setTournamentLogo me, tdata 
   tMemNum = tdata.getAt(#member_num)
   if tMemNum = void() then
     tMemNum = 0
@@ -92,10 +89,9 @@ on setTournamentLogo(me, tdata)
     me.delay(500, #setTournamentLogo, tdata)
     return()
   end if
-  exit
 end
 
-on setInstanceList(me)
+on setInstanceList me 
   if me.getWindowState() = 0 then
     return(me.ChangeWindowView(#gameList))
   end if
@@ -103,17 +99,16 @@ on setInstanceList(me)
     return(0)
   end if
   return(me.showInstanceList())
-  exit
 end
 
-on showInstanceList(me)
+on showInstanceList me 
   tGameSystemObj = me.getComponent().getGameSystem()
   if tGameSystemObj = 0 then
     return(error(me, "Gamesystem not found.", #showInstanceList))
   end if
   tList = tGameSystemObj.getInstanceList()
   if not listp(tList) then
-    tList = []
+    tList = [:]
   end if
   tStartIndex = pGameListPage - 1 * pGamesPerPage + 1
   pRenderObj.renderInstanceList(tList, tStartIndex, pGamesPerPage)
@@ -122,22 +117,21 @@ on showInstanceList(me)
     pGameListPage = 1
   end if
   pRenderObj.renderPageNumber(pGameListPage, tNumPages)
-  exit
 end
 
-on showInstance(me)
+on showInstance me 
   tGameSystemObj = me.getComponent().getGameSystem()
   if tGameSystemObj = 0 then
     return(error(me, "Gamesystem not found.", #showInstance))
   end if
   tParams = tGameSystemObj.getObservedInstance()
-  if me = 2 then
+  if tParams.getAt(#numTeams) = 2 then
     me.ChangeWindowView(#gameDetails2t)
   else
-    if me = 3 then
+    if tParams.getAt(#numTeams) = 3 then
       me.ChangeWindowView(#gameDetails3t)
     else
-      if me = 4 then
+      if tParams.getAt(#numTeams) = 4 then
         me.ChangeWindowView(#gameDetails4t)
       else
         me.ChangeWindowView(#gameDetails1t)
@@ -157,10 +151,9 @@ on showInstance(me)
   tOwnTeam = me.getComponent().getUserTeamIndex()
   pRenderObj.renderInstanceDetailTeams(tParams, me.getComponent().getUserName(), tHost, tOwnTeam)
   return(1)
-  exit
 end
 
-on showGameCreation(me)
+on showGameCreation me 
   me.ChangeWindowView(#createGame)
   tWndObj = getWindow(pMainWindowId)
   me.setGameCreationDefaults()
@@ -171,10 +164,9 @@ on showGameCreation(me)
   updateStage()
   me.setFieldType(1)
   return(tElem.setFocus(1))
-  exit
 end
 
-on ChangeWindowView(me, tWindow)
+on ChangeWindowView me, tWindow 
   tWndObj = getWindow(pMainWindowId)
   if tWndObj = void() then
     if me.getWindowState() <> 0 then
@@ -194,34 +186,34 @@ on ChangeWindowView(me, tWindow)
     return(0)
   end if
   me.setWindowState(0)
-  if me = #gameList then
+  if tWindow = #gameList then
     if not tWndObj.merge("sw_glist.window") then
       return(0)
     end if
     me.showInstanceList()
     pRenderObj.renderTournamentLogo(pTournamentLogoMemNum)
   else
-    if me = #gameDetails2t then
+    if tWindow = #gameDetails2t then
       if not tWndObj.merge("sw_ginfo2t.window") then
         return(0)
       end if
     else
-      if me = #gameDetails3t then
+      if tWindow = #gameDetails3t then
         if not tWndObj.merge("sw_ginfo3t.window") then
           return(0)
         end if
       else
-        if me = #gameDetails4t then
+        if tWindow = #gameDetails4t then
           if not tWndObj.merge("sw_ginfo4t.window") then
             return(0)
           end if
         else
-          if me = #gameDetails1t then
+          if tWindow = #gameDetails1t then
             if not tWndObj.merge("sw_ginfo1t.window") then
               return(0)
             end if
           else
-            if me = #createGame then
+            if tWindow = #createGame then
               if not tWndObj.merge("sw_gcreate.window") then
                 return(0)
               end if
@@ -238,81 +230,79 @@ on ChangeWindowView(me, tWindow)
   me.setWindowState(tWindow)
   me.sendMenuToBack()
   return(1)
-  exit
 end
 
-on hideMainWindow(me)
+on hideMainWindow me 
   tWndObj = getWindow(pMainWindowId)
   if tWndObj = 0 then
     return(0)
   end if
   return(tWndObj.hide())
-  exit
 end
 
-on eventProcMainWindow(me, tEvent, tSprID, tParam)
+on eventProcMainWindow me, tEvent, tSprID, tParam 
   tGameSystemObj = me.getComponent().getGameSystem()
   if tGameSystemObj = 0 then
     return(error(me, "Gamesystem not found.", #eventProcMainWindow))
   end if
-  if me = "gs_area_gameList1" then
+  if tSprID = "gs_area_gameList1" then
     tIndexOnPage = 1 + pGameListPage - 1 * pGamesPerPage
     return(me.getComponent().observeInstance(tIndexOnPage))
   else
-    if me = "gs_area_gameList2" then
+    if tSprID = "gs_area_gameList2" then
       tIndexOnPage = 2 + pGameListPage - 1 * pGamesPerPage
       return(me.getComponent().observeInstance(tIndexOnPage))
     else
-      if me = "gs_area_gameList3" then
+      if tSprID = "gs_area_gameList3" then
         tIndexOnPage = 3 + pGameListPage - 1 * pGamesPerPage
         return(me.getComponent().observeInstance(tIndexOnPage))
       else
-        if me = "gs_area_gameList4" then
+        if tSprID = "gs_area_gameList4" then
           tIndexOnPage = 4 + pGameListPage - 1 * pGamesPerPage
           return(me.getComponent().observeInstance(tIndexOnPage))
         else
-          if me = "gs_area_gameList5" then
+          if tSprID = "gs_area_gameList5" then
             tIndexOnPage = 5 + pGameListPage - 1 * pGamesPerPage
             return(me.getComponent().observeInstance(tIndexOnPage))
           else
-            if me = "gs_area_gameList6" then
+            if tSprID = "gs_area_gameList6" then
               tIndexOnPage = 6 + pGameListPage - 1 * pGamesPerPage
               return(me.getComponent().observeInstance(tIndexOnPage))
             else
-              if me = "gs_arrow_pageFwd" then
+              if tSprID = "gs_arrow_pageFwd" then
                 return(me.changeInstanceListPage(1))
               else
-                if me = "gs_arrow_pageBack" then
+                if tSprID = "gs_arrow_pageBack" then
                   return(me.changeInstanceListPage(-1))
                 else
-                  if me = "gs_button_create" then
+                  if tSprID = "gs_button_create" then
                     return(tGameSystemObj.initiateCreateGame())
                   else
-                    if me = "gs_radio_gamelength_1" then
+                    if tSprID = "gs_radio_gamelength_1" then
                       return(me.setGameLength(1))
                     else
-                      if me = "gs_radio_gamelength_2" then
+                      if tSprID = "gs_radio_gamelength_2" then
                         return(me.setGameLength(2))
                       else
-                        if me = "gs_radio_gamelength_3" then
+                        if tSprID = "gs_radio_gamelength_3" then
                           return(me.setGameLength(3))
                         else
-                          if me = "gs_radio_2teams" then
+                          if tSprID = "gs_radio_2teams" then
                             return(me.setNumberOfTeams(2))
                           else
-                            if me = "gs_radio_3teams" then
+                            if tSprID = "gs_radio_3teams" then
                               return(me.setNumberOfTeams(3))
                             else
-                              if me = "gs_radio_4teams" then
+                              if tSprID = "gs_radio_4teams" then
                                 return(me.setNumberOfTeams(4))
                               else
-                                if me = "gs_radio_1teams" then
+                                if tSprID = "gs_radio_1teams" then
                                   return(me.setNumberOfTeams(1))
                                 else
-                                  if me = "gs_dropmenu_gamefield" then
+                                  if tSprID = "gs_dropmenu_gamefield" then
                                     return(me.setFieldType(tParam))
                                   else
-                                    if me = "gs_button_rdy" then
+                                    if tSprID = "gs_button_rdy" then
                                       tWndObj = getWindow(pMainWindowId)
                                       if tWndObj = 0 then
                                         return(0)
@@ -325,7 +315,7 @@ on eventProcMainWindow(me, tEvent, tSprID, tParam)
                                       me.hideMainWindow()
                                       return(tGameSystemObj.createGame(pGameParameters, 1))
                                     else
-                                      if me = "gs_button_cncl" then
+                                      if tSprID = "gs_button_cncl" then
                                         tWndObj = getWindow(pMainWindowId)
                                         if tWndObj = 0 then
                                           return(0)
@@ -333,7 +323,7 @@ on eventProcMainWindow(me, tEvent, tSprID, tParam)
                                         me.ChangeWindowView(#gameList)
                                         return(tGameSystemObj.cancelCreateGame())
                                       else
-                                        if me = "gs_button_leaveGame" then
+                                        if tSprID = "gs_button_leaveGame" then
                                           tParams = tGameSystemObj.getObservedInstance()
                                           if tParams.getAt(#state) = #created and me.getComponent().getUserTeamIndex() <> 0 or pWatchMode = 1 then
                                             pWatchMode = 0
@@ -345,50 +335,50 @@ on eventProcMainWindow(me, tEvent, tSprID, tParam)
                                             return(me.ChangeWindowView(#gameList))
                                           end if
                                         else
-                                          if me = "gs_link_gameInfo" then
+                                          if tSprID = "gs_link_gameInfo" then
                                             tParams = tGameSystemObj.getObservedInstance()
                                             tAction = me.getInstanceDetailButtonState(tParams.getAt(#state))
-                                            if me <> #start then
-                                              if me = #start_dimmed then
+                                            if tSprID <> #start then
+                                              if tSprID = #start_dimmed then
                                                 return(tGameSystemObj.startGame())
                                               else
-                                                if me = #spectate then
+                                                if tSprID = #spectate then
                                                   return(tGameSystemObj.watchGame())
                                                 else
                                                   return(1)
                                                 end if
                                               end if
-                                              if me = "gs_link_team1" then
+                                              if tSprID = "gs_link_team1" then
                                                 me.getComponent().joinGame(1)
                                               else
-                                                if me = "gs_link_team2" then
+                                                if tSprID = "gs_link_team2" then
                                                   me.getComponent().joinGame(2)
                                                 else
-                                                  if me = "gs_link_team3" then
+                                                  if tSprID = "gs_link_team3" then
                                                     me.getComponent().joinGame(3)
                                                   else
-                                                    if me = "gs_link_team4" then
+                                                    if tSprID = "gs_link_team4" then
                                                       me.getComponent().joinGame(4)
                                                     else
-                                                      if me <> "bb_kick1_1" then
-                                                        if me <> "bb_kick1_2" then
-                                                          if me <> "bb_kick1_3" then
-                                                            if me <> "bb_kick1_4" then
-                                                              if me <> "bb_kick1_5" then
-                                                                if me <> "bb_kick1_6" then
-                                                                  if me <> "bb_kick2_1" then
-                                                                    if me <> "bb_kick2_2" then
-                                                                      if me <> "bb_kick2_3" then
-                                                                        if me <> "bb_kick2_4" then
-                                                                          if me <> "bb_kick2_5" then
-                                                                            if me <> "bb_kick2_6" then
-                                                                              if me <> "bb_kick3_1" then
-                                                                                if me <> "bb_kick3_2" then
-                                                                                  if me <> "bb_kick3_3" then
-                                                                                    if me <> "bb_kick3_4" then
-                                                                                      if me <> "bb_kick4_1" then
-                                                                                        if me <> "bb_kick4_2" then
-                                                                                          if me = "bb_kick4_3" then
+                                                      if tSprID <> "bb_kick1_1" then
+                                                        if tSprID <> "bb_kick1_2" then
+                                                          if tSprID <> "bb_kick1_3" then
+                                                            if tSprID <> "bb_kick1_4" then
+                                                              if tSprID <> "bb_kick1_5" then
+                                                                if tSprID <> "bb_kick1_6" then
+                                                                  if tSprID <> "bb_kick2_1" then
+                                                                    if tSprID <> "bb_kick2_2" then
+                                                                      if tSprID <> "bb_kick2_3" then
+                                                                        if tSprID <> "bb_kick2_4" then
+                                                                          if tSprID <> "bb_kick2_5" then
+                                                                            if tSprID <> "bb_kick2_6" then
+                                                                              if tSprID <> "bb_kick3_1" then
+                                                                                if tSprID <> "bb_kick3_2" then
+                                                                                  if tSprID <> "bb_kick3_3" then
+                                                                                    if tSprID <> "bb_kick3_4" then
+                                                                                      if tSprID <> "bb_kick4_1" then
+                                                                                        if tSprID <> "bb_kick4_2" then
+                                                                                          if tSprID = "bb_kick4_3" then
                                                                                             tTeamNum = integer(string(tSprID).getProp(#char, 8))
                                                                                             tPlayerNum = integer(string(tSprID).getProp(#char, 10))
                                                                                             tdata = tGameSystemObj.getObservedInstance()
@@ -401,22 +391,22 @@ on eventProcMainWindow(me, tEvent, tSprID, tParam)
                                                                                             end if
                                                                                             return(tGameSystemObj.kickPlayer(tTeam.getAt(tPlayerNum).getAt(#id)))
                                                                                           else
-                                                                                            if me = "gs_link_gameRul" then
+                                                                                            if tSprID = "gs_link_gameRul" then
                                                                                               openNetPage(getText("sw_link_gameRules_url"))
                                                                                             else
-                                                                                              if me = "gs_link_highScr" then
+                                                                                              if tSprID = "gs_link_highScr" then
                                                                                                 if tGameSystemObj.getTournamentFlag() then
                                                                                                   openNetPage(getText("sw_link_tournament_highScores_url"))
                                                                                                 else
                                                                                                   openNetPage(getText("sw_link_highScores_url"))
                                                                                                 end if
                                                                                               else
-                                                                                                if me = "gs_logo_tournament" then
+                                                                                                if tSprID = "gs_logo_tournament" then
                                                                                                   if pTournamentLogoClickURL <> void() then
                                                                                                     openNetPage(pTournamentLogoClickURL)
                                                                                                   end if
                                                                                                 else
-                                                                                                  if me = "gs_button_buytickets" then
+                                                                                                  if tSprID = "gs_button_buytickets" then
                                                                                                     return(executeMessage(#show_ticketWindow))
                                                                                                   end if
                                                                                                 end if
@@ -424,7 +414,6 @@ on eventProcMainWindow(me, tEvent, tSprID, tParam)
                                                                                             end if
                                                                                           end if
                                                                                           return(1)
-                                                                                          exit
                                                                                         end if
                                                                                       end if
                                                                                     end if
@@ -471,7 +460,7 @@ on eventProcMainWindow(me, tEvent, tSprID, tParam)
   end if
 end
 
-on changeInstanceListPage(me, tOffset)
+on changeInstanceListPage me, tOffset 
   tGameSystemObj = me.getComponent().getGameSystem()
   if tGameSystemObj = 0 then
     return(error(me, "Gamesystem not found.", #changeInstanceListPage))
@@ -497,10 +486,9 @@ on changeInstanceListPage(me, tOffset)
     end if
   end if
   return(me.showInstanceList())
-  exit
 end
 
-on setGameCreationDefaults(me)
+on setGameCreationDefaults me 
   pGameParameters = [#new:1]
   tGameSystemObj = me.getComponent().getGameSystem()
   if tGameSystemObj = 0 then
@@ -514,49 +502,46 @@ on setGameCreationDefaults(me)
   if tWndObj = 0 then
     return(0)
   end if
-  repeat while me <= undefined
+  repeat while tStruct <= undefined
     tItem = getAt(undefined, undefined)
     pGameParameters.addProp(tItem.getAt(#name), tItem.getAt(#default))
-    if me = "name" then
+    if tStruct = "name" then
       tWndObj.getElement("gs_field_gameNaming").setText(tItem.getAt(#default))
     else
-      if me = "numTeams" then
+      if tStruct = "numTeams" then
         me.setNumberOfTeams(tItem.getAt(#default))
       else
-        if me = "gameLengthChoice" then
+        if tStruct = "gameLengthChoice" then
           me.setGameLength(tItem.getAt(#default))
         else
-          if me = "fieldType" then
+          if tStruct = "fieldType" then
             me.setFieldType(tItem.getAt(#default))
           end if
         end if
       end if
     end if
   end repeat
-  exit
 end
 
-on setNumberOfTeams(me, tValue)
+on setNumberOfTeams me, tValue 
   tOldElem = "gs_radio_" & pGameParameters.getAt("numTeams") & "teams"
   tNewElem = "gs_radio_" & tValue & "teams"
   pGameParameters.setAt("numTeams", tValue)
   pRenderObj.updateRadioButton("", [tOldElem])
   pRenderObj.updateRadioButton(tNewElem, [])
   return(1)
-  exit
 end
 
-on setGameLength(me, tValue)
+on setGameLength me, tValue 
   tOldElem = "gs_radio_gamelength_" & pGameParameters.getAt("gameLengthChoice")
   tNewElem = "gs_radio_gamelength_" & tValue
   pGameParameters.setAt("gameLengthChoice", tValue)
   pRenderObj.updateRadioButton("", [tOldElem])
   pRenderObj.updateRadioButton(tNewElem, [])
   return(1)
-  exit
 end
 
-on setFieldType(me, tValue)
+on setFieldType me, tValue 
   pGameParameters.setAt("fieldType", integer(tValue))
   tWndObj = getWindow(pMainWindowId)
   tDropDown = tWndObj.getElement("gs_dropmenu_gamefield")
@@ -573,10 +558,9 @@ on setFieldType(me, tValue)
   end repeat
   tDropDown.updateData(tFieldTxtItems, tFieldKeyItems, void(), tValue)
   return(1)
-  exit
 end
 
-on getInstanceDetailButtonState(me, tGameState)
+on getInstanceDetailButtonState me, tGameState 
   tButton = #empty
   if tGameState = #created then
     if me.getComponent().isUserHost() then
@@ -602,37 +586,33 @@ on getInstanceDetailButtonState(me, tGameState)
     end if
   end if
   return(tButton)
-  exit
 end
 
-on setWatchMode(me, tBoolean)
+on setWatchMode me, tBoolean 
   pWatchMode = tBoolean
-  exit
 end
 
-on setSpecialBalloonMargins(me)
+on setSpecialBalloonMargins me 
   setVariable("balloons.leftmargin", pBalloonMargins.getAt(#special).getAt(#left))
   setVariable("balloons.rightmargin", pBalloonMargins.getAt(#special).getAt(#right))
   return(1)
-  exit
 end
 
-on setNormalBalloonMargins(me)
+on setNormalBalloonMargins me 
   setVariable("balloons.leftmargin", pBalloonMargins.getAt(#normal).getAt(#left))
   setVariable("balloons.rightmargin", pBalloonMargins.getAt(#normal).getAt(#right))
   return(1)
-  exit
 end
 
-on showErrorMessage(me, tErrorType, tRequestStr, tExtra)
-  if me = 2 then
+on showErrorMessage me, tErrorType, tRequestStr, tExtra 
+  if tErrorType = 2 then
     executeMessage(#openOneClickGameBuyWindow)
     return(1)
   else
-    if me = "game_deleted" then
+    if tErrorType = "game_deleted" then
       tAlertStr = "gs_error_game_deleted"
     else
-      if me = "idlewarning" then
+      if tErrorType = "idlewarning" then
         tAlertStr = "gs_idlewarning"
       else
         tAlertStr = "gs_error_" & tRequestStr & "_" & tErrorType
@@ -642,28 +622,24 @@ on showErrorMessage(me, tErrorType, tRequestStr, tExtra)
       end if
     end if
   end if
-  if me = "create" then
+  if tErrorType = "create" then
     me.ChangeWindowView(#gameList)
   end if
-  if me = 6 then
+  if tErrorType = 6 then
     me.ChangeWindowView(#gameList)
   end if
   return(executeMessage(#alert, [#id:"gs_error", #Msg:tAlertStr]))
-  exit
 end
 
-on delayedMenuToBack(me)
+on delayedMenuToBack me 
   createTimeout(#temp, 3000, #sendMenuToBack, me.getID(), void(), 1)
-  exit
 end
 
-on sendMenuToBack(me)
+on sendMenuToBack me 
   if not windowExists(pMainWindowId) then
     return(0)
   end if
   tWndObj = getWindow(pMainWindowId)
-  the undefined = tWndObj.tile_x
-  -- UNK_2
+  tWndObj.moveZ(-100000)
   tWndObj.lock()
-  exit
 end

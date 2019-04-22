@@ -1,4 +1,4 @@
-on addWindows(me)
+on addWindows me 
   me.pWindowID = "ac"
   tService = me.getIGComponent("AfterGame")
   if tService = 0 then
@@ -38,10 +38,9 @@ on addWindows(me)
   tWrapObjRef.addOneWindow(me.getWindowItemId(11), "ig_ag_highscores_btm.window", me.pWindowSetId, [#scrollFromLocX:-230, #spaceBottom:2])
   me.showPersonalHighScore(tGameRef)
   return(1)
-  exit
 end
 
-on setTeamScore(me, tWndID, tTeamIndex, tScore)
+on setTeamScore me, tWndID, tTeamIndex, tScore 
   tWndObj = getWindow(tWndID)
   if tWndObj = 0 then
     return(0)
@@ -57,10 +56,9 @@ on setTeamScore(me, tWndID, tTeamIndex, tScore)
   end if
   tElem.setText(tScore)
   return(1)
-  exit
 end
 
-on showTeamHighScore(me, tGameRef)
+on showTeamHighScore me, tGameRef 
   tdata = tGameRef.getProperty(#level_team_scores)
   if not listp(tdata) then
     return(0)
@@ -136,10 +134,9 @@ on showTeamHighScore(me, tGameRef)
     i = 1 + i
   end repeat
   return(1)
-  exit
 end
 
-on showPersonalHighScore(me, tGameRef)
+on showPersonalHighScore me, tGameRef 
   tWndObj = getWindow(me.getWindowItemId(11))
   tdata = tGameRef.getProperty(#top_level_scores)
   if not listp(tdata) then
@@ -182,10 +179,9 @@ on showPersonalHighScore(me, tGameRef)
     i = 1 + i
   end repeat
   return(1)
-  exit
 end
 
-on setScoreWindowPlayer(me, tWindowID, tPlayerPos, tPlayerInfo)
+on setScoreWindowPlayer me, tWindowID, tPlayerPos, tPlayerInfo 
   if tPlayerInfo <> 0 then
     tOwnUser = tPlayerInfo.getaProp(#room_index) = me.getOwnPlayerGameIndex()
   end if
@@ -234,10 +230,9 @@ on setScoreWindowPlayer(me, tWindowID, tPlayerPos, tPlayerInfo)
     end if
   end if
   return(1)
-  exit
 end
 
-on setScoreWindowIcon(me, tWndID, tTeamPosition)
+on setScoreWindowIcon me, tWndID, tTeamPosition 
   tWndObj = getWindow(tWndID)
   if tWndObj = 0 then
     return(0)
@@ -252,10 +247,9 @@ on setScoreWindowIcon(me, tWndID, tTeamPosition)
   end if
   tElem.setProperty(#image, member(tMemNum).image)
   return(1)
-  exit
 end
 
-on getOwnPlayerGameIndex(me)
+on getOwnPlayerGameIndex me 
   tSession = getObject(#session)
   if tSession = 0 then
     return(0)
@@ -265,10 +259,9 @@ on getOwnPlayerGameIndex(me)
   end if
   tIndex = tSession.GET("user_game_index")
   return(tIndex)
-  exit
 end
 
-on getOwnPlayerName(me)
+on getOwnPlayerName me 
   tSession = getObject(#session)
   if tSession = 0 then
     return(0)
@@ -277,10 +270,8 @@ on getOwnPlayerName(me)
     return(0)
   end if
   return(tSession.GET(#user_name))
-  exit
 end
 
-on getWindowItemId(me, tNum)
+on getWindowItemId me, tNum 
   return(me.getWindowId() & "_" & tNum)
-  exit
 end

@@ -1,4 +1,6 @@
-on prepare(me, tdata)
+property pState, pAnimate, pFrameCounter, pMaxSkipFrames, pAnimFrame, pAnimStartTime, pAnimationTime
+
+on prepare me, tdata 
   pAnimationTime = 600
   pMaxSkipFrames = 1
   pAnimFrame = 0
@@ -18,24 +20,22 @@ on prepare(me, tdata)
     tSpriteNo = 1 + tSpriteNo
   end repeat
   return(1)
-  exit
 end
 
-on updateStuffdata(me, tProp, tValue)
+on updateStuffdata me, tProp, tValue 
   if not voidp(tProp) or voidp(tValue) then
-    if me = "state" then
+    if tProp = "state" then
       pState = tValue
     else
-      if me = "animate" then
+      if tProp = "animate" then
         pAnimate = 1
         pAnimStartTime = the milliSeconds
       end if
     end if
   end if
-  exit
 end
 
-on update(me)
+on update me 
   if pState < 2 then
     return(1)
   else
@@ -63,5 +63,4 @@ on update(me)
       end if
     end if
   end if
-  exit
 end

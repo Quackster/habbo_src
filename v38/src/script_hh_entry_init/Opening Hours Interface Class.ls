@@ -1,25 +1,24 @@
-on construct(me)
+property pHotelClosingID, pLoginFailedID
+
+on construct me 
   pHotelClosingID = getText("opening_hours_title")
   pLoginFailedID = "opening_hours_login_failed"
   return(1)
-  exit
 end
 
-on deconstruct(me)
+on deconstruct me 
   return(me.hideAll())
-  exit
 end
 
-on hideAll(me)
+on hideAll me 
   me.hideHotelClosingAlert()
   me.hideHotelClosingNotice()
   me.hideHotelClosedNotice()
   me.hideHotelClosedDisconnectNotice()
   return(1)
-  exit
 end
 
-on showHotelClosingAlert(me, tTimeDelta)
+on showHotelClosingAlert me, tTimeDelta 
   if not windowExists(pHotelClosingID) then
     createWindow(pHotelClosingID, "habbo_basic.window", 0, 0, #modal)
     tWndObj = getWindow(pHotelClosingID)
@@ -45,10 +44,9 @@ on showHotelClosingAlert(me, tTimeDelta)
   tWndObj.center()
   tWndObj.registerClient(me.getID())
   tWndObj.registerProcedure(#eventProcStatus, me.getID(), #mouseUp)
-  exit
 end
 
-on showHotelClosingNotice(me)
+on showHotelClosingNotice me 
   if not windowExists(pHotelClosingID) then
     createWindow(pHotelClosingID, "habbo_basic.window", 0, 0, #modal)
     tWndObj = getWindow(pHotelClosingID)
@@ -67,10 +65,9 @@ on showHotelClosingNotice(me)
   tWndObj.getElement("openhrs_txt").setText(tText)
   tWndObj.registerClient(me.getID())
   tWndObj.registerProcedure(#eventProcNotice, me.getID(), #mouseUp)
-  exit
 end
 
-on showHotelClosedDisconnectNotice(me, tOpenHour, tOpenMinute)
+on showHotelClosedDisconnectNotice me, tOpenHour, tOpenMinute 
   if not windowExists(pLoginFailedID) then
     createWindow(pLoginFailedID, "error.window", 0, 0, #modal)
     tWndObj = getWindow(pLoginFailedID)
@@ -95,10 +92,9 @@ on showHotelClosedDisconnectNotice(me, tOpenHour, tOpenMinute)
     tWndObj.registerProcedure(#eventProcLoginFailed, me.getID(), #mouseUp)
   end if
   return(1)
-  exit
 end
 
-on showHotelClosedNotice(me, tOpenHour, tOpenMinute)
+on showHotelClosedNotice me, tOpenHour, tOpenMinute 
   if not windowExists(pHotelClosingID) then
     createWindow(pHotelClosingID, "habbo_basic.window", 0, 0, #modal)
     tWndObj = getWindow(pHotelClosingID)
@@ -127,47 +123,42 @@ on showHotelClosedNotice(me, tOpenHour, tOpenMinute)
   tWndObj.getElement("openhrs_txt").setText(tText)
   tWndObj.registerClient(me.getID())
   tWndObj.registerProcedure(#eventProcClosed, me.getID(), #mouseUp)
-  exit
 end
 
-on hideHotelClosingAlert(me)
+on hideHotelClosingAlert me 
   if windowExists(pHotelClosingID) then
     return(removeWindow(pHotelClosingID))
   end if
   return(0)
-  exit
 end
 
-on hideHotelClosingNotice(me)
+on hideHotelClosingNotice me 
   if windowExists(pHotelClosingID) then
     return(removeWindow(pHotelClosingID))
   end if
   return(0)
-  exit
 end
 
-on hideHotelClosedDisconnectNotice(me)
+on hideHotelClosedDisconnectNotice me 
   if windowExists(pLoginFailedID) then
     return(removeWindow(pLoginFailedID))
   end if
   return(0)
-  exit
 end
 
-on hideHotelClosedNotice(me)
+on hideHotelClosedNotice me 
   if windowExists(pHotelClosingID) then
     return(removeWindow(pHotelClosingID))
   end if
   return(0)
-  exit
 end
 
-on eventProcStatus(me, tEvent, tElemID, tParam)
+on eventProcStatus me, tEvent, tElemID, tParam 
   if tEvent = #mouseUp then
-    if me = "close" then
+    if tElemID = "close" then
       return(me.hideHotelClosingAlert())
     else
-      if me = "openhrs_ok" then
+      if tElemID = "openhrs_ok" then
         return(me.hideHotelClosingAlert())
       else
         return(0)
@@ -175,15 +166,14 @@ on eventProcStatus(me, tEvent, tElemID, tParam)
     end if
   end if
   return(1)
-  exit
 end
 
-on eventProcNotice(me, tEvent, tElemID, tParam)
+on eventProcNotice me, tEvent, tElemID, tParam 
   if tEvent = #mouseUp then
-    if me = "close" then
+    if tElemID = "close" then
       return(me.hideHotelClosingNotice())
     else
-      if me = "openhrs_ok" then
+      if tElemID = "openhrs_ok" then
         return(me.hideHotelClosingNotice())
       else
         return(0)
@@ -191,23 +181,21 @@ on eventProcNotice(me, tEvent, tElemID, tParam)
     end if
   end if
   return(1)
-  exit
 end
 
-on eventProcLoginFailed(me, tEvent, tElemID, tParam)
+on eventProcLoginFailed me, tEvent, tElemID, tParam 
   if tEvent = #mouseUp then
     return(0)
   end if
   return(1)
-  exit
 end
 
-on eventProcClosed(me, tEvent, tElemID, tParam)
+on eventProcClosed me, tEvent, tElemID, tParam 
   if tEvent = #mouseUp then
-    if me = "close" then
+    if tElemID = "close" then
       return(me.hideHotelClosingNotice())
     else
-      if me = "openhrs_ok" then
+      if tElemID = "openhrs_ok" then
         return(me.hideHotelClosingNotice())
       else
         return(0)
@@ -215,5 +203,4 @@ on eventProcClosed(me, tEvent, tElemID, tParam)
     end if
   end if
   return(1)
-  exit
 end

@@ -1,30 +1,30 @@
-on construct(me)
+property pTimeOutID, pTimerEndTime, pWindowID, pTimerDurationSec
+
+on construct me 
   pCountdownObjId = "bb_game_countdown"
   pFinalScoresObjId = "bb_game_finalscores"
   pWindowID = "win_bb_score"
   pTimeOutID = "bb_score_updateGameTimeout"
   return(1)
-  exit
 end
 
-on deconstruct(me)
+on deconstruct me 
   me.removeGameScores()
   return(1)
-  exit
 end
 
-on Refresh(me, tTopic, tdata)
-  if me = #gamestatus_scores then
+on Refresh me, tTopic, tdata 
+  if tTopic = #gamestatus_scores then
     return(me.renderScore(tdata))
   else
-    if me = #gamestart then
+    if tTopic = #gamestart then
       me.startGameTimer(tdata)
       return(me.showGameScores())
     else
-      if me = #gameend then
+      if tTopic = #gameend then
         return(me.removeGameScores())
       else
-        if me = #fullgamestatus_time then
+        if tTopic = #fullgamestatus_time then
           if tdata.getAt(#state) <> #game_started then
             return(1)
           end if
@@ -35,10 +35,9 @@ on Refresh(me, tTopic, tdata)
     end if
   end if
   return(1)
-  exit
 end
 
-on resumeGameTimer(me, tdata)
+on resumeGameTimer me, tdata 
   if tdata.getAt(#time_to_next_state) <= 0 then
     return(0)
   end if
@@ -49,10 +48,9 @@ on resumeGameTimer(me, tdata)
   end if
   createTimeout(pTimeOutID, 1000, #renderGameTimer, me.getID(), pTimerEndTime, tdata.getAt(#time_until_game_end))
   return(me.renderGameTimer(pTimerEndTime))
-  exit
 end
 
-on startGameTimer(me, tdata)
+on startGameTimer me, tdata 
   if tdata.getAt(#time_until_game_end) <= 0 then
     return(0)
   end if
@@ -63,22 +61,18 @@ on startGameTimer(me, tdata)
   end if
   createTimeout(pTimeOutID, 1000, #renderGameTimer, me.getID(), pTimerEndTime, tdata.getAt(#time_until_game_end))
   return(me.renderGameTimer(pTimerEndTime))
-  exit
 end
 
-on convertToMinSec(me, tTime)
-  the render = tTime.pSecondaryTaskList
-  tMin = ERROR
-  the setHumanSpriteLoc = tTime.pSecondaryTaskList
-  tSec = ERROR / 1000
+on convertToMinSec me, tTime 
+  tMin = tTime / 60000
+  tSec = tTime mod 60000 / 1000
   if tSec < 10 then
     tSec = "0" & tSec
   end if
   return([tMin, tSec])
-  exit
 end
 
-on renderGameTimer(me, tEndTime)
+on renderGameTimer me, tEndTime 
   tWndObj = getWindow(pWindowID)
   if tWndObj = 0 then
     return(0)
@@ -94,10 +88,9 @@ on renderGameTimer(me, tEndTime)
   tTimeStr = tTime.getAt(1) & ":" & tTime.getAt(2)
   tElem.setText(replaceChunks(getText("gs_timeleft"), "\\x", tTimeStr))
   return(1)
-  exit
 end
 
-on renderScore(me, tdata)
+on renderScore me, tdata 
   tWndObj = getWindow(pWindowID)
   if tWndObj = 0 then
     return(0)
@@ -107,7 +100,7 @@ on renderScore(me, tdata)
   end if
   tMaxWidth = tElapsedTimePct * 159
   tHighest = 0
-  repeat while me <= undefined
+  repeat while tdata <= undefined
     tTeamScore = getAt(undefined, tdata)
     if tTeamScore > tHighest then
       tHighest = float(tTeamScore)
@@ -128,10 +121,9 @@ on renderScore(me, tdata)
     tTeamId = 1 + tTeamId
   end repeat
   return(1)
-  exit
 end
 
-on showGameScores(me)
+on showGameScores me 
   if windowExists(pWindowID) then
     return(1)
   end if
@@ -151,10 +143,9 @@ on showGameScores(me)
     return(error(me, "Cannot open score window.", #showGameScores))
   end if
   return(1)
-  exit
 end
 
-on removeGameScores(me)
+on removeGameScores me 
   if windowExists(pWindowID) then
     removeWindow(pWindowID)
   end if
@@ -162,5 +153,4 @@ on removeGameScores(me)
     removeTimeout(pTimeOutID)
   end if
   return(1)
-  exit
 end

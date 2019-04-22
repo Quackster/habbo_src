@@ -1,28 +1,27 @@
-on construct(me)
+property pWindowList
+
+on construct me 
   pWindowList = []
-  exit
 end
 
-on deconstruct(me)
-  repeat while me <= undefined
+on deconstruct me 
+  repeat while pWindowList <= undefined
     tWindowID = getAt(undefined, undefined)
     removeWindow(tWindowID)
   end repeat
   pWindowList = []
   return(me.deconstruct())
-  exit
 end
 
-on toggle(me, tGameType)
+on toggle me, tGameType 
   if pWindowList.count = 0 then
     return(me.addWindows(tGameType))
   else
     return(me.Remove())
   end if
-  exit
 end
 
-on addWindows(me, tGameType)
+on addWindows me, tGameType 
   me.pWindowID = "ru"
   tStageWidth = the stageRight - the stageLeft
   tLocY = 10
@@ -51,15 +50,13 @@ on addWindows(me, tGameType)
     i = 1 + i
   end repeat
   return(1)
-  exit
 end
 
-on getWindowId(me, tIndex)
+on getWindowId me, tIndex 
   return(me.pWindowID & tIndex)
-  exit
 end
 
-on eventProcMouseDown(me, tEvent, tSprID, tParam, tWndID)
+on eventProcMouseDown me, tEvent, tSprID, tParam, tWndID 
   if tSprID <> "ig_close" then
     return(1)
   end if
@@ -69,5 +66,4 @@ on eventProcMouseDown(me, tEvent, tSprID, tParam, tWndID)
     me.Remove()
   end if
   return(1)
-  exit
 end

@@ -1,4 +1,6 @@
-on beginSprite(me)
+property spriteNum, pImageSprite, pPosterIndexList, pCurrentFirstLine, pPosterListTxt, pCurrentPosterCode
+
+on beginSprite me 
   pPosterIndexList = member("poster_IndexList").text
   pPosterListTxt = ""
   pCurrentFirstLine = 1
@@ -7,10 +9,9 @@ on beginSprite(me)
   sprite(pImageSprite).ink = 36
   updatePosterList(me)
   chooseItem(me, pPosterIndexList.getProp(#line, pCurrentFirstLine))
-  exit
 end
 
-on updatePosterList(me)
+on updatePosterList me 
   pPosterListTxt = ""
   tSaveDelim = the itemDelimiter
   the itemDelimiter = ":"
@@ -29,10 +30,9 @@ on updatePosterList(me)
   end repeat
   the itemDelimiter = tSaveDelim
   member("Poster list").text = pPosterListTxt
-  exit
 end
 
-on mouseDown(me)
+on mouseDown me 
   tMousePoint = the mouseLoc
   tLineNum = sprite(spriteNum).pointToLine(tMousePoint)
   tdata = pPosterIndexList.getProp(#line, pCurrentFirstLine + tLineNum - 1)
@@ -40,10 +40,9 @@ on mouseDown(me)
     chooseItem(me, tdata)
   end if
   sendAllSprites(#setPosterCode, pCurrentPosterCode)
-  exit
 end
 
-on chooseItem(me, tdata)
+on chooseItem me, tdata 
   if tdata = "" then
     return(void())
   end if
@@ -55,25 +54,22 @@ on chooseItem(me, tdata)
   sprite(pImageSprite).width = member("leftwall poster" && tdata.getPropRef(#item, 1).getProp(#word, 1, tdata.getPropRef(#item, 1).count(#word))).width
   sprite(pImageSprite).height = member("leftwall poster" && tdata.getPropRef(#item, 1).getProp(#word, 1, tdata.getPropRef(#item, 1).count(#word))).height
   the itemDelimiter = tSaveDelim
-  exit
 end
 
-on nextPosterSet(me)
+on nextPosterSet me 
   if pPosterIndexList.getProp(#line, pCurrentFirstLine + 10) = "" then
     return(void())
   end if
   pCurrentFirstLine = pCurrentFirstLine + 10
   updatePosterList(me)
   chooseItem(me, pPosterIndexList.getProp(#line, pCurrentFirstLine))
-  exit
 end
 
-on prevPosterSet(me)
+on prevPosterSet me 
   if pCurrentFirstLine - 10 < 1 then
     return(void())
   end if
   pCurrentFirstLine = pCurrentFirstLine - 10
   updatePosterList(me)
   chooseItem(me, pPosterIndexList.getProp(#line, pCurrentFirstLine))
-  exit
 end

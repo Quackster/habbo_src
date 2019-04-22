@@ -1,38 +1,36 @@
-on construct(me)
+property pMusicChannel
+
+on construct me 
   pMusicChannel = 0
   return(1)
-  exit
 end
 
-on deconstruct(me)
+on deconstruct me 
   me.setGameMusic(0)
   return(1)
-  exit
 end
 
-on Refresh(me, tTopic, tdata)
-  if me = #soundeffect then
+on Refresh me, tTopic, tdata 
+  if tTopic = #soundeffect then
     return(me.playGameSound(tdata))
   else
-    if me <> #musicstart then
-      if me = #gamestart then
+    if tTopic <> #musicstart then
+      if tTopic = #gamestart then
         return(me.setGameMusic(1))
       else
-        if me = #gameend then
+        if tTopic = #gameend then
           return(me.setGameMusic(0))
         end if
       end if
-      exit
     end if
   end if
 end
 
-on playGameSound(me, tdata)
+on playGameSound me, tdata 
   return(playSound(tdata))
-  exit
 end
 
-on setGameMusic(me, tstate)
+on setGameMusic me, tstate 
   if tstate then
     if me.getGameSystem().getGamestatus() <> #game_started then
       return(1)
@@ -48,5 +46,4 @@ on setGameMusic(me, tstate)
     pMusicChannel = 0
   end if
   return(1)
-  exit
 end

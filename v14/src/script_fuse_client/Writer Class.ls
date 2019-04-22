@@ -1,4 +1,6 @@
-on construct(me)
+property pMember, pTxtRect, pDefRect, pFntStru
+
+on construct me 
   pDefRect = rect(0, 0, 480, 480)
   pTxtRect = void()
   pFntStru = void()
@@ -10,19 +12,17 @@ on construct(me)
     pMember.wordWrap = 0
     return(1)
   end if
-  exit
 end
 
-on deconstruct(me)
+on deconstruct me 
   if ilk(pMember, #member) then
     getResourceManager().removeMember(pMember.name)
     pMember = void()
   end if
   return(1)
-  exit
 end
 
-on define(me, tMetrics)
+on define me, tMetrics 
   if not ilk(tMetrics, #propList) then
     return(0)
   end if
@@ -87,10 +87,9 @@ on define(me, tMetrics)
   end if
   pTxtRect = tMetrics.getAt(#rect)
   return(1)
-  exit
 end
 
-on render(me, tText, tRect)
+on render me, tText, tRect 
   pMember.text = tText
   if tRect.ilk = #rect then
     if pMember.width <> tRect.width then
@@ -124,10 +123,9 @@ on render(me, tText, tRect)
     end if
   end if
   return(pMember.image)
-  exit
 end
 
-on renderHTML(me, tHtml, tRect)
+on renderHTML me, tHtml, tRect 
   tFont = me.getFont()
   pMember.html = tHtml
   if tRect.ilk = #rect then
@@ -163,10 +161,9 @@ on renderHTML(me, tHtml, tRect)
   end if
   me.setFont(tFont)
   return(pMember.image)
-  exit
 end
 
-on setFont(me, tStruct)
+on setFont me, tStruct 
   if tStruct.ilk <> #struct then
     return(error(me, "Font struct expected!", #setFont, #major))
   end if
@@ -190,10 +187,9 @@ on setFont(me, tStruct)
     pMember.topSpacing = tStruct.getaProp(#lineHeight) - pMember.fontSize
   end if
   return(1)
-  exit
 end
 
-on getFont(me)
+on getFont me 
   if voidp(pFntStru) then
     pFntStru = getStructVariable("struct.font.empty")
   end if
@@ -204,10 +200,8 @@ on getFont(me)
   tLineHeight = pMember.fontSize + pMember.topSpacing
   pFntStru.setaProp(#lineHeight, tLineHeight)
   return(pFntStru)
-  exit
 end
 
-on setProperty(me, tKey, tValue)
+on setProperty me, tKey, tValue 
   return(me.define([#tKey:tValue]))
-  exit
 end

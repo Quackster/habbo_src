@@ -1,14 +1,13 @@
-on TestSeed(this, a_iSeed)
+on TestSeed this, a_iSeed 
   i = 1
   repeat while i <= 1000
     put(this.IntToBits(a_iSeed) && a_iSeed)
     a_iSeed = this.IterateSeed(a_iSeed)
     i = 1 + i
   end repeat
-  exit
 end
 
-on IterateSeed(this, a_iSeed)
+on IterateSeed this, a_iSeed 
   t_iSeed2 = 0
   if a_iSeed = 0 then
     a_iSeed = -1
@@ -20,24 +19,21 @@ on IterateSeed(this, a_iSeed)
   t_iSeed2 = this.BitLeft(a_iSeed, 5)
   a_iSeed = bitXor(a_iSeed, t_iSeed2)
   return(a_iSeed)
-  exit
 end
 
-on getRandomNumber(this, iteratedSeed, maxValue)
+on getRandomNumber this, iteratedSeed, maxValue 
   if iteratedSeed < 0 then
     return(abs(iteratedSeed) mod maxValue)
   else
     return(iteratedSeed mod maxValue)
   end if
-  exit
 end
 
-on BitLeft(this, n, s)
+on BitLeft this, n, s 
   return(integer(n * power(2, s mod 32)))
-  exit
 end
 
-on BitRight(this, n, s)
+on BitRight this, n, s 
   s = s mod 32
   if n > 0 then
     return(bitOr(n / power(2, s), 0))
@@ -50,10 +46,9 @@ on BitRight(this, n, s)
       return(i)
     end if
   end if
-  exit
 end
 
-on BitRightZF(this, n, s)
+on BitRightZF this, n, s 
   s = s mod 32
   if n < 0 then
     if s = 0 then
@@ -64,10 +59,9 @@ on BitRightZF(this, n, s)
   else
     return(bitOr(n / power(2, s), 0))
   end if
-  exit
 end
 
-on IntToBits(this, a_iInput)
+on IntToBits this, a_iInput 
   tDigits = "01"
   repeat while a_iInput > 0
     tD = a_iInput mod 2
@@ -80,5 +74,4 @@ on IntToBits(this, a_iInput)
     end if
   end repeat
   return(tHexstr)
-  exit
 end

@@ -1,22 +1,19 @@
-on construct(me)
+on construct me 
   return(me.regMsgList(1))
-  exit
 end
 
-on deconstruct(me)
+on deconstruct me 
   return(me.regMsgList(0))
-  exit
 end
 
-on handle_ok(me, tMsg)
+on handle_ok me, tMsg 
   tMsg.getaProp(#connection).send("SCR_GINFO", [#string:"club_habbo"])
-  exit
 end
 
-on handle_scr_sinfo(me, tMsg)
+on handle_scr_sinfo me, tMsg 
   tDelim = the itemDelimiter
   the itemDelimiter = "\t"
-  tList = []
+  tList = [:]
   tList.setAt(#command, "SCR_SINF")
   #productName.setAt(tMsg, content.getProp(#item, 1))
   #status.setAt(tMsg, content.getProp(#item, 2))
@@ -27,36 +24,32 @@ on handle_scr_sinfo(me, tMsg)
   end if
   the itemDelimiter = tDelim
   me.getComponent().setStatus(tList)
-  exit
 end
 
-on handle_scr_nosub(me, tMsg)
-  tList = []
+on handle_scr_nosub me, tMsg 
+  tList = [:]
   tList.setAt(#command, "SCR_NOSUB")
   tList.setAt(#status, "inactive")
   tList.setAt(#productName, tMsg.getaProp(#content))
   me.getComponent().setStatus(tList)
-  exit
 end
 
-on handle_scr_sok(me, tMsg)
+on handle_scr_sok me, tMsg 
   me.getInterface().subscriptionOkConfirmed()
-  exit
 end
 
-on handle_scr_asu(me, tMsg)
+on handle_scr_asu me, tMsg 
   put(">>>>", tMsg)
-  exit
 end
 
-on regMsgList(me, tBool)
-  tMsgs = []
+on regMsgList me, tBool 
+  tMsgs = [:]
   tMsgs.setaProp(3, #handle_ok)
   tMsgs.setaProp(7, #handle_scr_sinfo)
   tMsgs.setaProp(23, #handle_scr_sok)
   tMsgs.setaProp(22, #handle_scr_nosub)
   tMsgs.setaProp(21, #handle_scr_asu)
-  tCmds = []
+  tCmds = [:]
   tCmds.setaProp("SCR_GINFO", 26)
   tCmds.setaProp("SCR_SUBSCRIBE", 50)
   tCmds.setaProp("SCR_EXTSCR", 51)
@@ -68,5 +61,4 @@ on regMsgList(me, tBool)
     unregisterCommands(getVariable("connection.info.id"), me.getID(), tCmds)
   end if
   return(1)
-  exit
 end

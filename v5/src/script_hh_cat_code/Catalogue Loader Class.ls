@@ -1,16 +1,16 @@
-on construct(me)
+property pAnimImage, pState, pFrameCounter, pQuad
+
+on construct me 
   pState = 0
   pFrameCounter = 0
   return(1)
-  exit
 end
 
-on deconstruct(me)
+on deconstruct me 
   return(1)
-  exit
 end
 
-on showLoadingScreen(me)
+on showLoadingScreen me 
   pState = 1
   tWinObj = getThread(#catalogue).getInterface().getCatalogWindow()
   if not tWinObj then
@@ -23,7 +23,7 @@ on showLoadingScreen(me)
       tWinObj.getElement(tid).setProperty(#visible, 1)
       tWinObj.getElement(tid).setProperty(#blend, 70)
     end if
-    repeat while me <= undefined
+    repeat while ["ctlg_loading_box", "ctlg_loading_anim", "ctlg_loading_text"] <= undefined
       tid = getAt(undefined, undefined)
       if tWinObj.elementExists(tid) then
         tWinObj.getElement(tid).setProperty(#visible, 1)
@@ -40,10 +40,9 @@ on showLoadingScreen(me)
   pFrameCounter = 100
   update(me)
   receiveUpdate(me.getID())
-  exit
 end
 
-on hideLoadingScreen(me)
+on hideLoadingScreen me 
   pState = 0
   removeUpdate(me.getID())
   tWinObj = getThread(#catalogue).getInterface().getCatalogWindow()
@@ -53,10 +52,9 @@ on hideLoadingScreen(me)
   if tWinObj.elementExists("ctlg_loading_box") then
     tWinObj.unmerge()
   end if
-  exit
 end
 
-on update(me)
+on update me 
   if not pState then
     return()
   end if
@@ -82,5 +80,4 @@ on update(me)
     pFrameCounter = 0
   end if
   pFrameCounter = pFrameCounter + 1
-  exit
 end

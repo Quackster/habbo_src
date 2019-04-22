@@ -1,4 +1,6 @@
-on define(me, tsprite, tid)
+property pDirection, pSprite, pPauseTime, pOffset, pTurnPnt
+
+on define me, tsprite, tid 
   pID = tid
   if tid mod 2 then
     tdir = #right
@@ -11,10 +13,9 @@ on define(me, tsprite, tid)
   pDirection = tdir
   me.reset()
   return(1)
-  exit
 end
 
-on reset(me)
+on reset me 
   tmodel = ["car2", "car_b2", "car_c2"].getAt(random(3))
   if pDirection = #left then
     pSprite.flipH = 0
@@ -38,10 +39,9 @@ on reset(me)
     pSprite.backColor = 0
   end if
   pPauseTime = random(150)
-  exit
 end
 
-on update(me)
+on update me 
   if pPauseTime > 0 then
     pPauseTime = pPauseTime - 1
     return(0)
@@ -58,5 +58,4 @@ on update(me)
   if pSprite.locV > 510 then
     return(me.reset())
   end if
-  exit
 end

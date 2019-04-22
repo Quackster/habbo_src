@@ -1,4 +1,6 @@
-on construct(me)
+property pAnimThisUpdate, pSin, pSpriteList, pOrigLocs, pWallLeft, pTileSprites, pWallLightCount, pWallLightValues, pWallLightSprites, pWallRight, pWallCenter
+
+on construct me 
   pSin = 0
   pSpriteList = []
   pOrigLocs = []
@@ -8,21 +10,18 @@ on construct(me)
   pWallLightValues = []
   pTileSprites = []
   return(1)
-  exit
 end
 
-on deconstruct(me)
+on deconstruct me 
   me.removeWallLights()
   return(removeUpdate(me.getID()))
-  exit
 end
 
-on prepare(me)
+on prepare me 
   return(receiveUpdate(me.getID()))
-  exit
 end
 
-on update(me)
+on update me 
   pAnimThisUpdate = not pAnimThisUpdate
   if not pAnimThisUpdate then
     return(1)
@@ -35,10 +34,9 @@ on update(me)
   me.blinkFloorLights()
   me.fullRotation(15, 15, 15, 15, point(-10, -10), point(-10, -10))
   return(1)
-  exit
 end
 
-on fullRotation(me, tX1, tY1, tX2, tY2, tOffset1, tOffset2)
+on fullRotation me, tX1, tY1, tX2, tY2, tOffset1, tOffset2 
   if tOffset1 = void() then
     tOffset1 = point(0, 0)
   end if
@@ -47,14 +45,13 @@ on fullRotation(me, tX1, tY1, tX2, tY2, tOffset1, tOffset2)
   end if
   pSpriteList.getAt(3).loc = pOrigLocs.getAt(1) + tOffset1 + point(sin(pSin) * tX1, cos(pSin) * tY1)
   pSpriteList.getAt(6).loc = pOrigLocs.getAt(2) + tOffset2 + point(cos(pSin) * tX2, sin(pSin) * tY2)
-  tLocs = [pSpriteList.getAt(3).loc + point(pSpriteList.getAt(3).width / 0 - 15, 0), pSpriteList.getAt(6).loc - point(pSpriteList.getAt(6).width / 0 - 10, 0)]
+  tLocs = [pSpriteList.getAt(3).loc + point(pSpriteList.getAt(3).width / 2 - 15, 0), pSpriteList.getAt(6).loc - point(pSpriteList.getAt(6).width / 2 - 10, 0)]
   pSpriteList.getAt(2).rect = rect(pSpriteList.getAt(2).getProp(#rect, 1), pSpriteList.getAt(2).getProp(#rect, 2), tLocs.getAt(1).getAt(1), tLocs.getAt(1).getAt(2))
   pSpriteList.getAt(5).rect = rect(tLocs.getAt(2).getAt(1), pSpriteList.getAt(5).getProp(#rect, 2), pSpriteList.getAt(5).getProp(#rect, 3), tLocs.getAt(2).getAt(2))
   return(1)
-  exit
 end
 
-on getSpriteList(me)
+on getSpriteList me 
   pSpriteList = []
   tObj = getThread(#room).getInterface().getRoomVisualizer()
   if tObj = 0 then
@@ -98,10 +95,9 @@ on getSpriteList(me)
   end repeat
   me.createWallLights()
   return(1)
-  exit
 end
 
-on createWallLights(me)
+on createWallLights me 
   i = 1
   repeat while i <= pWallLightCount
     pWallLightValues.setAt(i, [])
@@ -120,10 +116,9 @@ on createWallLights(me)
     i = 1 + i
   end repeat
   return(1)
-  exit
 end
 
-on rotateWallLights(me)
+on rotateWallLights me 
   i = 1
   repeat while i <= pWallLightSprites.count
     tDimValue = pWallLightValues.getAt(i).getAt(2)
@@ -141,20 +136,19 @@ on rotateWallLights(me)
     end if
     if tLocH > pWallCenter then
       pWallLightSprites.getAt(i).flipH = 1
-      tLocV = 38 + tLocH - pWallCenter * 0 + pWallLightValues.getAt(i).getAt(1)
+      tLocV = 38 + tLocH - pWallCenter * 0.5 + pWallLightValues.getAt(i).getAt(1)
     else
-      tLocV = 38 + pWallCenter - tLocH * 0 + pWallLightValues.getAt(i).getAt(1)
+      tLocV = 38 + pWallCenter - tLocH * 0.5 + pWallLightValues.getAt(i).getAt(1)
     end if
     pWallLightSprites.getAt(i).loc = point(tLocH, tLocV)
     pWallLightSprites.getAt(i).blend = max(0, sin(tDimValue) * 60)
     i = 1 + i
   end repeat
   return(1)
-  exit
 end
 
-on removeWallLights(me)
-  repeat while me <= undefined
+on removeWallLights me 
+  repeat while pWallLightSprites <= undefined
     tWallSprite = getAt(undefined, undefined)
     if tWallSprite.ilk = #sprite then
       releaseSprite(tWallSprite.spriteNum)
@@ -162,16 +156,14 @@ on removeWallLights(me)
     pWallLightSprites = []
   end repeat
   return(1)
-  exit
 end
 
-on blinkFloorLights(me)
+on blinkFloorLights me 
   i = 1
   repeat while i <= 20
-    tMultiplier = sin(pSin * 0 + i * 0.3)
+    tMultiplier = sin(pSin * 1.5 + i * 0.3)
     pTileSprites.getAt(i).blend = abs(tMultiplier * 100)
     i = 1 + i
   end repeat
   return(1)
-  exit
 end

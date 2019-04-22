@@ -1,11 +1,12 @@
-on construct(me)
+property pReplayAnimWnd, pJumpData, pName, pPlayBackAnimR, pKeyAcceptTime, pKeycounter, pJumpDone
+
+on construct me 
   pReplayAnimWnd = "playBackR"
   pPlayBackAnimR = 1
   return(1)
-  exit
 end
 
-on deconstruct(me)
+on deconstruct me 
   if windowExists(pReplayAnimWnd) then
     removeWindow(pReplayAnimWnd)
   end if
@@ -14,10 +15,9 @@ on deconstruct(me)
   end if
   removeUpdate(me.getID())
   return(1)
-  exit
 end
 
-on initPlayer(me, jname, jdata)
+on initPlayer me, jname, jdata 
   pJumpDone = 0
   pName = jname
   pJumpData = decompressString(jdata)
@@ -26,10 +26,9 @@ on initPlayer(me, jname, jdata)
   me.openHidePlayBackWindow()
   receiveUpdate(me.getID())
   return(1)
-  exit
 end
 
-on openHidePlayBackWindow(me)
+on openHidePlayBackWindow me 
   if pName <> getObject(#session).GET("user_name") then
     return(0)
   end if
@@ -38,14 +37,13 @@ on openHidePlayBackWindow(me)
   else
     createWindow(pReplayAnimWnd, "ph_playback.window", 15, 10)
     getWindow(pReplayAnimWnd).resizeTo(56, 64)
-    -- UNK_E4 9044610
-    getWindow().lock()
+    getWindow(pReplayAnimWnd).moveZ(19000020)
+    getWindow(pReplayAnimWnd).lock()
     pPlayBackAnimR = 1
   end if
-  exit
 end
 
-on animatePlayBackR(me)
+on animatePlayBackR me 
   tWndObj = getWindow(pReplayAnimWnd)
   if tWndObj = 0 then
     return(0)
@@ -57,10 +55,9 @@ on animatePlayBackR(me)
   if pPlayBackAnimR > tAnim.count then
     pPlayBackAnimR = 1
   end if
-  exit
 end
 
-on update(me)
+on update me 
   me.animatePlayBackR()
   if voidp(pKeyAcceptTime) then
     if voidp(pKeycounter) then
@@ -84,7 +81,7 @@ on update(me)
         if tSplashPos = 0 then
           getThread(#room).getComponent().getRoomConnection().send("SPLASH_POSITION", [#integer:21, #integer:19])
         else
-          tMessage = []
+          tMessage = [:]
           tMessage.addProp(#integer, integer(tSplashPos.getAt(1)))
           tMessage.addProp(#integer, integer(tSplashPos.getAt(2)))
           getThread(#room).getComponent().getRoomConnection().send("SPLASH_POSITION", tMessage)
@@ -95,5 +92,4 @@ on update(me)
       removeObject(me.getID())
     end if
   end if
-  exit
 end

@@ -1,4 +1,6 @@
-on prepare(me, tdata)
+property pLineSprite1, pLineSprite2, pLinesOrigLocV, pNoiseSprite, pMovedByUser, pActiveEffect, pChanges, pActive, pGlowSprite, pCoverSprite, pRandomEffectList, pEffectCounter
+
+on prepare me, tdata 
   if me.count(#pSprList) < 9 then
     return(0)
   end if
@@ -18,21 +20,18 @@ on prepare(me, tdata)
   end if
   pChanges = 1
   return(1)
-  exit
 end
 
-on prepareForMove(me)
+on prepareForMove me 
   pLinesOrigLocV = void()
   pMovedByUser = 1
-  exit
 end
 
-on movingFinished(me)
+on movingFinished me 
   pMovedByUser = 0
-  exit
 end
 
-on hideAllEffects(me)
+on hideAllEffects me 
   pLineSprite1.visible = 0
   pLineSprite2.visible = 0
   if not voidp(pLinesOrigLocV) then
@@ -42,20 +41,18 @@ on hideAllEffects(me)
   pNoiseSprite.visible = 0
   pActiveEffect = #none
   pEffectCounter = 0
-  exit
 end
 
-on updateStuffdata(me, tValue)
+on updateStuffdata me, tValue 
   if tValue = "OFF" then
     pActive = 0
   else
     pActive = 1
   end if
   pChanges = 1
-  exit
 end
 
-on update(me)
+on update me 
   if pMovedByUser then
     return(1)
   end if
@@ -79,18 +76,16 @@ on update(me)
     pCoverSprite.visible = 1
     me.hideAllEffects()
   end if
-  exit
 end
 
-on startRandomEffect(me)
+on startRandomEffect me 
   pActiveEffect = pRandomEffectList.getAt(random(pRandomEffectList.count))
   return(1)
-  exit
 end
 
-on runEffect(me)
+on runEffect me 
   pEffectCounter = pEffectCounter + 1
-  if me = #noise1 then
+  if pActiveEffect = #noise1 then
     if random(6) = 5 then
       pNoiseSprite.visible = 0
     else
@@ -100,7 +95,7 @@ on runEffect(me)
       me.hideAllEffects()
     end if
   else
-    if me = #lines1 then
+    if pActiveEffect = #lines1 then
       if pEffectCounter mod 2 = 1 then
         return(1)
       end if
@@ -112,7 +107,7 @@ on runEffect(me)
         me.hideAllEffects()
       end if
     else
-      if me = #lines2 then
+      if pActiveEffect = #lines2 then
         pLineSprite1.visible = 1
         pLineSprite2.visible = 1
         if pEffectCounter < 45 then
@@ -127,20 +122,17 @@ on runEffect(me)
     end if
   end if
   return(1)
-  exit
 end
 
-on setOn(me)
+on setOn me 
   getThread(#room).getComponent().getRoomConnection().send("SETSTUFFDATA", [#string:string(me.getID()), #string:"ON"])
-  exit
 end
 
-on setOff(me)
+on setOff me 
   getThread(#room).getComponent().getRoomConnection().send("SETSTUFFDATA", [#string:string(me.getID()), #string:"OFF"])
-  exit
 end
 
-on select(me, tSprID)
+on select me, tSprID 
   tSprNum = the clickOn
   tBottompartList = [3, 4, 5]
   if the doubleClick then
@@ -154,15 +146,13 @@ on select(me, tSprID)
     me.setOnOff()
   end if
   return(1)
-  exit
 end
 
-on setOnOff(me)
+on setOnOff me 
   if pActive then
     me.setOff()
   else
     me.setOn()
   end if
   return(1)
-  exit
 end

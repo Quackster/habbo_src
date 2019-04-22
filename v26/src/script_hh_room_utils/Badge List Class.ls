@@ -1,6 +1,8 @@
-on construct(me)
+property pColumns, pMinRows, pGridSize, pBg, pBgNew, pBgHilite, pBadges, pWriterIdPlain, pWriterIdBold
+
+on construct me 
   pBadges = []
-  pRects = []
+  pRects = [:]
   pColumns = 3
   pMinRows = 4
   pGridSize = 47
@@ -22,16 +24,14 @@ on construct(me)
     pBgHilite = image(1, 1, 8)
   end if
   return(1)
-  exit
 end
 
-on deconstruct(me)
+on deconstruct me 
   me.removeWriters()
   return(1)
-  exit
 end
 
-on render(me, tBadges, tSelectedBadges, tNewBadges, tActiveBadge)
+on render me, tBadges, tSelectedBadges, tNewBadges, tActiveBadge 
   if voidp(tSelectedBadges) then
     tSelectedBadges = []
   end if
@@ -78,10 +78,9 @@ on render(me, tBadges, tSelectedBadges, tNewBadges, tActiveBadge)
     tIndex = 1 + tIndex
   end repeat
   return(tListImage)
-  exit
 end
 
-on getBadgeAt(me, tpoint)
+on getBadgeAt me, tpoint 
   if tpoint.ilk <> #point then
     return(error(me, "Point expected.", #getBadgeAt, #major))
   end if
@@ -95,10 +94,9 @@ on getBadgeAt(me, tpoint)
     return(pBadges.getAt(tIndex))
   end if
   return(0)
-  exit
 end
 
-on renderAchievements(me, tAchievements)
+on renderAchievements me, tAchievements 
   if tAchievements.ilk <> #list then
     return(error(me, "Linear list expected.", #renderAchievements, #major))
   end if
@@ -137,20 +135,18 @@ on renderAchievements(me, tAchievements)
     tIndex = 1 + tIndex
   end repeat
   return(tListImage)
-  exit
 end
 
-on centerImage(me, tImage, tRect)
+on centerImage me, tImage, tRect 
   tCentered = image(tRect.width, tRect.height, tImage.depth)
   tOffH = tRect.width - tImage.width / 2
   tOffV = tRect.height - tImage.height / 2
   tTargetRect = tImage.rect + rect(tOffH, tOffV, tOffH, tOffV)
   tCentered.copyPixels(tImage, tTargetRect, tImage.rect)
   return(tCentered)
-  exit
 end
 
-on getPlainWriter(me)
+on getPlainWriter me 
   if writerExists(pWriterIdPlain) then
     return(getWriter(pWriterIdPlain))
   end if
@@ -159,25 +155,22 @@ on getPlainWriter(me)
   tWriter = getWriter(pWriterIdPlain)
   tWriter.setProperty(#wordWrap, 1)
   return(getWriter(pWriterIdPlain))
-  exit
 end
 
-on getBoldWriter(me)
+on getBoldWriter me 
   if writerExists(pWriterIdBold) then
     return(getWriter(pWriterIdBold))
   end if
   tBoldStruct = getStructVariable("struct.font.bold")
   createWriter(pWriterIdBold, tBoldStruct)
   return(getWriter(pWriterIdBold))
-  exit
 end
 
-on removeWriters(me)
+on removeWriters me 
   if writerExists(pWriterIdPlain) then
     removeWriter(pWriterIdPlain)
   end if
   if writerExists(pWriterIdBold) then
     removeWriter(pWriterIdBold)
   end if
-  exit
 end

@@ -1,4 +1,6 @@
-on construct(me)
+property pMaxFreeCategories, pRemoveConfirmID, pFriendListWindowID, pCurrentCategoryID, pMinimized, pHighlightedCategories, pCategoryHighlBaseID, pMaxCategories, pWindowDefaultHeight, pViewsList, pInboxBlinkStep, pConfirmDeleteFriend
+
+on construct me 
   pFriendListWindowID = getUniqueID()
   pRemoveConfirmID = getText("friend_list_confirm_remove")
   pConfirmDeleteFriend = void()
@@ -6,7 +8,7 @@ on construct(me)
   pMaxFreeCategories = getVariable("fr.window.max.free.categories")
   pMaxCategories = pMaxFreeCategories + 3
   pMinimized = 0
-  pViewsList = []
+  pViewsList = [:]
   pCategoryHighlBaseID = "fr_category_highlighter_"
   pHighlightedCategories = []
   pInboxBlinkStep = 0
@@ -17,10 +19,9 @@ on construct(me)
   registerMessage(#enterRoomDirect, me.getID(), #updateActionIconsState)
   registerMessage(#gamesystem_constructed, me.getID(), #closeFriendList)
   return(1)
-  exit
 end
 
-on deconstruct(me)
+on deconstruct me 
   me.endInboxBlink()
   if windowExists(pRemoveConfirmID) then
     removeWindow(pRemoveConfirmID)
@@ -35,10 +36,9 @@ on deconstruct(me)
   unregisterMessage(#enterRoomDirect, me.getID())
   unregisterMessage(#gamesystem_constructed, me.getID())
   return(1)
-  exit
 end
 
-on createFriendList(me)
+on createFriendList me 
   if not me.getComponent().isFriendListInited() then
     return(0)
   end if
@@ -58,10 +58,9 @@ on createFriendList(me)
   pWindowDefaultHeight = tWndObj.getProperty(#height)
   me.changeCategory(pCurrentCategoryID)
   return(1)
-  exit
 end
 
-on openFriendList(me)
+on openFriendList me 
   if not windowExists(pFriendListWindowID) then
     if me.createFriendList() then
       tWndObj = getWindow(pFriendListWindowID)
@@ -74,18 +73,16 @@ on openFriendList(me)
     tWndObj.show()
     activateWindow(pFriendListWindowID)
   end if
-  exit
 end
 
-on closeFriendList(me)
+on closeFriendList me 
   if windowExists(pFriendListWindowID) then
     tWndObj = getWindow(pFriendListWindowID)
     tWndObj.hide()
   end if
-  exit
 end
 
-on toggleFriendList(me)
+on toggleFriendList me 
   if not windowExists(pFriendListWindowID) then
     return(me.openFriendList())
   end if
@@ -95,10 +92,9 @@ on toggleFriendList(me)
   else
     me.openFriendList()
   end if
-  exit
 end
 
-on minimizedView(me, tMinimized)
+on minimizedView me, tMinimized 
   tWndObj = getWindow(pFriendListWindowID)
   if tWndObj = 0 then
     return(0)
@@ -117,15 +113,13 @@ on minimizedView(me, tMinimized)
     pMinimized = 0
     me.changeCategory(pCurrentCategoryID)
   end if
-  exit
 end
 
-on isFriendRequestViewOpen(me)
+on isFriendRequestViewOpen me 
   return(pCurrentCategoryID = -2)
-  exit
 end
 
-on addFriend(me, tFriendData)
+on addFriend me, tFriendData 
   tCategoryId = tFriendData.getAt(#categoryId)
   tViewObj = me.getViewListObject(tCategoryId)
   if tViewObj = 0 then
@@ -137,10 +131,9 @@ on addFriend(me, tFriendData)
     me.updateOpenCategoryPanel()
   end if
   me.updateCategoryCounts()
-  exit
 end
 
-on addFriendRequest(me, tRequest)
+on addFriendRequest me, tRequest 
   tCategoryId = -2
   tViewObj = me.getViewListObject(tCategoryId)
   if tViewObj = 0 then
@@ -151,10 +144,9 @@ on addFriendRequest(me, tRequest)
   if pCurrentCategoryID = tCategoryId then
     me.updateOpenCategoryPanel()
   end if
-  exit
 end
 
-on setCategoryHighlight(me, tCategoryId)
+on setCategoryHighlight me, tCategoryId 
   tAllowedCategories = getVariableValue("fr.category.highlights.allowed", [])
   if tAllowedCategories.getOne(tCategoryId) and pCurrentCategoryID <> tCategoryId or pMinimized then
     if not pHighlightedCategories.getOne(tCategoryId) then
@@ -168,10 +160,9 @@ on setCategoryHighlight(me, tCategoryId)
     tTimeoutTime = integer(getVariable("fr.category.highlight.duration"))
     createTimeout(tTimeoutID, tTimeoutTime, #removeCategoryHighlight, me.getID(), tCategoryId, 1)
   end if
-  exit
 end
 
-on removeCategoryHighlight(me, tCategoryId)
+on removeCategoryHighlight me, tCategoryId 
   if pHighlightedCategories.deleteOne(tCategoryId) then
     me.showCategoryTitle(tCategoryId, void(), void(), void())
   end if
@@ -179,10 +170,9 @@ on removeCategoryHighlight(me, tCategoryId)
   if timeoutExists(tTimeoutID) then
     removeTimeout(tTimeoutID)
   end if
-  exit
 end
 
-on updateFriend(me, tFriendData)
+on updateFriend me, tFriendData 
   tViewObj = me.getViewListObject(tFriendData.getAt(#categoryId))
   if not tViewObj = 0 then
     tViewObj.updateFriend(tFriendData)
@@ -190,10 +180,9 @@ on updateFriend(me, tFriendData)
   if pCurrentCategoryID = tFriendData.getAt(#categoryId) then
     me.updateOpenCategoryPanel()
   end if
-  exit
 end
 
-on removeFriend(me, tFriendID, tCategory)
+on removeFriend me, tFriendID, tCategory 
   tViewObj = me.getViewListObject(tCategory)
   if not tViewObj = 0 then
     tViewObj.removeFriend(tFriendID)
@@ -201,20 +190,18 @@ on removeFriend(me, tFriendID, tCategory)
   if pCurrentCategoryID = tCategory then
     me.updateOpenCategoryPanel()
   end if
-  exit
 end
 
-on updateCategoryCounts(me)
+on updateCategoryCounts me 
   tCategoryList = me.getComponent().getCategoryList()
-  repeat while me <= undefined
+  repeat while tCategoryList <= undefined
     tCategory = getAt(undefined, undefined)
     tCount = me.getComponent().getItemCountForcategory(tCategory.getAt(#id))
     me.showCategoryTitle(tCategory.getAt(#id), void(), void(), tCount)
   end repeat
-  exit
 end
 
-on changeCategory(me, tCategoryId)
+on changeCategory me, tCategoryId 
   tWndObj = getWindow(pFriendListWindowID)
   if tWndObj = 0 then
     return(0)
@@ -249,7 +236,7 @@ on changeCategory(me, tCategoryId)
   tCategoryContentHeight = tWndObj.getElement("list_panel").getProperty(#height)
   tActionsPanelHeight = tWndObj.getElement("actions_panel").getProperty(#height)
   tCurrentOffsetV = getVariable("fr.category.offset.top")
-  repeat while me <= undefined
+  repeat while tCategoryList <= undefined
     tCategory = getAt(undefined, tCategoryId)
     tCount = me.getComponent().getItemCountForcategory(tCategory.getAt(#id))
     me.showCategoryTitle(tCategory.getAt(#id), tCurrentOffsetV, tCategory.getAt(#name), tCount)
@@ -273,10 +260,9 @@ on changeCategory(me, tCategoryId)
   pCurrentCategoryID = tCategoryId
   me.updateOpenCategoryPanel()
   me.updateActionIconsState()
-  exit
 end
 
-on updateOpenCategoryPanel(me)
+on updateOpenCategoryPanel me 
   tWndObj = getWindow(pFriendListWindowID)
   if tWndObj = 0 then
     return(0)
@@ -289,10 +275,9 @@ on updateOpenCategoryPanel(me)
   tListImage = tViewObj.getViewImage()
   tContentElem.feedImage(tListImage)
   me.updateActionIconsState()
-  exit
 end
 
-on showCategoryTitle(me, tID, tLocV, tName, tItemCount)
+on showCategoryTitle me, tID, tLocV, tName, tItemCount 
   tWndObj = getWindow(pFriendListWindowID)
   if tWndObj = 0 then
     return(0)
@@ -357,10 +342,9 @@ on showCategoryTitle(me, tID, tLocV, tName, tItemCount)
     tElemText.moveTo(tElemText.getProperty(#locH), tLocV + 3)
     tElemBase.moveTo(tElemBase.getProperty(#locH), tLocV)
   end if
-  exit
 end
 
-on activateMailIcon(me, tIconIsActive)
+on activateMailIcon me, tIconIsActive 
   tWndObj = getWindow(pFriendListWindowID)
   if tWndObj = 0 then
     return(0)
@@ -374,10 +358,9 @@ on activateMailIcon(me, tIconIsActive)
   else
     tElem.setProperty(#member, "friends_mini_mail_button_inactive")
   end if
-  exit
 end
 
-on moveCategoryContent(me, tLocV)
+on moveCategoryContent me, tLocV 
   tWndObj = getWindow(pFriendListWindowID)
   if tWndObj = 0 then
     return(0)
@@ -418,7 +401,7 @@ on moveCategoryContent(me, tLocV)
   tActions.add("requests_dismiss_all_text")
   tActions.add("requests_accept_all")
   tActions.add("requests_dismiss_all")
-  repeat while me <= undefined
+  repeat while tActions <= undefined
     tElemID = getAt(undefined, tLocV)
     if tWndObj.elementExists(tElemID) then
       tElem = tWndObj.getElement(tElemID)
@@ -431,10 +414,9 @@ on moveCategoryContent(me, tLocV)
       end if
     end if
   end repeat
-  exit
 end
 
-on updateActionIconsState(me)
+on updateActionIconsState me 
   tWndObj = getWindow(pFriendListWindowID)
   if tWndObj = 0 then
     return(0)
@@ -453,7 +435,7 @@ on updateActionIconsState(me)
     tActions.add([#icon:"invite_icon", #multiselection:1, #allowedroom:#room, #used:tInvitesInUse])
     tActions.add([#icon:"home_icon", #multiselection:0, #allowedroom:#all, #used:1])
     tActions.add([#icon:"remove_icon", #multiselection:0, #allowedroom:#all, #used:1])
-    repeat while me <= undefined
+    repeat while tActions <= undefined
       tElemData = getAt(undefined, undefined)
       tElemName = tElemData.getAt(#icon)
       tMulti = tElemData.getAt(#multiselection)
@@ -495,7 +477,7 @@ on updateActionIconsState(me)
       if ilk(tRequests) = #propList then
         tCount = tRequests.count
       end if
-      repeat while me <= undefined
+      repeat while tActions <= undefined
         tElemID = getAt(undefined, undefined)
         if tWndObj.elementExists(tElemID) then
           tElem = tWndObj.getElement(tElemID)
@@ -508,10 +490,9 @@ on updateActionIconsState(me)
       end repeat
     end if
   end if
-  exit
 end
 
-on getViewListObject(me, tCategoryId)
+on getViewListObject me, tCategoryId 
   tCategoryId = string(tCategoryId)
   if pViewsList.getaProp(tCategoryId) = void() then
     tViewObj = me.createListViewObject(tCategoryId)
@@ -524,10 +505,9 @@ on getViewListObject(me, tCategoryId)
     tViewObj = pViewsList.getAt(tCategoryId)
   end if
   return(tViewObj)
-  exit
 end
 
-on createListViewObject(me, tCategoryId)
+on createListViewObject me, tCategoryId 
   tObjID = "list_view_object_" & tCategoryId
   if tCategoryId >= 0 then
     createObject(tObjID, ["Friend List View Base", "Friend List Actions Base", "Friend Online List View"])
@@ -542,19 +522,17 @@ on createListViewObject(me, tCategoryId)
   end if
   tObj = getObject(tObjID)
   return(tObj)
-  exit
 end
 
-on startInboxBlink(me)
+on startInboxBlink me 
   tTimeoutID = "minimail_blink"
   tBlinkTime = 1000
   if not timeoutExists(tTimeoutID) then
     createTimeout(tTimeoutID, tBlinkTime, #stepInboxBlink, me.getID(), void(), 0)
   end if
-  exit
 end
 
-on endInboxBlink(me)
+on endInboxBlink me 
   tTimeoutID = "minimail_blink"
   if timeoutExists(tTimeoutID) then
     removeTimeout(tTimeoutID)
@@ -567,10 +545,9 @@ on endInboxBlink(me)
     tElem = tWndObj.getElement("mail_inbox_icon")
     tElem.setProperty(#member, "friends_mini_mail_button_inactive")
   end if
-  exit
 end
 
-on stepInboxBlink(me)
+on stepInboxBlink me 
   tWndObj = getWindow(pFriendListWindowID)
   if tWndObj = 0 then
     return(0)
@@ -585,10 +562,9 @@ on stepInboxBlink(me)
       pInboxBlinkStep = pInboxBlinkStep + 1
     end if
   end if
-  exit
 end
 
-on setTipText(me, tText)
+on setTipText me, tText 
   tWndObj = getWindow(pFriendListWindowID)
   if tWndObj = 0 then
     return(0)
@@ -599,10 +575,9 @@ on setTipText(me, tText)
   end if
   tElem = tWndObj.getElement(tElemID)
   tElem.setText(tText)
-  exit
 end
 
-on showConfirmRemoveUser(me)
+on showConfirmRemoveUser me 
   if windowExists(pRemoveConfirmID) then
     return(0)
   end if
@@ -624,17 +599,15 @@ on showConfirmRemoveUser(me)
   tWndObj.registerProcedure(#eventProcConfirm, me.getID(), #mouseUp)
   tWndObj.center()
   return(1)
-  exit
 end
 
-on hideConfirmRemoveUser(me)
+on hideConfirmRemoveUser me 
   if windowExists(pRemoveConfirmID) then
     removeWindow(pRemoveConfirmID)
   end if
-  exit
 end
 
-on handleListPanelEvent(me, tEvent, tLocX, tLocY)
+on handleListPanelEvent me, tEvent, tLocX, tLocY 
   tWndObj = getWindow(pFriendListWindowID)
   if tWndObj = 0 then
     return(0)
@@ -653,10 +626,10 @@ on handleListPanelEvent(me, tEvent, tLocX, tLocY)
       tCursor = tEventData.getaProp(#cursor)
     end if
     tContentElem.setProperty(#cursor, tCursor)
-    if me = #im then
+    if tListElement = #im then
       me.setTipText(getText("friend_tip_im"))
     else
-      if me = #follow then
+      if tListElement = #follow then
         me.setTipText(getText("friend_tip_follow"))
       else
         me.setTipText("")
@@ -667,18 +640,18 @@ on handleListPanelEvent(me, tEvent, tLocX, tLocY)
   if voidp(tEventData.getaProp(#element)) then
     return(0)
   end if
-  if me = #im then
+  if tListElement = #im then
     executeMessage(#startIMChat, tFriend.getAt(#name), "")
   else
-    if me = #follow then
+    if tListElement = #follow then
       tConn = getConnection(getVariable("connection.info.id"))
       tConn.send("FOLLOW_FRIEND", [#integer:integer(tFriend.getAt(#id))])
     else
-      if me = #request_accept then
+      if tListElement = #request_accept then
         tRequest = tEventData.getAt(#request)
         me.getComponent().updateFriendRequest(tRequest, #accepted)
       else
-        if me = #request_reject then
+        if tListElement = #request_reject then
           tRequest = tEventData.getAt(#request)
           me.getComponent().updateFriendRequest(tRequest, #rejected)
         end if
@@ -691,51 +664,49 @@ on handleListPanelEvent(me, tEvent, tLocX, tLocY)
     tContentElem.feedImage(tListImage)
   end if
   me.updateActionIconsState()
-  exit
 end
 
-on eventProcConfirm(me, tEvent, tElemID, tParam)
-  if me = "habbo_decision_ok" then
+on eventProcConfirm me, tEvent, tElemID, tParam 
+  if tElemID = "habbo_decision_ok" then
     if ilk(pConfirmDeleteFriend) = #propList then
       me.getComponent().sendRemoveFriend(pConfirmDeleteFriend.getAt(#id))
       me.hideConfirmRemoveUser()
       pConfirmDeleteFriend = void()
     end if
   else
-    if me <> "habbo_decision_cancel" then
-      if me = "close" then
+    if tElemID <> "habbo_decision_cancel" then
+      if tElemID = "close" then
         me.hideConfirmRemoveUser()
         pConfirmDeleteFriend = void()
       end if
-      exit
     end if
   end if
 end
 
-on eventProc(me, tEvent, tElemID, tParam)
+on eventProc me, tEvent, tElemID, tParam 
   tWndObj = getWindow(pFriendListWindowID)
   if tWndObj = 0 then
     return(0)
   end if
   if tEvent = #mouseUp then
     tloc = the mouseLoc
-    if me = "friends_btn_close" then
+    if tElemID = "friends_btn_close" then
       me.closeFriendList()
     else
-      if me = "friends_btn_minimize" then
+      if tElemID = "friends_btn_minimize" then
         me.minimizedView()
       else
-        if me = "list_panel" then
+        if tElemID = "list_panel" then
           if ilk(tParam) <> #point then
             return(0)
           end if
           me.handleListPanelEvent(tEvent, tParam.getAt(1), tParam.getAt(2))
         else
-          if me = "preferences_icon" then
+          if tElemID = "preferences_icon" then
             openNetPage(getVariable("link.format.friendlist.pref"))
             executeMessage(#externalLinkClick, tloc)
           else
-            if me = "home_icon" then
+            if tElemID = "home_icon" then
               tViewObj = me.getViewListObject(pCurrentCategoryID)
               tSelectedFriends = tViewObj.getSelectedFriends()
               if tSelectedFriends.count = 0 or tSelectedFriends.count > 1 then
@@ -749,14 +720,14 @@ on eventProc(me, tEvent, tElemID, tParam)
                 executeMessage(#externalLinkClick, tloc)
               end if
             else
-              if me = "mail_compose_icon" then
+              if tElemID = "mail_compose_icon" then
                 tViewObj = me.getViewListObject(pCurrentCategoryID)
                 tSelectedFriends = tViewObj.getSelectedFriends()
                 if tSelectedFriends.count = 0 then
                   return(0)
                 end if
                 tRecipients = ""
-                repeat while me <= tElemID
+                repeat while tElemID <= tElemID
                   tFriend = getAt(tElemID, tEvent)
                   tRecipients = tRecipients & tFriend.getAt(#id) & ","
                 end repeat
@@ -767,14 +738,14 @@ on eventProc(me, tEvent, tElemID, tParam)
                   executeMessage(#externalLinkClick, tloc)
                 end if
               else
-                if me = "invite_icon" then
+                if tElemID = "invite_icon" then
                   tViewObj = me.getViewListObject(pCurrentCategoryID)
                   tSelectedFriends = tViewObj.getSelectedFriends()
                   if tSelectedFriends.count = 0 then
                     return(0)
                   end if
                   tFriendIds = []
-                  repeat while me <= tElemID
+                  repeat while tElemID <= tElemID
                     tFriend = getAt(tElemID, tEvent)
                     tID = tFriend.getAt(#id)
                     tFriendIds.add(tID)
@@ -784,21 +755,21 @@ on eventProc(me, tEvent, tElemID, tParam)
                     tIMComponent.inviteFriends(tFriendIds)
                   end if
                 else
-                  if me = "mail_inbox_icon" then
+                  if tElemID = "mail_inbox_icon" then
                     if variableExists("link.format.mail.inbox") then
                       tDestURL = getVariable("link.format.mail.inbox")
                       openNetPage(tDestURL)
                       executeMessage(#externalLinkClick, tloc)
                     end if
                   else
-                    if me = "search_icon" then
+                    if tElemID = "search_icon" then
                       if variableExists("link.format.user.search") then
                         tDestURL = getVariable("link.format.user.search")
                         openNetPage(tDestURL)
                         executeMessage(#externalLinkClick, tloc)
                       end if
                     else
-                      if me = "remove_icon" then
+                      if tElemID = "remove_icon" then
                         tViewObj = me.getViewListObject(pCurrentCategoryID)
                         tSelectedFriends = tViewObj.getSelectedFriends()
                         if tSelectedFriends.count = 0 or tSelectedFriends.count > 1 then
@@ -808,7 +779,7 @@ on eventProc(me, tEvent, tElemID, tParam)
                         pConfirmDeleteFriend = tSelectedFriendData.duplicate()
                         me.showConfirmRemoveUser()
                       else
-                        if me = "requests_accept_all" then
+                        if tElemID = "requests_accept_all" then
                           tViewObj = me.getViewListObject(pCurrentCategoryID)
                           tViewObj.handleAll(#accepted)
                           me.getComponent().handleAllRequests(#accepted)
@@ -817,7 +788,7 @@ on eventProc(me, tEvent, tElemID, tParam)
                           tContentElem.clearImage()
                           tContentElem.feedImage(tListImage)
                         else
-                          if me = "requests_dismiss_all" then
+                          if tElemID = "requests_dismiss_all" then
                             tViewObj = me.getViewListObject(pCurrentCategoryID)
                             tViewObj.handleAll(#rejected)
                             me.getComponent().handleAllRequests(#rejected)
@@ -857,28 +828,28 @@ on eventProc(me, tEvent, tElemID, tParam)
     if tEvent = #mouseWithin then
       if tWndObj.elementExists("friends_tooltip") then
         tElemTooltip = tWndObj.getElement("friends_tooltip")
-        if me = "home_icon" then
+        if tElemID = "home_icon" then
           me.setTipText(getText("friend_tip_home"))
         else
-          if me = "mail_compose_icon" then
+          if tElemID = "mail_compose_icon" then
             me.setTipText(getText("friend_tip_compose"))
           else
-            if me = "invite_icon" then
+            if tElemID = "invite_icon" then
               me.setTipText(getText("friend_tip_invite"))
             else
-              if me = "remove_icon" then
+              if tElemID = "remove_icon" then
                 me.setTipText(getText("friend_tip_remove"))
               else
-                if me = "preferences_icon" then
+                if tElemID = "preferences_icon" then
                   me.setTipText(getText("friend_tip_preferences"))
                 else
-                  if me = "search_icon" then
+                  if tElemID = "search_icon" then
                     me.setTipText(getText("friend_tip_search"))
                   else
-                    if me = "mail_inbox_icon" then
+                    if tElemID = "mail_inbox_icon" then
                       me.setTipText(getText("friend_tip_inbox"))
                     else
-                      if me = "list_panel" then
+                      if tElemID = "list_panel" then
                         if ilk(tParam) <> #point then
                           return(0)
                         end if
@@ -900,5 +871,4 @@ on eventProc(me, tEvent, tElemID, tParam)
       end if
     end if
   end if
-  exit
 end

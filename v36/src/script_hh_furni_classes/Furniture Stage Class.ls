@@ -1,9 +1,10 @@
-on select(me)
+property pDoFlashing, pSleep, pFlashCount, pNumber
+
+on select me 
   return(0)
-  exit
 end
 
-on setState(me, tNewState)
+on setState me, tNewState 
   tNewState = integer(tNewState)
   if tNewState < -1 then
     tNewState = -1
@@ -21,10 +22,9 @@ on setState(me, tNewState)
     pNumber = tNewState
   end if
   return(1)
-  exit
 end
 
-on update(me)
+on update me 
   if not pDoFlashing then
     return(1)
   end if
@@ -45,10 +45,9 @@ on update(me)
     pNumber = -1
   end if
   return(1)
-  exit
 end
 
-on setFloor(me, tOn)
+on setFloor me, tOn 
   tLayerData = me.getProp(#pLayerDataList, "e")
   if tLayerData.ilk <> #list then
     return(0)
@@ -78,10 +77,9 @@ on setFloor(me, tOn)
   end if
   tStateData.setaProp(#frames, [tFrame])
   callAncestor(#setState, [me], me.pState - 1)
-  exit
 end
 
-on setNumber(me, tNumber)
+on setNumber me, tNumber 
   if not integerp(tNumber) then
     return(0)
   end if
@@ -117,5 +115,4 @@ on setNumber(me, tNumber)
   end if
   tStateData.setaProp(#frames, [tSecondDigit])
   callAncestor(#setState, [me], me.pState - 1)
-  exit
 end

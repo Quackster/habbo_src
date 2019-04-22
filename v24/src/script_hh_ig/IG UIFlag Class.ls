@@ -1,9 +1,10 @@
-on deconstruct(me)
+property pData, pmode, pLocX, pFinalLocX, pLocY, pWindowList, pLocZ, pMaxModeZOffset, pWindowID
+
+on deconstruct me 
   me.removeWindows()
-  exit
 end
 
-on define(me, tID, tLocY, tlocz, tColor, tFlagType, tdata)
+on define me, tID, tLocY, tlocz, tColor, tFlagType, tdata 
   pLocY = tLocY
   pWindowID = tID
   pcolor = tColor
@@ -17,10 +18,9 @@ on define(me, tID, tLocY, tlocz, tColor, tFlagType, tdata)
   pmode = 0
   pWindowList = []
   return(1)
-  exit
 end
 
-on toggle(me)
+on toggle me 
   pCloseTimer = 0
   if pData = void() then
     return(error(me, "This flag has no data to display!", #toggle))
@@ -28,27 +28,24 @@ on toggle(me)
   pmode = not pmode
   me.createWindows()
   return(1)
-  exit
 end
 
-on open(me)
+on open me 
   pCloseTimer = 0
   if pmode then
     return(1)
   end if
   return(me.toggle())
-  exit
 end
 
-on close(me)
+on close me 
   if not pmode then
     return(1)
   end if
   return(me.toggle())
-  exit
 end
 
-on dumpLocZ(me, tWndID)
+on dumpLocZ me, tWndID 
   tWndObj = getWindow(tWndID)
   if tWndObj = 0 then
     return(0)
@@ -59,10 +56,9 @@ on dumpLocZ(me, tWndID)
     put("---" && tWndObj.getPropAt(i) && tWndObj.getProp(#pSpriteList, i) && tWndObj.getPropRef(#pSpriteList, i).locZ)
     i = 1 + i
   end repeat
-  exit
 end
 
-on update(me)
+on update me 
   if pLocX <> pFinalLocX then
     tDiff = pFinalLocX - pLocX
     if tDiff < 2 then
@@ -74,15 +70,13 @@ on update(me)
     tResult = 1
   end if
   return(tResult)
-  exit
 end
 
-on getState(me)
+on getState me 
   return(pmode)
-  exit
 end
 
-on removeWindows(me)
+on removeWindows me 
   if pWindowList = void() then
     pWindowList = []
   end if
@@ -90,15 +84,14 @@ on removeWindows(me)
   if tWrapObjRef = 0 then
     return(0)
   end if
-  repeat while me <= undefined
+  repeat while pWindowList <= undefined
     tID = getAt(undefined, undefined)
     tWrapObjRef.removeOneWindow(tID)
   end repeat
   pWindowList = []
-  exit
 end
 
-on createWindows(me)
+on createWindows me 
   me = getObject(me.getID())
   tSetID = me.getSetId()
   tWrapObjRef = me.getWindowWrapper()
@@ -138,13 +131,12 @@ on createWindows(me)
   me.alignZ()
   me.showInfo(pWindowList, pData, pmode)
   return(1)
-  exit
 end
 
-on moveTo(me, tLocX, tLocY)
+on moveTo me, tLocX, tLocY 
   pLocX = tLocX
   pLocY = tLocY
-  repeat while me <= tLocY
+  repeat while pWindowList <= tLocY
     tID = getAt(tLocY, tLocX)
     tWndObj = getWindow(tID)
     if tWndObj = 0 then
@@ -154,10 +146,9 @@ on moveTo(me, tLocX, tLocY)
     end if
   end repeat
   return(1)
-  exit
 end
 
-on alignZ(me, tlocz)
+on alignZ me, tlocz 
   if tlocz <> void() then
     pLocZ = tlocz
   end if
@@ -171,32 +162,26 @@ on alignZ(me, tlocz)
     end if
   end repeat
   return(1)
-  exit
 end
 
-on getSetId(me)
+on getSetId me 
   return("ig_fg_" & me.getBasicId())
-  exit
 end
 
-on getBasicId(me)
+on getBasicId me 
   return(pWindowID)
-  exit
 end
 
-on getLayout(me, tMode)
-  exit
+on getLayout me, tMode 
 end
 
-on showInfo(me, tWindowList, tdata, tMode)
-  exit
+on showInfo me, tWindowList, tdata, tMode 
 end
 
-on getTitleText(me)
-  exit
+on getTitleText me 
 end
 
-on setTitleField(me, tWindowID)
+on setTitleField me, tWindowID 
   tWndObj = getWindow(tWindowID)
   if tWndObj = 0 then
     return(0)
@@ -211,10 +196,9 @@ on setTitleField(me, tWindowID)
     tElem.setText(tTitleText)
   end if
   return(1)
-  exit
 end
 
-on setBackgroundColoring(me, tWindowID)
+on setBackgroundColoring me, tWindowID 
   tWndObj = getWindow(tWindowID)
   if tWndObj = 0 then
     return(0)
@@ -240,23 +224,20 @@ on setBackgroundColoring(me, tWindowID)
     i = 1 + i
   end repeat
   return(1)
-  exit
 end
 
-on dumpElements(me)
+on dumpElements me 
   put("** UIFlag windows and elements:")
   if pWindowList = void() then
     pWindowList = []
   end if
-  repeat while me <= undefined
+  repeat while pWindowList <= undefined
     tID = getAt(undefined, undefined)
     tWndObj = getWindow(tID)
     put(tID && "-->" && tWndObj.pElemList)
   end repeat
-  exit
 end
 
-on getWindowWrapper(me)
+on getWindowWrapper me 
   return(getObject(#ig_window_wrapper))
-  exit
 end

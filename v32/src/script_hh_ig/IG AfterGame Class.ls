@@ -1,20 +1,20 @@
-on deconstruct(me)
+property pNewGameId, pMsecAtNextState, pGameId, pOwnPlayerTeamId, pScoreIndexByName, pScoreIndex, pScoreIndexByRoomIndex
+
+on deconstruct me 
   pState = 0
   return(me.deconstruct())
-  exit
 end
 
-on Initialize(me)
+on Initialize me 
   pGameId = "JoinedGame!"
   me.pListItemContainerClass = ["IG ItemContainer Base Class", "IG GameInstanceData Class"]
   pState = 0
   pNewGameId = void()
   return(me.registerForIGComponentUpdates("GameList"))
-  exit
 end
 
-on handleUpdate(me, tUpdateId, tSenderId)
-  if me = "GameList" then
+on handleUpdate me, tUpdateId, tSenderId 
+  if tSenderId = "GameList" then
     tService = me.getIGComponent("GameList")
     if tService = 0 then
       return(0)
@@ -26,10 +26,10 @@ on handleUpdate(me, tUpdateId, tSenderId)
     if voidp(pNewGameId) then
       pNewGameId = tService.getObservedGameId()
       tTeamData = tGameRef.getAllTeamData()
-      repeat while me <= tSenderId
+      repeat while tSenderId <= tSenderId
         tTeam = getAt(tSenderId, tUpdateId)
         tPlayers = tTeam.getaProp(#players)
-        repeat while me <= tSenderId
+        repeat while tSenderId <= tSenderId
           tPlayer = getAt(tSenderId, tUpdateId)
           me.displayPlayerRejoined(tPlayer)
         end repeat
@@ -37,40 +37,36 @@ on handleUpdate(me, tUpdateId, tSenderId)
     end if
   end if
   return(1)
-  exit
 end
 
-on displayEvent(me, ttype, tParam)
-  if me = #after_game then
+on displayEvent me, ttype, tParam 
+  if ttype = #after_game then
     return(me.displayAfterGame(tParam))
   else
-    if me = #user_left_game then
+    if ttype = #user_left_game then
       return(me.displayPlayerLeft(tParam))
     else
-      if me = #user_joined_game then
+      if ttype = #user_joined_game then
         return(me.displayPlayerRejoined(tParam))
       else
-        if me = #time_to_next_state then
+        if ttype = #time_to_next_state then
           return(me.displayTimeLeft(tParam))
         end if
       end if
     end if
   end if
   return(0)
-  exit
 end
 
-on getMsecAtNextState(me)
+on getMsecAtNextState me 
   return(pMsecAtNextState)
-  exit
 end
 
-on getScoreData(me)
+on getScoreData me 
   return(me.getListEntry(pGameId))
-  exit
 end
 
-on displayAfterGame(me, tdata)
+on displayAfterGame me, tdata 
   me.getComponent().setSystemState(#after_game)
   pNewGameId = void()
   if not listp(tdata) then
@@ -88,10 +84,9 @@ on displayAfterGame(me, tdata)
   executeMessage(#show_ig, "AfterGame")
   me.displayWinningTeam(tdata)
   return(1)
-  exit
 end
 
-on displayPlayerLeft(me, tUserID)
+on displayPlayerLeft me, tUserID 
   tService = me.getIGComponent("GameList")
   if tService = 0 then
     return(0)
@@ -114,10 +109,9 @@ on displayPlayerLeft(me, tUserID)
   end if
   tRenderObj.displayPlayerLeft(tPlayerInfo.getaProp(#team_pos), tPlayerInfo.getaProp(#pos))
   return(1)
-  exit
 end
 
-on displayPlayerRejoined(me, tdata)
+on displayPlayerRejoined me, tdata 
   tUserID = tdata.getaProp(#id)
   tPlayerInfo = me.getPlayerInfoByName(tdata.getaProp(#name))
   if tPlayerInfo = 0 then
@@ -134,10 +128,9 @@ on displayPlayerRejoined(me, tdata)
   end if
   tRenderObj.displayPlayerRejoined(tPlayerInfo.getaProp(#team_pos), tPlayerInfo.getaProp(#pos))
   return(1)
-  exit
 end
 
-on displayWinningTeam(me, tdata)
+on displayWinningTeam me, tdata 
   tTeams = tdata.getaProp(#teams)
   if not listp(tTeams) then
     return(0)
@@ -152,48 +145,45 @@ on displayWinningTeam(me, tdata)
     playSound("ig-losing")
   end if
   return(1)
-  exit
 end
 
-on displayTimeLeft(me, tTime)
+on displayTimeLeft me, tTime 
   tRenderObj = me.getRenderer()
   if tRenderObj = 0 then
     return(0)
   end if
   return(tRenderObj.displayTimeLeft(tTime))
-  exit
 end
 
-on getTeamColorDark(me, tTeamIndex)
-  if me = 1 then
+on getTeamColorDark me, tTeamIndex 
+  if tTeamIndex = 1 then
     return(rgb("#c64000"))
   else
-    if me = 2 then
+    if tTeamIndex = 2 then
       return(rgb("#1971c3"))
     else
-      if me = 3 then
+      if tTeamIndex = 3 then
         return(rgb("#659217"))
       else
-        if me = 4 then
+        if tTeamIndex = 4 then
           return(rgb("#e19f00"))
         end if
       end if
     end if
   end if
-  exit
 end
 
-on storePlayerIndex(me, tdata)
-  pScoreIndex = []
-  pScoreIndexByRoomIndex = []
-  pScoreIndexByName = []
+on storePlayerIndex me, tdata 
+  pScoreIndex = [:]
+  pScoreIndexByRoomIndex = [:]
+  pScoreIndexByName = [:]
   tTeams = tdata.getaProp(#teams)
   tOwnName = me.getOwnPlayerName()
-  repeat while me <= undefined
+  repeat while tTeams <= undefined
     tTeam = getAt(undefined, tdata)
     tTeamPos = tTeam.getaProp(#pos)
     tPlayers = tTeam.getaProp(#players)
-    repeat while me <= undefined
+    repeat while tTeams <= undefined
       tPlayer = getAt(undefined, tdata)
       if tOwnName = tPlayer.getaProp(#name) then
         pOwnPlayerTeamId = tPlayer.getaProp(#team_id)
@@ -207,20 +197,16 @@ on storePlayerIndex(me, tdata)
     end repeat
   end repeat
   return(1)
-  exit
 end
 
-on getPlayerInfoByRoomIndex(me, tRoomIndex)
+on getPlayerInfoByRoomIndex me, tRoomIndex 
   return(pScoreIndexByRoomIndex.getaProp(tRoomIndex))
-  exit
 end
 
-on getPlayerInfo(me, tID)
+on getPlayerInfo me, tID 
   return(pScoreIndex.getaProp(tID))
-  exit
 end
 
-on getPlayerInfoByName(me, tName)
+on getPlayerInfoByName me, tName 
   return(pScoreIndexByName.getaProp(tName))
-  exit
 end

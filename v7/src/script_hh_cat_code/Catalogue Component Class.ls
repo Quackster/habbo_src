@@ -1,7 +1,9 @@
-on construct(me)
+property pCatalogProps, pProductOrderData
+
+on construct me 
   pOrderInfoList = []
-  pCatalogProps = []
-  pProductOrderData = []
+  pCatalogProps = [:]
+  pProductOrderData = [:]
   if variableExists("ctlg.editmode") then
     pCatalogProps.setAt("editmode", getVariable("ctlg.editmode"))
   else
@@ -9,39 +11,35 @@ on construct(me)
   end if
   registerMessage(#edit_catalogue, me.getID(), #editModeOn)
   return(1)
-  exit
 end
 
-on deconstruct(me)
+on deconstruct me 
   pOrderInfoList = []
-  pCatalogProps = []
+  pCatalogProps = [:]
   unregisterMessage(#edit_catalogue, me.getID())
   return(1)
-  exit
 end
 
-on editModeOn(me)
+on editModeOn me 
   setVariable("ctlg.editmode", "develop")
   pCatalogProps.setAt("editmode", getVariable("ctlg.editmode"))
-  exit
 end
 
-on getLanguage(me)
+on getLanguage me 
   if variableExists("language") then
     tLanguage = getVariable("language")
   else
     tLanguage = "en"
   end if
   return(tLanguage)
-  exit
 end
 
-on checkProductOrder(me, tProductProps)
+on checkProductOrder me, tProductProps 
   if tProductProps.ilk <> #propList then
     return(error(me, "Incorrect SelectedProduct proplist", #buySelectedProduct))
   end if
   if not voidp(tProductProps.getAt("purchaseCode")) then
-    tProps = []
+    tProps = [:]
     tstate = "OK"
     if not voidp(tProductProps.getAt("name")) then
       tProps.setAt(#name, tProductProps.getAt("name"))
@@ -65,13 +63,12 @@ on checkProductOrder(me, tProductProps)
     me.getInterface().showOrderInfo(tstate, tProps)
     return(1)
   else
-    pProductOrderData = []
+    pProductOrderData = [:]
     return(0)
   end if
-  exit
 end
 
-on purchaseProduct(me, tGiftProps)
+on purchaseProduct me, tGiftProps 
   if pProductOrderData.ilk <> #propList then
     return(error(me, "Incorrect Product data", #purchaseProduct))
   end if
@@ -123,10 +120,9 @@ on purchaseProduct(me, tGiftProps)
     return(0)
   end if
   return(getConnection(getVariable("connection.info.id")).send("GPRC", tOrderStr))
-  exit
 end
 
-on retrieveCatalogueIndex(me)
+on retrieveCatalogueIndex me 
   if not voidp(pCatalogProps.getAt("editmode")) then
     tEditmode = pCatalogProps.getAt("editmode")
   else
@@ -142,10 +138,9 @@ on retrieveCatalogueIndex(me)
       return(0)
     end if
   end if
-  exit
 end
 
-on retrieveCataloguePage(me, tPageID)
+on retrieveCataloguePage me, tPageID 
   if not voidp(pCatalogProps.getAt("editmode")) then
     tEditmode = pCatalogProps.getAt("editmode")
   else
@@ -164,17 +159,16 @@ on retrieveCataloguePage(me, tPageID)
     end if
   end if
   return(0)
-  exit
 end
 
-on purchaseReady(me, tStatus, tMsg)
-  if me = "OK" then
+on purchaseReady me, tStatus, tMsg 
+  if tStatus = "OK" then
     me.getInterface().showPurchaseOk()
   else
-    if me = "NOBALANCE" then
+    if tStatus = "NOBALANCE" then
       error(me, "User out of cash!", #purchaseReady)
     else
-      if me = "ERROR" then
+      if tStatus = "ERROR" then
         error(me, "Purchase error:" && tMsg, #purchaseReady)
       else
         error(me, "Unsupported purchase result:" && tStatus && tMsg, #purchaseReady)
@@ -182,10 +176,9 @@ on purchaseReady(me, tStatus, tMsg)
     end if
   end if
   return(1)
-  exit
 end
 
-on saveCatalogueIndex(me, tdata)
+on saveCatalogueIndex me, tdata 
   if tdata.ilk <> #propList then
     return(error(me, "Incorrect Catalogue Format", #saveCatalogueIndex))
   end if
@@ -194,10 +187,9 @@ on saveCatalogueIndex(me, tdata)
   end if
   pCatalogProps.setAt("catalogueIndex", tdata)
   me.getInterface().saveCatalogueIndex(tdata)
-  exit
 end
 
-on saveCataloguePage(me, tdata)
+on saveCataloguePage me, tdata 
   if tdata.ilk <> #propList then
     return(error(me, "Incorrect Catalogue Page Format", #saveCataloguePage))
   end if
@@ -213,10 +205,9 @@ on saveCataloguePage(me, tdata)
   else
     return(error(me, "Catalogue Page ID missing", #saveCataloguePage))
   end if
-  exit
 end
 
-on solveCatalogueMembers(me, tdata)
+on solveCatalogueMembers me, tdata 
   tLanguage = me.getLanguage()
   if not voidp(tdata.getAt("headerImage")) then
     if memberExists(tdata.getAt("headerImage")) then
@@ -229,7 +220,7 @@ on solveCatalogueMembers(me, tdata)
     tImageNameList = tdata.getAt("teaserImgList")
     tMemList = []
     if tImageNameList.count > 0 then
-      repeat while me <= undefined
+      repeat while tImageNameList <= undefined
         tImg = getAt(undefined, tdata)
         if memberExists(tImg) then
           tMemList.add(getmemnum(tImg))
@@ -284,5 +275,4 @@ on solveCatalogueMembers(me, tdata)
     end repeat
   end if
   return(tdata)
-  exit
 end

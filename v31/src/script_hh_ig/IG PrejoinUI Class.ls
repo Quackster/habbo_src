@@ -1,17 +1,17 @@
-on construct(me)
+property pWindowID, pDisplayedGameId
+
+on construct me 
   me.pWindowID = "pj"
   return(1)
-  exit
 end
 
-on deconstruct(me)
+on deconstruct me 
   me.getMasterIGComponent().unregisterFromIGComponentUpdates("GameList")
   removeWindow(pWindowID)
   return(me.deconstruct())
-  exit
 end
 
-on displayEvent(me, ttype, tParam)
+on displayEvent me, ttype, tParam 
   me.getMasterIGComponent().setActiveFlag(1)
   if ttype <> #show then
     return(0)
@@ -31,10 +31,9 @@ on displayEvent(me, ttype, tParam)
   me.getMasterIGComponent().registerForIGComponentUpdates("GameList")
   me.render()
   return(1)
-  exit
 end
 
-on render(me)
+on render me 
   if not windowExists(pWindowID) then
     createWindow(pWindowID, "ig_prejoin.window")
     tWndObj = getWindow(pWindowID)
@@ -84,15 +83,14 @@ on render(me)
   end if
   tElem.setText(tGameRef.getProperty(#player_count) & "/" & tGameRef.getProperty(#player_max_count))
   return(1)
-  exit
 end
 
-on eventProcMouseDown(me, tEvent, tSprID, tParam, tWndID)
-  if me = "drag" then
+on eventProcMouseDown me, tEvent, tSprID, tParam, tWndID 
+  if tSprID = "drag" then
     return(1)
   else
-    if me <> "ig_close" then
-      if me = "ig_prejoin_no.button" then
+    if tSprID <> "ig_close" then
+      if tSprID = "ig_prejoin_no.button" then
         tService = me.getIGComponent("GameList")
         if tService = 0 then
           return(0)
@@ -100,7 +98,7 @@ on eventProcMouseDown(me, tEvent, tSprID, tParam, tWndID)
         tService.setObservedGameId(-1)
         return(me.Remove())
       else
-        if me = "ig_prejoin_yes.button" then
+        if tSprID = "ig_prejoin_yes.button" then
           tService = me.getIGComponent("GameList")
           if tService = 0 then
             return(0)
@@ -112,7 +110,6 @@ on eventProcMouseDown(me, tEvent, tSprID, tParam, tWndID)
       executeMessage(#show_ig, "GameList")
       return(me.Remove())
       return(1)
-      exit
     end if
   end if
 end

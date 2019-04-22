@@ -1,4 +1,6 @@
-on define(me, tPart, tProps)
+property pSuitColor, pAction, pAnimFrm, pCounter, pBodyColor, pSuitModel, pBalance, pDirection
+
+on define me, tPart, tProps 
   pAction = "std"
   pBalance = 2
   pDirection = tProps.getAt(#dir)
@@ -11,18 +13,16 @@ on define(me, tPart, tProps)
   pSuitModel = tProps.getAt(#figure).getAt("ch").getAt("model")
   pCounter = 0
   return(1)
-  exit
 end
 
-on status(me, tAction, tBalance)
+on status me, tAction, tBalance 
   pAction = tAction
   pBalance = tBalance
   pAnimFrm = 0
   pCounter = 0
-  exit
 end
 
-on prepare(me)
+on prepare me 
   if pAction = "hit1" or pAction = "hit2" then
     pAnimFrm = not pAnimFrm
     pCounter = pCounter + 1
@@ -32,11 +32,10 @@ on prepare(me)
       pAction = "std"
     end if
   end if
-  exit
 end
 
-on render(me, tBuffer)
-  repeat while me <= undefined
+on render me, tBuffer 
+  repeat while [["bd", pBodyColor, "s01"], ["ch", pSuitColor, pSuitModel]] <= undefined
     tmodel = getAt(undefined, tBuffer)
     tMemName = "shp_" & pAction & "_" & pBalance & "_" & tmodel.getAt(1) & "_" & tmodel.getAt(3) & "_" & pDirection & "_" & pAnimFrm
     tMemNum = getmemnum(tMemName)
@@ -52,5 +51,4 @@ on render(me, tBuffer)
       tBuffer.copyPixels(tImage, tDstRect, tSrcRect, [#maskImage:tMaskImg, #ink:41, #bgColor:tmodel.getAt(2)])
     end if
   end repeat
-  exit
 end

@@ -1,41 +1,35 @@
-on construct(me)
+on construct me 
   return(1)
-  exit
 end
 
-on deconstruct(me)
+on deconstruct me 
   return(1)
-  exit
 end
 
-on Refresh(me, tTopic, tdata)
+on Refresh me, tTopic, tdata 
   call(symbol("handle_" & tTopic), me, tdata)
   return(1)
-  exit
 end
 
-on handle_msgstruct_numtickets(me, tMsg)
+on handle_msgstruct_numtickets me, tMsg 
   tNum = integer(tMsg.getPropRef(#line, 1).getProp(#word, 1))
   if not integerp(tNum) then
     return(0)
   end if
   return(me.getGameSystem().sendGameSystemEvent(#numtickets, tNum))
-  exit
 end
 
-on handle_msgstruct_notickets(me, tMsg)
+on handle_msgstruct_notickets me, tMsg 
   return(me.getGameSystem().sendGameSystemEvent(#notickets, void()))
-  exit
 end
 
-on handle_msgstruct_users(me, tMsg)
+on handle_msgstruct_users me, tMsg 
   return(me.getGameSystem().sendGameSystemEvent(#users, tMsg))
-  exit
 end
 
-on handle_msgstruct_loungeinfo(me, tMsg)
+on handle_msgstruct_loungeinfo me, tMsg 
   tConn = tMsg.connection
-  tdata = []
+  tdata = [:]
   tdata.addProp(#tournament_flag, tConn.GetIntFrom())
   if tdata.getAt(#tournament_flag) > 0 then
     tdata.addProp(#tournament_logo_url, tConn.GetStrFrom())
@@ -45,23 +39,21 @@ on handle_msgstruct_loungeinfo(me, tMsg)
   tdata.addProp(#lounge_skill_score_min, tConn.GetIntFrom())
   tdata.addProp(#lounge_skill_score_max, tConn.GetIntFrom())
   return(me.getGameSystem().sendGameSystemEvent(#loungeinfo, tdata))
-  exit
 end
 
-on handle_msgstruct_instancenotavailable(me, tMsg)
+on handle_msgstruct_instancenotavailable me, tMsg 
   tConn = tMsg.connection
   tID = tConn.GetIntFrom()
   return(me.getGameSystem().sendGameSystemEvent(#instancenotavailable, tID))
-  exit
 end
 
-on handle_msgstruct_gameparameters(me, tMsg)
+on handle_msgstruct_gameparameters me, tMsg 
   tConn = tMsg.connection
   tParamCount = tConn.GetIntFrom()
   tParamList = []
   i = 1
   repeat while i <= tParamCount
-    tItem = []
+    tItem = [:]
     tItem.addProp(#name, tConn.GetStrFrom())
     ttype = tConn.GetIntFrom()
     tItem.addProp(#editable, tConn.GetIntFrom())
@@ -91,10 +83,9 @@ on handle_msgstruct_gameparameters(me, tMsg)
     i = 1 + i
   end repeat
   return(me.getGameSystem().sendGameSystemEvent(#gameparameters, tParamList))
-  exit
 end
 
-on handle_msgstruct_createfailed(me, tMsg)
+on handle_msgstruct_createfailed me, tMsg 
   tConn = tMsg.connection
   tReason = tConn.GetIntFrom()
   if tReason = 1 then
@@ -103,24 +94,22 @@ on handle_msgstruct_createfailed(me, tMsg)
     tdata = [#reason:tReason, #request:"create"]
   end if
   return(me.getGameSystem().sendGameSystemEvent(#createfailed, tdata))
-  exit
 end
 
-on handle_msgstruct_gamedeleted(me, tMsg)
+on handle_msgstruct_gamedeleted me, tMsg 
   tConn = tMsg.connection
   tID = tConn.GetIntFrom()
   return(me.getGameSystem().sendGameSystemEvent(#gamedeleted, tID))
-  exit
 end
 
-on handle_msgstruct_joinparameters(me, tMsg)
+on handle_msgstruct_joinparameters me, tMsg 
   tConn = tMsg.connection
   tInstanceId = tConn.GetIntFrom()
   tParamCount = tConn.GetIntFrom()
   tParamList = []
   i = 1
   repeat while i <= tParamCount
-    tItem = []
+    tItem = [:]
     tItem.addProp(#name, tConn.GetStrFrom())
     ttype = tConn.GetIntFrom()
     if ttype = 0 then
@@ -149,10 +138,9 @@ on handle_msgstruct_joinparameters(me, tMsg)
     i = 1 + i
   end repeat
   return(me.getGameSystem().sendGameSystemEvent(#joinparameters, tParamList))
-  exit
 end
 
-on handle_msgstruct_joinfailed(me, tMsg)
+on handle_msgstruct_joinfailed me, tMsg 
   tConn = tMsg.connection
   tReason = tConn.GetIntFrom()
   if tReason = 1 then
@@ -161,52 +149,45 @@ on handle_msgstruct_joinfailed(me, tMsg)
     tdata = [#request:"join", #reason:tReason]
   end if
   return(me.getGameSystem().sendGameSystemEvent(#joinfailed, tdata))
-  exit
 end
 
-on handle_msgstruct_watchfailed(me, tMsg)
+on handle_msgstruct_watchfailed me, tMsg 
   tConn = tMsg.connection
   tInstanceId = tConn.GetIntFrom()
   tReason = tConn.GetIntFrom()
   return(me.getGameSystem().sendGameSystemEvent(#watchfailed, [#id:tInstanceId, #request:"watch", #reason:tReason]))
-  exit
 end
 
-on handle_msgstruct_startfailed(me, tMsg)
+on handle_msgstruct_startfailed me, tMsg 
   tConn = tMsg.connection
   tReason = tConn.GetIntFrom()
   return(me.getGameSystem().sendGameSystemEvent(#startfailed, [#reason:tReason, #request:"start"]))
-  exit
 end
 
-on handle_msgstruct_gamelocation(me, tMsg)
+on handle_msgstruct_gamelocation me, tMsg 
   tConn = tMsg.connection
   tUnitId = tConn.GetIntFrom()
   tWorldId = tConn.GetIntFrom()
   return(me.getGameSystem().sendGameSystemEvent(#gamelocation, [#unitId:tUnitId, #worldId:tWorldId]))
-  exit
 end
 
-on handle_msgstruct_playerrejoined(me, tMsg)
+on handle_msgstruct_playerrejoined me, tMsg 
   tConn = tMsg.connection
   tID = tConn.GetIntFrom()
   return(me.getGameSystem().sendGameSystemEvent(#playerrejoined, [#id:tID]))
-  exit
 end
 
-on handle_msgstruct_idlewarning(me, tMsg)
+on handle_msgstruct_idlewarning me, tMsg 
   return(me.getGameSystem().sendGameSystemEvent(#idlewarning, void()))
-  exit
 end
 
-on handle_msgstruct_skilllevelchanged(me, tMsg)
+on handle_msgstruct_skilllevelchanged me, tMsg 
   tConn = tMsg.connection
   tLevel = tConn.GetStrFrom()
   return(me.getGameSystem().sendGameSystemEvent(#skilllevelchanged, [#level:tLevel]))
-  exit
 end
 
-on handle_msgstruct_heightmap(me, tdata)
+on handle_msgstruct_heightmap me, tdata 
   tContent = tdata.getAt(#content)
   if ilk(tContent) <> #string then
     return(0)
@@ -229,17 +210,16 @@ on handle_msgstruct_heightmap(me, tdata)
     tLocY = 1 + tLocY
   end repeat
   return(me.getGameSystem().getWorld().storeHeightmap(tArray, tWorldMaxX, tWorldMaxY))
-  exit
 end
 
-on handle_msgstruct_objects(me, tdata)
+on handle_msgstruct_objects me, tdata 
   tList = []
   tCount = tdata.count(#line)
   i = 1
   repeat while i <= tCount
     tLine = tdata.getProp(#line, i)
     if length(tLine) > 5 then
-      tObj = []
+      tObj = [:]
       tObj.setAt(#id, tLine.getProp(#word, 1))
       tObj.setAt(#class, tLine.getProp(#word, 2))
       tObj.setAt(#x, integer(tLine.getProp(#word, 3)))
@@ -263,14 +243,12 @@ on handle_msgstruct_objects(me, tdata)
     i = 1 + i
   end repeat
   return(me.getGameSystem().getWorld().storeObjects(tList))
-  exit
 end
 
-on handle_msgstruct_game_chat(me, tMsg)
+on handle_msgstruct_game_chat me, tMsg 
   tConn = tMsg.connection
   tUserID = string(tConn.GetIntFrom())
   tChat = tConn.GetStrFrom()
   tMode = "CHAT"
   executeMessage(#show_balloon, [#command:tMode, #id:tUserID, #message:tChat])
-  exit
 end

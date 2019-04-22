@@ -1,4 +1,6 @@
-on construct(me)
+property pLandscapeMem, pwidth, pheight, pWallMaskMngr, pHasAnimation, pLandscapeAnimMngr, pWideScreenOffset, pLandscapeBgMngr, pRemoveUpdate, pWallStruct, pTurnPointList
+
+on construct me 
   pLandscapeBgMngr = createObject("landscape_background_manager", "Landscape Background Manager")
   pLandscapeAnimMngr = createObject("landscape_animation_manager", "Landscape Animation Manager")
   pWallMaskMngr = createObject("wall_mask_manager", "Wall Mask Manager")
@@ -18,10 +20,9 @@ on construct(me)
     pLandscapeMem.image = image(pwidth, pheight, 32)
   end if
   return(1)
-  exit
 end
 
-on deconstruct(me)
+on deconstruct me 
   if objectExists("landscape_background_manager") then
     removeObject("landscape_background_manager")
   end if
@@ -37,10 +38,9 @@ on deconstruct(me)
   end if
   pWallStruct = void()
   return(1)
-  exit
 end
 
-on insertWallMaskItem(me, tID, tClassID, tloc, tdir, tSize)
+on insertWallMaskItem me, tID, tClassID, tloc, tdir, tSize 
   if tloc.locV = -1000 then
     return(0)
   end if
@@ -49,19 +49,17 @@ on insertWallMaskItem(me, tID, tClassID, tloc, tdir, tSize)
     me.setActivate(1)
   end if
   me.update()
-  exit
 end
 
-on removeWallMaskItem(me, tID)
+on removeWallMaskItem me, tID 
   pWallMaskMngr.removeWallMaskItem(tID)
   if pWallMaskMngr.getItemCount() = 0 then
     me.setActivate(0)
   end if
   me.update()
-  exit
 end
 
-on setActivate(me, tActive)
+on setActivate me, tActive 
   if tActive then
     tViz = me.getRoomVisualizer()
     if objectp(tViz) then
@@ -82,10 +80,9 @@ on setActivate(me, tActive)
   else
     pLandscapeAnimMngr.setStopped(1)
   end if
-  exit
 end
 
-on setLandscape(me, tLandscapeType, tRoomType)
+on setLandscape me, tLandscapeType, tRoomType 
   tDelim = the itemDelimiter
   the itemDelimiter = "_"
   tRoomTypeID = tRoomType.getProp(#item, 2)
@@ -95,7 +92,7 @@ on setLandscape(me, tLandscapeType, tRoomType)
   end if
   tLimiter = the itemDelimiter
   the itemDelimiter = "."
-  tdata = []
+  tdata = [:]
   tdata.setAt(#width, pwidth)
   tdata.setAt(#height, pheight)
   tdata.setAt(#gradient, tLandscapeType.getProp(#item, 1))
@@ -118,10 +115,9 @@ on setLandscape(me, tLandscapeType, tRoomType)
   end if
   me.updateLandscape()
   receiveUpdate(me.getID())
-  exit
 end
 
-on setLandscapeAnimation(me, tAnimationID, tRoomType, tLandscapeType)
+on setLandscapeAnimation me, tAnimationID, tRoomType, tLandscapeType 
   tDelim = the itemDelimiter
   the itemDelimiter = "_"
   tRoomTypeID = tRoomType.getProp(#item, 2)
@@ -133,7 +129,7 @@ on setLandscapeAnimation(me, tAnimationID, tRoomType, tLandscapeType)
   if tStruct = void() then
     return(0)
   end if
-  tdata = []
+  tdata = [:]
   tdata.setAt(#width, pwidth)
   tdata.setAt(#height, pheight)
   tdata.setAt(#wallheight, tStruct.getaProp(#height))
@@ -146,10 +142,9 @@ on setLandscapeAnimation(me, tAnimationID, tRoomType, tLandscapeType)
     me.setActivate(1)
   end if
   me.updateLandscape()
-  exit
 end
 
-on getRoomVisualizer(me)
+on getRoomVisualizer me 
   if threadExists(#room) then
     tInterface = getThread(#room).getInterface()
     tComponent = getThread(#room).getComponent()
@@ -161,10 +156,9 @@ on getRoomVisualizer(me)
     end if
   end if
   return(0)
-  exit
 end
 
-on updateLandscape(me)
+on updateLandscape me 
   tBgImg = pLandscapeBgMngr.getImage()
   if tBgImg = 0 then
     return(0)
@@ -180,10 +174,9 @@ on updateLandscape(me)
       pLandscapeAnimMngr.resetSprite(tSpr, tMask)
     end if
   end if
-  exit
 end
 
-on update(me)
+on update me 
   if pLandscapeBgMngr.requiresUpdate() or pWallMaskMngr.requiresUpdate() then
     me.updateLandscape()
     if pRemoveUpdate and not pWallMaskMngr.requiresUpdate() and not pLandscapeBgMngr.requiresUpdate() then
@@ -193,26 +186,23 @@ on update(me)
       pRemoveUpdate = 1
     end if
   end if
-  exit
 end
 
-on getRoomWallStruct(me, tRoomType)
+on getRoomWallStruct me, tRoomType 
   if pWallStruct = void() then
     me.parseRoomLayout(tRoomType)
   end if
   return(pWallStruct)
-  exit
 end
 
-on getRoomTurnPointList(me, tRoomType)
+on getRoomTurnPointList me, tRoomType 
   if pTurnPointList = void() then
     me.parseRoomLayout(tRoomType)
   end if
   return(pTurnPointList)
-  exit
 end
 
-on parseRoomLayout(me, tRoomType)
+on parseRoomLayout me, tRoomType 
   tRoomField = tRoomType & ".room"
   tParser = getObject(#layout_parser)
   if tParser = 0 then
@@ -227,9 +217,9 @@ on parseRoomLayout(me, tRoomType)
   if tElements = 0 then
     return(0)
   end if
-  pWallStruct = []
+  pWallStruct = [:]
   tWallPieceStruct = []
-  pTurnPointList = []
+  pTurnPointList = [:]
   tLeft = 0
   tRight = 0
   tWallHeight = 0
@@ -237,12 +227,12 @@ on parseRoomLayout(me, tRoomType)
   tOffsetX = tRoomData.getaProp(#offsetx)
   tOffsetY = tRoomData.getaProp(#offsety)
   tFactorX = tRoomData.getaProp(#factorx)
-  repeat while me <= undefined
+  repeat while tElements <= undefined
     tElement = getAt(undefined, tRoomType)
     tWrapperId = tElement.getaProp(#wrapperID)
     tmember = tElement.getaProp(#member)
     if tmember contains "wallpart" or tmember contains "wallmask" or tmember contains "stairs" then
-      tItem = []
+      tItem = [:]
       tMemName = tElement.getaProp(#member)
       tLocH = tElement.getaProp(#locH)
       tHeight = tElement.getaProp(#height)
@@ -313,25 +303,22 @@ on parseRoomLayout(me, tRoomType)
   pWallStruct.setaProp(#height, tWallHeight)
   pWallStruct.setaProp(#max_piece_height, tMaxPieceHeight)
   return(1)
-  exit
 end
 
-on getLandscapeProps(me, tLandscapeID, tFactorX)
+on getLandscapeProps me, tLandscapeID, tFactorX 
   tMemName = "lsd_" & tLandscapeID & ".props"
   if tFactorX = 32 then
     tMemName = "s_" & tMemName
   end if
   if not memberExists(tMemName) then
-    return([])
+    return([:])
   end if
   tPropList = value(field(0))
   return(tPropList)
-  exit
 end
 
-on getWallMaskCount(me)
+on getWallMaskCount me 
   if objectp(pWallMaskMngr) then
     return(pWallMaskMngr.getItemCount())
   end if
-  exit
 end

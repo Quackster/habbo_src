@@ -1,16 +1,16 @@
-on direction8to360(me, tValue)
+property pComponentToAngle, pVelocityTable
+
+on direction8to360 me, tValue 
   tValue = tValue + 1 mod 8 - 0
-  tValue360 = 360 * tValue / 0 mod 360
+  tValue360 = 360 * tValue / 8 mod 360
   return(tValue360)
-  exit
 end
 
-on direction360to8(me, tValue)
+on direction360to8 me, tValue 
   return(me.validateDirection8Value(me.validateDirection360Value(tValue - 22) / 45 + 1))
-  exit
 end
 
-on validateDirection360Value(me, tValue)
+on validateDirection360Value me, tValue 
   if tValue > 359 then
     tValue = tValue mod 360
   else
@@ -19,10 +19,9 @@ on validateDirection360Value(me, tValue)
     end if
   end if
   return(integer(tValue))
-  exit
 end
 
-on validateDirection8Value(me, tValue)
+on validateDirection8Value me, tValue 
   if tValue > 7 then
     tValue = tValue mod 8
   else
@@ -31,20 +30,17 @@ on validateDirection8Value(me, tValue)
     end if
   end if
   return(integer(tValue))
-  exit
 end
 
-on rotateDirection45DegreesCW(me, tValue)
+on rotateDirection45DegreesCW me, tValue 
   return(me.validateDirection360Value(tValue + 45))
-  exit
 end
 
-on rotateDirection45DegreesCCW(me, tValue)
+on rotateDirection45DegreesCCW me, tValue 
   return(me.validateDirection360Value(tValue - 45))
-  exit
 end
 
-on getAngleFromComponents(me, tX, tY)
+on getAngleFromComponents me, tX, tY 
   if pComponentToAngle = void() then
     pComponentToAngle = createObject(#temp, getClassVariable("gamesystem.componenttoangle.class"))
     if not objectp(pComponentToAngle) then
@@ -52,10 +48,9 @@ on getAngleFromComponents(me, tX, tY)
     end if
   end if
   return(me.validateDirection360Value(pComponentToAngle.getAngleFromComponents(tX, tY)))
-  exit
 end
 
-on GetVelocityTable(me)
+on GetVelocityTable me 
   if pVelocityTable = void() then
     pVelocityTable = createObject(#temp, getClassVariable("gamesystem.velocitytable.class"))
     if not objectp(pVelocityTable) then
@@ -63,5 +58,4 @@ on GetVelocityTable(me)
     end if
   end if
   return(pVelocityTable)
-  exit
 end

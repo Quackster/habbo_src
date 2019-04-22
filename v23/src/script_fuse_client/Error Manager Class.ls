@@ -1,4 +1,6 @@
-on construct(me)
+property pErrorDialogLevel, pErrorLevelList, pErrorCache, pCacheSize, pDebugLevel, pFatalReported
+
+on construct me 
   if not the runMode contains "Author" then
     the alertHook = me
   end if
@@ -16,16 +18,14 @@ on construct(me)
     end if
   end if
   return(1)
-  exit
 end
 
-on deconstruct(me)
+on deconstruct me 
   the alertHook = 0
   return(1)
-  exit
 end
 
-on error(me, tObject, tMsg, tMethod, tErrorLevel)
+on error me, tObject, tMsg, tMethod, tErrorLevel 
   if objectp(tObject) then
     tObject = string(tObject)
     tObject = tObject.getProp(#word, 2, tObject.count(#word) - 2)
@@ -55,13 +55,13 @@ on error(me, tObject, tMsg, tMethod, tErrorLevel)
   if pErrorCache.count(#line) > pCacheSize then
     pErrorCache = pErrorCache.getProp(#line, pErrorCache.count(#line) - pCacheSize, pErrorCache.count(#line))
   end if
-  if me = 1 then
+  if pDebugLevel = 1 then
     put("Error:" & tError)
   else
-    if me = 2 then
+    if pDebugLevel = 2 then
       put("Error:" & tError)
     else
-      if me = 3 then
+      if pDebugLevel = 3 then
         executeMessage(#debugdata, "Error: " & tError)
       else
         put("Error:" & tError)
@@ -82,40 +82,35 @@ on error(me, tObject, tMsg, tMethod, tErrorLevel)
     executeMessage(#showErrorMessage, "client", tError)
   end if
   return(0)
-  exit
 end
 
-on SystemAlert(me, tObject, tMsg, tMethod)
+on SystemAlert me, tObject, tMsg, tMethod 
   return(me.error(tObject, tMsg, tMethod))
-  exit
 end
 
-on setDebugLevel(me, tDebugLevel)
+on setDebugLevel me, tDebugLevel 
   if not integerp(tDebugLevel) then
     return(0)
   end if
   pDebugLevel = tDebugLevel
   return(1)
-  exit
 end
 
-on print(me)
+on print me 
   put("Errors:" & "\r" & pErrorCache)
   return(1)
-  exit
 end
 
-on fatalError(me, tErrorData)
+on fatalError me, tErrorData 
   if ilk(tErrorData) <> #propList then
     error(me, "Invalid error parameters for fatal error!", #fatalError, #critical)
-    tErrorData = []
+    tErrorData = [:]
   end if
   me.handleFatalError(tErrorData)
-  exit
 end
 
-on alertHook(me, tErr, tMsgA, tMsgB)
-  tErrorData = []
+on alertHook me, tErr, tMsgA, tMsgB 
+  tErrorData = [:]
   tErrorData.setAt("error", "script_error")
   tErrorData.setAt("hookerror", tErr)
   tErrorData.setAt("hookmsga", tMsgA)
@@ -136,17 +131,16 @@ on alertHook(me, tErr, tMsgA, tMsgB)
     me.handleFatalError(tErrorData)
   end if
   return(1)
-  exit
 end
 
-on handleFatalError(me, tErrorData)
+on handleFatalError me, tErrorData 
   tErrorUrl = ""
   tParams = ""
   if ilk(tErrorData) <> #propList then
     return(error(me, "Invalid error data", #handleFatalError, #critical))
   end if
   tErrorType = tErrorData.getAt("error")
-  if me = "socket_init" then
+  if tErrorType = "socket_init" then
     if variableExists("client.connection.failed.url") then
       tErrorUrl = getVariable("client.connection.failed.url")
     end if
@@ -186,10 +180,9 @@ on handleFatalError(me, tErrorData)
     pFatalReported = 1
   end if
   return(1)
-  exit
 end
 
-on showErrorDialog(me)
+on showErrorDialog me 
   if createWindow(#error, "error.window", 0, 0, #modal) <> 0 then
     getWindow(#error).registerClient(me.getID())
     getWindow(#error).registerProcedure(#eventProcError, me.getID(), #mouseUp)
@@ -197,12 +190,10 @@ on showErrorDialog(me)
   else
     return(0)
   end if
-  exit
 end
 
-on eventProcError(me, tEvent, tSprID, tParam)
+on eventProcError me, tEvent, tSprID, tParam 
   if tEvent = #mouseUp and tSprID = "error_close" then
     resetClient()
   end if
-  exit
 end

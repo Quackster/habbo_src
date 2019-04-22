@@ -1,4 +1,6 @@
-on construct(me)
+property pTimeLineData, pSongData, pSongID, pSongName, pChannelCount, pSlotCount, pChanged, pReady, pDataReady, pSlotDuration, pSongLength, pSongControllerID, pSampleNameBase
+
+on construct me 
   pReady = 0
   pChanged = 0
   pChannelCount = 4
@@ -8,40 +10,34 @@ on construct(me)
   pSongControllerID = "song controller"
   me.clearTimeLine()
   return(1)
-  exit
 end
 
-on deconstruct(me)
+on deconstruct me 
   return(1)
-  exit
 end
 
-on resetChanged(me)
+on resetChanged me 
   pChanged = 0
-  exit
 end
 
-on reset(me, tWaitForData)
+on reset me, tWaitForData 
   pDataReady = not tWaitForData
   pSongID = 0
   pSongName = ""
   pSongLength = 0
   me.clearTimeLine()
-  exit
 end
 
-on updateSongID(me, tNewID)
+on updateSongID me, tNewID 
   pSongID = tNewID
-  exit
 end
 
-on updateSongName(me, tNewName)
+on updateSongName me, tNewName 
   pSongName = tNewName
-  exit
 end
 
-on soundSetRemoved(me, tid)
-  repeat while me <= undefined
+on soundSetRemoved me, tid 
+  repeat while pTimeLineData <= undefined
     tChannel = getAt(undefined, tid)
     tSlot = 1
     repeat while tSlot <= tChannel.count
@@ -58,7 +54,7 @@ on soundSetRemoved(me, tid)
       tSlot = 1 + tSlot
     end repeat
   end repeat
-  repeat while me <= undefined
+  repeat while pTimeLineData <= undefined
     tChannel = getAt(undefined, tid)
     tSlot = 1
     repeat while tSlot <= tChannel.count
@@ -73,11 +69,10 @@ on soundSetRemoved(me, tid)
       tSlot = 1 + tSlot
     end repeat
   end repeat
-  exit
 end
 
-on checkSoundSetReferences(me, tid)
-  repeat while me <= undefined
+on checkSoundSetReferences me, tid 
+  repeat while pTimeLineData <= undefined
     tChannel = getAt(undefined, tid)
     tSlot = 1
     repeat while tSlot <= tChannel.count
@@ -93,9 +88,9 @@ on checkSoundSetReferences(me, tid)
       tSlot = 1 + tSlot
     end repeat
   end repeat
-  repeat while me <= undefined
+  repeat while pTimeLineData <= undefined
     tChannel = getAt(undefined, tid)
-    repeat while me <= undefined
+    repeat while pTimeLineData <= undefined
       tSample = getAt(undefined, tid)
       if not voidp(tSample) then
         tSampleID = tSample.getAt(#id)
@@ -106,55 +101,45 @@ on checkSoundSetReferences(me, tid)
     end repeat
   end repeat
   return(0)
-  exit
 end
 
-on getSongID(me)
+on getSongID me 
   return(pSongID)
-  exit
 end
 
-on getSongName(me)
+on getSongName me 
   return(pSongName)
-  exit
 end
 
-on getChannelCount(me)
+on getChannelCount me 
   return(pChannelCount)
-  exit
 end
 
-on getSlotCount(me)
+on getSlotCount me 
   return(pSlotCount)
-  exit
 end
 
-on getChanged(me)
+on getChanged me 
   return(pChanged)
-  exit
 end
 
-on getReady(me)
+on getReady me 
   return(pReady)
-  exit
 end
 
-on getDataReady(me)
+on getDataReady me 
   return(pDataReady)
-  exit
 end
 
-on getSlotDuration(me)
+on getSlotDuration me 
   return(pSlotDuration)
-  exit
 end
 
-on getTimeLineData(me)
+on getTimeLineData me 
   return(pTimeLineData)
-  exit
 end
 
-on clearTimeLine(me, tSongLength)
+on clearTimeLine me, tSongLength 
   pTimeLineData = []
   pSongData = []
   if voidp(tSongLength) then
@@ -181,10 +166,9 @@ on clearTimeLine(me, tSongLength)
   pReady = 1
   pPlayHeadPosX = 0
   pChanged = 1
-  exit
 end
 
-on parseSongData(me, tdata, tSongID, tSongName)
+on parseSongData me, tdata, tSongID, tSongName 
   pSongID = tSongID
   pSongName = tSongName
   tSongLength = 0
@@ -192,7 +176,7 @@ on parseSongData(me, tdata, tSongID, tSongName)
   repeat while i <= tdata.count
     tChannel = tdata.getAt(i)
     tSlot = 1
-    repeat while me <= tSongID
+    repeat while tChannel <= tSongID
       tSample = getAt(tSongID, tdata)
       tLength = tSample.getAt(#length)
       tSlot = tSlot + tLength
@@ -210,7 +194,7 @@ on parseSongData(me, tdata, tSongID, tSongName)
     if i <= pSongData.count then
       tSongChannel = pSongData.getAt(i)
       tSlot = 1
-      repeat while me <= tSongID
+      repeat while tChannel <= tSongID
         tSample = getAt(tSongID, tdata)
         tid = tSample.getAt(#id)
         tLength = tSample.getAt(#length)
@@ -225,10 +209,9 @@ on parseSongData(me, tdata, tSongID, tSongName)
   pReady = 0
   pDataReady = 1
   return(1)
-  exit
 end
 
-on processSongData(me)
+on processSongData me 
   if pReady then
     return(1)
   end if
@@ -247,7 +230,7 @@ on processSongData(me)
     i = 255 + i
   end repeat
   tReady = 1
-  tLengthCache = []
+  tLengthCache = [:]
   i = 1
   repeat while i <= min(pSongData.count, pTimeLineData.count)
     tSongChannel = pSongData.getAt(i)
@@ -300,10 +283,9 @@ on processSongData(me)
   end repeat
   pReady = tReady
   return(tReady)
-  exit
 end
 
-on resolveSongLength(me)
+on resolveSongLength me 
   tLength = 0
   tChannel = 1
   repeat while tChannel <= pTimeLineData.count
@@ -343,16 +325,14 @@ on resolveSongLength(me)
     tChannel = 1 + tChannel
   end repeat
   return(tLength)
-  exit
 end
 
-on getCanInsertSample(me, tX, tY, tid)
+on getCanInsertSample me, tX, tY, tid 
   tLength = me.getSampleLength(tid)
   return(me.getIsFreeBlock(tX, tY, tLength))
-  exit
 end
 
-on getIsFreeBlock(me, tX, tY, tLength)
+on getIsFreeBlock me, tX, tY, tLength 
   if tLength <> 0 then
     if tX >= 1 and tX + tLength - 1 <= pSlotCount and tY >= 1 and tY <= pTimeLineData.count then
       tChannel = pTimeLineData.getAt(tY)
@@ -379,10 +359,9 @@ on getIsFreeBlock(me, tX, tY, tLength)
     end if
   end if
   return(0)
-  exit
 end
 
-on getSongData(me)
+on getSongData me 
   pSongLength = me.resolveSongLength()
   if pSongLength = 0 then
     return(0)
@@ -442,15 +421,13 @@ on getSongData(me)
     tChannel = 1 + tChannel
   end repeat
   return(tSongData)
-  exit
 end
 
-on getSilentSongData(me)
+on getSilentSongData me 
   return([#offset:0, #sounds:[[#name:"sound_machine_sample_0", #loops:10, #channel:1]]])
-  exit
 end
 
-on insertSample(me, tSlot, tChannel, tid)
+on insertSample me, tSlot, tChannel, tid 
   tInsert = me.getCanInsertSample(tSlot, tChannel, tid)
   if tInsert then
     pChanged = 1
@@ -458,10 +435,9 @@ on insertSample(me, tSlot, tChannel, tid)
     return(1)
   end if
   return(0)
-  exit
 end
 
-on removeSample(me, tSlot, tChannel)
+on removeSample me, tSlot, tChannel 
   if tChannel >= 1 and tChannel <= pTimeLineData.count then
     if tSlot >= 1 and tSlot <= pTimeLineData.getAt(tChannel).count then
       if not voidp(pTimeLineData.getAt(tChannel).getAt(tSlot)) then
@@ -493,10 +469,9 @@ on removeSample(me, tSlot, tChannel)
     end if
   end if
   return(0)
-  exit
 end
 
-on encodeTimeLineData(me)
+on encodeTimeLineData me 
   if not pReady or not pDataReady then
     return(0)
   end if
@@ -538,7 +513,7 @@ on encodeTimeLineData(me)
         j = j + 1
       end repeat
       tChannelStr = ""
-      repeat while me <= undefined
+      repeat while tChannelData <= undefined
         tSample = getAt(undefined, undefined)
         if tChannelStr <> "" then
           tChannelStr = tChannelStr & ";"
@@ -550,10 +525,9 @@ on encodeTimeLineData(me)
     end repeat
   end if
   return(tStr)
-  exit
 end
 
-on getSampleLength(me, tSampleID)
+on getSampleLength me, tSampleID 
   if tSampleID < 0 then
     return(1)
   end if
@@ -577,16 +551,13 @@ on getSampleLength(me, tSampleID)
     end if
   end if
   return(tLength)
-  exit
 end
 
-on getSampleName(me, tSampleID)
+on getSampleName me, tSampleID 
   tName = pSampleNameBase & tSampleID
   return(tName)
-  exit
 end
 
-on getSampleSetID(me, tSampleID)
+on getSampleSetID me, tSampleID 
   return(1 + tSampleID - 1 / 9)
-  exit
 end

@@ -1,24 +1,21 @@
-on construct(me)
+on construct me 
   return(me.regMsgList(1))
-  exit
 end
 
-on deconstruct(me)
+on deconstruct me 
   return(me.regMsgList(0))
-  exit
 end
 
-on handle_cannot_enter_bus(me, tMsg)
+on handle_cannot_enter_bus me, tMsg 
   tConn = tMsg.getaProp(#connection)
   if not tConn then
     return(0)
   end if
   tReason = tConn.GetStrFrom()
   me.getInterface().showBusClosed(tReason)
-  exit
 end
 
-on handle_vote_question(me, tMsg)
+on handle_vote_question me, tMsg 
   tConn = tMsg.getaProp(#connection)
   if not tConn then
     return(0)
@@ -34,10 +31,9 @@ on handle_vote_question(me, tMsg)
     i = 1 + i
   end repeat
   me.getInterface().showVoteQuestion(tQuestion, tChoices)
-  exit
 end
 
-on handle_vote_results(me, tMsg)
+on handle_vote_results me, tMsg 
   tConn = tMsg.getaProp(#connection)
   if not tConn then
     return(0)
@@ -55,15 +51,14 @@ on handle_vote_results(me, tMsg)
   end repeat
   tTotalVotes = tConn.GetIntFrom()
   me.getInterface().showVoteResults(tTotalVotes, tChoiceVotes)
-  exit
 end
 
-on regMsgList(me, tBool)
-  tMsgs = []
+on regMsgList me, tBool 
+  tMsgs = [:]
   tMsgs.setaProp(79, #handle_vote_question)
   tMsgs.setaProp(80, #handle_vote_results)
   tMsgs.setaProp(81, #handle_cannot_enter_bus)
-  tCmds = []
+  tCmds = [:]
   tCmds.setaProp("CHANGEWORLD", 111)
   tCmds.setaProp("VOTE", 112)
   tCmds.setaProp("TRYBUS", 113)
@@ -75,5 +70,4 @@ on regMsgList(me, tBool)
     unregisterCommands(getVariable("connection.room.id"), me.getID(), tCmds)
   end if
   return(1)
-  exit
 end

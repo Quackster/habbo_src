@@ -1,4 +1,6 @@
-on construct(me)
+property pDbStarSpr, pDiscoStyleList, pDiscoStyle, pAnimThisUpdate, pSin, pSpriteList, pLightTimer, pDiscoCounter, pActiveColors, pTextImageList, pDbFrameCount, pDbDestRect, pDbAnimFrame
+
+on construct me 
   pSpriteList = []
   pDiscoStyle = 1
   pLightTimer = 0
@@ -22,32 +24,28 @@ on construct(me)
     i = 1 + i
   end repeat
   return(1)
-  exit
 end
 
-on deconstruct(me)
+on deconstruct me 
   if pDbStarSpr.ilk = #sprite then
     releaseSprite(pDbStarSpr.spriteNum)
   end if
   return(removeUpdate(me.getID()))
-  exit
 end
 
-on prepare(me)
+on prepare me 
   return(receiveUpdate(me.getID()))
-  exit
 end
 
-on showprogram(me, tMsg)
+on showprogram me, tMsg 
   if voidp(tMsg) then
     return(0)
   end if
   tNum = tMsg.getAt(#show_command)
   return(me.changeDiscoStyle(tNum))
-  exit
 end
 
-on changeDiscoStyle(me, tNr)
+on changeDiscoStyle me, tNr 
   if tNr = void() then
     pDiscoStyle = pDiscoStyle + 1
   else
@@ -61,10 +59,9 @@ on changeDiscoStyle(me, tNr)
   pActiveColors = []
   pTextImageList = [[], [], [], [], [], [], []]
   return(1)
-  exit
 end
 
-on update(me)
+on update me 
   pAnimThisUpdate = not pAnimThisUpdate
   if not pAnimThisUpdate then
     return(1)
@@ -91,10 +88,9 @@ on update(me)
   pDiscoCounter = pDiscoCounter + 1
   pLightTimer = the milliSeconds
   me.ColorTiles(tStyle, tOrCols, tMultip, tSpeed, tRange, tHorz)
-  exit
 end
 
-on ColorTiles(me, tStyle, tOrCols, tMultiplier, tSpeed, tRange, tHorz)
+on ColorTiles me, tStyle, tOrCols, tMultiplier, tSpeed, tRange, tHorz 
   pActiveColors = tRange
   i = 1
   repeat while i <= pSpriteList.count
@@ -103,37 +99,37 @@ on ColorTiles(me, tStyle, tOrCols, tMultiplier, tSpeed, tRange, tHorz)
       tX = 7
     end if
     tY = i - 1 / 7 + 1
-    if me = "#vertRotateSin" then
+    if tStyle = "#vertRotateSin" then
       tCols = me.vertRotateSin(tX, tY, tOrCols, tMultiplier, tSpeed, pActiveColors)
     else
-      if me = "#vertRotate" then
+      if tStyle = "#vertRotate" then
         tCols = me.vertRotate(tX, tY, tOrCols, tMultiplier, tSpeed, pActiveColors)
       else
-        if me = "#centerRotateMovX" then
+        if tStyle = "#centerRotateMovX" then
           tCols = me.centerRotateMovX(tX, tY, tOrCols, tMultiplier, tSpeed, pActiveColors)
         else
-          if me = "#centerRotateMovXY" then
+          if tStyle = "#centerRotateMovXY" then
             tCols = me.centerRotateMovXY(tX, tY, tOrCols, tMultiplier, tSpeed, pActiveColors)
           else
-            if me = "#centerRotate" then
+            if tStyle = "#centerRotate" then
               tCols = me.centerRotate(tX, tY, tOrCols, tMultiplier, tSpeed, pActiveColors)
             else
-              if me = "#randomColor" then
+              if tStyle = "#randomColor" then
                 tCols = me.randomColor(tX, tY, tOrCols, tMultiplier, tSpeed, pActiveColors)
               else
-                if me = "#chessBoard" then
+                if tStyle = "#chessBoard" then
                   tCols = me.chessBoard(tX, tY, tOrCols, tMultiplier, tSpeed, pActiveColors)
                 else
-                  if me = "#arrow" then
+                  if tStyle = "#arrow" then
                     tCols = me.arrow(tX, tY, tOrCols, tMultiplier, tSpeed, pActiveColors, tHorz)
                   else
-                    if me = "#textImage" then
+                    if tStyle = "#textImage" then
                       tCols = me.textImage(tX, tY, tOrCols, tMultiplier, tSpeed, pActiveColors, tHorz, 1)
                     else
-                      if me = "#textImage2" then
+                      if tStyle = "#textImage2" then
                         tCols = me.textImage(tX, tY, tOrCols, tMultiplier, tSpeed, pActiveColors, tHorz, 2)
                       else
-                        if me = "#blink" then
+                        if tStyle = "#blink" then
                           tCols = me.blink(tX, tY, tOrCols, tMultiplier, tSpeed, pActiveColors, tHorz)
                         else
                           return(0)
@@ -159,20 +155,18 @@ on ColorTiles(me, tStyle, tOrCols, tMultiplier, tSpeed, tRange, tHorz)
     end if
     i = 1 + i
   end repeat
-  exit
 end
 
-on blink(me, tX, tY, tOrCols, tMultiplier, tSpeed, tRange, tHorz)
+on blink me, tX, tY, tOrCols, tMultiplier, tSpeed, tRange, tHorz 
   tAnimFrame = pDiscoCounter mod 9
   tMem = member(getmemnum("mammothblink" & tAnimFrame + 1))
   tImg = tMem.image
   tWid = tImg.width
   tMod = tWid / 2 - 4
   return(tImg.getPixel(tX + tMod, tY + tMod))
-  exit
 end
 
-on textImage(me, tX, tY, tOrCols, tMultiplier, tSpeed, tRange, tHorz, tNr)
+on textImage me, tX, tY, tOrCols, tMultiplier, tSpeed, tRange, tHorz, tNr 
   if tHorz = 1 then
     tTemp = tX
     tX = tY
@@ -192,10 +186,9 @@ on textImage(me, tX, tY, tOrCols, tMultiplier, tSpeed, tRange, tHorz, tNr)
   else
     return([tRange.getAt(1), tRange.getAt(2), tRange.getAt(3)])
   end if
-  exit
 end
 
-on getTextImage(me, tNr)
+on getTextImage me, tNr 
   tImg = image.trimWhiteSpace()
   i = 1
   repeat while i <= 7
@@ -212,10 +205,9 @@ on getTextImage(me, tNr)
     i = 1 + i
   end repeat
   return(1)
-  exit
 end
 
-on randomColor(me, tX, tY, tOrCols, tMultiplier, tSpeed, tRange)
+on randomColor me, tX, tY, tOrCols, tMultiplier, tSpeed, tRange 
   tCols = []
   k = 1
   repeat while k <= 3
@@ -230,10 +222,9 @@ on randomColor(me, tX, tY, tOrCols, tMultiplier, tSpeed, tRange)
     k = 1 + k
   end repeat
   return(tCols)
-  exit
 end
 
-on chessBoard(me, tX, tY, tOrCols, tMultiplier, tSpeed, tRange)
+on chessBoard me, tX, tY, tOrCols, tMultiplier, tSpeed, tRange 
   tPhase = pDiscoCounter mod 2
   tCols = []
   k = 1
@@ -248,10 +239,9 @@ on chessBoard(me, tX, tY, tOrCols, tMultiplier, tSpeed, tRange)
     k = 1 + k
   end repeat
   return(tCols)
-  exit
 end
 
-on vertRotateSin(me, tX, tY, tOrCols, tMultiplier, tSpeed, tRange)
+on vertRotateSin me, tX, tY, tOrCols, tMultiplier, tSpeed, tRange 
   tCols = []
   k = 1
   repeat while k <= 3
@@ -267,10 +257,9 @@ on vertRotateSin(me, tX, tY, tOrCols, tMultiplier, tSpeed, tRange)
     k = 1 + k
   end repeat
   return(tCols)
-  exit
 end
 
-on vertRotate(me, tX, tY, tOrCols, tMultiplier, tSpeed, tRange)
+on vertRotate me, tX, tY, tOrCols, tMultiplier, tSpeed, tRange 
   tCols = []
   k = 1
   repeat while k <= 3
@@ -286,10 +275,9 @@ on vertRotate(me, tX, tY, tOrCols, tMultiplier, tSpeed, tRange)
     k = 1 + k
   end repeat
   return(tCols)
-  exit
 end
 
-on centerRotateMovX(me, tX, tY, tOrCols, tMultiplier, tSpeed, tRange)
+on centerRotateMovX me, tX, tY, tOrCols, tMultiplier, tSpeed, tRange 
   tCols = []
   tRow = abs(pDiscoCounter mod 14 - 7)
   tCenterX = tRow
@@ -310,10 +298,9 @@ on centerRotateMovX(me, tX, tY, tOrCols, tMultiplier, tSpeed, tRange)
     k = 1 + k
   end repeat
   return(tCols)
-  exit
 end
 
-on centerRotateMovXY(me, tX, tY, tOrCols, tMultiplier, tSpeed, tRange)
+on centerRotateMovXY me, tX, tY, tOrCols, tMultiplier, tSpeed, tRange 
   tCols = []
   tPlace = pDiscoCounter mod 24
   if tPlace < 6 then
@@ -337,7 +324,7 @@ on centerRotateMovXY(me, tX, tY, tOrCols, tMultiplier, tSpeed, tRange)
   tMultiplier = tMultiplier * tCenterMultiplier
   k = 1
   repeat while k <= 3
-    tCols.setAt(k, tOrCols.getAt(k) + tX + tY + tMultiplier * pSin * tSpeed / 0)
+    tCols.setAt(k, tOrCols.getAt(k) + tX + tY + tMultiplier * pSin * tSpeed / 7)
     tMax = tRange.getAt(k + 3)
     tMin = tRange.getAt(k)
     if tCols.getAt(k) > tMax then
@@ -349,10 +336,9 @@ on centerRotateMovXY(me, tX, tY, tOrCols, tMultiplier, tSpeed, tRange)
     k = 1 + k
   end repeat
   return(tCols)
-  exit
 end
 
-on arrow(me, tX, tY, tOrCols, tMultiplier, tSpeed, tRange)
+on arrow me, tX, tY, tOrCols, tMultiplier, tSpeed, tRange 
   tCols = []
   tRow = abs(pDiscoCounter mod 14 - 7)
   tCenterX = tRow
@@ -373,10 +359,9 @@ on arrow(me, tX, tY, tOrCols, tMultiplier, tSpeed, tRange)
     k = 1 + k
   end repeat
   return(tCols)
-  exit
 end
 
-on centerRotate(me, tX, tY, tOrCols, tMultiplier, tSpeed, tRange)
+on centerRotate me, tX, tY, tOrCols, tMultiplier, tSpeed, tRange 
   tCenterX = 4
   tCenterY = 4
   tCenterMultiplier = abs(tX - tCenterX) + abs(tY - tCenterY)
@@ -396,10 +381,9 @@ on centerRotate(me, tX, tY, tOrCols, tMultiplier, tSpeed, tRange)
     k = 1 + k
   end repeat
   return(tCols)
-  exit
 end
 
-on animDiscoBall(me)
+on animDiscoBall me 
   pDbFrameCount = pDbFrameCount + 1
   if pDbFrameCount mod 2 <> 0 then
     return()
@@ -416,10 +400,9 @@ on animDiscoBall(me)
     end if
     sprite.member = member(getmemnum("mammothblink" & pDbAnimFrame))
   end if
-  exit
 end
 
-on getSpriteList(me)
+on getSpriteList me 
   pSpriteList = []
   tObj = getThread(#room).getInterface().getRoomVisualizer()
   if tObj = 0 then
@@ -442,5 +425,4 @@ on getSpriteList(me)
   pDbDestRect = rect(tSp.getProp(#rect, 1), tSp.getProp(#rect, 4) - tSp.width, tSp.getProp(#rect, 3), tSp.getProp(#rect, 4))
   pDbStarSpr.locZ = tSp.locZ + 1
   return(1)
-  exit
 end

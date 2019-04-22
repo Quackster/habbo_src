@@ -1,4 +1,6 @@
-on prepare(me, tdata)
+property pChanges, pActive
+
+on prepare me, tdata 
   tValue = integer(tdata.getAt(#stuffdata))
   if tValue = 0 then
     me.setOff()
@@ -8,10 +10,9 @@ on prepare(me, tdata)
     pChanges = 1
   end if
   return(1)
-  exit
 end
 
-on updateStuffdata(me, tValue)
+on updateStuffdata me, tValue 
   tValue = integer(tValue)
   if tValue = 0 then
     me.setOff()
@@ -19,10 +20,9 @@ on updateStuffdata(me, tValue)
     me.setOn()
   end if
   pChanges = 1
-  exit
 end
 
-on update(me)
+on update me 
   if not pChanges then
     return()
   end if
@@ -77,23 +77,19 @@ on update(me)
     i = 1 + i
   end repeat
   pChanges = 0
-  exit
 end
 
-on setOn(me)
+on setOn me 
   pActive = 1
-  exit
 end
 
-on setOff(me)
+on setOff me 
   pActive = 0
-  exit
 end
 
-on select(me)
+on select me 
   if the doubleClick then
     getThread(#room).getComponent().getRoomConnection().send("USEFURNITURE", [#integer:integer(me.getID()), #integer:0])
   end if
   return(1)
-  exit
 end

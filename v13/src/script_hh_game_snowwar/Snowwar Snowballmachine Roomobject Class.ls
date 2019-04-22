@@ -1,11 +1,10 @@
-on define(me, tdata)
+on define me, tdata 
   me.define(tdata)
   me.setFrame(tdata.getAt(#objectDataStruct).getAt(#snowball_count))
   return(1)
-  exit
 end
 
-on setFrame(me, tValue)
+on setFrame me, tValue 
   if tValue = void() then
     tValue = 0
   end if
@@ -21,19 +20,17 @@ on setFrame(me, tValue)
   tName = tName.getProp(#char, 1, length(tName) - 1) & "0"
   tsprite.member = member(getmemnum(tName))
   return(1)
-  exit
 end
 
-on animate(me)
+on animate me 
   tsprite = me.getProp(#pSprList, 2)
   tName = member.name
   tName = tName.getProp(#char, 1, length(tName) - 1) & "1"
   tsprite.member = member(getmemnum(tName))
   return(1)
-  exit
 end
 
-on select(me)
+on select me 
   tFramework = getObject(#snowwar_gamesystem)
   if tFramework = 0 then
     return(0)
@@ -53,5 +50,4 @@ on select(me)
     return(tFramework.executeGameObjectEvent(getObject(#session).get("user_game_index"), #send_set_target_tile, [#tile_x:me.pLocX + 1, #tile_y:me.pLocY]))
   end if
   return(0)
-  exit
 end

@@ -1,19 +1,19 @@
-on construct(me)
+property pPageItemDownloader, pTextElements, pWndObj, pImageElements
+
+on construct me 
   pWndObj = void()
   pPageItemDownloader = getThread(#catalogue).getComponent().getPageItemDownloader()
   pImageElements = getVariableValue("layout.fields.image.default")
   pTextElements = getVariableValue("layout.fields.text.default")
   return(callAncestor(#construct, [me]))
-  exit
 end
 
-on deconstruct(me)
+on deconstruct me 
   pPageItemDownloader.removeCallback(me, #downloadCompleted)
   return(callAncestor(#deconstruct, [me]))
-  exit
 end
 
-on define(me, tdata)
+on define me, tdata 
   callAncestor(#define, [me], tdata)
   if variableExists("layout.fields.image." & me.getProp(#pPageData, #layout)) then
     pImageElements = getVariableValue("layout.fields.image." & me.getProp(#pPageData, #layout))
@@ -21,10 +21,9 @@ on define(me, tdata)
   if variableExists("layout.fields.text." & me.getProp(#pPageData, #layout)) then
     pTextElements = getVariableValue("layout.fields.text." & me.getProp(#pPageData, #layout))
   end if
-  exit
 end
 
-on mergeWindow(me, tParentWndObj)
+on mergeWindow me, tParentWndObj 
   tLayoutMember = "ctlg_" & me.getProp(#pPageData, #layout) & ".window"
   if not memberExists(tLayoutMember) then
     return(error(me, "Layout member " & tLayoutMember & " missing.", #mergeWindow))
@@ -53,19 +52,17 @@ on mergeWindow(me, tParentWndObj)
     end if
     i = 1 + i
   end repeat
-  exit
 end
 
-on unmergeWindow(me, tParentWndObj)
+on unmergeWindow me, tParentWndObj 
   tLayoutMember = "ctlg_" & me.getProp(#pPageData, #layout) & ".window"
   if not memberExists(tLayoutMember) then
     return(error(me, "Layout member " & tLayoutMember & " missing.", #mergeWindow))
   end if
   tParentWndObj.unmerge()
-  exit
 end
 
-on centerRectInRect(me, tSmallrect, tLargeRect)
+on centerRectInRect me, tSmallrect, tLargeRect 
   tpoint = point(0, 0)
   tpoint.locH = tLargeRect.width - tSmallrect.width / 2
   tpoint.locV = tLargeRect.height - tSmallrect.height / 2
@@ -76,10 +73,9 @@ on centerRectInRect(me, tSmallrect, tLargeRect)
     tpoint.locV = 0
   end if
   return(tpoint)
-  exit
 end
 
-on downloadCompleted(me, tProps)
+on downloadCompleted me, tProps 
   if tProps.getAt(#props).getAt(#pageid) <> me.getProp(#pPageData, #pageid) then
     return()
   end if
@@ -93,11 +89,9 @@ on downloadCompleted(me, tProps)
     end if
     me.centerBlitImageToElement(getMember(tProps.getaProp(#assetId)).image, pWndObj.getElement(tDlProps.getAt(#element)))
   end if
-  exit
 end
 
-on handleClick(me, tEvent, tSprID, tProp)
+on handleClick me, tEvent, tSprID, tProp 
   if tEvent = #mouseUp then
   end if
-  exit
 end

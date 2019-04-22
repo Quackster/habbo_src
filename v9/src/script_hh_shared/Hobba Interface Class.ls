@@ -1,4 +1,6 @@
-on construct(me)
+property pCryWindowID, pAlertSpr, pModtoolButtonSpr, pCurrCryNum, pModtoolWindowID, pCryWndMode, pCurrCryID, pCurrCryData, pAlertTimer, pModToolCheckBoxes, pModToolMode
+
+on construct me 
   pCryWindowID = getText("hobba_alert")
   pModtoolWindowID = getText("modtool_header")
   pAlertSpr = void()
@@ -6,7 +8,7 @@ on construct(me)
   pAlertTimer = 0
   pCurrCryID = ""
   pCurrCryNum = 0
-  pCurrCryData = []
+  pCurrCryData = [:]
   pModToolCheckBoxes = [0, 0]
   pModToolMode = "closed"
   pCryWndMode = "closed"
@@ -15,10 +17,9 @@ on construct(me)
   registerMessage(#leaveRoom, me.getID(), #hideModtoolButton)
   registerMessage(#userClicked, me.getID(), #userClicked)
   return(1)
-  exit
 end
 
-on deconstruct(me)
+on deconstruct me 
   removeUpdate(me.getID())
   if windowExists(pCryWindowID) then
     removeWindow(pCryWindowID)
@@ -31,14 +32,13 @@ on deconstruct(me)
   end if
   pCurrCryID = ""
   pCurrCryNum = 0
-  pCurrCryData = []
+  pCurrCryData = [:]
   unregisterMessage(#userlogin, me.getID())
   unregisterMessage(#userClicked, me.getID())
   return(1)
-  exit
 end
 
-on ShowAlert(me)
+on ShowAlert me 
   if pAlertSpr.ilk <> #sprite then
     pAlertSpr = sprite(reserveSprite(me.getID()))
     if pAlertSpr = sprite(0) then
@@ -47,17 +47,16 @@ on ShowAlert(me)
     pAlertSpr.memberNum = getmemnum("hobba_alert_0")
     pAlertSpr.ink = 8
     pAlertSpr.loc = point(me.buttonLocH(2), 5)
-    ERROR.locZ = 0
+    pAlertSpr.locZ = 200000000
     setEventBroker(pAlertSpr.spriteNum, me.getID() & "_alert_spr")
     pAlertSpr.registerProcedure(#eventProcAlert, me.getID(), #mouseUp)
     pAlertSpr.setcursor("cursor.finger")
     pAlertTimer = 0
   end if
   return(receiveUpdate(me.getID()))
-  exit
 end
 
-on showModtoolButton(me)
+on showModtoolButton me 
   if not listp(getObject(#session).get("user_rights")) then
     return(0)
   end if
@@ -72,17 +71,16 @@ on showModtoolButton(me)
     pModtoolButtonSpr.memberNum = getmemnum("mod_tool_icon")
     pModtoolButtonSpr.ink = 8
     pModtoolButtonSpr.loc = point(me.buttonLocH(1), 5)
-    ERROR.locZ = 0
+    pModtoolButtonSpr.locZ = 200000000
     setEventBroker(pModtoolButtonSpr.spriteNum, me.getID() & "_modtool_spr")
     pModtoolButtonSpr.registerProcedure(#eventProcModToolButton, me.getID(), #mouseUp)
     pModtoolButtonSpr.setcursor("cursor.finger")
     pAlertTimer = 0
   end if
   return(1)
-  exit
 end
 
-on hideModtoolButton(me)
+on hideModtoolButton me 
   if voidp(pModtoolButtonSpr) then
     return(0)
   end if
@@ -96,18 +94,16 @@ on hideModtoolButton(me)
     releaseSprite(pModtoolButtonSpr.spriteNum)
     pModtoolButtonSpr = void()
   end if
-  exit
 end
 
-on hideAlert(me)
+on hideAlert me 
   if ilk(pAlertSpr, #sprite) then
     pAlertSpr.memberNum = getmemnum("hobba_alert_0")
   end if
   return(removeUpdate(me.getID()))
-  exit
 end
 
-on showCryWnd(me)
+on showCryWnd me 
   if windowExists(pCryWindowID) then
     tWndObj = getWindow(pCryWindowID)
     tCryDB = me.getComponent().getCryDataBase()
@@ -128,11 +124,10 @@ on showCryWnd(me)
     tWndObj.getElement("hobba_seelog").hide()
   end if
   return(me.fillCryData(pCurrCryNum))
-  exit
 end
 
-on hideCryWnd(me)
-  pCurrCryData = []
+on hideCryWnd me 
+  pCurrCryData = [:]
   me.hideAlert()
   if windowExists(pCryWindowID) then
     pCryWndMode = "closed"
@@ -140,27 +135,24 @@ on hideCryWnd(me)
   else
     return(0)
   end if
-  exit
 end
 
-on hideModToolWnd(me)
+on hideModToolWnd me 
   if windowExists(pModtoolWindowID) then
     return(removeWindow(pModtoolWindowID))
   else
     return(0)
   end if
-  exit
 end
 
-on updateCryWnd(me)
+on updateCryWnd me 
   if pCryWndMode <> "browse" then
     return(1)
   end if
   return(me.fillCryData(pCurrCryID))
-  exit
 end
 
-on showModToolWnd(me)
+on showModToolWnd me 
   if windowExists(pModtoolWindowID) then
     tWndObj = getWindow(pModtoolWindowID)
     tWndObj.unmerge()
@@ -178,10 +170,9 @@ on showModToolWnd(me)
   tWndObj.registerProcedure(#eventProcModToolWnd, me.getID(), #mouseUp)
   tWndObj.registerProcedure(#eventProcModToolWnd, me.getID(), #keyDown)
   return(1)
-  exit
 end
 
-on buttonLocH(me, tPos)
+on buttonLocH me, tPos 
   if tPos = 1 then
     return(5)
   else
@@ -190,10 +181,9 @@ on buttonLocH(me, tPos)
     end if
   end if
   return(5)
-  exit
 end
 
-on userClicked(me, tName)
+on userClicked me, tName 
   if not windowExists(pModtoolWindowID) then
     return(1)
   end if
@@ -205,10 +195,9 @@ on userClicked(me, tName)
     tWndObj.getElement("modtool_name").setText(tName)
   end if
   return(1)
-  exit
 end
 
-on changeModtoolView(me, tWndName, tAction)
+on changeModtoolView me, tWndName, tAction 
   pModToolMode = tAction
   if windowExists(pModtoolWindowID) then
     tWndObj = getWindow(pModtoolWindowID)
@@ -224,36 +213,36 @@ on changeModtoolView(me, tWndName, tAction)
     tWndObj.registerProcedure(#eventProcModToolWnd, me.getID(), #keyDown)
   end if
   tHeader = ""
-  if me = "user" then
+  if tWndName = "user" then
     if not tWndObj.merge("habbo_modtool_user.window") then
       return(removeWindow(pModtoolWindowID))
     end if
-    if me = "kick" then
+    if tWndName = "kick" then
       tHeader = getText("modtool_kickuser")
     else
-      if me = "alert" then
+      if tWndName = "alert" then
         tHeader = getText("modtool_alertuser")
       else
-        if me = "ban" then
+        if tWndName = "ban" then
           tHeader = getText("modtool_banuser")
         end if
       end if
     end if
     tWndObj.getElement("modtool_subtitle").setText(getText("modtool_message"))
   else
-    if me = "room" then
+    if tWndName = "room" then
       if not tWndObj.merge("habbo_modtool_room.window") then
         return(removeWindow(pModtoolWindowID))
       end if
-      if me = "roomalert" then
+      if tWndName = "roomalert" then
         tHeader = getText("modtool_roomalert")
       else
-        if me = "roomkick" then
+        if tWndName = "roomkick" then
           tHeader = getText("modtool_roomkick")
         end if
       end if
     else
-      if me = "ban" then
+      if tWndName = "ban" then
         tWndObj.merge("habbo_modtool_ban.window")
         me.InitializeBanCheckBoxes()
         me.initializeBanDropDown()
@@ -264,10 +253,9 @@ on changeModtoolView(me, tWndName, tAction)
     tWndObj.getElement("modtool_title").setText(tHeader)
   end if
   return(1)
-  exit
 end
 
-on openCryReplyWindow(me)
+on openCryReplyWindow me 
   if not windowExists(pCryWindowID) then
     return(0)
   end if
@@ -282,10 +270,9 @@ on openCryReplyWindow(me)
   tWndObj.getElement("hobba_reply_header").setText(getText("hobba_reply_cfh") && tName)
   tWndObj.getElement("hobba_reply_text").setText(tMsg)
   return(1)
-  exit
 end
 
-on update(me)
+on update me 
   pAlertTimer = pAlertTimer + 1 mod 4
   if pAlertTimer <> 0 then
     return(1)
@@ -298,10 +285,9 @@ on update(me)
   tName = tName.getProp(#char, 1, length(tName) - 1) & not tNum
   pAlertSpr.memberNum = getmemnum(tName)
   return(1)
-  exit
 end
 
-on fillCryData(me, tCryNumOrID)
+on fillCryData me, tCryNumOrID 
   if not windowExists(pCryWindowID) then
     return(0)
   end if
@@ -371,10 +357,9 @@ on fillCryData(me, tCryNumOrID)
     tWndObj.getElement("hobba_pickedby").setText(getText("hobba_pickedby") && pCurrCryData.picker)
   end if
   return(1)
-  exit
 end
 
-on InitializeBanCheckBoxes(me)
+on InitializeBanCheckBoxes me 
   if not windowExists(pModtoolWindowID) then
     return(0)
   end if
@@ -389,10 +374,9 @@ on InitializeBanCheckBoxes(me)
   tWndObj.getElement("modtool_checkbox_ip").feedImage(tOffImg)
   tWndObj.getElement("modtool_checkbox_computer").feedImage(tOffImg)
   return(1)
-  exit
 end
 
-on initializeBanDropDown(me)
+on initializeBanDropDown me 
   tWndObj = getWindow(pModtoolWindowID)
   if tWndObj = 0 then
     return(0)
@@ -410,15 +394,13 @@ on initializeBanDropDown(me)
   tVisOptions.add("365" && tDays)
   tVisOptions.add("730" && tDays)
   tVisOptions.add("4167" && tDays)
-  the undefined = 730 * 24.pTotalFrame
-  tBanLengths = 365 * 24
+  tBanLengths = [2, 4, 12, 24, 2 * 24, 3 * 24, 7 * 24, 14 * 24, 21 * 24, 30 * 24, 60 * 24, 365 * 24, 730 * 24, 100000]
   tDropDown.updateData(tVisOptions, tBanLengths, 1)
   tDropDown.setOrdering(0)
   return(1)
-  exit
 end
 
-on checkBoxClicked(me, ttype)
+on checkBoxClicked me, ttype 
   if not windowExists(pModtoolWindowID) then
     return(0)
   end if
@@ -447,10 +429,9 @@ on checkBoxClicked(me, ttype)
     end if
   end if
   return(1)
-  exit
 end
 
-on sendModCommand(me)
+on sendModCommand me 
   if not windowExists(pModtoolWindowID) then
     return(1)
   end if
@@ -465,7 +446,7 @@ on sendModCommand(me)
   if tWndObj.elementExists("modtool_extrainfo") then
     tExtrainfo = tWndObj.getElement("modtool_extrainfo").getText()
   end if
-  if me = "ban" then
+  if pModToolMode = "ban" then
     if not tWndObj.elementExists("ban_length_menu") then
       return(0)
     end if
@@ -473,19 +454,19 @@ on sendModCommand(me)
     tBanIP = pModToolCheckBoxes.getAt(1)
     tBanComputer = pModToolCheckBoxes.getAt(2)
   else
-    if me = "alert" then
+    if pModToolMode = "alert" then
       tTargetType = 0
       tActionType = 0
     else
-      if me = "kick" then
+      if pModToolMode = "kick" then
         tTargetType = 0
         tActionType = 1
       else
-        if me = "roomkick" then
+        if pModToolMode = "roomkick" then
           tTargetType = 1
           tActionType = 1
         else
-          if me = "roomalert" then
+          if pModToolMode = "roomalert" then
             tTargetType = 1
             tActionType = 0
           end if
@@ -504,21 +485,20 @@ on sendModCommand(me)
   end if
   getConnection(getVariable("connection.info.id")).send("MODERATIONACTION", tStruct)
   return(me.showModToolWnd())
-  exit
 end
 
-on eventProcCryWnd(me, tEvent, tElemID, tParam)
+on eventProcCryWnd me, tEvent, tElemID, tParam 
   if tEvent = #mouseUp then
-    if me = "close" then
+    if tElemID = "close" then
       return(me.hideCryWnd())
     else
-      if me = "hobba_prev" then
+      if tElemID = "hobba_prev" then
         return(me.fillCryData(pCurrCryNum - 1))
       else
-        if me = "hobba_next" then
+        if tElemID = "hobba_next" then
           return(me.fillCryData(pCurrCryNum + 1))
         else
-          if me = "hobba_seelog" then
+          if tElemID = "hobba_seelog" then
             tUrlPrefix = getText("chatlog.url")
             if tUrlPrefix contains "http" then
               return(openNetPage(tUrlPrefix & pCurrCryData.getAt(#url_id)))
@@ -526,27 +506,27 @@ on eventProcCryWnd(me, tEvent, tElemID, tParam)
               return(error(me, "CFH log url prefix not defined or illegal:" && tUrlPrefix, #eventProcCryWnd))
             end if
           else
-            if me = "hobba_pickup" then
+            if tElemID = "hobba_pickup" then
               return(me.getComponent().send_cryPick(pCurrCryID, 0))
             else
-              if me = "hobba_pickup_go" then
+              if tElemID = "hobba_pickup_go" then
                 return(me.getComponent().send_cryPick(pCurrCryID, 1))
               else
-                if me = "hobba_pickandreply" then
+                if tElemID = "hobba_pickandreply" then
                   me.openCryReplyWindow()
                   return(me.getComponent().send_cryPick(pCurrCryID, 0))
                 else
-                  if me = "hobba_reply_button" then
+                  if tElemID = "hobba_reply_button" then
                     tText = getWindow(pCryWindowID).getElement("hobba_reply_field").getText()
                     me.getComponent().send_CfhReply(pCurrCryID, tText)
                     me.hideCryWnd()
                     return(me.showCryWnd())
                   else
-                    if me = "hobba_reply_cancel" then
+                    if tElemID = "hobba_reply_cancel" then
                       me.hideCryWnd()
                       return(me.showCryWnd())
                     else
-                      if me = "hobba_change_cfh_type" then
+                      if tElemID = "hobba_change_cfh_type" then
                         return(me.getComponent().send_changeCfhType(pCurrCryID, pCurrCryData.getAt(#category)))
                       else
                         return(0)
@@ -561,39 +541,38 @@ on eventProcCryWnd(me, tEvent, tElemID, tParam)
       end if
     end if
   end if
-  exit
 end
 
-on eventProcModToolWnd(me, tEvent, tElemID, tParam)
+on eventProcModToolWnd me, tEvent, tElemID, tParam 
   if tEvent = #mouseUp then
-    if me = "close" then
+    if tElemID = "close" then
       me.hideModToolWnd()
     else
-      if me = "modtool_cancel" then
+      if tElemID = "modtool_cancel" then
         me.showModToolWnd()
       else
-        if me = "modtool_kickuser" then
+        if tElemID = "modtool_kickuser" then
           me.changeModtoolView("user", "kick")
         else
-          if me = "modtool_banuser" then
+          if tElemID = "modtool_banuser" then
             me.changeModtoolView("ban", "ban")
           else
-            if me = "modtool_alertuser" then
+            if tElemID = "modtool_alertuser" then
               me.changeModtoolView("user", "alert")
             else
-              if me = "modtool_roomkick" then
+              if tElemID = "modtool_roomkick" then
                 me.changeModtoolView("room", "roomkick")
               else
-                if me = "modtool_roomalert" then
+                if tElemID = "modtool_roomalert" then
                   me.changeModtoolView("room", "roomalert")
                 else
-                  if me = "modtool_checkbox_ip" then
+                  if tElemID = "modtool_checkbox_ip" then
                     me.checkBoxClicked("ip")
                   else
-                    if me = "modtool_checkbox_computer" then
+                    if tElemID = "modtool_checkbox_computer" then
                       me.checkBoxClicked("computer")
                     else
-                      if me = "modtool_ok" then
+                      if tElemID = "modtool_ok" then
                         return(me.sendModCommand())
                       else
                         return(0)
@@ -644,17 +623,14 @@ on eventProcModToolWnd(me, tEvent, tElemID, tParam)
     end if
   end if
   return(1)
-  exit
 end
 
-on eventProcAlert(me, tEvent, tElemID, tParam)
+on eventProcAlert me, tEvent, tElemID, tParam 
   me.showCryWnd()
   return(1)
-  exit
 end
 
-on eventProcModToolButton(me)
+on eventProcModToolButton me 
   me.showModToolWnd()
   return(1)
-  exit
 end

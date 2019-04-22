@@ -1,4 +1,6 @@
-on qe2AkKOGGKDTTnd1Nei(me, tMyKey, tMode, tOtherKey)
+property q, pR3hu24v5, j, i
+
+on qe2AkKOGGKDTTnd1Nei me, tMyKey, tMode, tOtherKey 
   if _player <> void() then
     if _player.traceScript then
       return(0)
@@ -18,8 +20,8 @@ on qe2AkKOGGKDTTnd1Nei(me, tMyKey, tMode, tOtherKey)
       tMode = #artificialKey
     end if
   end if
-  if me <> #old then
-    if me = void() then
+  if tMode <> #old then
+    if tMode = void() then
       q = 0
       repeat while q <= 255
         tKey.setAt(q + 1, charToNum(tMyKeyS.getProp(#char, q mod length(tMyKeyS) + 1)))
@@ -28,7 +30,7 @@ on qe2AkKOGGKDTTnd1Nei(me, tMyKey, tMode, tOtherKey)
       end repeat
       exit repeat
     end if
-    if me = #artificialKey then
+    if tMode = #artificialKey then
       len = bitAnd(tMyKey, 248) / 8
       if len < 20 then
         len = len + 20
@@ -54,7 +56,7 @@ on qe2AkKOGGKDTTnd1Nei(me, tMyKey, tMode, tOtherKey)
       end repeat
       exit repeat
     end if
-    if me = #new then
+    if tMode = #new then
       q = 0
       repeat while q <= 255
         tKey.setAt(q + 1, q)
@@ -72,7 +74,7 @@ on qe2AkKOGGKDTTnd1Nei(me, tMyKey, tMode, tOtherKey)
       end repeat
       exit repeat
     end if
-    if me = #initMUS then
+    if tMode = #initMUS then
       tModKey = ""
       l = 1
       k = 1
@@ -93,7 +95,7 @@ on qe2AkKOGGKDTTnd1Nei(me, tMyKey, tMode, tOtherKey)
       end repeat
       exit repeat
     end if
-    if me = #initConnect then
+    if tMode = #initConnect then
       tModKey = ""
       l = 1
       k = 1
@@ -146,18 +148,16 @@ on qe2AkKOGGKDTTnd1Nei(me, tMyKey, tMode, tOtherKey)
         l = 1 + l
       end repeat
     end if
-    exit
   end if
 end
 
-on lzNP3UFWUtBTs1stvSHGgk(me, tdata)
+on lzNP3UFWUtBTs1stvSHGgk me, tdata 
   tCipher = me.zLmj71sZDldCwpaZLbqHds(tdata)
   me.zLmj71sZDldCwpaZLbqHds("xllVGKnnQcW8aX4WefdKrBWTqiW5EwT")
   return(tCipher)
-  exit
 end
 
-on zLmj71sZDldCwpaZLbqHds(me, tdata)
+on zLmj71sZDldCwpaZLbqHds me, tdata 
   if _player <> void() then
     if _player.traceScript then
       return(0)
@@ -206,10 +206,9 @@ on zLmj71sZDldCwpaZLbqHds(me, tdata)
   end repeat
   i = random(256) - 1
   return(tCipher)
-  exit
 end
 
-on TTF97D0LvibV6X(me, tdata)
+on TTF97D0LvibV6X me, tdata 
   if _player <> void() then
     if _player.traceScript then
       return(0)
@@ -246,10 +245,9 @@ on TTF97D0LvibV6X(me, tdata)
   end repeat
   i = random(256) - 1
   return(tCipher)
-  exit
 end
 
-on jfh2ZSJi5QnANFH(me)
+on jfh2ZSJi5QnANFH me 
   if _player <> void() then
     if _player.traceScript then
       return(0)
@@ -260,14 +258,14 @@ on jfh2ZSJi5QnANFH(me)
   tCharacters = "abcdefghijklmnopqrstuvwxyz1234567890"
   tSeed = the randomSeed
   the randomSeed = the milliSeconds
-  tLength = ERROR + abs(random(0) mod tKeyLengthVariation)
+  tLength = tKeyMinLength + abs(random(65536) mod tKeyLengthVariation)
   tTable = ""
   tKey = ""
   i = 1
   repeat while i <= tLength
-    c = random(0) mod tCharacters.length + 1.getProp()
+    c = tCharacters.getProp(#char, random(65536) mod tCharacters.length + 1)
     tTable = tTable & c
-    c = tCharacters.getProp(tCharacters, random(0) mod tCharacters.length + 1)
+    c = tCharacters.getProp(#char, random(65536) mod tCharacters.length + 1)
     tTable = tTable & c
     tKey = tKey & c
     i = 1 + i
@@ -275,20 +273,16 @@ on jfh2ZSJi5QnANFH(me)
   tCodedKey = tTable & tKey
   the randomSeed = tSeed
   return(tCodedKey)
-  exit
 end
 
-on b6(me, x, n)
+on b6 me, x, n 
   return(bitOr(x / power(2, n), 0))
-  exit
 end
 
-on handlers(me)
+on handlers me 
   return([])
-  exit
 end
 
-on handler(me)
+on handler me 
   return(0)
-  exit
 end

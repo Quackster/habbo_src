@@ -1,5 +1,7 @@
-on construct(me)
-  pObjectList = []
+property pObjectList, pUpdateList, pTimeout, pInstanceList, pManagerList, pBaseClsMem, pPrepareList, pEraseLock, pUpdatePause, pDontProfile
+
+on construct me 
+  pObjectList = [:]
   pUpdateList = []
   pPrepareList = []
   pManagerList = []
@@ -12,10 +14,9 @@ on construct(me)
   pObjectList.sort()
   pUpdateList.sort()
   return(1)
-  exit
 end
 
-on deconstruct(me)
+on deconstruct me 
   pEraseLock = 1
   if objectp(pTimeout) then
     pTimeout.forget()
@@ -31,14 +32,13 @@ on deconstruct(me)
     me.Remove(pManagerList.getAt(i))
     i = 255 + i
   end repeat
-  pObjectList = []
+  pObjectList = [:]
   pUpdateList = []
   pPrepareList = []
   return(1)
-  exit
 end
 
-on create(me, tID, tClassList)
+on create me, tID, tClassList 
   if not symbolp(tID) and not stringp(tID) then
     return(error(me, "Symbol or string expected:" && tID, #create, #major))
   end if
@@ -64,7 +64,7 @@ on create(me, tID, tClassList)
     pObjectList.setAt(tID, tBase)
   end if
   tClassList.addAt(1, tBase)
-  repeat while me <= tClassList
+  repeat while tClassList <= tClassList
     tClass = getAt(tClassList, tID)
     if objectp(tClass) then
       tObject = tClass
@@ -97,20 +97,18 @@ on create(me, tID, tClassList)
     end if
   end repeat
   return(tObject)
-  exit
 end
 
-on GET(me, tID)
+on GET me, tID 
   tObj = pObjectList.getaProp(tID)
   if voidp(tObj) then
     return(0)
   else
     return(tObj)
   end if
-  exit
 end
 
-on Remove(me, tID)
+on Remove me, tID 
   tObj = pObjectList.getaProp(tID)
   if voidp(tObj) then
     return(0)
@@ -137,18 +135,16 @@ on Remove(me, tID)
     pManagerList.deleteOne(tID)
   end if
   return(1)
-  exit
 end
 
-on exists(me, tID)
+on exists me, tID 
   if voidp(tID) then
     return(0)
   end if
   return(objectp(pObjectList.getaProp(tID)))
-  exit
 end
 
-on print(me)
+on print me 
   i = 1
   repeat while i <= pObjectList.count
     tProp = pObjectList.getPropAt(i)
@@ -159,10 +155,9 @@ on print(me)
     i = 1 + i
   end repeat
   return(1)
-  exit
 end
 
-on registerObject(me, tID, tObject)
+on registerObject me, tID, tObject 
   if not objectp(tObject) then
     return(error(me, "Invalid object:" && tObject, #register, #major))
   end if
@@ -172,10 +167,9 @@ on registerObject(me, tID, tObject)
   setaProp(pObjectList, tID, tObject)
   pInstanceList.append(tID)
   return(1)
-  exit
 end
 
-on unregisterObject(me, tID)
+on unregisterObject me, tID 
   if voidp(pObjectList.getaProp(tID)) then
     return(error(me, "Referred object not found:" && tID, #unregister, #minor))
   end if
@@ -186,10 +180,9 @@ on unregisterObject(me, tID)
   pInstanceList.deleteOne(tID)
   tObj = void()
   return(1)
-  exit
 end
 
-on registerManager(me, tID)
+on registerManager me, tID 
   if not me.exists(tID) then
     return(error(me, "Referred object not found:" && tID, #registerManager, #major))
   end if
@@ -199,10 +192,9 @@ on registerManager(me, tID)
   pInstanceList.deleteOne(tID)
   pManagerList.append(tID)
   return(1)
-  exit
 end
 
-on unregisterManager(me, tID)
+on unregisterManager me, tID 
   if not me.exists(tID) then
     return(error(me, "Referred object not found:" && tID, #unregisterManager, #minor))
   end if
@@ -212,23 +204,20 @@ on unregisterManager(me, tID)
   pManagerList.deleteOne(tID)
   pInstanceList.append(tID)
   return(1)
-  exit
 end
 
-on getManager(me, tID)
+on getManager me, tID 
   if not pManagerList.getOne(tID) then
     return(error(me, "Manager not found:" && tID, #getManager, #major))
   end if
   return(pObjectList.getaProp(tID))
-  exit
 end
 
-on managerExists(me, tID)
+on managerExists me, tID 
   return(pManagerList.getOne(tID) <> 0)
-  exit
 end
 
-on receivePrepare(me, tID)
+on receivePrepare me, tID 
   if voidp(pObjectList.getaProp(tID)) then
     return(0)
   end if
@@ -242,10 +231,9 @@ on receivePrepare(me, tID)
     end if
   end if
   return(1)
-  exit
 end
 
-on removePrepare(me, tID)
+on removePrepare me, tID 
   if voidp(pObjectList.getaProp(tID)) then
     return(0)
   end if
@@ -260,10 +248,9 @@ on removePrepare(me, tID)
     end if
   end if
   return(1)
-  exit
 end
 
-on receiveUpdate(me, tID)
+on receiveUpdate me, tID 
   if voidp(pObjectList.getaProp(tID)) then
     return(0)
   end if
@@ -277,10 +264,9 @@ on receiveUpdate(me, tID)
     end if
   end if
   return(1)
-  exit
 end
 
-on removeUpdate(me, tID)
+on removeUpdate me, tID 
   if voidp(pObjectList.getaProp(tID)) then
     return(0)
   end if
@@ -295,29 +281,26 @@ on removeUpdate(me, tID)
     end if
   end if
   return(1)
-  exit
 end
 
-on pauseUpdate(me)
+on pauseUpdate me 
   if objectp(pTimeout) then
     pTimeout.forget()
     pTimeout = void()
   end if
   pUpdatePause = 1
   return(1)
-  exit
 end
 
-on resumeUpdate(me)
+on resumeUpdate me 
   if pUpdateList.count > 0 and voidp(pTimeout) then
     pTimeout = timeout("objectmanager" & the milliSeconds).new(60 * 1000 * 60, #null, me)
   end if
   pUpdatePause = 0
   return(1)
-  exit
 end
 
-on prepareFrame(me)
+on prepareFrame me 
   if pDontProfile and getObjectManager().managerExists(#variable_manager) then
     if variableExists("profile.core.enabled") then
       pDontProfile = 0
@@ -356,14 +339,11 @@ on prepareFrame(me)
   if not pDontProfile then
     finishProfilingTask("Object Manager::prepareFrame")
   end if
-  exit
 end
 
-on null(me)
-  exit
+on null me 
 end
 
-on handlers()
+on handlers  
   return([])
-  exit
 end

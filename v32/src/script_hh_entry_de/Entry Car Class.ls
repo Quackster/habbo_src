@@ -1,4 +1,6 @@
-on define(me, tsprite, tCounter)
+property pDirection, pSprite, pIndex, pPauseTime, pOffset, pTurnPnt
+
+on define me, tsprite, tCounter 
   pIndex = tCounter - 1
   if tCounter mod 2 = 1 then
     tDirection = #left
@@ -11,10 +13,9 @@ on define(me, tsprite, tCounter)
   pDirection = tDirection
   me.reset()
   return(1)
-  exit
 end
 
-on reset(me)
+on reset me 
   if random(2) = 1 then
     tmodel = "car2"
   else
@@ -43,10 +44,9 @@ on reset(me)
     pSprite.backColor = 0
   end if
   pPauseTime = pIndex * 30 + random(50)
-  exit
 end
 
-on update(me)
+on update me 
   if pPauseTime > 0 then
     pPauseTime = pPauseTime - 1
     return(0)
@@ -68,5 +68,4 @@ on update(me)
     end if
     return(me.reset())
   end if
-  exit
 end

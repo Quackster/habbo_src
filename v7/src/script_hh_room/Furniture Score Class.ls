@@ -1,22 +1,21 @@
-on prepare(me, tdata)
+property pScore
+
+on prepare me, tdata 
   pScore = 0
   tTemp = tdata.getaProp("SCORE")
   me.setScore(tTemp)
   return(1)
-  exit
 end
 
-on relocate(me)
+on relocate me 
   me.setScore(pScore)
-  exit
 end
 
-on updateStuffdata(me, tProp, tValue)
+on updateStuffdata me, tProp, tValue 
   me.setScore(tValue)
-  exit
 end
 
-on setScore(me, tScore)
+on setScore me, tScore 
   if me.count(#pSprList) < 4 then
     return(0)
   end if
@@ -56,10 +55,9 @@ on setScore(me, tScore)
   me.getPropRef(#pSprList, 3).blend = 100
   me.getPropRef(#pSprList, 4).blend = 100
   return(1)
-  exit
 end
 
-on select(me)
+on select me 
   tUpdate = 0
   tScore = pScore
   tloc = point(the mouseH - me.getPropRef(#pSprList, 1).left, the mouseV - me.getPropRef(#pSprList, 1).top)
@@ -92,5 +90,4 @@ on select(me)
     getThread(#room).getComponent().getRoomConnection().send("SETSTUFFDATA", me.getID() & "/" & "SCORE" & "/" & tScore)
   end if
   return(1)
-  exit
 end

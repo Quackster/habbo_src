@@ -1,25 +1,21 @@
-on construct(me)
+on construct me 
   return(me.regMsgList(1))
-  exit
 end
 
-on deconstruct(me)
+on deconstruct me 
   return(me.regMsgList(0))
-  exit
 end
 
-on handleDisconnect(me, tMsg)
+on handleDisconnect me, tMsg 
   error(me, "Connection was disconnected:" && tMsg.getID(), #handleMsg)
   return(me.getInterface().showDisconnect())
-  exit
 end
 
-on handleHello(me, tMsg)
+on handleHello me, tMsg 
   return(tMsg.send("GENERATEKEY"))
-  exit
 end
 
-on handleSessionParameters(me, tMsg)
+on handleSessionParameters me, tMsg 
   tPairsCount = tMsg.GetIntFrom()
   if integerp(tPairsCount) then
     if tPairsCount > 0 then
@@ -27,28 +23,28 @@ on handleSessionParameters(me, tMsg)
       repeat while i <= tPairsCount
         tid = tMsg.GetIntFrom()
         tSession = getObject(#session)
-        if me = 0 then
+        if tid = 0 then
           tValue = tMsg.GetIntFrom()
           tSession.set("conf_coppa", tValue > 0)
           tSession.set("conf_strong_coppa_required", tValue > 1)
         else
-          if me = 1 then
+          if tid = 1 then
             tValue = tMsg.GetIntFrom()
             tSession.set("conf_voucher", tValue > 0)
           else
-            if me = 2 then
+            if tid = 2 then
               tValue = tMsg.GetIntFrom()
               tSession.set("conf_parent_email_request", tValue > 0)
             else
-              if me = 3 then
+              if tid = 3 then
                 tValue = tMsg.GetIntFrom()
                 tSession.set("conf_parent_email_request_reregistration", tValue > 0)
               else
-                if me = 4 then
+                if tid = 4 then
                   tValue = tMsg.GetIntFrom()
                   tSession.set("conf_allow_direct_mail", tValue > 0)
                 else
-                  if me = 5 then
+                  if tid = 5 then
                     tValue = tMsg.GetStrFrom()
                     if not objectExists(#dateFormatter) then
                       createObject(#dateFormatter, ["Date Class"])
@@ -68,10 +64,9 @@ on handleSessionParameters(me, tMsg)
     end if
   end if
   return(me.sendLogin(tMsg.connection))
-  exit
 end
 
-on handleSecretKey(me, tMsg)
+on handleSecretKey me, tMsg 
   tKey = secretDecode(tMsg.content)
   tMsg.setDecoder(createObject(#temp, getClassVariable("connection.decoder.class")))
   tMsg.getDecoder().setKey(tKey)
@@ -89,10 +84,9 @@ on handleSecretKey(me, tMsg)
   tMsg.send("UNIQUEID", [#string:getMachineID()])
   tMsg.send("GET_SESSION_PARAMETERS")
   return(1)
-  exit
 end
 
-on sendLogin(me, tConnection)
+on sendLogin me, tConnection 
   if objectExists("nav_problem_obj") then
     removeObject("nav_problem_obj")
   end if
@@ -108,15 +102,13 @@ on sendLogin(me, tConnection)
     return(tConnection.send("TRY_LOGIN", [#string:tUserName, #string:tPassword]))
   end if
   return(1)
-  exit
 end
 
-on handlePing(me, tMsg)
+on handlePing me, tMsg 
   tMsg.send("PONG")
-  exit
 end
 
-on handleRegistrationOK(me, tMsg)
+on handleRegistrationOK me, tMsg 
   tUserName = getObject(#session).get(#userName)
   tPassword = getObject(#session).get(#password)
   if not stringp(tUserName) or not stringp(tPassword) then
@@ -126,10 +118,9 @@ on handleRegistrationOK(me, tMsg)
     return(removeConnection(tMsg.getID()))
   end if
   return(tMsg.send("TRY_LOGIN", [#string:tUserName, #string:tPassword]))
-  exit
 end
 
-on handleLoginOK(me, tMsg)
+on handleLoginOK me, tMsg 
   tMsg.send("GET_INFO")
   tMsg.send("GET_CREDITS")
   tMsg.send("GETAVAILABLEBADGES")
@@ -146,11 +137,10 @@ on handleLoginOK(me, tMsg)
       end if
     end if
   end if
-  exit
 end
 
-on handleUserObj(me, tMsg)
-  tuser = []
+on handleUserObj me, tMsg 
+  tuser = [:]
   tDelim = the itemDelimiter
   the itemDelimiter = "="
   i = 1
@@ -191,17 +181,15 @@ on handleUserObj(me, tMsg)
     me.getInterface().showUserFound()
   end if
   executeMessage(#userlogin, "userLogin")
-  exit
 end
 
-on handleUserBanned(me, tMsg)
+on handleUserBanned me, tMsg 
   tBanMsg = getText("Alert_YouAreBanned") & "\r" & tMsg.content
   executeMessage(#openGeneralDialog, #ban, [#id:"BannWarning", #title:"Alert_YouAreBanned_T", #Msg:tBanMsg, #modal:1])
   removeConnection(tMsg.getID())
-  exit
 end
 
-on handleEPSnotify(me, tMsg)
+on handleEPSnotify me, tMsg 
   ttype = ""
   tdata = ""
   tDelim = the itemDelimiter
@@ -210,17 +198,17 @@ on handleEPSnotify(me, tMsg)
   repeat while f <= tMsg.count(#line)
     tProp = tMsg.getPropRef(#line, f).getProp(#item, 1)
     tDesc = tMsg.getPropRef(#line, f).getProp(#item, 2)
-    if me = "t" then
+    if tProp = "t" then
       ttype = integer(tDesc)
     else
-      if me = "p" then
+      if tProp = "p" then
         tdata = tDesc
       end if
     end if
     f = 1 + f
   end repeat
   the itemDelimiter = tDelim
-  if me = 580 then
+  if tProp = 580 then
     if not createObject("lang_test", "CLangTest") then
       return(error(me, "Failed to init lang tester!", #handle_eps_notify))
     else
@@ -228,24 +216,21 @@ on handleEPSnotify(me, tMsg)
     end if
   end if
   executeMessage(#notify, ttype, tdata, tMsg.getID())
-  exit
 end
 
-on handleSystemBroadcast(me, tMsg)
+on handleSystemBroadcast me, tMsg 
   tMsg = tMsg.getAt(#content)
   tMsg = replaceChunks(tMsg, "\\r", "\r")
   tMsg = replaceChunks(tMsg, "<br>", "\r")
   executeMessage(#alert, [#Msg:tMsg])
   the keyboardFocusSprite = 0
-  exit
 end
 
-on handleCheckSum(me, tMsg)
+on handleCheckSum me, tMsg 
   getObject(#session).set("user_checksum", tMsg.content)
-  exit
 end
 
-on handleAvailableBadges(me, tMsg)
+on handleAvailableBadges me, tMsg 
   tBadgeList = []
   tNumber = tMsg.GetIntFrom()
   i = 1
@@ -263,10 +248,9 @@ on handleAvailableBadges(me, tMsg)
   getObject("session").set("available_badges", tBadgeList)
   getObject("session").set("chosen_badge_index", tChosenBadge)
   getObject("session").set("badge_visible", tVisible)
-  exit
 end
 
-on handleRights(me, tMsg)
+on handleRights me, tMsg 
   tSession = getObject(#session)
   tSession.set("user_rights", [])
   tRights = tSession.get("user_rights")
@@ -280,10 +264,9 @@ on handleRights(me, tMsg)
     tRights.add(tPrivilege)
   end repeat
   return(1)
-  exit
 end
 
-on handleErr(me, tMsg)
+on handleErr me, tMsg 
   error(me, "Error from server:" && tMsg.content, #handle_error)
   if tMsg.content contains "login incorrect" then
     removeConnection(tMsg.getID())
@@ -311,20 +294,18 @@ on handleErr(me, tMsg)
     end if
   end if
   return(1)
-  exit
 end
 
-on handleModAlert(me, tMsg)
+on handleModAlert me, tMsg 
   if not voidp(tMsg.content) then
     executeMessage(#alert, [#title:"alert_warning", #Msg:tMsg.content])
   else
     error(me, "Error in moderator alert:" && tMsg.content, #handleModAlert)
   end if
-  exit
 end
 
-on regMsgList(me, tBool)
-  tMsgs = []
+on regMsgList me, tBool 
+  tMsgs = [:]
   tMsgs.setaProp(-1, #handleDisconnect)
   tMsgs.setaProp(0, #handleHello)
   tMsgs.setaProp(1, #handleSecretKey)
@@ -341,7 +322,7 @@ on regMsgList(me, tBool)
   tMsgs.setaProp(161, #handleModAlert)
   tMsgs.setaProp(229, #handleAvailableBadges)
   tMsgs.setaProp(257, #handleSessionParameters)
-  tCmds = []
+  tCmds = [:]
   tCmds.setaProp("TRY_LOGIN", 4)
   tCmds.setaProp("VERSIONCHECK", 5)
   tCmds.setaProp("UNIQUEID", 6)
@@ -363,5 +344,4 @@ on regMsgList(me, tBool)
     unregisterCommands(tConn, me.getID(), tCmds)
   end if
   return(1)
-  exit
 end

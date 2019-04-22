@@ -1,21 +1,20 @@
-on construct(me)
+property pWaterFallSprite, pAnimTimer, pWaterFallFrame
+
+on construct me 
   pWaterFallFrame = 1
   pAnimTimer = 0
   return(1)
-  exit
 end
 
-on deconstruct(me)
+on deconstruct me 
   return(removeUpdate(me.getID()))
-  exit
 end
 
-on prepare(me)
+on prepare me 
   return(receiveUpdate(me.getID()))
-  exit
 end
 
-on update(me)
+on update me 
   if pWaterFallSprite = void() then
     return(me.getAnimSprites())
   end if
@@ -28,14 +27,12 @@ on update(me)
     pWaterFallSprite.member = getMember("watersplash_" & pWaterFallFrame)
   end if
   return(1)
-  exit
 end
 
-on getAnimSprites(me)
+on getAnimSprites me 
   tObj = getThread(#room).getInterface().getRoomVisualizer()
   if tObj <> 0 then
     pWaterFallSprite = tObj.getSprById("watersplash")
   end if
   return(1)
-  exit
 end

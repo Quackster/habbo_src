@@ -1,19 +1,19 @@
-on construct(me)
+property pWindowID, pPrice, pFurniID
+
+on construct me 
   pWindowID = getText("credit_redeem_window")
   return(1)
-  exit
 end
 
-on deconstruct(me)
+on deconstruct me 
   tWndObj = getWindow(pWindowID)
   if not tWndObj = void() then
     tWndObj.close()
   end if
   return(1)
-  exit
 end
 
-on Init(me, tFurniID, tPrice)
+on Init me, tFurniID, tPrice 
   pPrice = tPrice
   pFurniID = tFurniID
   if not me.createUiWindow() then
@@ -21,10 +21,9 @@ on Init(me, tFurniID, tPrice)
     return(0)
   end if
   return(1)
-  exit
 end
 
-on createUiWindow(me)
+on createUiWindow me 
   if not createWindow(pWindowID, "habbo_full.window") then
     return(0)
   end if
@@ -43,36 +42,32 @@ on createUiWindow(me)
   tWndObj.registerClient(me.getID())
   tWndObj.registerProcedure(#eventProcMouseUp, me.getID(), #mouseUp)
   return(1)
-  exit
 end
 
-on eventProcMouseUp(me, tEvent, tSprID, tParam)
-  if me = "credit_redeem" then
+on eventProcMouseUp me, tEvent, tSprID, tParam 
+  if tSprID = "credit_redeem" then
     me.sendCreditRedeem()
     removeObject(me.getID())
   else
-    if me <> "close" then
-      if me = "credit_cancel" then
+    if tSprID <> "close" then
+      if tSprID = "credit_cancel" then
         removeObject(me.getID())
       else
-        if me = "credit_redeem_info" then
+        if tSprID = "credit_redeem_info" then
           me.openHelpURL()
         end if
       end if
       return(1)
-      exit
     end if
   end if
 end
 
-on sendCreditRedeem(me)
+on sendCreditRedeem me 
   getThread(#room).getComponent().getRoomConnection().send("CONVERT_FURNI_TO_CREDITS", [#integer:integer(pFurniID)])
   return(1)
-  exit
 end
 
-on openHelpURL(me)
+on openHelpURL me 
   openNetPage("credit_redeem_url")
   return(1)
-  exit
 end

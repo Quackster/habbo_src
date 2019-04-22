@@ -1,4 +1,6 @@
-on construct(me)
+property pHeightMap, pPlaceMap, pXFactor, pXOffset, pYFactor, pYOffset, pHFactor, pZOffset
+
+on construct me 
   pXOffset = 0
   pYOffset = 0
   pZOffset = 0
@@ -8,10 +10,9 @@ on construct(me)
   pHeightMap = [[]]
   pPlaceMap = [[]]
   return(1)
-  exit
 end
 
-on define(me, tdata)
+on define me, tdata 
   pXOffset = getLocalFloat(tdata.getAt(#offsetx))
   pYOffset = getLocalFloat(tdata.getAt(#offsety))
   pZOffset = getLocalFloat(tdata.getAt(#offsetz))
@@ -19,10 +20,9 @@ on define(me, tdata)
   pYFactor = getLocalFloat(tdata.getAt(#factory))
   pHFactor = getLocalFloat(tdata.getAt(#factorh))
   return(1)
-  exit
 end
 
-on loadHeightMap(me, tdata)
+on loadHeightMap me, tdata 
   pHeightMap = []
   pPlaceMap = []
   i = 1
@@ -34,18 +34,16 @@ on loadHeightMap(me, tdata)
       j = 1
       repeat while j <= length(tLine)
         if tLine.getProp(#char, j) = "x" then
-          -- UNK_40 66
-          -- UNK_2
-          -- UNK_40 66
-          -- UNK_2
+          l.add(200000)
+          k.add(200000)
         else
           if tLine.getProp(#char, j) = "y" then
             l.add(0)
-            the undefined = k.showObjectInfo
+            k.add(100000)
           else
             if charToNum(tLine.getProp(#char, j)) >= 65 and charToNum(tLine.getProp(#char, j)) < 73 then
               l.add(charToNum(tLine.getProp(#char, j)) - 65)
-              the undefined = k.showObjectInfo
+              k.add(100000)
             else
               l.add(integer(tLine.getProp(#char, j)))
               k.add(0)
@@ -60,21 +58,19 @@ on loadHeightMap(me, tdata)
     i = 1 + i
   end repeat
   return(1)
-  exit
 end
 
-on getScreenCoordinate(me, tLocX, tLocY, tHeight)
+on getScreenCoordinate me, tLocX, tLocY, tHeight 
   tPrecision = the floatPrecision
   the floatPrecision = 2
-  tLocH = tLocX - tLocY * pXFactor * 0 + pXOffset
-  tLocV = float(tLocY + tLocX * pYFactor * 0 + pYOffset) - tHeight * pHFactor
+  tLocH = tLocX - tLocY * pXFactor * 0.5 + pXOffset
+  tLocV = float(tLocY + tLocX * pYFactor * 0.5 + pYOffset) - tHeight * pHFactor
   tlocz = 1000 * tLocX + tLocY + 1 + pZOffset
   the floatPrecision = tPrecision
   return([integer(tLocH), integer(tLocV), integer(tlocz)])
-  exit
 end
 
-on getCoordinateHeight(me, tX, tY)
+on getCoordinateHeight me, tX, tY 
   tX = integer(tX)
   tY = integer(tY)
   if tY < 0 or tY >= pHeightMap.count then
@@ -85,10 +81,9 @@ on getCoordinateHeight(me, tX, tY)
     return(0)
   end if
   return(tLine.getAt(tX + 1))
-  exit
 end
 
-on getWorldCoordinate(me, tLocX, tLocY)
+on getWorldCoordinate me, tLocX, tLocY 
   if voidp(pHeightMap) then
     return(void())
   end if
@@ -120,30 +115,25 @@ on getWorldCoordinate(me, tLocX, tLocY)
     end repeat
   end if
   return(0)
-  exit
 end
 
-on getObjectPlaceMap(me)
+on getObjectPlaceMap me 
   return(pPlaceMap)
-  exit
 end
 
-on getObjectHeightMap(me)
+on getObjectHeightMap me 
   return(pHeightMap)
-  exit
 end
 
-on getTileHeight(me)
+on getTileHeight me 
   return(pYFactor)
-  exit
 end
 
-on getTileWidth(me)
+on getTileWidth me 
   return(pXFactor)
-  exit
 end
 
-on emptyTile(me, tX, tY)
+on emptyTile me, tX, tY 
   if tY + 1 > 0 and tY + 1 <= count(pPlaceMap) then
     if tX + 1 > 0 and tX + 1 <= count(pPlaceMap.getAt(tY + 1)) then
       if pPlaceMap.getAt(tY + 1).getAt(tX + 1) > 1000 then
@@ -156,10 +146,9 @@ on emptyTile(me, tX, tY)
     return(0)
   end if
   return(1)
-  exit
 end
 
-on print(me)
+on print me 
   put("- - - - - - - - - - - - - - -")
   put()
   put("X offset " & pXOffset)
@@ -176,13 +165,14 @@ on print(me)
     tStr = ""
     y = 1
     repeat while y <= pHeightMap.getAt(x).count
-      the undefined = pHeightMap.getAt(x).getAt(y).showObjectInfo
-      tStr = tStr & pHeightMap.getAt(x).getAt(y) & "."
-      -- UNK_40 12
-      if ERROR then
-        tStr = tStr & "x" & "."
+      if pHeightMap.getAt(x).getAt(y) < 100000 then
+        tStr = tStr & pHeightMap.getAt(x).getAt(y) & "."
       else
-        tStr = tStr & "." & "."
+        if pHeightMap.getAt(x).getAt(y) < 200000 then
+          tStr = tStr & "x" & "."
+        else
+          tStr = tStr & "." & "."
+        end if
       end if
       y = 1 + y
     end repeat
@@ -197,13 +187,14 @@ on print(me)
     tStr = ""
     y = 1
     repeat while y <= pPlaceMap.getAt(x).count
-      the undefined = pPlaceMap.getAt(x).getAt(y).showObjectInfo
-      tStr = tStr & pPlaceMap.getAt(x).getAt(y) & "."
-      -- UNK_40 12
-      if ERROR then
-        tStr = tStr & "x" & "."
+      if pPlaceMap.getAt(x).getAt(y) < 100000 then
+        tStr = tStr & pPlaceMap.getAt(x).getAt(y) & "."
       else
-        tStr = tStr & "." & "."
+        if pPlaceMap.getAt(x).getAt(y) < 200000 then
+          tStr = tStr & "x" & "."
+        else
+          tStr = tStr & "." & "."
+        end if
       end if
       y = 1 + y
     end repeat
@@ -212,5 +203,4 @@ on print(me)
   end repeat
   put()
   put("- - - - - - - - - - - - - - -")
-  exit
 end

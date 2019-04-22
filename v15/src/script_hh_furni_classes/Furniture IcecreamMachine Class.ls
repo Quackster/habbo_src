@@ -1,18 +1,18 @@
-on prepare(me, tdata)
+property pActive, pSync, pAnimFrame, pUserClicked
+
+on prepare me, tdata 
   pUserClicked = 0
   pLastDir = -1
   pSync = 0
   return(1)
-  exit
 end
 
-on updateStuffdata(me, tValue)
+on updateStuffdata me, tValue 
   pAnimFrame = 1
   pActive = 1
-  exit
 end
 
-on update(me)
+on update me 
   if pActive then
     pSync = pSync + 1
     if pSync < 3 then
@@ -23,37 +23,37 @@ on update(me)
       return(0)
     end if
     if pAnimFrame > 0 then
-      if me = 1 then
+      if pAnimFrame = 1 then
         me.switchMember("a", "1")
       else
-        if me = 2 then
+        if pAnimFrame = 2 then
           me.switchMember("d", "1")
         else
-          if me = 3 then
+          if pAnimFrame = 3 then
             me.switchMember("d", "2")
           else
-            if me = 4 then
+            if pAnimFrame = 4 then
               me.switchMember("d", "3")
             else
-              if me = 5 then
+              if pAnimFrame = 5 then
                 me.switchMember("d", "4")
               else
-                if me = 6 then
+                if pAnimFrame = 6 then
                   me.switchMember("d", "5")
                 else
-                  if me = 7 then
+                  if pAnimFrame = 7 then
                     me.switchMember("a", "0")
                   else
-                    if me = 8 then
+                    if pAnimFrame = 8 then
                       if pUserClicked then
                         me.giveDrink()
                       end if
                       pUserClicked = 0
                     else
-                      if me = 9 then
+                      if pAnimFrame = 9 then
                         me.switchMember("d", "6")
                       else
-                        if me = 15 then
+                        if pAnimFrame = 15 then
                           me.switchMember("d", "0")
                           pAnimFrame = 0
                           pActive = 0
@@ -71,10 +71,9 @@ on update(me)
       pAnimFrame = pAnimFrame + 1
     end if
   end if
-  exit
 end
 
-on switchMember(me, tPart, tNewMem)
+on switchMember me, tPart, tNewMem 
   tSprNum = ["a", "b", "c", "d", "e", "f"].getPos(tPart)
   if me.count(#pSprList) < tSprNum or tSprNum = 0 then
     return(0)
@@ -87,10 +86,9 @@ on switchMember(me, tPart, tNewMem)
     me.getPropRef(#pSprList, tSprNum).width = tmember.width
     me.getPropRef(#pSprList, tSprNum).height = tmember.height
   end if
-  exit
 end
 
-on select(me)
+on select me 
   tUserObj = getThread(#room).getComponent().getOwnUser()
   if tUserObj = 0 then
     return(1)
@@ -99,7 +97,7 @@ on select(me)
   tloc = tUserObj.getProperty(#loc)
   tLocX = tloc.getAt(1)
   tLocY = tloc.getAt(2)
-  if me = 4 then
+  if me.getProp(#pDirection, 1) = 4 then
     if me.pLocX = tLocX and me.pLocY - tLocY = -1 then
       if the doubleClick and not tCarrying then
         me.setAnimation()
@@ -108,7 +106,7 @@ on select(me)
       getThread(#room).getComponent().getRoomConnection().send("MOVE", [#short:me.pLocX, #short:me.pLocY + 1])
     end if
   else
-    if me = 0 then
+    if me.getProp(#pDirection, 1) = 0 then
       if me.pLocX = tLocX and me.pLocY - tLocY = 1 then
         if the doubleClick and not tCarrying then
           me.setAnimation()
@@ -117,7 +115,7 @@ on select(me)
         getThread(#room).getComponent().getRoomConnection().send("MOVE", [#short:me.pLocX, #short:me.pLocY - 1])
       end if
     else
-      if me = 2 then
+      if me.getProp(#pDirection, 1) = 2 then
         if me.pLocY = tLocY and me.pLocX - tLocX = -1 then
           if the doubleClick and not tCarrying then
             me.setAnimation()
@@ -126,7 +124,7 @@ on select(me)
           getThread(#room).getComponent().getRoomConnection().send("MOVE", [#short:me.pLocX + 1, #short:me.pLocY])
         end if
       else
-        if me = 6 then
+        if me.getProp(#pDirection, 1) = 6 then
           if me.pLocY = tLocY and me.pLocX - tLocX = 1 then
             if the doubleClick and not tCarrying then
               me.setAnimation()
@@ -139,10 +137,9 @@ on select(me)
     end if
   end if
   return(1)
-  exit
 end
 
-on setAnimation(me)
+on setAnimation me 
   if pActive = 1 then
     return(1)
   end if
@@ -153,10 +150,9 @@ on setAnimation(me)
   end if
   getThread(#room).getComponent().getRoomConnection().send("SETSTUFFDATA", [#string:string(me.getID()), #string:"TRUE"])
   tConnection.send("LOOKTO", me.pLocX && me.pLocY)
-  exit
 end
 
-on giveDrink(me)
+on giveDrink me 
   tConnection = getThread(#room).getComponent().getRoomConnection()
   if tConnection = 0 then
     return(0)
@@ -171,5 +167,4 @@ on giveDrink(me)
   end if
   tToken = tToken.getAt(1)
   tConnection.send("CARRYDRINK", tToken)
-  exit
 end

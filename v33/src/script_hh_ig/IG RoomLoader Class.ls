@@ -1,14 +1,12 @@
-on construct(me)
+on construct me 
   return(1)
-  exit
 end
 
-on deconstruct(me)
+on deconstruct me 
   return(me.deconstruct())
-  exit
 end
 
-on constructArena(me, tdata, tMsg)
+on constructArena me, tdata, tMsg 
   tConn = tMsg.connection
   tMainThread = me.getMainThread()
   if tMainThread = 0 then
@@ -22,7 +20,7 @@ on constructArena(me, tdata, tMsg)
   executeMessage(#hide_navigator, #Remove)
   tMarker = tdata.getaProp(#room_marker)
   tRoomComponent.pRoomId = #game
-  tSaveData = []
+  tSaveData = [:]
   tSaveData.setaProp(#type, #game)
   tSaveData.setaProp(#id, tMarker)
   tSaveData.setaProp(#marker, tMarker)
@@ -32,10 +30,9 @@ on constructArena(me, tdata, tMsg)
   executeMessage(#gamesystem_sendevent, #msgstruct_gamereset, tMsg)
   me.updateProcess()
   return(1)
-  exit
 end
 
-on exitArena(me)
+on exitArena me 
   tRoomThread = getThread(#room)
   if tRoomThread = 0 then
     return(0)
@@ -43,10 +40,9 @@ on exitArena(me)
   tComponent = tRoomThread.getComponent()
   tComponent.roomDisconnected()
   return(1)
-  exit
 end
 
-on roomConnected(me, tClass, tMarker, tstate)
+on roomConnected me, tClass, tMarker, tstate 
   tRoomThread = getThread(#room)
   if tRoomThread = 0 then
     return(0)
@@ -67,10 +63,9 @@ on roomConnected(me, tClass, tMarker, tstate)
   tShadowManager = tComponent.getShadowManager()
   tShadowManager.define("roomShadow")
   return(1)
-  exit
 end
 
-on updateProcess(me, tKey, tValue)
+on updateProcess me, tKey, tValue 
   tRoomThread = getThread(#room)
   if tRoomThread = 0 then
     return(0)
@@ -84,5 +79,4 @@ on updateProcess(me, tKey, tValue)
   call(#prepare, [tComponent.getRoomPrg()])
   executeMessage(#roomReady)
   return(receivePrepare(tComponent.getID()))
-  exit
 end

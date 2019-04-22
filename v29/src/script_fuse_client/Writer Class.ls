@@ -1,4 +1,6 @@
-on construct(me)
+property pMember, pDontProfile, pTxtRect, pDefRect, pTextRenderMode, pFntStru, pUnderliningDisabled
+
+on construct me 
   pDefRect = rect(0, 0, 480, 480)
   pTxtRect = void()
   pFntStru = void()
@@ -21,10 +23,9 @@ on construct(me)
     pMember.wordWrap = 0
     return(1)
   end if
-  exit
 end
 
-on setProfiling()
+on setProfiling  
   if voidp(pDontProfile) then
     pDontProfile = 1
     if getObjectManager().managerExists(#variable_manager) then
@@ -33,19 +34,17 @@ on setProfiling()
       end if
     end if
   end if
-  exit
 end
 
-on deconstruct(me)
+on deconstruct me 
   if ilk(pMember, #member) then
     getResourceManager().removeMember(pMember.name)
     pMember = void()
   end if
   return(1)
-  exit
 end
 
-on define(me, tMetrics)
+on define me, tMetrics 
   if not ilk(tMetrics, #propList) then
     return(0)
   end if
@@ -117,10 +116,9 @@ on define(me, tMetrics)
     finishProfilingTask("Writer::define")
   end if
   return(1)
-  exit
 end
 
-on render(me, tText, tRect)
+on render me, tText, tRect 
   if not pDontProfile then
     startProfilingTask("Writer::render")
   end if
@@ -173,10 +171,9 @@ on render(me, tText, tRect)
     finishProfilingTask("Writer::render")
   end if
   return(tImage)
-  exit
 end
 
-on renderHTML(me, tHtml, tRect)
+on renderHTML me, tHtml, tRect 
   if not pDontProfile then
     startProfilingTask("Writer::renderHTML")
   end if
@@ -227,10 +224,9 @@ on renderHTML(me, tHtml, tRect)
     finishProfilingTask("Writer::renderHTML")
   end if
   return(tImage)
-  exit
 end
 
-on setFont(me, tStruct)
+on setFont me, tStruct 
   if not pDontProfile then
     startProfilingTask("Writer::setFont")
   end if
@@ -261,10 +257,9 @@ on setFont(me, tStruct)
     finishProfilingTask("Writer::setFont")
   end if
   return(1)
-  exit
 end
 
-on getFont(me)
+on getFont me 
   if voidp(pFntStru) then
     pFntStru = getStructVariable("struct.font.empty")
   end if
@@ -275,17 +270,15 @@ on getFont(me)
   tLineHeight = pMember.fontSize + pMember.topSpacing
   pFntStru.setaProp(#lineHeight, tLineHeight)
   return(pFntStru)
-  exit
 end
 
-on setProperty(me, tKey, tValue)
-  tProps = []
+on setProperty me, tKey, tValue 
+  tProps = [:]
   tProps.setaProp(tKey, tValue)
   return(me.define(tProps))
-  exit
 end
 
-on fakeAlphaRender(me)
+on fakeAlphaRender me 
   tColorWas = pMember.color
   tBgColorWas = pMember.bgColor
   if pUnderliningDisabled then
@@ -308,10 +301,8 @@ on fakeAlphaRender(me)
   pMember.color = tColorWas
   pMember.bgColor = tBgColorWas
   return(tOut)
-  exit
 end
 
-on handlers()
+on handlers  
   return([])
-  exit
 end

@@ -1,17 +1,18 @@
-on construct(me)
+property pAvatarAction, pHiliteSpriteNum, pFramework, pAvatarId, pActionPartList, pDump, pReady, pTeamId
+
+on construct me 
   pActionPartList = ["bd", "sh"]
   pReady = 0
   pDump = 0
-  pAvatarAction = []
+  pAvatarAction = [:]
   pAvatarAction.setAt(#tag, "")
   if not objectp(me.ancestor) then
     return(0)
   end if
   return(ancestor.construct())
-  exit
 end
 
-on deconstruct(me)
+on deconstruct me 
   pReady = 0
   if pHiliteSpriteNum > 0 then
     releaseSprite(pHiliteSpriteNum)
@@ -20,24 +21,23 @@ on deconstruct(me)
     return(1)
   end if
   return(ancestor.deconstruct())
-  exit
 end
 
-on define(me, tdata)
+on define me, tdata 
   me.pPartClass = getVariableValue("snowwar.bodypart.class")
   pTeamId = string(tdata.getAt(#team_id))
   pAvatarId = string(tdata.getAt(#human_id))
   callAncestor(#define, me, tdata)
-  if me = 1 then
+  if tdata.getAt(#activity_state) = 1 then
     me.gameObjectAction("start_create")
   else
-    if me = 2 then
-      tParams = []
+    if tdata.getAt(#activity_state) = 2 then
+      tParams = [:]
       tParams.addProp(#hit_direction, tdata.getAt(#body_direction))
       me.gameObjectAction("start_stunned", tParams)
       me.gameObjectAction("next_stunned")
     else
-      if me = 3 then
+      if tdata.getAt(#activity_state) = 3 then
         me.gameObjectAction("start_invincible")
       end if
     end if
@@ -45,10 +45,9 @@ on define(me, tdata)
   pReady = 1
   me.setOwnHiliter(1)
   return(1)
-  exit
 end
 
-on select(me)
+on select me 
   if pFramework = void() then
     pFramework = getObject(#snowwar_gamesystem)
   end if
@@ -76,10 +75,9 @@ on select(me)
     end if
   end if
   return(0)
-  exit
 end
 
-on setAvatarEventListener(me, tTargetID)
+on setAvatarEventListener me, tTargetID 
   tsprite = me.pMatteSpr
   if not ilk(tsprite) = #sprite then
     return(0)
@@ -87,16 +85,14 @@ on setAvatarEventListener(me, tTargetID)
   tsprite.registerProcedure(#eventProcSnowwarUserRollOver, tTargetID, #mouseEnter)
   tsprite.registerProcedure(#eventProcSnowwarUserRollOver, tTargetID, #mouseLeave)
   return(1)
-  exit
 end
 
-on gameObjectRefreshLocation(me, tX, tY, tH, tDirHead, tDirBody)
+on gameObjectRefreshLocation me, tX, tY, tH, tDirHead, tDirBody 
   me.resetValues(tX, tY, tH, tDirHead, tDirBody)
   return(1)
-  exit
 end
 
-on gameObjectNewMoveTarget(me, tX, tY, tH, tDirHead, tDirBody, tAction)
+on gameObjectNewMoveTarget me, tX, tY, tH, tDirHead, tDirBody, tAction 
   me.pMoveTime = 300
   tX = integer(tX)
   tY = integer(tY)
@@ -114,21 +110,19 @@ on gameObjectNewMoveTarget(me, tX, tY, tH, tDirHead, tDirBody, tAction)
   call(#defineAct, me.getDefinedPartList(pActionPartList), "wlk")
   me.Refresh(me.pLocX, me.pLocY, me.pLocH)
   return(1)
-  exit
 end
 
-on gameObjectMoveDone(me, tX, tY, tH, tDirHead, tDirBody, tAction)
+on gameObjectMoveDone me, tX, tY, tH, tDirHead, tDirBody, tAction 
   me.pAnimCounter = 0
   me.resetValues(tX, tY, tH, tDirHead, tDirBody)
   call(#reset, me.pPartList)
   me.setHumanSpriteLoc()
   me.setOwnHiliter(1)
   return(1)
-  exit
 end
 
-on gameObjectAction(me, tAction, tdata)
-  if me = "start_throw" then
+on gameObjectAction me, tAction, tdata 
+  if tAction = "start_throw" then
     me.resetValues(me.pLocX, me.pLocY, me.pLocH, tdata, tdata)
     me.Refresh(me.pLocX, me.pLocY, me.pLocH)
     call(#defineAct, me.getDefinedPartList(pActionPartList), "tr1")
@@ -136,7 +130,7 @@ on gameObjectAction(me, tAction, tdata)
     pAvatarAction.setAt(#tag, "throw")
     return(me.delay(100, #gameObjectAction, "next_throw"))
   else
-    if me = "next_throw" then
+    if tAction = "next_throw" then
       if pAvatarAction.getAt(#tag) <> "throw" then
         return(1)
       end if
@@ -149,13 +143,13 @@ on gameObjectAction(me, tAction, tdata)
       end if
       return(me.delay(300, #gameObjectAction, "timer_reset_figure"))
     else
-      if me = "timer_reset_figure" then
+      if tAction = "timer_reset_figure" then
         if pAvatarAction.getAt(#tag) <> "" then
           return(1)
         end if
         me.gameObjectAction("reset_figure", tdata)
       else
-        if me = "reset_figure" then
+        if tAction = "reset_figure" then
           me.pInvincible = 0
           me.pMainAction = "std"
           if pAvatarAction.findPos(#originaldirection) > 0 then
@@ -239,10 +233,9 @@ on gameObjectAction(me, tAction, tdata)
     end if
   end if
   return(1)
-  exit
 end
 
-on prepare(me)
+on prepare me 
   if me.pInvincible then
     me.pInvincibleCounter = me.pInvincibleCounter + 1
     if me.pInvincibleCounter > 2 then
@@ -253,16 +246,15 @@ on prepare(me)
   me.pAnimCounter = me.pAnimCounter + 1 mod 4
   if me.pMoving then
     tFactor = float(the milliSeconds - me.pMoveStart) / me.pMoveTime
-    if tFactor > 0 then
-      tFactor = 0
+    if tFactor > 1 then
+      tFactor = 1
     end if
     me.pScreenLoc = me.pDestLScreen - me.pStartLScreen * tFactor + me.pStartLScreen
     me.pChanges = 1
   end if
-  exit
 end
 
-on update(me)
+on update me 
   if pAvatarAction.getAt(#tag) = "dead" then
     return(1)
   end if
@@ -272,10 +264,9 @@ on update(me)
   else
     me.render()
   end if
-  exit
 end
 
-on render(me)
+on render me 
   if not me.pChanges then
     return(0)
   end if
@@ -418,10 +409,9 @@ on render(me)
   image.copyPixels(me.pBuffer, me.pUpdateRect, me.pUpdateRect)
   me.setOwnHiliter(1)
   return(1)
-  exit
 end
 
-on setHumanSpriteLoc(me)
+on setHumanSpriteLoc me 
   tOffZ = 2
   if ilk(me.pSprite) <> #sprite then
     return(0)
@@ -434,18 +424,16 @@ on setHumanSpriteLoc(me)
   me.loc = pSprite.loc + [me.pShadowFix, 0]
   me.locZ = pSprite.locZ - 3
   return(1)
-  exit
 end
 
-on Refresh(me, tX, tY, tH)
+on Refresh me, tX, tY, tH 
   call(#defineDir, me.pPartList, me.pDirection)
   me.arrangeParts()
   me.pChanges = 1
   return(1)
-  exit
 end
 
-on resetValues(me, tX, tY, tH, tDirHead, tDirBody)
+on resetValues me, tX, tY, tH, tDirHead, tDirBody 
   me.pMainAction = "std"
   me.pLocX = tX
   me.pLocY = tY
@@ -460,10 +448,9 @@ on resetValues(me, tX, tY, tH, tDirHead, tDirBody)
   me.pHeadDir = tDirHead
   me.pChanges = 1
   return(1)
-  exit
 end
 
-on setBlendInvincible(me)
+on setBlendInvincible me 
   tsprite = me.pSprite
   if ilk(tsprite) <> #sprite then
     return(0)
@@ -474,20 +461,19 @@ on setBlendInvincible(me)
     tsprite.blend = 20
   end if
   return(1)
-  exit
 end
 
-on arrangeParts(me)
+on arrangeParts me 
   if me.pPartList = void() then
     return(0)
   end if
   if me.count(#pPartList) = 0 then
     return(0)
   end if
-  if me = pAvatarAction.getAt(#tag) = "dead" then
+  if 1 = pAvatarAction.getAt(#tag) = "dead" then
     me.arrangeParts_Death()
   else
-    if me = me.pMainAction = "pck" then
+    if 1 = me.pMainAction = "pck" then
       me.arrangeParts_Pick()
     else
       callAncestor(#arrangeParts, me)
@@ -499,15 +485,14 @@ on arrangeParts(me)
     i = 1 + i
   end repeat
   return(1)
-  exit
 end
 
-on arrangeParts_Pick(me, tXFix, tYFix)
+on arrangeParts_Pick me, tXFix, tYFix 
   if me.pPartList = void() then
     return(0)
   end if
   tDirection = me.pDirection - me.pDirection mod 2
-  repeat while me <= tYFix
+  repeat while me.pPartList <= tYFix
     tPart = getAt(tYFix, tXFix)
     if pActionPartList.findPos(tPart.pPart) = 0 then
       tPart.pXFix = 3
@@ -516,25 +501,24 @@ on arrangeParts_Pick(me, tXFix, tYFix)
   end repeat
   me.pChanges = 1
   return(1)
-  exit
 end
 
-on arrangeParts_Death(me)
+on arrangeParts_Death me 
   if me.pPartList = void() then
     return(0)
   end if
   if pAvatarAction.getAt(#facedown) then
-    if me = 0 then
+    if pAvatarAction.getAt(#direction) = 0 then
       tHeadBelow = 1
       tFace = point(-3, 11)
     else
-      if me = 2 then
+      if pAvatarAction.getAt(#direction) = 2 then
         tFace = point(1, 9)
       else
-        if me = 4 then
+        if pAvatarAction.getAt(#direction) = 4 then
           tFace = point(3, 9)
         else
-          if me = 6 then
+          if pAvatarAction.getAt(#direction) = 6 then
             tHeadBelow = 1
             tFace = point(-1, 10)
           end if
@@ -542,17 +526,17 @@ on arrangeParts_Death(me)
       end if
     end if
   else
-    if me = 0 then
+    if pAvatarAction.getAt(#direction) = 0 then
       tHeadBelow = 1
       tFace = point(-2, 10)
     else
-      if me = 2 then
+      if pAvatarAction.getAt(#direction) = 2 then
         tFace = point(19, 8)
       else
-        if me = 4 then
+        if pAvatarAction.getAt(#direction) = 4 then
           tFace = point(18, 7)
         else
-          if me = 6 then
+          if pAvatarAction.getAt(#direction) = 6 then
             tHeadBelow = 1
             tFace = point(-1, 10)
           end if
@@ -561,7 +545,7 @@ on arrangeParts_Death(me)
     end if
   end if
   tActionParts = []
-  repeat while me <= undefined
+  repeat while pAvatarAction.getAt(#direction) <= undefined
     tPart = getAt(undefined, undefined)
     if not voidp(me.getProp(#pPartIndex, tPart)) then
       tActionParts.add(me.getProp(#pPartList, me.getProp(#pPartIndex, tPart)))
@@ -586,7 +570,7 @@ on arrangeParts_Death(me)
     end if
     i = 1 + i
   end repeat
-  repeat while me <= undefined
+  repeat while pAvatarAction.getAt(#direction) <= undefined
     tPart = getAt(undefined, undefined)
     if pActionPartList.findPos(tPart.pPart) = 0 then
       tPart.pXFix = tFace.locH
@@ -595,26 +579,23 @@ on arrangeParts_Death(me)
   end repeat
   me.pChanges = 1
   return(1)
-  exit
 end
 
-on getPartListNameBase(me)
+on getPartListNameBase me 
   return("snowwar.human.parts")
-  exit
 end
 
-on setPartLists(me, tmodels)
+on setPartLists me, tmodels 
   tmodels = me.fixSnowWarFigure(tmodels)
   callAncestor(#setPartLists, me, tmodels)
   return(1)
-  exit
 end
 
-on fixSnowWarFigure(me, tFigure)
-  repeat while me <= undefined
+on fixSnowWarFigure me, tFigure 
+  repeat while pActionPartList <= undefined
     tPartSymbol = getAt(undefined, tFigure)
     if voidp(tFigure.getAt(tPartSymbol)) then
-      tFigure.setAt(tPartSymbol, [])
+      tFigure.setAt(tPartSymbol, [:])
     end if
     tFigure.getAt(tPartSymbol).setAt("model", "snowwar")
     tFigure.getAt(tPartSymbol).setAt("color", rgb("EEEEEE"))
@@ -632,10 +613,9 @@ on fixSnowWarFigure(me, tFigure)
     tFigure.getAt("sh").setAt("color", tTeamColor)
   end if
   return(tFigure)
-  exit
 end
 
-on setOwnHiliter(me, tstate)
+on setOwnHiliter me, tstate 
   if not getObject(#session).exists("user_index") then
     return(0)
   end if
@@ -666,25 +646,21 @@ on setOwnHiliter(me, tstate)
   end if
   tsprite.locZ = me.getProp(#pScreenLoc, 3) + 1
   me.getProp(#pScreenLoc, 1).loc = point(tsprite + member.width / 2, me.getProp(#pScreenLoc, 2))
-  exit
 end
 
-on getPicture(me, tImg)
+on getPicture me, tImg 
   return(me.getPartialPicture(#Full, tImg, 4, "sh"))
-  exit
 end
 
-on getTeamId(me)
+on getTeamId me 
   return(pTeamId)
-  exit
 end
 
-on getAvatarId(me)
+on getAvatarId me 
   return(pAvatarId)
-  exit
 end
 
-on action_mv(me, tProps)
+on action_mv me, tProps 
   me.pMoveTime = 500
   me.pMainAction = "wlk"
   me.pMoving = 1
@@ -702,5 +678,4 @@ on action_mv(me, tProps)
   me.pDestLScreen = pGeometry.getScreenCoordinate(tLocX, tLocY, tLocH)
   me.pMoveStart = the milliSeconds
   call(#defineAct, me.getDefinedPartList(pActionPartList), "wlk")
-  exit
 end

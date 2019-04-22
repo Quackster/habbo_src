@@ -1,4 +1,6 @@
-on construct(me)
+property pBackground, pSelectedBg, pTextRendererId, pimage, pwidth, pheight, pData, pIcon, pText
+
+on construct me 
   pData = void()
   pBackground = void()
   pSelectedBg = void()
@@ -6,15 +8,13 @@ on construct(me)
   pTextRendererId = getUniqueID()
   pimage = void()
   pText = ""
-  exit
 end
 
-on deconstruct(me)
+on deconstruct me 
   pData = void()
-  exit
 end
 
-on define(me, tNodeObj, tProps)
+on define me, tNodeObj, tProps 
   if not objectp(tNodeObj) then
     return(0)
   end if
@@ -53,28 +53,24 @@ on define(me, tNodeObj, tProps)
   else
     pText = tNodeObj.getData(#nodename)
   end if
-  exit
 end
 
-on setState(me, tstate)
+on setState me, tstate 
   me.render()
-  exit
 end
 
-on select(me, tSelected)
+on select me, tSelected 
   me.render()
-  exit
 end
 
-on getImage(me)
+on getImage me 
   if voidp(pimage) then
     me.render()
   end if
   return(pimage)
-  exit
 end
 
-on render(me)
+on render me 
   pimage = image(pwidth, pheight, 32)
   tLevel = integer(pData.getData(#level)) - 1
   tOffsetX = getIntVariable("treeview.node.start.offset") + getIntVariable("treeview.node.item.offset") * max([tLevel, 0])
@@ -103,10 +99,8 @@ on render(me)
     tOffsetY = pimage.height.getCenteredOfs(tStateIndicator, image.height)
     pimage.copyPixels(tStateIndicator.image, tStateIndicator.rect + rect(tOffsetX, tOffsetY, tOffsetX, tOffsetY), tStateIndicator.rect, [#useFastQuads:1, #ink:36])
   end if
-  exit
 end
 
-on getCenteredOfs(me, tDest, tSource)
+on getCenteredOfs me, tDest, tSource 
   return(tDest - tSource / 2)
-  exit
 end

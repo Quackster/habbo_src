@@ -1,13 +1,14 @@
-on prepare(me)
+property pTokenList
+
+on prepare me 
   pTokenList = value(getVariable("obj_" & me.pClass, "carrot"))
   if not listp(pTokenList) then
     pTokenList = [7]
   end if
   return(1)
-  exit
 end
 
-on select(me)
+on select me 
   if not threadExists(#room) then
     return(error(me, "Room thread not found!!!", #select))
   end if
@@ -19,11 +20,9 @@ on select(me)
     me.giveItem()
   end if
   return(1)
-  exit
 end
 
-on giveItem(me)
+on giveItem me 
   getThread(#room).getComponent().getRoomConnection().send("LOOKTO", [#integer:integer(me.pLocX), #integer:integer(me.pLocY)])
   getThread(#room).getComponent().getRoomConnection().send("CARRYOBJECT", [#integer:integer(pTokenList.getAt(random(pTokenList.count)))])
-  exit
 end

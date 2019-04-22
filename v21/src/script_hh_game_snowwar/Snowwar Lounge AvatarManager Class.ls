@@ -1,49 +1,46 @@
-on construct(me)
-  pSkillLevelList = []
+property pSkillLevelList
+
+on construct me 
+  pSkillLevelList = [:]
   registerMessage(#create_user, me.getID(), #storeCreatedAvatarInfo)
   registerMessage(#userKeywordInput, me.getID(), #showScoresChooser)
   return(1)
-  exit
 end
 
-on deconstruct(me)
+on deconstruct me 
   unregisterMessage(#create_user, me.getID())
   unregisterMessage(#userKeywordInput, me.getID())
   return(1)
-  exit
 end
 
-on Refresh(me, tTopic, tdata)
-  if me = #users then
+on Refresh me, tTopic, tdata 
+  if tTopic = #users then
     return(1)
   else
-    if me = #gameplayerinfo then
+    if tTopic = #gameplayerinfo then
       return(me.storeSkillLevels(tdata))
     end if
   end if
-  exit
 end
 
-on storeCreatedAvatarInfo(me, tName, tStrId)
+on storeCreatedAvatarInfo me, tName, tStrId 
   if pSkillLevelList.findPos(tStrId) <> 0 then
     return(me.showSkillLevel(pSkillLevelList.getAt(tStrId)))
   end if
   return(1)
-  exit
 end
 
-on storeSkillLevels(me, tdata)
-  repeat while me <= undefined
+on storeSkillLevels me, tdata 
+  repeat while tdata <= undefined
     tuser = getAt(undefined, tdata)
     if not me.showSkillLevel(tuser) then
       pSkillLevelList.addProp(string(tuser.getAt(#id)), tuser)
     end if
   end repeat
   return(1)
-  exit
 end
 
-on showSkillLevel(me, tdata)
+on showSkillLevel me, tdata 
   tStrId = string(tdata.getAt(#id))
   tSkillValue = tdata.getAt(#skillvalue)
   tSkillLevel = tdata.getAt(#skilllevel)
@@ -61,10 +58,9 @@ on showSkillLevel(me, tdata)
   tUserObj.pCustom = tSkillStr
   tUserObj.setProp(#pInfoStruct, #custom, tSkillStr)
   return(1)
-  exit
 end
 
-on showScoresChooser(me, tKeyword)
+on showScoresChooser me, tKeyword 
   if tKeyword <> ":roomscore" then
     return(0)
   end if
@@ -73,7 +69,7 @@ on showScoresChooser(me, tKeyword)
   if tRoomComponent = 0 then
     return(0)
   end if
-  repeat while me <= undefined
+  repeat while pSkillLevelList <= undefined
     tItem = getAt(undefined, tKeyword)
     tUserObj = tRoomComponent.getUserObject(string(tItem.getAt(#id)))
     if tUserObj <> 0 then
@@ -82,5 +78,4 @@ on showScoresChooser(me, tKeyword)
   end repeat
   executeMessage(#alert, tString)
   return(1)
-  exit
 end

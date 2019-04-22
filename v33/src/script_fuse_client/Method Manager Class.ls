@@ -1,18 +1,18 @@
-on construct(me)
-  pMethodCache = []
+property pMethodCache
+
+on construct me 
+  pMethodCache = [:]
   pMethodCache.sort()
   return(1)
-  exit
 end
 
-on deconstruct(me)
-  me.pItemList = []
-  pMethodCache = []
+on deconstruct me 
+  me.pItemList = [:]
+  pMethodCache = [:]
   return(1)
-  exit
 end
 
-on create(me, tID, tObject)
+on create me, tID, tObject 
   if voidp(tID) then
     return(error(me, "Failed to create method object, ID was void", #create, #major))
   end if
@@ -22,20 +22,18 @@ on create(me, tID, tObject)
     me.setProp(#pItemList, tID, tObject)
     return(1)
   end if
-  exit
 end
 
-on getMethod(me, tConnectionID, tCommand)
+on getMethod me, tConnectionID, tCommand 
   tMethods = pMethodCache.getAt(tConnectionID)
   if voidp(tMethods) then
     return(error(me, "Method list for connection not found:" && tConnectionID, #getMethod, #major))
   else
     return(tMethods.getAt(tCommand))
   end if
-  exit
 end
 
-on Remove(me, tID)
+on Remove me, tID 
   if voidp(me.getaProp(tID)) then
     return(error(me, "Object not found:" && tID, #Remove, #minor))
   else
@@ -43,10 +41,9 @@ on Remove(me, tID)
     me.deleteProp(tID)
     return(1)
   end if
-  exit
 end
 
-on register(me, tID, tObject)
+on register me, tID, tObject 
   if not tObject.handler(#getCommands) then
     return(error(me, "Invalid method object:" && tID, #register, #major))
   end if
@@ -58,7 +55,7 @@ on register(me, tID, tObject)
   repeat while i <= tMethodList.count
     tMethod = tMethodList.getPropAt(i)
     if voidp(pMethodCache.getAt(tMethod)) then
-      pMethodCache.setAt(tMethod, [])
+      pMethodCache.setAt(tMethod, [:])
       pMethodCache.getAt(tMethod).sort()
     end if
     tCurrentList = pMethodCache.getAt(tMethod)
@@ -74,10 +71,9 @@ on register(me, tID, tObject)
     i = 1 + i
   end repeat
   return(1)
-  exit
 end
 
-on unregister(me, tObjectOrID)
+on unregister me, tObjectOrID 
   if objectp(tObjectOrID) then
     tID = tObjectOrID.getID()
   else
@@ -100,10 +96,8 @@ on unregister(me, tObjectOrID)
     tConnection = 1 + tConnection
   end repeat
   return(1)
-  exit
 end
 
-on handlers()
+on handlers  
   return([])
-  exit
 end

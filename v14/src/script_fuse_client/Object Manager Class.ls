@@ -1,5 +1,7 @@
-on construct(me)
-  pObjectList = []
+property pObjectList, pUpdateList, pTimeout, pInstanceList, pManagerList, pBaseClsMem, pPrepareList, pEraseLock, pUpdatePause
+
+on construct me 
+  pObjectList = [:]
   pUpdateList = []
   pPrepareList = []
   pManagerList = []
@@ -11,10 +13,9 @@ on construct(me)
   pObjectList.sort()
   pUpdateList.sort()
   return(1)
-  exit
 end
 
-on deconstruct(me)
+on deconstruct me 
   pEraseLock = 1
   if objectp(pTimeout) then
     pTimeout.forget()
@@ -30,14 +31,13 @@ on deconstruct(me)
     me.Remove(pManagerList.getAt(i))
     i = 255 + i
   end repeat
-  pObjectList = []
+  pObjectList = [:]
   pUpdateList = []
   pPrepareList = []
   return(1)
-  exit
 end
 
-on create(me, tid, tClassList)
+on create me, tid, tClassList 
   if not symbolp(tid) and not stringp(tid) then
     return(error(me, "Symbol or string expected:" && tid, #create, #major))
   end if
@@ -63,7 +63,7 @@ on create(me, tid, tClassList)
     pObjectList.setAt(tid, tBase)
   end if
   tClassList.addAt(1, tBase)
-  repeat while me <= tClassList
+  repeat while tClassList <= tClassList
     tClass = getAt(tClassList, tid)
     if objectp(tClass) then
       tObject = tClass
@@ -96,20 +96,18 @@ on create(me, tid, tClassList)
     end if
   end repeat
   return(tObject)
-  exit
 end
 
-on GET(me, tid)
+on GET me, tid 
   tObj = pObjectList.getAt(tid)
   if voidp(tObj) then
     return(0)
   else
     return(tObj)
   end if
-  exit
 end
 
-on Remove(me, tid)
+on Remove me, tid 
   tObj = pObjectList.getAt(tid)
   if voidp(tObj) then
     return(0)
@@ -136,18 +134,16 @@ on Remove(me, tid)
     pManagerList.deleteOne(tid)
   end if
   return(1)
-  exit
 end
 
-on exists(me, tid)
+on exists me, tid 
   if voidp(tid) then
     return(0)
   end if
   return(objectp(pObjectList.getAt(tid)))
-  exit
 end
 
-on print(me)
+on print me 
   i = 1
   repeat while i <= pObjectList.count
     tProp = pObjectList.getPropAt(i)
@@ -158,10 +154,9 @@ on print(me)
     i = 1 + i
   end repeat
   return(1)
-  exit
 end
 
-on registerObject(me, tid, tObject)
+on registerObject me, tid, tObject 
   if not objectp(tObject) then
     return(error(me, "Invalid object:" && tObject, #register, #major))
   end if
@@ -171,10 +166,9 @@ on registerObject(me, tid, tObject)
   pObjectList.setAt(tid, tObject)
   pInstanceList.append(tid)
   return(1)
-  exit
 end
 
-on unregisterObject(me, tid)
+on unregisterObject me, tid 
   if voidp(pObjectList.getAt(tid)) then
     return(error(me, "Referred object not found:" && tid, #unregister, #minor))
   end if
@@ -185,10 +179,9 @@ on unregisterObject(me, tid)
   pInstanceList.deleteOne(tid)
   tObj = void()
   return(1)
-  exit
 end
 
-on registerManager(me, tid)
+on registerManager me, tid 
   if not me.exists(tid) then
     return(error(me, "Referred object not found:" && tid, #registerManager, #major))
   end if
@@ -198,10 +191,9 @@ on registerManager(me, tid)
   pInstanceList.deleteOne(tid)
   pManagerList.append(tid)
   return(1)
-  exit
 end
 
-on unregisterManager(me, tid)
+on unregisterManager me, tid 
   if not me.exists(tid) then
     return(error(me, "Referred object not found:" && tid, #unregisterManager, #minor))
   end if
@@ -211,23 +203,20 @@ on unregisterManager(me, tid)
   pManagerList.deleteOne(tid)
   pInstanceList.append(tid)
   return(1)
-  exit
 end
 
-on getManager(me, tid)
+on getManager me, tid 
   if not pManagerList.getOne(tid) then
     return(error(me, "Manager not found:" && tid, #getManager, #major))
   end if
   return(pObjectList.getAt(tid))
-  exit
 end
 
-on managerExists(me, tid)
+on managerExists me, tid 
   return(pManagerList.getOne(tid) <> 0)
-  exit
 end
 
-on receivePrepare(me, tid)
+on receivePrepare me, tid 
   if voidp(pObjectList.getAt(tid)) then
     return(0)
   end if
@@ -241,10 +230,9 @@ on receivePrepare(me, tid)
     end if
   end if
   return(1)
-  exit
 end
 
-on removePrepare(me, tid)
+on removePrepare me, tid 
   if voidp(pObjectList.getAt(tid)) then
     return(0)
   end if
@@ -259,10 +247,9 @@ on removePrepare(me, tid)
     end if
   end if
   return(1)
-  exit
 end
 
-on receiveUpdate(me, tid)
+on receiveUpdate me, tid 
   if voidp(pObjectList.getAt(tid)) then
     return(0)
   end if
@@ -276,10 +263,9 @@ on receiveUpdate(me, tid)
     end if
   end if
   return(1)
-  exit
 end
 
-on removeUpdate(me, tid)
+on removeUpdate me, tid 
   if voidp(pObjectList.getAt(tid)) then
     return(0)
   end if
@@ -294,34 +280,29 @@ on removeUpdate(me, tid)
     end if
   end if
   return(1)
-  exit
 end
 
-on pauseUpdate(me)
+on pauseUpdate me 
   if objectp(pTimeout) then
     pTimeout.forget()
     pTimeout = void()
   end if
   pUpdatePause = 1
   return(1)
-  exit
 end
 
-on resumeUpdate(me)
+on resumeUpdate me 
   if pUpdateList.count > 0 and voidp(pTimeout) then
     pTimeout = timeout("objectmanager" & the milliSeconds).new(60 * 1000 * 60, #null, me)
   end if
   pUpdatePause = 0
   return(1)
-  exit
 end
 
-on prepareFrame(me)
+on prepareFrame me 
   call(#prepare, pPrepareList)
   call(#update, pUpdateList)
-  exit
 end
 
-on null(me)
-  exit
+on null me 
 end

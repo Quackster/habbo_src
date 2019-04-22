@@ -1,4 +1,6 @@
-on beginSprite(me)
+property sFrame, context
+
+on beginSprite me 
   if openCatalog = 1 then
     openCatalog = 0
     oldItemLimiter = the itemDelimiter
@@ -32,10 +34,9 @@ on beginSprite(me)
     CropToVisibleArea(me, point(0, 0))
     the itemDelimiter = oldItemLimiter
   end if
-  exit
 end
 
-on ScrollCatalogIndex(me, direction)
+on ScrollCatalogIndex me, direction 
   scroll = 1
   if direction = "left" then
     repeat while scroll
@@ -78,10 +79,9 @@ on ScrollCatalogIndex(me, direction)
       scroll = 0
     end if
   end repeat
-  exit
 end
 
-on CropToVisibleArea(me, StartPoint)
+on CropToVisibleArea me, StartPoint 
   StartPoint = StartPoint + point(1, 0)
   MyMaxWidth = sprite(me.spriteNum + 1).left - sprite(me.spriteNum - 1).right
   myImage = image(MyMaxWidth, ButtonHeigth, 32)
@@ -90,10 +90,9 @@ on CropToVisibleArea(me, StartPoint)
   targetRect = member("CropcatalogIndexPic").rect
   sourseRect = rect(StartPoint, StartPoint + point(ButtonWidth * MyMaxWidth / ButtonWidth + 1, ButtonHeigth))
   member("CropcatalogIndexPic").image.copyPixels(Pic.image, targetRect, sourseRect)
-  exit
 end
 
-on mouseUp(me)
+on mouseUp me 
   oldItemLimiter = the itemDelimiter
   the itemDelimiter = ","
   click = the mouseH - sprite(me.spriteNum).left / ButtonWidth + whichIsFirstNow
@@ -114,5 +113,4 @@ on mouseUp(me)
     goContext(sFrame, context)
   end if
   the itemDelimiter = oldItemLimiter
-  exit
 end

@@ -1,21 +1,21 @@
-on prepare(me, tdata)
+property pActive, pDelay, pFrame, pCycles
+
+on prepare me, tdata 
   pActive = 0
   pFrame = 0
   pCycles = 0
   pDelay = 0
   return(1)
-  exit
 end
 
-on updateStuffdata(me, tValue)
+on updateStuffdata me, tValue 
   if tValue = "I" then
     me.setOn()
   end if
   return(1)
-  exit
 end
 
-on update(me)
+on update me 
   if not pActive then
     return()
   end if
@@ -46,23 +46,19 @@ on update(me)
   me.getPropRef(#pSprList, 3).castNum = tmember.number
   me.getPropRef(#pSprList, 3).width = tmember.width
   me.getPropRef(#pSprList, 3).height = tmember.height
-  exit
 end
 
-on setOn(me)
+on setOn me 
   pActive = 1
-  exit
 end
 
-on setOff(me)
+on setOff me 
   pActive = 0
-  exit
 end
 
-on select(me)
+on select me 
   if the doubleClick then
     getThread(#room).getComponent().getRoomConnection().send("SETSTUFFDATA", [#string:string(me.getID()), #string:"I"])
   end if
   return(1)
-  exit
 end

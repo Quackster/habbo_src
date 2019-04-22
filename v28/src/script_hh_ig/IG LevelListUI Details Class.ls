@@ -1,4 +1,4 @@
-on addWindows(me)
+on addWindows me 
   me.pWindowID = "cr"
   tWrapObjRef = me.getWindowWrapper()
   if tWrapObjRef = 0 then
@@ -16,10 +16,9 @@ on addWindows(me)
   tWrapObjRef.addOneWindow(me.getWindowId("hor"), "ig_divider_hor.window", tSetID, [#scaleV:1])
   tWrapObjRef.addOneWindow(me.getWindowId("btn_j"), "ig_frame_create_btm.window", tSetID)
   return(1)
-  exit
 end
 
-on render(me)
+on render me 
   tService = me.getIGComponent("LevelList")
   if tService = 0 then
     return(0)
@@ -37,30 +36,28 @@ on render(me)
     i = 1 + i
   end repeat
   return(1)
-  exit
 end
 
-on renderProperty(me, tKey, tValue)
-  if me = #game_type_icon then
+on renderProperty me, tKey, tValue 
+  if tKey = #game_type_icon then
     return(me.renderType(tValue))
   else
-    if me = #level_name then
+    if tKey = #level_name then
       return(me.renderName(tValue))
     else
-      if me = #number_of_teams then
+      if tKey = #number_of_teams then
         return(me.renderNumberOfTeams(tValue))
       else
-        if me = #private then
+        if tKey = #private then
           return(me.renderPrivateFlag(tValue))
         end if
       end if
     end if
   end if
   return(0)
-  exit
 end
 
-on renderType(me, tValue)
+on renderType me, tValue 
   tWndObj = getWindow(me.getWindowId())
   if tWndObj = 0 then
     return(0)
@@ -73,10 +70,9 @@ on renderType(me, tValue)
     tElem.feedImage(tValue)
   end if
   return(1)
-  exit
 end
 
-on renderName(me, tValue)
+on renderName me, tValue 
   tWndObj = getWindow(me.getWindowId())
   if tWndObj = 0 then
     return(0)
@@ -87,10 +83,9 @@ on renderName(me, tValue)
   end if
   tElem.setText(tValue)
   return(1)
-  exit
 end
 
-on renderNumberOfTeams(me, tValue)
+on renderNumberOfTeams me, tValue 
   tWndObj = getWindow(me.getWindowId())
   if tWndObj = 0 then
     return(0)
@@ -111,10 +106,9 @@ on renderNumberOfTeams(me, tValue)
     i = 1 + i
   end repeat
   return(1)
-  exit
 end
 
-on renderPrivateFlag(me, tValue)
+on renderPrivateFlag me, tValue 
   tWndObj = getWindow(me.getWindowId("invite"))
   if tWndObj = 0 then
     return(0)
@@ -128,5 +122,4 @@ on renderPrivateFlag(me, tValue)
     tElem.setProperty(#blend, 0 + tValue * 100)
   end if
   return(1)
-  exit
 end

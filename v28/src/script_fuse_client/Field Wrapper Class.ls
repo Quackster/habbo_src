@@ -1,9 +1,10 @@
-on deconstruct(me)
+property pMember
+
+on deconstruct me 
   return(getResourceManager().removeMember(pMember.name))
-  exit
 end
 
-on prepare(me)
+on prepare me 
   pMember = member(getResourceManager().createMember(me.getProp(#pProps, #member) & the milliSeconds & numToChar(random(99)), #field))
   pMember.wordWrap = me.getProp(#pProps, #wordWrap)
   pMember.autoTab = me.getProp(#pProps, #autoTab)
@@ -35,58 +36,51 @@ on prepare(me)
   me.member = pMember
   pMember.rect = rect(0, 0, me.pwidth, me.pheight)
   return(1)
-  exit
 end
 
-on getText(me)
+on getText me 
   return(pMember.text)
-  exit
 end
 
-on setText(me, tText)
+on setText me, tText 
   if not stringp(tText) then
     tText = string(tText)
   end if
   pMember.text = tText
   return(1)
-  exit
 end
 
-on setEdit(me, tBool)
+on setEdit me, tBool 
   if tBool <> 1 and tBool <> 0 then
     return(0)
   end if
   pMember.editable = tBool
   me.editable = tBool
   return(1)
-  exit
 end
 
-on setFocus(me, tBool)
-  if me = 1 then
+on setFocus me, tBool 
+  if tBool = 1 then
     the keyboardFocusSprite = me.spriteNum
   else
-    if me = 0 then
+    if tBool = 0 then
       the keyboardFocusSprite = 0
     else
       return(0)
     end if
   end if
   return(1)
-  exit
 end
 
-on render(me)
+on render me 
   me.pwidth = me.width
   me.pheight = me.height
   me.rect = rect(0, 0, me.pwidth, me.pheight)
-  exit
 end
 
-on draw(me, tRGB)
+on draw me, tRGB 
   if not ilk(tRGB, #color) then
     tRGB = rgb(255, 0, 0)
   end if
   undefined.draw(me.rect, [#shapeType:#rect, #color:tRGB])
-  exit
 end

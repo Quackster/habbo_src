@@ -1,14 +1,12 @@
-on construct(me)
+on construct me 
   return(me.regMsgList(1))
-  exit
 end
 
-on deconstruct(me)
+on deconstruct me 
   return(me.regMsgList(0))
-  exit
 end
 
-on handle_sound_data(me, tMsg)
+on handle_sound_data me, tMsg 
   tdata = []
   tStr = tMsg.GetStrFrom()
   tPlayTime = tMsg.GetIntFrom()
@@ -42,10 +40,9 @@ on handle_sound_data(me, tMsg)
   end repeat
   the itemDelimiter = tDelim
   me.getComponent().parseSongData(tdata, tPlayTime)
-  exit
 end
 
-on handle_machine_sound_packages(me, tMsg)
+on handle_machine_sound_packages me, tMsg 
   if voidp(tMsg.connection) then
     return(0)
   end if
@@ -69,10 +66,9 @@ on handle_machine_sound_packages(me, tMsg)
   end repeat
   me.getComponent().removeSoundSetInsertLock()
   return(1)
-  exit
 end
 
-on handle_user_sound_packages(me, tMsg)
+on handle_user_sound_packages me, tMsg 
   if voidp(tMsg.connection) then
     return(0)
   end if
@@ -85,15 +81,14 @@ on handle_user_sound_packages(me, tMsg)
     i = 1 + i
   end repeat
   return(me.getComponent().updateSetList(tList))
-  exit
 end
 
-on regMsgList(me, tBool)
-  tMsgs = []
+on regMsgList me, tBool 
+  tMsgs = [:]
   tMsgs.setaProp(300, #handle_sound_data)
   tMsgs.setaProp(301, #handle_machine_sound_packages)
   tMsgs.setaProp(302, #handle_user_sound_packages)
-  tCmds = []
+  tCmds = [:]
   tCmds.setaProp("GET_SOUND_MACHINE_CONFIGURATION", 217)
   tCmds.setaProp("SAVE_SOUND_MACHINE_CONFIGURATION", 218)
   tCmds.setaProp("INSERT_SOUND_PACKAGE", 219)
@@ -107,5 +102,4 @@ on regMsgList(me, tBool)
     unregisterCommands(getVariable("connection.info.id"), me.getID(), tCmds)
   end if
   return(1)
-  exit
 end

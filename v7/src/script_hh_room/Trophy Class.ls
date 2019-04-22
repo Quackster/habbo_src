@@ -1,4 +1,6 @@
-on prepare(me, tdata)
+property pMsg, pPlateObjID, pName, pDate, pWindowName
+
+on prepare me, tdata 
   pPlateObjID = "trophy_plate"
   pName = ""
   pMsg = ""
@@ -39,10 +41,9 @@ on prepare(me, tdata)
     end if
   end if
   return(1)
-  exit
 end
 
-on select(me)
+on select me 
   if the doubleClick then
     if not objectExists(pPlateObjID) then
       tObj = createObject(pPlateObjID, "Plate Class")
@@ -54,5 +55,4 @@ on select(me)
     end if
   end if
   return(1)
-  exit
 end

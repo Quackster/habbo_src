@@ -1,33 +1,30 @@
-on construct(me)
+property pRemoteControlledUsers, pHighlightUser
+
+on construct me 
   pRemoteControlledUsers = []
   return(me.regMsgList(1))
-  exit
 end
 
-on deconstruct(me)
+on deconstruct me 
   pRemoteControlledUsers = []
   return(me.regMsgList(0))
-  exit
 end
 
-on handle_opc_ok(me, tMsg)
+on handle_opc_ok me, tMsg 
   if me.getComponent().getRoomID() = "private" then
     me.getComponent().roomConnected(void(), "OPC_OK")
   end if
-  exit
 end
 
-on handle_clc(me)
+on handle_clc me 
   me.getComponent().roomDisconnected()
-  exit
 end
 
-on handle_youaremod(me, tMsg)
+on handle_youaremod me, tMsg 
   return(1)
-  exit
 end
 
-on handle_flat_letin(me, tMsg)
+on handle_flat_letin me, tMsg 
   tConn = tMsg.connection
   tName = tConn.GetStrFrom()
   me.getInterface().showDoorBellAccepted(tName)
@@ -35,73 +32,66 @@ on handle_flat_letin(me, tMsg)
     return(1)
   end if
   return(me.getComponent().roomConnected(void(), "FLAT_LETIN"))
-  exit
 end
 
-on handle_room_ready(me, tMsg)
+on handle_room_ready me, tMsg 
   me.getComponent().roomConnected(tMsg.getProp(#word, 1), "ROOM_READY")
-  exit
 end
 
-on handle_logout(me, tMsg)
+on handle_logout me, tMsg 
   tuser = tMsg.getProp(#word, 1)
   if tuser <> getObject(#session).GET("user_index") then
     me.getComponent().removeUserObject(tuser)
   end if
-  exit
 end
 
-on handle_disconnect(me)
+on handle_disconnect me 
   me.getComponent().roomDisconnected()
-  exit
 end
 
-on handle_error(me, tMsg)
+on handle_error me, tMsg 
   tErr = tMsg.content
   error(me, tMsg.getID() & ":" && tErr, #handle_error, #dummy)
-  if me = "info: No place for stuff" then
+  if tErr = "info: No place for stuff" then
     me.getInterface().stopObjectMover()
   else
-    if me = "Incorrect flat password" then
+    if tErr = "Incorrect flat password" then
       if threadExists(#navigator) then
         getThread(#navigator).getComponent().flatAccessResult(tErr)
       end if
     else
-      if me = "Password required" then
+      if tErr = "Password required" then
         if threadExists(#navigator) then
           getThread(#navigator).getComponent().flatAccessResult(tErr)
         end if
       else
-        if me = "weird error" then
+        if tErr = "weird error" then
           executeMessage(#leaveRoom)
         else
-          if me = "Not owner" then
+          if tErr = "Not owner" then
             getObject(#session).set("room_controller", 0)
           end if
         end if
       end if
     end if
   end if
-  exit
 end
 
-on handle_doorbell_ringing(me, tMsg)
+on handle_doorbell_ringing me, tMsg 
   if tMsg.content = "" then
     return(me.getInterface().showDoorBellWaiting())
   else
     return(me.getInterface().showDoorBellDialog(tMsg.content))
   end if
-  exit
 end
 
-on handle_flatnotallowedtoenter(me, tMsg)
+on handle_flatnotallowedtoenter me, tMsg 
   tConn = tMsg.connection
   tName = tConn.GetStrFrom()
   return(me.getInterface().showDoorBellRejected(tName))
-  exit
 end
 
-on handle_status(me, tMsg)
+on handle_status me, tMsg 
   tList = []
   tCount = tMsg.count(#line)
   tDelim = the itemDelimiter
@@ -110,7 +100,7 @@ on handle_status(me, tMsg)
   repeat while i <= tCount
     tLine = tMsg.getProp(#line, i)
     if length(tLine) > 5 then
-      tuser = []
+      tuser = [:]
       tuser.setAt(#id, tLine.getPropRef(#item, 1).getProp(#word, 1))
       tloc = tLine.getPropRef(#item, 1).getProp(#word, 2)
       the itemDelimiter = ","
@@ -134,7 +124,7 @@ on handle_status(me, tMsg)
     i = 1 + i
   end repeat
   the itemDelimiter = tDelim
-  repeat while me <= undefined
+  repeat while tList <= undefined
     tuser = getAt(undefined, tMsg)
     if not pRemoteControlledUsers.getOne(tuser.getAt(#id)) > 0 then
       tUserObj = me.getComponent().getUserObject(tuser.getAt(#id))
@@ -151,11 +141,11 @@ on handle_status(me, tMsg)
           end if
           i = 255 + i
         end repeat
-        repeat while me <= undefined
+        repeat while tList <= undefined
           tAction = getAt(undefined, tMsg)
           tActionList.add(tAction)
         end repeat
-        repeat while me <= undefined
+        repeat while tList <= undefined
           tAction = getAt(undefined, tMsg)
           call(symbol("action_" & tAction.getAt(#name)), [tUserObj], tAction.getAt(#params))
         end repeat
@@ -163,13 +153,12 @@ on handle_status(me, tMsg)
       end if
     end if
   end repeat
-  exit
 end
 
-on handle_users(me, tMsg)
+on handle_users me, tMsg 
   tCount = tMsg.count(#line)
   tDelim = the itemDelimiter
-  tList = []
+  tList = [:]
   tuser = ""
   if not objectExists("Figure_System") then
     return(error(me, "Figure system object not found!", #handle_users, #major))
@@ -179,13 +168,13 @@ on handle_users(me, tMsg)
     tLine = tMsg.getProp(#line, f)
     tProp = tLine.getProp(#char, 1)
     tdata = tLine.getProp(#char, 3, length(tLine))
-    if me = "i" then
+    if tProp = "i" then
       tuser = tdata
-      tList.setAt(tuser, [])
+      tList.setAt(tuser, [:])
       tList.getAt(tuser).setAt(#direction, [0, 0])
       tList.getAt(tuser).setAt(#id, tdata)
     else
-      if me = "n" then
+      if tProp = "n" then
         tList.getAt(tuser).setAt(#name, tdata)
         if tdata contains numToChar(4) then
           tList.getAt(tuser).setAt(#class, "pet")
@@ -193,25 +182,25 @@ on handle_users(me, tMsg)
           tList.getAt(tuser).setAt(#class, "user")
         end if
       else
-        if me = "f" then
+        if tProp = "f" then
           tList.getAt(tuser).setAt(#figure, tdata)
         else
-          if me = "l" then
+          if tProp = "l" then
             tList.getAt(tuser).setAt(#x, integer(tdata.getProp(#word, 1)))
             tList.getAt(tuser).setAt(#y, integer(tdata.getProp(#word, 2)))
             tList.getAt(tuser).setAt(#h, getLocalFloat(tdata.getProp(#word, 3)))
           else
-            if me = "c" then
+            if tProp = "c" then
               tList.getAt(tuser).setAt(#custom, tdata)
             else
-              if me = "s" then
+              if tProp = "s" then
                 if tdata.getProp(#char, 1) = "F" or tdata.getProp(#char, 1) = "f" then
                   tList.getAt(tuser).setAt(#sex, "F")
                 else
                   tList.getAt(tuser).setAt(#sex, "M")
                 end if
               else
-                if me = "p" then
+                if tProp = "p" then
                   if tdata contains "ch=s" then
                     the itemDelimiter = "/"
                     tmodel = tdata.getProp(#char, 4, 6)
@@ -226,8 +215,8 @@ on handle_users(me, tMsg)
                     tList.getAt(tuser).setAt(#class, "pelle")
                   end if
                 else
-                  if me = "b" then
-                    tBadges = []
+                  if tProp = "b" then
+                    tBadges = [:]
                     tDataPairs = explode(tdata, ",")
                     tPairNum = 1
                     repeat while tPairNum <= tDataPairs.count
@@ -240,16 +229,16 @@ on handle_users(me, tMsg)
                     end repeat
                     tList.getAt(tuser).setAt(#badge, tBadges)
                   else
-                    if me = "a" then
+                    if tProp = "a" then
                       tList.getAt(tuser).setAt(#webID, tdata)
                     else
-                      if me = "g" then
+                      if tProp = "g" then
                         tList.getAt(tuser).setAt(#groupID, tdata)
                       else
-                        if me = "t" then
+                        if tProp = "t" then
                           tList.getAt(tuser).setAt(#groupstatus, tdata)
                         else
-                          if me = "x" then
+                          if tProp = "x" then
                             tList.getAt(tuser).setAt(#xp, integer(tdata))
                           else
                             if tLine.getProp(#word, 1) = "[bot]" then
@@ -270,7 +259,7 @@ on handle_users(me, tMsg)
     f = 1 + f
   end repeat
   tFigureParser = getObject("Figure_System")
-  repeat while me <= undefined
+  repeat while tProp <= undefined
     tObject = getAt(undefined, tMsg)
     tObject.setAt(#figure, tFigureParser.parseFigure(tObject.getAt(#figure), tObject.getAt(#sex), tObject.getAt(#class)))
   end repeat
@@ -279,7 +268,7 @@ on handle_users(me, tMsg)
     me.getComponent().validateUserObjects(0)
   else
     tName = getObject(#session).GET(#userName)
-    repeat while me <= undefined
+    repeat while tProp <= undefined
       tuser = getAt(undefined, tMsg)
       if tuser.getAt(#name) = tName then
         getObject(#session).set("user_index", tuser.getAt(#id))
@@ -297,10 +286,9 @@ on handle_users(me, tMsg)
       end if
     end repeat
   end if
-  exit
 end
 
-on handle_showprogram(me, tMsg)
+on handle_showprogram me, tMsg 
   tLine = tMsg.content
   tDst = tLine.getProp(#word, 1)
   tCmd = tLine.getProp(#word, 2)
@@ -310,35 +298,31 @@ on handle_showprogram(me, tMsg)
   if objectp(tObj) then
     call(#showprogram, [tObj], tdata)
   end if
-  exit
 end
 
-on handle_no_user_for_gift(me, tMsg)
+on handle_no_user_for_gift me, tMsg 
   tUserName = tMsg.content
   tAlertString = getText("no_user_for_gift")
   tAlertString = replaceChunks(tAlertString, "%user%", tUserName)
   executeMessage(#alert, [#Msg:tAlertString])
-  exit
 end
 
-on handle_heightmap(me, tMsg)
+on handle_heightmap me, tMsg 
   me.getComponent().validateHeightMap(tMsg.content)
-  exit
 end
 
-on handle_heightmapupdate(me, tMsg)
+on handle_heightmapupdate me, tMsg 
   me.getComponent().updateHeightMap(tMsg.content)
-  exit
 end
 
-on handle_OBJECTS(me, tMsg)
+on handle_OBJECTS me, tMsg 
   tList = []
   tCount = tMsg.count(#line)
   i = 1
   repeat while i <= tCount
     tLine = tMsg.getProp(#line, i)
     if length(tLine) > 5 then
-      tObj = []
+      tObj = [:]
       tObj.setAt(#id, tLine.getProp(#word, 1))
       tObj.setAt(#class, tLine.getProp(#word, 2))
       tObj.setAt(#x, integer(tLine.getProp(#word, 3)))
@@ -362,21 +346,20 @@ on handle_OBJECTS(me, tMsg)
     i = 1 + i
   end repeat
   if count(tList) > 0 then
-    repeat while me <= undefined
+    repeat while tList <= undefined
       tObj = getAt(undefined, tMsg)
       me.getComponent().validatePassiveObjects(tObj)
     end repeat
   else
     me.getComponent().validatePassiveObjects(0)
   end if
-  exit
 end
 
-on parseActiveObject(me, tConn)
+on parseActiveObject me, tConn 
   if not tConn then
     return(0)
   end if
-  tObj = []
+  tObj = [:]
   tObj.setAt(#id, tConn.GetStrFrom())
   tObj.setAt(#class, tConn.GetStrFrom())
   tObj.setAt(#x, tConn.GetIntFrom())
@@ -396,10 +379,9 @@ on parseActiveObject(me, tConn)
   tStuffData = tConn.GetStrFrom()
   tObj.setAt(#props, [#runtimedata:tRuntimeData, #extra:tExtra, #stuffdata:tStuffData])
   return(tObj)
-  exit
 end
 
-on handle_activeobjects(me, tMsg)
+on handle_activeobjects me, tMsg 
   tConn = tMsg.connection
   if not tConn then
     return(0)
@@ -417,7 +399,7 @@ on handle_activeobjects(me, tMsg)
     i = 1 + i
   end repeat
   if count(tList) > 0 then
-    repeat while me <= undefined
+    repeat while tList <= undefined
       tObj = getAt(undefined, tMsg)
       me.getComponent().validateActiveObjects(tObj)
     end repeat
@@ -425,17 +407,15 @@ on handle_activeobjects(me, tMsg)
   else
     me.getComponent().validateActiveObjects(0)
   end if
-  exit
 end
 
-on handle_activeobject_remove(me, tMsg)
+on handle_activeobject_remove me, tMsg 
   me.getComponent().removeActiveObject(tMsg.getProp(#word, 1))
   executeMessage(#activeObjectRemoved)
   return(1)
-  exit
 end
 
-on handle_activeobject_add(me, tMsg)
+on handle_activeobject_add me, tMsg 
   tConn = tMsg.connection
   if not tConn then
     return(0)
@@ -447,10 +427,9 @@ on handle_activeobject_add(me, tMsg)
   me.getComponent().validateActiveObjects(tObj)
   executeMessage(#activeObjectsUpdated)
   return(1)
-  exit
 end
 
-on handle_activeobject_update(me, tMsg)
+on handle_activeobject_update me, tMsg 
   tConn = tMsg.connection
   if not tConn then
     return(0)
@@ -470,10 +449,9 @@ on handle_activeobject_update(me, tMsg)
   else
     return(error(me, "Active object not found:" && tObj.getAt(#id), #handle_activeobject_update, #major))
   end if
-  exit
 end
 
-on handle_items(me, tMsg)
+on handle_items me, tMsg 
   tList = []
   tDelim = the itemDelimiter
   i = 1
@@ -481,7 +459,7 @@ on handle_items(me, tMsg)
     the itemDelimiter = "\t"
     tLine = tMsg.getProp(#line, i)
     if tLine <> "" then
-      tObj = []
+      tObj = [:]
       tObj.setAt(#id, tLine.getProp(#item, 1))
       tObj.setAt(#class, tLine.getProp(#item, 2))
       tObj.setAt(#owner, tLine.getProp(#item, 3))
@@ -508,10 +486,10 @@ on handle_items(me, tMsg)
         tObj.setAt(#local_x, value(tLocalLoc.getProp(#item, 1)))
         tObj.setAt(#local_y, value(tLocalLoc.getProp(#item, 2)))
         tDirChar = tLocString.getProp(#word, 3)
-        if me = "r" then
+        if tDirChar = "r" then
           tObj.setAt(#direction, "rightwall")
         else
-          if me = "l" then
+          if tDirChar = "l" then
             tObj.setAt(#direction, "leftwall")
           end if
         end if
@@ -523,7 +501,7 @@ on handle_items(me, tMsg)
   end repeat
   the itemDelimiter = tDelim
   if count(tList) > 0 then
-    repeat while me <= undefined
+    repeat while tDirChar <= undefined
       tItem = getAt(undefined, tMsg)
       me.getComponent().validateItemObjects(tItem)
     end repeat
@@ -531,25 +509,22 @@ on handle_items(me, tMsg)
   else
     me.getComponent().validateItemObjects(0)
   end if
-  exit
 end
 
-on handle_removeitem(me, tMsg)
+on handle_removeitem me, tMsg 
   me.getComponent().removeItemObject(tMsg.content)
   executeMessage(#itemObjectRemoved)
   me.getInterface().stopObjectMover()
-  exit
 end
 
-on handle_updateitem(me, tMsg)
+on handle_updateitem me, tMsg 
   tItem = me.getComponent().getItemObject(tMsg.getProp(#word, 1))
   if objectp(tItem) then
     tItem.setState(the last word in tMsg.content)
   end if
-  exit
 end
 
-on handle_stuffdataupdate(me, tMsg)
+on handle_stuffdataupdate me, tMsg 
   tConn = tMsg.connection
   if not tConn then
     return(0)
@@ -561,10 +536,9 @@ on handle_stuffdataupdate(me, tMsg)
   else
     return(error(me, "Active object not found:" && tTarget, #handle_stuffdataupdate, #major))
   end if
-  exit
 end
 
-on handle_presentopen(me, tMsg)
+on handle_presentopen me, tMsg 
   ttype = tMsg.getProp(#line, 1)
   tCode = tMsg.getProp(#line, 2)
   tColors = tMsg.getProp(#line, 3)
@@ -574,35 +548,32 @@ on handle_presentopen(me, tMsg)
   else
     error(me, "Package card obj not found!", #handle_presentopen, #major)
   end if
-  exit
 end
 
-on handle_flatproperty(me, tMsg)
+on handle_flatproperty me, tMsg 
   tDelim = the itemDelimiter
   the itemDelimiter = "/"
   tLine = tMsg.content
   tdata = [#key:tLine.getProp(#item, 1), #value:tLine.getProp(#item, 2)]
   the itemDelimiter = tDelim
   me.getComponent().setRoomProperty(tdata.getAt(#key), tdata.getAt(#value))
-  exit
 end
 
-on handle_room_rights(me, tMsg)
-  if me = 42 then
+on handle_room_rights me, tMsg 
+  if tMsg.subject = 42 then
     getObject(#session).set("room_controller", 1)
   else
-    if me = 43 then
+    if tMsg.subject = 43 then
       getObject(#session).set("room_controller", 0)
     else
-      if me = 47 then
+      if tMsg.subject = 47 then
         getObject(#session).set("room_owner", 1)
       end if
     end if
   end if
-  exit
 end
 
-on handle_stripinfo(me, tMsg)
+on handle_stripinfo me, tMsg 
   tProps = [#objects:[], #count:0]
   tDelim = the itemDelimiter
   tProps.setAt(#count, integer(tMsg.getProp(#line, tMsg.count(#line))))
@@ -620,13 +591,13 @@ on handle_stripinfo(me, tMsg)
       if tItem.count(#item) < 2 then
         tTotalItemCount = integer(tItem - 1)
       else
-        tObj = []
+        tObj = [:]
         tObj.setAt(#stripId, tItem.getProp(#item, 2))
         tObjectPos = integer(tItem.getProp(#item, 3))
         tObj.setAt(#striptype, tItem.getProp(#item, 4))
         tObj.setAt(#id, tItem.getProp(#item, 5))
         tObj.setAt(#class, tItem.getProp(#item, 6))
-        if me = "S" then
+        if tObj.getAt(#striptype) = "S" then
           tObj.setAt(#name, getText("furni_" & tObj.getAt(#class) & "_name", "furni_" & tObj.getAt(#class) & "_name"))
           tObj.setAt(#striptype, "active")
           tObj.setAt(#custom, getText("furni_" & tObj.getAt(#class) & "_name", "furni_" & tObj.getAt(#class) & "_desc"))
@@ -651,11 +622,11 @@ on handle_stripinfo(me, tMsg)
             tObj.setAt(#stripColor, 0)
           end if
         else
-          if me = "I" then
+          if tObj.getAt(#striptype) = "I" then
             tObj.setAt(#striptype, "item")
             tObj.setAt(#props, tItem.getProp(#item, 7))
             tObj.setAt(#isRecyclable, tItem.getProp(#item, 8))
-            if me = "poster" then
+            if tObj.getAt(#striptype) = "poster" then
               tObj.setAt(#name, getText("poster_" & tObj.getAt(#props) & "_name", "poster_" & tObj.getAt(#props) & "_name"))
             else
               tObj.setAt(#name, getText("wallitem_" & tObj.getAt(#class) & "_name", "wallitem_" & tObj.getAt(#class) & "_name"))
@@ -674,47 +645,42 @@ on handle_stripinfo(me, tMsg)
   tInventory = me.getInterface().getContainer()
   tInventory.setHandButton("next", tTotalItemCount > integer(tStripMax))
   tInventory.setHandButton("prev", integer(tStripMax) > 8)
-  if me = 140 then
+  if tObj.getAt(#striptype) = 140 then
     tInventory.updateStripItems(tProps.getAt(#objects))
     tInventory.setStripItemCount(tProps.getAt(#count))
     tInventory.open(1)
     tInventory.Refresh()
   else
-    if me = 98 then
+    if tObj.getAt(#striptype) = 98 then
       tInventory.appendStripItem(tProps.getAt(#objects).getAt(1))
       tInventory.open(1)
       tInventory.Refresh()
     else
-      if me = 108 then
+      if tObj.getAt(#striptype) = 108 then
         return(tProps)
       end if
     end if
   end if
-  exit
 end
 
-on handle_stripupdated(me, tMsg)
+on handle_stripupdated me, tMsg 
   tMsg.send("GETSTRIP", "new")
-  exit
 end
 
-on handle_removestripitem(me, tMsg)
+on handle_removestripitem me, tMsg 
   me.getInterface().getContainer().removeStripItem(tMsg.getProp(#word, 1))
   me.getInterface().getContainer().Refresh()
-  exit
 end
 
-on handle_youarenotallowed(me)
+on handle_youarenotallowed me 
   executeMessage(#alert, [#Msg:"trade_youarenotallowed", #id:"youarenotallowed"])
-  exit
 end
 
-on handle_othernotallowed(me)
+on handle_othernotallowed me 
   executeMessage(#alert, [#Msg:"trade_othernotallowed", #id:"othernotallowed"])
-  exit
 end
 
-on handle_idata(me, tMsg)
+on handle_idata me, tMsg 
   tDelim = the itemDelimiter
   the itemDelimiter = "\t"
   tID = integer(tMsg.getPropRef(#line, 1).getProp(#item, 1))
@@ -722,15 +688,14 @@ on handle_idata(me, tMsg)
   tText = tMsg.getPropRef(#line, 1).getProp(#item, 2) & "\r" & tMsg.getProp(#line, 2, tMsg.count(#line))
   the itemDelimiter = tDelim
   executeMessage(symbol("itemdata_received" & tID), [#id:tID, #text:tText, #type:ttype])
-  exit
 end
 
-on handle_trade_items(me, tMsg)
-  tMessage = []
+on handle_trade_items me, tMsg 
+  tMessage = [:]
   i = 1
   repeat while i <= 2
     tLine = tMsg.getProp(#line, i)
-    tdata = []
+    tdata = [:]
     tdata.setAt(#accept, tLine.getProp(#word, 2))
     tItemStr = "foo" & "\r" & tLine.getProp(#word, 3, tLine.count(#word)) & "\r" & 1
     tdata.setAt(#items, me.handle_stripinfo([#subject:108, #content:tItemStr]).getaProp(#objects))
@@ -748,31 +713,27 @@ on handle_trade_items(me, tMsg)
     i = 1 + i
   end repeat
   return(me.getInterface().getSafeTrader().Refresh(tMessage))
-  exit
 end
 
-on handle_trade_close(me, tMsg)
+on handle_trade_close me, tMsg 
   me.getInterface().getSafeTrader().close()
   tMsg.send("GETSTRIP", "new")
-  exit
 end
 
-on handle_trade_accept(me, tMsg)
+on handle_trade_accept me, tMsg 
   tDelim = the itemDelimiter
   the itemDelimiter = "/"
   tuser = tMsg.getProp(#item, 1)
   tValue = tMsg.getProp(#item, 2) = "true"
   the itemDelimiter = tDelim
   me.getInterface().getSafeTrader().accept(tuser, tValue)
-  exit
 end
 
-on handle_trade_completed(me, tMsg)
+on handle_trade_completed me, tMsg 
   me.getInterface().getSafeTrader().complete()
-  exit
 end
 
-on handle_door_in(me, tMsg)
+on handle_door_in me, tMsg 
   tDelim = the itemDelimiter
   the itemDelimiter = "/"
   tDoor = tMsg.getProp(#item, 1)
@@ -785,10 +746,9 @@ on handle_door_in(me, tMsg)
       call(#prepareToKick, [tDoorObj], tuser)
     end if
   end if
-  exit
 end
 
-on handle_door_out(me, tMsg)
+on handle_door_out me, tMsg 
   tDelim = the itemDelimiter
   the itemDelimiter = "/"
   tDoor = me.getComponent().getActiveObject(tMsg.getProp(#item, 1))
@@ -796,10 +756,9 @@ on handle_door_out(me, tMsg)
   if tDoor <> 0 then
     call(#animate, [tDoor])
   end if
-  exit
 end
 
-on handle_doorflat(me, tMsg)
+on handle_doorflat me, tMsg 
   tConn = tMsg.connection
   tTeleId = tConn.GetIntFrom()
   tFlatID = tConn.GetIntFrom()
@@ -807,10 +766,9 @@ on handle_doorflat(me, tMsg)
     return(error(me, "Retarded doorflat data!", #handle_doorflat, #major))
   end if
   me.getComponent().startTeleport(tTeleId, tFlatID)
-  exit
 end
 
-on handle_doordeleted(me, tMsg)
+on handle_doordeleted me, tMsg 
   if getObject(#session).exists("current_door_ID") then
     tDoorID = getObject(#session).GET("current_door_ID")
     tDoorObj = me.getComponent().getActiveObject(tDoorID)
@@ -818,10 +776,9 @@ on handle_doordeleted(me, tMsg)
       tDoorObj.kickOut()
     end if
   end if
-  exit
 end
 
-on handle_dice_value(me, tMsg)
+on handle_dice_value me, tMsg 
   tID = tMsg.getProp(#word, 1)
   if tMsg.count(#word) = 1 then
     tValue = -1
@@ -834,10 +791,9 @@ on handle_dice_value(me, tMsg)
   if me.getComponent().activeObjectExists(tID) then
     call(#diceThrown, [me.getComponent().getActiveObject(tID)], tValue)
   end if
-  exit
 end
 
-on handle_roomad(me, tMsg)
+on handle_roomad me, tMsg 
   if tMsg.length > 1 then
     tDelim = the itemDelimiter
     the itemDelimiter = "\t"
@@ -849,10 +805,9 @@ on handle_roomad(me, tMsg)
   else
     me.getComponent().getAd().Init(0)
   end if
-  exit
 end
 
-on handle_petstat(me, tMsg)
+on handle_petstat me, tMsg 
   tPetObj = me.getComponent().getUserObject(tMsg.GetIntFrom())
   if tPetObj = 0 then
     return(error(me, "Pet object not found!", #handle_petstat, #major))
@@ -883,16 +838,15 @@ on handle_petstat(me, tMsg)
     registerMessage(#leaveRoom, tWndObj.getID(), #close)
     registerMessage(#changeRoom, tWndObj.getID(), #close)
   end if
-  exit
 end
 
-on handle_userbadge(me, tMsg)
+on handle_userbadge me, tMsg 
   if voidp(tMsg.connection) then
     return(0)
   end if
   tUserID = tMsg.GetStrFrom()
   tChosenBadgeCount = tMsg.GetIntFrom()
-  tBadges = []
+  tBadges = [:]
   i = 1
   repeat while i <= tChosenBadgeCount
     tBadgeIndex = tMsg.GetIntFrom()
@@ -907,10 +861,9 @@ on handle_userbadge(me, tMsg)
   tUserObj.pBadges = tBadges
   me.getInterface().unignoreAdmin(tUserID, tBadges)
   executeMessage(#updateInfoStandBadge, tBadges, tUserID)
-  exit
 end
 
-on handle_slideobjectbundle(me, tMsg)
+on handle_slideobjectbundle me, tMsg 
   tConn = tMsg.getaProp(#connection)
   tComponent = me.getComponent()
   tTimeNow = the milliSeconds
@@ -942,14 +895,14 @@ on handle_slideobjectbundle(me, tMsg)
     end if
   end if
   tMoveType = tConn.GetIntFrom()
-  if me = 0 then
+  if tMoveType = 0 then
     tHasCharacter = 0
   else
-    if me = 1 then
+    if tMoveType = 1 then
       tMoveType = "mv"
       tHasCharacter = 1
     else
-      if me = 2 then
+      if tMoveType = 2 then
         tMoveType = "sld"
         tHasCharacter = 1
       else
@@ -967,14 +920,13 @@ on handle_slideobjectbundle(me, tMsg)
       call(symbol("action_" & tMoveType), [tUserObj], tCommandStr)
     end if
   end if
-  repeat while me <= undefined
+  repeat while tMoveType <= undefined
     tObj = getAt(undefined, tMsg)
     tComponent.addSlideObject(tObj.getAt(1), tObj.getAt(2), tObj.getAt(3), tTimeNow, tHasCharacter)
   end repeat
-  exit
 end
 
-on handle_interstitialdata(me, tMsg)
+on handle_interstitialdata me, tMsg 
   if tMsg.length > 1 then
     tDelim = the itemDelimiter
     the itemDelimiter = "\t"
@@ -985,10 +937,9 @@ on handle_interstitialdata(me, tMsg)
   else
     me.getComponent().getInterstitial().Init(0)
   end if
-  exit
 end
 
-on handle_roomqueuedata(me, tMsg)
+on handle_roomqueuedata me, tMsg 
   tConn = tMsg.getaProp(#connection)
   tSetCount = tConn.GetIntFrom()
   tQueueCollection = []
@@ -997,8 +948,8 @@ on handle_roomqueuedata(me, tMsg)
     tQueueSetName = tConn.GetStrFrom()
     tQueueTarget = tConn.GetIntFrom()
     tNumberOfQueues = tConn.GetIntFrom()
-    tQueueData = []
-    tQueueSet = []
+    tQueueData = [:]
+    tQueueSet = [:]
     t = 1
     repeat while t <= tNumberOfQueues
       tQueueID = tConn.GetStrFrom()
@@ -1013,57 +964,51 @@ on handle_roomqueuedata(me, tMsg)
     i = 1 + i
   end repeat
   me.getInterface().updateQueueWindow(tQueueCollection)
-  exit
 end
 
-on handle_youarespectator(me)
+on handle_youarespectator me 
   return(me.getComponent().setSpectatorMode(1))
-  exit
 end
 
-on handle_removespecs(me)
+on handle_removespecs me 
   me.getInterface().showRemoveSpecsNotice()
-  exit
 end
 
-on handle_figure_change(me, tMsg)
+on handle_figure_change me, tMsg 
   tConn = tMsg.connection
   tUserID = tConn.GetIntFrom()
   tUserFigure = tConn.GetStrFrom()
   tUserSex = tConn.GetStrFrom()
   tUserCustomInfo = tConn.GetStrFrom()
   me.getComponent().updateCharacterFigure(tUserID, tUserFigure, tUserSex, tUserCustomInfo)
-  exit
 end
 
-on handle_spectator_amount(me, tMsg)
+on handle_spectator_amount me, tMsg 
   tConn = tMsg.connection
   tSpecCount = tConn.GetIntFrom()
   tSpecMax = tConn.GetIntFrom()
   me.getComponent().updateSpectatorCount(tSpecCount, tSpecMax)
-  exit
 end
 
-on handle_group_badges(me, tMsg)
+on handle_group_badges me, tMsg 
   tConn = tMsg.connection
   tNumberOfGroups = tConn.GetIntFrom()
   tGroupData = []
   tNo = 1
   repeat while tNo <= tNumberOfGroups
-    tGroup = []
+    tGroup = [:]
     tGroup.setAt(#id, tConn.GetIntFrom())
     tGroup.setAt(#logo, tConn.GetStrFrom())
     tGroupData.add(tGroup)
     tNo = 1 + tNo
   end repeat
   me.getComponent().getGroupInfoObject().updateGroupInformation(tGroupData)
-  exit
 end
 
-on handle_group_details(me, tMsg)
+on handle_group_details me, tMsg 
   tConn = tMsg.connection
   tGroupData = []
-  tGroup = []
+  tGroup = [:]
   tGroup.setAt(#id, tConn.GetIntFrom())
   if tGroup.getAt(#id) = -1 then
     return(0)
@@ -1075,10 +1020,9 @@ on handle_group_details(me, tMsg)
   tGroupData.add(tGroup)
   me.getComponent().getGroupInfoObject().updateGroupInformation(tGroupData)
   executeMessage(#groupInfoRetrieved, tGroup.getAt(#id))
-  exit
 end
 
-on handle_group_membership_update(me, tMsg)
+on handle_group_membership_update me, tMsg 
   tConn = tMsg.connection
   tUserIndex = tConn.GetIntFrom()
   tGroupId = tConn.GetIntFrom()
@@ -1090,19 +1034,17 @@ on handle_group_membership_update(me, tMsg)
       tuser.setProperty(#groupstatus, tStatus)
     end if
   end if
-  exit
 end
 
-on handle_room_rating(me, tMsg)
+on handle_room_rating me, tMsg 
   tConn = tMsg.connection
   tRoomRating = tConn.GetIntFrom()
   tRoomRatingPercent = tConn.GetIntFrom()
   me.getComponent().setRoomRating(tRoomRating, tRoomRatingPercent)
   executeMessage(#roomRatingChanged)
-  exit
 end
 
-on handle_user_tag_list(me, tMsg)
+on handle_user_tag_list me, tMsg 
   tConn = tMsg.connection
   tUserID = tConn.GetIntFrom()
   tNumOfTags = tConn.GetIntFrom()
@@ -1114,49 +1056,44 @@ on handle_user_tag_list(me, tMsg)
     tTagNum = 1 + tTagNum
   end repeat
   executeMessage(#updateUserTags, tUserID, tTagList)
-  exit
 end
 
-on handle_user_typing_status(me, tMsg)
+on handle_user_typing_status me, tMsg 
   tConn = tMsg.connection
   tUserID = tConn.GetIntFrom()
   tstate = tConn.GetIntFrom()
   tUserID = string(tUserID)
   me.getComponent().setUserTypingStatus(tUserID, tstate)
-  exit
 end
 
-on handle_highlight_user(me, tMsg)
+on handle_highlight_user me, tMsg 
   tConn = tMsg.getaProp(#connection)
   tUserID = tConn.GetStrFrom()
   pHighlightUser = tUserID
-  exit
 end
 
-on handle_roomevent_permission(me, tMsg)
+on handle_roomevent_permission me, tMsg 
   tConn = tMsg.getaProp(#connection)
   tCanCreate = tConn.GetIntFrom()
   if tCanCreate then
     executeMessage(#allowRoomeventCreation)
   end if
-  exit
 end
 
-on handle_roomevent_types(me, tMsg)
+on handle_roomevent_types me, tMsg 
   tConn = tMsg.getaProp(#connection)
   tTypeCount = tConn.GetIntFrom()
   me.getComponent().setRoomEventTypeCount(tTypeCount)
-  exit
 end
 
-on handle_roomevent_list(me, tMsg)
+on handle_roomevent_list me, tMsg 
   tConn = tMsg.getaProp(#connection)
   tTypeID = tConn.GetIntFrom()
   tEventCount = tConn.GetIntFrom()
   tEvents = []
   tEventNum = 1
   repeat while tEventNum <= tEventCount
-    tEvent = []
+    tEvent = [:]
     tEvent.setaProp(#flatId, tConn.GetStrFrom())
     tEvent.setaProp(#hostName, tConn.GetStrFrom())
     tEvent.setaProp(#name, tConn.GetStrFrom())
@@ -1166,12 +1103,11 @@ on handle_roomevent_list(me, tMsg)
     tEventNum = 1 + tEventNum
   end repeat
   me.getComponent().setRoomEventList(tTypeID, tEvents)
-  exit
 end
 
-on handle_roomevent_info(me, tMsg)
+on handle_roomevent_info me, tMsg 
   tConn = tMsg.getaProp(#connection)
-  tEventInfo = []
+  tEventInfo = [:]
   tHostID = tConn.GetStrFrom()
   tEventInfo.setaProp(#hostID, tHostID)
   if tHostID > 0 then
@@ -1183,17 +1119,15 @@ on handle_roomevent_info(me, tMsg)
     tEventInfo.setaProp(#time, tConn.GetStrFrom())
   end if
   me.getComponent().setRoomEvent(tEventInfo)
-  exit
 end
 
-on handle_ignore_user_result(me, tMsg)
+on handle_ignore_user_result me, tMsg 
   tConn = tMsg.getaProp(#connection)
   tResult = tConn.GetIntFrom()
   return(executeMessage(#ignore_user_result, tResult))
-  exit
 end
 
-on handle_ignore_list(me, tMsg)
+on handle_ignore_list me, tMsg 
   tConn = tMsg.getaProp(#connection)
   tCount = tConn.GetIntFrom()
   tList = []
@@ -1203,11 +1137,10 @@ on handle_ignore_list(me, tMsg)
     i = 1 + i
   end repeat
   return(executeMessage(#save_ignore_list, tList))
-  exit
 end
 
-on regMsgList(me, tBool)
-  tMsgs = []
+on regMsgList me, tBool 
+  tMsgs = [:]
   tMsgs.setaProp(-1, #handle_disconnect)
   tMsgs.setaProp(18, #handle_clc)
   tMsgs.setaProp(19, #handle_opc_ok)
@@ -1280,7 +1213,7 @@ on regMsgList(me, tBool)
   tMsgs.setaProp(370, #handle_roomevent_info)
   tMsgs.setaProp(419, #handle_ignore_user_result)
   tMsgs.setaProp(420, #handle_ignore_list)
-  tCmds = []
+  tCmds = [:]
   tCmds.setaProp(#room_directory, 2)
   tCmds.setaProp("GETDOORFLAT", 28)
   tCmds.setaProp("CHAT", 52)
@@ -1362,5 +1295,4 @@ on regMsgList(me, tBool)
     unregisterCommands(getVariable("connection.room.id"), me.getID(), tCmds)
   end if
   return(1)
-  exit
 end

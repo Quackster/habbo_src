@@ -1,29 +1,27 @@
-on beginSprite(me)
+property selected
+
+on beginSprite me 
   select(me, 0)
   registerOtherCard(gPoker, me)
-  exit
 end
 
-on setCard(me, card)
+on setCard me, card 
   sprite(me.spriteNum).castNum = getmemnum(card)
   sprite(me.spriteNum).width = member(getmemnum(card)).width
   sprite(me.spriteNum).height = member(getmemnum(card)).height
-  exit
 end
 
-on select(me, s)
+on select me, s 
   selected = s
   put("small_back_" & selected)
   sprite(me.spriteNum).castNum = getmemnum("small_back_" & selected)
   sprite(me.spriteNum).width = member(getmemnum("small_back_" & selected)).width
   sprite(me.spriteNum).height = member(getmemnum("small_back_" & selected)).height
-  exit
 end
 
-on getPropertyDescriptionList(me)
-  p = []
+on getPropertyDescriptionList me 
+  p = [:]
   addProp(p, #playerNum, [#comment:"Player num (1-3)", #format:#integer, #default:1])
   addProp(p, #cardNum, [#comment:"Card num (1-5)", #format:#integer, #default:1])
   return(p)
-  exit
 end

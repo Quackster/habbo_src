@@ -1,4 +1,6 @@
-on define(me, tid, tSprite, tDirection, tAncestor)
+property pSprite, pDirection, pOffset, pTurnPnt, pID
+
+on define me, tid, tSprite, tDirection, tAncestor 
   pID = tid
   ancestor = tAncestor
   pSprite = tSprite
@@ -6,10 +8,9 @@ on define(me, tid, tSprite, tDirection, tAncestor)
   pTurnPnt = 0
   pDirection = tDirection
   return(1)
-  exit
 end
 
-on reset(me)
+on reset me 
   tmodel = ["car2", "car_b2", "car_c2"].getAt(random(3))
   pSprite.castNum = getmemnum(tmodel)
   if pDirection = #left then
@@ -33,10 +34,9 @@ on reset(me)
     pSprite.ink = 36
     pSprite.backColor = 0
   end if
-  exit
 end
 
-on update(me)
+on update me 
   pSprite.loc = pSprite.loc + pOffset
   if pSprite.locH = pTurnPnt then
     pOffset.setAt(2, -pOffset.getAt(2))
@@ -51,5 +51,4 @@ on update(me)
   if pDirection = #left and pSprite.locV > 510 or pDirection = #right and pSprite.locH > 740 then
     me.resetCarAfterDelay(pID)
   end if
-  exit
 end

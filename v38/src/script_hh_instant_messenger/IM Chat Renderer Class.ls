@@ -1,4 +1,6 @@
-on construct(me)
+property pChatWidth, pMargin, pWriter, pHighlightUserID, pChatImage, pMaxHeight
+
+on construct me 
   pChatData = []
   pChatWidth = 185
   pMargin = 3
@@ -13,21 +15,18 @@ on construct(me)
   pWriter.define(tFont)
   pHighlightUserID = getObject(#session).GET("user_user_id")
   return(1)
-  exit
 end
 
-on deconstruct(me)
+on deconstruct me 
   removeObject(pWriter.getID())
   return(1)
-  exit
 end
 
-on setWidth(me, tWidth)
+on setWidth me, tWidth 
   pChatWidth = tWidth
-  exit
 end
 
-on renderChatEntry(me, tEntry, tPos)
+on renderChatEntry me, tEntry, tPos 
   ttype = tEntry.getaProp(#type)
   tUserID = tEntry.getaProp(#userID)
   tText = tEntry.getaProp(#Msg)
@@ -35,23 +34,23 @@ on renderChatEntry(me, tEntry, tPos)
   if tUseTime then
     tText = tEntry.getaProp(#time) && tText
   end if
-  if me = #invitation then
+  if ttype = #invitation then
     tColor = getVariable("im.color.invitation", "FFFFFF")
   else
-    if me = #notification then
+    if ttype = #notification then
       tColor = getVariable("im.color.notification", "FFFFFF")
     else
-      if me = #error then
+      if ttype = #error then
         tColor = getVariable("im.color.error", "FFFFFF")
       else
-        if me = #message then
+        if ttype = #message then
           if tUserID = pHighlightUserID then
             tColor = getVariable("im.color.sender", "FFFFFF")
           else
             tColor = getVariable("im.color.receiver", "FFFFFF")
           end if
         else
-          if me = #otherwise then
+          if ttype = #otherwise then
             tColor = "FFFFFF"
           end if
         end if
@@ -86,15 +85,12 @@ on renderChatEntry(me, tEntry, tPos)
   end if
   pChatImage = tNewChatImage
   return(1)
-  exit
 end
 
-on clearImage(me)
+on clearImage me 
   pChatImage = image(pChatWidth, 0, 8)
-  exit
 end
 
-on getChatImage(me)
+on getChatImage me 
   return(pChatImage)
-  exit
 end

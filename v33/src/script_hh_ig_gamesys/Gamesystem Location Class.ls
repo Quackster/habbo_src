@@ -1,4 +1,6 @@
-on define(me, tX, tY, tZ, tTileWidth, tAccuracyFactor)
+property pTileWidth, pAccuracyFactor, x, y, z, pTileFactor
+
+on define me, tX, tY, tZ, tTileWidth, tAccuracyFactor 
   x = tX
   y = tY
   z = tZ
@@ -6,59 +8,49 @@ on define(me, tX, tY, tZ, tTileWidth, tAccuracyFactor)
   pAccuracyFactor = tAccuracyFactor
   pTileFactor = pTileWidth * pAccuracyFactor
   return(1)
-  exit
 end
 
-on setLocation(me, tX, tY, tZ)
+on setLocation me, tX, tY, tZ 
   me.setLoc(tX, tY, tZ)
-  exit
 end
 
-on setLoc(me, tX, tY, tZ)
+on setLoc me, tX, tY, tZ 
   x = tX
   y = tY
   z = tZ
-  exit
 end
 
-on getLoc(me)
+on getLoc me 
   return([#x:x, #y:y, #z:z])
-  exit
 end
 
-on getLocation(me)
+on getLocation me 
   return([#x:x, #y:y, #z:z])
-  exit
 end
 
-on setTileLoc(me, tX, tY, tZ)
+on setTileLoc me, tX, tY, tZ 
   x = tX * pTileFactor
   y = tY * pTileFactor
   z = tZ * pTileFactor
-  exit
 end
 
-on getTileLoc(me)
+on getTileLoc me 
   return([#x:x + pTileFactor / 2 / pTileFactor, #y:y + pTileFactor / 2 / pTileFactor])
-  exit
 end
 
-on getTileX(me)
+on getTileX me 
   return(x + pTileFactor / 2 / pTileFactor)
-  exit
 end
 
-on getTileY(me)
+on getTileY me 
   return(y + pTileFactor / 2 / pTileFactor)
-  exit
 end
 
-on getTileZ(me)
+on getTileZ me 
   return(z + pTileFactor / 2 / pTileFactor)
-  exit
 end
 
-on isInDistance(me, tLocX, tLocY, tDistance)
+on isInDistance me, tLocX, tLocY, tDistance 
   tDistanceX = abs(tLocX - x)
   tDistanceY = abs(tLocY - y)
   if tDistanceY > tDistance or tDistanceX > tDistance then
@@ -68,10 +60,8 @@ on isInDistance(me, tLocX, tLocY, tDistance)
     return(1)
   end if
   return(0)
-  exit
 end
 
-on dump(me)
+on dump me 
   return("* Location:" && x && y && z & ", at tile:" && me.getTileLoc())
-  exit
 end

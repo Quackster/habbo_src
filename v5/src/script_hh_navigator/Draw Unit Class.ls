@@ -1,14 +1,16 @@
-on construct(me)
+property pWriterPlain, pWriterUnder, pPropList, pVisible, pCacheLineImg, pUserCount, pSubUnitOpen, pOrderNum, pCacheNameImg, pCacheLinkImg
+
+on construct me 
   pUserCount = void()
   pOrderNum = 0
   pSubUnitOpen = void()
   pVisible = 0
-  pPropList = []
+  pPropList = [:]
   pWriterPlain = getWriter("nav_draw_unit_plain")
   pWriterUnder = getWriter("nav_draw_unit_under")
   if pWriterPlain = 0 then
     tStruct = getStructVariable("struct.font.plain")
-    tMetrics = []
+    tMetrics = [:]
     tMetrics.setAt(#wordWrap, 0)
     tMetrics.setAt(#font, tStruct.getaProp(#font))
     tMetrics.setAt(#fontStyle, tStruct.getaProp(#fontStyle))
@@ -20,7 +22,7 @@ on construct(me)
   end if
   if pWriterUnder = 0 then
     tStruct = getStructVariable("struct.font.link")
-    tMetrics = []
+    tMetrics = [:]
     tMetrics.setAt(#wordWrap, 0)
     tMetrics.setAt(#font, tStruct.getaProp(#font))
     tMetrics.setAt(#fontStyle, tStruct.getaProp(#fontStyle))
@@ -32,15 +34,13 @@ on construct(me)
   end if
   pCacheLinkImg = pWriterUnder.render(getText("nav_gobutton")).duplicate()
   return(1)
-  exit
 end
 
-on define(me, tProps)
+on define me, tProps 
   pPropList = tProps
-  exit
 end
 
-on render(me, tBuffer)
+on render me, tBuffer 
   tUnitid = pPropList.getAt(#id)
   tUnitName = pPropList.getAt(#name)
   tImgHeight = pPropList.getAt(#height)
@@ -66,7 +66,7 @@ on render(me, tBuffer)
     pOrderNum = tOrderNum
     pSubUnitOpen = tdata.getAt(#multiroomOpen)
     pCacheLineImg = image(tBuffer.width, tImgHeight, tDepth)
-    if me = #mainUnit then
+    if tdata.getAt(#type) = #mainUnit then
       tImage = member(getmemnum("colored_room_icon")).image
       tIcon = image(tImage.width, tImage.height, tDepth)
       tColor = string(getVariable("icon.color." & tUnitid))
@@ -76,12 +76,12 @@ on render(me, tBuffer)
       tIcon.copyPixels(tImage, tImage.rect, tImage.rect, [#maskImage:tImage.createMatte(), #ink:41, #bgColor:rgb(tColor)])
       tLeft = 20
     else
-      if me = #MultiUnit then
+      if tdata.getAt(#type) = #MultiUnit then
         me.drawTriangleIcon(tdata)
         tIcon = member(getmemnum("multi_room_icon")).image
         tLeft = 20
       else
-        if me = #subUnit then
+        if tdata.getAt(#type) = #subUnit then
           tImage = member(getmemnum("colored_room_icon")).image
           tIcon = image(tImage.width, tImage.height, tDepth)
           tColor = string(getVariable("icon.color." & tUnitid))
@@ -140,17 +140,15 @@ on render(me, tBuffer)
       me.drawSubLinesIcon(tdata, tdestrect, tBuffer)
     end if
   end if
-  exit
 end
 
-on getClickedUnitName(me, tLineNum)
+on getClickedUnitName me, tLineNum 
   if pVisible and tLineNum = pOrderNum then
     return(pPropList.getAt(#id))
   end if
-  exit
 end
 
-on drawTriangleIcon(me, tdata)
+on drawTriangleIcon me, tdata 
   if tdata.getAt(#multiroomOpen) = #open then
     tTriangle = member(getmemnum("triangle_open")).image
     tY1 = 2
@@ -163,10 +161,9 @@ on drawTriangleIcon(me, tdata)
   tY2 = tTriangle.height + tY1
   tdestrect = rect(tX1, tY1, tX2, tY2)
   pCacheLineImg.copyPixels(tTriangle, tdestrect, tTriangle.rect)
-  exit
 end
 
-on drawSubLinesIcon(me, tdata, tdestrect, tBuffer)
+on drawSubLinesIcon me, tdata, tdestrect, tBuffer 
   if tdata.getAt(#visible) = 0 then
     return()
   end if
@@ -183,5 +180,4 @@ on drawSubLinesIcon(me, tdata, tdestrect, tBuffer)
   tY2 = tY1 + tDotLine.height
   tdestrect = rect(tX1, tY1, tX2, tY2) + rect(0, tdestrect.top + tFixY, 0, tdestrect.top + tFixY)
   tBuffer.copyPixels(tDotLine, tdestrect, tDotLine.rect)
-  exit
 end

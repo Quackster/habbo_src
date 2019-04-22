@@ -1,35 +1,34 @@
-on construct(me)
+property pWindowID, pTimeOutID, pEndTime, pDuration, pCountdownMember
+
+on construct me 
   pWindowID = getText("gs_title_countdown")
   pTimeOutID = "bb_countdown_timeout"
   return(1)
-  exit
 end
 
-on deconstruct(me)
+on deconstruct me 
   return(me.removeGameCountdown())
-  exit
 end
 
-on Refresh(me, tTopic, tdata)
-  if me = #gamereset then
+on Refresh me, tTopic, tdata 
+  if tTopic = #gamereset then
     return(me.startGameCountdown(tdata.getAt(#time_until_game_start), 0))
   else
-    if me = #fullgamestatus_time then
+    if tTopic = #fullgamestatus_time then
       if tdata.getAt(#state) = #started then
         return(me.removeGameCountdown())
       end if
       return(me.startGameCountdown(tdata.getAt(#time_to_next_state), tdata.getAt(#state_duration) - tdata.getAt(#time_to_next_state)))
     else
-      if me = #gamestart then
+      if tTopic = #gamestart then
         return(me.removeGameCountdown())
       end if
     end if
   end if
   return(1)
-  exit
 end
 
-on startGameCountdown(me, tSecondsLeft, tSecondsNowElapsed)
+on startGameCountdown me, tSecondsLeft, tSecondsNowElapsed 
   tMSecLeft = tSecondsLeft * 1000
   tDuration = tSecondsLeft + tSecondsNowElapsed * 1000
   if tMSecLeft <= 0 then
@@ -73,10 +72,9 @@ on startGameCountdown(me, tSecondsLeft, tSecondsNowElapsed)
   else
     return(0)
   end if
-  exit
 end
 
-on setBar(me)
+on setBar me 
   tWndObj = getWindow(pWindowID)
   if tWndObj = 0 then
     return(me.removeGameCountdown())
@@ -104,10 +102,9 @@ on setBar(me)
   end if
   tElem.resizeBy(integer(tNextWidth) - tCurrWidth, 0)
   return(1)
-  exit
 end
 
-on removeGameCountdown(me)
+on removeGameCountdown me 
   if timeoutExists(pTimeOutID) then
     removeTimeout(pTimeOutID)
   end if
@@ -115,16 +112,14 @@ on removeGameCountdown(me)
     removeWindow(pWindowID)
   end if
   return(1)
-  exit
 end
 
-on eventProc(me, tEvent, tSprID, tParam)
-  if me = "bb_button_cdown_exit" then
+on eventProc me, tEvent, tSprID, tParam 
+  if tSprID = "bb_button_cdown_exit" then
     if me.getGameSystem() = 0 then
       return(0)
     end if
     me.removeGameCountdown()
     return(me.getGameSystem().enterLounge())
   end if
-  exit
 end

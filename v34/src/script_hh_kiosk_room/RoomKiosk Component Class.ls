@@ -1,21 +1,20 @@
-on construct(me)
+property pState
+
+on construct me 
   registerMessage(#userlogin, me.getID(), #checkWebShortcuts)
   return(me.updateState("start"))
-  exit
 end
 
-on deconstruct(me)
+on deconstruct me 
   unregisterMessage(#userlogin, me.getID())
   return(me.updateState("reset"))
-  exit
 end
 
-on showHideRoomKiosk(me)
+on showHideRoomKiosk me 
   return(me.getInterface().showHideRoomKiosk())
-  exit
 end
 
-on sendNewRoomData(me, tName, tMarker, tDoorinfo, tShowOwnerName)
+on sendNewRoomData me, tName, tMarker, tDoorinfo, tShowOwnerName 
   if connectionExists(getVariable("connection.info.id")) then
     if not integerp(integer(tShowOwnerName)) then
       return(error(me, #sendNewRoomData, "Illegal type for showOwnerName, must be number", #major))
@@ -24,15 +23,14 @@ on sendNewRoomData(me, tName, tMarker, tDoorinfo, tShowOwnerName)
   else
     return(0)
   end if
-  exit
 end
 
-on sendSetFlatInfo(me, tFlatID, tDesc, tPassword, tAbleToMoveFurniture, tMaxVisitors)
+on sendSetFlatInfo me, tFlatID, tDesc, tPassword, tAbleToMoveFurniture, tMaxVisitors 
   if connectionExists(getVariable("connection.info.id")) then
     if voidp(tPassword) then
       tPassword = ""
     end if
-    tMsg = []
+    tMsg = [:]
     tMsg.addProp(#integer, integer(tFlatID))
     tMsg.addProp(#string, tDesc)
     tMsg.addProp(#string, tPassword)
@@ -44,10 +42,9 @@ on sendSetFlatInfo(me, tFlatID, tDesc, tPassword, tAbleToMoveFurniture, tMaxVisi
   else
     return(0)
   end if
-  exit
 end
 
-on sendFlatCategory(me, tNodeId, tCategoryId)
+on sendFlatCategory me, tNodeId, tCategoryId 
   if voidp(tNodeId) then
     return(error(me, "Node ID expected!", #sendFlatCategory, #major))
   end if
@@ -59,30 +56,27 @@ on sendFlatCategory(me, tNodeId, tCategoryId)
   else
     return(0)
   end if
-  exit
 end
 
-on updateState(me, tstate, tProps)
-  if me = "reset" then
+on updateState me, tstate, tProps 
+  if tstate = "reset" then
     pState = tstate
     return(unregisterMessage(#open_roomkiosk, me.getID()))
   else
-    if me = "start" then
+    if tstate = "start" then
       pState = tstate
       return(registerMessage(#open_roomkiosk, me.getID(), #showHideRoomKiosk))
     else
       return(error(me, "Unknown state:" && tstate, #updateState, #minor))
     end if
   end if
-  exit
 end
 
-on getState(me)
+on getState me 
   return(pState)
-  exit
 end
 
-on checkWebShortcuts(me, tChecked)
+on checkWebShortcuts me, tChecked 
   if tChecked = 1 then
     executeMessage(#open_roomkiosk)
     return(1)
@@ -97,5 +91,4 @@ on checkWebShortcuts(me, tChecked)
     end if
   end if
   return(1)
-  exit
 end

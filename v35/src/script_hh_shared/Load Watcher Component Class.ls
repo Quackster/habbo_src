@@ -1,29 +1,27 @@
-on construct(me)
+property pGotFurniData, pGotProductData
+
+on construct me 
   pGotProductData = 0
   pGotFurniData = 0
   registerMessage(#productDataReceived, me.getID(), #productData)
   registerMessage(#furnidataReceived, me.getID(), #furniData)
-  exit
 end
 
-on deconstruct(me)
+on deconstruct me 
   unregisterMessage(#productDataReceived, me.getID())
   unregisterMessage(#furnidataReceived, me.getID())
-  exit
 end
 
-on productData(me)
+on productData me 
   pGotProductData = 1
   if pGotFurniData then
     callJavaScriptFunction("clientHeavyInitFinished", string(getClientUpTime()))
   end if
-  exit
 end
 
-on furniData(me)
+on furniData me 
   pGotFurniData = 1
   if pGotProductData then
     callJavaScriptFunction("clientHeavyInitFinished", string(getClientUpTime()))
   end if
-  exit
 end

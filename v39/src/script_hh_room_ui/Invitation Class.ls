@@ -1,14 +1,15 @@
-on construct(me)
+property pWindowID
+
+on construct me 
   pWindowID = #invitationWindowID
   registerMessage(#hideInvitation, me.getID(), #close)
   registerMessage(#enterRoom, me.getID(), #close)
   registerMessage(#leaveRoom, me.getID(), #close)
   registerMessage(#changeRoom, me.getID(), #close)
   return(1)
-  exit
 end
 
-on deconstruct(me)
+on deconstruct me 
   pData = void()
   unregisterMessage(#hideInvitation, me.getID())
   unregisterMessage(#enterRoom, me.getID())
@@ -17,15 +18,13 @@ on deconstruct(me)
   if windowExists(pWindowID) then
     removeWindow(pWindowID)
   end if
-  exit
 end
 
-on close(me)
+on close me 
   return(removeObject(me.getID()))
-  exit
 end
 
-on show(me, tdata, tWindowID, tElemID)
+on show me, tdata, tWindowID, tElemID 
   if tdata.ilk <> #propList then
     return(0)
   end if
@@ -50,10 +49,9 @@ on show(me, tdata, tWindowID, tElemID)
   tWindow.getElement("invitation_button_deny_text").setText(tNo)
   tWindow.show()
   return(1)
-  exit
 end
 
-on align(me, tWindowID, tElemID)
+on align me, tWindowID, tElemID 
   if not windowExists(tWindowID) then
     return(0)
   end if
@@ -88,22 +86,20 @@ on align(me, tWindowID, tElemID)
   end if
   tInvitationWindow.moveTo(tLocX, tLocY)
   return(1)
-  exit
 end
 
-on eventProcInvitation(me, tEvent, tSprID)
-  if me <> "invitation_button_accept" then
-    if me = "invitation_button_accept_text" then
+on eventProcInvitation me, tEvent, tSprID 
+  if tSprID <> "invitation_button_accept" then
+    if tSprID = "invitation_button_accept_text" then
       executeMessage(#acceptInvitation)
       me.close()
     else
-      if me <> "invitation_button_deny" then
-        if me <> "invitation_button_deny_text" then
-          if me = "popup_button_close" then
+      if tSprID <> "invitation_button_deny" then
+        if tSprID <> "invitation_button_deny_text" then
+          if tSprID = "popup_button_close" then
             executeMessage(#rejectInvitation)
             me.close()
           end if
-          exit
         end if
       end if
     end if

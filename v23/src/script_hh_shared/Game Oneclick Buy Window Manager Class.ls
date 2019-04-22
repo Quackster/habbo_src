@@ -1,22 +1,21 @@
-on construct(me)
+property pWindowID
+
+on construct me 
   registerMessage(#openOneClickGameBuyWindow, me.getID(), #createUiWindow)
   pWindowID = getText("notickets_window_header")
   return(1)
-  exit
 end
 
-on deconstruct(me)
+on deconstruct me 
   unregisterMessage(#openOneClickGameBuyWindow, me.getID())
   me.closeUiWindow()
   return(1)
-  exit
 end
 
-on Init(me)
-  exit
+on Init me 
 end
 
-on createUiWindow(me)
+on createUiWindow me 
   if not createWindow(pWindowID, "habbo_full.window") then
     return(0)
   end if
@@ -26,39 +25,36 @@ on createUiWindow(me)
   tWndObj.registerClient(me.getID())
   tWndObj.registerProcedure(#eventProcMouseUp, me.getID(), #mouseUp)
   return(1)
-  exit
 end
 
-on closeUiWindow(me)
+on closeUiWindow me 
   tWndObj = getWindow(pWindowID)
   if not tWndObj = void() then
     tWndObj.close()
   end if
   return(1)
-  exit
 end
 
-on eventProcMouseUp(me, tEvent, tSprID, tParam)
-  if me = "notickets_buygame" then
+on eventProcMouseUp me, tEvent, tSprID, tParam 
+  if tSprID = "notickets_buygame" then
     me.sendBuyTwoCredits()
     me.closeUiWindow()
   else
-    if me <> "close" then
-      if me = "notickets_cancel" then
+    if tSprID <> "close" then
+      if tSprID = "notickets_cancel" then
         me.closeUiWindow()
       else
-        if me = "notickets_store_link" then
+        if tSprID = "notickets_store_link" then
           executeMessage(#show_ticketWindow)
           me.closeUiWindow()
         end if
       end if
       return(1)
-      exit
     end if
   end if
 end
 
-on sendBuyTwoCredits(me)
+on sendBuyTwoCredits me 
   tMyName = getObject(#session).GET("user_name")
   tAmount = 1
   tParams = [#integer:tAmount, #string:tMyName]
@@ -66,5 +62,4 @@ on sendBuyTwoCredits(me)
     getConnection(getVariable("connection.info.id")).send("BTCKS", tParams)
   end if
   return(1)
-  exit
 end

@@ -1,4 +1,6 @@
-on prepare(me, tdata)
+property pTiming, pChanges, pActive
+
+on prepare me, tdata 
   if tdata.getAt("FIREON") = "ON" then
     pChanges = 1
     pActive = 1
@@ -8,20 +10,18 @@ on prepare(me, tdata)
   end if
   pTiming = 1
   return(1)
-  exit
 end
 
-on updateStuffdata(me, tProp, tValue)
+on updateStuffdata me, tProp, tValue 
   if tValue = "ON" then
     pActive = 1
   else
     pActive = 0
   end if
   pChanges = 1
-  exit
 end
 
-on update(me)
+on update me 
   pTiming = not pTiming
   if not pChanges then
     return()
@@ -50,10 +50,9 @@ on update(me)
     me.getPropRef(#pSprList, 3).width = tmember.width
     me.getPropRef(#pSprList, 3).height = tmember.height
   end if
-  exit
 end
 
-on select(me)
+on select me 
   if the doubleClick then
     if pActive then
       tStr = "OFF"
@@ -63,5 +62,4 @@ on select(me)
     getThread(#room).getComponent().getRoomConnection().send(#room, "SETSTUFFDATA /" & me.getID() & "/" & "FIREON" & "/" & tStr)
   end if
   return(1)
-  exit
 end

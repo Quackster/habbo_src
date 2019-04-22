@@ -1,16 +1,14 @@
-on construct(me)
+on construct me 
   me.pTimeoutUpdates = 1
   return(1)
-  exit
 end
 
-on Initialize(me)
+on Initialize me 
   me.setActiveFlag(1)
   me.registerForIGComponentUpdates("GameList")
-  exit
 end
 
-on pollContentUpdate(me, tForced)
+on pollContentUpdate me, tForced 
   tMainThread = me.getMainThread()
   if tMainThread = 0 then
     return(0)
@@ -23,5 +21,4 @@ on pollContentUpdate(me, tForced)
     return(0)
   end if
   tService.pollContentUpdate(1)
-  exit
 end

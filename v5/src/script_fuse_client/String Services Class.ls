@@ -1,18 +1,19 @@
-on construct(me)
-  pConvList = []
+property pConvList, pDigits
+
+on construct me 
+  pConvList = [:]
   pDigits = "0123456789ABCDEF"
   me.initConvList()
   return(1)
-  exit
 end
 
-on convertToPropList(me, tStr, tDelim)
+on convertToPropList me, tStr, tDelim 
   tOldDelim = the itemDelimiter
   if tDelim = void() then
     tDelim = ","
   end if
   the itemDelimiter = tDelim
-  tProps = []
+  tProps = [:]
   i = 1
   repeat while i <= tStr.count(#item)
     tPair = tStr.getPropRef(#item, i).getProp(#word, 1, tStr.getPropRef(#item, i).count(#word))
@@ -23,10 +24,9 @@ on convertToPropList(me, tStr, tDelim)
   end repeat
   the itemDelimiter = tOldDelim
   return(tProps)
-  exit
 end
 
-on convertToLowerCase(me, tString)
+on convertToLowerCase me, tString 
   tValueStr = ""
   i = 1
   repeat while i <= length(tString)
@@ -39,10 +39,9 @@ on convertToLowerCase(me, tString)
     i = 1 + i
   end repeat
   return(tValueStr)
-  exit
 end
 
-on convertToHigherCase(me, tString)
+on convertToHigherCase me, tString 
   tValueStr = ""
   i = 1
   repeat while i <= length(tString)
@@ -55,10 +54,9 @@ on convertToHigherCase(me, tString)
     i = 1 + i
   end repeat
   return(tValueStr)
-  exit
 end
 
-on convertSpecialChars(me, tString)
+on convertSpecialChars me, tString 
   i = count(pConvList)
   repeat while i >= 1
     tChunkA = pConvList.getPropAt(i)
@@ -75,10 +73,9 @@ on convertSpecialChars(me, tString)
     i = 255 + i
   end repeat
   return(tString)
-  exit
 end
 
-on convertIntToHex(me, tInt)
+on convertIntToHex me, tInt 
   if tInt <= 0 then
     return("00")
   else
@@ -92,10 +89,9 @@ on convertIntToHex(me, tInt)
     tHexstr = "0" & tHexstr
   end if
   return(tHexstr)
-  exit
 end
 
-on convertHexToInt(me, tHex)
+on convertHexToInt me, tHex 
   tBase = 1
   tValue = 0
   repeat while length(tHex) > 0
@@ -105,20 +101,18 @@ on convertHexToInt(me, tHex)
     tBase = tBase * 16
   end repeat
   return(tValue)
-  exit
 end
 
-on replaceChars(me, tString, tCharA, tCharB)
+on replaceChars me, tString, tCharA, tCharB 
   if tCharA = tCharB then
     return(tString)
   end if
   repeat while offset(tCharA, tString) > 0
   end repeat
   return(tString)
-  exit
 end
 
-on replaceChunks(me, tString, tChunkA, tChunkB)
+on replaceChunks me, tString, tChunkA, tChunkB 
   tStr = ""
   repeat while tString contains tChunkA
     tPos = offset(tChunkA, tString) - 1
@@ -127,17 +121,16 @@ on replaceChunks(me, tString, tChunkA, tChunkB)
     tPos + length(tChunkA).getPropRef().delete()
   end repeat
   return(tStr)
-  exit
 end
 
-on initConvList(me)
+on initConvList me 
   if the platform contains "win" then
     tMachineType = ".win"
   else
     tMachineType = ".mac"
   end if
-  pConvList = []
-  tCharList = getVariableValue("char.conversion" & tMachineType, [])
+  pConvList = [:]
+  tCharList = getVariableValue("char.conversion" & tMachineType, [:])
   i = 1
   repeat while i <= tCharList.count
     tKey = tCharList.getPropAt(i)
@@ -152,5 +145,4 @@ on initConvList(me)
     i = 1 + i
   end repeat
   return(1)
-  exit
 end

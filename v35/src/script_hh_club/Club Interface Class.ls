@@ -1,4 +1,6 @@
-on construct(me)
+property pGiftDialogID, pDialogId, pChosenLength, pSubscribeFromHotel
+
+on construct me 
   pGiftDialogID = "window_clubgift"
   pDialogId = "window_clubinfo1"
   pConnectionId = getVariable("connection.info.id")
@@ -10,16 +12,14 @@ on construct(me)
   end if
   registerMessage(#show_clubinfo, me.getID(), #show_clubinfo)
   return(1)
-  exit
 end
 
-on deconstruct(me)
+on deconstruct me 
   unregisterMessage(#show_clubinfo, me.getID())
   return(1)
-  exit
 end
 
-on show_giftinfo(me)
+on show_giftinfo me 
   if windowExists(pGiftDialogID) then
     return(0)
   end if
@@ -34,10 +34,9 @@ on show_giftinfo(me)
   tWndObj.getElement("club_confirm_text").setText(getText("club_confirm_gift_text"))
   tWndObj.registerProcedure(#eventProcGiftDialogMousedown, me.getID(), #mouseDown)
   return(1)
-  exit
 end
 
-on setupEndedWindow(me)
+on setupEndedWindow me 
   tClubInfo = me.getComponent().getStatus()
   tWndObj = getWindow(pDialogId)
   if not objectp(tWndObj) then
@@ -48,10 +47,9 @@ on setupEndedWindow(me)
   tElem.setText(string(tElapsed))
   tWndObj.registerProcedure(#eventProcDialogMousedown, me.getID(), #mouseDown)
   return(1)
-  exit
 end
 
-on setupStatusWindow(me, ttype)
+on setupStatusWindow me, ttype 
   tClubInfo = me.getComponent().getStatus()
   tWndObj = getWindow(pDialogId)
   if not objectp(tWndObj) then
@@ -100,10 +98,9 @@ on setupStatusWindow(me, ttype)
   end if
   tWndObj.registerProcedure(#eventProcDialogMousedown, me.getID(), #mouseDown)
   return(1)
-  exit
 end
 
-on changeTextsToExtend(me)
+on changeTextsToExtend me 
   tWndObj = getWindow(pDialogId)
   if not objectp(tWndObj) then
     return(0)
@@ -113,28 +110,25 @@ on changeTextsToExtend(me)
   tWndObj.getElement("club_intro_header").setText(tHeaderText)
   tWndObj.getElement("club_intro_text").setText(tText)
   return(1)
-  exit
 end
 
-on setupBuyWindow(me)
+on setupBuyWindow me 
   if not getText("club_info_url") starts "http" then
     getWindow(pDialogId).getElement("club_intro_link").setProperty(#visible, 0)
   end if
   getWindow(pDialogId).registerProcedure(#eventProcDialogMousedown, me.getID(), #mouseDown)
-  exit
 end
 
-on replaceCreditsText(me)
+on replaceCreditsText me 
   tCredits = getObject(#session).GET("user_walletbalance")
   tWndObj = getWindow(pDialogId)
   tText = getText("club_confirm_text" & pChosenLength)
   tText = replaceChunks(tText, "%credits%", string(tCredits))
   tWndObj.getElement("club_confirm_text").setText(tText)
   return(1)
-  exit
 end
 
-on setupWindow(me, tWindowID, ttype)
+on setupWindow me, tWindowID, ttype 
   if windowExists(tWindowID) then
     removeWindow(tWindowID)
   end if
@@ -153,14 +147,13 @@ on setupWindow(me, tWindowID, ttype)
     return(tWndObj.close())
   end if
   return(1)
-  exit
 end
 
-on show_clubinfo(me)
+on show_clubinfo me 
   tClubInfo = me.getComponent().getStatus()
   if tClubInfo <> 0 then
     if not windowExists(pDialogId) then
-      tList = []
+      tList = [:]
       tList.setAt("showDialog", 1)
       executeMessage(#getHotelClosingStatus, tList)
       if tList.getAt("retval") = 1 then
@@ -196,10 +189,9 @@ on show_clubinfo(me)
     end if
   end if
   return(1)
-  exit
 end
 
-on updateClubStatus(me, tStatus, tResponseFlag, tOldClubStatus)
+on updateClubStatus me, tStatus, tResponseFlag, tOldClubStatus 
   if tResponseFlag = 2 then
     me.setupWindow(pDialogId)
     tWndObj = getWindow(pDialogId)
@@ -223,10 +215,9 @@ on updateClubStatus(me, tStatus, tResponseFlag, tOldClubStatus)
     me.setupEndedWindow()
   end if
   return(1)
-  exit
 end
 
-on openBuyInHabboWeb(me)
+on openBuyInHabboWeb me 
   if getText("club_buy_url") = "club_buy_url" then
     return(error(me, "key club_buy_url not defined!", #eventProcDialogMousedown, #major))
   else
@@ -234,12 +225,11 @@ on openBuyInHabboWeb(me)
     openNetPage("club_buy_url")
   end if
   return(1)
-  exit
 end
 
-on eventProcDialogMousedown(me, tEvent, tSprID, tParam)
+on eventProcDialogMousedown me, tEvent, tSprID, tParam 
   tClubInfo = me.getComponent().getStatus()
-  if me = "club_button_extend" then
+  if tSprID = "club_button_extend" then
     tWndObj = getWindow(pDialogId)
     if not objectp(tWndObj) then
       return(0)
@@ -257,7 +247,7 @@ on eventProcDialogMousedown(me, tEvent, tSprID, tParam)
     end if
     me.changeTextsToExtend()
   else
-    if me = "club_isp_change" then
+    if tSprID = "club_isp_change" then
       tSession = getObject(#session)
       tURL = getText("club_change_url")
       tURL = tURL & urlEncode(tSession.GET("user_name"))
@@ -267,12 +257,12 @@ on eventProcDialogMousedown(me, tEvent, tSprID, tParam)
       executeMessage(#externalLinkClick, the mouseLoc)
       openNetPage(tURL)
     else
-      if me <> "club_intro_link" then
-        if me = "club_general_infolink" then
+      if tSprID <> "club_intro_link" then
+        if tSprID = "club_general_infolink" then
           executeMessage(#externalLinkClick, the mouseLoc)
           openNetPage("club_info_url")
         else
-          if me = "club_isp_buy" then
+          if tSprID = "club_isp_buy" then
             tSession = getObject(#session)
             tURL = getText("club_paybycash_url")
             tURL = tURL & urlEncode(tSession.GET("user_name"))
@@ -282,7 +272,7 @@ on eventProcDialogMousedown(me, tEvent, tSprID, tParam)
             executeMessage(#externalLinkClick, the mouseLoc)
             openNetPage(tURL, "_new")
           else
-            if me = "club_button_1_period" then
+            if tSprID = "club_button_1_period" then
               tWndObj = getWindow(pDialogId)
               if not objectp(tWndObj) then
                 return(0)
@@ -292,7 +282,7 @@ on eventProcDialogMousedown(me, tEvent, tSprID, tParam)
               pChosenLength = 1
               me.replaceCreditsText()
             else
-              if me = "club_button_2_period" then
+              if tSprID = "club_button_2_period" then
                 tWndObj = getWindow(pDialogId)
                 if not objectp(tWndObj) then
                   return(0)
@@ -302,7 +292,7 @@ on eventProcDialogMousedown(me, tEvent, tSprID, tParam)
                 pChosenLength = 2
                 me.replaceCreditsText()
               else
-                if me = "club_button_3_period" then
+                if tSprID = "club_button_3_period" then
                   tWndObj = getWindow(pDialogId)
                   if not objectp(tWndObj) then
                     return(0)
@@ -312,20 +302,19 @@ on eventProcDialogMousedown(me, tEvent, tSprID, tParam)
                   pChosenLength = 3
                   me.replaceCreditsText()
                 else
-                  if me = "club_confirm_ok" then
+                  if tSprID = "club_confirm_ok" then
                     me.getComponent().subscribe(pChosenLength)
                     removeWindow(pDialogId)
                   else
-                    if me <> "club_confirm_cancel" then
-                      if me = "club_button_close" then
+                    if tSprID <> "club_confirm_cancel" then
+                      if tSprID = "club_button_close" then
                         removeWindow(me.pDialogId)
                       else
-                        if me = "close" then
+                        if tSprID = "close" then
                           removeWindow(me.pDialogId)
                         end if
                       end if
                       return(1)
-                      exit
                     end if
                   end if
                 end if
@@ -338,22 +327,21 @@ on eventProcDialogMousedown(me, tEvent, tSprID, tParam)
   end if
 end
 
-on eventProcGiftDialogMousedown(me, tEvent, tSprID, tParam)
-  if me = "club_confirm_ok" then
+on eventProcGiftDialogMousedown me, tEvent, tSprID, tParam 
+  if tSprID = "club_confirm_ok" then
     removeWindow(pGiftDialogID)
     me.getComponent().acceptGift()
   else
-    if me <> "club_confirm_cancel" then
-      if me = "club_button_close" then
+    if tSprID <> "club_confirm_cancel" then
+      if tSprID = "club_button_close" then
         removeWindow(pGiftDialogID)
         me.getComponent().rejectGift()
       else
-        if me = "close" then
+        if tSprID = "close" then
           me.getComponent().resetGiftList()
         end if
       end if
       return(1)
-      exit
     end if
   end if
 end

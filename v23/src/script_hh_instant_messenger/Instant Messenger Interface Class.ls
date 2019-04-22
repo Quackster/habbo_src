@@ -1,9 +1,11 @@
-on construct(me)
+property pScaleEventAgentID, pFollowFlashTimeoutID, pRenderTimeoutID, pWindowID, pChatRenderers, pTabsObj, pNames, pCachedChatIDs, pCacheSize, pFollowFlashList, pFollowFlashState, pBatchInterval, pEntryBuffer, pBatchSize, pActiveChatID, pView, pScale, pOrigLocH, pOrigHeight, pMinHeight, pState, pInvitationWindowID
+
+on construct me 
   pWindowID = "Instant Messenger"
   pInvitationWindowID = "Friend Invitation Window"
   pTabsObj = createObject(#temp, "IM Tabs Class")
-  pChatRenderers = []
-  pNames = []
+  pChatRenderers = [:]
+  pNames = [:]
   pCachedChatIDs = []
   pFollowFlashList = []
   pFollowFlashTimeoutID = "Flash Follow Button Timeout"
@@ -17,10 +19,9 @@ on construct(me)
   createObject(pScaleEventAgentID, getClassVariable("event.agent.class"))
   registerMessage(#toggle_im, me.getID(), #toggleIMWindow)
   return(1)
-  exit
 end
 
-on deconstruct(me)
+on deconstruct me 
   if objectExists(pScaleEventAgentID) then
     removeObject(pScaleEventAgentID)
   end if
@@ -32,10 +33,9 @@ on deconstruct(me)
   end if
   unregisterMessage(#toggle_im, me.getID())
   return(1)
-  exit
 end
 
-on createIMWindow(me)
+on createIMWindow me 
   if windowExists(pWindowID) then
     removeWindow(pWindowID)
   end if
@@ -47,10 +47,9 @@ on createIMWindow(me)
   tWnd.registerProcedure(#eventProcIM, me.getID(), #keyDown)
   tWnd.registerProcedure(#eventProcIM, me.getID(), #mouseUp)
   tWnd.registerProcedure(#eventProcIM, me.getID(), #mouseDown)
-  exit
 end
 
-on openIMWindow(me)
+on openIMWindow me 
   if not windowExists(pWindowID) then
     me.createIMWindow()
   else
@@ -63,10 +62,9 @@ on openIMWindow(me)
   end if
   me.updateInterface()
   me.setState(#Active)
-  exit
 end
 
-on closeIMWindow(me)
+on closeIMWindow me 
   if windowExists(pWindowID) then
     tWnd = getWindow(pWindowID)
     if tWnd.elementExists("chat.input") then
@@ -74,10 +72,9 @@ on closeIMWindow(me)
     end if
     tWnd.hide()
   end if
-  exit
 end
 
-on toggleIMWindow(me)
+on toggleIMWindow me 
   if not windowExists(pWindowID) then
     return(me.openIMWindow())
   end if
@@ -87,10 +84,9 @@ on toggleIMWindow(me)
   else
     me.openIMWindow()
   end if
-  exit
 end
 
-on addChat(me, tChatID, tFriend, tDontPlaySound)
+on addChat me, tChatID, tFriend, tDontPlaySound 
   me.getChatRenderer(tChatID)
   if voidp(tFriend) then
     tFriend = me.getComponent().getFriend(tChatID)
@@ -112,10 +108,9 @@ on addChat(me, tChatID, tFriend, tDontPlaySound)
   end if
   me.updateInterface()
   return(1)
-  exit
 end
 
-on removeChat(me, tChatID)
+on removeChat me, tChatID 
   tPos = pChatRenderers.findPos(tChatID)
   if voidp(tPos) then
     return(0)
@@ -136,27 +131,25 @@ on removeChat(me, tChatID)
   end if
   me.activateChat(pChatRenderers.getPropAt(tPos))
   return(1)
-  exit
 end
 
-on removeAllChats(me)
+on removeAllChats me 
   repeat while pChatRenderers.count > 0
     tChatID = pChatRenderers.getPropAt(1)
     me.removeChat(tChatID)
   end repeat
   me.closeIMWindow()
-  exit
 end
 
-on activateChat(me, tChatID)
+on activateChat me, tChatID 
   if not tChatID then
     return(0)
   end if
   me.ChangeWindowView(#normal)
-  if me = #left then
+  if tChatID = #left then
     pTabsObj.scrollLeft()
   else
-    if me = #right then
+    if tChatID = #right then
       pTabsObj.scrollRight()
     else
       pActiveChatID = tChatID
@@ -184,10 +177,9 @@ on activateChat(me, tChatID)
     me.flashFollowButton(#stop)
   end if
   me.updateInterface()
-  exit
 end
 
-on flashFollowButton(me, tstate)
+on flashFollowButton me, tstate 
   tWnd = getWindow(pWindowID)
   if not tWnd then
     return(0)
@@ -199,19 +191,19 @@ on flashFollowButton(me, tstate)
     return(0)
   end if
   tElem = tWnd.getElement("button.follow")
-  if me = #start then
+  if tstate = #start then
     if not timeoutExists(pFollowFlashTimeoutID) then
       createTimeout(pFollowFlashTimeoutID, 500, #flashFollowButton, me.getID(), #flash, 20)
     end if
     pFollowFlashState = 0
   else
-    if me = #stop then
+    if tstate = #stop then
       if timeoutExists(pFollowFlashTimeoutID) then
         removeTimeout(pFollowFlashTimeoutID)
       end if
       tElem.setProperty(#member, "button.follow")
     else
-      if me = #flash then
+      if tstate = #flash then
         if pFollowFlashState = 1 then
           tElem.setProperty(#member, "button.follow")
         else
@@ -221,10 +213,9 @@ on flashFollowButton(me, tstate)
       end if
     end if
   end if
-  exit
 end
 
-on startRendering(me, tChatID)
+on startRendering me, tChatID 
   pEntryBuffer = me.getComponent().getChat(tChatID).duplicate()
   if timeoutExists(pRenderTimeoutID) then
     removeTimeout(pRenderTimeoutID)
@@ -233,10 +224,9 @@ on startRendering(me, tChatID)
   tChatRenderer.clearImage()
   createTimeout(pRenderTimeoutID, pBatchInterval, #startBatchRender, me.getID(), tChatID, 0)
   me.startBatchRender(tChatID)
-  exit
 end
 
-on startBatchRender(me, tChatID)
+on startBatchRender me, tChatID 
   if pEntryBuffer.count = 0 then
     me.stopBatchRender()
     return(1)
@@ -255,17 +245,15 @@ on startBatchRender(me, tChatID)
     end if
   end repeat
   me.updateInterface()
-  exit
 end
 
-on stopBatchRender(me)
+on stopBatchRender me 
   if timeoutExists(pRenderTimeoutID) then
     removeTimeout(pRenderTimeoutID)
   end if
-  exit
 end
 
-on addMessage(me, tChatID, tEntry)
+on addMessage me, tChatID, tEntry 
   if voidp(pChatRenderers.findPos(tChatID)) then
     me.addChat(tChatID)
   else
@@ -297,20 +285,18 @@ on addMessage(me, tChatID, tEntry)
     end if
   end if
   me.updateInterface()
-  exit
 end
 
-on getChatRenderer(me, tChatID)
+on getChatRenderer me, tChatID 
   tChatRenderer = pChatRenderers.getaProp(tChatID)
   if voidp(tChatRenderer) then
     tChatRenderer = createObject(#temp, "IM Chat Renderer Class")
     pChatRenderers.setaProp(tChatID, tChatRenderer)
   end if
   return(tChatRenderer)
-  exit
 end
 
-on updateInterface(me)
+on updateInterface me 
   if pView = #empty then
     return(1)
   end if
@@ -354,29 +340,26 @@ on updateInterface(me)
   tGender = tFriend.getaProp(#sex)
   pTabsObj.updateHeadImage(pActiveChatID, tFigure, tGender)
   me.scrollBottom()
-  exit
 end
 
-on startScaling(me)
+on startScaling me 
   pScale = 1
   pOrigLocH = the mouseV
   pOrigHeight = getWindow(pWindowID).getProperty(#height)
   receiveUpdate(me.getID())
   tAgent = getObject(pScaleEventAgentID)
   tAgent.registerEvent(me, #mouseUp, #stopScaling)
-  exit
 end
 
-on stopScaling(me)
+on stopScaling me 
   pScale = 0
   removeUpdate(me.getID())
   tAgent = getObject(pScaleEventAgentID)
   tAgent.unregisterEvent(#mouseUp)
   me.scrollBottom()
-  exit
 end
 
-on update(me)
+on update me 
   if not pScale then
     return(1)
   end if
@@ -388,31 +371,27 @@ on update(me)
   tHeightOffset = tWnd.getProperty(#height) - pOrigHeight
   tWnd.resizeBy(0, tLocOffset - tHeightOffset)
   me.scrollBottom()
-  exit
 end
 
-on scrollBottom(me)
+on scrollBottom me 
   tWnd = getWindow(pWindowID)
   if not tWnd.elementExists("chat.scroll") then
     return(0)
   end if
   tScroll = tWnd.getElement("chat.scroll")
   tScroll.setScrollOffset(the maxinteger)
-  exit
 end
 
-on setState(me, tstate)
+on setState me, tstate 
   pState = tstate
   executeMessage(#IMStateChanged)
-  exit
 end
 
-on getState(me)
+on getState me 
   return(pState)
-  exit
 end
 
-on showInvitationWindow(me, tCount)
+on showInvitationWindow me, tCount 
   if not windowExists(pInvitationWindowID) then
     createWindow(pInvitationWindowID, "friend_invitation.window")
     tWnd = getWindow(pInvitationWindowID)
@@ -425,17 +404,15 @@ on showInvitationWindow(me, tCount)
     return(0)
   end if
   tWnd.getElement("invitation.summary").setText(tSummaryText)
-  exit
 end
 
-on closeInvitationWindow(me)
+on closeInvitationWindow me 
   if windowExists(pInvitationWindowID) then
     removeWindow(pInvitationWindowID)
   end if
-  exit
 end
 
-on sendInvitation(me)
+on sendInvitation me 
   tSession = getObject(#session)
   if tSession.GET("lastroom") = "Entry" then
     executeMessage(#alert, getText("friend_invitation_cannot_send"))
@@ -453,10 +430,9 @@ on sendInvitation(me)
   end if
   me.getComponent().sendInvitation(tText)
   me.closeInvitationWindow()
-  exit
 end
 
-on ChangeWindowView(me, tView)
+on ChangeWindowView me, tView 
   if tView = pView then
     return(1)
   end if
@@ -471,11 +447,11 @@ on ChangeWindowView(me, tView)
   if not tVisible then
     tWnd.show()
   end if
-  if me = #normal then
+  if tView = #normal then
     tWnd.unmerge()
     tWnd.merge("instant_message.window")
   else
-    if me = #empty then
+    if tView = #empty then
       tWnd.unmerge()
       tWnd.merge("empty_im.window")
     else
@@ -489,10 +465,9 @@ on ChangeWindowView(me, tView)
   pView = tView
   me.updateInterface()
   return(1)
-  exit
 end
 
-on eventProcIM(me, tEvent, tElemID, tParam)
+on eventProcIM me, tEvent, tElemID, tParam 
   if tEvent = #keyDown and tElemID = "chat.input" then
     if the keyCode = 36 or the keyCode = 76 then
       tWnd = getWindow(pWindowID)
@@ -513,21 +488,21 @@ on eventProcIM(me, tEvent, tElemID, tParam)
   if tEvent <> #mouseUp then
     return(1)
   end if
-  if me = "button.close.window" then
+  if tElemID = "button.close.window" then
     me.closeIMWindow()
   else
-    if me = "button.close.chat" then
+    if tElemID = "button.close.chat" then
       me.getComponent().removeChat(pActiveChatID)
     else
-      if me = "tabs" then
+      if tElemID = "tabs" then
         tChatID = pTabsObj.getIdAt(tParam)
         me.activateChat(tChatID)
       else
-        if me = "button.follow" then
+        if tElemID = "button.follow" then
           tConn = getConnection(getVariable("connection.info.id"))
           tConn.send("FOLLOW_FRIEND", [#integer:integer(pActiveChatID)])
         else
-          if me = "button.minimail" then
+          if tElemID = "button.minimail" then
             if variableExists("link.format.mail.compose") then
               tID = string(pActiveChatID)
               tDestURL = replaceChunks(getVariable("link.format.mail.compose"), "%recipientid%", tID)
@@ -538,20 +513,18 @@ on eventProcIM(me, tEvent, tElemID, tParam)
       end if
     end if
   end if
-  exit
 end
 
-on eventProcInvitation(me, tEvent, tElemID, tParam)
-  if me = "button.send" then
+on eventProcInvitation me, tEvent, tElemID, tParam 
+  if tElemID = "button.send" then
     me.sendInvitation()
   else
-    if me = "button.cancel" then
+    if tElemID = "button.cancel" then
       me.closeInvitationWindow()
     else
-      if me = "button.close.window" then
+      if tElemID = "button.close.window" then
         me.closeInvitationWindow()
       end if
     end if
   end if
-  exit
 end

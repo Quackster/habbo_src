@@ -1,4 +1,6 @@
-on construct(me)
+property pLoaderObjID, pWriterPages, pPageProgramID, pCatalogID, pSelectedProduct, pInfoWindowID, pPurchaseOkID, pPagePropList, pCurrentPageData, pPageLinkList, pOpenWindow, pProductPerPage, pProductOffset, pPageLineHeight, pPageListImg, pActivePageID, pLastProductNum, pLoadingFlag, pActiveOrderCode
+
+on construct me 
   pCatalogID = "Catalogue_window"
   pPageLineHeight = 21
   pProductPerPage = 0
@@ -26,10 +28,9 @@ on construct(me)
   registerMessage(#hide_catalogue, me.getID(), #hideCatalogue)
   registerMessage(#show_hide_catalogue, me.getID(), #showHideCatalogue)
   return(1)
-  exit
 end
 
-on deconstruct(me)
+on deconstruct me 
   removeUpdate(me.getID())
   if objectExists(pPageProgramID) then
     removeObject(pPageProgramID)
@@ -43,21 +44,19 @@ on deconstruct(me)
   unregisterMessage(#hide_catalogue, me.getID())
   unregisterMessage(#show_hide_catalogue, me.getID())
   return(1)
-  exit
 end
 
-on showHideCatalogue(me)
+on showHideCatalogue me 
   if windowExists(pCatalogID) then
     return(me.hideCatalogue())
   else
     return(me.showCatalogue())
   end if
-  exit
 end
 
-on showCatalogue(me)
+on showCatalogue me 
   if not windowExists(pCatalogID) then
-    tList = []
+    tList = [:]
     tList.setAt("showDialog", 1)
     executeMessage(#getHotelClosingStatus, tList)
     if tList.getAt("retval") <> 0 then
@@ -68,10 +67,9 @@ on showCatalogue(me)
   else
     return(0)
   end if
-  exit
 end
 
-on hideCatalogue(me)
+on hideCatalogue me 
   if objectExists(pLoaderObjID) then
     getObject(pLoaderObjID).hideLoadingScreen()
   end if
@@ -82,23 +80,20 @@ on hideCatalogue(me)
   else
     return(0)
   end if
-  exit
 end
 
-on getCatalogWindow(me)
+on getCatalogWindow me 
   if not windowExists(pCatalogID) then
     return(0)
   end if
   return(getWindow(pCatalogID))
-  exit
 end
 
-on getSelectedProduct(me)
+on getSelectedProduct me 
   return(pSelectedProduct)
-  exit
 end
 
-on showOrderInfo(me, tstate, tInfo)
+on showOrderInfo me, tstate, tInfo 
   if windowExists(pInfoWindowID) then
     return(0)
   end if
@@ -138,7 +133,7 @@ on showOrderInfo(me, tstate, tInfo)
   tWndObj.getElement("habbo_" & tWndType & "_text_b").setText(tMsgB)
   tWndObj.registerClient(me.getID())
   tWndObj.registerProcedure(#eventProcInfoWnd, me.getID(), #mouseUp)
-  -- UNK_80 16899
+  tWndObj.setProperty(#locZ, 22000000)
   tWndObj.lock(1)
   if not getObject(#session).GET("user_rights").getOne("fuse_trade") then
     if tWndObj.elementExists("buy_gift_ok") then
@@ -146,19 +141,17 @@ on showOrderInfo(me, tstate, tInfo)
     end if
   end if
   return(1)
-  exit
 end
 
-on hideOrderInfo(me)
+on hideOrderInfo me 
   if not windowExists(pInfoWindowID) then
     return(0)
   end if
   removeWindow(pInfoWindowID)
   return(1)
-  exit
 end
 
-on showNoBalance(me, tInfo, tGeneralText)
+on showNoBalance me, tInfo, tGeneralText 
   if windowExists(pInfoWindowID) then
     return(0)
   end if
@@ -188,13 +181,12 @@ on showNoBalance(me, tInfo, tGeneralText)
   tWndObj.getElement("habbo_message_text_a").setText(tMsgA)
   tWndObj.registerClient(me.getID())
   tWndObj.registerProcedure(#eventProcInfoWnd, me.getID(), #mouseUp)
-  -- UNK_80 16899
+  tWndObj.setProperty(#locZ, 22000000)
   tWndObj.lock(1)
   return(1)
-  exit
 end
 
-on showPurchaseOk(me)
+on showPurchaseOk me 
   if not createWindow(pPurchaseOkID, "habbo_basic.window", void(), void(), #modal) then
     return(0)
   end if
@@ -205,7 +197,7 @@ on showPurchaseOk(me)
   tWndObj.registerClient(me.getID())
   tWndObj.registerProcedure(#hidePurchaseOk, me.getID(), #mouseUp)
   tWndObj.center()
-  -- UNK_80 16899
+  tWndObj.setProperty(#locZ, 22000000)
   tWndObj.getElement("habbo_message_text_b").setText(getText("catalog_itsurs"))
   if threadExists(#room) then
     if getThread(#room).getComponent().pRoomId = "private" then
@@ -213,10 +205,9 @@ on showPurchaseOk(me)
     end if
   end if
   return(1)
-  exit
 end
 
-on hidePurchaseOk(me, tOptionalEvent, tOptionalSprID)
+on hidePurchaseOk me, tOptionalEvent, tOptionalSprID 
   if tOptionalEvent = #mouseUp then
     if stringp(tOptionalSprID) then
       if tOptionalSprID <> "close" and tOptionalSprID <> "habbo_message_ok" then
@@ -228,10 +219,9 @@ on hidePurchaseOk(me, tOptionalEvent, tOptionalSprID)
     removeWindow(pPurchaseOkID)
   end if
   return(1)
-  exit
 end
 
-on showBuyAsGift(me, tBoolean)
+on showBuyAsGift me, tBoolean 
   tWndObj = getWindow(pInfoWindowID)
   if tWndObj = 0 then
     return(0)
@@ -248,14 +238,13 @@ on showBuyAsGift(me, tBoolean)
       return(tWndObj.close())
     end if
   end if
-  -- UNK_80 16899
+  tWndObj.setProperty(#locZ, 22000000)
   tWndObj.getElement("habbo_orderinfo_text_a").setText(tMsgA)
   tWndObj.getElement("habbo_orderinfo_text_b").setText(tMsgB)
   tWndObj.registerProcedure(#eventProcKeyDown, me.getID(), #keyDown)
-  exit
 end
 
-on saveCatalogueIndex(me, tdata)
+on saveCatalogueIndex me, tdata 
   if not windowExists(pCatalogID) then
     return(0)
   end if
@@ -264,10 +253,9 @@ on saveCatalogueIndex(me, tdata)
   pActivePageID = void()
   selectPage(me, 1)
   pLoadingFlag = 0
-  exit
 end
 
-on cataloguePageData(me, tdata)
+on cataloguePageData me, tdata 
   if not windowExists(pCatalogID) then
     return(0)
   end if
@@ -297,10 +285,9 @@ on cataloguePageData(me, tdata)
     end if
   end if
   ChangeWindowView(me, tLayout)
-  exit
 end
 
-on ChangeWindowView(me, tWindowName)
+on ChangeWindowView me, tWindowName 
   tWndObj = getWindow(pCatalogID)
   if objectp(tWndObj) then
     if objectExists(pLoaderObjID) then
@@ -353,17 +340,17 @@ on ChangeWindowView(me, tWindowName)
     end if
     tProducts = 1 + tProducts
   end repeat
-  if me <> void() then
-    if me = "ctlg_loading.window" then
+  if tWindowName <> void() then
+    if tWindowName = "ctlg_loading.window" then
       renderPageList(me)
       me.getComponent().retrieveCatalogueIndex()
       return(1)
     else
-      if me = "frontpage.window" then
+      if tWindowName = "frontpage.window" then
       else
-        if me <> "ctlg_layout1.window" then
-          if me <> "ctlg_layout2.window" then
-            if me = "ctlg_soundmachine.window" then
+        if tWindowName <> "ctlg_layout1.window" then
+          if tWindowName <> "ctlg_layout2.window" then
+            if tWindowName = "ctlg_soundmachine.window" then
               if not voidp(pCurrentPageData.getAt("teaserText")) then
                 tText = pCurrentPageData.getAt("teaserText")
                 if tWndObj.elementExists("ctlg_description") then
@@ -380,10 +367,10 @@ on ChangeWindowView(me, tWindowName)
                 tWndObj.getElement("ctlg_page_text").setText(getText("catalog_page"))
               end if
             else
-              if me <> "ctlg_productpage1.window" then
-                if me <> "ctlg_productpage2.window" then
-                  if me <> "ctlg_productpage3.window" then
-                    if me = "ctlg_productpage4.window" then
+              if tWindowName <> "ctlg_productpage1.window" then
+                if tWindowName <> "ctlg_productpage2.window" then
+                  if tWindowName <> "ctlg_productpage3.window" then
+                    if tWindowName = "ctlg_productpage4.window" then
                       if voidp(pCurrentPageData.getAt("teaserImgList")) and not voidp(pCurrentPageData.getAt("productList")) then
                         if pCurrentPageData.getAt("productList").ilk = #list then
                           if pCurrentPageData.getAt("productList").count > 0 then
@@ -423,7 +410,6 @@ on ChangeWindowView(me, tWindowName)
                       end if
                     end if
                     pLoadingFlag = 0
-                    exit
                   end if
                 end if
               end if
@@ -435,7 +421,7 @@ on ChangeWindowView(me, tWindowName)
   end if
 end
 
-on feedPageData(me)
+on feedPageData me 
   if pCurrentPageData.ilk <> #propList then
     return(error(me, "Incorrect Data Format", #feedPageData, #major))
   end if
@@ -574,10 +560,9 @@ on feedPageData(me)
   if tWndObj.elementExists(tID) then
     tWndObj.getElement(tID).setProperty(#visible, 0)
   end if
-  exit
 end
 
-on showSpecialText(me, tSpecialText)
+on showSpecialText me, tSpecialText 
   if not windowExists(pCatalogID) then
     return()
   end if
@@ -614,10 +599,9 @@ on showSpecialText(me, tSpecialText)
   if tWndObj.elementExists("ctlg_special_txt") then
     tWndObj.getElement("ctlg_special_txt").setText(tText)
   end if
-  exit
 end
 
-on hideSpecialText(me)
+on hideSpecialText me 
   if not windowExists(pCatalogID) then
     return()
   end if
@@ -628,10 +612,9 @@ on hideSpecialText(me)
   if tWndObj.elementExists("ctlg_special_txt") then
     tWndObj.getElement("ctlg_special_txt").setText("")
   end if
-  exit
 end
 
-on showProductPageCounter(me)
+on showProductPageCounter me 
   if not windowExists(pCatalogID) then
     return()
   end if
@@ -727,10 +710,9 @@ on showProductPageCounter(me)
       tWndObj.getElement("ctlg_page_text").setProperty(#visible, 0)
     end if
   end if
-  exit
 end
 
-on showSubPageCounter(me)
+on showSubPageCounter me 
   if not windowExists(pCatalogID) then
     return(error(me, "Catalogue window not exists", #showSubPageCounter, #major))
   end if
@@ -785,15 +767,14 @@ on showSubPageCounter(me)
       tElem.setProperty(#cursor, 0)
     end if
   end if
-  exit
 end
 
-on ShowSmallIcons(me, tstate, tPram)
+on ShowSmallIcons me, tstate, tPram 
   if not windowExists(pCatalogID) then
     return()
   end if
   tWndObj = getWindow(pCatalogID)
-  if me = void() then
+  if tstate = void() then
     tFirst = pProductOffset + 1
     tLast = tFirst + pProductPerPage
     if tLast > pCurrentPageData.getAt("productList").count then
@@ -811,8 +792,8 @@ on ShowSmallIcons(me, tstate, tPram)
     end repeat
     exit repeat
   end if
-  if me <> #hilite then
-    if me = #unhilite then
+  if tstate <> #hilite then
+    if tstate = #unhilite then
       tFirst = tPram
       tLast = tPram
     else
@@ -878,11 +859,10 @@ on ShowSmallIcons(me, tstate, tPram)
       end if
       f = 1 + f
     end repeat
-    exit
   end if
 end
 
-on showPreviewImage(me, tProps, tElemID)
+on showPreviewImage me, tProps, tElemID 
   if not windowExists(pCatalogID) then
     return(0)
   end if
@@ -950,7 +930,7 @@ on showPreviewImage(me, tProps, tElemID)
       else
         tObjectType = tProps.getAt("objectType")
       end if
-      tdata = []
+      tdata = [:]
       tdata.setAt(#id, "ctlg_previewObj")
       tdata.setAt(#class, tClass)
       tdata.setAt(#name, tClass)
@@ -982,10 +962,9 @@ on showPreviewImage(me, tProps, tElemID)
     tElem.feedImage(tDestImg)
   end if
   return(1)
-  exit
 end
 
-on renderPageList(me, tPages)
+on renderPageList me, tPages 
   if variableExists("cat_index_marginv") then
     tIndexVertMargin = getVariable("cat_index_marginv")
   else
@@ -1035,10 +1014,9 @@ on renderPageList(me, tPages)
   tLeftImg = member(getmemnum("ctlg.pagelist.left")).image
   pPageListImg.copyPixels(tLeftImg, rect(0, 0, tLeftImg.width, pPageListImg.height), tLeftImg.rect)
   tElem.feedImage(pPageListImg.duplicate())
-  exit
 end
 
-on renderSelectPage(me, tClickLine, tLastSelectLine)
+on renderSelectPage me, tClickLine, tLastSelectLine 
   if not windowExists(pCatalogID) then
     return(error(me, "Catalogue window not exists", #renderSelectPage, #major))
   end if
@@ -1079,10 +1057,9 @@ on renderSelectPage(me, tClickLine, tLastSelectLine)
   if tScrollOffset > 0 and tWndObj.elementExists("ctlg_pages_scroll") then
     tWndObj.getElement("ctlg_pages_scroll").setScrollOffset(tScrollOffset)
   end if
-  exit
 end
 
-on selectPage(me, tClickLine)
+on selectPage me, tClickLine 
   if pPagePropList.ilk <> #propList then
     return(error(me, "Incorrect PagePropList", #selectPage, #major))
   end if
@@ -1105,10 +1082,9 @@ on selectPage(me, tClickLine)
       getObject(pLoaderObjID).showLoadingScreen()
     end if
   end if
-  exit
 end
 
-on changeProductOffset(me, tDirection)
+on changeProductOffset me, tDirection 
   if voidp(pCurrentPageData.getAt("productList").count) then
     return()
   end if
@@ -1127,10 +1103,9 @@ on changeProductOffset(me, tDirection)
   end if
   ShowSmallIcons(me)
   showProductPageCounter(me)
-  exit
 end
 
-on changeLinkPage(me, tDirection)
+on changeLinkPage me, tDirection 
   if not voidp(pPageLinkList) then
     tID = pCurrentPageData.getAt("id")
     tPos = pPageLinkList.findPos(tID)
@@ -1154,10 +1129,9 @@ on changeLinkPage(me, tDirection)
       end if
     end if
   end if
-  exit
 end
 
-on selectProduct(me, tOrderNum, tFeedFlag)
+on selectProduct me, tOrderNum, tFeedFlag 
   if not windowExists(pCatalogID) then
     return(error(me, "Catalogue window not exists", #selectProduct, #major))
   end if
@@ -1220,17 +1194,15 @@ on selectProduct(me, tOrderNum, tFeedFlag)
   end if
   pLastProductNum = tProductNum
   return(1)
-  exit
 end
 
-on hideAllWindows(me)
+on hideAllWindows me 
   me.hideCatalogue()
   me.hideOrderInfo()
   me.hidePurchaseOk()
-  exit
 end
 
-on eventProcCatalogue(me, tEvent, tSprID, tParam)
+on eventProcCatalogue me, tEvent, tSprID, tParam 
   if tSprID <> "close" and pLoadingFlag then
     return(0)
   end if
@@ -1299,19 +1271,18 @@ on eventProcCatalogue(me, tEvent, tSprID, tParam)
       end if
     end if
   end if
-  exit
 end
 
-on eventProcInfoWnd(me, tEvent, tSprID, tParam, tWndID)
-  if me <> "habbo_decision_ok" then
-    if me <> "habbo_message_ok" then
-      if me = "button_ok" then
+on eventProcInfoWnd me, tEvent, tSprID, tParam, tWndID 
+  if tSprID <> "habbo_decision_ok" then
+    if tSprID <> "habbo_message_ok" then
+      if tSprID = "button_ok" then
         if pActiveOrderCode = "" then
           removeWindow(pInfoWindowID)
           return(1)
         end if
         tWndObj = getWindow(pInfoWindowID)
-        tGiftProps = []
+        tGiftProps = [:]
         if tWndObj.elementExists("shopping_gift_target") then
           tGiftProps.setAt("gift", 1)
           tGiftProps.setAt("gift_receiver", tWndObj.getElement("shopping_gift_target").getText())
@@ -1328,22 +1299,22 @@ on eventProcInfoWnd(me, tEvent, tSprID, tParam, tWndID)
         me.hideOrderInfo()
         pActiveOrderCode = ""
       else
-        if me <> "habbo_decision_cancel" then
-          if me <> "button_cancel" then
-            if me = "close" then
+        if tSprID <> "habbo_decision_cancel" then
+          if tSprID <> "button_cancel" then
+            if tSprID = "close" then
               me.hideOrderInfo()
               pActiveOrderCode = ""
             else
-              if me = "buy_gift_ok" then
+              if tSprID = "buy_gift_ok" then
                 if getWindow(tWndID).getElement(tSprID).getProperty(#blend) = 100 then
                   me.showBuyAsGift(1)
                 else
                 end if
               else
-                if me = "buy_gift_cancel" then
+                if tSprID = "buy_gift_cancel" then
                   me.showBuyAsGift(0)
                 else
-                  if me = "nobalance_ok" then
+                  if tSprID = "nobalance_ok" then
                     if not textExists("url_nobalance") then
                       return(0)
                     end if
@@ -1357,7 +1328,7 @@ on eventProcInfoWnd(me, tEvent, tSprID, tParam, tWndID)
                     me.hideOrderInfo()
                     pActiveOrderCode = ""
                   else
-                    if me = "subscribe" then
+                    if tSprID = "subscribe" then
                       tSession = getObject(#session)
                       tOwnName = tSession.GET(#userName)
                       tURL = getText("url_subscribe")
@@ -1373,7 +1344,6 @@ on eventProcInfoWnd(me, tEvent, tSprID, tParam, tWndID)
               end if
             end if
             return(1)
-            exit
           end if
         end if
       end if
@@ -1381,7 +1351,7 @@ on eventProcInfoWnd(me, tEvent, tSprID, tParam, tWndID)
   end if
 end
 
-on eventProcKeyDown(me, tEvent, tSprID, tParam)
+on eventProcKeyDown me, tEvent, tSprID, tParam 
   if the key = "\t" then
     if not windowExists(pInfoWindowID) then
       return(0)
@@ -1401,5 +1371,4 @@ on eventProcKeyDown(me, tEvent, tSprID, tParam)
   else
     pass()
   end if
-  exit
 end

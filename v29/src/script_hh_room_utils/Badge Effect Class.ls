@@ -1,4 +1,6 @@
-on construct(me)
+property pStarSpr, pFrameCount, pTargetElement, pDestRect, pAnimFrame
+
+on construct me 
   pFrameCount = 0
   pAnimFrame = 9
   if pStarSpr.ilk <> #sprite then
@@ -7,24 +9,21 @@ on construct(me)
   end if
   receiveUpdate(me.getID())
   return(1)
-  exit
 end
 
-on deconstruct(me)
+on deconstruct me 
   removeUpdate(me.getID())
   if pStarSpr.ilk = #sprite then
     releaseSprite(pStarSpr.spriteNum)
   end if
   return(1)
-  exit
 end
 
-on Init(me, tElem)
+on Init me, tElem 
   pTargetElement = tElem
-  exit
 end
 
-on update(me)
+on update me 
   pFrameCount = pFrameCount + 1
   if pFrameCount mod 3 <> 0 then
     return()
@@ -47,5 +46,4 @@ on update(me)
       end if
     end if
   end if
-  exit
 end

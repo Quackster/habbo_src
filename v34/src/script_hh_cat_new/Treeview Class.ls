@@ -1,11 +1,12 @@
-on construct(me)
+property pNodes, pInterface
+
+on construct me 
   pNodes = void()
   pInterface = createObject(#random, "Treeview Interface Class")
   sendProcessTracking(521)
-  exit
 end
 
-on deconstruct(me)
+on deconstruct me 
   if objectp(pNodes) then
     if pNodes.valid then
       removeObject(pNodes.getID())
@@ -15,10 +16,9 @@ on deconstruct(me)
   if objectExists(pInterface.getID()) then
     removeObject(pInterface.getID())
   end if
-  exit
 end
 
-on define(me, tdata, tWidth, tHeight)
+on define me, tdata, tWidth, tHeight 
   sendProcessTracking(522)
   pNodes = me.createNode(tdata, tWidth, 0)
   sendProcessTracking(530)
@@ -26,25 +26,21 @@ on define(me, tdata, tWidth, tHeight)
   sendProcessTracking(540)
   pInterface.define([#width:tWidth, #height:tHeight])
   sendProcessTracking(550)
-  exit
 end
 
-on getRootNode(me)
+on getRootNode me 
   return(pNodes)
-  exit
 end
 
-on getInterface(me)
+on getInterface me 
   return(pInterface)
-  exit
 end
 
-on handlePageRequest(me, tPageID)
+on handlePageRequest me, tPageID 
   getThread(#catalogue).getComponent().preparePage(tPageID)
-  exit
 end
 
-on createNode(me, tdata, tWidth, tLevel)
+on createNode me, tdata, tWidth, tLevel 
   if ilk(tdata) <> #propList then
     return(error(me, "Data for node was not a list", #createNode, #major))
   end if
@@ -53,7 +49,7 @@ on createNode(me, tdata, tWidth, tLevel)
   if tNode = 0 then
     return(error(me, "Unable to create node", #createNode, #major))
   end if
-  tNodeData = []
+  tNodeData = [:]
   tNodeData.setaProp(#level, tLevel)
   tNodeData.setaProp(#navigateable, tdata.getaProp("navigateable"))
   tNodeData.setaProp(#color, tdata.getaProp("color"))
@@ -79,7 +75,7 @@ on createNode(me, tdata, tWidth, tLevel)
   tSubNodes = tdata.getaProp(#subnodes)
   if ilk(tSubNodes) = #list then
     sendProcessTracking(527)
-    repeat while me <= tWidth
+    repeat while tSubNodes <= tWidth
       tSubNodeData = getAt(tWidth, tdata)
       tSubNode = me.createNode(tSubNodeData, tWidth, tLevel + 1)
       if tSubNode <> 0 then
@@ -89,5 +85,4 @@ on createNode(me, tdata, tWidth, tLevel)
   end if
   sendProcessTracking(528)
   return(tNode)
-  exit
 end

@@ -1,17 +1,15 @@
-on construct(me)
+on construct me 
   me.setLoungePalette("1")
   executeMessage(#gamesystem_getfacade, getVariable("bb.loungesystem.id"))
   return(1)
-  exit
 end
 
-on deconstruct(me)
+on deconstruct me 
   executeMessage(#gamesystem_removefacade, getVariable("bb.loungesystem.id"))
   return(1)
-  exit
 end
 
-on setLoungePalette(me, tID)
+on setLoungePalette me, tID 
   tExcludeList = ["adframe_bb_game_right", "bb_spot_blue", "bb_spot_yellow", "bb_spot_red", "bb_spot_green"]
   tCastLib = "hh_room_bb_game"
   tMemberCount = the number of castMembers
@@ -27,5 +25,4 @@ on setLoungePalette(me, tID)
     end if
     i = 1 + i
   end repeat
-  exit
 end

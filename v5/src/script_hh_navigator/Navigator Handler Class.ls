@@ -1,4 +1,4 @@
-on handle_userobject(me, tuser)
+on handle_userobject me, tuser 
   tSession = getObject(#session)
   i = 1
   repeat while i <= tuser.count
@@ -15,25 +15,23 @@ on handle_userobject(me, tuser)
   if me.getComponent().getState() = "connectionOk" then
     me.getComponent().updateState("loginOk")
   end if
-  exit
 end
 
-on handle_memberinfo(me, tMsg)
-  if me = "NAMERESERVED" then
+on handle_memberinfo me, tMsg 
+  if tMsg.subject = "NAMERESERVED" then
     if threadExists(#registration) then
       getThread(#registration).getInterface().userNameAlreadyReserved(tMsg.content)
     end if
   else
-    if me = "MEMBERINFO" then
+    if tMsg.subject = "MEMBERINFO" then
       if threadExists(#messenger) then
         getThread(#messenger).getComponent().receive_UserFound(tMsg.content)
       end if
     end if
   end if
-  exit
 end
 
-on handle_advertisement(me, tProps)
+on handle_advertisement me, tProps 
   if tProps.getAt(#url) = "" then
     return(0)
   end if
@@ -49,10 +47,9 @@ on handle_advertisement(me, tProps)
   else
     tSession.set("ad_link", tProps.getAt(#link))
   end if
-  exit
 end
 
-on handle_error(me, tMsg)
+on handle_error me, tMsg 
   error(me, "Error from server:" && tMsg.content, #handle_error)
   if tMsg.message contains "login incorrect" then
     if connectionExists(tMsg.getaProp(#connection)) then
@@ -100,5 +97,4 @@ on handle_error(me, tMsg)
     end if
   end if
   return(1)
-  exit
 end

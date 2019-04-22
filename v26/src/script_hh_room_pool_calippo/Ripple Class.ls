@@ -1,4 +1,6 @@
-on construct(me)
+property pColorList, pAvailable, pID, pAnimFrame, pMaxFrame, pTargetImg, pLastPoint, pPointList, pDrawProps, pTargetPoint
+
+on construct me 
   pID = void()
   pAvailable = 1
   pDrawProps = [#shapeType:#oval, #color:rgb("6DBBE2")]
@@ -10,31 +12,27 @@ on construct(me)
   pLastPoint = point(0, 0)
   pTargetImg = void()
   return(1)
-  exit
 end
 
-on define(me, tProps)
+on define me, tProps 
   pID = tProps.getAt(#id)
   pTargetImg = tProps.getAt(#buffer)
   return(1)
-  exit
 end
 
-on getAvailableRipple(me)
+on getAvailableRipple me 
   if pAvailable then
     return(pID)
   end if
-  exit
 end
 
-on setTargetPoint(me, tTargetPoint)
+on setTargetPoint me, tTargetPoint 
   pAvailable = 0
   pAnimFrame = 1
   pTargetPoint = tTargetPoint
-  exit
 end
 
-on update(me)
+on update me 
   if pAnimFrame < pMaxFrame then
     pTargetImg.draw(pLastPoint, pLastPoint + pPointList.getAt(pAnimFrame), pDrawProps)
     pAnimFrame = pAnimFrame + 1
@@ -46,5 +44,4 @@ on update(me)
       pAvailable = 1
     end if
   end if
-  exit
 end

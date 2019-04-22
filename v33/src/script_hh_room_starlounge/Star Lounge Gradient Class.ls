@@ -1,4 +1,6 @@
-on define(me, tsprite)
+property pSprite, pPaletteMember, pUseCreases, pCreases, pBinMember, pPhase, pSpeed, pMaxOffset, pLocOrig, pOffset
+
+on define me, tsprite 
   pMaxOffset = 165
   pSpeed = 10
   pUseCreases = 1
@@ -41,18 +43,16 @@ on define(me, tsprite)
   pBinMember.regPoint = point(0, 0)
   pSprite.member = pBinMember
   return(1)
-  exit
 end
 
-on update(me)
+on update me 
   pPhase = pPhase + pSpeed mod 3600
   pOffset = pMaxOffset / 2 * sin(pPhase * pi() / 1800) + pMaxOffset / 2
   pSprite.locV = pLocOrig.getAt(2) - pOffset
   return(1)
-  exit
 end
 
-on makeCreases(me, tRect, tSourceImage, tCreases, tPalette)
+on makeCreases me, tRect, tSourceImage, tCreases, tPalette 
   tImageNew = image(tRect.width, tRect.height, 8, tPalette)
   tImageNew.copyPixels(tSourceImage, tImageNew.rect, tSourceImage.rect)
   tImageCreased = image(tImageNew.width, tImageNew.height, 8, tPalette)
@@ -72,15 +72,13 @@ on makeCreases(me, tRect, tSourceImage, tCreases, tPalette)
     i = 1 + i
   end repeat
   return(tImageCreased)
-  exit
 end
 
-on cleanUp(me)
+on cleanUp me 
   if not voidp(pBinMember) then
     removeMember(pBinMember.name)
   end if
   if not voidp(pPaletteMember) then
     removeMember(pPaletteMember.name)
   end if
-  exit
 end

@@ -1,4 +1,6 @@
-on construct(me)
+property pActiveEffects, pLocation, pDump, STATE_STUNNED, pDirBody, pTargetLocation, pExpectedLocation, pRoomObject, STATE_CLIMBING_INTO_CANNON, STATE_FLYING_THROUGH_AIR, STATE_BALL_BROKEN, STATE_NORMAL, STATE_HIGH_JUMPS, STATE_CLEANING_TILES, STATE_COLORING_FOR_OPPONENT, pDirObject
+
+on construct me 
   pDirBody = 0
   pLocation = [#x:-1, #y:-1, #z:-1]
   pTargetLocation = [#x:-1, #y:-1]
@@ -15,11 +17,10 @@ on construct(me)
   pActiveEffects = []
   pDirObject = createObject(#temp, "BB Direction8 Class")
   return(1)
-  exit
 end
 
-on deconstruct(me)
-  repeat while me <= undefined
+on deconstruct me 
+  repeat while pActiveEffects <= undefined
     tEffect = getAt(undefined, undefined)
     tEffect.deconstruct()
   end repeat
@@ -27,10 +28,9 @@ on deconstruct(me)
   pDirObject = void()
   me.removeRoomObject()
   return(1)
-  exit
 end
 
-on define(me, tGameObject)
+on define me, tGameObject 
   tGameObject = tGameObject.duplicate()
   me.setGameObjectProperty(tGameObject)
   me.createRoomObject(tGameObject)
@@ -38,10 +38,9 @@ on define(me, tGameObject)
   pLocation.setAt(#y, tGameObject.getAt(#y))
   pLocation.setAt(#z, tGameObject.getAt(#z))
   return(1)
-  exit
 end
 
-on update(me)
+on update me 
   if pActiveEffects.count = 0 then
     return(1)
   end if
@@ -57,74 +56,68 @@ on update(me)
     i = 1 + i
   end repeat
   return(1)
-  exit
 end
 
-on executeGameObjectEvent(me, tEvent, tdata)
+on executeGameObjectEvent me, tEvent, tdata 
   if pDump then
     put("* executeGameObjectEvent on" && me.getObjectId() & ":" && tEvent && tdata)
   end if
-  if me = #gameobject_update then
+  if tEvent = #gameobject_update then
     me.updateRoomObject(tdata)
   else
-    if me = #set_target_custom then
+    if tEvent = #set_target_custom then
       me.updateRoomObjectGoal(tdata)
     else
-      if me = #activate_powerup then
+      if tEvent = #activate_powerup then
         me.startPowerupActivateAnimation(tdata)
         if tdata.getAt(#powerupType) = 7 then
           me.updateRoomObject([#x:pLocation.getAt(#x), #y:pLocation.getAt(#y), #z:pLocation.getAt(#z), #state:STATE_STUNNED, #dirBody:pDirBody])
         end if
       else
-        if me <> #gamereset then
-          if me = #gameend then
+        if tEvent <> #gamereset then
+          if tEvent = #gameend then
             pTargetLocation.setAt(#x, -1)
             pExpectedLocation.setAt(#x, -1)
             me.clearEffectAnimation()
           else
             put("* Gameobject: UNDEFINED EVENT:" && tEvent && tdata)
           end if
-          exit
         end if
       end if
     end if
   end if
 end
 
-on createRoomObject(me, tDataStruct)
+on createRoomObject me, tDataStruct 
   pRoomObject = createObject(#temp, getClassVariable("bb_gamesystem.roomobject.player.wrapper.class"))
   if pRoomObject = 0 then
     return(error(me, "Cannot create roomobject wrapper!", #createRoomObject))
   end if
   return(pRoomObject.define(tDataStruct))
-  exit
 end
 
-on removeRoomObject(me)
+on removeRoomObject me 
   pRoomObject.deconstruct()
   pRoomObject = void()
   return(1)
-  exit
 end
 
-on roomObjectAction(me, tAction, tdata)
+on roomObjectAction me, tAction, tdata 
   if not objectp(pRoomObject) then
     return(error(me, "Roomobject wrapper missing!", #getRoomObject))
   end if
   call(#roomObjectAction, pRoomObject, tAction, tdata)
   return(1)
-  exit
 end
 
-on getRoomObjectImage(me)
+on getRoomObjectImage me 
   if not objectp(pRoomObject) then
     return(0)
   end if
   return(pRoomObject.getPicture())
-  exit
 end
 
-on updateRoomObjectGoal(me, tdata)
+on updateRoomObjectGoal me, tdata 
   if not me.checkStateAllowsMoving() then
     return(1)
   end if
@@ -140,46 +133,44 @@ on updateRoomObjectGoal(me, tdata)
   tdata.setAt(#dirBody, pDirBody)
   pExpectedLocation.setAt(#x, -1)
   return(me.updateRoomObjectLocation(tdata))
-  exit
 end
 
-on checkStateAllowsMoving(me, tstate)
+on checkStateAllowsMoving me, tstate 
   if tstate = void() then
     tstate = me.getGameObjectProperty(#state)
   end if
-  if me <> STATE_STUNNED then
-    if me <> STATE_CLIMBING_INTO_CANNON then
-      if me <> STATE_FLYING_THROUGH_AIR then
-        if me = STATE_BALL_BROKEN then
+  if tstate <> STATE_STUNNED then
+    if tstate <> STATE_CLIMBING_INTO_CANNON then
+      if tstate <> STATE_FLYING_THROUGH_AIR then
+        if tstate = STATE_BALL_BROKEN then
           return(0)
         else
           return(1)
         end if
-        exit
       end if
     end if
   end if
 end
 
-on updateRoomObject(me, tdata)
+on updateRoomObject me, tdata 
   tOldState = me.getGameObjectProperty(#state)
   if tdata.getAt(#state) <> tOldState then
     me.setGameObjectSyncProperty([#state:tdata.getAt(#state)])
     if tOldState = STATE_BALL_BROKEN then
       me.roomObjectAction(#set_ball, 1)
     end if
-    if me = STATE_NORMAL then
+    if tdata.getAt(#state) = STATE_NORMAL then
       me.clearEffectAnimation()
       me.roomObjectAction(#reset_ball_color)
       me.roomObjectAction(#set_bounce_state, tdata.getAt(#state))
     else
-      if me = STATE_HIGH_JUMPS then
+      if tdata.getAt(#state) = STATE_HIGH_JUMPS then
         me.roomObjectAction(#set_bounce_state, tdata.getAt(#state))
       else
-        if me = STATE_CLEANING_TILES then
+        if tdata.getAt(#state) = STATE_CLEANING_TILES then
           me.roomObjectAction(#set_bounce_state, tdata.getAt(#state))
         else
-          if me = STATE_STUNNED then
+          if tdata.getAt(#state) = STATE_STUNNED then
             pTargetLocation.setAt(#x, -1)
             pExpectedLocation.setAt(#x, -1)
             me.createEffect(#loop, "bb2_stunned_", [#ink:8])
@@ -188,15 +179,15 @@ on updateRoomObject(me, tdata)
               me.getGameSystem().sendGameSystemEvent(#soundeffect, "SFX-10-stunned")
             end if
           else
-            if me <> STATE_CLIMBING_INTO_CANNON then
-              if me = STATE_FLYING_THROUGH_AIR then
+            if tdata.getAt(#state) <> STATE_CLIMBING_INTO_CANNON then
+              if tdata.getAt(#state) = STATE_FLYING_THROUGH_AIR then
                 me.roomObjectAction(#set_bounce_state, tdata.getAt(#state))
                 pTargetLocation.setAt(#x, -1)
                 pExpectedLocation.setAt(#x, -1)
                 me.roomObjectAction(#fly_into, tdata)
                 return(1)
               else
-                if me = STATE_COLORING_FOR_OPPONENT then
+                if tdata.getAt(#state) = STATE_COLORING_FOR_OPPONENT then
                   me.clearEffectAnimation()
                   me.roomObjectAction(#set_bounce_state, tdata.getAt(#state))
                   me.createEffect(#once, "bb2_efct_pu_harlequin_", [#ink:33])
@@ -208,7 +199,7 @@ on updateRoomObject(me, tdata)
                     me.roomObjectAction(#set_ball_color, tdata)
                   end if
                 else
-                  if me = STATE_BALL_BROKEN then
+                  if tdata.getAt(#state) = STATE_BALL_BROKEN then
                     me.roomObjectAction(#set_bounce_state, tdata.getAt(#state))
                     me.createEffect(#once, "bb2_efct_pu_harlequin_", [#ink:33])
                     me.createEffect(#loop, "bb2_stunned_", [#loc:point(0, 13), #ink:8])
@@ -222,7 +213,6 @@ on updateRoomObject(me, tdata)
                 end if
               end if
               return(me.updateRoomObjectLocation(tdata))
-              exit
             end if
           end if
         end if
@@ -231,7 +221,7 @@ on updateRoomObject(me, tdata)
   end if
 end
 
-on updateRoomObjectLocation(me, tuser)
+on updateRoomObjectLocation me, tuser 
   if tuser.getAt(#x) = pTargetLocation.getAt(#x) and tuser.getAt(#y) = pTargetLocation.getAt(#y) then
     pTargetLocation.setAt(#x, -1)
     pExpectedLocation.setAt(#x, -1)
@@ -264,10 +254,9 @@ on updateRoomObjectLocation(me, tuser)
   end if
   pRoomObject.setTarget(tuser, tNextLoc)
   return(1)
-  exit
 end
 
-on solveNextTile(me, tCurrentLocX, tCurrentLocY)
+on solveNextTile me, tCurrentLocX, tCurrentLocY 
   if pTargetLocation.getAt(#x) = -1 then
     return(0)
   end if
@@ -309,18 +298,16 @@ on solveNextTile(me, tCurrentLocX, tCurrentLocY)
     end if
   end if
   return(0)
-  exit
 end
 
-on clearEffectAnimation(me)
-  repeat while me <= undefined
+on clearEffectAnimation me 
+  repeat while pActiveEffects <= undefined
     tEffect = getAt(undefined, undefined)
     tEffect.pActive = 0
   end repeat
-  exit
 end
 
-on setEffectAnimationLocations(me, tlocation)
+on setEffectAnimationLocations me, tlocation 
   tX = tlocation.getAt(#x)
   tY = tlocation.getAt(#y)
   tZ = tlocation.getAt(#z)
@@ -333,22 +320,21 @@ on setEffectAnimationLocations(me, tlocation)
     return(0)
   end if
   tScreenLoc = pGeometry.getScreenCoordinate(tX, tY, tZ)
-  repeat while me <= undefined
+  repeat while pActiveEffects <= undefined
     tEffect = getAt(undefined, tlocation)
     tEffect.setLocation(tScreenLoc)
   end repeat
   return(1)
-  exit
 end
 
-on startPowerupActivateAnimation(me, tdata)
-  if me = 1 then
+on startPowerupActivateAnimation me, tdata 
+  if tdata.getAt(#powerupType) = 1 then
     me.createEffect(#once, "bb2_efct_pu_lghtbulb_", [#ink:33])
   else
-    if me = 3 then
+    if tdata.getAt(#powerupType) = 3 then
       me.createEffect(#once_slow, "bb2_efct_pu_flashlght_", [#ink:33], tdata.getAt(#effectdirection))
     else
-      if me = 7 then
+      if tdata.getAt(#powerupType) = 7 then
         me.createEffect(#once, "bb2_efct_pu_lghtbulb_", [#ink:35])
       else
         me.createEffect(#once, "bb2_pickup_", [#ink:33])
@@ -356,10 +342,9 @@ on startPowerupActivateAnimation(me, tdata)
     end if
   end if
   return(1)
-  exit
 end
 
-on createEffect(me, tMode, tEffectID, tProps, tDirection)
+on createEffect me, tMode, tEffectID, tProps, tDirection 
   tX = pLocation.getAt(#x)
   tY = pLocation.getAt(#y)
   tZ = pLocation.getAt(#z)
@@ -379,14 +364,12 @@ on createEffect(me, tMode, tEffectID, tProps, tDirection)
   tEffect.define(tMode, tScreenLoc, tlocz, tEffectID, tProps, tDirection)
   pActiveEffects.append(tEffect)
   return(1)
-  exit
 end
 
-on getOwnGameIndex(me)
+on getOwnGameIndex me 
   tSession = getObject(#session)
   if not tSession.exists("user_game_index") then
     return(0)
   end if
   return(tSession.GET("user_game_index"))
-  exit
 end

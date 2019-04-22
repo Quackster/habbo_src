@@ -1,14 +1,12 @@
-on construct(me)
+on construct me 
   return(me.regMsgList(1))
-  exit
 end
 
-on deconstruct(me)
+on deconstruct me 
   return(me.regMsgList(0))
-  exit
 end
 
-on handle_recycler_configuration(me, tMsg)
+on handle_recycler_configuration me, tMsg 
   tConn = tMsg.connection
   if not tConn then
     return(0)
@@ -21,10 +19,10 @@ on handle_recycler_configuration(me, tMsg)
   tRewardItems = []
   tNo = 1
   repeat while tNo <= tNumOfRewardItems
-    tItem = []
+    tItem = [:]
     tItem.setAt(#furniValue, tConn.GetIntFrom())
     tItem.setAt(#type, tConn.GetIntFrom())
-    if me = 0 then
+    if tItem.getAt(#type) = 0 then
       tItem.setAt(#class, tConn.GetStrFrom())
       tItem.setAt(#defaultDirection, tConn.GetIntFrom())
       tItem.setAt(#xDimension, tConn.GetIntFrom())
@@ -32,11 +30,11 @@ on handle_recycler_configuration(me, tMsg)
       tItem.setAt(#partColors, tConn.GetStrFrom())
       tItem.setAt(#name, getText("furni_" & tItem.getAt(#class) & "_name"))
     else
-      if me = 1 then
+      if tItem.getAt(#type) = 1 then
         tItem.setAt(#class, tConn.GetStrFrom())
         tItem.setAt(#name, getText("wallitem_" & tItem.getAt(#class) & "_name"))
       else
-        if me = 2 then
+        if tItem.getAt(#type) = 2 then
           tItem.setAt(#name, tConn.GetStrFrom())
         end if
       end if
@@ -49,19 +47,18 @@ on handle_recycler_configuration(me, tMsg)
   tComponent.setRewardItems(tRewardItems)
   tComponent.setRecyclingTimes(tQuarantineMinutes, tRecyclingMinutes)
   tComponent.setRecyclingTimeout(tMinutesToTimeout)
-  exit
 end
 
-on handle_recycler_status(me, tMsg)
+on handle_recycler_status me, tMsg 
   tConn = tMsg.connection
   if not tConn then
     return(0)
   end if
   tStatus = tConn.GetIntFrom()
-  if me = 0 then
+  if tStatus = 0 then
     tStatus = "open"
   else
-    if me = 1 then
+    if tStatus = 1 then
       tStatus = "progress"
       tRewardType = tConn.GetIntFrom()
       tFurniClass = tConn.GetStrFrom()
@@ -76,7 +73,7 @@ on handle_recycler_status(me, tMsg)
       tTimeoutTime = tMinutesLeft + 1 * 60 * 1000
       createTimeout("recycler_status_request", tTimeoutTime, #statusRequestTimeout, me.getID(), void(), 1)
     else
-      if me = 2 then
+      if tStatus = 2 then
         tStatus = "ready"
         tRewardType = tConn.GetIntFrom()
         tFurniClass = tConn.GetStrFrom()
@@ -87,17 +84,16 @@ on handle_recycler_status(me, tMsg)
         end if
         me.getComponent().setRewardProps(tRewardType, tFurniClass)
       else
-        if me = 3 then
+        if tStatus = 3 then
           tStatus = "timeout"
         end if
       end if
     end if
   end if
   me.getComponent().openRecyclerWithState(tStatus)
-  exit
 end
 
-on handle_approve_recycling_result(me, tMsg)
+on handle_approve_recycling_result me, tMsg 
   tConn = tMsg.connection
   if not tConn then
     return(0)
@@ -108,10 +104,9 @@ on handle_approve_recycling_result(me, tMsg)
   else
     me.getComponent().requestRecyclerState()
   end if
-  exit
 end
 
-on handle_start_recycling_result(me, tMsg)
+on handle_start_recycling_result me, tMsg 
   tConn = tMsg.connection
   if not tConn then
     return(0)
@@ -122,10 +117,9 @@ on handle_start_recycling_result(me, tMsg)
   else
     me.getComponent().requestRecyclerState()
   end if
-  exit
 end
 
-on handle_confirm_recycling_result(me, tMsg)
+on handle_confirm_recycling_result me, tMsg 
   tConn = tMsg.connection
   if not tConn then
     return(0)
@@ -136,22 +130,20 @@ on handle_confirm_recycling_result(me, tMsg)
   else
     me.getComponent().setStateTo("open")
   end if
-  exit
 end
 
-on statusRequestTimeout(me)
+on statusRequestTimeout me 
   me.getComponent().requestRecyclerState()
-  exit
 end
 
-on regMsgList(me, tBool)
-  tMsgs = []
+on regMsgList me, tBool 
+  tMsgs = [:]
   tMsgs.setaProp(303, #handle_recycler_configuration)
   tMsgs.setaProp(304, #handle_recycler_status)
   tMsgs.setaProp(305, #handle_approve_recycling_result)
   tMsgs.setaProp(306, #handle_start_recycling_result)
   tMsgs.setaProp(307, #handle_confirm_recycling_result)
-  tCmds = []
+  tCmds = [:]
   tCmds.setaProp("GET_FURNI_RECYCLER_CONFIGURATION", 222)
   tCmds.setaProp("GET_FURNI_RECYCLER_STATUS", 223)
   tCmds.setaProp("APPROVE_RECYCLED_FURNI", 224)
@@ -165,5 +157,4 @@ on regMsgList(me, tBool)
     unregisterCommands(getVariable("connection.room.id"), me.getID(), tCmds)
   end if
   return(1)
-  exit
 end

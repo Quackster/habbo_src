@@ -1,4 +1,6 @@
-on construct(me)
+property pProductStrip, pPageItemDownloader, pPersistentFurniData, pPrizes, pStripBg, pWndObj, pWriter, pSlotRects, pTextElements, pImageElements
+
+on construct me 
   pSlotRects = []
   pFurnisPerRow = 3
   pRowHeight = 40
@@ -16,10 +18,9 @@ on construct(me)
   createWriter(tWriterId, getStructVariable("struct.font.bold"))
   pWriter = getWriter(tWriterId)
   return(callAncestor(#construct, [me]))
-  exit
 end
 
-on deconstruct(me)
+on deconstruct me 
   unregisterMessage(#recyclerPrizesReceived, me.getID())
   if not voidp(me.pProductStrip) then
     if objectExists(pProductStrip.getID()) then
@@ -28,10 +29,9 @@ on deconstruct(me)
   end if
   pPageItemDownloader.removeCallback(me, #downloadCompleted)
   return(callAncestor(#deconstruct, [me]))
-  exit
 end
 
-on define(me, tdata)
+on define me, tdata 
   callAncestor(#define, [me], tdata)
   tConn = getConnection(getVariable("connection.info.id", #info))
   if tConn <> 0 then
@@ -40,18 +40,16 @@ on define(me, tdata)
   if voidp(pPersistentFurniData) then
     pPersistentFurniData = getThread("dynamicdownloader").getComponent().getPersistentFurniDataObject()
   end if
-  exit
 end
 
-on testPrizes(me)
-  tPrizes = []
+on testPrizes me 
+  tPrizes = [:]
   tPrizes.setaProp(5, [#id:5, #odds:1000, #furniList:[["s", 2995], ["s", 2999]]])
   tPrizes.setaProp(4, [#id:4, #odds:500, #furniList:[["s", 1897], ["s", 2443], ["s", 2306], ["s", 2644]]])
   executeMessage(#recyclerPrizesReceived, tPrizes)
-  exit
 end
 
-on setPrizes(me, tPrizes)
+on setPrizes me, tPrizes 
   if tPrizes.ilk <> #propList then
     return(0)
   end if
@@ -59,10 +57,9 @@ on setPrizes(me, tPrizes)
   me.renderStripBg()
   me.renderStripItems()
   me.downloadFurniCasts()
-  exit
 end
 
-on downloadFurniCasts(me)
+on downloadFurniCasts me 
   if pPrizes.ilk <> #propList then
     return(0)
   end if
@@ -70,7 +67,7 @@ on downloadFurniCasts(me)
     pPersistentFurniData = getThread("dynamicdownloader").getComponent().getPersistentFurniDataObject()
   end if
   pPageItemDownloader.defineCallback(me, #downloadCompleted)
-  repeat while me <= undefined
+  repeat while pPrizes <= undefined
     tCategory = getAt(undefined, undefined)
     tFurniList = tCategory.getAt(#furniList)
     i = 1
@@ -86,10 +83,9 @@ on downloadFurniCasts(me)
       i = 1 + i
     end repeat
   end repeat
-  exit
 end
 
-on removeColorFromClassName(me, tClass)
+on removeColorFromClassName me, tClass 
   if tClass contains "*" then
     tDelim = the itemDelimiter
     the itemDelimiter = "*"
@@ -97,10 +93,9 @@ on removeColorFromClassName(me, tClass)
     the itemDelimiter = tDelim
   end if
   return(tClass)
-  exit
 end
 
-on renderStripItems(me)
+on renderStripItems me 
   if pPrizes.ilk <> #propList then
     return(0)
   end if
@@ -115,10 +110,9 @@ on renderStripItems(me)
     i = 1 + i
   end repeat
   me.setImage(pStripBg, "ctlg_productstrip")
-  exit
 end
 
-on renderStripItem(me, tCategoryId, tIndex, tIsSelected)
+on renderStripItem me, tCategoryId, tIndex, tIsSelected 
   if tIsSelected then
     tMemNum = getmemnum("stripitem.basic.bg.selected")
   else
@@ -157,10 +151,9 @@ on renderStripItem(me, tCategoryId, tIndex, tIsSelected)
   tOffsetY = tSlotRect.height + tImage - rect.height / 2
   tRect = rect.offset(tOffsetX, tOffsetY)
   pStripBg.copyPixels(tImage, tRect, tImage.rect, [#ink:36])
-  exit
 end
 
-on renderStripBg(me)
+on renderStripBg me 
   if pPrizes.ilk <> #propList then
     return(0)
   end if
@@ -182,7 +175,7 @@ on renderStripBg(me)
   tSlotSize = tSlotBg.width
   tTitleMargin = 5
   tOffsetY = 0
-  pSlotRects = []
+  pSlotRects = [:]
   i = 1
   repeat while i <= pPrizes.count
     tFurniList = pPrizes.getAt(i).getAt(#furniList)
@@ -218,20 +211,18 @@ on renderStripBg(me)
   pStripBg = pStripBg.crop(rect(0, 0, tStripWidth, tOffsetY))
   me.setImage(pStripBg, "ctlg_productstrip")
   me.updateStripScroll()
-  exit
 end
 
-on setSlotRect(me, tCategoryId, tItem, tRect)
+on setSlotRect me, tCategoryId, tItem, tRect 
   tCategory = pSlotRects.getaProp(tCategoryId)
   if voidp(tCategory) then
     tCategory = []
   end if
   tCategory.setAt(tItem, tRect)
   pSlotRects.setaProp(tCategoryId, tCategory)
-  exit
 end
 
-on getSlotRect(me, tCategoryId, tIndex)
+on getSlotRect me, tCategoryId, tIndex 
   if pSlotRects.ilk <> #propList then
     return(0)
   end if
@@ -243,10 +234,9 @@ on getSlotRect(me, tCategoryId, tIndex)
     return(0)
   end if
   return(tCategory.getAt(tIndex))
-  exit
 end
 
-on setImage(me, tImage, tElemID)
+on setImage me, tImage, tElemID 
   if voidp(pWndObj) then
     return(0)
   end if
@@ -255,10 +245,9 @@ on setImage(me, tImage, tElemID)
   end if
   tElem = pWndObj.getElement(tElemID)
   tElem.feedImage(tImage)
-  exit
 end
 
-on updateStripScroll(me)
+on updateStripScroll me 
   if voidp(pWndObj) then
     return(0)
   end if
@@ -275,10 +264,9 @@ on updateStripScroll(me)
   end if
   tShowScroll = pStripBg.height > tStrip.getProperty(#height)
   tScroll.setProperty(#visible, tShowScroll)
-  exit
 end
 
-on mergeWindow(me, tParentWndObj)
+on mergeWindow me, tParentWndObj 
   tLayoutMember = "ctlg_" & me.getProp(#pPageData, #layout) & ".window"
   if not memberExists(tLayoutMember) then
     return(error(me, "Layout member " & tLayoutMember & " missing.", #mergeWindow))
@@ -311,15 +299,14 @@ on mergeWindow(me, tParentWndObj)
   end repeat
   if tObjectLoadList.count > 0 then
     pPageItemDownloader.defineCallback(me, #downloadCompleted)
-    repeat while me <= undefined
+    repeat while tObjectLoadList <= undefined
       tLoadObject = getAt(undefined, tParentWndObj)
       pPageItemDownloader.registerDownload(tLoadObject.getAt(#type), tLoadObject.getAt(#assetId), tLoadObject.getAt(#props))
     end repeat
   end if
-  exit
 end
 
-on setElementText(me, tWndObj, tElemName, tText)
+on setElementText me, tWndObj, tElemName, tText 
   if voidp(tWndObj) then
     return(0)
   end if
@@ -327,19 +314,17 @@ on setElementText(me, tWndObj, tElemName, tText)
     tWndObj.getElement(tElemName).setText(tText)
   else
   end if
-  exit
 end
 
-on unmergeWindow(me, tParentWndObj)
+on unmergeWindow me, tParentWndObj 
   tLayoutMember = "ctlg_" & me.getProp(#pPageData, #layout) & ".window"
   if not memberExists(tLayoutMember) then
     return(error(me, "Layout member " & tLayoutMember & " missing.", #mergeWindow))
   end if
   tParentWndObj.unmerge()
-  exit
 end
 
-on showPreview(me, tCategory, tItem)
+on showPreview me, tCategory, tItem 
   if voidp(pWndObj) then
     return(error(me, "Missing handle to window object!", #showPreview, #major))
   end if
@@ -350,7 +335,7 @@ on showPreview(me, tCategory, tItem)
   tFurniList = tCategoryInfo.getAt(#furniList)
   tFurni = tFurniList.getAt(tItem)
   tProps = pPersistentFurniData.getProps(tFurni.getAt(1), tFurni.getAt(2))
-  tPreviewProps = []
+  tPreviewProps = [:]
   tPreviewProps.setAt("class", me.removeColorFromClassName(tProps.getAt(#class)))
   tPreviewProps.setAt("direction", "")
   tPreviewProps.setAt("dimensions", tProps.getAt(#xdim) & "," & tProps.getAt(#ydim))
@@ -370,10 +355,9 @@ on showPreview(me, tCategory, tItem)
   tOddsText = replaceChunks(tOddsText, "%odds%", "1:" & tOdds)
   me.setElementText(me.pWndObj, "ctlg_description", tOddsText)
   me.setElementText(me.pWndObj, "ctlg_product_name", tFurniName)
-  exit
 end
 
-on downloadCompleted(me, tProps)
+on downloadCompleted me, tProps 
   me.renderStripItems()
   if tProps.getAt(#props).getAt(#pageid) <> me.getProp(#pPageData, #pageid) then
     return()
@@ -402,19 +386,17 @@ on downloadCompleted(me, tProps)
       end if
     end if
   end if
-  exit
 end
 
-on getSelectedProduct(me)
+on getSelectedProduct me 
   tSelectedItem = void()
   if objectp(pProductStrip) then
     tSelectedItem = pProductStrip.getSelectedItem()
   end if
   return(tSelectedItem)
-  exit
 end
 
-on handleClick(me, tEvent, tSprID, tProp)
+on handleClick me, tEvent, tSprID, tProp 
   if tEvent <> #mouseUp then
     return(0)
   end if
@@ -439,7 +421,6 @@ on handleClick(me, tEvent, tSprID, tProp)
           j = 1 + j
         end if
         i = 1 + i
-        exit
       end if
     end repeat
   end repeat

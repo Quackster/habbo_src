@@ -1,4 +1,6 @@
-on construct(me)
+property pSongList, pWindowID, pRowHeight, pListImage, pWriter, pSelectedRow, pSelectionColor, pOffsetX
+
+on construct me 
   pWindowID = #performer_song_selector
   pRowHeight = 25
   pOffsetX = 10
@@ -10,16 +12,14 @@ on construct(me)
   pWriter = getWriter(tID)
   registerMessage(#close_performer_song_selector, me.getID(), #close)
   return(1)
-  exit
 end
 
-on deconstruct(me)
+on deconstruct me 
   unregisterMessage(#close_performer_song_selector, me.getID())
   return(1)
-  exit
 end
 
-on open(me, tSongList)
+on open me, tSongList 
   if tSongList.ilk <> #propList then
     return(0)
   end if
@@ -33,17 +33,15 @@ on open(me, tSongList)
   tWindow.registerProcedure(#eventProcSongList, me.getID(), #mouseUp)
   pSelectedRow = 1
   me.Refresh()
-  exit
 end
 
-on close(me)
+on close me 
   if windowExists(pWindowID) then
     removeWindow(pWindowID)
   end if
-  exit
 end
 
-on getWindowObj(me)
+on getWindowObj me 
   if windowExists(pWindowID) then
     return(getWindow(pWindowID))
   end if
@@ -56,10 +54,9 @@ on getWindowObj(me)
     tWindow.getElement("close").hide()
   end if
   return(tWindow)
-  exit
 end
 
-on Refresh(me)
+on Refresh me 
   if pSongList.ilk <> #propList then
     return(0)
   end if
@@ -93,18 +90,17 @@ on Refresh(me)
     tShowScroll = pSongList.count * pRowHeight > tListElem.getProperty(#height)
     tWindow.getElement("performer_song_list_scroll").setProperty(#visible, tShowScroll)
   end if
-  exit
 end
 
-on eventProcSongList(me, tEvent, tSprID, tParam)
-  if me = "performer_song_list" then
+on eventProcSongList me, tEvent, tSprID, tParam 
+  if tSprID = "performer_song_list" then
     if tParam.ilk <> #point then
       return(0)
     end if
     pSelectedRow = tParam.getAt(2) / pRowHeight + 1
     me.Refresh()
   else
-    if me = "performer_start_button" then
+    if tSprID = "performer_start_button" then
       tConn = getConnection(getVariable("connection.info.id"))
       if not tConn then
         return(me.close())
@@ -114,5 +110,4 @@ on eventProcSongList(me, tEvent, tSprID, tParam)
       me.close()
     end if
   end if
-  exit
 end

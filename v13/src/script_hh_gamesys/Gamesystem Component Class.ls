@@ -1,4 +1,6 @@
-on construct(me)
+property pSquareRoot, pCollision, pObjects, pObjectTypeIndex
+
+on construct me 
   pGeometry = createObject(#temp, getClassVariable("gamesystem.geometry.class"))
   if not objectp(pGeometry) then
     return(error(me, "Cannot create pGeometry.", #construct))
@@ -12,15 +14,14 @@ on construct(me)
     return(error(me, "Cannot create pCollision.", #construct))
   end if
   pCollision.setaProp(#pSquareRoot, pSquareRoot)
-  pObjects = []
-  pObjectTypeIndex = []
+  pObjects = [:]
+  pObjectTypeIndex = [:]
   initIntVector()
   receiveUpdate(me.getID())
   return(1)
-  exit
 end
 
-on deconstruct(me)
+on deconstruct me 
   removeUpdate(me.getID())
   repeat while pObjects.count > 0
     me.removeGameObject(pObjects.getAt(1).getObjectId())
@@ -30,27 +31,23 @@ on deconstruct(me)
   pObjects = void()
   pObjectTypeIndex = void()
   return(1)
-  exit
 end
 
-on defineClient(me, tid)
+on defineClient me, tid 
   return(1)
-  exit
 end
 
-on getCollision(me)
+on getCollision me 
   return(pCollision)
-  exit
 end
 
-on update(me)
+on update me 
   call(#update, pObjects)
-  exit
 end
 
-on executeGameObjectEvent(me, tid, tEvent, tdata)
+on executeGameObjectEvent me, tid, tEvent, tdata 
   if tid = #all then
-    repeat while me <= tEvent
+    repeat while pObjects <= tEvent
       tGameObject = getAt(tEvent, tid)
       call(#executeGameObjectEvent, tGameObject, tEvent, tdata)
     end repeat
@@ -62,32 +59,29 @@ on executeGameObjectEvent(me, tid, tEvent, tdata)
   end if
   call(#executeGameObjectEvent, tGameObject, tEvent, tdata)
   return(1)
-  exit
 end
 
-on calculateChecksum(me, tSeed)
+on calculateChecksum me, tSeed 
   tCheckSum = tSeed
-  repeat while me <= undefined
+  repeat while pObjects <= undefined
     tObject = getAt(undefined, tSeed)
     tCheckSum = tCheckSum + tObject.addChecksum()
   end repeat
   return(tCheckSum)
-  exit
 end
 
-on dumpChecksumValues(me)
+on dumpChecksumValues me 
   tText = ""
-  repeat while me <= undefined
+  repeat while pObjects <= undefined
     tObject = getAt(undefined, undefined)
     tText = tText & tObject.dump() & "\r"
   end repeat
   return(tText)
-  exit
 end
 
-on createGameObject(me, tObjectID, ttype, tdata)
+on createGameObject me, tObjectID, ttype, tdata 
   if not listp(tdata) then
-    tdata = []
+    tdata = [:]
   end if
   tObjectID = integer(tObjectID)
   tObjectStrId = string(tObjectID)
@@ -125,10 +119,9 @@ on createGameObject(me, tObjectID, ttype, tdata)
   tObject.pGameObjectFinalTarget = me.getWorld().initLocation()
   me.updateGameObject(tObjectStrId, tdata.duplicate())
   return(tObject)
-  exit
 end
 
-on updateGameObject(me, tObjectID, tdata)
+on updateGameObject me, tObjectID, tdata 
   tObjectID = string(tObjectID)
   tObject = me.getGameObject(tObjectID)
   if not listp(tdata) then
@@ -145,10 +138,9 @@ on updateGameObject(me, tObjectID, tdata)
     tObject.setLocation(tdata.x, tdata.y, tdata.z)
   end if
   return(1)
-  exit
 end
 
-on removeGameObject(me, tObjectID)
+on removeGameObject me, tObjectID 
   tObjectID = integer(tObjectID)
   tObjectStrId = string(tObjectID)
   ttype = pObjectTypeIndex.getaProp(tObjectID)
@@ -162,10 +154,9 @@ on removeGameObject(me, tObjectID)
   pObjects.deleteProp(tObjectID)
   pObjectTypeIndex.deleteProp(tObjectID)
   return(1)
-  exit
 end
 
-on executeSubturnMoves(me)
+on executeSubturnMoves me 
   tRemoveList = []
   i = 1
   repeat while i <= pObjects.count
@@ -176,23 +167,21 @@ on executeSubturnMoves(me)
     end if
     i = 1 + i
   end repeat
-  repeat while me <= undefined
+  repeat while tRemoveList <= undefined
     tObjectID = getAt(undefined, undefined)
     me.removeGameObject(tObjectID)
   end repeat
   return(1)
-  exit
 end
 
-on getGameObject(me, tObjectID)
+on getGameObject me, tObjectID 
   if pObjects = void() then
     return(0)
   end if
   return(pObjects.getaProp(integer(tObjectID)))
-  exit
 end
 
-on getGameObjectIdsOfType(me, ttype)
+on getGameObjectIdsOfType me, ttype 
   tResult = []
   i = 1
   repeat while i <= pObjectTypeIndex.count
@@ -202,21 +191,18 @@ on getGameObjectIdsOfType(me, ttype)
     i = 1 + i
   end repeat
   return(tResult)
-  exit
 end
 
-on getGameObjectType(me, tObjectID)
+on getGameObjectType me, tObjectID 
   tObjectID = integer(tObjectID)
   return(pObjectTypeIndex.getaProp(tObjectID))
-  exit
 end
 
-on dump(me)
+on dump me 
   tText = ""
-  repeat while me <= undefined
+  repeat while pObjects <= undefined
     tObject = getAt(undefined, undefined)
     tText = tText & tObject.dump() & "\r"
   end repeat
   return(tText)
-  exit
 end
