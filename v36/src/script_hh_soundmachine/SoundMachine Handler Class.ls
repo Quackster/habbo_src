@@ -1,0 +1,231 @@
+on construct(me)
+  return(me.regMsgList(1))
+  exit
+end
+
+on deconstruct(me)
+  return(me.regMsgList(0))
+  exit
+end
+
+on handle_song_info(me, tMsg)
+  tSongID = tMsg.GetIntFrom()
+  tName = tMsg.GetStrFrom()
+  tName = convertSpecialChars(tName, 0)
+  tdata = []
+  tStr = tMsg.GetStrFrom()
+  tDelim = the itemDelimiter
+  the itemDelimiter = ":"
+  i = 1
+  repeat while i <= tStr.count(#item) / 2
+    tChannelNumber = tStr.getProp(#item, 1 + i - 1 * 2)
+    tChannelData = tStr.getProp(#item, 2 + i - 1 * 2)
+    if ilk(value(tChannelNumber)) = #integer then
+      tChannelNumber = value(tChannelNumber)
+      if tChannelNumber = tdata.count + 1 then
+        tdata.setAt(tChannelNumber, [])
+        the itemDelimiter = ";"
+        j = 1
+        repeat while j <= tChannelData.count(#item)
+          tSample = tChannelData.getProp(#item, j)
+          the itemDelimiter = ","
+          if tSample.count(#item) >= 2 then
+            tID = value(tSample.getProp(#item, 1))
+            tCount = value(tSample.getProp(#item, 2))
+            tdata.getAt(tChannelNumber).setAt(tdata.getAt(tChannelNumber).count + 1, [#id:tID, #length:tCount])
+          end if
+          the itemDelimiter = ";"
+          j = 1 + j
+        end repeat
+      end if
+    end if
+    the itemDelimiter = ":"
+    i = 1 + i
+  end repeat
+  the itemDelimiter = tDelim
+  me.getComponent().parseSongData(tdata, tSongID, tName)
+  exit
+end
+
+on handle_machine_sound_packages(me, tMsg)
+  if voidp(tMsg.connection) then
+    return(0)
+  end if
+  tSlotCount = tMsg.GetIntFrom()
+  tFilledSlots = tMsg.GetIntFrom()
+  me.getComponent().clearSoundSets()
+  i = 1
+  repeat while i <= tFilledSlots
+    tSlotIndex = tMsg.GetIntFrom()
+    tID = tMsg.GetIntFrom()
+    tSampleList = []
+    tSampleCount = tMsg.GetIntFrom()
+    j = 1
+    repeat while j <= tSampleCount
+      tSampleID = tMsg.GetIntFrom()
+      tSampleList.add(tSampleID)
+      j = 1 + j
+    end repeat
+    me.getComponent().updateSoundSet(tSlotIndex, tID, tSampleList)
+    i = 1 + i
+  end repeat
+  me.getComponent().setSoundSetCount(tFilledSlots)
+  me.getComponent().removeSoundSetInsertLock()
+  return(1)
+  exit
+end
+
+on handle_user_sound_packages(me, tMsg)
+  if voidp(tMsg.connection) then
+    return(0)
+  end if
+  tCount = tMsg.GetIntFrom()
+  tList = []
+  i = 1
+  repeat while i <= tCount
+    tID = tMsg.GetIntFrom()
+    tList.append(tID)
+    i = 1 + i
+  end repeat
+  return(me.getComponent().updateSetList(tList))
+  exit
+end
+
+on handle_invalid_song_name(me, tMsg)
+  return(me.getComponent().handleInvalidSongName())
+  exit
+end
+
+on handle_song_list(me, tMsg)
+  return(me.getComponent().parseSongList(tMsg))
+  exit
+end
+
+on handle_play_list(me, tMsg)
+  return(me.getComponent().parsePlaylist(tMsg))
+  exit
+end
+
+on handle_song_missing_packages(me, tMsg)
+  tCount = tMsg.GetIntFrom()
+  tList = []
+  i = 1
+  repeat while i <= tCount
+    tID = tMsg.GetIntFrom()
+    tList.append(tID)
+    i = 1 + i
+  end repeat
+  return(me.getComponent().handleMissingPackages(tList))
+  exit
+end
+
+on handle_play_list_invalid(me, tMsg)
+  tCount = tMsg.GetIntFrom()
+  return(me.getComponent().handleListFull(tCount, "playlist"))
+  exit
+end
+
+on handle_song_list_full(me, tMsg)
+  tCount = tMsg.GetIntFrom()
+  return(me.getComponent().handleListFull(tCount, "songlist"))
+  exit
+end
+
+on handle_new_song(me, tMsg)
+  tID = tMsg.GetIntFrom()
+  tName = tMsg.GetStrFrom()
+  tName = convertSpecialChars(tName, 0)
+  return(me.getComponent().updateEditorSong(tID, tName))
+  exit
+end
+
+on handle_user_song_disks(me, tMsg)
+  return(me.getComponent().parseUserDisks(tMsg))
+  exit
+end
+
+on handle_jukebox_disks(me, tMsg)
+  return(me.getComponent().parseJukeboxDisks(tMsg))
+  exit
+end
+
+on handle_jukebox_song_added(me, tMsg)
+  tID = tMsg.GetIntFrom()
+  tLength = tMsg.GetIntFrom()
+  tName = tMsg.GetStrFrom()
+  tAuthor = tMsg.GetStrFrom()
+  tName = convertSpecialChars(tName, 0)
+  tAuthor = convertSpecialChars(tAuthor, 0)
+  return(me.getComponent().insertPlaylistSong(tID, tLength, tName, tAuthor))
+  exit
+end
+
+on handle_song_locked(me, tMsg)
+  return(me.getComponent().handleSongLocked())
+  exit
+end
+
+on handle_jukebox_playlist_full(me, tMsg)
+  return(me.getComponent().handleJukeBoxPlaylistFull())
+  exit
+end
+
+on handle_invalid_song_length(me, tMsg)
+  return(me.getComponent().handleInvalidSongLength())
+  exit
+end
+
+on handle_song_saved(me, tMsg)
+  return(me.getComponent().updateEditorSong(void(), void()))
+  exit
+end
+
+on regMsgList(me, tBool)
+  tMsgs = []
+  tMsgs.setaProp(300, #handle_song_info)
+  tMsgs.setaProp(301, #handle_machine_sound_packages)
+  tMsgs.setaProp(302, #handle_user_sound_packages)
+  tMsgs.setaProp(332, #handle_invalid_song_name)
+  tMsgs.setaProp(322, #handle_song_list)
+  tMsgs.setaProp(323, #handle_play_list)
+  tMsgs.setaProp(324, #handle_song_missing_packages)
+  tMsgs.setaProp(325, #handle_play_list_invalid)
+  tMsgs.setaProp(326, #handle_song_list_full)
+  tMsgs.setaProp(331, #handle_new_song)
+  tMsgs.setaProp(333, #handle_user_song_disks)
+  tMsgs.setaProp(334, #handle_jukebox_disks)
+  tMsgs.setaProp(335, #handle_jukebox_song_added)
+  tMsgs.setaProp(336, #handle_song_locked)
+  tMsgs.setaProp(337, #handle_jukebox_playlist_full)
+  tMsgs.setaProp(338, #handle_invalid_song_length)
+  tMsgs.setaProp(339, #handle_song_saved)
+  tCmds = []
+  tCmds.setaProp("INSERT_SOUND_PACKAGE", 219)
+  tCmds.setaProp("EJECT_SOUND_PACKAGE", 220)
+  tCmds.setaProp("GET_SONG_INFO", 221)
+  tCmds.setaProp("NEW_SONG", 239)
+  tCmds.setaProp("SAVE_SONG_NEW", 240)
+  tCmds.setaProp("EDIT_SONG", 241)
+  tCmds.setaProp("SAVE_SONG_EDIT", 242)
+  tCmds.setaProp("BURN_SONG", 254)
+  tCmds.setaProp("SONG_EDIT_CLOSE", 246)
+  tCmds.setaProp("UPDATE_PLAY_LIST", 243)
+  tCmds.setaProp("GET_SONG_LIST", 244)
+  tCmds.setaProp("GET_PLAY_LIST", 245)
+  tCmds.setaProp("DELETE_SONG", 248)
+  tCmds.setaProp("ADD_JUKEBOX_DISC", 255)
+  tCmds.setaProp("REMOVE_JUKEBOX_DISC", 256)
+  tCmds.setaProp("JUKEBOX_PLAYLIST_ADD", 257)
+  tCmds.setaProp("GET_JUKEBOX_DISCS", 258)
+  tCmds.setaProp("GET_USER_SONG_DISCS", 259)
+  tCmds.setaProp("RESET_JUKEBOX", 260)
+  if tBool then
+    registerListener(getVariable("connection.info.id"), me.getID(), tMsgs)
+    registerCommands(getVariable("connection.info.id"), me.getID(), tCmds)
+  else
+    unregisterListener(getVariable("connection.info.id"), me.getID(), tMsgs)
+    unregisterCommands(getVariable("connection.info.id"), me.getID(), tCmds)
+  end if
+  return(1)
+  exit
+end

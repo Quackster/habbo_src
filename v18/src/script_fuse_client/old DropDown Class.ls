@@ -1,0 +1,529 @@
+on define(me, tProps)
+  tField = tProps.getAt(#type) & tProps.getAt(#model) & ".element"
+  pProp = getObject(#layout_parser).parse(tField)
+  if pProp = 0 then
+    return(0)
+  end if
+  pState = #close
+  me.pID = tProps.getAt(#id)
+  me.pBuffer = tProps.getAt(#buffer)
+  me.pSprite = tProps.getAt(#sprite)
+  me.pLocX = pSprite.left
+  me.pLocY = pSprite.top
+  pmodel = tProps.getAt(#model)
+  pAlignment = tProps.getAt(#alignment)
+  pTextKeys = tProps.getAt(#keylist)
+  pOrigWidth = tProps.getAt(#width)
+  pLineHeight = tProps.getAt(#fixedLineSpace)
+  pOpenDir = tProps.getAt(#direction)
+  pMaxWidth = tProps.getAt(#maxwidth)
+  pLineHeight = tProps.getAt(#height)
+  pFixedSize = tProps.getAt(#fixedsize)
+  pTextlist = []
+  repeat while me <= undefined
+    tKey = getAt(undefined, tProps)
+    if textExists(tKey) then
+      pTextlist.add(getText(tKey))
+    end if
+  end repeat
+  if pTextlist.count = 0 then
+    pTextlist.add("...")
+  end if
+  if voidp(me.pPalette) then
+    if variableExists("interface.palette") then
+      me.pPalette = member(getmemnum(getVariable("interface.palette")))
+    else
+      me.pPalette = #systemMac
+    end if
+  else
+    if stringp(me.pPalette) then
+      me.pPalette = member(getmemnum(me.pPalette))
+    end if
+  end if
+  if voidp(pFixedSize) then
+    pFixedSize = 0
+  end if
+  if voidp(pMaxWidth) then
+    pMaxWidth = pOrigWidth
+  end if
+  if pMaxWidth < pOrigWidth then
+    pMaxWidth = pOrigWidth
+  end if
+  if pLineHeight mod 2 then
+    pLineHeight = pLineHeight + 1
+  end if
+  pSelectedItemNum = 1
+  pMenuItems = pTextlist
+  pNumberOfMenuItems = pTextlist.count()
+  me.UpdateImageObjects(void(), #up)
+  pDropMenuImg = me.createDropImg(pMenuItems, 1, #up)
+  me.pimage = pDropMenuImg
+  me.pwidth = me.width
+  pheight = me.height
+  pDropActiveBtnImg = me.createDropImg([pMenuItems.getAt(1)], 0, #up)
+  me.pimage = pDropActiveBtnImg
+  tTempOffset = me.regPoint
+  me.image = me.pimage
+  me.regPoint = tTempOffset
+  pSprite.blend = tProps.getAt(#blend)
+  return(1)
+  exit
+end
+
+on prepare(me)
+  me.pLocX = pSprite.locH
+  me.pLocY = pSprite.locV
+  if me = #center then
+    me.pLocX = me.pLocX - me.pwidth - pOrigWidth / 2
+  else
+    if me = #right then
+      me.pLocX = me.pLocX - me.pwidth - pOrigWidth
+    end if
+  end if
+  pSprite.loc = point(me.pLocX, me.pLocY)
+  exit
+end
+
+on Activate(me)
+  pSprite.blend = 100
+  return(1)
+  exit
+end
+
+on deactivate(me)
+  pSprite.blend = 50
+  return(1)
+  exit
+end
+
+on getSelection(me, tReturnType)
+  if tReturnType = #text then
+    return(pTextlist.getAt(pSelectedItemNum))
+  else
+    if tReturnType = #key then
+      return(pTextKeys.getAt(pSelectedItemNum))
+    end if
+  end if
+  return(pTextKeys.getAt(pSelectedItemNum))
+  exit
+end
+
+on setSelection(me, tSelNumOrStr)
+  if stringp(tSelNumOrStr) then
+    tSelNum = pMenuItems.getPos(tSelNumOrStr)
+    if tSelNum = 0 then
+      tSelNum = pTextKeys.getPos(tSelNumOrStr)
+    end if
+  else
+    tSelNum = tSelNumOrStr
+  end if
+  if tSelNum > 0 and tSelNum <= pNumberOfMenuItems then
+    pSelectedItemNum = tSelNum
+    pDropActiveBtnImg = me.createDropImg([pMenuItems.getAt(pSelectedItemNum)], 0, #up)
+    me.pimage = pDropActiveBtnImg
+    pSprite.loc = pLoc
+    me.render()
+    return(1)
+  else
+    return(0)
+  end if
+  exit
+end
+
+on getProperty(me, tProp)
+  if me = #width then
+    return(pSprite.width)
+  else
+    if me = #height then
+      return(pSprite.height)
+    else
+      if me = #locX then
+        return(me.pLocX)
+      else
+        if me = #locY then
+          return(me.pLocY)
+        else
+          if me = #depth then
+            return(me.depth)
+          else
+            if me = #blend then
+              return(pSprite.blend)
+            else
+              if me = #selection then
+                return(pTextKeys.getAt(pSelectedItemNum))
+              else
+                return(0)
+              end if
+            end if
+          end if
+        end if
+      end if
+    end if
+  end if
+  exit
+end
+
+on mouseDown(me)
+  if pSprite.blend < 100 then
+    return(0)
+  end if
+  pClickPass = 1
+  if pState <> #open then
+    me.pimage = pDropMenuImg
+    pLoc = pSprite.loc
+    if me = #lastselected then
+      pSprite.loc = pLoc - point(0, pSelectedItemNum - 1 * pLineHeight)
+    else
+      if me = #up then
+        pSprite.loc = pLoc - point(0, pTextlist.count() - 1 * pLineHeight)
+      end if
+    end if
+    me.render()
+    pState = #open
+    return(1)
+  end if
+  exit
+end
+
+on mouseUp(me)
+  if pSprite.blend < 100 then
+    return(0)
+  end if
+  if pClickPass = 0 then
+    return(0)
+  end if
+  pClickPass = 0
+  pState = #close
+  pLastRollOver = void()
+  if pRollOverItem > 0 and pRollOverItem <= pNumberOfMenuItems then
+    pSelectedItemNum = pRollOverItem
+    pDropActiveBtnImg = me.createDropImg([pMenuItems.getAt(pSelectedItemNum)], 0, #up)
+    me.pimage = pDropActiveBtnImg
+    pSprite.loc = pLoc
+    me.render()
+    updateStage()
+    if not voidp(pTextKeys.getAt(pSelectedItemNum)) then
+      return(pTextKeys.getAt(pSelectedItemNum))
+    end if
+  end if
+  exit
+end
+
+on mouseUpOutSide(me)
+  pClickPass = 0
+  pState = #close
+  pLastRollOver = void()
+  me.pimage = pDropActiveBtnImg
+  me.render()
+  pSprite.loc = pLoc
+  return(0)
+  exit
+end
+
+on mouseWithin(me)
+  if pState = #open then
+    if voidp(pLastRollOver) then
+      pLastRollOver = 0
+    end if
+    pRollOverItem = me - pSprite.top - 1 / pLineHeight + 1
+    if pRollOverItem <> pLastRollOver then
+      if pRollOverItem > pNumberOfMenuItems then
+        pRollOverItem = pNumberOfMenuItems
+      end if
+      if pNumberOfMenuItems = pRollOverItem then
+        tMaskFix = pMarginBottom
+      else
+        tMaskFix = 0
+      end if
+      tTempImage = pDropMenuImg.duplicate()
+      tTempActiveBoxImg = image(me.pwidth, pLineHeight + tMaskFix, 8, me.pPalette)
+      tMemberDesc = pProp.getAt(#up).getAt(#members).getAt(#activeline)
+      tmember = member(getmemnum(tMemberDesc.getAt(#member)))
+      tTempActiveBoxImg.copyPixels(tmember.image, tTempActiveBoxImg.rect, tmember.rect)
+      tActiveTop = pRollOverItem - 1 * pLineHeight
+      tdestrect = rect(0, tActiveTop, me.pwidth, tActiveTop + pLineHeight + tMaskFix)
+      tTempImage.copyPixels(tTempActiveBoxImg, tdestrect, tTempActiveBoxImg.rect, [#maskImage:pDropMenuImg.createMatte(), #maskOffset:point(0, -tActiveTop), #ink:39])
+      me.pimage = tTempImage
+      me.reDraw()
+      pLastRollOver = pRollOverItem
+    end if
+  end if
+  exit
+end
+
+on reDraw(me)
+  undefined.copyPixels(me.pimage, me.rect, me.rect)
+  exit
+end
+
+on render(me)
+  tTempOffset = me.regPoint
+  pSprite.width = me.width
+  pSprite.height = me.height
+  me.image = me.pimage
+  me.regPoint = tTempOffset
+  exit
+end
+
+on UpdateImageObjects(me, tPalette, tstate)
+  pDropDownImg = []
+  if voidp(tPalette) then
+    tPalette = me.pPalette
+  else
+    if stringp(tPalette) then
+      tPalette = member(getmemnum(tPalette))
+    end if
+  end if
+  repeat while me <= tstate
+    tV = getAt(tstate, tPalette)
+    repeat while me <= tstate
+      tH = getAt(tstate, tPalette)
+      tSymbol = symbol(tV & tH)
+      tDesc = pProp.getAt(tstate).getAt(#members).getAt(tSymbol)
+      tmember = member(getmemnum(tDesc.getAt(#member)))
+      tImage = tmember.duplicate()
+      if tImage.paletteRef <> tPalette then
+        tImage.paletteRef = tPalette
+      end if
+      if tDesc.getAt(#flipH) then
+        tImage = me.flipH(tImage)
+      end if
+      if tDesc.getAt(#flipV) then
+        tImage = me.flipV(tImage)
+      end if
+      if not voidp(tDesc.getAt(#rotate)) then
+        tImage = me.rotateImg(tImage, tDesc.getAt(#rotate))
+      end if
+      pDropDownImg.addProp(tV & "_" & tH, tImage)
+    end repeat
+  end repeat
+  if not voidp(pProp.getAt(#optionalimage)) then
+    tOptionalImages = pProp.getAt(#optionalimage).getAt(#members)
+    i = 1
+    repeat while i <= tOptionalImages.count()
+      tDesc = tOptionalImages.getAt(tOptionalImages.getPropAt(i))
+      tMemName = tDesc.getAt(#member)
+      tmember = member(getmemnum(tMemName))
+      tImage = tmember.duplicate()
+      if tImage.paletteRef <> tPalette then
+        tImage.paletteRef = tPalette
+      end if
+      if tDesc.getAt(#flipH) then
+        tImage = me.flipH(tImage)
+      end if
+      if tDesc.getAt(#flipV) then
+        tImage = me.flipV(tImage)
+      end if
+      pDropDownImg.addProp("optionalimage_" & tOptionalImages.getPropAt(i), tImage)
+      i = 1 + i
+    end repeat
+  end if
+  pDotLineImg = image(pMaxWidth, 1, 8, tPalette)
+  tXPoint = 0
+  repeat while tXPoint <= pMaxWidth / 2
+    pDotLineImg.setPixel(tXPoint * 2, 0, rgb(0, 0, 0))
+    tXPoint = 1 + tXPoint
+  end repeat
+  me.pPalette = tPalette
+  return(tPalette)
+  exit
+end
+
+on createDropImg(me, tItemsList, tListOfAllItemsOrNot, tstate)
+  tStr = ""
+  f = 1
+  repeat while f <= tItemsList.count
+    tStr = tStr & tItemsList.getAt(f) & "\r"
+    f = 1 + f
+  end repeat
+  tMemNum = getmemnum("dropdown.button.text")
+  if tMemNum = 0 then
+    tMemNum = createMember("dropdown.button.text", #text)
+  end if
+  tTextMember = member(tMemNum)
+  tFontDesc = pProp.getAt(tstate).getAt(#text)
+  pMarginTop = tFontDesc.getAt(#marginV)
+  pMarginLeft = tFontDesc.getAt(#marginH)
+  pMarginBottom = tFontDesc.getAt(#marginbottom)
+  tTextMember.wordWrap = 0
+  tTextMember.font = string(tFontDesc.getAt(#font))
+  tTextMember.fontStyle = list(symbol(tFontDesc.getAt(#fontStyle)))
+  tTextMember.fontSize = tFontDesc.getAt(#fontSize)
+  tTextMember.color = rgb(tFontDesc.getAt(#color))
+  tTextMember.text = tStr.getProp(#line, 1, tStr.count(#line) - 1)
+  tTextMember.fixedLineSpace = pLineHeight
+  if tListOfAllItemsOrNot = 1 and not voidp(pProp.getAt(#optionalimage)) then
+    tOptionalImages = pProp.getAt(#optionalimage).getAt(#members)
+    tOptionalImagesWidth = 0
+    i = 1
+    repeat while i <= tOptionalImages.count()
+      tOptionalImagesWidth = tOptionalImagesWidth + pDropDownImg.getAt("optionalimage_" & tOptionalImages.getPropAt(i)).width
+      i = 1 + i
+    end repeat
+    exit repeat
+  end if
+  tOptionalImagesWidth = 0
+  if pFixedSize = 1 then
+    tTextMember.alignment = tFontDesc.getAt(#alignment)
+    pTextWidth = pOrigWidth - pMarginLeft * 2
+    tTextMember.rect = rect(0, 0, pTextWidth, tTextMember.height)
+    tTextImg = tTextMember.image
+    me.pwidth = pOrigWidth
+  else
+    tTextMember.alignment = #left
+    if tListOfAllItemsOrNot = 1 then
+      tMaxLengt = 1
+      tCharNum = 1
+      tSofarChars = 0
+      tLineN = 1
+      repeat while tLineN <= tStr.count(#line)
+        tSofarChars = tSofarChars + tStr.getPropRef(#line, tLineN).count(#char)
+        if tStr.getPropRef(#line, tLineN).count(#char) > tMaxLengt then
+          tMaxLengt = tSofarChars
+          tCharNum = tSofarChars
+          tTempline = tLineN
+        end if
+        tLineN = 1 + tLineN
+      end repeat
+      pTextWidth = tTextMember.charPosToLoc(tCharNum).locH + tFontDesc.getAt(#fontSize) * 2
+      pTextWidth = pTextWidth + 10 - pTextWidth mod 10 - tOptionalImagesWidth
+      me.pwidth = pTextWidth + pMarginLeft * 2 + tOptionalImagesWidth
+    end if
+    tTextMember.rect = rect(0, 0, pTextWidth, tTextMember.height)
+    tTextMember.alignment = tFontDesc.getAt(#alignment)
+    tTextImg = tTextMember.image
+  end if
+  tWidth = me.pwidth
+  tNewImg = image(tWidth, tItemsList.count * pLineHeight + pMarginBottom, 8, me.pPalette)
+  tdestrect = rect(0, 0, 0, 0)
+  tEndPointX = 0
+  tEndPointY = 0
+  tLastX = 0
+  tStartPoint = 0
+  repeat while me <= tListOfAllItemsOrNot
+    f = getAt(tListOfAllItemsOrNot, tItemsList)
+    tStartPoint = tEndPointY
+    tEndPointX = 0
+    if me = "top" then
+      tEndPointY = tEndPointY + pDropDownImg.getAt(1).height
+    else
+      if me = "middle" then
+        tEndPointY = tEndPointY + tItemsList.count * pLineHeight - tEndPointY * 2 + pMarginBottom
+      else
+        if me = "bottom" then
+          tEndPointY = tEndPointY + pDropDownImg.getAt(1).height
+        end if
+      end if
+    end if
+    repeat while me <= tListOfAllItemsOrNot
+      i = getAt(tListOfAllItemsOrNot, tItemsList)
+      tLastX = tEndPointX
+      if me = "left" then
+        tEndPointX = tEndPointX + pDropDownImg.getProp(f & "_" & i).width
+      else
+        if me = "middle" then
+          tEndPointX = tEndPointX + tWidth - pDropDownImg.getProp(#top_left).width - pDropDownImg.getProp(#top_right).width
+        else
+          if me = "right" then
+            tEndPointX = tEndPointX + pDropDownImg.getProp(f & "_" & i).width
+          end if
+        end if
+      end if
+      tdestrect = rect(tLastX, tStartPoint, tEndPointX, tEndPointY)
+      tNewImg.copyPixels(pDropDownImg.getProp(f & "_" & i), tdestrect, pDropDownImg.getProp(f & "_" & i).rect)
+    end repeat
+  end repeat
+  if tListOfAllItemsOrNot = 0 and not voidp(pProp.getAt(#optionalimage)) then
+    tOptionalImages = pProp.getAt(#optionalimage).getAt(#members)
+    i = 1
+    repeat while i <= tOptionalImages.count()
+      tPosition = tOptionalImages.getPropAt(i)
+      tOptionalImg = pDropDownImg.getAt("optionalimage_" & tOptionalImages.getPropAt(i))
+      tOptionImgRect = tOptionalImg.rect
+      tOptionImgMargH = tOptionalImages.getAt(tOptionalImages.getPropAt(i)).getAt(#marginH)
+      tOptionImgMargV = tNewImg.height / 2 - tOptionImgRect.height / 2
+      if tPosition = #right then
+        tdestrect = tOptionImgRect + rect(me.pwidth - tOptionImgMargH - tOptionImgRect.width, tOptionImgMargV, me.pwidth - tOptionImgMargH - tOptionImgRect.width, tOptionImgMargV)
+      else
+        if tPosition = #left then
+          tdestrect = tOptionImgRect + rect(tOptionImgMargH, tOptionImgMargV, tOptionImgMargH, tOptionImgMargV)
+        end if
+      end if
+      tNewImg.copyPixels(tOptionalImg, tdestrect, tOptionImgRect, [#ink:36])
+      i = 1 + i
+    end repeat
+  end if
+  if tItemsList.count() > 1 then
+    f = 1
+    repeat while f <= tItemsList.count - 1
+      tdestrect = rect(0, f * pLineHeight, tWidth - 1, f * pLineHeight + 1)
+      tNewImg.copyPixels(pDotLineImg, tdestrect, rect(0, 0, tWidth - 1, 1), [#ink:36])
+      f = 1 + f
+    end repeat
+  end if
+  tdestrect = tTextImg.rect + rect(0, pMarginTop, 0, pMarginTop)
+  if me = #left then
+    tdestrect = tdestrect + rect(pMarginLeft, 0, pMarginLeft, 0)
+  else
+    if me = #center then
+      tdestrect = tdestrect + rect(tNewImg.width / 2, 0, tNewImg.width / 2, 0) - rect(pTextWidth / 2, 0, pTextWidth / 2, 0)
+    else
+      if me = #right then
+        tdestrect = tdestrect + rect(tNewImg.width, 0, tNewImg.width, 0) - rect(pTextWidth + pDropDownImg.getProp("top_right").width, 0, pTextWidth + pDropDownImg.getProp("top_right").width, 0)
+      end if
+    end if
+  end if
+  tNewImg.copyPixels(tTextImg, tdestrect, tTextImg.rect)
+  return(tNewImg)
+  exit
+end
+
+on setActiveItemTo(me, tItem)
+  if voidp(pTextKeys.findPos(tItem)) then
+    return(error(me, "Cannot activate the item of dropmenu:" && tItem, #minor))
+  end if
+  pSelectedItemNum = pTextKeys.findPos(tItem)
+  pDropActiveBtnImg = me.createDropImg([pMenuItems.getAt(pSelectedItemNum)], 0, #up)
+  me.pimage = pDropActiveBtnImg
+  me.render()
+  exit
+end
+
+on flipH(me, tImg)
+  tImage = image(tImg.width, tImg.height, tImg.depth, tImg.paletteRef)
+  tQuad = [point(tImg.width, 0), point(0, 0), point(0, tImg.height), point(tImg.width, tImg.height)]
+  tImage.copyPixels(tImg, tQuad, tImg.rect)
+  return(tImage)
+  exit
+end
+
+on flipV(me, tImg)
+  tImage = image(tImg.width, tImg.height, tImg.depth, tImg.paletteRef)
+  tQuad = [point(0, tImg.height), point(tImg.width, tImg.height), point(tImg.width, 0), point(0, 0)]
+  tImage.copyPixels(tImg, tQuad, tImg.rect)
+  return(tImage)
+  exit
+end
+
+on rotateImg(me, tImg, tDirection)
+  tImage = image(tImg.height, tImg.width, tImg.depth, tImg.paletteRef)
+  tQuad = [point(0, 0), point(tImg.height, 0), point(tImg.height, tImg.width), point(0, tImg.width)]
+  tQuad = me.RotateQuad(tQuad, tDirection)
+  tImage.copyPixels(tImg, tQuad, tImg.rect)
+  return(tImage)
+  exit
+end
+
+on RotateQuad(me, tDestquad, tClockwise)
+  tPoint1 = tDestquad.getAt(1)
+  tPoint2 = tDestquad.getAt(2)
+  tPoint3 = tDestquad.getAt(3)
+  tPoint4 = tDestquad.getAt(4)
+  if tClockwise = 1 then
+    tDestquad = [tPoint2, tPoint3, tPoint4, tPoint1]
+  else
+    tDestquad = [tPoint4, tPoint1, tPoint2, tPoint3]
+  end if
+  return(tDestquad)
+  exit
+end

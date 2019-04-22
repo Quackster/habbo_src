@@ -1,0 +1,388 @@
+on construct(me)
+  pViewMode = #info
+  pViewModeComponents = []
+  pSubComponentList = []
+  return(1)
+  exit
+end
+
+on deconstruct(me)
+  removeUpdate(me.getID())
+  tObject = getObject(me.getID())
+  tObject.removeWindows()
+  return(1)
+  exit
+end
+
+on define(me, tMasterIGComponentId, tMainThreadId)
+  pMasterIGComponentId = tMasterIGComponentId
+  pMainThreadId = tMainThreadId
+  pWindowSetId = me.getID()
+  return(1)
+  exit
+end
+
+on displayEvent(me, ttype, tParam)
+  return(0)
+  exit
+end
+
+on removeWindows(me)
+  removeUpdate(me.getID())
+  me.removeComponents()
+  me.removeFlagManager()
+  me.removeModalWindow()
+  return(1)
+  exit
+end
+
+on renderUI(me, tComponentSpec)
+  if voidp(tComponentSpec) then
+    return(me.renderSubComponents(1))
+  end if
+  tTopLevelRef = getObject(me.getID())
+  if stringp(tComponentSpec) then
+    tComponent = pSubComponentList.getaProp(tComponentSpec)
+    if tComponent <> 0 then
+      return(tComponent.render())
+    end if
+  else
+    if listp(tComponentSpec) then
+      repeat while me <= undefined
+        tID = getAt(undefined, tComponentSpec)
+        tComponent = pSubComponentList.getaProp(tID)
+        if tComponent <> 0 then
+          tComponent.render()
+        end if
+      end repeat
+    end if
+  end if
+  return(1)
+  exit
+end
+
+on Remove(me)
+  me.getMasterIGComponent().Remove()
+  exit
+end
+
+on getWindowWrapper(me)
+  return(getObject(#ig_window_wrapper))
+  exit
+end
+
+on getMasterIGComponentId(me)
+  return(pMasterIGComponentId)
+  exit
+end
+
+on getMasterIGComponent(me)
+  return(getObject(pMasterIGComponentId))
+  exit
+end
+
+on getMainThread(me)
+  return(getObject(pMainThreadId))
+  exit
+end
+
+on getHandler(me)
+  tMainThreadRef = me.getMainThread()
+  if not objectp(tMainThreadRef) then
+    return(0)
+  end if
+  return(tMainThreadRef.getHandler())
+  exit
+end
+
+on getComponent(me)
+  tMainThreadRef = me.getMainThread()
+  if not objectp(tMainThreadRef) then
+    return(0)
+  end if
+  return(tMainThreadRef.getComponent())
+  exit
+end
+
+on getInterface(me)
+  tMainThreadRef = me.getMainThread()
+  if not objectp(tMainThreadRef) then
+    return(0)
+  end if
+  return(tMainThreadRef.getInterface())
+  exit
+end
+
+on ChangeWindowView(me, tMode)
+  tMainThreadRef = me.getMainThread()
+  if not objectp(tMainThreadRef) then
+    return(0)
+  end if
+  tInterface = tMainThreadRef.getInterface()
+  if tInterface = 0 then
+    return(0)
+  end if
+  return(tInterface.ChangeWindowView(tMode))
+  exit
+end
+
+on getIGComponent(me, tServiceId)
+  tMainThreadRef = me.getMainThread()
+  if not objectp(tMainThreadRef) then
+    return(0)
+  end if
+  return(tMainThreadRef.getIGComponent(tServiceId))
+  exit
+end
+
+on getSubComponent(me, tID, tAddIfMissing)
+  tObject = me.getaProp(tID)
+  if tObject <> 0 then
+    return(tObject)
+  end if
+  if not tAddIfMissing then
+    return(0)
+  end if
+  tObject = me.initializeSubComponent(tID, me.getSubComponentClass(tID))
+  if tObject = 0 then
+    return(0)
+  end if
+  return(tObject)
+  exit
+end
+
+on initializeSubComponent(me, tID, tClass)
+  if tID = #modal then
+    tClass = []
+  end if
+  if tClass = 0 then
+    return(0)
+  end if
+  if listp(tClass) then
+    tClass.addAt(1, "IGComponentUI Subcomponent Class")
+  else
+    if stringp(tClass) then
+      tClass = ["IGComponentUI Subcomponent Class", tClass]
+    else
+      tClass = "IGComponentUI Subcomponent Class"
+    end if
+  end if
+  tObject = createObject(#temp, tClass)
+  if tObject = 0 then
+    return(error(me, "Cannot create subcomponent" && tID & ", class: " && tClass, #initializeSubComponent))
+  end if
+  tObject.setID(tID)
+  tObject.pMainThreadId = me.pMainThreadId
+  tObject.pWindowSetId = me.pWindowSetId & "_" & tID
+  me.setaProp(tID, tObject)
+  tFlagManager = me.getFlagManager(1)
+  if tFlagManager = 0 then
+    return(0)
+  end if
+  tObject.pFlagManagerId = tFlagManager.getID()
+  tObject.addWindows()
+  return(tObject)
+  exit
+end
+
+on setViewMode(me, tMode)
+  me.pViewMode = tMode
+  return(me.renderSubComponents())
+  exit
+end
+
+on getViewMode(me)
+  return(pViewMode)
+  exit
+end
+
+on resetSubComponent(me, tID)
+  tPos = me.findPos(tID)
+  if tPos = 0 then
+    return(0)
+  end if
+  tComponent = me.getaProp(tID)
+  if objectp(tComponent) then
+    tComponent.deconstruct()
+  end if
+  me.deleteProp(tID)
+  tTopLevelRef = getObject(me.getID())
+  tComponent = tTopLevelRef.getSubComponent(tID, 1)
+  if tComponent = 0 then
+    return(error(me, "Error creating components:" && tID, #resetSubComponent))
+  end if
+  tNewList = []
+  i = 1
+  repeat while i <= tPos - 1
+    tNewList.setaProp(me.getPropAt(i), me.getAt(i))
+    i = 1 + i
+  end repeat
+  tNewList.setaProp(tID, tComponent)
+  i = tPos
+  repeat while i <= me.count(#pSubComponentList) - 1
+    tNewList.setaProp(me.getPropAt(i), me.getAt(i))
+    i = 1 + i
+  end repeat
+  me.pSubComponentList = tNewList
+  tComponent.render()
+  tWrapObjRef = me.getWindowWrapper()
+  if tWrapObjRef = 0 then
+    return(0)
+  end if
+  tWrapObjRef.render()
+  return(1)
+  exit
+end
+
+on renderSubComponents(me, tComponentList)
+  tTopLevelRef = getObject(me.getID())
+  if not listp(tComponentList) then
+    tComponentList = pViewModeComponents.getaProp(pViewMode)
+    if tComponentList = 0 then
+      return(0)
+    end if
+  end if
+  if not me.verifyComponentList(tComponentList) then
+    tNewSubComponentList = []
+    tPurgeList = []
+    i = 1
+    repeat while i <= tComponentList.count
+      tID = tComponentList.getAt(i)
+      tCreated = 0
+      j = i
+      repeat while j <= me.count(#pSubComponentList)
+        if tID = me.getPropAt(j) then
+          tCreated = 1
+          next repeat
+        end if
+        tObject = me.getProp(#pSubComponentList, j)
+        if objectp(tObject) then
+          tObject.deconstruct()
+        end if
+        me.deleteAt(j)
+        tRenderFlag = 1
+      end repeat
+      if not tCreated then
+        tComponent = tTopLevelRef.getSubComponent(tID, 1)
+        if tComponent <> 0 then
+          tRenderFlag = 1
+        end if
+      end if
+      i = 1 + i
+    end repeat
+    if tRenderFlag = 1 then
+      tWrapObjRef = me.getWindowWrapper()
+      if tWrapObjRef = 0 then
+        return(0)
+      end if
+      tWrapObjRef.render()
+    end if
+  end if
+  repeat while me <= undefined
+    tID = getAt(undefined, tComponentList)
+    tComponent = tTopLevelRef.getSubComponent(tID)
+    if tComponent <> 0 then
+      tComponent.render()
+    end if
+  end repeat
+  receiveUpdate(me.getID())
+  exit
+end
+
+on removeComponents(me)
+  repeat while me <= undefined
+    tObject = getAt(undefined, undefined)
+    if objectp(tObject) then
+      tObject.deconstruct()
+    end if
+  end repeat
+  pSubComponentList = []
+  return(1)
+  exit
+end
+
+on verifyComponentList(me, tComponentList)
+  tCount = pSubComponentList.count
+  if tCount <> tComponentList.count then
+    return(0)
+  end if
+  i = 1
+  repeat while i <= tCount
+    if pSubComponentList.getPropAt(i) <> tComponentList.getAt(i) then
+      return(0)
+    end if
+    i = 1 + i
+  end repeat
+  return(1)
+  exit
+end
+
+on getFlagManager(me, tCreateIfMissing)
+  if objectExists(pFlagManagerId) then
+    return(getObject(pFlagManagerId))
+  end if
+  if not tCreateIfMissing then
+    return(0)
+  end if
+  return(me.createFlagManager())
+  exit
+end
+
+on createFlagManager(me)
+  if pFlagManagerId = void() then
+    pFlagManagerId = me.getID() & "_flagmanager"
+  end if
+  if objectExists(pFlagManagerId) then
+    return(1)
+  end if
+  if not createObject(pFlagManagerId, "IG FlagManager Class") then
+    return(0)
+  end if
+  return(getObject(pFlagManagerId))
+  exit
+end
+
+on removeFlagManager(me)
+  if not objectExists(pFlagManagerId) then
+    return(1)
+  end if
+  removeObject(pFlagManagerId)
+  return(1)
+  exit
+end
+
+on createModalWindow(me)
+  if pModalSpr > 0 then
+    return(1)
+  end if
+  pModalSpr = reserveSprite(me.getID())
+  tsprite = sprite(pModalSpr)
+  tsprite.member = member(getmemnum("null"))
+  tsprite.blend = 70
+  tsprite.rect = rect(0, 0, undefined.width, undefined.height)
+  tVisualizer = getVisualizer("Room_visualizer")
+  if tVisualizer <> 0 then
+    -- UNK_80 1442
+    -- UNK_2
+  else
+    -- UNK_80 2466
+    -- UNK_2
+  end if
+  setEventBroker(tsprite.spriteNum, me.getID() & "_spr")
+  return(1)
+  exit
+end
+
+on removeModalWindow(me)
+  if pModalSpr > 0 then
+    releaseSprite(pModalSpr)
+    pModalSpr = void()
+  end if
+  return(1)
+  exit
+end
+
+on eventProcMouseDown(me, tEvent, tSprID, tParam, tWndID)
+  return(1)
+  exit
+end

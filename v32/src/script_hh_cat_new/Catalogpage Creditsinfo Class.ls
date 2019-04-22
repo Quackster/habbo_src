@@ -1,0 +1,19 @@
+on handleClick(me, tEvent, tSprID, tProp)
+  if tEvent = #mouseUp then
+    if me = "ctlg_text_5" then
+      executeMessage(#externalLinkClick, the mouseLoc)
+      openNetPage(getText("url_purselink"))
+    else
+      if me = "ctlg_text_7" then
+        tNodeName = me.getPropRef(#pPageData, #localization).getAt(#texts).getAt(8)
+        tNode = getThread(#catalogue).getComponent().getNodeByName(tNodeName)
+        if voidp(tNode) then
+          return(error(me, "Node by name '" & tNodeName & "' not found!", #handleClick))
+        end if
+        getThread(#catalogue).getComponent().preparePage(tNode.getAt(#pageid))
+        getThread(#catalogue).getInterface().activateTreeviewNodeByName(tNodeName)
+      end if
+    end if
+  end if
+  exit
+end
