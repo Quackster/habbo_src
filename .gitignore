@@ -1,1 +1,6 @@
 dcrs
+*.cst
+*.dcr
+*.cct
+*.dir
+*.txt
