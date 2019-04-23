@@ -4,3 +4,7 @@ dcrs
 *.cct
 *.dir
 *.txt
+*.db
+*.ini
+*.exe
+*.xml
