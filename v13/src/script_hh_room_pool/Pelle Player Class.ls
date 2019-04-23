@@ -10,9 +10,7 @@ on deconstruct me
   if windowExists(pReplayAnimWnd) then
     removeWindow(pReplayAnimWnd)
   end if
-  if ilk(me.pSpr) = #sprite then
-    releaseSprite(me.spriteNum)
-  end if
+  releaseSprite(me.spriteNum)
   removeUpdate(me.getID())
   return(1)
 end
@@ -22,7 +20,6 @@ on initPlayer me, jname, jdata
   pName = jname
   pJumpData = decompressString(jdata)
   pJumpData = "0000" & pJumpData & "0000000000"
-  plastPressKey = void()
   me.openHidePlayBackWindow()
   receiveUpdate(me.getID())
   return(1)
@@ -69,9 +66,9 @@ on update me
     pKeycounter = pKeycounter + 1
     if pKeycounter <= pJumpData.length then
       if pJumpData.getProp(#char, pKeycounter) <> "0" then
-        me.MykeyDown(pJumpData.getProp(#char, pKeycounter), the milliSeconds - pKeyAcceptTime, 1)
+        me.MykeyDown(pJumpData.getProp(#char, pKeycounter), the milliSeconds - pKeyAcceptTime)
       else
-        me.NotKeyDown(the milliSeconds - pKeyAcceptTime, 1)
+        me.NotKeyDown(the milliSeconds - pKeyAcceptTime)
       end if
       pKeyAcceptTime = the milliSeconds + 100 - the milliSeconds - pKeyAcceptTime
     else
@@ -79,9 +76,9 @@ on update me
         pJumpDone = 1
         tSplashPos = getThread(#room).getInterface().getGeometry().getWorldCoordinate(me.locH, me.locV)
         if tSplashPos = 0 then
-          getThread(#room).getComponent().getRoomConnection().send("SPLASH_POSITION", "21,19")
+          getThread(#room).getComponent().getRoomConnection().send(#room, "SPLASH_POSITION" && "21,19")
         else
-          getThread(#room).getComponent().getRoomConnection().send("SPLASH_POSITION", tSplashPos.getAt(1) & "," & tSplashPos.getAt(2))
+          getThread(#room).getComponent().getRoomConnection().send(#room, "SPLASH_POSITION" && tSplashPos.getAt(1) & "," & tSplashPos.getAt(2))
         end if
       end if
       me.openHidePlayBackWindow()

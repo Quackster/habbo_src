@@ -1,4 +1,4 @@
-property pSpr, pInks, pColors, pModels, pJumpDirection, pStartloc, pBgScreenBuffer, pPelleKeys, pStatus, pSpeed, pMyLoc, pScreenUpOrDown, name, pMyName, pBigSplashActive, pPlayerMode, pJumpData, pPelleImg, jumpAction, jumpAnimFrame, AnimListCounter, runAnimList, pnewLocV, pjumpBoardEnd, pJumpSpeed, pVelocityV, pJumpMode, pJumpLoop, plastPressKey, pJumpMaxAnimFrames, pJumpLastDirection, myLocZ, pPelleBgImg, pjumpBoardStart, pRemoveJumperTime
+property pSpr, pInks, pColors, pModels, pJumpDirection, pStartloc, pBgScreenBuffer, pStatus, pSpeed, pMyLoc, pScreenUpOrDown, name, pMyName, pBigSplashActive, pPlayerMode, pJumpData, pPelleImg, jumpAction, jumpAnimFrame, AnimListCounter, runAnimList, pnewLocV, pjumpBoardEnd, pJumpSpeed, pVelocityV, pJumpMode, pJumpLoop, plastPressKey, pJumpMaxAnimFrames, pJumpLastDirection, myLocZ, pPelleBgImg, pjumpBoardStart, pRemoveJumperTime
 
 on deconstruct me 
   if ilk(pSpr, #sprite) then
@@ -7,7 +7,7 @@ on deconstruct me
   return(1)
 end
 
-on Init me, tName, tMemberModels, tplayerMode, tKeyList 
+on Init me, tName, tMemberModels, tplayerMode 
   pJumpReady = 0
   pBigSplashActive = 0
   pMyName = getObject(#session).get("user_name")
@@ -81,11 +81,6 @@ on Init me, tName, tMemberModels, tplayerMode, tKeyList
   member(getmemnum("pelle_bg3")).image.copyPixels(pBgScreenBuffer.rect, pBgScreenBuffer.rect, #maskImage, [member(getmemnum("pelle_bg3")):image.createMatte(), #ink:8])
   pKeyTimerStat = 0
   me.UpdatePelle()
-  pPelleKeys = getVariableValue("swimjump.key.list")
-  if pPelleKeys.ilk <> #propList then
-    error(me, "Couldn't retrieve keymap for jump! Using default keys.", #jumpingPlaceOk)
-    pPelleKeys = [#run1:"A", #run2:"D", #dive1:"W", #dive2:"E", #dive3:"A", #dive4:"S", #dive5:"D", #dive6:"Z", #dive7:"X", #jump:"SPACE"]
-  end if
   return(1)
 end
 
@@ -151,7 +146,7 @@ on StopJumping me
                 f = 1 + f
               end if
             end repeat
-            pJumpData = "0" & pJumpData.getProp(#char, temp, length(pJumpData))
+            pJumpData = pJumpData.getProp(#char, temp, length(pJumpData))
             sendJumpData = compressString(pJumpData)
             getThread(#pellehyppy).getComponent().sendJumpPerf(sendJumpData)
             pJumpData = ""
@@ -187,21 +182,21 @@ on UpdatePelle me
     tColor = pColors.getProp(f)
     if f = "bd" or f = "lh" or f = "ch" or f = "rh" then
       if jumpAction contains "jd" then
-        Dir = 0
+        dir = 0
       else
-        Dir = 2
+        dir = 2
       end if
-      tMemNum = getmemnum("sh_" & jumpAction & "_" & f & "_" & pModels.getProp(f) & "_" & Dir & "_" & jumpAnimFrame)
+      tMemNum = getmemnum("sh_" & jumpAction & "_" & f & "_" & pModels.getProp(f) & "_" & dir & "_" & jumpAnimFrame)
       if tMemNum < 0 then
         tMemNum = getmemnum("sh_" & "std" & "_" & f & "_" & pModels.getProp(f) & "_" & 2 & "_" & 0)
       end if
     else
       if pJumpDirection = "d" or jumpAction contains "jus" and jumpAnimFrame = 2 then
-        Dir = 0
+        dir = 0
       else
-        Dir = 2
+        dir = 2
       end if
-      tMemNum = getmemnum("sh_" & "std" & "_" & f & "_" & pModels.getProp(f) & "_" & Dir & "_0")
+      tMemNum = getmemnum("sh_" & "std" & "_" & f & "_" & pModels.getProp(f) & "_" & dir & "_0")
     end if
     if tMemNum <> 0 then
       tImage = member(tMemNum).image
@@ -372,32 +367,11 @@ on jumpBoardCollisionD me, tNum
   return(pStartloc.locV + integer(pStartloc.locH - tNum / 2))
 end
 
-on translateKey me, tPelleKey 
-  if tPelleKey = space() then
-    return(space())
-  end if
-  tKeyList = ["a", "d", "w", "e", "a", "s", "d", "z", "x"]
-  i = 1
-  repeat while i <= pPelleKeys.count
-    if tPelleKey = pPelleKeys.getAt(i) then
-      return(tKeyList.getAt(i))
-    end if
-    i = 1 + i
-  end repeat
-  return("0")
-end
-
-on MykeyDown me, tPelleKey, tTimeElapsed, tNoTranslation 
-  if not tNoTranslation then
-    tPelleKey = me.translateKey(tPelleKey)
-  end if
+on MykeyDown me, tPelleKey 
   if pStatus = #Run then
     if tPelleKey <> "a" then
       if tPelleKey = "d" then
         if tPelleKey <> plastPressKey then
-          tRunOK = 1
-        end if
-        if tRunOK then
           jumpAction = "run"
           pSpeed = pSpeed + 0.6
           if pSpeed > 4 then
@@ -555,7 +529,7 @@ on NotKeyDown me
       else
         presskey = "a"
       end if
-      me.MykeyDown(presskey, void(), 1)
+      me.MykeyDown(presskey)
     else
       pJumpData = pJumpData & "a"
     end if

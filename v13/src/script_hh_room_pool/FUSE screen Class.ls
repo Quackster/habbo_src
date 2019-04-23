@@ -1,4 +1,4 @@
-property pSprite, pScrImg, pWriterID, pTransition, StateOfAd, pheight, pwidth, adMember, pTransitBuffer, adLink, adIdNum, pJumperObj, pTextShowState, pTargetObj, pTargetSpr, AdWaitScore, pLastCropPoint, pTextImgBuffer, pTextShowTime, pTextBlend, pSpeed, pVX, pFlexible, pVY, pTransitState, pFadeSpeed, adShowTime, pZoom, pXFactor
+property pSprite, pWriterID, pTransition, StateOfAd, pheight, pwidth, adMember, pTransitBuffer, adLink, adIdNum, pJumperObj, pScrImg, pTextShowState, pTargetObj, pTargetSpr, AdWaitScore, pLastCropPoint, pTextImgBuffer, pTextShowTime, pTextBlend, pSpeed, pVX, pFlexible, pVY, pTransitState, pFadeSpeed, adShowTime, pZoom, pXFactor
 
 on construct me 
   pheight = 108
@@ -16,9 +16,7 @@ on construct me
   pSprite = getThread(#room).getInterface().getRoomVisualizer().getSprById("cam1")
   pScrImg = member(getmemnum("fuse_screen")).image
   pTargetSpr = pSprite
-  if memberExists("fuse_screen_logo") then
-    pScrImg.copyPixels(member(getmemnum("fuse_screen_logo")).image, pScrImg.rect, pScrImg.rect)
-  end if
+  member(getmemnum("fuse_screen")).image = member(getmemnum("fuse_screen_logo")).image
   pTransition = 0
   pTextShowState = 0
   StateOfAd = 0
@@ -32,6 +30,7 @@ on construct me
     return(error(me, "Couldn't create writer for screen!", #construct))
   else
     getWriter(pWriterID).define([#alignment:#center, #rect:rect(0, 0, 108, 10)])
+    me.fuseShow_transition("fade")
     receivePrepare(me.getID())
     return(1)
   end if
@@ -72,13 +71,13 @@ on fuseShow_transition me, tTran
   if StateOfAd = 0 then
     if tTran = "cameraPan" then
       pTransition = "cameraPan"
-      pTargetObj = void()
+      pTargetObj = ""
       pSpeed = 5 + random(25)
       pFlexible = 30 + random(20)
     else
       if tTran = "fade" then
         pTransition = "fade"
-        pTargetObj = void()
+        pTargetObj = ""
         pTransitBuffer = image(pheight, pwidth, 16)
         pTransitState = 0
         pFadeSpeed = random(2) * 10
@@ -144,7 +143,7 @@ on mouseDown me
     if adLink contains "http:" then
       openNetPage(adLink)
     end if
-    getConnection(getVariable("connection.info.id")).send("ADCLICK", adIdNum)
+    getConnection(getVariable("connection.info.id")).send(#info, "ADCLICK" && adIdNum)
   end if
 end
 

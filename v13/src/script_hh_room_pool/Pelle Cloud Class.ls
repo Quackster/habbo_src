@@ -1,7 +1,7 @@
 property pSprite, pAnimFrm, pSpeed, pStartPntX
 
-on prepare me, tsprite, tStartPntX 
-  pSprite = tsprite
+on prepare me, tSprite, tStartPntX 
+  pSprite = tSprite
   pStartPntX = tStartPntX
   tRand = random(tStartPntX)
   if tRand mod 2 <> 0 then
