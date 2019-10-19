@@ -120,7 +120,7 @@ on update me
               end if
             end if
             if pFrameNumberList.getAt(tLayer) < tFrameCount or tLoop then
-              pFrameNumberList.setAt(tLayer, pFrameNumberList.getAt(tLayer) mod tFrameCount + 1)
+              pFrameNumberList.setAt(tLayer, (pFrameNumberList.getAt(tLayer) mod tFrameCount) + 1)
               tRandom = 0
               if not voidp(tFrameList.getAt(#random)) then
                 tRandom = 1
@@ -128,7 +128,7 @@ on update me
               if tRandom and tFrameCount > 1 then
                 tValue = random(tFrameCount)
                 if tValue = pFrameNumberList2.getAt(tLayer) then
-                  tValue = pFrameNumberList2.getAt(tLayer) mod tFrameCount + 1
+                  tValue = (pFrameNumberList2.getAt(tLayer) mod tFrameCount) + 1
                 end if
                 pFrameNumberList2.setAt(tLayer, tValue)
               else
@@ -372,7 +372,7 @@ on getNextState me
   if pStateSequenceList.count < 1 then
     return(0)
   end if
-  tStateIndex = pStateIndex mod pStateSequenceList.count + 1
+  tStateIndex = (pStateIndex mod pStateSequenceList.count) + 1
   tstate = pStateSequenceList.getAt(tStateIndex)
   if ilk(tstate) = #list then
     if tstate.count < 1 then

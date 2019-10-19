@@ -129,8 +129,8 @@ on prepare me
     me.render()
   end if
   if pIsDropping then
-    pDropCounter = pDropCounter + 2 mod pDropMaxCnt
-    tOffset = -50 * sin(float(pDropCounter) / 10)
+    pDropCounter = (pDropCounter + 2 mod pDropMaxCnt)
+    tOffset = (-50 * sin((float(pDropCounter) / 10)))
     pSprite.loc = pDropPoint + [0, tOffset] + pDropOffset
     pDropPoint = pDropPoint + pDropOffset
     if pDropCounter = 0 then
@@ -180,21 +180,21 @@ on status me, tStatus
       end if
     end if
   end if
-  pSprite.loc = pZeroLoc + pLocation * pMoveDir
+  pSprite.loc = pZeroLoc + (pLocation * pMoveDir)
   tWorldCrd = getThread(#room).getInterface().getGeometry().getWorldCoordinate(pSprite.locH, pSprite.locV)
   if tWorldCrd <> 0 then
     pSprite.locZ = getThread(#room).getInterface().getGeometry().getScreenCoordinate(tWorldCrd.getAt(1), tWorldCrd.getAt(2), tWorldCrd.getAt(3)).getAt(3) + pLocZFix
   else
     pSprite.locZ = -100000
   end if
-  tAnimBal = pBalance / 20 + 2
+  tAnimBal = (pBalance / 20) + 2
   if tAnimBal < 0 then
     tAnimBal = 0
   end if
   if tAnimBal > 4 then
     tAnimBal = 4
   end if
-  call(pPartList, pAction, tAnimBal, pSprite.loc, pSprite + [member.width / 2, -4], pSprite.locZ, tStatus.getAt(#hit))
+  call(pPartList, pAction, tAnimBal, pSprite.loc, pSprite + [(member.width / 2), -4], pSprite.locZ, tStatus.getAt(#hit))
 end
 
 on drop me 
@@ -213,7 +213,7 @@ on drop me
     tAnimBal = 4
     pSplashPoint = pDropPoint + [16, 8]
   end if
-  call(pPartList, pAction, tAnimBal, pSprite.loc, pSprite + [member.width / 2, -4], pSprite.locZ, 0)
+  call(pPartList, pAction, tAnimBal, pSprite.loc, pSprite + [(member.width / 2), -4], pSprite.locZ, 0)
 end
 
 on getBalance me 

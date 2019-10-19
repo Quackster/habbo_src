@@ -222,7 +222,7 @@ end
 
 on renderPlaylistArrows me 
   tWidth = pArrowListWidth
-  tHeight = pItemHeight * pPlaylist.count
+  tHeight = (pItemHeight * pPlaylist.count)
   tImg = image(tWidth, tHeight, 32)
   tMemberUp = getMember(pArrowUpName)
   tMemberUp2 = getMember(pArrowUpNameDimmed)
@@ -250,10 +250,10 @@ on renderPlaylistArrows me
         tRect = tSourceImg.rect
         tImgWd = tRect.getAt(3) - tRect.getAt(1)
         tImgHt = tRect.getAt(4) - tRect.getAt(2)
-        tRect.setAt(1, tRect.getAt(1) + tWidth / 2 - tImgWd / 2 + tWidth / 2 * j - 1)
-        tRect.setAt(2, tRect.getAt(2) + i - 1 * pItemHeight + pItemHeight - tImgHt / 2)
-        tRect.setAt(3, tRect.getAt(3) + tWidth / 2 - tImgWd / 2 + tWidth / 2 * j - 1)
-        tRect.setAt(4, tRect.getAt(4) + i - 1 * pItemHeight + pItemHeight - tImgHt / 2)
+        tRect.setAt(1, tRect.getAt(1) + ((tWidth / 2) - tImgWd / 2) + ((tWidth / 2) * j - 1))
+        tRect.setAt(2, tRect.getAt(2) + (i - 1 * pItemHeight) + (pItemHeight - tImgHt / 2))
+        tRect.setAt(3, tRect.getAt(3) + ((tWidth / 2) - tImgWd / 2) + ((tWidth / 2) * j - 1))
+        tRect.setAt(4, tRect.getAt(4) + (i - 1 * pItemHeight) + (pItemHeight - tImgHt / 2))
         tImg.copyPixels(tSourceImg, tRect, tSourceImg.rect, [#ink:8, #maskImage:tSourceImg.createMatte()])
       end if
       i = 1 + i
@@ -264,7 +264,7 @@ on renderPlaylistArrows me
 end
 
 on diskListMouseClick me, tX, tY 
-  tItem = 1 + tY / pItemHeight
+  tItem = 1 + (tY / pItemHeight)
   if tItem >= 1 and tItem <= pDiskList.count then
     if pDiskListRenderList.findPos(pSelectedDisk) = 0 then
       pDiskListRenderList.add(pSelectedDisk)
@@ -276,7 +276,7 @@ on diskListMouseClick me, tX, tY
 end
 
 on songListMouseClick me, tX, tY 
-  tItem = 1 + tY / pItemHeight
+  tItem = 1 + (tY / pItemHeight)
   if tItem >= 1 and tItem <= pSongList.count then
     if pSongListRenderList.findPos(pSelectedSong) = 0 then
       pSongListRenderList.add(pSelectedSong)
@@ -288,7 +288,7 @@ on songListMouseClick me, tX, tY
 end
 
 on playlistMouseClick me, tX, tY 
-  tItem = 1 + tY / pItemHeight
+  tItem = 1 + (tY / pItemHeight)
   if tItem >= 1 and tItem <= pPlaylist.count then
     return(me.removePlaylistSong(tItem))
   end if
@@ -296,7 +296,7 @@ on playlistMouseClick me, tX, tY
 end
 
 on playlistMouseOver me, tX, tY 
-  tItem = 1 + tY / pItemHeight
+  tItem = 1 + (tY / pItemHeight)
   if tItem <> pSelectedPlaylistSong then
     pSelectedPlaylistSong = tItem
     return(1)
@@ -305,9 +305,9 @@ on playlistMouseOver me, tX, tY
 end
 
 on playlistArrowMouseClick me, tX, tY 
-  tItem = 1 + tY / pItemHeight
+  tItem = 1 + (tY / pItemHeight)
   if tItem >= 1 and tItem <= pPlaylist.count then
-    if tX < pArrowListWidth / 2 then
+    if tX < (pArrowListWidth / 2) then
       if tItem = 1 then
         return(0)
       end if
@@ -328,7 +328,7 @@ on playlistArrowMouseClick me, tX, tY
 end
 
 on getPlayTime me 
-  return(pPlayTime + the milliSeconds - pInitialPlaylistTime / 100)
+  return(pPlayTime + (the milliSeconds - pInitialPlaylistTime / 100))
 end
 
 on changePlayTime me, tDelta 
@@ -507,7 +507,7 @@ on renderList me, tList, tSelected, tRenderList, tImg, tSelectedText
     return(0)
   end if
   tWidth = pItemWidth
-  tHeight = pItemHeight * tList.count
+  tHeight = (pItemHeight * tList.count)
   if voidp(tImg) then
     tImg = image(tWidth, tHeight, 32)
   end if
@@ -532,10 +532,10 @@ on renderList me, tList, tSelected, tRenderList, tImg, tSelectedText
       tRect = tSourceImg.rect
       tImgWd = tRect.getAt(3) - tRect.getAt(1)
       tImgHt = tRect.getAt(4) - tRect.getAt(2)
-      tRect.setAt(1, tRect.getAt(1) + pItemWidth - tImgWd / 2)
-      tRect.setAt(2, tRect.getAt(2) + i - 1 * pItemHeight + pItemHeight - tImgHt / 2)
-      tRect.setAt(3, tRect.getAt(3) + pItemWidth - tImgWd / 2)
-      tRect.setAt(4, tRect.getAt(4) + i - 1 * pItemHeight + pItemHeight - tImgHt / 2)
+      tRect.setAt(1, tRect.getAt(1) + (pItemWidth - tImgWd / 2))
+      tRect.setAt(2, tRect.getAt(2) + (i - 1 * pItemHeight) + (pItemHeight - tImgHt / 2))
+      tRect.setAt(3, tRect.getAt(3) + (pItemWidth - tImgWd / 2))
+      tRect.setAt(4, tRect.getAt(4) + (i - 1 * pItemHeight) + (pItemHeight - tImgHt / 2))
       tImg.copyPixels(tSourceImg, tRect, tSourceImg.rect, [#ink:8, #maskImage:tSourceImg.createMatte()])
       if tWriterObj <> 0 then
         tSongName = ""
@@ -553,16 +553,16 @@ on renderList me, tList, tSelected, tRenderList, tImg, tSelectedText
         tTextImg = tTextImgTrimmed.trimWhiteSpace()
         tTextMargin = 20
         tSourceRect = tTextImg.rect
-        if tSourceRect.getAt(3) > pItemWidth - tTextMargin * 2 then
-          tSourceRect.setAt(3, pItemWidth - tTextMargin * 2)
+        if tSourceRect.getAt(3) > pItemWidth - (tTextMargin * 2) then
+          tSourceRect.setAt(3, pItemWidth - (tTextMargin * 2))
         end if
         tTargetRect = tSourceRect.duplicate()
         tImgWd = tTargetRect.getAt(3) - tTargetRect.getAt(1)
         tImgHt = tTargetRect.getAt(4) - tTargetRect.getAt(2)
         tTargetRect.setAt(1, tTargetRect.getAt(1) + tTextMargin)
-        tTargetRect.setAt(2, tTargetRect.getAt(2) + i - 1 * pItemHeight + pItemHeight - tImgHt / 2)
+        tTargetRect.setAt(2, tTargetRect.getAt(2) + (i - 1 * pItemHeight) + (pItemHeight - tImgHt / 2))
         tTargetRect.setAt(3, tTargetRect.getAt(3) + tTextMargin)
-        tTargetRect.setAt(4, tTargetRect.getAt(4) + i - 1 * pItemHeight + pItemHeight - tImgHt / 2)
+        tTargetRect.setAt(4, tTargetRect.getAt(4) + (i - 1 * pItemHeight) + (pItemHeight - tImgHt / 2))
         tImg.copyPixels(tTextImg, tTargetRect, tSourceRect, [#ink:36, #maskImage:tTextImg.createMatte()])
       end if
     end if
@@ -576,7 +576,7 @@ on renderBurnedTag me, tImg, tList, tRenderList
     return(0)
   end if
   tWidth = pItemWidth
-  tHeight = pItemHeight * tList.count
+  tHeight = (pItemHeight * tList.count)
   if voidp(tImg) then
     tImg = image(tWidth, tHeight, 32)
   end if
@@ -600,9 +600,9 @@ on renderBurnedTag me, tImg, tList, tRenderList
       tImgWd = tRect.getAt(3) - tRect.getAt(1)
       tImgHt = tRect.getAt(4) - tRect.getAt(2)
       tRect.setAt(1, tRect.getAt(1) + pItemWidth - tImgWd + 3)
-      tRect.setAt(2, tRect.getAt(2) + i - 1 * pItemHeight + pItemHeight - tImgHt / 2)
+      tRect.setAt(2, tRect.getAt(2) + (i - 1 * pItemHeight) + (pItemHeight - tImgHt / 2))
       tRect.setAt(3, tRect.getAt(3) + pItemWidth - tImgWd + 3)
-      tRect.setAt(4, tRect.getAt(4) + i - 1 * pItemHeight + pItemHeight - tImgHt / 2)
+      tRect.setAt(4, tRect.getAt(4) + (i - 1 * pItemHeight) + (pItemHeight - tImgHt / 2))
       tImg.copyPixels(tSourceImg, tRect, tSourceImg.rect, [#ink:8, #maskImage:tSourceImg.createMatte()])
     end if
     i = 1 + i

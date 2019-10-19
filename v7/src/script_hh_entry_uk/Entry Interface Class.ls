@@ -43,7 +43,7 @@ on showHotel me
     repeat while 1
       tSpr = tVisObj.getSprById("car" & i)
       if tSpr <> 0 then
-        if i mod 2 then
+        if (i mod 2) then
           tdir = #right
         else
           tdir = #left
@@ -136,7 +136,7 @@ on prepare me
     tSpr = tVisual.getSprById("flags")
     tName = member.name
     tNum = integer(tName.getProp(#char, length(tName)))
-    tNum = tNum mod 6 + 1
+    tNum = (tNum mod 6) + 1
     tMem = member(getmemnum("hotel_flags" & tNum))
     tSpr.member = tMem
     tSpr.width = tMem.width
@@ -222,12 +222,12 @@ on openView me
   end if
   tTopSpr = tVisObj.getSprById("box_top")
   tBotSpr = tVisObj.getSprById("box_bottom")
-  tTimeLeft = pViewMaxTime - the milliSeconds - pViewOpenTime / 1000
+  tTimeLeft = (pViewMaxTime - the milliSeconds - pViewOpenTime / 1000)
   tmoveLeft = tTopSpr.height - abs(tTopSpr.locV)
   if tTimeLeft <= 0 then
     tOffset = abs(tmoveLeft)
   else
-    tOffset = abs(tmoveLeft / tTimeLeft) / the frameTempo
+    tOffset = (abs((tmoveLeft / tTimeLeft)) / the frameTempo)
   end if
   tTopSpr.locV = tTopSpr.locV - tOffset
   tBotSpr.locV = tBotSpr.locV + tOffset
@@ -244,12 +244,12 @@ on closeView me
   end if
   tTopSpr = tVisObj.getSprById("box_top")
   tBotSpr = tVisObj.getSprById("box_bottom")
-  tTimeLeft = pViewMaxTime - the milliSeconds - pViewCloseTime / 1000
+  tTimeLeft = (pViewMaxTime - the milliSeconds - pViewCloseTime / 1000)
   tmoveLeft = 0 - abs(tTopSpr.locV)
   if tTimeLeft <= 0 then
     tOffset = abs(tmoveLeft)
   else
-    tOffset = abs(tmoveLeft / tTimeLeft) / the frameTempo
+    tOffset = (abs((tmoveLeft / tTimeLeft)) / the frameTempo)
   end if
   tTopSpr.locV = tTopSpr.locV + tOffset
   tBotSpr.locV = tBotSpr.locV - tOffset

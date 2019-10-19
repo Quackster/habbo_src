@@ -28,7 +28,7 @@ on define me, tMemName, tdata
   pVERSION = "0.1"
   pUserAgent = "HTTP-CLASS/" & pVERSION
   pHttpVersion = "1.1"
-  pMaxBytes = 16 * 1024
+  pMaxBytes = (16 * 1024)
   pData = [:]
   pNetDone = 0
   if pCookies = void() then
@@ -114,7 +114,7 @@ on sendRequest me
   pNetError = 0
   pStatus = #LOADING
   pMUXtra = xtra("multiuser").new()
-  pMUXtra.setNetBufferLimits(16 * 1024 * 2, pMaxBytes, 100)
+  pMUXtra.setNetBufferLimits(((16 * 1024) * 2), pMaxBytes, 100)
   tErrCode = pMUXtra.setNetMessageHandler(#messageHandler, me)
   if tErrCode <> 0 then
     error(me, "Error with setNetMessageHandler", #sendRequest, #major)
@@ -419,5 +419,5 @@ end
 
 on hex2dec me, tHex 
   tCol = rgb(tHex)
-  return(tCol.red * 65536 + tCol.green * 256 + tCol.blue)
+  return((tCol.red * 65536) + (tCol.green * 256) + tCol.blue)
 end

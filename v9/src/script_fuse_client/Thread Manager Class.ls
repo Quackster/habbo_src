@@ -20,7 +20,7 @@ on create me, tid, tInitField
   return(me.initThread(tInitField, tid))
 end
 
-on Remove me, tid 
+on remove me, tid 
   return(me.closeThread(tid))
 end
 
@@ -82,41 +82,27 @@ on initThread me, tCastNumOrMemName, tid
             if not symbolp(tThreadID) then
               return(error(me, "Invalid thread ID:" && tThreadID, #initThread))
             end if
-            tMultipleDef = 0
-            if listp(value(pVarMngrObj.get("thread.id"))) then
-              tThreadKeys = pVarMngrObj.getValue("thread.id")
-              tMultipleDef = 1
-            else
-              tThreadKeys = [pVarMngrObj.get("thread.id")]
+            if me.exists(tThreadID) then
+              return(0)
             end if
-            repeat while tThreadKeys <= tid
-              tThreadKey = getAt(tid, tCastNumOrMemName)
-              tThreadID = symbol(tThreadKey)
-              if not me.exists(tThreadID) then
-                tThreadObj = createObject(#temp, getClassVariable("thread.instance.class"))
-                tThreadObj.setID(tThreadID)
-                repeat while tThreadKeys <= tid
-                  tModule = getAt(tid, tCastNumOrMemName)
-                  tSymbol = symbol(tThreadKey & "_" & tModule)
-                  tPreIndex = ""
-                  if tMultipleDef then
-                    tPreIndex = tThreadKey & "."
-                  end if
-                  if pVarMngrObj.exists(tPreIndex & tModule & ".class") then
-                    tClass = pVarMngrObj.get(tPreIndex & tModule & ".class")
-                    if tClass.getProp(#char, 1) = "[" then
-                      tClass = value(tClass)
-                    end if
-                    if not listp(tClass) then
-                      tClass = [tClass]
-                    end if
-                    tObject = me.buildThreadObj(tSymbol, tClass, tThreadObj)
-                    tThreadObj.setaProp(tModule, tObject)
-                  end if
-                end repeat
-                pThreadList.setAt(tThreadID, tThreadObj)
+            tThreadObj = createObject(#temp, getClassVariable("thread.instance.class"))
+            tThreadObj.setID(tThreadID)
+            repeat while [#interface, #component, #handler] <= tid
+              tModule = getAt(tid, tCastNumOrMemName)
+              tSymbol = symbol(tThreadID & "_" & tModule)
+              if pVarMngrObj.exists(tModule & ".class") then
+                tClass = pVarMngrObj.get(tModule & ".class")
+                if tClass.getProp(#char, 1) = "[" then
+                  tClass = value(tClass)
+                end if
+                if not listp(tClass) then
+                  tClass = [tClass]
+                end if
+                tObject = me.buildThreadObj(tSymbol, tClass, tThreadObj)
+                tThreadObj.setaProp(tModule, tObject)
               end if
             end repeat
+            pThreadList.setAt(tThreadID, tThreadObj)
             return(1)
           end if
         end repeat
@@ -139,39 +125,32 @@ on closeThread me, tCastNumOrID
   if integerp(tCastNumOrID) then
     if member(pIndexField, tCastNumOrID).number > 0 then
       pVarMngrObj.dump(member(pIndexField, tCastNumOrID).number)
-      if listp(value(pVarMngrObj.get("thread.id"))) then
-        tThreadKeys = pVarMngrObj.getValue("thread.id")
-      else
-        tThreadKeys = [pVarMngrObj.get("thread.id")]
-      end if
+      tid = symbol(pVarMngrObj.get("thread.id"))
     else
       return(0)
     end if
   else
     if symbolp(tCastNumOrID) then
-      tThreadKeys = [tCastNumOrID]
+      tid = tCastNumOrID
     else
       return(error(me, "Invalid argument:" && tCastNumOrID, #closeThread))
     end if
   end if
-  repeat while tThreadKeys <= undefined
-    tid = getAt(undefined, tCastNumOrID)
-    tThread = pThreadList.getAt(tid)
-    if voidp(tThread) then
-      return(error(me, "Thread not found:" && tid, #closeThread))
-    end if
-    tObjMgr = getObjectManager()
-    if objectp(tThread.interface) then
-      tObjMgr.Remove(tThread.getID())
-    end if
-    if objectp(tThread.component) then
-      tObjMgr.Remove(tThread.getID())
-    end if
-    if objectp(tThread.handler) then
-      tObjMgr.Remove(tThread.getID())
-    end if
-    pThreadList.deleteProp(tid)
-  end repeat
+  tThread = pThreadList.getAt(tid)
+  if voidp(tThread) then
+    return(error(me, "Thread not found:" && tid, #closeThread))
+  end if
+  tObjMgr = getObjectManager()
+  if objectp(tThread.interface) then
+    tObjMgr.remove(tThread.getID())
+  end if
+  if objectp(tThread.component) then
+    tObjMgr.remove(tThread.getID())
+  end if
+  if objectp(tThread.handler) then
+    tObjMgr.remove(tThread.getID())
+  end if
+  pThreadList.deleteProp(tid)
   return(1)
 end
 

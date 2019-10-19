@@ -50,14 +50,6 @@ on getMachineID
   return(getSpecialServices().getMachineID())
 end
 
-on getMoviePath me 
-  return(getSpecialServices().getMoviePath())
-end
-
-on getExtVarPath me 
-  return(getSpecialServices().getExtVarPath())
-end
-
 on secretDecode tKey 
   return(getSpecialServices().secretDecode(tKey))
 end

@@ -226,7 +226,7 @@ on receivePrepare me, tid
   pPrepareList.add(pObjectList.getAt(tid))
   if not pUpdatePause then
     if voidp(pTimeout) then
-      pTimeout = timeout("objectmanager" & the milliSeconds).new(60 * 1000 * 60, #null, me)
+      pTimeout = timeout("objectmanager" & the milliSeconds).new(((60 * 1000) * 60), #null, me)
     end if
   end if
   return(1)
@@ -259,7 +259,7 @@ on receiveUpdate me, tid
   pUpdateList.add(pObjectList.getAt(tid))
   if not pUpdatePause then
     if voidp(pTimeout) then
-      pTimeout = timeout("objectmanager" & the milliSeconds).new(60 * 1000 * 60, #null, me)
+      pTimeout = timeout("objectmanager" & the milliSeconds).new(((60 * 1000) * 60), #null, me)
     end if
   end if
   return(1)
@@ -293,7 +293,7 @@ end
 
 on resumeUpdate me 
   if pUpdateList.count > 0 and voidp(pTimeout) then
-    pTimeout = timeout("objectmanager" & the milliSeconds).new(60 * 1000 * 60, #null, me)
+    pTimeout = timeout("objectmanager" & the milliSeconds).new(((60 * 1000) * 60), #null, me)
   end if
   pUpdatePause = 0
   return(1)

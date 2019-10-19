@@ -267,7 +267,7 @@ on handleErr me, tMsg
     if getObject(#session).exists("failed_password") then
       openNetPage(getText("login_forgottenPassword_url"))
       me.getInterface().showLogin()
-      executeMessage(image.width / 2, point(the stage, image.height / 2))
+      executeMessage((image.width / 2), point(the stage, (image.height / 2)))
       return(0)
     else
       getObject(#session).set("failed_password", 1)
@@ -352,7 +352,7 @@ on responseWithPublicKey me, tConnection
     tLength = 40
     tHexChars = "012345679abcdef"
     tNo = 1
-    repeat while tNo <= tLength * 2
+    repeat while tNo <= (tLength * 2)
       tRandPos = random(tHexChars.length)
       tHex = tHex & chars(tHexChars, tRandPos, tRandPos)
       tNo = 1 + tNo
@@ -395,7 +395,7 @@ on handleServerSecretKey me, tMsg
   serverPublic = tBigInt.str2bigInt(t_sServerPublicKey, 16)
   tShared = script("Login Subscript").doPowmodMathSc(pBigJob, serverPublic)
   t_sSharedKey = tBigInt.bigInt2str(tShared, 16)
-  if t_sSharedKey.length mod 2 <> 0 then
+  if (t_sSharedKey.length mod 2) <> 0 then
     t_sSharedKey = "0" & t_sSharedKey
   end if
   tSharedKeyString = ""

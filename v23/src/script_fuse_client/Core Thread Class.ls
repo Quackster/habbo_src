@@ -41,7 +41,7 @@ on showLogo me
     pLogoSpr.ink = 0
     pLogoSpr.blend = 90
     pLogoSpr.locZ = -20000001
-    rect.width / 2.loc = point(the stage, rect.height / 2 - tmember.height)
+    (rect.width / 2).loc = point(the stage, (rect.height / 2) - tmember.height)
     pLogoStartTime = the milliSeconds
   end if
   return(1)

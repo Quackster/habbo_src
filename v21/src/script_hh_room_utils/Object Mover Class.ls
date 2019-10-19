@@ -495,7 +495,7 @@ on showActualPic me, tloc
     end if
     pSprList.getAt(i).loc = pSprList.getAt(i).loc + pLocShiftList.getAt(i).getAt(pSavedDir + 1)
     tZ = pLoczList.getAt(i).getAt(pSavedDir + 1)
-    pSprList.getAt(i).locZ = tScreenCoord.getAt(3) + pClientObj.pLocH * 1000 + tZ - 1
+    pSprList.getAt(i).locZ = tScreenCoord.getAt(3) + (pClientObj.pLocH * 1000) + tZ - 1
     i = 1 + i
   end repeat
   pClientObj.relocate(pSprList)

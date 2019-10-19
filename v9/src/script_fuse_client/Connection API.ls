@@ -19,7 +19,7 @@ on createConnection tid, tHost, tPort
 end
 
 on removeConnection tid 
-  return(getConnectionManager().Remove(tid))
+  return(getConnectionManager().remove(tid))
 end
 
 on getConnection tid 

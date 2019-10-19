@@ -87,7 +87,7 @@ on update me, tForcedUpdate, tRectMod
       tAnimCntr = 0
       if not voidp(pAnimList.getAt(pAction)) then
         if pAnimList.getAt(pAction).count > 0 then
-          tIndex = pBody.pAnimCounter mod pAnimList.getAt(pAction).count
+          tIndex = (pBody.pAnimCounter mod pAnimList.getAt(pAction).count)
           tAnimCntr = pAnimList.getAt(pAction).getAt(tIndex + 1)
         end if
       end if
@@ -328,7 +328,7 @@ on getLocation me
   end if
   tmember = member(getmemnum(tMemString))
   tImgRect = tmember.rect
-  tCntrPoint = point(tImgRect.width / 2, tImgRect.height / 2)
+  tCntrPoint = point((tImgRect.width / 2), (tImgRect.height / 2))
   tRegPoint = tmember.regPoint
   return(-tRegPoint + tCntrPoint)
 end
@@ -458,28 +458,28 @@ on animateUpdate me
     pYFix = tYFixRandom
   end if
   if pBody = 0 then
-    pYFix = pYFix + pXFix / 2
-    pXFix = pXFix / 2
+    pYFix = pYFix + (pXFix / 2)
+    pXFix = (pXFix / 2)
   else
     if pBody = 1 then
       pYFix = pYFix + pXFix
       pXFix = 0
     else
       if pBody = 2 then
-        pYFix = pYFix - pXFix / 2
-        pXFix = pXFix / 2
+        pYFix = pYFix - (pXFix / 2)
+        pXFix = (pXFix / 2)
       else
         if pBody = 4 then
-          pYFix = pYFix + pXFix / 2
-          pXFix = -pXFix / 2
+          pYFix = pYFix + (pXFix / 2)
+          pXFix = (-pXFix / 2)
         else
           if pBody = 5 then
             pYFix = pYFix - pXFix
             pXFix = 0
           else
             if pBody = 6 then
-              pYFix = pYFix - pXFix / 2
-              pXFix = -pXFix / 2
+              pYFix = pYFix - (pXFix / 2)
+              pXFix = (-pXFix / 2)
             else
               if pBody = 7 then
                 pXFix = -pXFix
@@ -495,8 +495,8 @@ on animateUpdate me
   else
     tSizeMultiplier = 1
   end if
-  pXFix = pXFix * tSizeMultiplier
-  pYFix = pYFix * tSizeMultiplier
+  pXFix = (pXFix * tSizeMultiplier)
+  pYFix = (pYFix * tSizeMultiplier)
 end
 
 on animate me, tLayerIndex 

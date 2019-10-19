@@ -14,7 +14,7 @@ on construct me
   repeat while tCharNo <= tStamp.length
     tChar = chars(tStamp, tCharNo, tCharNo)
     tChar = charToNum(tChar)
-    tChar = tChar * tCharNo + 309203
+    tChar = (tChar * tCharNo) + 309203
     tReceipt.setAt(tCharNo, tChar)
     tCharNo = 1 + tCharNo
   end repeat
@@ -368,7 +368,7 @@ on setFriendRequestResult me, tdata
       end if
     end if
     tNames = tNames & " - " & tReason
-    if tNameNum mod tNamesPerAlert = 0 then
+    if (tNameNum mod tNamesPerAlert) = 0 then
       tMessage = getText("console_friend_request_error") & tNames
       executeMessage(#alert, [#Msg:tMessage])
       tNames = "\r"

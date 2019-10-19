@@ -116,12 +116,12 @@ on convertIntToHex me, tInt
     return("00")
   else
     repeat while tInt > 0
-      tD = tInt mod 16
-      tInt = tInt / 16
+      tD = (tInt mod 16)
+      tInt = (tInt / 16)
       tHexstr = pDigits.getProp(#char, tD + 1) & tHexstr
     end repeat
   end if
-  if length(tHexstr) mod 2 = 1 then
+  if (length(tHexstr) mod 2) = 1 then
     tHexstr = "0" & tHexstr
   end if
   return(tHexstr)
@@ -133,8 +133,8 @@ on convertHexToInt me, tHex
   repeat while length(tHex) > 0
     tLc = the last char in tHex
     tVl = offset(tLc, pDigits) - 1
-    tValue = tValue + tBase * tVl
-    tBase = tBase * 16
+    tValue = tValue + (tBase * tVl)
+    tBase = (tBase * 16)
   end repeat
   return(tValue)
 end
@@ -229,12 +229,12 @@ on obfuscate me, tStr
   i = 1
   repeat while i <= tStr.length
     tNumber = charToNum(tStr.getProp(#char, i))
-    tNewNumber1 = bitAnd(tNumber, 15) * 2
-    tNewNumber2 = bitAnd(tNumber, 240) / 8
+    tNewNumber1 = (bitAnd(tNumber, 15) * 2)
+    tNewNumber2 = (bitAnd(tNumber, 240) / 8)
     tRandom = random(6) + 1
-    tNewNumber1 = tNewNumber1 + bitAnd(tRandom, 6) * 16 + bitAnd(tRandom, 1)
+    tNewNumber1 = tNewNumber1 + (bitAnd(tRandom, 6) * 16) + bitAnd(tRandom, 1)
     tRandom = random(6) + 1
-    tNewNumber2 = tNewNumber2 + bitAnd(tRandom, 6) * 16 + bitAnd(tRandom, 1)
+    tNewNumber2 = tNewNumber2 + (bitAnd(tRandom, 6) * 16) + bitAnd(tRandom, 1)
     tResult = tResult & numToChar(tNewNumber2) & numToChar(tNewNumber1)
     i = 1 + i
   end repeat
@@ -248,7 +248,7 @@ on deobfuscate me, tStr
     if i >= tStr.length then
     else
       tRawNumbers = [charToNum(tStr.getProp(#char, i + 1)), charToNum(tStr.getProp(#char, i))]
-      tNumbers = [bitAnd(tRawNumbers.getAt(1), 30) / 2, bitAnd(tRawNumbers.getAt(2), 30) * 8]
+      tNumbers = [(bitAnd(tRawNumbers.getAt(1), 30) / 2), (bitAnd(tRawNumbers.getAt(2), 30) * 8)]
       tNumber = bitOr(tNumbers.getAt(1), tNumbers.getAt(2))
       tResult = tResult & numToChar(tNumber)
       i = i + 1
@@ -292,12 +292,12 @@ on encodeUTF8 me, tStr
       tUTF8Data.add(tValue)
     else
       if tValue < 2048 then
-        tUTF8Data.add(192 + bitAnd(tValue / 64, 31))
+        tUTF8Data.add(192 + bitAnd((tValue / 64), 31))
         tUTF8Data.add(128 + bitAnd(tValue, 63))
       else
         if tValue < 65536 then
-          tUTF8Data.add(224 + bitAnd(tValue / 64 * 64, 15))
-          tUTF8Data.add(128 + bitAnd(tValue / 64, 63))
+          tUTF8Data.add(224 + bitAnd((tValue / (64 * 64)), 15))
+          tUTF8Data.add(128 + bitAnd((tValue / 64), 63))
           tUTF8Data.add(128 + bitAnd(tValue, 63))
         end if
       end if
@@ -343,9 +343,9 @@ on decodeUTF8 me, tStr, tForceDecode
       if tValue < 255 then
         tBinData.add(tValue)
       else
-        tBinData.add(tValue / 256)
-        if tValue mod 256 <> 0 then
-          tBinData.add(tValue mod 256)
+        tBinData.add((tValue / 256))
+        if (tValue mod 256) <> 0 then
+          tBinData.add((tValue mod 256))
         end if
       end if
       i = 1 + i
@@ -362,7 +362,7 @@ on decodeUTF8 me, tStr, tForceDecode
         if i + 2 <= tBinData.count then
           tValue2 = tBinData.getAt(i + 1)
           tValue3 = tBinData.getAt(i + 2)
-          tResVal = bitAnd(tValue, 15) * 64 + bitAnd(tValue2, 63) * 64 + bitAnd(tValue3, 63)
+          tResVal = ((bitAnd(tValue, 15) * 64) + bitAnd(tValue2, 63) * 64) + bitAnd(tValue3, 63)
           tUnicodeData.add(tResVal)
         end if
         i = i + 2
@@ -370,7 +370,7 @@ on decodeUTF8 me, tStr, tForceDecode
         if tValue > 192 then
           if i + 1 <= tBinData.count then
             tValue2 = tBinData.getAt(i + 1)
-            tResVal = bitAnd(tValue, 31) * 64 + bitAnd(tValue2, 63)
+            tResVal = (bitAnd(tValue, 31) * 64) + bitAnd(tValue2, 63)
             tUnicodeData.add(tResVal)
           end if
           i = i + 1

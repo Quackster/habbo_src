@@ -25,7 +25,7 @@ end
 
 on update me 
   pFrameCount = pFrameCount + 1
-  if pFrameCount mod 3 <> 0 then
+  if (pFrameCount mod 3) <> 0 then
     return()
   end if
   pDestRect = pTargetElement.getProperty(#rect)

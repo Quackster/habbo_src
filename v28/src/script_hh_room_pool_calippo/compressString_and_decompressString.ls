@@ -48,12 +48,12 @@ on int2hex aint
     hexstr = "00"
   else
     repeat while aint > 0
-      d = aint mod 16
-      aint = aint / 16
+      d = (aint mod 16)
+      aint = (aint / 16)
       hexstr = digits.char[d + 1] & hexstr
     end repeat
   end if
-  if hexstr.length mod 2 = 1 then
+  if (hexstr.length mod 2) = 1 then
     hexstr = "0" & hexstr
   end if
   return(hexstr)
@@ -66,8 +66,8 @@ on hex2int ahex
   repeat while length(ahex) > 0
     lc = the last char in ahex
     vl = offset(lc, digits) - 1
-    tot = tot + base * vl
-    base = base * 16
+    tot = tot + (base * vl)
+    base = (base * 16)
   end repeat
   return(tot)
 end

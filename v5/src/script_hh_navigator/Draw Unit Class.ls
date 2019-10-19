@@ -56,7 +56,7 @@ on render me, tBuffer
   end if
   if not voidp(pCacheLineImg) and pUserCount = tdata.getAt(#usercount) and pSubUnitOpen = tdata.getAt(#multiroomOpen) then
     pOrderNum = tOrderNum
-    tdestrect = pCacheLineImg.rect + rect(0, pOrderNum * tImgHeight, 0, pOrderNum * tImgHeight)
+    tdestrect = pCacheLineImg.rect + rect(0, (pOrderNum * tImgHeight), 0, (pOrderNum * tImgHeight))
     tBuffer.copyPixels(pCacheLineImg, tdestrect, pCacheLineImg.rect)
     if tdata.getAt(#type) = #subUnit then
       me.drawSubLinesIcon(tdata, tdestrect, tBuffer)
@@ -134,7 +134,7 @@ on render me, tBuffer
       tDstRect = rect(tX1, tY1, tX2, tY2)
       pCacheLineImg.copyPixels(pCacheLinkImg, tDstRect, pCacheLinkImg.rect)
     end if
-    tdestrect = pCacheLineImg.rect + rect(0, pOrderNum * tImgHeight, 0, pOrderNum * tImgHeight)
+    tdestrect = pCacheLineImg.rect + rect(0, (pOrderNum * tImgHeight), 0, (pOrderNum * tImgHeight))
     tBuffer.copyPixels(pCacheLineImg, tdestrect, pCacheLineImg.rect)
     if tdata.getAt(#type) = #subUnit then
       me.drawSubLinesIcon(tdata, tdestrect, tBuffer)

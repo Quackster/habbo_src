@@ -1,15 +1,15 @@
 property pComponentToAngle, pVelocityTable
 
 on direction360to8 me, tValue 
-  return(me.validateDirection8Value(me.validateDirection360Value(tValue - 22) / 45 + 1))
+  return(me.validateDirection8Value((me.validateDirection360Value(tValue - 22) / 45) + 1))
 end
 
 on validateDirection360Value me, tValue 
   if tValue > 359 then
-    tValue = tValue mod 360
+    tValue = (tValue mod 360)
   else
     if tValue < 0 then
-      tValue = 360 + tValue mod 360
+      tValue = 360 + (tValue mod 360)
     end if
   end if
   return(integer(tValue))
@@ -17,10 +17,10 @@ end
 
 on validateDirection8Value me, tValue 
   if tValue > 7 then
-    tValue = tValue mod 8
+    tValue = (tValue mod 8)
   else
     if tValue < 0 then
-      tValue = 8 + tValue mod 8 mod 8
+      tValue = (8 + (tValue mod 8) mod 8)
     end if
   end if
   return(integer(tValue))

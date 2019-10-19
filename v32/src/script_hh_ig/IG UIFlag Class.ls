@@ -64,7 +64,7 @@ on update me
     if tDiff < 2 then
       pLocX = pFinalLocX
     else
-      pLocX = pLocX + tDiff / 2
+      pLocX = pLocX + (tDiff / 2)
     end if
     me.moveTo(pLocX, pLocY)
     tResult = 1
@@ -157,7 +157,7 @@ on alignZ me, tlocz
     tWndObj = getWindow(pWindowList.getAt(i))
     if tWndObj = 0 then
     else
-      tWndObj.moveZ(pLocZ + pmode * pMaxModeZOffset)
+      tWndObj.moveZ(pLocZ + (pmode * pMaxModeZOffset))
       i = 1 + i
     end if
   end repeat
@@ -189,7 +189,7 @@ on setTitleField me, tWindowID
   tElem = tWndObj.getElement("ig_tip_title")
   tTitleText = getObject(me.getID()).getTitleText()
   if pmode = 0 then
-    tWidth = 19 + 6 + integer(tTitleText.length * 8)
+    tWidth = 19 + 6 + integer((tTitleText.length * 8))
     tWndObj.resizeTo(tWidth, tWndObj.getProperty(#height))
   end if
   if tElem <> 0 then

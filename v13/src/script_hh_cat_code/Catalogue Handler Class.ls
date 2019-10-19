@@ -117,14 +117,14 @@ on handle_catalogpage me, tMsg
                           tTemp.setAt("partColors", tdata.getProp(#item, 10))
                           if tdata.count(#item) > 10 then
                             tItemCount = tdata.getProp(#item, 11)
-                            if tdata.count(#item) >= 11 + tItemCount * 3 then
+                            if tdata.count(#item) >= 11 + (tItemCount * 3) then
                               tDealList = []
                               tDealItem = [:]
                               i = 0
                               repeat while i <= tItemCount - 1
-                                tDealItem.setAt("class", tdata.getProp(#item, 11 + i * 3 + 1))
-                                tDealItem.setAt("count", tdata.getProp(#item, 11 + i * 3 + 2))
-                                tDealItem.setAt("partColors", tdata.getProp(#item, 11 + i * 3 + 3))
+                                tDealItem.setAt("class", tdata.getProp(#item, 11 + (i * 3) + 1))
+                                tDealItem.setAt("count", tdata.getProp(#item, 11 + (i * 3) + 2))
+                                tDealItem.setAt("partColors", tdata.getProp(#item, 11 + (i * 3) + 3))
                                 tDealList.setAt(i + 1, tDealItem.duplicate())
                                 i = 1 + i
                               end repeat

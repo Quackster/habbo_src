@@ -19,7 +19,7 @@ on defineBalloon me, tMode, tColor, tMessage, tItemID, tSourceLoc
   tBalloonWidth = me.getProp(#pMargins, #left) + tTextWidth + me.getProp(#pMargins, #right)
   tBackgroundImg = me.renderBackground(tBalloonWidth, tColor)
   tTextOffH = me.getProp(#pMargins, #left) + 2
-  tTextOffV = me.getPropRef(#pBalloonImg, #middle).height - tTextImg.height / 2 + 1
+  tTextOffV = (me.getPropRef(#pBalloonImg, #middle).height - tTextImg.height / 2) + 1
   tTextDestRect = rect(tTextOffH, tTextOffV, tTextOffH + tTextWidth, tTextOffV + tTextImg.height)
   tBackgroundImg.copyPixels(tTextImg, tTextDestRect, tTextImg.rect)
   tBgMem = getMember(me.pBgMemName)

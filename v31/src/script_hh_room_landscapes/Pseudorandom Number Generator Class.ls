@@ -1,28 +1,31 @@
-property pMult, pSeed, pIncrement, pModulus
-
-on construct me 
+on construct(me)
   pSeed = 1
-  pModulus = 16777216
-  pMult = 69069
-  pIncrement = 5
+  pModulus = 0
+  -- UNK_80 36865
+  -- UNK_40 160
+  pIncrement = 0
   return(1)
+  exit
 end
 
-on setSeed me, tSeed 
+on setSeed(me, tSeed)
   pSeed = tSeed
+  exit
 end
 
-on setModulus me, tModulus 
+on setModulus(me, tModulus)
   pModulus = tModulus
+  exit
 end
 
-on iterate me 
+on iterate(me)
   tX = abs(integer(pMult) * integer(pSeed) + integer(pIncrement)) mod integer(pModulus)
   pSeed = tX
   return(tX)
+  exit
 end
 
-on getScaled me, tMin, tMax 
+on getScaled(me, tMin, tMax)
   tX = me.iterate()
   if voidp(tMin) and voidp(tMax) then
     return(tX)
@@ -33,9 +36,10 @@ on getScaled me, tMin, tMax
   end if
   tScale = pModulus / tRange
   return(integer(tX / tScale + tMin))
+  exit
 end
 
-on getArray me, tCount, tMin, tMax 
+on getArray(me, tCount, tMin, tMax)
   tArray = []
   i = 1
   repeat while i <= tCount
@@ -43,9 +47,10 @@ on getArray me, tCount, tMin, tMax
     i = 1 + i
   end repeat
   return(tArray)
+  exit
 end
 
-on getArrayWithCountLimits me, tCount, tMin, tMax, tLimitList 
+on getArrayWithCountLimits(me, tCount, tMin, tMax, tLimitList)
   if not listp(tLimitList) then
     return(getArray(tCount, tMin, tMax))
   end if
@@ -83,4 +88,5 @@ on getArrayWithCountLimits me, tCount, tMin, tMax, tLimitList
     c = c + 1
   end repeat
   return(tArray)
+  exit
 end

@@ -115,11 +115,11 @@ on update me
     tNewColor = pTargetColor
     tNewLightness = pTargetLightness
   else
-    tRatio = tCurrentTime - pApplyTime / float(pTargetTime - pApplyTime)
-    tNewR = pAppliedColor.red + tRatio * tDiffR
-    tNewG = pAppliedColor.green + tRatio * tDiffG
-    tNewB = pAppliedColor.blue + tRatio * tDiffB
-    tNewLightness = pAppliedLightness + tRatio * tDiffL
+    tRatio = (tCurrentTime - pApplyTime / float(pTargetTime - pApplyTime))
+    tNewR = pAppliedColor.red + (tRatio * tDiffR)
+    tNewG = pAppliedColor.green + (tRatio * tDiffG)
+    tNewB = pAppliedColor.blue + (tRatio * tDiffB)
+    tNewLightness = pAppliedLightness + (tRatio * tDiffL)
     tNewColor = rgb(tNewR, tNewG, tNewB)
   end if
   me.applyEffect(pEffectID, tNewColor, tNewLightness)

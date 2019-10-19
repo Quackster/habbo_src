@@ -104,8 +104,8 @@ on updateData me, tViewClientRect, tClientSourceRect
   pViewClientRect = tViewClientRect
   pClientSourceRect = tClientSourceRect
   if me.pType = "scrollbarv" then
-    if pViewClientRect.height mod pScrollStep <> 0 then
-      pViewClientRect.bottom = pViewClientRect.bottom - pViewClientRect.height mod pScrollStep + pScrollStep
+    if (pViewClientRect.height mod pScrollStep) <> 0 then
+      pViewClientRect.bottom = pViewClientRect.bottom - (pViewClientRect.height mod pScrollStep) + pScrollStep
     end if
     if pViewClientRect.height > pClientSourceRect.height then
       pScrollOffset = 0
@@ -113,8 +113,8 @@ on updateData me, tViewClientRect, tClientSourceRect
     pMaxOffset = pClientSourceRect.height - pViewClientRect.height
     pPageSize = pViewClientRect.height
   else
-    if pViewClientRect.width mod pScrollStep <> 0 then
-      pViewClientRect.right = pViewClientRect.right - pViewClientRect.width mod pScrollStep + pScrollStep
+    if (pViewClientRect.width mod pScrollStep) <> 0 then
+      pViewClientRect.right = pViewClientRect.right - (pViewClientRect.width mod pScrollStep) + pScrollStep
     end if
     if pViewClientRect.width > pClientSourceRect.width then
       pScrollOffset = 0
@@ -131,7 +131,7 @@ on ScrollBarPercentV me
   if tHeight = 0 then
     return(0)
   else
-    tPercent = float(pScrollOffset) / tHeight
+    tPercent = (float(pScrollOffset) / tHeight)
     if tPercent > 1 then
       return(1)
     else
@@ -145,7 +145,7 @@ on ScrollBarPercentH me
   if tWidth = 0 then
     return(0)
   else
-    tPercent = float(pScrollOffset) / tWidth
+    tPercent = (float(pScrollOffset) / tWidth)
     if tPercent > 1 then
       return(1)
     else
@@ -246,11 +246,11 @@ end
 on UpdateLiftPosition me 
   if me.pType = "scrollbarv" then
     tMoveAreaV = pRects.getAt(#bar).height - pRects.getAt(#lift).height
-    tNewOffset = integer(me.ScrollBarPercentV() * tMoveAreaV)
+    tNewOffset = integer((me.ScrollBarPercentV() * tMoveAreaV))
     pRects.setAt(#lift, rect(0, tNewOffset + pRects.getAt(#top).height, pRects.getAt(#lift).width, tNewOffset + pRects.getAt(#top).height + pRects.getAt(#lift).height))
   else
     tMoveAreaV = pRects.getAt(#bar).width - pRects.getAt(#lift).width
-    tNewOffset = integer(me.ScrollBarPercentH() * tMoveAreaV)
+    tNewOffset = integer((me.ScrollBarPercentH() * tMoveAreaV))
     pRects.setAt(#lift, rect(tNewOffset + pRects.getAt(#top).width, 0, tNewOffset + pRects.getAt(#top).width + pRects.getAt(#lift).width, pRects.getAt(#lift).height))
   end if
 end
@@ -258,22 +258,22 @@ end
 on ScrollByLift me 
   if me.pType = "scrollbarv" then
     tMoveAreaV = pRects.getAt(#bar).height - pRects.getAt(#lift).height
-    tScrollPercent = pRects.getAt(#lift).top - pRects.getAt(#lift).height + 1 * 100 / tMoveAreaV
-    tNowPercent = float(tScrollPercent) / 100
-    tNowOffset = integer(pClientSourceRect.bottom - pViewClientRect.height * float(tScrollPercent) / 100)
+    tScrollPercent = ((pRects.getAt(#lift).top - pRects.getAt(#lift).height + 1 * 100) / tMoveAreaV)
+    tNowPercent = (float(tScrollPercent) / 100)
+    tNowOffset = integer(((pClientSourceRect.bottom - pViewClientRect.height * float(tScrollPercent)) / 100))
   else
     tMoveAreaH = pRects.getAt(#bar).width - pRects.getAt(#lift).width
-    tScrollPercent = pRects.getAt(#lift).left - pRects.getAt(#lift).width + 1 * 100 / tMoveAreaH
-    tNowPercent = float(tScrollPercent) / 100
-    tNowOffset = integer(pClientSourceRect.right - pViewClientRect.width * float(tScrollPercent) / 100)
+    tScrollPercent = ((pRects.getAt(#lift).left - pRects.getAt(#lift).width + 1 * 100) / tMoveAreaH)
+    tNowPercent = (float(tScrollPercent) / 100)
+    tNowOffset = integer(((pClientSourceRect.right - pViewClientRect.width * float(tScrollPercent)) / 100))
+  end if
+  if (tNowOffset mod pScrollStep) <> 0 then
+    tNowOffset = tNowOffset - (tNowOffset mod pScrollStep)
   end if
   me.sendAdjustOffsetTo(tNowOffset)
 end
 
 on sendAdjustOffsetTo me, tNewOffset 
-  if abs(pScrollOffset - tNewOffset) < pScrollStep and tNewOffset < pMaxOffset and tNewOffset > 0 then
-    return(1)
-  end if
   if tNewOffset <= pMaxOffset then
     pScrollOffset = tNewOffset
   else
@@ -514,7 +514,7 @@ on resizeBy me, tOffH, tOffV
         me.width = pSprite.width + tOffH
       else
         if me = #center then
-          me.locH = pSprite.locH + tOffH / 2
+          me.locH = pSprite.locH + (tOffH / 2)
         end if
       end if
     end if
@@ -525,7 +525,7 @@ on resizeBy me, tOffH, tOffV
         me.height = pSprite.height + tOffV
       else
         if me = #center then
-          me.locV = pSprite.locV + tOffV / 2
+          me.locV = pSprite.locV + (tOffV / 2)
         end if
       end if
     end if

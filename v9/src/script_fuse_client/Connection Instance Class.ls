@@ -21,7 +21,7 @@ on connect me, tHost, tPort
   pHost = tHost
   pPort = tPort
   pXtra = new(xtra("Multiuser"))
-  pXtra.setNetBufferLimits(16 * 1024, 100 * 1024, 100)
+  pXtra.setNetBufferLimits((16 * 1024), (100 * 1024), 100)
   tErrCode = pXtra.setNetMessageHandler(#xtraMsgHandler, me)
   if tErrCode = 0 then
     pXtra.connectToNetServer("*", "*", pHost, pPort, "*", 1)
@@ -124,8 +124,8 @@ on send me, tCmd, tMsg
     tChar = 1 + tChar
   end repeat
   tL1 = numToChar(bitOr(bitAnd(tLength, 63), 64))
-  tL2 = numToChar(bitOr(bitAnd(tLength / 64, 63), 64))
-  tL3 = numToChar(bitOr(bitAnd(tLength / 4096, 63), 64))
+  tL2 = numToChar(bitOr(bitAnd((tLength / 64), 63), 64))
+  tL3 = numToChar(bitOr(bitAnd((tLength / 4096), 63), 64))
   tMsg = tL3 & tL2 & tL1 & tMsg
   if pEncryptionOn and objectp(pDecoder) then
     tMsg = pDecoder.encipher(tMsg)
@@ -153,13 +153,13 @@ on sendNew me, tCmd, tParmArr
           tLen = tLen + 1 + tNum > 255
           tChar = 1 + tChar
         end repeat
-        tBy1 = numToChar(bitOr(64, tLen / 64))
+        tBy1 = numToChar(bitOr(64, (tLen / 64)))
         tBy2 = numToChar(bitOr(64, bitAnd(63, tLen)))
         tMsg = tMsg & tBy1 & tBy2 & tParm
         tLength = tLength + tLen + 2
       else
         if ttype = #short then
-          tBy1 = numToChar(bitOr(64, tParm / 64))
+          tBy1 = numToChar(bitOr(64, (tParm / 64)))
           tBy2 = numToChar(bitOr(64, bitAnd(63, tParm)))
           tMsg = tMsg & tBy1 & tBy2
           tLength = tLength + 2
@@ -173,10 +173,10 @@ on sendNew me, tCmd, tParmArr
             end if
             tStr = numToChar(64 + bitAnd(tParm, 3))
             tBytes = 1
-            tParm = tParm / 4
+            tParm = (tParm / 4)
             repeat while tParm <> 0
               tBytes = tBytes + 1
-              tParm = tParm / 64
+              tParm = (tParm / 64)
             end repeat
             tLength = tLength + tBytes
           else
@@ -207,8 +207,8 @@ on sendNew me, tCmd, tParmArr
   getObject(#session).set("con_lastsend", tStr && tMsg && "-" && the long time)
   tMsg = tCmd & tMsg
   tL1 = numToChar(bitOr(bitAnd(tLength, 63), 64))
-  tL2 = numToChar(bitOr(bitAnd(tLength / 64, 63), 64))
-  tL3 = numToChar(bitOr(bitAnd(tLength / 4096, 63), 64))
+  tL2 = numToChar(bitOr(bitAnd((tLength / 64), 63), 64))
+  tL3 = numToChar(bitOr(bitAnd((tLength / 4096), 63), 64))
   tMsg = tL3 & tL2 & tL1 & tMsg
   if pEncryptionOn and objectp(pDecoder) then
     tMsg = pDecoder.encipher(tMsg)
@@ -309,7 +309,7 @@ end
 on GetIntFrom me 
   tByteStr = pMsgStruct.getaProp(#content)
   tByte = bitAnd(charToNum(tByteStr.char[1]), 63)
-  tByCnt = bitOr(bitAnd(tByte, 56) / 8, 0)
+  tByCnt = bitOr((bitAnd(tByte, 56) / 8), 0)
   tNeg = bitAnd(tByte, 4)
   tInt = bitAnd(tByte, 3)
   if tByCnt > 1 then
@@ -317,7 +317,7 @@ on GetIntFrom me
     i = 2
     repeat while i <= tByCnt
       tByte = bitAnd(charToNum(tByteStr.char[i]), 63)
-      tInt = bitOr(tByte * tPowTbl.getAt(i - 1), tInt)
+      tInt = bitOr((tByte * tPowTbl.getAt(i - 1)), tInt)
       i = 1 + i
     end repeat
   end if
@@ -393,7 +393,7 @@ on msghandler me, tContent
   end if
   tByte1 = bitAnd(charToNum(tContent.char[2]), 63)
   tByte2 = bitAnd(charToNum(tContent.char[1]), 63)
-  tMsgType = bitOr(tByte2 * 64, tByte1)
+  tMsgType = bitOr((tByte2 * 64), tByte1)
   tLength = offset(numToChar(1), tContent)
   if tLength = 0 then
     pLastContent = tContent
@@ -441,10 +441,6 @@ on log me, tMsg
   else
     if pLogMode = 2 then
       if ilk(pLogfield, #member) then
-      end if
-    else
-      if pLogMode = 3 then
-        executeMessage(#logdata, tMsg)
       end if
     end if
   end if

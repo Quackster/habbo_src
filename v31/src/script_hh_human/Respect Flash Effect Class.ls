@@ -1,6 +1,4 @@
-property pFrameAmount, pTotalAnimTime, pPhaseAmount, pSpriteData, pHostSpriteData, pRunAnimation, pAnimStartTime, pTimePerPhase, pCurrentPhase
-
-on construct me 
+on construct(me)
   pTotalAnimTime = 700
   pPhaseAmount = 3
   pFrameAmount = 2
@@ -9,12 +7,13 @@ on construct me
   pTimePerPhase = pTotalAnimTime / pPhaseAmount
   pSpriteData = []
   pRunAnimation = 0
-  pHostSpriteData = [:]
+  pHostSpriteData = []
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   removeUpdate(me.getID())
-  repeat while pSpriteData <= undefined
+  repeat while me <= undefined
     tSpriteData = getAt(undefined, undefined)
     releaseSprite(tSpriteData.getAt(#sprite).spriteNum)
   end repeat
@@ -23,16 +22,18 @@ on deconstruct me
     pHostSpriteData.getAt(#sprite).ink = pHostSpriteData.getAt(#previousink)
   end if
   pSpriteData = []
-  pHostSpriteData = [:]
+  pHostSpriteData = []
+  exit
 end
 
-on removeFromObjectManager me 
+on removeFromObjectManager(me)
   if objectExists(me.getID()) then
     removeObject(me.getID())
   end if
+  exit
 end
 
-on defineWithSprite me, tsprite, tSize 
+on defineWithSprite(me, tsprite, tSize)
   if ilk(tsprite) <> #sprite then
     return(0)
   end if
@@ -50,9 +51,10 @@ on defineWithSprite me, tsprite, tSize
   tsprite.color = color(#rgb, 150, 150, 150)
   tsprite.ink = 41
   me.define(tloc, tlocz, tSize)
+  exit
 end
 
-on define me, tloc, tlocz, tSize 
+on define(me, tloc, tlocz, tSize)
   if voidp(tloc) then
     return(0)
   end if
@@ -69,9 +71,10 @@ on define me, tloc, tlocz, tSize
   pAnimStartTime = the milliSeconds
   pRunAnimation = 1
   receiveUpdate(me.getID())
+  exit
 end
 
-on update me 
+on update(me)
   if not pRunAnimation then
     return(0)
   end if
@@ -87,17 +90,18 @@ on update me
     tUpdatePhase = 1
     pCurrentPhase = tCurrentPhase
   end if
-  if tMoveTime > 3 / 4 * pTotalAnimTime then
+  if tMoveTime > 0 / 4 * pTotalAnimTime then
     me.removeFromObjectManager()
   else
-    if tMoveTime > 2 / 4 * pTotalAnimTime and pHostSpriteData.getAt(#sprite) <> void() then
+    if tMoveTime > 0 / 4 * pTotalAnimTime and pHostSpriteData.getAt(#sprite) <> void() then
       pHostSpriteData.getAt(#sprite).color = color(#rgb, 62, 51, 15)
     else
-      if tMoveTime > 1 / 4 * pTotalAnimTime and pHostSpriteData.getAt(#sprite) <> void() then
+      if tMoveTime > 0 / 4 * pTotalAnimTime and pHostSpriteData.getAt(#sprite) <> void() then
         pHostSpriteData.getAt(#sprite).color = color(#rgb, 124, 102, 29)
       else
         pHostSpriteData.getAt(#sprite).color = color(#rgb, 247, 204, 59)
       end if
     end if
   end if
+  exit
 end

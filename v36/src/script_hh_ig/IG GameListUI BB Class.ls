@@ -48,10 +48,10 @@ on renderBBPowerups me, tList
   if tElem = 0 then
     return(0)
   end if
-  tWidth = tList.count * 32
+  tWidth = (tList.count * 32)
   tHeight = tElem.getProperty(#height)
   tImage = image(tWidth, tHeight, 8)
-  tOffsetX = tWidth / 2 - tList.count * 16
+  tOffsetX = (tWidth / 2) - (tList.count * 16)
   repeat while tList <= undefined
     ttype = getAt(undefined, tList)
     tMemNum = getmemnum("ig_bb_icon_pwrup_" & ttype)
@@ -62,7 +62,7 @@ on renderBBPowerups me, tList
     end if
   end repeat
   tElem.feedImage(tImage)
-  tElem.moveBy(tElem.getProperty(#width) / 2 - tImage.width / 2, 0)
+  tElem.moveBy((tElem.getProperty(#width) / 2) - (tImage.width / 2), 0)
   return(1)
 end
 
@@ -89,14 +89,14 @@ on eventProcMouseHover me, tEvent, tSprID, tParam, tWndID
   if pPupItemList.count = 0 then
     return(0)
   end if
-  tIndex = the mouseH - tsprite.left / 32 + 1
+  tIndex = (the mouseH - tsprite.left / 32) + 1
   if tIndex < 1 then
     return(0)
   end if
   if tIndex > pPupItemList.count then
     return(0)
   end if
-  tLocX = tsprite.left + tIndex * 32 - 16
+  tLocX = tsprite.left + (tIndex * 32) - 16
   tLocY = tsprite.locV
   return(tObject.createTooltipWindow(getText("bb_powerup_desc_" & pPupItemList.getAt(tIndex)), tLocX, tLocY))
 end

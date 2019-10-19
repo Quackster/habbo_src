@@ -32,7 +32,7 @@ on ChangeWindowView me, tWindowName
   if windowExists(pWindowTitle) then
     tWndObj = getWindow(pWindowTitle)
     tWndObj.merge(tWindowName)
-    rect.width - tWndObj.getProperty(#width) / 2.moveTo(the stage, rect.height - tWndObj.getProperty(#height))
+    (rect.width - tWndObj.getProperty(#width) / 2).moveTo(the stage, rect.height - tWndObj.getProperty(#height))
     tWndObj.registerClient(me.getID())
     tWndObj.registerProcedure(#eventProc, me.getID(), #mouseUp)
     tWndObj.registerProcedure(#eventProc, me.getID(), #keyDown)
@@ -217,8 +217,8 @@ on setPageValues me, tWindowName
         tTargetHeight = tElem.getProperty(#height)
         tTargetImg = image(tTargetWidth, tTargetHeight, 32)
         tSourceRect = image.rect
-        tOffsetX = tmember - image.width / 2
-        tOffsetY = tmember - image.height / 2
+        tOffsetX = (tmember - image.width / 2)
+        tOffsetY = (tmember - image.height / 2)
         tTargetRect = tSourceRect + rect(tOffsetX, tOffsetY, tOffsetX, tOffsetY)
         tTargetImg.copyPixels(tmember.image, tTargetRect, tSourceRect)
         if tmember.type = #bitmap then

@@ -63,7 +63,7 @@ on update me
                 tAnimCounter = me.pAnimCounter
               else
                 if tAction = "wav" then
-                  tAnimCounter = me.pAnimCounter mod 2
+                  tAnimCounter = (me.pAnimCounter mod 2)
                 else
                   if ["crr", "drk", "ohd"].getPos(tAction) <> 0 then
                     pXFix = -40
@@ -89,7 +89,7 @@ on update me
                     tAnimCounter = me.pAnimCounter
                   else
                     if tAction = "wav" then
-                      tAnimCounter = me.pAnimCounter mod 2
+                      tAnimCounter = (me.pAnimCounter mod 2)
                       tPart = "l" & pPart.getProp(#char, 2)
                       tdir = pDirection
                     end if
@@ -104,18 +104,18 @@ on update me
                         else
                           tAction = "spk"
                         end if
-                        tAnimCounter = me.pAnimCounter mod 2
+                        tAnimCounter = (me.pAnimCounter mod 2)
                       end if
                     else
                       if pPart = "ey" then
                         tUnderWater = 0
-                        if me.pTalking and pAction <> "lay" and me.pAnimCounter mod 2 = 0 then
+                        if me.pTalking and pAction <> "lay" and (me.pAnimCounter mod 2) = 0 then
                           pYFix = -1
                         end if
                       else
                         if pPart = "hr" then
                           tUnderWater = 0
-                          if me.pTalking and me.pAnimCounter mod 2 = 0 then
+                          if me.pTalking and (me.pAnimCounter mod 2) = 0 then
                             if pAction <> "lay" then
                               tAction = "spk"
                             end if
@@ -307,9 +307,9 @@ on getLocation me
     return(0)
   end if
   tImgRect = member(tMemNum).rect
-  tCenterPoint = point(tImgRect.width / 2, tImgRect.height / 2)
+  tCenterPoint = point((tImgRect.width / 2), (tImgRect.height / 2))
   tRegPoint = member(tMemNum).regPoint
-  return(tRegPoint * -1 + tCenterPoint)
+  return((tRegPoint * -1) + tCenterPoint)
 end
 
 on copyPicture me, tImg, tdir, tHumanSize, tAction, tAnimFrame 

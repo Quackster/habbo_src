@@ -107,7 +107,7 @@ on resizeBy me, tOffH, tOffV
         pSprite.width = pSprite.width + tOffH
       else
         if pScaleH = #center then
-          me.moveBy(tOffH / 2, 0)
+          me.moveBy((tOffH / 2), 0)
         end if
       end if
     end if
@@ -118,7 +118,7 @@ on resizeBy me, tOffH, tOffV
         pSprite.height = pSprite.height + tOffV
       else
         if pScaleH = #center then
-          me.moveBy(0, tOffV / 2)
+          me.moveBy(0, (tOffV / 2))
         end if
       end if
     end if

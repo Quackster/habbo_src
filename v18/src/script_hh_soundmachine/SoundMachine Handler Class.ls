@@ -13,9 +13,9 @@ on handle_sound_data me, tMsg
   tDelim = the itemDelimiter
   the itemDelimiter = ":"
   i = 1
-  repeat while i <= tStr.count(#item) / 2
-    tChannelNumber = tStr.getProp(#item, 1 + i - 1 * 2)
-    tChannelData = tStr.getProp(#item, 2 + i - 1 * 2)
+  repeat while i <= (tStr.count(#item) / 2)
+    tChannelNumber = tStr.getProp(#item, 1 + (i - 1 * 2))
+    tChannelData = tStr.getProp(#item, 2 + (i - 1 * 2))
     if ilk(value(tChannelNumber)) = #integer then
       tChannelNumber = value(tChannelNumber)
       if tChannelNumber = tdata.count + 1 then

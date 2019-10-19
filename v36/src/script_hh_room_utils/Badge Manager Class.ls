@@ -162,8 +162,8 @@ on updateBadgeImage me
   tHeight = tWndObj.getElement("badge_preview").getProperty(#height)
   tBadgeImage = member(tMemNum).image
   tCenteredImage = image(tWidth, tHeight, 32)
-  tXchange = tCenteredImage.width - tBadgeImage.width / 2
-  tYchange = tCenteredImage.height - tBadgeImage.height / 2
+  tXchange = (tCenteredImage.width - tBadgeImage.width / 2)
+  tYchange = (tCenteredImage.height - tBadgeImage.height / 2)
   tRect1 = tBadgeImage.rect + rect(tXchange, tYchange, tXchange, tYchange)
   tCenteredImage.copyPixels(tBadgeImage, tRect1, tBadgeImage.rect)
   tWndObj.getElement("badge_preview").feedImage(tCenteredImage)
@@ -423,8 +423,8 @@ on updatePreview me
     else
       tBadgeImage = image(1, 1, 8)
     end if
-    tDouble = image(tBadgeImage.width * 2, tBadgeImage.height * 2, tBadgeImage.depth)
-    tDouble.copyPixels(tBadgeImage, tBadgeImage.rect * 2, tBadgeImage.rect)
+    tDouble = image((tBadgeImage.width * 2), (tBadgeImage.height * 2), tBadgeImage.depth)
+    tDouble.copyPixels(tBadgeImage, (tBadgeImage.rect * 2), tBadgeImage.rect)
     tDouble = pBadgeListRenderer.centerImage(tDouble, rect(0, 0, 94, 94))
     tBadgeElem.feedImage(tDouble)
   end if

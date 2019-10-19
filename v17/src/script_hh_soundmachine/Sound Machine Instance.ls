@@ -140,13 +140,13 @@ on parsePlaylist me, tMsg
   end if
   tTimeline = pTimelineList.getAt(1)
   tstart = 1
-  tTotalLength = pPlaylistManager.getPlaylistLength() * tTimeline.getSlotDuration() / 100
+  tTotalLength = ((pPlaylistManager.getPlaylistLength() * tTimeline.getSlotDuration()) / 100)
   if tTotalLength > 0 then
-    tOffset = pPlaylistManager.getPlayTime() mod tTotalLength
+    tOffset = (pPlaylistManager.getPlayTime() mod tTotalLength)
     tPos = 0
     i = 1
     repeat while i <= pSongList.count
-      tPos = tPos + pSongList.getAt(i).getAt(#length) / 100
+      tPos = tPos + (pSongList.getAt(i).getAt(#length) / 100)
       if tPos > tOffset + 50 then
         tstart = i
       else
@@ -157,7 +157,7 @@ on parsePlaylist me, tMsg
   tDownloadList = []
   i = 0
   repeat while i <= pTimelineList.count - 1
-    tIndex = tstart + i mod tCount
+    tIndex = (tstart + i mod tCount)
     if tIndex = 0 then
       tIndex = tCount
     end if
@@ -182,7 +182,7 @@ on updatePlaylist me
     tRemove = 0
     i = 1
     repeat while i <= pSongList.count
-      tEndTime = tEndTime + pSongList.getAt(i).getAt(#length) / 100
+      tEndTime = tEndTime + (pSongList.getAt(i).getAt(#length) / 100)
       if tEndTime <= tPlayTime then
         tRemove = i
       else
@@ -191,7 +191,7 @@ on updatePlaylist me
     end repeat
     i = 1
     repeat while i <= tRemove
-      tLength = pSongList.getAt(1).getAt(#length) / 100
+      tLength = (pSongList.getAt(1).getAt(#length) / 100)
       pSongList.deleteAt(1)
       pTimelineList.getAt(1).deconstruct()
       pTimelineList.deleteAt(1)
@@ -221,7 +221,7 @@ on insertPlaylistSong me, tID, tLength, tName, tAuthor
   pPlaylistManager.downloadSong(tID)
   tSongController = getObject(pSongControllerID)
   if tSongController <> 0 then
-    return(tSongController.addPlaylistSong(pPlayStackIndex, tID, tLength * tTimeline.getSlotDuration()))
+    return(tSongController.addPlaylistSong(pPlayStackIndex, tID, (tLength * tTimeline.getSlotDuration())))
   end if
   return(0)
 end
@@ -280,7 +280,7 @@ on createTimelineInstance me, tSong
   unregisterObject("timeline instance")
   tTimeline.reset(1)
   pTimelineList.addProp(tSong.getAt(#id), tTimeline)
-  tSongLength = tSong.getAt(#length) * tTimeline.getSlotDuration()
+  tSongLength = (tSong.getAt(#length) * tTimeline.getSlotDuration())
   if tSongLength < 0 then
     error(me, "Invalid song length - sync will not work", #createTimelineInstance, #minor)
     tSongLength = tTimeline.getSlotDuration()

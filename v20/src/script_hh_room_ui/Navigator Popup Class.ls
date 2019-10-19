@@ -45,7 +45,7 @@ on show me
   tIconLocY = tNavIcon.getProperty(#locY)
   tIconWidth = tNavIcon.getProperty(#width)
   tMargin = 2
-  tLocX = tBarLocX + tIconLocX + tIconWidth / 2 - tWindow.getProperty(#width) / 2
+  tLocX = tBarLocX + tIconLocX + (tIconWidth / 2) - (tWindow.getProperty(#width) / 2)
   tLocY = tBarLocY + tIconLocY - tWindow.getProperty(#height)
   tOffset = tWindow.getProperty(#width) + tLocX - undefined.width - tMargin
   if tOffset > 0 then
@@ -67,7 +67,7 @@ on show me
       tRoomName = tRoom.getaProp(#name)
       tElem.setText(tRoomName)
       if tRoom.getAt(#usercount) and tRoom.getAt(#maxUsers) then
-        tOccupancy = float(tRoom.getAt(#usercount)) / tRoom.getAt(#maxUsers)
+        tOccupancy = (float(tRoom.getAt(#usercount)) / tRoom.getAt(#maxUsers))
       else
         tOccupancy = 0
       end if

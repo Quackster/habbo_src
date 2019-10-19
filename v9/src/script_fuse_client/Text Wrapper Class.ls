@@ -176,11 +176,11 @@ on createImgFromTxt me
   if me.pScaleH = #center then
     tWidth = pTextMem.charPosToLoc(pTextMem.count(#char)).locH + 16
     if me.getProp(#pProps, #style) = #unique then
-      me.pLocX = me.pLocX + me.pwidth - tWidth / 2
+      me.pLocX = me.pLocX + (me.pwidth - tWidth / 2)
       me.pwidth = tWidth
       me.pOwnW = tWidth
     else
-      me.pOwnX = me.pOwnX + me.pOwnW - tWidth / 2
+      me.pOwnX = me.pOwnX + (me.pOwnW - tWidth / 2)
       me.pOwnW = tWidth
     end if
     pTextMem.rect = rect(0, 0, tWidth, pTextMem.height)
@@ -193,15 +193,12 @@ on createImgFromTxt me
     end if
   end if
   if me.count(#pScrolls) > 0 then
-    tHeight = rect.height
+    tHeight = pTextMem.height
   else
     tHeight = me.pOwnH
   end if
   me.pimage = image(me.pOwnW, tHeight, me.pDepth, me.pPalette)
   if me.pimage = void() then
-    return(0)
-  end if
-  if pTextMem = void() then
     return(0)
   end if
   if pNeedFill then

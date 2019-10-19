@@ -2,7 +2,7 @@ property pDirection, pSprite, pWaitTime, pOffset, pTurnPnt, pType, pAnimFrame
 
 on define me, tsprite, tCount 
   tDirection = #left
-  if tCount mod 2 = 1 then
+  if (tCount mod 2) = 1 then
     tDirection = #right
   end if
   pSprite = tsprite
@@ -65,7 +65,7 @@ on update me
     if pAnimFrame > 9 then
       pAnimFrame = 2
     end if
-    tFrameNum = pAnimFrame / 2
+    tFrameNum = (pAnimFrame / 2)
     pSprite.castNum = getmemnum("crt" & tFrameNum)
     pSprite.width = member.width
     pSprite.height = member.height

@@ -109,28 +109,28 @@ on update me
   if pSize = "h" then
     tLocV = tHumanLoc.getAt(2) - 65
     if tHumanDir = 7 then
-      pSprite.loc = point(tHumanLoc.getAt(1) - pSprite.width / 2 - 2, tLocV)
+      pSprite.loc = point(tHumanLoc.getAt(1) - (pSprite.width / 2) - 2, tLocV)
     else
       if tHumanDir = 6 then
-        pSprite.loc = point(tHumanLoc.getAt(1) - pSprite.width / 2 + 1, tLocV)
+        pSprite.loc = point(tHumanLoc.getAt(1) - (pSprite.width / 2) + 1, tLocV)
       else
         if tHumanDir = 5 then
-          pSprite.loc = point(tHumanLoc.getAt(1) - pSprite.width / 2 + 2, tLocV)
+          pSprite.loc = point(tHumanLoc.getAt(1) - (pSprite.width / 2) + 2, tLocV)
         else
           if tHumanDir = 4 then
-            pSprite.loc = point(tHumanLoc.getAt(1) - pSprite.width / 2 - 1, tLocV)
+            pSprite.loc = point(tHumanLoc.getAt(1) - (pSprite.width / 2) - 1, tLocV)
           else
             if tHumanDir = 3 then
-              pSprite.loc = point(tHumanLoc.getAt(1) - pSprite.width / 2 - 2, tLocV)
+              pSprite.loc = point(tHumanLoc.getAt(1) - (pSprite.width / 2) - 2, tLocV)
             else
               if tHumanDir = 2 then
-                pSprite.loc = point(tHumanLoc.getAt(1) - pSprite.width / 2 - 2, tLocV)
+                pSprite.loc = point(tHumanLoc.getAt(1) - (pSprite.width / 2) - 2, tLocV)
               else
                 if tHumanDir = 1 then
-                  pSprite.loc = point(tHumanLoc.getAt(1) - pSprite.width / 2, tLocV)
+                  pSprite.loc = point(tHumanLoc.getAt(1) - (pSprite.width / 2), tLocV)
                 else
                   if tHumanDir = 0 then
-                    pSprite.loc = point(tHumanLoc.getAt(1) - pSprite.width / 2 - 1, tLocV)
+                    pSprite.loc = point(tHumanLoc.getAt(1) - (pSprite.width / 2) - 1, tLocV)
                   end if
                 end if
               end if
@@ -142,28 +142,28 @@ on update me
   else
     tLocV = tHumanLoc.getAt(2) - 44
     if tHumanDir = 7 then
-      pSprite.loc = point(tHumanLoc.getAt(1) - pSprite.width / 2 - 2, tLocV)
+      pSprite.loc = point(tHumanLoc.getAt(1) - (pSprite.width / 2) - 2, tLocV)
     else
       if tHumanDir = 6 then
-        pSprite.loc = point(tHumanLoc.getAt(1) - pSprite.width / 2 - 1, tLocV)
+        pSprite.loc = point(tHumanLoc.getAt(1) - (pSprite.width / 2) - 1, tLocV)
       else
         if tHumanDir = 5 then
-          pSprite.loc = point(tHumanLoc.getAt(1) - pSprite.width / 2 - 1, tLocV)
+          pSprite.loc = point(tHumanLoc.getAt(1) - (pSprite.width / 2) - 1, tLocV)
         else
           if tHumanDir = 4 then
-            pSprite.loc = point(tHumanLoc.getAt(1) - pSprite.width / 2 + 1, tLocV)
+            pSprite.loc = point(tHumanLoc.getAt(1) - (pSprite.width / 2) + 1, tLocV)
           else
             if tHumanDir = 3 then
-              pSprite.loc = point(tHumanLoc.getAt(1) - pSprite.width / 2 - 2, tLocV)
+              pSprite.loc = point(tHumanLoc.getAt(1) - (pSprite.width / 2) - 2, tLocV)
             else
               if tHumanDir = 2 then
-                pSprite.loc = point(tHumanLoc.getAt(1) - pSprite.width / 2 - 2, tLocV)
+                pSprite.loc = point(tHumanLoc.getAt(1) - (pSprite.width / 2) - 2, tLocV)
               else
                 if tHumanDir = 1 then
-                  pSprite.loc = point(tHumanLoc.getAt(1) - pSprite.width / 2 - 1, tLocV)
+                  pSprite.loc = point(tHumanLoc.getAt(1) - (pSprite.width / 2) - 1, tLocV)
                 else
                   if tHumanDir = 0 then
-                    pSprite.loc = point(tHumanLoc.getAt(1) - pSprite.width / 2 - 2, tLocV)
+                    pSprite.loc = point(tHumanLoc.getAt(1) - (pSprite.width / 2) - 2, tLocV)
                   end if
                 end if
               end if

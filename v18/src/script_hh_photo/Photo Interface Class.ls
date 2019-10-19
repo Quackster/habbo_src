@@ -80,14 +80,14 @@ on update me
     tDispLocY = tWndObj.getElement("cam_display").getProperty(#locV)
     if the milliSeconds - pNextHNoiseSetup > 0 then
       pNextHNoiseSetup = the milliSeconds + random(12000)
-      pHNoiseCenter = abs(random(tDispWidth / 2)) + tDispWidth / 4
+      pHNoiseCenter = abs(random((tDispWidth / 2))) + (tDispWidth / 4)
     end if
     if the milliSeconds - pNextVNoiseSetup > 0 then
       pNextVNoiseSetup = the milliSeconds + random(12000)
-      pVNoiseCenter = abs(random(tDispHeight / 2)) + tDispHeight / 4
+      pVNoiseCenter = abs(random((tDispHeight / 2))) + (tDispHeight / 4)
     end if
     tLocX = tWndObj.getElement("cam_display_noise_vertical").getProperty(#locH)
-    tLocY = pHNoiseCenter + cos(pNextVNoiseSetup - the milliSeconds / 10000 * 2 * pi()) * tDispHeight / 4
+    tLocY = pHNoiseCenter + ((cos((((pNextVNoiseSetup - the milliSeconds / 10000) * 2) * pi())) * tDispHeight) / 4)
     if tLocY > tDispLocY + tDispHeight then
       tLocY = tDispLocY + tDispHeight
     end if
@@ -95,7 +95,7 @@ on update me
       tLocY = tDispLocY
     end if
     tWndObj.getElement("cam_display_noise_vertical").moveTo(tLocX, tLocY)
-    tLocX = pVNoiseCenter + sin(pNextHNoiseSetup - the milliSeconds / 10000 * 2 * pi()) * tDispWidth / 4
+    tLocX = pVNoiseCenter + ((sin((((pNextHNoiseSetup - the milliSeconds / 10000) * 2) * pi())) * tDispWidth) / 4)
     tLocY = tWndObj.getElement("cam_display_noise_horizontal").getProperty(#locV)
     if tLocX > tDispLocX + tDispWidth then
       tLocX = tDispLocX + tDispWidth
@@ -287,11 +287,11 @@ end
 
 on zoom me 
   tRect = pCamShotImage.rect
-  tH = pCamShotImage.height / pZoomLevel
-  tW = pCamShotImage.width / pZoomLevel
-  tRect.top = pCamShotImage.height / 2 - tH / 2
+  tH = (pCamShotImage.height / pZoomLevel)
+  tW = (pCamShotImage.width / pZoomLevel)
+  tRect.top = (pCamShotImage.height / 2) - (tH / 2)
   tRect.bottom = tRect.top + tH
-  tRect.left = pCamShotImage.width / 2 - tW / 2
+  tRect.left = (pCamShotImage.width / 2) - (tW / 2)
   tRect.right = tRect.left + tW
   pCamShotImage.copyPixels(pCamMember, image.rect, tRect, [#bgColor:rgb(238, 238, 238)])
 end

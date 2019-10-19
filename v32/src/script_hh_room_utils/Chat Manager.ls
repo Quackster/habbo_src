@@ -110,7 +110,7 @@ on handle_chat me, tMsg
     tMode = "UNHEARD"
   end if
   me.enterChatMessage(tMode, tuser, tChat)
-  tSpeakingLength = tChat.length * 100
+  tSpeakingLength = (tChat.length * 100)
   if tMsg.getaProp(#subject) = 1 then
     tGestStr = "gest sml"
   else

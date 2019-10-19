@@ -125,7 +125,7 @@ on createStripItem me, tdata
         tIconClassStr = "poster" && tdata.getAt(#props)
       else
         if tdata.getAt(#class) contains "post.it" then
-          tPostnums = integer(value(tdata.getAt(#props)) / 20 / 6)
+          tPostnums = integer((value(tdata.getAt(#props)) / (20 / 6)))
           if tPostnums > 6 then
             tPostnums = 6
           end if

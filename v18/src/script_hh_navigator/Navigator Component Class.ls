@@ -18,7 +18,7 @@ on construct me
   pNodeCacheExpList = [:]
   pNaviHistory = []
   pHideFullRoomsFlag = 1
-  pUpdateInterval = getIntVariable("navigator.cache.duration") * 1000
+  pUpdateInterval = (getIntVariable("navigator.cache.duration") * 1000)
   if pUpdateInterval = 0 then
     pUpdateInterval = getIntVariable("navigator.updatetime")
   end if

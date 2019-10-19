@@ -46,28 +46,28 @@ on update me
       tSizeMultiplier = 1
     end if
     if tAncestorDir = 0 then
-      pYFix = pYFix + pXFix / 2
-      pXFix = pXFix / 2
+      pYFix = pYFix + (pXFix / 2)
+      pXFix = (pXFix / 2)
     else
       if tAncestorDir = 1 then
         pYFix = pYFix + pXFix
         pXFix = 0
       else
         if tAncestorDir = 2 then
-          pYFix = pYFix - pXFix / 2
-          pXFix = pXFix / 2
+          pYFix = pYFix - (pXFix / 2)
+          pXFix = (pXFix / 2)
         else
           if tAncestorDir = 4 then
-            pYFix = pYFix + pXFix / 2
-            pXFix = -pXFix / 2
+            pYFix = pYFix + (pXFix / 2)
+            pXFix = (-pXFix / 2)
           else
             if tAncestorDir = 5 then
               pYFix = pYFix - pXFix
               pXFix = 0
             else
               if tAncestorDir = 6 then
-                pYFix = pYFix - pXFix / 2
-                pXFix = -pXFix / 2
+                pYFix = pYFix - (pXFix / 2)
+                pXFix = (-pXFix / 2)
               else
                 if tAncestorDir = 7 then
                   pXFix = -pXFix
@@ -78,8 +78,8 @@ on update me
         end if
       end if
     end if
-    pXFix = pXFix * tSizeMultiplier
-    pYFix = pYFix * tSizeMultiplier
+    pXFix = (pXFix * tSizeMultiplier)
+    pYFix = (pYFix * tSizeMultiplier)
   else
     if tAncestorDir <> "bd" then
       if tAncestorDir <> "lg" then
@@ -106,7 +106,7 @@ on update me
               else
                 if tAction = "wav" then
                   tUnderWater = 0
-                  tAnimCounter = me.pAnimCounter mod 2
+                  tAnimCounter = (me.pAnimCounter mod 2)
                 else
                   if ["crr", "drk", "ohd"].getPos(tAction) <> 0 then
                     pXFix = -40
@@ -133,7 +133,7 @@ on update me
                   else
                     if tAction = "wav" then
                       tUnderWater = 0
-                      tAnimCounter = me.pAnimCounter mod 2
+                      tAnimCounter = (me.pAnimCounter mod 2)
                       tPart = "l" & pPart.getProp(#char, 2)
                       tdir = pDirection
                     end if
@@ -148,18 +148,18 @@ on update me
                         else
                           tAction = "spk"
                         end if
-                        tAnimCounter = me.pAnimCounter mod 2
+                        tAnimCounter = (me.pAnimCounter mod 2)
                       end if
                     else
                       if tAncestorDir = "ey" then
                         tUnderWater = 0
-                        if me.pTalking and pAction <> "lay" and me.pAnimCounter mod 2 = 0 then
+                        if me.pTalking and pAction <> "lay" and (me.pAnimCounter mod 2) = 0 then
                           pYFix = -1
                         end if
                       else
                         if tAncestorDir = "hr" then
                           tUnderWater = 0
-                          if me.pTalking and me.pAnimCounter mod 2 = 0 then
+                          if me.pTalking and (me.pAnimCounter mod 2) = 0 then
                             if pAction <> "lay" then
                               tAction = "spk"
                             end if
@@ -355,9 +355,9 @@ on getLocation me
     return(0)
   end if
   tImgRect = member(tMemNum).rect
-  tCenterPoint = point(tImgRect.width / 2, tImgRect.height / 2)
+  tCenterPoint = point((tImgRect.width / 2), (tImgRect.height / 2))
   tRegPoint = member(tMemNum).regPoint
-  return(tRegPoint * -1 + tCenterPoint)
+  return((tRegPoint * -1) + tCenterPoint)
 end
 
 on copyPicture me, tImg, tdir, tHumanSize, tAction, tAnimFrame 
@@ -421,7 +421,7 @@ on animate me
   end if
   tdir = pDirection + pAnimation.getAt(#OffD).getAt(pAnimFrame)
   if tdir > 7 then
-    tdir = tdir - tdir mod 7
+    tdir = tdir - (tdir mod 7)
   else
     if tdir < 0 then
       tdir = 7 + tdir + 1

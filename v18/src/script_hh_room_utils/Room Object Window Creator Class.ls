@@ -157,7 +157,7 @@ on createActionsHumanWindow me, tTargetUserName
     tIndex = 1 + tIndex
   end repeat
   tWndObj.lock()
-  tNewHeight = tWndObj.getProperty(#height) - tHiddenRowCount * tButtonHeight + tButtonVertMargins - tButtonVertMargins
+  tNewHeight = tWndObj.getProperty(#height) - (tHiddenRowCount * tButtonHeight + tButtonVertMargins) - tButtonVertMargins
   createTimeout(#temp, 10, #resizeWindowTo, me.getID(), [#id:tID, #x:tWndObj.getProperty(#width), #y:tNewHeight], 1)
   return(tID)
 end
@@ -196,7 +196,7 @@ on createActionsFurniWindow me, tClass
     end if
   end repeat
   tDeletedRowCount = tAllButtons.count - tButtonList.count
-  tNewHeight = -1 * tDeletedRowCount * tRowHeight
+  tNewHeight = ((-1 * tDeletedRowCount) * tRowHeight)
   tWndObj.lock()
   createTimeout(#temp, 10, #resizeWindowBy, me.getID(), [#id:tID, #x:0, #y:tNewHeight], 1)
   return(tID)

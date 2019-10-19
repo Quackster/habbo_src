@@ -3,7 +3,7 @@ property pChanges, pLastActive, pActive, pStopped, pScifiDoorSpeed, pSizeMultipl
 on construct me 
   pLastActive = -1
   pScifiDoorSpeed = 7
-  pScifiDoorTimeOut = 0.4 * 60
+  pScifiDoorTimeOut = (0.4 * 60)
   pScifiDoorLocs = [0, 0, 0]
   pScifiDoorTimer = 0
   pDoubleClick = 0
@@ -78,7 +78,7 @@ on updateScifiDoor me
     tTopSp.locV = tTopSp.locV + pScifiDoorSpeed
     me.moveTopLine(tMidSp1, -pScifiDoorSpeed)
     me.moveTopLine(tMidSp2, -pScifiDoorSpeed)
-    if tMidSp1.height <= 11 * pSizeMultiplier or tDoorTimer > pScifiDoorTimeOut then
+    if tMidSp1.height <= (11 * pSizeMultiplier) or tDoorTimer > pScifiDoorTimeOut then
       me.SetScifiDoor("down")
     end if
   else
@@ -92,7 +92,7 @@ on updateScifiDoor me
     end if
     me.moveTopLine(tMidSp1, pScifiDoorSpeed)
     me.moveTopLine(tMidSp2, pScifiDoorSpeed)
-    if tMidSp1.height > 65 * pSizeMultiplier then
+    if tMidSp1.height > (65 * pSizeMultiplier) then
       me.SetScifiDoor("up")
     end if
   end if
@@ -108,8 +108,8 @@ on SetScifiDoor me, tdir
   tMidSp2 = me.getProp(#pSprList, 3)
   if tdir = "up" then
     tTopSp.locV = pScifiDoorLocs.getAt(1)
-    tMidSp1.height = 65 * pSizeMultiplier
-    tMidSp2.height = 64 * pSizeMultiplier
+    tMidSp1.height = (65 * pSizeMultiplier)
+    tMidSp2.height = (64 * pSizeMultiplier)
     tMidSp1.locV = pScifiDoorLocs.getAt(2)
     tMidSp2.locV = pScifiDoorLocs.getAt(3)
   else
@@ -122,10 +122,10 @@ on SetScifiDoor me, tdir
       tMidSp1.height = 2
       tMidSp2.height = 2
     end if
-    tMidSp1.height = 8 * pSizeMultiplier
-    tMidSp2.height = 7 * pSizeMultiplier
-    tMidSp1.locV = pScifiDoorLocs.getAt(2) - 2 * pSizeMultiplier
-    tMidSp2.locV = pScifiDoorLocs.getAt(3) + 5 * pSizeMultiplier
+    tMidSp1.height = (8 * pSizeMultiplier)
+    tMidSp2.height = (7 * pSizeMultiplier)
+    tMidSp1.locV = pScifiDoorLocs.getAt(2) - (2 * pSizeMultiplier)
+    tMidSp2.locV = pScifiDoorLocs.getAt(3) + (5 * pSizeMultiplier)
   end if
   pChanges = 0
   pLastActive = pActive

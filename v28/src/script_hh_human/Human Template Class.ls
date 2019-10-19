@@ -70,7 +70,7 @@ on simulateUpdate me
     else
       me.render()
     end if
-    me.delay(1000 / the frameTempo, #simulateUpdate)
+    me.delay((1000 / the frameTempo), #simulateUpdate)
   end if
 end
 

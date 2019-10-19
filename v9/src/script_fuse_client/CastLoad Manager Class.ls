@@ -121,7 +121,7 @@ on resetCastLibs me, tClean, tForced
           getResourceManager().unregisterMembers(tCastNum)
         end if
         castLib(tCastNum).name = pNullCastName && tEmptyCastNum
-        castLib(tCastNum).fileName = getMoviePath() & pNullCastName & pFileExtension
+        castLib(tCastNum).fileName = the moviePath & pNullCastName & pFileExtension
         tEmptyCastNum = tEmptyCastNum + 1
       else
         pLoadedCasts.setAt(tCastName, string(tCastNum))
@@ -217,7 +217,7 @@ on AddNextpreloadNetThing me
     if pWaitList.count > 0 then
       if count(pWaitList.getAt(1)) > 0 then
         tFile = pWaitList.getAt(1).getAt(1)
-        tURL = getMoviePath() & tFile & pFileExtension
+        tURL = the moviePath & tFile & pFileExtension
         tid = pWaitList.getPropAt(1)
         pWaitList.getAt(1).deleteAt(1)
         if count(pWaitList.getAt(1)) = 0 then
@@ -344,7 +344,7 @@ on ResetOneDynamicCast me, tCastNum
   getThreadManager().closeThread(tCastNum)
   getResourceManager().unregisterMembers(tCastNum)
   castLib(tCastNum).name = pNullCastName && tCastNum - 2
-  castLib(pNullCastName && tCastNum - 2).fileName = getMoviePath() & pNullCastName & pFileExtension
+  castLib(pNullCastName && tCastNum - 2).fileName = the moviePath & pNullCastName & pFileExtension
   pAvailableDynCasts.addProp(pNullCastName & tCastNum - 2, tCastNum)
   return(1)
 end

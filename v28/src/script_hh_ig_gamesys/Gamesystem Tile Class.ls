@@ -106,7 +106,7 @@ on getLocation me
 end
 
 on getDiameter me 
-  return(pTileWidth * 100)
+  return((pTileWidth * 100))
 end
 
 on locationIsInTileRange me, tLocX, tLocY 
@@ -114,7 +114,7 @@ on locationIsInTileRange me, tLocX, tLocY
 end
 
 on worldLocationIsInTileRange me, tLocX, tLocY 
-  return(abs(x - tLocX) < pTileWidth * 100 and abs(y - tLocY) < pTileWidth * 100)
+  return(abs(x - tLocX) < (pTileWidth * 100) and abs(y - tLocY) < (pTileWidth * 100))
 end
 
 on isInDistance me, tLocX, tLocY, tDistance 
@@ -123,7 +123,7 @@ on isInDistance me, tLocX, tLocY, tDistance
   if tDistanceY > tDistance or tDistanceX > tDistance then
     return(0)
   end if
-  if tDistanceX * tDistanceX + tDistanceY * tDistanceY < tDistance * tDistance then
+  if (tDistanceX * tDistanceX) + (tDistanceY * tDistanceY) < (tDistance * tDistance) then
     return(1)
   end if
   return(0)

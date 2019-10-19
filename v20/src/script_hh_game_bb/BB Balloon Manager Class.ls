@@ -28,11 +28,11 @@ on construct me
   pTextMember.font = tFontStruct.getaProp(#font)
   pTextMember.fontSize = tFontStruct.getaProp(#fontSize)
   pTextMember.fontStyle = tFontStruct.getaProp(#fontStyle)
-  if pMoveOffsetV mod pScrollStep <> 0 then
-    pMoveOffsetV = pMoveOffsetV - pMoveOffsetV mod pScrollStep
+  if (pMoveOffsetV mod pScrollStep) <> 0 then
+    pMoveOffsetV = pMoveOffsetV - (pMoveOffsetV mod pScrollStep)
   end if
-  pFastScrollStep = pMoveOffsetV / pScrollStep
-  pStartV = pMaxBalloons - 1 * pMoveOffsetV - 1
+  pFastScrollStep = (pMoveOffsetV / pScrollStep)
+  pStartV = (pMaxBalloons - 1 * pMoveOffsetV) - 1
   pMaxWidth = the stageRight - the stageLeft - 10
   pReservedSprites = []
   pBalloonImg = [:]
@@ -230,7 +230,7 @@ on createballoonImg me, tText, ttype
   end if
   tLeftMember = member(tLeftImageMemNum)
   tLeftImage = tLeftMember.image
-  tTextWidth = tmember.charPosToLoc(tmember.count(#char)).locH * 2 + 10
+  tTextWidth = (tmember.charPosToLoc(tmember.count(#char)).locH * 2) + 10
   tmember.rect = rect(0, 0, tTextWidth, tmember.height)
   tTextImg = tmember.image
   tWidth = tLeftMember + regPoint.locH
@@ -240,20 +240,20 @@ on createballoonImg me, tText, ttype
   tEndPointY = tNewImg.height
   tStartPointX = 0
   tEndPointX = 0
-  repeat while tTextWidth + pMarginH * 2 <= ttype
+  repeat while tTextWidth + (pMarginH * 2) <= ttype
     i = getAt(ttype, tText)
     tStartPointX = tEndPointX
-    if tTextWidth + pMarginH * 2 = #left then
+    if tTextWidth + (pMarginH * 2) = #left then
       tStartPointY = 0
       tEndPointX = tEndPointX + tLeftImage.width
       tEndPointY = tLeftImage.height
     else
-      if tTextWidth + pMarginH * 2 = #middle then
+      if tTextWidth + (pMarginH * 2) = #middle then
         tStartPointY = tLeftMember + regPoint.locV
         tEndPointX = tEndPointX + tWidth - tLeftImage.width - pBalloonImg.getProp(#right).width
         tEndPointY = pBalloonImg.getProp(i).height + tStartPointY
       else
-        if tTextWidth + pMarginH * 2 = #right then
+        if tTextWidth + (pMarginH * 2) = #right then
           tStartPointY = tLeftMember + regPoint.locV
           tEndPointX = tEndPointX + pBalloonImg.getProp(i).width
           tEndPointY = pBalloonImg.getProp(i).height + tStartPointY
@@ -268,7 +268,7 @@ on createballoonImg me, tText, ttype
     end if
   end repeat
   tdestrect = pMarginV + rect(tLeftMember + regPoint.locV, pMarginH, pMarginV, tLeftMember + regPoint.locV)
-  tdestrect = tdestrect + rect(tNewImg.width / 2, 0, tNewImg.width / 2, 0) - rect(tTextWidth / 2, 0, tTextWidth / 2, 0)
+  tdestrect = tdestrect + rect((tNewImg.width / 2), 0, (tNewImg.width / 2), 0) - rect((tTextWidth / 2), 0, (tTextWidth / 2), 0)
   tNewImg.copyPixels(tTextImg, tdestrect, tTextImg.rect)
   tmember.font = tSavedFont
   tmember.fontStyle = tSavedStyle
@@ -292,14 +292,14 @@ on showNewBalloon me
     return(error(me, "No image for balloon.", #showNewBalloon))
   end if
   tmember.image = tBalloonImage
-  tmember.regPoint.regPoint = 0 + point(tmember, image.height / 2)
+  tmember.regPoint.regPoint = 0 + point(tmember, (image.height / 2))
   pBalloonLeftMarg = getIntVariable("balloons.leftmargin", 0)
   pBalloonRightMarg = getIntVariable("balloons.rightmargin", 720)
-  if tmember + image.width / 2 > pBalloonRightMarg then
-    tStartH = tmember - image.width / 2
+  if tmember + (image.width / 2) > pBalloonRightMarg then
+    tStartH = tmember - (image.width / 2)
   else
-    if tmember - image.width / 2 < pBalloonLeftMarg then
-      tStartH = tmember + image.width / 2
+    if tmember - (image.width / 2) < pBalloonLeftMarg then
+      tStartH = tmember + (image.width / 2)
     else
       tStartH = tMsg.getAt(#location).getAt(1)
     end if
@@ -315,7 +315,7 @@ on prepare me
       pScrollCounter = pScrollCounter + pScrollBy
       call(#UpdateBalloonPos, pVisibleBalloons, -pScrollBy)
       if not voidp(pLastBalloonId) then
-        call(#OpeningBalloon, pBalloonPulse, -pScrollCounter * pScrollBy * 2)
+        call(#OpeningBalloon, pBalloonPulse, (-pScrollCounter * (pScrollBy * 2)))
       end if
     else
       if not voidp(pLastBalloonId) then

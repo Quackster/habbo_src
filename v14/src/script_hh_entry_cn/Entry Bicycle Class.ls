@@ -10,7 +10,7 @@ on define me, tsprite
   pStartPoint = pSprite.loc
   pOffset = [2, -1]
   if pDirection = "front" then
-    pOffset = pOffset * -1
+    pOffset = (pOffset * -1)
   end if
   me.reset()
   return(1)

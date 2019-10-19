@@ -1,11 +1,9 @@
-property pTypeAdjusts, pLandscapeType, pType, pImageLeft, pImageRight, pTurnPointList, pLoc, pCurrentSide, pLastTurnPoint, pOffsetV, pWallHeight, pNextTurnPointH, pMatteLeft, pMatteRight
-
-on construct me 
+on construct(me)
   pSkip = 0
-  pTypeAdjusts = [:]
-  pTypeAdjusts.setAt("0", [:])
-  pTypeAdjusts.setAt("1", [:])
-  pTypeAdjusts.setAt("2", [:])
+  pTypeAdjusts = []
+  pTypeAdjusts.setAt("0", [])
+  pTypeAdjusts.setAt("1", [])
+  pTypeAdjusts.setAt("2", [])
   pTypeAdjusts.getAt("0").setAt(#turnOffV, 10)
   pTypeAdjusts.getAt("1").setAt(#turnOffV, 12)
   pTypeAdjusts.getAt("2").setAt(#turnOffV, 6)
@@ -13,13 +11,15 @@ on construct me
   pTypeAdjusts.getAt("1").setAt(#adjustV, 11)
   pTypeAdjusts.getAt("2").setAt(#adjustV, 7)
   return(1)
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   return(1)
+  exit
 end
 
-on define me, tProps 
+on define(me, tProps)
   pType = string(tProps.getaProp(#type))
   pTurnPointList = tProps.getaProp(#turnPointList)
   pWallHeight = tProps.getaProp(#wallheight)
@@ -42,9 +42,10 @@ on define me, tProps
   pMatteRight = pImageRight.createMatte()
   me.randomizeLoc(0)
   return(1)
+  exit
 end
 
-on saveNextTurnPoint me 
+on saveNextTurnPoint(me)
   if pTurnPointList = void() then
     return(0)
   end if
@@ -64,18 +65,20 @@ on saveNextTurnPoint me
   end repeat
   pNextTurnPointH = 0
   return(0)
+  exit
 end
 
-on getLocV me, tLocH 
+on getLocV(me, tLocH)
   if pCurrentSide = #left then
     tLocV = me.locV + pLastTurnPoint.locH - tLocH / 2
   else
     tLocV = me.locV + tLocH - pLastTurnPoint.locH / 2
   end if
   return(tLocV + pOffsetV)
+  exit
 end
 
-on randomizeLoc me, tAlignToLeft 
+on randomizeLoc(me, tAlignToLeft)
   if tAlignToLeft then
     tLocX = random(100) - 150
   else
@@ -90,17 +93,19 @@ on randomizeLoc me, tAlignToLeft
   me.saveNextTurnPoint()
   tLocY = me.getLocV(tLocX)
   pLoc = point(tLocX, tLocY)
+  exit
 end
 
-on updateAnim me 
+on updateAnim(me)
   pLoc.setAt(1, pLoc.getAt(1) + 1)
   pLoc.setAt(2, me.getLocV(pLoc.getAt(1)))
   if the stage > rect.width then
     me.randomizeLoc(1)
   end if
+  exit
 end
 
-on render me, tImage 
+on render(me, tImage)
   if pLoc.getAt(1) + pImageLeft.width < pNextTurnPointH or pNextTurnPointH = 0 then
     if pCurrentSide = #left then
       tSourceImage = pImageLeft
@@ -145,4 +150,5 @@ on render me, tImage
   end if
   tTargetRect = tSourceRect + rect(pLoc.getAt(1), pLoc.getAt(2), pLoc.getAt(1), pLoc.getAt(2))
   tImage.copyPixels(tSourceImage, tTargetRect, tSourceImage.rect, [#maskImage:tMatte])
+  exit
 end

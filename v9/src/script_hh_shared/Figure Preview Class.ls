@@ -111,7 +111,7 @@ on feedHumanPreview me, tWindowTitle, tElemID, tPartList
     tPrewImg = image(tElem.getProperty(#width), tElem.getProperty(#height), 16)
     tdestrect = tPrewImg.rect - tTempPartImg.rect
     tMargins = rect(0, 0, 0, 0)
-    tdestrect = rect(tdestrect.width / 2, tdestrect.height / 2, tTempPartImg.width + tdestrect.width / 2, tdestrect.height / 2 + tTempPartImg.height) + tMargins
+    tdestrect = rect((tdestrect.width / 2), (tdestrect.height / 2), tTempPartImg.width + (tdestrect.width / 2), (tdestrect.height / 2) + tTempPartImg.height) + tMargins
     tPrewImg.copyPixels(tTempPartImg, tdestrect, tTempPartImg.rect, [#ink:8])
     tElem.clearImage()
     tElem.feedImage(tPrewImg)

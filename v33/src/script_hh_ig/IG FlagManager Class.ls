@@ -137,7 +137,7 @@ on setInfoFlag me, tSetID, tID, tWndID, tElemID, tFlagType, tColor, tItemInfo
     return(error(me, "Reference element not found in window:" && tWndID && tElemID, #setInfoFlag))
   end if
   tLocV = tWndObj.getProperty(#locY) + tElem.getProperty(#locY) - 7
-  tlocz = tWndObj.getProperty(#locZ) + tElem.getProperty(#locY) * 10
+  tlocz = tWndObj.getProperty(#locZ) + (tElem.getProperty(#locY) * 10)
   tObject = me.getFlagObject(tSetID, tID, tFlagType, 1)
   tObject.define(tID, tLocV, tlocz, tColor, tFlagType, tItemInfo)
   tObject.createWindows(tObject)

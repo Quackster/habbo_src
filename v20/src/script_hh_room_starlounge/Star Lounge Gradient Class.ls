@@ -39,8 +39,8 @@ on define me, tsprite
 end
 
 on update me 
-  pPhase = pPhase + pSpeed mod 3600
-  pOffset = pMaxOffset / 2 * sin(pPhase * pi() / 1800) + pMaxOffset / 2
+  pPhase = (pPhase + pSpeed mod 3600)
+  pOffset = ((pMaxOffset / 2) * sin(((pPhase * pi()) / 1800))) + (pMaxOffset / 2)
   pSprite.loc = pLocOrig - [0, pOffset]
   return(1)
 end
@@ -54,7 +54,7 @@ on makeCreases me, tSourceImage, tCreases, tPalette
   i = 1
   repeat while i <= tCreases.count - 1
     tPoint1 = point(tCreases.getAt(i), tTop)
-    tTop = tTop - tdir * tCreases.getAt(i + 1) - tCreases.getAt(i) / 2
+    tTop = tTop - ((tdir * tCreases.getAt(i + 1) - tCreases.getAt(i)) / 2)
     tdir = -tdir
     tPoint2 = point(tCreases.getAt(i + 1), tTop)
     tPoint3 = tPoint2 + [0, tImageStage.height]

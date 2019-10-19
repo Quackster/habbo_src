@@ -119,8 +119,8 @@ on updateBadgeImage me
   tHeight = tWndObj.getElement("badge_preview").getProperty(#height)
   tBadgeImage = member(tMemNum).image
   tCenteredImage = image(tWidth, tHeight, 32)
-  tXchange = tCenteredImage.width - tBadgeImage.width / 2
-  tYchange = tCenteredImage.height - tBadgeImage.height / 2
+  tXchange = (tCenteredImage.width - tBadgeImage.width / 2)
+  tYchange = (tCenteredImage.height - tBadgeImage.height / 2)
   tRect1 = tBadgeImage.rect + rect(tXchange, tYchange, tXchange, tYchange)
   tCenteredImage.copyPixels(tBadgeImage, tRect1, tBadgeImage.rect)
   tWndObj.getElement("badge_preview").feedImage(tCenteredImage)

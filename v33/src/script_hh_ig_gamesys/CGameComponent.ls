@@ -205,7 +205,7 @@ end
 
 on update me 
   tTime = the milliSeconds
-  dT = tTime - m_iLastMS / 1000
+  dT = (tTime - m_iLastMS / 1000)
   m_iLastMS = tTime
   if not voidp(m_rCurrentTurn) then
     if not m_rCurrentTurn.GetTested() then
@@ -213,7 +213,7 @@ on update me
     end if
     m_syncLostTime = 0
     if me._TurnBufferState() = #overfill then
-      m_iSpeedUp = m_ar_turnBuffer.count / 1.5
+      m_iSpeedUp = (m_ar_turnBuffer.count / 1.5)
       if m_bDump then
         put("MGEngine: speedup on")
       end if
@@ -222,10 +222,10 @@ on update me
     if m_rCurrentTurn = void() then
       return(1)
     end if
-    tSubturnSpacing = m_fTurnPulse / m_rCurrentTurn.GetNSubTurns()
-    m_iSubTurnSpacing = tSubturnSpacing * 1 / m_iSpeedUp
+    tSubturnSpacing = (m_fTurnPulse / m_rCurrentTurn.GetNSubTurns())
+    m_iSubTurnSpacing = (tSubturnSpacing * (1 / m_iSpeedUp))
     tSubturnSpacing = m_iSubTurnSpacing
-    tSubturn = integer(floor(m_fTurnT / tSubturnSpacing)) + 1
+    tSubturn = integer(floor((m_fTurnT / tSubturnSpacing))) + 1
     if tSubturn > m_rCurrentTurn.GetNSubTurns() then
       tSubturn = m_rCurrentTurn.GetNSubTurns()
     end if
@@ -285,7 +285,7 @@ on update me
 end
 
 on turnDone me 
-  tPulse = m_fTurnPulse * 1 / m_iSpeedUp
+  tPulse = (m_fTurnPulse * (1 / m_iSpeedUp))
   return(m_fTurnT >= tPulse or voidp(m_rCurrentTurn))
 end
 

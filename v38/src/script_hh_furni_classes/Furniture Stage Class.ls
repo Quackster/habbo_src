@@ -33,7 +33,7 @@ on update me
     return(1)
   end if
   pSleep = 10
-  if pFlashCount mod 2 = 0 then
+  if (pFlashCount mod 2) = 0 then
     me.setNumber(pNumber)
   else
     me.setNumber(-1)
@@ -83,8 +83,8 @@ on setNumber me, tNumber
   if not integerp(tNumber) then
     return(0)
   end if
-  tFirstDigit = tNumber / 10
-  tSecondDigit = tNumber mod 10
+  tFirstDigit = (tNumber / 10)
+  tSecondDigit = (tNumber mod 10)
   if tFirstDigit > 9 then
     tFirstDigit = 9
     tSecondDigit = 9

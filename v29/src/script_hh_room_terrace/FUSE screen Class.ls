@@ -111,7 +111,7 @@ on fuseShow_transition me, tTran
         pTargetObj = void()
         pTransitBuffer = image(pheight, pwidth, 16)
         pTransitState = 0
-        pFadeSpeed = random(2) * 10
+        pFadeSpeed = (random(2) * 10)
       end if
     end if
   end if
@@ -257,7 +257,7 @@ on showText me
           pTextBlend = 0
           pTextShowState = 0
         end if
-        pScrImg.copyPixels(pTextBgBoxImg, rect(0, pwidth - pTextImgBuffer.height - 2, pheight, pwidth), pTextBgBoxImg.rect, [#blend:integer(pTextBlend / 2)])
+        pScrImg.copyPixels(pTextBgBoxImg, rect(0, pwidth - pTextImgBuffer.height - 2, pheight, pwidth), pTextBgBoxImg.rect, [#blend:integer((pTextBlend / 2))])
         pScrImg.copyPixels(pTextImgBuffer, rect(0, pwidth - pTextImgBuffer.height, pheight, pwidth), pTextImgBuffer.rect, [#blend:pTextBlend])
       end if
     end if
@@ -267,10 +267,10 @@ end
 on cameraPan me, tTransitionTargetPoint 
   tX = pLastCropPoint.locH
   tY = pLastCropPoint.locV
-  tAX = tTransitionTargetPoint.locH - tX * pSpeed / 100
-  tAY = tTransitionTargetPoint.locV - tY * pSpeed / 100
-  pVX = pVX + tAX * pFlexible / 100
-  pVY = pVY + tAY * pFlexible / 100
+  tAX = (tTransitionTargetPoint.locH - tX * (pSpeed / 100))
+  tAY = (tTransitionTargetPoint.locV - tY * (pSpeed / 100))
+  pVX = (pVX + tAX * (pFlexible / 100))
+  pVY = (pVY + tAY * (pFlexible / 100))
   tX = tX + pVX
   tY = tY + pVY
   me.cameraCrop(point(tX, tY))
@@ -323,19 +323,19 @@ on cameraCrop me, tpoint, tBufferImage
   if pTargetSpr.flipH = 0 then
     tpoint = tpoint + point(pXFactor, 0)
   end if
-  if tpoint.locH - pheight / pZoom < 0 then
-    tpoint.locH = pheight / pZoom
+  if tpoint.locH - (pheight / pZoom) < 0 then
+    tpoint.locH = (pheight / pZoom)
   end if
-  if tpoint.locH + pheight / pZoom > the stageRight - the stageLeft then
-    tpoint.locH = the stageRight - the stageLeft - pheight / pZoom
+  if tpoint.locH + (pheight / pZoom) > the stageRight - the stageLeft then
+    tpoint.locH = the stageRight - the stageLeft - (pheight / pZoom)
   end if
-  if tpoint.locV - pwidth / pZoom < 0 then
-    tpoint.locV = pwidth / pZoom
+  if tpoint.locV - (pwidth / pZoom) < 0 then
+    tpoint.locV = (pwidth / pZoom)
   end if
-  if tpoint.locV + pwidth / pZoom > 480 then
-    tpoint.locV = 480 - pwidth / pZoom
+  if tpoint.locV + (pwidth / pZoom) > 480 then
+    tpoint.locV = 480 - (pwidth / pZoom)
   end if
-  tCropRect = rect(tpoint.locH - pheight / pZoom, tpoint.locV - pwidth / pZoom, tpoint.locH + pheight / pZoom, tpoint.locV + pwidth / pZoom)
+  tCropRect = rect(tpoint.locH - (pheight / pZoom), tpoint.locV - (pwidth / pZoom), tpoint.locH + (pheight / pZoom), tpoint.locV + (pwidth / pZoom))
   tCropScrImg = image.crop(tCropRect)
   if voidp(tBufferImage) then
     pScrImg.copyPixels(tCropScrImg, rect(0, 0, pheight, pwidth), tCropScrImg.rect)

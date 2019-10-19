@@ -86,7 +86,7 @@ on update me
       tBytesTotal = tBytesSoFar
     end if
     if tStreamStatus.getAt(#bytesSoFar) > 0 then
-      pPercent = 1 * tBytesSoFar / tBytesTotal
+      pPercent = ((1 * tBytesSoFar) / tBytesTotal)
     end if
     if tStreamStatus.getAt(#bytesSoFar) = 0 and tStreamStatus.getAt(#bytesTotal) = 0 and tStreamStatus.getAt(#error) = "OK" then
       pPercent = 1

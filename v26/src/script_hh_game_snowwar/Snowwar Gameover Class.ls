@@ -280,7 +280,7 @@ end
 on renderFinalScoreItem me, tTeam 
   tNameTxt = ""
   tScoreTxt = ""
-  tImage = image(165, tTeam.getAt(#players).count * 16, 32)
+  tImage = image(165, (tTeam.getAt(#players).count * 16), 32)
   tPlayerNum = 1
   repeat while tPlayerNum <= tTeam.getAt(#players).count
     tScoreTxt = tScoreTxt & tTeam.getAt(#players).getAt(tPlayerNum).getAt(#score) & "\r"
@@ -349,7 +349,7 @@ on showPlayerIcon me, tIcon, tdata
   else
     tStarImg = image(11, 9, 8)
   end if
-  tImage.copyPixels(tStarImg, tStarImg.rect + rect(109, 1 + 16 * tMyPlayerNum - 1, 109, 1 + 16 * tMyPlayerNum - 1), tStarImg.rect)
+  tImage.copyPixels(tStarImg, tStarImg.rect + rect(109, 1 + (16 * tMyPlayerNum - 1), 109, 1 + (16 * tMyPlayerNum - 1)), tStarImg.rect)
   tElem.feedImage(tImage)
   return(1)
 end
@@ -382,7 +382,7 @@ on startResetCountdown me, tSecondsLeft
   if tSecondsLeft <= 0 then
     return(0)
   end if
-  pCountdownEndTime = the milliSeconds + tSecondsLeft * 1000
+  pCountdownEndTime = the milliSeconds + (tSecondsLeft * 1000)
   if timeoutExists(pTimeOutID) then
     removeTimeout(pTimeOutID)
   end if
@@ -392,8 +392,8 @@ on startResetCountdown me, tSecondsLeft
 end
 
 on convertToMinSec me, tTime 
-  tMin = tTime / 60000
-  tSec = tTime mod 60000 / 1000
+  tMin = (tTime / 60000)
+  tSec = ((tTime mod 60000) / 1000)
   if tSec < 10 then
     tSec = "0" & tSec
   end if

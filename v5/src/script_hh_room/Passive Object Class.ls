@@ -277,7 +277,7 @@ on updateLocation me
       tZ = 0
     end if
     if pCorrectLocZ then
-      tSpr.locZ = tScreenLocs.getAt(3) + pLocH * 1000 + tZ
+      tSpr.locZ = tScreenLocs.getAt(3) + (pLocH * 1000) + tZ
     else
       tSpr.locZ = tScreenLocs.getAt(3) + tZ
     end if

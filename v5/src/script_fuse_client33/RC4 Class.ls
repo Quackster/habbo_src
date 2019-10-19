@@ -16,7 +16,7 @@ on setKey me, tMyKey, tMode
     if tMode = void() then
       i = 0
       repeat while i <= 255
-        pKey.setAt(i + 1, charToNum(tMyKeyS.getProp(#char, i mod length(tMyKeyS) + 1)))
+        pKey.setAt(i + 1, charToNum(tMyKeyS.getProp(#char, (i mod length(tMyKeyS)) + 1)))
         pSbox.setAt(i + 1, i)
         i = 1 + i
       end repeat
@@ -27,15 +27,15 @@ on setKey me, tMyKey, tMode
       if len < 20 then
         len = len + 20
       end if
-      tOffset = tMyKey mod 1024
+      tOffset = (tMyKey mod 1024)
       ckey = []
       fakeKey = []
       prevKey = 0
       i = 0
       repeat while i <= len - 1
         fakeKey.setAt(i + 1, i)
-        keySkip = i mod 3 + prevKey mod 39
-        nkey = artificialKey.getAt(tOffset + i + keySkip mod count(artificialKey) + 1)
+        keySkip = (i mod 3) + (prevKey mod 39)
+        nkey = artificialKey.getAt((tOffset + i + keySkip mod count(artificialKey)) + 1)
         prevKey = nkey
         ckey.setAt(i + 1, nkey)
         fakeKey.setAt(i + 1, nkey + 2 + fakeKey.getAt(i + 1))
@@ -43,7 +43,7 @@ on setKey me, tMyKey, tMode
       end repeat
       i = 0
       repeat while i <= 255
-        pKey.setAt(i + 1, ckey.getAt(i mod len + 1))
+        pKey.setAt(i + 1, ckey.getAt((i mod len) + 1))
         fakeKey.setAt(i + 1, pKey.getAt(i + 1))
         pSbox.setAt(i + 1, i)
         i = 1 + i
@@ -58,7 +58,7 @@ on setKey me, tMyKey, tMode
       end repeat
       i = 0
       repeat while i <= 1019
-        pKey.setAt(i mod 256 + 1, charToNum(tMyKeyS.getProp(#char, i mod length(tMyKeyS) + 1)) + pKey.getAt(i mod 256 + 1) mod 256)
+        pKey.setAt((i mod 256) + 1, (charToNum(tMyKeyS.getProp(#char, (i mod length(tMyKeyS)) + 1)) + pKey.getAt((i mod 256) + 1) mod 256))
         i = 1 + i
       end repeat
       i = 0
@@ -70,7 +70,7 @@ on setKey me, tMyKey, tMode
     j = 0
     i = 0
     repeat while i <= 255
-      j = j + pSbox.getAt(i + 1) + pKey.getAt(i + 1) mod 256
+      j = (j + pSbox.getAt(i + 1) + pKey.getAt(i + 1) mod 256)
       k = pSbox.getAt(i + 1)
       pSbox.setAt(i + 1, pSbox.getAt(j + 1))
       pSbox.setAt(j + 1, k)
@@ -88,8 +88,8 @@ on encipher me, tdata
   repeat while e <= length(tdata)
     a = charToNum(tdata.char[e])
     if a > 255 then
-      add(tBytes, a - a mod 256 / 256)
-      add(tBytes, a mod 256)
+      add(tBytes, (a - (a mod 256) / 256))
+      add(tBytes, (a mod 256))
     else
       add(tBytes, a)
     end if
@@ -98,12 +98,12 @@ on encipher me, tdata
   tStrServ = getStringServices()
   a = 1
   repeat while a <= tBytes.count
-    i = i + 1 mod 256
-    j = j + pSbox.getAt(i + 1) mod 256
+    i = (i + 1 mod 256)
+    j = (j + pSbox.getAt(i + 1) mod 256)
     temp = pSbox.getAt(i + 1)
     pSbox.setAt(i + 1, pSbox.getAt(j + 1))
     pSbox.setAt(j + 1, temp)
-    d = pSbox.getAt(pSbox.getAt(i + 1) + pSbox.getAt(j + 1) mod 256 + 1)
+    d = pSbox.getAt((pSbox.getAt(i + 1) + pSbox.getAt(j + 1) mod 256) + 1)
     tCipher = tCipher & tStrServ.convertIntToHex(bitXor(tBytes.getAt(a), d))
     a = 1 + a
   end repeat
@@ -115,12 +115,12 @@ on decipher me, tdata
   tStrServ = getStringServices()
   a = 1
   repeat while a <= length(tdata)
-    i = i + 1 mod 256
-    j = j + pSbox.getAt(i + 1) mod 256
+    i = (i + 1 mod 256)
+    j = (j + pSbox.getAt(i + 1) mod 256)
     temp = pSbox.getAt(i + 1)
     pSbox.setAt(i + 1, pSbox.getAt(j + 1))
     pSbox.setAt(j + 1, temp)
-    d = pSbox.getAt(pSbox.getAt(i + 1) + pSbox.getAt(j + 1) mod 256 + 1)
+    d = pSbox.getAt((pSbox.getAt(i + 1) + pSbox.getAt(j + 1) mod 256) + 1)
     t = tStrServ.convertHexToInt(tdata.getProp(#char, a, a + 1))
     tCipher = tCipher & numToChar(bitXor(t, d))
     a = a + 1

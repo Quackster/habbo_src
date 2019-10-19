@@ -41,11 +41,11 @@ on construct me
     pTextMembers.setAt(tVariations.getPropAt(i), tmember)
     i = 1 + i
   end repeat
-  if pMoveOffsetV mod pScrollStep <> 0 then
-    pMoveOffsetV = pMoveOffsetV - pMoveOffsetV mod pScrollStep
+  if (pMoveOffsetV mod pScrollStep) <> 0 then
+    pMoveOffsetV = pMoveOffsetV - (pMoveOffsetV mod pScrollStep)
   end if
-  pFastScrollStep = pMoveOffsetV / pScrollStep
-  pStartV = pMaxBalloons - 1 * pMoveOffsetV - 1
+  pFastScrollStep = (pMoveOffsetV / pScrollStep)
+  pStartV = (pMaxBalloons - 1 * pMoveOffsetV) - 1
   pMaxWidth = the stageRight - the stageLeft - 10
   pMaxCharNum = 400
   pReservedSprites = []
@@ -96,9 +96,9 @@ end
 on createballoonImg me, tName, tText, tBalloonColor, tChatMode 
   if tBalloonColor.red + tBalloonColor.green + tBalloonColor.blue >= 600 then
     tBalloonColorDarken = rgb(0, 0, 0)
-    tBalloonColorDarken.red = tBalloonColor.red * 0.9
-    tBalloonColorDarken.green = tBalloonColor.green * 0.9
-    tBalloonColorDarken.blue = tBalloonColor.blue * 0.9
+    tBalloonColorDarken.red = (tBalloonColor.red * 0.9)
+    tBalloonColorDarken.green = (tBalloonColor.green * 0.9)
+    tBalloonColorDarken.blue = (tBalloonColor.blue * 0.9)
     tBalloonColor = tBalloonColorDarken
   end if
   if length(tText) > pMaxCharNum then
@@ -114,14 +114,14 @@ on createballoonImg me, tName, tText, tBalloonColor, tChatMode
   tmember.getPropRef(#char, 1, tName.length + 1).fontStyle = tBoldStruct.getaProp(#fontStyle)
   tSavedColor = tmember.color
   tmember.getPropRef(#char, 1, tName.length + 1).color = pDefaultTextColor
-  tTextWidth = tmember.charPosToLoc(tmember.count(#char)).locH + pBalloonImg.getAt(#left).width * 4
-  if tTextWidth + pMarginH * 2 > pMaxWidth then
-    tTextWidth = pMaxWidth - pMarginH * 2 - pBalloonImg.getAt(#left).width
+  tTextWidth = tmember.charPosToLoc(tmember.count(#char)).locH + (pBalloonImg.getAt(#left).width * 4)
+  if tTextWidth + (pMarginH * 2) > pMaxWidth then
+    tTextWidth = pMaxWidth - (pMarginH * 2) - pBalloonImg.getAt(#left).width
   end if
   tmember.rect = rect(0, 0, tTextWidth, tmember.height)
   tTextImg = tmember.image
   tTextWidth = tTextImg.width
-  tWidth = tTextWidth + pMarginH * 2
+  tWidth = tTextWidth + (pMarginH * 2)
   tNewImg = image(tWidth, pBalloonImg.getAt(#left).height, 8)
   tStartPointY = 0
   tEndPointY = tNewImg.height
@@ -145,7 +145,7 @@ on createballoonImg me, tName, tText, tBalloonColor, tChatMode
     tNewImg.copyPixels(pBalloonImg.getProp(i), tdestrect, pBalloonImg.getProp(i).rect, [#color:tBalloonColor])
   end repeat
   tdestrect = tTextImg.rect + rect(pMarginH, pMarginV, pMarginH, pMarginV)
-  tdestrect = tdestrect + rect(tNewImg.width / 2, 0, tNewImg.width / 2, 0) - rect(tTextWidth / 2, 0, tTextWidth / 2, 0)
+  tdestrect = tdestrect + rect((tNewImg.width / 2), 0, (tNewImg.width / 2), 0) - rect((tTextWidth / 2), 0, (tTextWidth / 2), 0)
   tNewImg.copyPixels(tTextImg, tdestrect, tTextImg.rect)
   tmember.font = tSavedFont
   tmember.fontStyle = tSavedStyle
@@ -287,14 +287,14 @@ on showNewBalloon me
   tmember = member(pVisibleBalloons.getAt(pLastBalloonId).get(#member))
   pVisibleBalloons.getAt(pLastBalloonId).set(#balloonColor, pBalloonColor)
   tmember.image = me.createballoonImg(tMsg.getAt(#name), tMsg.getAt(#message), pBalloonColor, tMsg.getAt(#command))
-  tmember.regPoint.regPoint = 0 + point(tmember, image.height / 2)
+  tmember.regPoint.regPoint = 0 + point(tmember, (image.height / 2))
   pBalloonLeftMarg = getIntVariable("balloons.leftmargin", 0)
   pBalloonRightMarg = getIntVariable("balloons.rightmargin", 720)
-  if tmember + image.width / 2 > pBalloonRightMarg then
-    tStartH = tmember - image.width / 2
+  if tmember + (image.width / 2) > pBalloonRightMarg then
+    tStartH = tmember - (image.width / 2)
   else
-    if tmember - image.width / 2 < pBalloonLeftMarg then
-      tStartH = tmember + image.width / 2
+    if tmember - (image.width / 2) < pBalloonLeftMarg then
+      tStartH = tmember + (image.width / 2)
     else
       tStartH = pHumanLoc.locH
     end if
@@ -310,7 +310,7 @@ on prepare me
       pScrollCounter = pScrollCounter + pScrollBy
       call(#UpdateBalloonPos, pVisibleBalloons, -pScrollBy)
       if not voidp(pLastBalloonId) then
-        call(#OpeningBalloon, pBalloonPulse, -pScrollCounter * pScrollBy * 2)
+        call(#OpeningBalloon, pBalloonPulse, (-pScrollCounter * (pScrollBy * 2)))
       end if
     else
       if not voidp(pLastBalloonId) then

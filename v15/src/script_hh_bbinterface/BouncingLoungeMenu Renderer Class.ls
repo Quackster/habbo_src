@@ -260,7 +260,7 @@ on renderInstanceDetailButton me, tButtonState, tGameState
     else
       if tText <> #empty then
         tImage = pWriterPlainBoldLeft.render(tText)
-        tLocH = tWidth / 2 - tImage.width / 2
+        tLocH = (tWidth / 2) - (tImage.width / 2)
         tResult.copyPixels(tImage, tImage.rect + rect(tLocH, 3, tLocH, 3), tImage.rect)
       end if
     end if

@@ -1,6 +1,4 @@
-property pSprList, pPersistentFurniData, pClass, pType, pName, pCustom, pExpireTimeStamp, pWallX, pWallY, pDirection, pXFactor, pFormatVer, pLocX, pLocY, pLocH, pLocalX, pLocalY, pParentWallLocZ
-
-on construct me 
+on construct(me)
   pClass = ""
   pName = ""
   pCustom = ""
@@ -20,19 +18,21 @@ on construct me
   pPersistentFurniData = void()
   pExpireTimeStamp = -1
   return(1)
+  exit
 end
 
-on deconstruct me 
-  repeat while pSprList <= undefined
+on deconstruct(me)
+  repeat while me <= undefined
     tSpr = getAt(undefined, undefined)
     releaseSprite(tSpr.spriteNum)
   end repeat
   pParentWallLocZ = void()
   pSprList = []
   return(1)
+  exit
 end
 
-on define me, tProps 
+on define(me, tProps)
   if voidp(pPersistentFurniData) then
     pPersistentFurniData = getThread("dynamicdownloader").getComponent().getPersistentFurniDataObject()
   end if
@@ -50,12 +50,12 @@ on define me, tProps
   pType = tProps.getAt(#type)
   pXFactor = getThread(#room).getInterface().getGeometry().pXFactor
   pExpireTimeStamp = tProps.getAt(#expire)
-  if pClass = "poster" then
+  if me = "poster" then
     pName = getText("poster_" & pType & "_name", "poster_" & pType & "_name")
     pCustom = getText("poster_" & pType & "_desc", "poster_" & pType & "_desc")
   else
-    if pClass <> "post.it.vd" then
-      if pClass = "post.it" then
+    if me <> "post.it.vd" then
+      if me = "post.it" then
         tFurniData = pPersistentFurniData.getPropsByClass("i", pClass)
         if not voidp(tFurniData) then
           pName = tFurniData.getAt(#localizedName)
@@ -65,7 +65,7 @@ on define me, tProps
           pCustom = ""
         end if
       else
-        if pClass = "photo" then
+        if me = "photo" then
           tFurniData = pPersistentFurniData.getPropsByClass("i", pClass)
           if not voidp(tFurniData) then
             pName = pPersistentFurniData.getPropsByClass("i", pClass).getAt(#localizedName)
@@ -84,20 +84,23 @@ on define me, tProps
       end if
       me.updateLocation()
       return(1)
+      exit
     end if
   end if
 end
 
-on getClass me 
+on getClass(me)
   return(pClass)
+  exit
 end
 
-on setDirection me, tDirection 
+on setDirection(me, tDirection)
   me.pDirection = tDirection
+  exit
 end
 
-on getInfo me 
-  tInfo = [:]
+on getInfo(me)
+  tInfo = []
   tInfo.setAt(#name, pName)
   tInfo.setAt(#class, pClass)
   tInfo.setAt(#custom, pCustom)
@@ -123,37 +126,45 @@ on getInfo me
     end if
   end if
   return(tInfo)
+  exit
 end
 
-on getLocation me 
+on getLocation(me)
   return([pWallX, pWallY])
+  exit
 end
 
-on getCustom me 
+on getCustom(me)
   return(pCustom)
+  exit
 end
 
-on getSprites me 
+on getSprites(me)
   return(pSprList)
+  exit
 end
 
-on select me 
+on select(me)
   return(1)
+  exit
 end
 
-on hasURL me 
+on hasURL(me)
   return(textExists("item_ad_url_" & pType))
+  exit
 end
 
-on GetUrl me 
+on GetUrl(me)
   return(getText("item_ad_url_" & pType))
+  exit
 end
 
-on prepare me, tdata 
+on prepare(me, tdata)
   return(1)
+  exit
 end
 
-on solveColors me, tpartColors 
+on solveColors(me, tpartColors)
   if voidp(tpartColors) then
     tpartColors = "0,0,0"
   end if
@@ -171,9 +182,10 @@ on solveColors me, tpartColors
     j = 1 + j
   end repeat
   the itemDelimiter = tDelim
+  exit
 end
 
-on solveInk me, tPart, tClass 
+on solveInk(me, tPart, tClass)
   if voidp(tClass) then
     tClass = pClass
   end if
@@ -193,9 +205,10 @@ on solveInk me, tPart, tClass
     end if
   end if
   return(8)
+  exit
 end
 
-on solveBlend me, tPart, tClass 
+on solveBlend(me, tPart, tClass)
   if voidp(tClass) then
     tClass = pClass
   end if
@@ -215,9 +228,10 @@ on solveBlend me, tPart, tClass
     end if
   end if
   return(100)
+  exit
 end
 
-on solveLocZ me, tPart, tdir, tClass 
+on solveLocZ(me, tPart, tdir, tClass)
   if voidp(tClass) then
     tClass = pClass
   end if
@@ -240,9 +254,10 @@ on solveLocZ me, tPart, tdir, tClass
     end if
   end if
   return(tPropList.getAt(tPart).getAt(#zshift).getAt(tdir + 1))
+  exit
 end
 
-on solveLocShift me, tPart, tdir, tClass 
+on solveLocShift(me, tPart, tdir, tClass)
   if voidp(tClass) then
     tClass = pClass
   end if
@@ -269,17 +284,18 @@ on solveLocShift me, tPart, tdir, tClass
     end if
   end if
   return(0)
+  exit
 end
 
-on solveMembers me 
-  if pClass <> "post.it" then
-    if pClass = "post.it.vd" then
+on solveMembers(me)
+  if me <> "post.it" then
+    if me = "post.it.vd" then
       tMemName = pDirection && pClass
     else
-      if pClass = "poster" then
+      if me = "poster" then
         tMemName = pDirection && pClass && pType
       else
-        if pClass = "photo" then
+        if me = "photo" then
           tMemName = pDirection && pClass
         else
           return(error(me, "Unknown item class:" && pClass, #solveMembers, #minor))
@@ -313,14 +329,16 @@ on solveMembers me
       return(1)
     end if
     return(0)
+    exit
   end if
 end
 
-on setState me, tValue 
+on setState(me, tValue)
   me.updateColor(tValue)
+  exit
 end
 
-on updateColor me, tHexstr 
+on updateColor(me, tHexstr)
   if not listp(pSprList) then
     return(0)
   end if
@@ -342,27 +360,28 @@ on updateColor me, tHexstr
       tSpr.color = rgb(0, 0, 0)
     end if
   end if
+  exit
 end
 
-on updateLocation me 
-  if pFormatVer = #old then
+on updateLocation(me)
+  if me = #old then
     tGeometry = getThread(#room).getInterface().getGeometry()
-    tScreenLocs = tGeometry.getScreenCoordinate(pLocX, pLocY, pLocH * 18 / 32)
-    repeat while pFormatVer <= undefined
+    tScreenLocs = tGeometry.getScreenCoordinate(pLocX, pLocY, pLocH * 0 / 0)
+    repeat while me <= undefined
       tSpr = getAt(undefined, undefined)
       tSpr.locH = tScreenLocs.getAt(1)
       tSpr.locV = tScreenLocs.getAt(2)
     end repeat
   else
-    if pFormatVer = #new then
+    if me = #new then
       tWallObjs = getThread(#room).getComponent().getPassiveObject(#list)
       tWallObjFound = 0
       if tWallObjs.count > 0 then
-        repeat while pFormatVer <= undefined
+        repeat while me <= undefined
           tWallObj = getAt(undefined, undefined)
           if tWallObj.getLocation().getAt(1) = pWallX and tWallObj.getLocation().getAt(2) = pWallY then
             tWallSprites = tWallObj.getSprites()
-            repeat while pFormatVer <= undefined
+            repeat while me <= undefined
               tSpr = getAt(undefined, undefined)
               tWallSprites.getAt(1).locH.locH = tWallSprites.getAt(1) - member.getProp(#regPoint, 1) + pLocalX
               tWallSprites.getAt(1).locV.locV = tWallSprites.getAt(1) - member.getProp(#regPoint, 2) + pLocalY
@@ -375,10 +394,10 @@ on updateLocation me
       if not tWallObjFound then
         tVisualizer = getThread(#room).getInterface().getRoomVisualizer()
         if not voidp(tVisualizer) then
-          if pFormatVer = "leftwall" then
+          if me = "leftwall" then
             tPartTypes = [#wallleft]
           else
-            if pFormatVer = "rightwall" then
+            if me = "rightwall" then
               tPartTypes = [#wallright]
             end if
           end if
@@ -389,7 +408,7 @@ on updateLocation me
           tPartProps = tVisualizer.getPartAtLocation(pWallX, pWallY, tPartTypes)
           if ilk(tPartProps) = #propList then
             tWallObjFound = 1
-            repeat while pFormatVer <= undefined
+            repeat while me <= undefined
               tSpr = getAt(undefined, undefined)
               tMem = member(getmemnum(tPartProps.member))
               tFixNegativeLoc = 0
@@ -448,7 +467,7 @@ on updateLocation me
     end repeat
     exit repeat
   end if
-  repeat while pFormatVer <= undefined
+  repeat while me <= undefined
     tSpr = getAt(undefined, undefined)
     if tSpr.member = member(0, 0) then
       return(error(me, "Spritelist contains empty sprite!", #updateLocation, #minor))
@@ -468,4 +487,5 @@ on updateLocation me
       tSpr.locZ = getIntVariable("window.default.locz") - 10000
     end if
   end repeat
+  exit
 end

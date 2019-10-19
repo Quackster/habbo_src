@@ -163,7 +163,7 @@ on setPartLists me, tModels
     else
       tColor = tModels.getAt(tPartSymbol).getAt("color")
     end if
-    if tColor.red + tColor.green + tColor.blue > 238 * 3 then
+    if tColor.red + tColor.green + tColor.blue > (238 * 3) then
       tColor = rgb("EEEEEE")
     end if
     tPartObj.define(tPartSymbol, tModels.getAt(tPartSymbol).getAt("model"), tColor, me.pDirection, tAction, me)
@@ -252,7 +252,7 @@ on prepare me
     if me.pMoving then
       call(#defineActMultiple, me.pPartList, "wlk", ["bd", "lh", "rh"])
     end if
-    me.pAnimCounter = me.pAnimCounter + 1 mod 4
+    me.pAnimCounter = (me.pAnimCounter + 1 mod 4)
   end if
   if me.pEyesClosed and not me.pSleeping then
     me.openEyes()
@@ -282,11 +282,11 @@ on prepare me
     end if
   end if
   if me.pMoving then
-    tFactor = float(the milliSeconds - me.pMoveStart) / me.pMoveTime * 1
+    tFactor = (float(the milliSeconds - me.pMoveStart) / (me.pMoveTime * 1))
     if tFactor > 1 then
       tFactor = 1
     end if
-    me.pScreenLoc = me.pDestLScreen - me.pStartLScreen * 1 * tFactor + me.pStartLScreen
+    me.pScreenLoc = ((me.pDestLScreen - me.pStartLScreen * 1) * tFactor) + me.pStartLScreen
     me.pChanges = 1
   end if
   if me.pWaving then

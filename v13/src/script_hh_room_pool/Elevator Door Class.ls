@@ -1,17 +1,17 @@
-property pMode
+property pmode
 
 on construct me 
-  pMode = #close
+  pmode = #close
   return(1)
 end
 
 on setDoorMode me, tMode 
-  pMode = symbol(tMode)
+  pmode = symbol(tMode)
   me.updateDoor()
 end
 
 on updateDoor me 
-  if pMode = #open then
+  if pmode = #open then
     tMem = member(getmemnum("towerdoor_2"))
   else
     tMem = member(getmemnum("towerdoor_0"))

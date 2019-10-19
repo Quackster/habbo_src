@@ -7,7 +7,7 @@ on construct me
   pHideList = []
   pDefaultLocZ = getIntVariable("visualizer.default.locz", -20000000)
   pAvailableLocZ = pDefaultLocZ
-  pBoundary = rect(the stage, rect.width, the stage, rect.height) + getVariableValue("visualizer.boundary.limit")
+  pBoundary = rect(0, 0, undefined.width, undefined.height) + getVariableValue("visualizer.boundary.limit")
   if not objectExists(#layout_parser) then
     createObject(#layout_parser, getClassVariable("layout.parser.class"))
   end if
@@ -22,7 +22,7 @@ on create me, tid, tLayout, tLocX, tLocY
     tLocY = 0
   end if
   if me.exists(tid) then
-    me.Remove(tid)
+    me.remove(tid)
   end if
   tItem = getObjectManager().create(tid, pInstanceClass)
   if not tItem then
@@ -35,7 +35,7 @@ on create me, tid, tLayout, tLocX, tLocY
   tProps.setAt(#layout, tLayout)
   tProps.setAt(#boundary, pBoundary)
   if not tItem.define(tProps) then
-    getObjectManager().Remove(tid)
+    getObjectManager().remove(tid)
     return(0)
   end if
   me.add(tid)
@@ -43,7 +43,7 @@ on create me, tid, tLayout, tLocX, tLocY
   return(1)
 end
 
-on Remove me, tid 
+on remove me, tid 
   if not me.exists(tid) then
     return(0)
   end if
@@ -54,7 +54,7 @@ on Remove me, tid
   if pActiveItem = tid then
     pActiveItem = me.getLast()
   end if
-  getObjectManager().Remove(tid)
+  getObjectManager().remove(tid)
   me.Activate(me.getLast())
   return(1)
 end

@@ -38,8 +38,8 @@ on storeHeightmap me, tdata
       pTileGrid.getAt(tLocY).setAt(tLocX, tTile)
       tTileLocX = tLocX - 1
       tTileLocY = tLocY - 1
-      tCenterLocX = tTileLocX * pTileWidth * pAccuracyFactor
-      tCenterLocY = tTileLocY * pTileWidth * pAccuracyFactor
+      tCenterLocX = (tTileLocX * (pTileWidth * pAccuracyFactor))
+      tCenterLocY = (tTileLocY * (pTileWidth * pAccuracyFactor))
       tTile.define(tTileLocX, tTileLocY, tCenterLocX, tCenterLocY, tdata.getPropRef(#line, tLocY).getProp(#char, tLocX))
       tLocX = 1 + tLocX
     end repeat
@@ -169,32 +169,32 @@ on clearObjectFromTileSpace me, tObjectID
 end
 
 on gettileatworldcoordinate me, tLocX, tLocY 
-  tMultiplier = pTileWidth * pAccuracyFactor
-  if tLocX < -tMultiplier / 2 or tLocY < -tMultiplier / 2 then
+  tMultiplier = (pTileWidth * pAccuracyFactor)
+  if tLocX < -(tMultiplier / 2) or tLocY < -(tMultiplier / 2) then
     return(0)
   end if
-  return(me.getTile(tLocX + tMultiplier / 2 / tMultiplier, tLocY + tMultiplier / 2 / tMultiplier))
+  return(me.getTile((tLocX + (tMultiplier / 2) / tMultiplier), (tLocY + (tMultiplier / 2) / tMultiplier)))
 end
 
 on convertTileToWorldCoordinate me, tLocX, tLocY, tlocz 
-  tMultiplier = pTileWidth * pAccuracyFactor
-  return([#x:tLocX * tMultiplier, #y:tLocY * tMultiplier, #h:tlocz * tMultiplier])
+  tMultiplier = (pTileWidth * pAccuracyFactor)
+  return([#x:(tLocX * tMultiplier), #y:(tLocY * tMultiplier), #h:(tlocz * tMultiplier)])
 end
 
 on convertworldtotilecoordinate me, tLocX, tLocY, tlocz 
-  tMultiplier = pTileWidth * pAccuracyFactor
-  return([#x:tLocX + tMultiplier / 2 / tMultiplier, #y:tLocY + tMultiplier / 2 / tMultiplier])
-  return([#x:tLocX * tMultiplier, #y:tLocY * tMultiplier, #h:tlocz * tMultiplier])
+  tMultiplier = (pTileWidth * pAccuracyFactor)
+  return([#x:(tLocX + (tMultiplier / 2) / tMultiplier), #y:(tLocY + (tMultiplier / 2) / tMultiplier)])
+  return([#x:(tLocX * tMultiplier), #y:(tLocY * tMultiplier), #h:(tlocz * tMultiplier)])
 end
 
 on convertWorldToScreenCoordinate me, tX, tY, tZ 
   if pRoomGeometry = 0 then
     return(0)
   end if
-  tMultiplier = float(pTileWidth * pAccuracyFactor)
-  tX = 0.5 + tX / tMultiplier
-  tY = -0.5 + tY / tMultiplier
-  tZ = tZ / tMultiplier
+  tMultiplier = float((pTileWidth * pAccuracyFactor))
+  tX = 0.5 + (tX / tMultiplier)
+  tY = -0.5 + (tY / tMultiplier)
+  tZ = (tZ / tMultiplier)
   tloc = pRoomGeometry.getScreenCoordinate(tX, tY, tZ)
   return(tloc)
 end

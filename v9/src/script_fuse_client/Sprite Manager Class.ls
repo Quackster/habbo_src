@@ -33,12 +33,12 @@ on reserveSprite me, tClientID
     return(error(me, "Out of free sprite channels!", #reserveSprite))
   end if
   tSprNum = pFreeSprList.getAt(1)
-  tsprite = sprite(tSprNum)
+  tSprite = sprite(tSprNum)
   pFreeSprList.deleteAt(1)
   puppetSprite(tSprNum, 1)
-  tsprite.stretch = 0
-  tsprite.locV = -1000
-  tsprite.visible = 1
+  tSprite.stretch = 0
+  tSprite.locV = -1000
+  tSprite.visible = 1
   pClientList.setAt(tSprNum, tClientID)
   return(tSprNum)
 end
@@ -50,17 +50,17 @@ on releaseSprite me, tSprNum
   if pFreeSprList.getPos(tSprNum) > 0 then
     return(error(me, "Attempting to release free sprite!", #releaseSprite))
   end if
-  tsprite = sprite(tSprNum)
-  tsprite.member = member(0)
-  tsprite.scriptInstanceList = []
-  tsprite.rect = rect(0, 0, 1, 1)
-  tsprite.locZ = tSprNum
-  tsprite.visible = 0
-  tsprite.castNum = 0
-  tsprite.cursor = 0
-  tsprite.blend = 100
+  tSprite = sprite(tSprNum)
+  tSprite.member = member(0)
+  tSprite.scriptInstanceList = []
+  tSprite.rect = rect(0, 0, 1, 1)
+  tSprite.locZ = tSprNum
+  tSprite.visible = 0
+  tSprite.castNum = 0
+  tSprite.cursor = 0
+  tSprite.blend = 100
   puppetSprite(tSprNum, 0)
-  tsprite.locZ = void()
+  tSprite.locZ = void()
   pFreeSprList.append(tSprNum)
   pClientList.setAt(tSprNum, 0)
   return(1)
@@ -82,9 +82,9 @@ on setEventBroker me, tSprNum, tid
   if pFreeSprList.getPos(tSprNum) > 0 then
     return(error(me, "Attempted to modify non-reserved sprite!", #setEventBroker))
   end if
-  tsprite = sprite(tSprNum)
-  tsprite.scriptInstanceList = [new(pEventBroker)]
-  tsprite.setID(tid)
+  tSprite = sprite(tSprNum)
+  tSprite.scriptInstanceList = [new(pEventBroker)]
+  tSprite.setID(tid)
   return(1)
 end
 

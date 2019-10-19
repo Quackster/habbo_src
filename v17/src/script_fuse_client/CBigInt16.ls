@@ -7,23 +7,23 @@ on construct this
   m_iBitMask = 1
   i = 1
   repeat while i <= m_iBitsPerWord
-    m_iBitMask = bitOr(m_iBitMask * 2, 1)
+    m_iBitMask = bitOr((m_iBitMask * 2), 1)
     i = 1 + i
   end repeat
-  m_iCarryMask = bitOr(m_iBitMask * 2, 1)
+  m_iCarryMask = bitOr((m_iBitMask * 2), 1)
   return(1)
 end
 
 on setup this, a_vInput 
   if this = #integer then
     t_iValue = a_vInput
-    t_iLength = 4 * 8 + 7 / m_iBitsPerWord
+    t_iLength = ((4 * 8) + 7 / m_iBitsPerWord)
     m_ar_iValue = []
     m_ar_iValue.addAt(t_iLength, 0)
     i = 1
     repeat while i <= t_iLength
       t_iValue = bitAnd(t_iValue, m_iBitMask)
-      t_iValue = t_iValue / 2
+      t_iValue = (t_iValue / 2)
       m_ar_iValue.setAt(i, t_iValue)
       i = 1 + i
     end repeat
@@ -49,7 +49,7 @@ on multiply this, a_rOperand
   repeat while i <= m_iLength
     j = 1
     repeat while j <= a_rOperand.m_iLength
-      t_iProduct = m_ar_iValue.getAt(i) * a_rOperand.getProp(#m_ar_iValue, j)
+      t_iProduct = (m_ar_iValue.getAt(i) * a_rOperand.getProp(#m_ar_iValue, j))
       k = i + j
       repeat while t_iProduct <> 0
         t_iProduct = t_iProduct + t_ar_iResult.getAt(k)
@@ -100,11 +100,11 @@ on FromString this, a_sHex
 end
 
 on BitRight this, n, s 
-  s = s mod 32
+  s = (s mod 32)
   if n > 0 then
-    return(bitOr(n / power(2, s), 0))
+    return(bitOr((n / power(2, s)), 0))
   else
-    f = n / power(2, s)
+    f = (n / power(2, s))
     i = integer(f)
     if i > f then
       return(i - 1)

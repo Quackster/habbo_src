@@ -37,7 +37,7 @@ on handleEvent me, tEvent, tSprID, tWndID, tKey
   if tsprite = 0 then
     return(0)
   end if
-  tLocX = tsprite.locH + tsprite.width / 2
+  tLocX = tsprite.locH + (tsprite.width / 2)
   tLocY = tsprite.locV
   me.createTooltipWindow(tText, tLocX, tLocY)
   return(1)
@@ -75,7 +75,7 @@ on createTooltipWindow me, tText, tLocX, tLocY
   end if
   tElem.setText(tText)
   tWndObj.moveTo(100, 100)
-  tWndObj.moveTo(tLocX - tWndObj.getProperty(#width) / 2, tLocY - tWndObj.getProperty(#height))
+  tWndObj.moveTo(tLocX - (tWndObj.getProperty(#width) / 2), tLocY - tWndObj.getProperty(#height))
   tWndObj.moveZ(10000000)
   return(1)
 end

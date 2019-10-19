@@ -84,7 +84,7 @@ on createFigurePrew me
     tImgHeight = tWndObj.getElement("ph_swimsuit.preview.img").getProperty(#height)
     tPrewImg = image(tImgWidth, tImgHeight, 16)
     tMargins = rect(19, 0, 19, 0)
-    tdestrect = rect(0, tPrewImg.height - tHumanImg.height * 4, tHumanImg.width * 4, tPrewImg.height) + tMargins
+    tdestrect = rect(0, tPrewImg.height - (tHumanImg.height * 4), (tHumanImg.width * 4), tPrewImg.height) + tMargins
     tPrewImg.copyPixels(tHumanImg, tdestrect, tHumanImg.rect)
     tWndObj.getElement("ph_swimsuit.preview.img").feedImage(tPrewImg)
   end if
@@ -426,7 +426,7 @@ on eventProcRoomBar me, tEvent, tSprID, tParam
             tDropElem.getProperty(#buffer).regPoint = point(0, 0)
             tDropElem.setProperty(#height, tSignMem.height)
             if voidp(pSignState) or pOldPosV < 7 then
-              tSignMode = pOldPosH * 7 + pOldPosV + 1
+              tSignMode = (pOldPosH * 7) + pOldPosV + 1
               if tSignMode > 14 then
                 tSignMode = 14
               else
@@ -456,18 +456,18 @@ on eventProcRoomBar me, tEvent, tSprID, tParam
                 tSignMem = member(getmemnum("pelle_kyltti2"))
                 tDropElem = tWndObj.getElement("int_drop_vote")
                 tSpr = tDropElem.getProperty(#sprite)
-                if pOldPosH <> the mouseH - tSpr.left / w or pOldPosV <> the mouseV - tSpr.top / h then
-                  if the mouseV - tSpr.top / h < 7 then
-                    pOldPosH = the mouseH - tSpr.left / w
-                    pOldPosV = the mouseV - tSpr.top / h
+                if pOldPosH <> (the mouseH - tSpr.left / w) or pOldPosV <> (the mouseV - tSpr.top / h) then
+                  if (the mouseV - tSpr.top / h) < 7 then
+                    pOldPosH = (the mouseH - tSpr.left / w)
+                    pOldPosV = (the mouseV - tSpr.top / h)
                     pSignImg.copyPixels(tSignMem.image, pSignImg.rect, pSignImg.rect)
                     tSignHiliterImg = member(getmemnum("kyltti_hiliter")).image
                     tSignHiliterImg = image(w, h, 16)
                     tSignHiliterImg.fill(tSignHiliterImg.rect, rgb(187, 187, 187))
-                    pSignImg.copyPixels(tSignHiliterImg, tSignHiliterImg.rect + rect(w * pOldPosH + 1, h * pOldPosV + 1, w * pOldPosH + 1, h * pOldPosV + 1), tSignHiliterImg.rect, [#ink:39])
+                    pSignImg.copyPixels(tSignHiliterImg, tSignHiliterImg.rect + rect((w * pOldPosH) + 1, (h * pOldPosV) + 1, (w * pOldPosH) + 1, (h * pOldPosV) + 1), tSignHiliterImg.rect, [#ink:39])
                   else
-                    pOldPosH = the mouseH - tSpr.left / w
-                    pOldPosV = the mouseV - tSpr.top / h
+                    pOldPosH = (the mouseH - tSpr.left / w)
+                    pOldPosV = (the mouseV - tSpr.top / h)
                     pSignImg.copyPixels(tSignMem.image, pSignImg.rect, pSignImg.rect)
                   end if
                   tDropElem.getProperty(#buffer).image = pSignImg

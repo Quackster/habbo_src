@@ -38,7 +38,7 @@ on renderFriendItem me, tFriendData, tSelected
   tNameImg = tNameWriter.render(tName)
   tSourceRect = tNameImg.rect
   tNamePosH = integer(getVariable("fr.offline.name.offset.h"))
-  tNamePosV = pItemHeight - tNameImg.height / 2
+  tNamePosV = (pItemHeight - tNameImg.height / 2)
   tdestrect = tSourceRect + rect(tNamePosH, tNamePosV, tNamePosH, tNamePosV)
   tItemImg.copyPixels(tNameImg, tdestrect, tNameImg.rect)
   return(tItemImg.duplicate())
@@ -52,7 +52,7 @@ on renderListImage me
   pItemWidth = integer(getVariable("fr.list.panel.width"))
   tNamePosH = integer(getVariable("fr.offline.name.offset.h"))
   tSelectedBg = rgb(string(getVariable("fr.offline.bg.selected")))
-  tImage = image(pItemWidth, pItemHeight * pContentList.count, 32)
+  tImage = image(pItemWidth, (pItemHeight * pContentList.count), 32)
   tCurrentPosV = 0
   tNameWriter = getWriter(pWriterIdPlain)
   repeat while pContentList <= undefined
@@ -63,7 +63,7 @@ on renderListImage me
     end if
     tNameImage = tNameWriter.render(tName)
     tSourceRect = tNameImage.rect
-    tNamePosV = tCurrentPosV + pItemHeight - tNameImage.height / 2
+    tNamePosV = tCurrentPosV + (pItemHeight - tNameImage.height / 2)
     tdestrect = tSourceRect + rect(tNamePosH, tNamePosV, tNamePosH, tNamePosV)
     tImage.copyPixels(tNameImage, tdestrect, tNameImage.rect)
     tCurrentPosV = tCurrentPosV + pItemHeight
@@ -81,19 +81,19 @@ on renderBackgroundImage me
   tDarkBg = rgb(string(getVariable("fr.offline.bg.dark")))
   pItemHeight = integer(getVariable("fr.offline.item.height"))
   pItemWidth = integer(getVariable("fr.list.panel.width"))
-  tImage = image(pItemWidth, pContentList.count * pItemHeight, 32)
+  tImage = image(pItemWidth, (pContentList.count * pItemHeight), 32)
   tCurrentPosV = 0
   tIndex = 1
-  repeat while tIndex <= pContentList.count / 2 + 1
+  repeat while tIndex <= (pContentList.count / 2) + 1
     tImage.fill(0, tCurrentPosV, pItemWidth, tCurrentPosV + pItemHeight, tDarkBg)
-    tCurrentPosV = tCurrentPosV + pItemHeight * 2
+    tCurrentPosV = tCurrentPosV + (pItemHeight * 2)
     tIndex = 1 + tIndex
   end repeat
   return(tImage)
 end
 
 on relayEvent me, tEvent, tLocX, tLocY 
-  tListIndex = tLocY / me.pItemHeight + 1
+  tListIndex = (tLocY / me.pItemHeight) + 1
   tEventResult = [:]
   tEventResult.setAt(#Event, tEvent)
   if tEvent = #mouseWithin then

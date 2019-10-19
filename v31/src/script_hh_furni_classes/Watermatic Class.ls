@@ -1,8 +1,9 @@
-on prepare me 
+on prepare(me)
   return(1)
+  exit
 end
 
-on select me 
+on select(me)
   if not threadExists(#room) then
     return(error(me, "Room thread not found!!!", #select, #major))
   end if
@@ -10,28 +11,28 @@ on select me
   if not tUserObj then
     return(error(me, "User object not found:" && getObject(#session).GET("user_name"), #select, #major))
   end if
-  if me.getProp(#pDirection, 1) = 4 then
+  if me = 4 then
     if me.pLocX = tUserObj.pLocX and me.pLocY - tUserObj.pLocY = -1 then
       me.giveDrink()
     else
       getThread(#room).getComponent().getRoomConnection().send("MOVE", [#short:me.pLocX, #short:me.pLocY + 1])
     end if
   else
-    if me.getProp(#pDirection, 1) = 0 then
+    if me = 0 then
       if me.pLocX = tUserObj.pLocX and me.pLocY - tUserObj.pLocY = 1 then
         me.giveDrink()
       else
         getThread(#room).getComponent().getRoomConnection().send("MOVE", [#short:me.locX, #short:me.pLocY - 1])
       end if
     else
-      if me.getProp(#pDirection, 1) = 2 then
+      if me = 2 then
         if me.pLocY = tUserObj.pLocY and me.pLocX - tUserObj.pLocX = -1 then
           me.giveDrink()
         else
           getThread(#room).getComponent().getRoomConnection().send("MOVE", [#short:me.pLocX + 1, #short:me.pLocY])
         end if
       else
-        if me.getProp(#pDirection, 1) = 6 then
+        if me = 6 then
           if me.pLocY = tUserObj.pLocY and me.pLocX - tUserObj.pLocX = 1 then
             me.giveDrink()
           else
@@ -42,12 +43,14 @@ on select me
     end if
   end if
   return(1)
+  exit
 end
 
-on giveDrink me 
+on giveDrink(me)
   tConnection = getThread(#room).getComponent().getRoomConnection()
   if tConnection = 0 then
     return(0)
   end if
   tConnection.send("CARRYOBJECT", [#integer:7])
+  exit
 end

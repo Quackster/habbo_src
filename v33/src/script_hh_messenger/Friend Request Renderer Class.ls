@@ -55,8 +55,8 @@ on updateView me
   tWindowObj = getWindow(pWindowID)
   tComponent = getThread(#messenger).getComponent()
   tRequestCount = tComponent.getRequestCount()
-  pPageCount = tRequestCount / pRequestsPerPage
-  if tRequestCount mod pRequestsPerPage > 0 then
+  pPageCount = (tRequestCount / pRequestsPerPage)
+  if (tRequestCount mod pRequestsPerPage) > 0 then
     pPageCount = pPageCount + 1
   end if
   pRequestList = tComponent.getRequestSet(pCurrentPageIndex, pRequestsPerPage)

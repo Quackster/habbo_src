@@ -167,8 +167,8 @@ on update me
     if tName.getProp(#char, length(tName)) = "1" then
       me.getPropRef(#pSprList, 3).visible = 0
     else
-      pAnimActive = pAnimActive + 1 mod pAnimTime
-      tVisible = pAnimActive mod 2
+      pAnimActive = (pAnimActive + 1 mod pAnimTime)
+      tVisible = (pAnimActive mod 2)
       if tVisible and random(4) > 1 then
         me.getPropRef(#pSprList, 3).visible = 1
       else

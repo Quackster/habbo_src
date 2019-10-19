@@ -294,7 +294,7 @@ on getScrLocation me
 end
 
 on getTileCenter me 
-  return(point(pScreenLoc.getAt(1) + pXFactor / 2, pScreenLoc.getAt(2)))
+  return(point(pScreenLoc.getAt(1) + (pXFactor / 2), pScreenLoc.getAt(2)))
 end
 
 on getPartLocation me, tPart 
@@ -305,7 +305,7 @@ on getPartLocation me, tPart
   if pMainAction <> "lay" then
     tloc = pSprite.loc + tPartLoc
   else
-    tloc = point(pSprite.getProp(#rect, 1) + pSprite.width / 2, pSprite.getProp(#rect, 2) + pSprite.height / 2)
+    tloc = point(pSprite.getProp(#rect, 1) + (pSprite.width / 2), pSprite.getProp(#rect, 2) + (pSprite.height / 2))
   end if
   return(tloc)
 end
@@ -602,7 +602,7 @@ end
 
 on prepare me 
   if not pFrozenAnimFrame then
-    pAnimCounter = pAnimCounter + 1 mod 4
+    pAnimCounter = (pAnimCounter + 1 mod 4)
   else
     pAnimCounter = pFrozenAnimFrame - 1
   end if
@@ -622,11 +622,11 @@ on prepare me
     pChanges = 1
   end if
   if pMoving then
-    tFactor = float(the milliSeconds - pMoveStart) / pMoveTime
+    tFactor = (float(the milliSeconds - pMoveStart) / pMoveTime)
     if tFactor > 1 then
       tFactor = 1
     end if
-    pScreenLoc = pDestLScreen - pStartLScreen * tFactor + pStartLScreen
+    pScreenLoc = (pDestLScreen - pStartLScreen * tFactor) + pStartLScreen
     pChanges = 1
   end if
   if pWaving and pMainAction <> "lay" then
@@ -691,7 +691,7 @@ on render me, tForceUpdate
     pShadowSpr.flipH = 0
   end if
   if pCorrectLocZ then
-    tOffZ = pLocH + pRestingHeight * 1000 + 2
+    tOffZ = (pLocH + pRestingHeight * 1000) + 2
   else
     tOffZ = 2
   end if
@@ -713,7 +713,7 @@ on render me, tForceUpdate
     tRectMod = [0, 0, 0, 0]
     if tPart.pPart = "ey" then
       if pTalking then
-        if pMainAction <> "lay" and pAnimCounter mod 2 = 0 then
+        if pMainAction <> "lay" and (pAnimCounter mod 2) = 0 then
           tRectMod = [0, -1, 0, -1]
         end if
       end if
@@ -820,7 +820,7 @@ on setPartLists me, tmodels
       if tColor.ilk <> #color then
         tColor = rgb("EEEEEE")
       end if
-      if tColor.red + tColor.green + tColor.blue > 238 * 3 then
+      if tColor.red + tColor.green + tColor.blue > (238 * 3) then
         tColor = rgb("EEEEEE")
       end if
       tmodel.getAt("color").setAt(j, tColor)

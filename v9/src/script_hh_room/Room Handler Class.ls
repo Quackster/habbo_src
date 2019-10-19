@@ -100,8 +100,8 @@ on handle_status me, tMsg
       tuser.setAt(#x, integer(tloc.getProp(#item, 1)))
       tuser.setAt(#y, integer(tloc.getProp(#item, 2)))
       tuser.setAt(#h, getLocalFloat(tloc.getProp(#item, 3)))
-      tuser.setAt(#dirHead, integer(tloc.getProp(#item, 4)) mod 8)
-      tuser.setAt(#dirBody, integer(tloc.getProp(#item, 5)) mod 8)
+      tuser.setAt(#dirHead, (integer(tloc.getProp(#item, 4)) mod 8))
+      tuser.setAt(#dirBody, (integer(tloc.getProp(#item, 5)) mod 8))
       tActions = []
       the itemDelimiter = "/"
       j = 2
@@ -288,7 +288,7 @@ on handle_OBJECTS me, tMsg
       tObj.setAt(#y, integer(tLine.getProp(#word, 4)))
       tObj.setAt(#h, integer(tLine.getProp(#word, 5)))
       if tLine.count(#word) = 6 then
-        tdir = integer(tLine.getProp(#word, 6)) mod 8
+        tdir = (integer(tLine.getProp(#word, 6)) mod 8)
         tObj.setAt(#direction, [tdir, tdir, tdir])
         tObj.setAt(#dimensions, 0)
       else
@@ -325,7 +325,7 @@ on parseActiveObject me, tConn
   tObj.setAt(#y, tConn.GetIntFrom())
   tWidth = tConn.GetIntFrom()
   tHeight = tConn.GetIntFrom()
-  tDirection = tConn.GetIntFrom() mod 8
+  tDirection = (tConn.GetIntFrom() mod 8)
   tObj.setAt(#direction, [tDirection, tDirection, tDirection])
   tObj.setAt(#dimensions, [tWidth, tHeight])
   tObj.setAt(#altitude, getLocalFloat(tConn.GetStrFrom()))
@@ -734,7 +734,7 @@ on handle_dice_value me, tMsg
   if tMsg.count(#word) = 1 then
     tValue = -1
   else
-    tValue = integer(tMsg.getProp(#word, 2) - tid * 38)
+    tValue = integer(tMsg.getProp(#word, 2) - (tid * 38))
     if tValue > 6 then
       tValue = 0
     end if

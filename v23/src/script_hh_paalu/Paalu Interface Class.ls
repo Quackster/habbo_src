@@ -43,9 +43,9 @@ on prepare me, tOwnPlayerObj
     error(me, "Where's the modal window?", #prepare)
   end if
   pArrowSpr = tWndObj.getElement("needle").getProperty(#sprite)
-  member.width / 2.regPoint = point(pArrowSpr, member.height - 3)
+  (member.width / 2).regPoint = point(pArrowSpr, member.height - 3)
   tBallSpr = tWndObj.getElement("needle_ball").getProperty(#sprite)
-  member.width / 2.regPoint = point(tBallSpr, member.height / 2)
+  (member.width / 2).regPoint = point(tBallSpr, (member.height / 2))
   pOwnPlayer = tOwnPlayerObj
   pCurrAct = "-"
   pCurrTime = the milliSeconds
@@ -101,7 +101,7 @@ on update me
     end if
     startTimer()
   end if
-  tTimerOff = tTime / 100
+  tTimerOff = (tTime / 100)
   if tTimerOff = 9 then
     if pCurrAct <> "-" then
       me.highLightKey(pCurrAct)
@@ -112,7 +112,7 @@ on update me
   end if
   tBalance = pOwnPlayer.getBalance()
   tBalOff = tBalance - pCurrBal
-  pCurrBal = pCurrBal + tBalOff / 4
+  pCurrBal = pCurrBal + (tBalOff / 4)
   pArrowSpr.rotation = pCurrBal
 end
 

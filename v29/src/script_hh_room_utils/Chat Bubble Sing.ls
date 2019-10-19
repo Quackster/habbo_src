@@ -101,7 +101,7 @@ on defineBalloon me, tMode, tColor, tUserName, tMessage, tItemID, tUserImg, tUse
   tBackgroundImg = me.renderBackground(tBalloonWidth, tColor)
   tTextOffH = pMargins.getAt(#left) + tUserImgWidth + pMargins.getAt(#separator)
   tTextOffH = pMargins.getAt(#textleft)
-  tTextOffV = pBalloonImg.getAt(#middle).height - tTextImg.height / 2 + 1
+  tTextOffV = (pBalloonImg.getAt(#middle).height - tTextImg.height / 2) + 1
   tTextDestRect = rect(tTextOffH, tTextOffV, tTextOffH + tTextWidth, tTextOffV + tTextImg.height)
   tBackgroundImg.copyPixels(tTextImg, tTextDestRect, tTextImg.rect)
   tBgMem = getMember(pBgMemName)
@@ -165,15 +165,15 @@ on setLocation me, tloc
   else
     return(0)
   end if
-  tRelativeLocH = tloc.getAt(1) - tMemWidth / 2
+  tRelativeLocH = tloc.getAt(1) - (tMemWidth / 2)
   tRelativeLocH = max(tRelativeLocH, pBalloonLeftMarg)
   tRelativeLocH = min(pBgSprite, member - image.width)
   pLocation = tloc
   pBgSprite.loc = point(tRelativeLocH, pLocation.getAt(2))
-  tUserSprOffV = image.height - pBalloonImg.getAt(#middle).height / 2
-  tUserOffH = member - image.width / 2 + 1
-  pUserSprite.loc = point(tUserOffH + tRelativeLocH, pLocation.getAt(2) + -1 * tUserSprOffV)
-  pBgSprite.locZ = getIntVariable("window.default.locz") - 2000 + pLocation.getAt(2) / 10
+  tUserSprOffV = (image.height - pBalloonImg.getAt(#middle).height / 2)
+  tUserOffH = (member - image.width / 2) + 1
+  pUserSprite.loc = point(tUserOffH + tRelativeLocH, pLocation.getAt(2) + (-1 * tUserSprOffV))
+  pBgSprite.locZ = getIntVariable("window.default.locz") - 2000 + (pLocation.getAt(2) / 10)
   pUserSprite.locZ = pBgSprite.locZ + 100
   return(point(tRelativeLocH, pLocation.getAt(2)))
 end
@@ -211,16 +211,16 @@ end
 on renderBackground me, tWidth, tBalloonColor 
   if tBalloonColor.red + tBalloonColor.green + tBalloonColor.blue >= 600 then
     tBalloonColorDarken = rgb(0, 0, 0)
-    tBalloonColorDarken.red = tBalloonColor.red * 0.9
-    tBalloonColorDarken.green = tBalloonColor.green * 0.9
-    tBalloonColorDarken.blue = tBalloonColor.blue * 0.9
+    tBalloonColorDarken.red = (tBalloonColor.red * 0.9)
+    tBalloonColorDarken.green = (tBalloonColor.green * 0.9)
+    tBalloonColorDarken.blue = (tBalloonColor.blue * 0.9)
     tBalloonColor = tBalloonColorDarken
   end if
   if tBalloonColor.red + tBalloonColor.green + tBalloonColor.blue <= 100 then
     tBalloonColorDarken = rgb(0, 0, 0)
-    tBalloonColorDarken.red = tBalloonColor.red * 3
-    tBalloonColorDarken.green = tBalloonColor.green * 3
-    tBalloonColorDarken.blue = tBalloonColor.blue * 3
+    tBalloonColorDarken.red = (tBalloonColor.red * 3)
+    tBalloonColorDarken.green = (tBalloonColor.green * 3)
+    tBalloonColorDarken.blue = (tBalloonColor.blue * 3)
     tBalloonColor = tBalloonColorDarken
   end if
   tNewImg = image(tWidth, pBalloonImg.getAt(#left).height + pBalloonImg.getAt(#pointer).height, 32)
@@ -248,11 +248,11 @@ on renderBackground me, tWidth, tBalloonColor
           tdestrect = rect(tStartPointX, tStartPointY, tEndPointX, tEndPointY)
           tSrcWidth = pBalloonImg.getProp(i).width
           j = 1
-          repeat while j <= tdestrect.width / tSrcWidth + 1
-            tTempRect = rect(tStartPointX + tSrcWidth * j - 1, tStartPointY, tStartPointX + tSrcWidth * j, tEndPointY)
+          repeat while j <= (tdestrect.width / tSrcWidth) + 1
+            tTempRect = rect(tStartPointX + (tSrcWidth * j - 1), tStartPointY, tStartPointX + (tSrcWidth * j), tEndPointY)
             tSrcRect = pBalloonImg.getProp(i).rect
-            if tStartPointX + tSrcWidth * j > tEndPointX then
-              tDiff = tStartPointX + tSrcWidth * j - tEndPointX
+            if tStartPointX + (tSrcWidth * j) > tEndPointX then
+              tDiff = tStartPointX + (tSrcWidth * j) - tEndPointX
               tTempRect.right = tTempRect.right - tDiff
               tSrcRect.right = tSrcRect.right - tDiff
             end if

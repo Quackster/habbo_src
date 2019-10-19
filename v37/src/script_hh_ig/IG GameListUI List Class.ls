@@ -53,7 +53,7 @@ on render me
     tImageSize = pPageVisibleSize
   end if
   me.setScrollBar(tScrollBars)
-  tImage = image(tWidth, pListItemHeight * tImageSize, 32)
+  tImage = image(tWidth, (pListItemHeight * tImageSize), 32)
   tBackImage = 0
   i = 1
   repeat while i <= tIdCount
@@ -97,7 +97,7 @@ on render me
 end
 
 on getIdFromPoint me, tpoint 
-  tIndex = tpoint.locV / pListItemHeight + 1
+  tIndex = (tpoint.locV / pListItemHeight) + 1
   if tIndex < 1 then
     return(-1)
   end if
@@ -111,7 +111,7 @@ on renderShort me, tImage, tGameRef, tCount, tScrollBars, tJoinedGame
   if tGameRef = void() then
     return(0)
   end if
-  tOffsetV = pListItemHeight * tCount - 1
+  tOffsetV = (pListItemHeight * tCount - 1)
   tWriterPlain = me.getPlainWriter()
   tWriterBold = me.getBoldWriter()
   if not tJoinedGame then
@@ -132,8 +132,8 @@ on renderShort me, tImage, tGameRef, tCount, tScrollBars, tJoinedGame
     tImage.copyPixels(tTextImage, tTextImage.rect + rect(tPicOffsetH, 8 + tOffsetV, tPicOffsetH, 8 + tOffsetV), tTextImage.rect)
   end if
   if ilk(tIcon) = #image then
-    tPicOffsetH = 19 - tIcon.width / 2 + 8
-    tPicOffsetV = 20 - tIcon.height / 3 + 3
+    tPicOffsetH = (19 - tIcon.width / 2) + 8
+    tPicOffsetV = (20 - tIcon.height / 3) + 3
     tImage.copyPixels(tIcon, tIcon.rect + rect(tPicOffsetH, tOffsetV + tPicOffsetV, tPicOffsetH, tOffsetV + tPicOffsetV), tIcon.rect, [#ink:36])
   end if
   if tScrollBars = 1 then
@@ -143,7 +143,7 @@ on renderShort me, tImage, tGameRef, tCount, tScrollBars, tJoinedGame
   end if
   tTempImage = pTeamSizeImages.getAt(tGameRef.getProperty(#number_of_teams))
   if ilk(tTempImage) = #image then
-    tPicOffsetH = 158 - tTempImage.width / 3
+    tPicOffsetH = 158 - (tTempImage.width / 3)
     tImage.copyPixels(tTempImage, tTempImage.rect + rect(tOffsetH + tPicOffsetH, 3 + tOffsetV, tOffsetH + tPicOffsetH, 3 + tOffsetV), tTempImage.rect, [#ink:36])
   end if
   tTempImage = tWriterPlain.render(tGameRef.getPlayerCount() & "/" & tGameRef.getMaxPlayerCount())
@@ -155,7 +155,7 @@ on renderShort me, tImage, tGameRef, tCount, tScrollBars, tJoinedGame
 end
 
 on renderSlotBackground me, tImage, tBackImage, tCount, tScrollBarSize 
-  tOffsetY = tCount - 1 * pListItemHeight
+  tOffsetY = (tCount - 1 * pListItemHeight)
   tTargetRect = rect(0, tOffsetY, tImage.width, tOffsetY + pListItemHeight)
   tImage.copyPixels(tBackImage, tTargetRect, tBackImage.rect)
   return(1)

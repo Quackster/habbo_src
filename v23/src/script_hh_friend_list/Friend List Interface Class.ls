@@ -243,9 +243,9 @@ on changeCategory me, tCategoryId
     end if
   end repeat
   if pMinimized then
-    tHiddenAmountPx = pMaxCategories - tCategoryList.count * tCategoryTitleHeight + tCategoryContentHeight + tActionsPanelHeight + 1
+    tHiddenAmountPx = (pMaxCategories - tCategoryList.count * tCategoryTitleHeight) + tCategoryContentHeight + tActionsPanelHeight + 1
   else
-    tHiddenAmountPx = pMaxCategories - tCategoryList.count * tCategoryTitleHeight
+    tHiddenAmountPx = (pMaxCategories - tCategoryList.count * tCategoryTitleHeight)
     if tCategoryId = -2 then
       executeMessage(#FriendRequestListOpened)
     end if
@@ -395,7 +395,7 @@ on moveCategoryContent me, tLocV
     tElemID = getAt(undefined, tLocV)
     if tWndObj.elementExists(tElemID) then
       tElem = tWndObj.getElement(tElemID)
-      tOffV = tElemBgHeight - tElem.getProperty(#height) / 2
+      tOffV = (tElemBgHeight - tElem.getProperty(#height) / 2)
       tElem.moveTo(tElem.getProperty(#locH), tContentBottom + tOffV)
       if pMinimized then
         tElem.setProperty(#visible, 0)

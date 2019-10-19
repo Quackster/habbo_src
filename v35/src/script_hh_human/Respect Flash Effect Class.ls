@@ -6,7 +6,7 @@ on construct me
   pFrameAmount = 2
   pCurrentPhase = 1
   pCurrentFrame = random(pFrameAmount)
-  pTimePerPhase = pTotalAnimTime / pPhaseAmount
+  pTimePerPhase = (pTotalAnimTime / pPhaseAmount)
   pSpriteData = []
   pRunAnimation = 0
   pHostSpriteData = [:]
@@ -41,7 +41,7 @@ on defineWithSprite me, tsprite, tSize
   end if
   tWidth = tsprite.width
   tHeight = tsprite.height
-  tloc = point(tsprite.locH + tWidth / 2, tsprite.locV - tHeight / 2)
+  tloc = point(tsprite.locH + (tWidth / 2), tsprite.locV - (tHeight / 2))
   tlocz = tsprite.locZ
   tRect = tsprite.rect
   pHostSpriteData.setAt(#sprite, tsprite)
@@ -82,18 +82,18 @@ on update me
     return(0)
   end if
   tUpdatePhase = 0
-  tCurrentPhase = integer(tMoveTime / pTimePerPhase) + 1
+  tCurrentPhase = integer((tMoveTime / pTimePerPhase)) + 1
   if tCurrentPhase <> pCurrentPhase then
     tUpdatePhase = 1
     pCurrentPhase = tCurrentPhase
   end if
-  if tMoveTime > 3 / 4 * pTotalAnimTime then
+  if tMoveTime > ((3 / 4) * pTotalAnimTime) then
     me.removeFromObjectManager()
   else
-    if tMoveTime > 2 / 4 * pTotalAnimTime and pHostSpriteData.getAt(#sprite) <> void() then
+    if tMoveTime > ((2 / 4) * pTotalAnimTime) and pHostSpriteData.getAt(#sprite) <> void() then
       pHostSpriteData.getAt(#sprite).color = color(#rgb, 62, 51, 15)
     else
-      if tMoveTime > 1 / 4 * pTotalAnimTime and pHostSpriteData.getAt(#sprite) <> void() then
+      if tMoveTime > ((1 / 4) * pTotalAnimTime) and pHostSpriteData.getAt(#sprite) <> void() then
         pHostSpriteData.getAt(#sprite).color = color(#rgb, 124, 102, 29)
       else
         pHostSpriteData.getAt(#sprite).color = color(#rgb, 247, 204, 59)

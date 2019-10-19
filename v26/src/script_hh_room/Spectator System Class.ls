@@ -98,7 +98,7 @@ on updateSpectatorCount me, tSpectatorCount, tSpectatorMax
     tWindowHt = tWndObj.getProperty(#height)
     tWndObj.resizeTo(tTextWd + tWindowWd - tElemWd, tWindowHt)
     tElem.resizeTo(tTextWd, tElem.getProperty(#height))
-    tElem.moveBy(tTextWd - tTextImg.width / 2, tWindowHt - tTextHt / 2)
+    tElem.moveBy((tTextWd - tTextImg.width / 2), (tWindowHt - tTextHt / 2))
     tElem.feedImage(tTextImg)
   end if
   tWndObj.center()

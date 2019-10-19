@@ -152,10 +152,10 @@ on selectProduct me, tOrderNum
         tDestImg = tElem.getProperty(#image)
         tSourceImg = tImage
         tDestImg.fill(tDestImg.rect, rgb(255, 255, 255))
-        tSourceRect = tSourceImg.rect * 2
+        tSourceRect = (tSourceImg.rect * 2)
         tdestrect = tDestImg.rect - tSourceRect
         tMargins = rect(14, -7, 14, -7)
-        tdestrect = rect(tdestrect.width / 2, tdestrect.height / 2, tSourceRect.width + tdestrect.width / 2, tdestrect.height / 2 + tSourceRect.height) + tMargins
+        tdestrect = rect((tdestrect.width / 2), (tdestrect.height / 2), tSourceRect.width + (tdestrect.width / 2), (tdestrect.height / 2) + tSourceRect.height) + tMargins
         tDestImg.copyPixels(tSourceImg, tdestrect, tSourceImg.rect, [#ink:36])
         tElem.feedImage(tDestImg)
       end if

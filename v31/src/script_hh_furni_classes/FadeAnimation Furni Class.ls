@@ -1,6 +1,4 @@
-property pAnimLength, pAnimState, pActiveLayer, pCounter, pCrossFadeLength
-
-on define me, tProps 
+on define(me, tProps)
   pAnimState = 0
   pActiveLayer = 0
   pAnimLength = 20
@@ -40,9 +38,10 @@ on define me, tProps
   end if
   me.initBlends()
   return(tRetVal)
+  exit
 end
 
-on update me 
+on update(me)
   if pActiveLayer > 0 and pActiveLayer <= me.count(#pSprList) and me.pState = pAnimState then
     if pCounter > pAnimLength / 2 - pCrossFadeLength and pCounter <= pAnimLength / 2 then
       tDelta = pCounter - pAnimLength / 2 - pCrossFadeLength
@@ -61,9 +60,10 @@ on update me
     end if
   end if
   return(callAncestor(#update, [me]))
+  exit
 end
 
-on setState me, tNewState 
+on setState(me, tNewState)
   tNewState = integer(tNewState)
   if tNewState = pAnimState then
     pCounter = 1
@@ -71,9 +71,10 @@ on setState me, tNewState
   tRetVal = callAncestor(#setState, [me], tNewState)
   me.initBlends()
   return(tRetVal)
+  exit
 end
 
-on initBlends me 
+on initBlends(me)
   if pActiveLayer > 0 then
     if me.pState = pAnimState then
       me.getPropRef(#pSprList, pActiveLayer).blend = 0
@@ -82,4 +83,5 @@ on initBlends me
     end if
   end if
   return(1)
+  exit
 end

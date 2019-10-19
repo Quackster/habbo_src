@@ -65,7 +65,7 @@ on createToolTip me, tText
       tText = "..."
     end if
     pToolTipSpr.visible = 0
-    pToolTipMem.rect = rect(0, 0, length(tText.getProp(#line, 1)) * 8, 20)
+    pToolTipMem.rect = rect(0, 0, (length(tText.getProp(#line, 1)) * 8), 20)
     pToolTipMem.text = tText
     pToolTipID = the milliSeconds
     return(me.delay(pToolTipDel, #renderToolTip, pToolTipID))
@@ -89,7 +89,7 @@ on renderToolTip me, tNextID
     end if
     pToolTipSpr.loc = the mouseLoc + [-2, 15]
     pToolTipSpr.visible = 1
-    me.delay(pToolTipDel * 2, #removeToolTip, pToolTipID)
+    me.delay((pToolTipDel * 2), #removeToolTip, pToolTipID)
   end if
 end
 
@@ -301,27 +301,27 @@ end
 
 on secretDecode me, tKey 
   tLength = tKey.length
-  if tLength mod 2 = 1 then
+  if (tLength mod 2) = 1 then
     tLength = tLength - 1
   end if
-  tTable = tKey.getProp(#char, 1, tKey.length / 2)
-  tKey = tKey.getProp(#char, 1 + tKey.length / 2, tLength)
+  tTable = tKey.getProp(#char, 1, (tKey.length / 2))
+  tKey = tKey.getProp(#char, 1 + (tKey.length / 2), tLength)
   tCheckSum = 0
   i = 1
   repeat while i <= tKey.length
     c = tKey.getProp(#char, i)
     a = offset(c, tTable) - 1
-    if a mod 2 = 0 then
-      a = a * 2
+    if (a mod 2) = 0 then
+      a = (a * 2)
     end if
-    if i - 1 mod 3 = 0 then
-      a = a * 3
+    if (i - 1 mod 3) = 0 then
+      a = (a * 3)
     end if
     if a < 0 then
-      a = tKey.length mod 2
+      a = (tKey.length mod 2)
     end if
     tCheckSum = tCheckSum + a
-    tCheckSum = bitXor(tCheckSum, a * power(2, i - 1 mod 3 * 8))
+    tCheckSum = bitXor(tCheckSum, (a * power(2, ((i - 1 mod 3) * 8))))
     i = 1 + i
   end repeat
   return(tCheckSum)
@@ -485,7 +485,7 @@ on getReceipt me, tStamp
   repeat while tCharNo <= tStamp.length
     tChar = chars(tStamp, tCharNo, tCharNo)
     tChar = charToNum(tChar)
-    tChar = tChar * tCharNo + 309203
+    tChar = (tChar * tCharNo) + 309203
     tReceipt.setAt(tCharNo, tChar)
     tCharNo = 1 + tCharNo
   end repeat
@@ -504,7 +504,7 @@ on getClientUpTime me
   tTimeDelimiter = me.getDelimiter(tTimeNow)
   if tDateNow <> tDateStart then
     tDays = 1
-    tSeconds = tDays * 24 * 60 * 60 + me.calculateTimeDifference(tTimeStart, tTimeNow, tTimeDelimiter)
+    tSeconds = (((tDays * 24) * 60) * 60) + me.calculateTimeDifference(tTimeStart, tTimeNow, tTimeDelimiter)
   else
     tSeconds = me.calculateTimeDifference(tTimeStart, tTimeNow, tTimeDelimiter)
   end if
@@ -520,14 +520,14 @@ on calculateTimeDifference me, a_from, a_to, a_delimiter
   tAmPmMod = 0
   if a_from contains "am" or a_from contains "pm" then
     if a_from contains "am" and a_to contains "pm" then
-      tAmPmMod = 12 * 60 * 60
+      tAmPmMod = ((12 * 60) * 60)
     end if
     if a_to contains "am" and a_from contains "pm" then
-      tAmPmMod = 12 * 60 * 60
+      tAmPmMod = ((12 * 60) * 60)
     end if
   end if
   the itemDelimiter = tItemDeLim
-  return(tHours * 60 * 60 + tMinutes * 60 + tSeconds + tAmPmMod)
+  return(((tHours * 60) * 60) + (tMinutes * 60) + tSeconds + tAmPmMod)
 end
 
 on getDelimiter me, a_string 

@@ -203,7 +203,7 @@ on update me
                 pFrameSequenceNumberList.setAt(tLayer, random(tSequenceCount))
                 pFrameNumberList.setAt(tLayer, 1)
               else
-                pFrameNumberList.setAt(tLayer, pFrameNumberList.getAt(tLayer) mod tFrameCount + 1)
+                pFrameNumberList.setAt(tLayer, (pFrameNumberList.getAt(tLayer) mod tFrameCount) + 1)
               end if
               tRandom = 0
               if not voidp(tFrameList.getAt(#random)) then
@@ -212,7 +212,7 @@ on update me
               if tRandom and tFrameCount > 1 then
                 tValue = random(tFrameCount)
                 if tValue = pFrameNumberList2.getAt(tLayer) then
-                  tValue = pFrameNumberList2.getAt(tLayer) mod tFrameCount + 1
+                  tValue = (pFrameNumberList2.getAt(tLayer) mod tFrameCount) + 1
                 end if
                 pFrameNumberList2.setAt(tLayer, tValue)
               else

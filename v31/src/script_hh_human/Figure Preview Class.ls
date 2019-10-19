@@ -1,20 +1,21 @@
-on createTemplateHuman me, tSize, tdir, tAction, tActionProps 
+on createTemplateHuman(me, tSize, tdir, tAction, tActionProps)
   tObjectName = "temp_humanobj"
   tFigure = getObject(#session).GET("user_figure").duplicate()
   tmember = me.createTemplateFigure(tObjectName, tFigure, tSize, tdir)
-  if tAction = "remove" then
+  if me = "remove" then
     removeObject(tObjectName)
   else
-    if tAction = "reset" then
+    if me = "reset" then
       call(#resetTemplateHuman, [getObject(tObjectName)])
     else
       call(symbol("action_" & tAction), [getObject(tObjectName)], tActionProps)
     end if
   end if
   return(tmember)
+  exit
 end
 
-on getHumanPartImg me, tPartList, tFigure, tdir, tSize 
+on getHumanPartImg(me, tPartList, tFigure, tdir, tSize)
   if voidp(tFigure) then
     tFigure = getObject(#session).GET("user_figure")
     if tFigure.ilk = #propList then
@@ -36,21 +37,23 @@ on getHumanPartImg me, tPartList, tFigure, tdir, tSize
   tTempPartImg = tTempPartImg.trimWhiteSpace()
   removeObject(tObjectName)
   return(tTempPartImg)
+  exit
 end
 
-on createHumanPartPreview me, tWindowTitle, tElement, tPartList, tFigure, tdir, tSize 
+on createHumanPartPreview(me, tWindowTitle, tElement, tPartList, tFigure, tdir, tSize)
   tTempPartImg = me.getHumanPartImg(tPartList, tFigure, tdir, tSize)
   if tTempPartImg.ilk = #image then
     me.feedHumanPreview(tWindowTitle, tElement, tTempPartImg)
   end if
+  exit
 end
 
-on createTemplateFigure me, tObjectName, tFigure, tSize, tdir 
+on createTemplateFigure(me, tObjectName, tFigure, tSize, tdir)
   if not objectExists(tObjectName) then
     if not createObject(tObjectName, ["Human Class EX", "Human Template Class"]) then
       return(error(me, "Failed to init temporary human object!", #createTemplateFigure, #major))
     end if
-    tProps = [:]
+    tProps = []
     tProps.setAt(#userName, "temp_human_figurecreator")
     tProps.setAt(#figure, tFigure)
     tProps.setAt(#direction, [tdir, 1, 1])
@@ -67,9 +70,10 @@ on createTemplateFigure me, tObjectName, tFigure, tSize, tdir
     tmember = getObject(tObjectName).getMember()
   end if
   return(tmember)
+  exit
 end
 
-on feedHumanPreview me, tWindowTitle, tElemID, tTempPartImg 
+on feedHumanPreview(me, tWindowTitle, tElemID, tTempPartImg)
   if windowExists(tWindowTitle) then
     tElem = getWindow(tWindowTitle).getElement(tElemID)
     if tElem = 0 then
@@ -83,4 +87,5 @@ on feedHumanPreview me, tWindowTitle, tElemID, tTempPartImg
     tElem.clearImage()
     tElem.feedImage(tPrewImg)
   end if
+  exit
 end

@@ -129,7 +129,7 @@ on update me
     end if
   end if
   if pAnimActive > 0 then
-    pAnimActive = pAnimActive + 1 mod pAnimTime
+    pAnimActive = (pAnimActive + 1 mod pAnimTime)
     if me.pState = 1 then
       me.setState(3)
     end if

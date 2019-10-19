@@ -86,8 +86,8 @@ on setUpMassRemoveWindow me
     pBuddyList.getAt(i).addProp(#Remove, 0)
     i = 1 + i
   end repeat
-  pPageCount = pBuddyList.count / pOnScreenNum
-  if pBuddyList.count mod pOnScreenNum <> 0 then
+  pPageCount = (pBuddyList.count / pOnScreenNum)
+  if (pBuddyList.count mod pOnScreenNum) <> 0 then
     pPageCount = pPageCount + 1
   end if
   me.arrangeFriendList(#name)
@@ -121,7 +121,7 @@ on updateView me
     return(0)
   end if
   tWndObj = getWindow(pWindowTitle)
-  tStartNr = pPageNr - 1 * pOnScreenNum
+  tStartNr = (pPageNr - 1 * pOnScreenNum)
   i = 1
   repeat while i <= pOnScreenNum
     tElem1ID = "console_friendremove_name" & i
@@ -212,7 +212,7 @@ on checkBoxClicked me, tID, ttype
   else
     tNum = integer(tID.getProp(#char, 22, tID.count(#char)))
   end if
-  tStartNr = pPageNr - 1 * pOnScreenNum
+  tStartNr = (pPageNr - 1 * pOnScreenNum)
   tBoxID = "friendremove_checkbox" & tNum
   if pRemoveCheckBoxList.getAt(tNum) = 0 then
     pRemoveCheckBoxList.setAt(tNum, 1)

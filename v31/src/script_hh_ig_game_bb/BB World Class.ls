@@ -1,6 +1,4 @@
-property pTileImages, pEmptyTileImage, pPriorityTaskList, pSecondaryTaskList, pWorldReady, pSecondaryTilesPerUpdate, pPriorityTilesPerUpdate, pBuffer, pGeometryCache, pGeometry, pSprite, pTileImageRect, pOrigMemberName, pMember
-
-on construct me 
+on construct(me)
   pPriorityTilesPerUpdate = 8
   pSecondaryTilesPerUpdate = 2
   pPriorityTaskList = []
@@ -23,39 +21,41 @@ on construct me
   pTileImageRect = pEmptyTileImage.rect
   pGeometryCache = []
   return(1)
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   pGeometry = void()
   pTileImages = []
   pEmptyTileImage = []
   pGeometryCache = []
   removeUpdate(me.getID())
   me.clearAll()
+  exit
 end
 
-on Refresh me, tTopic, tdata 
-  if tTopic = #fullgamestatus_tiles then
+on Refresh(me, tTopic, tdata)
+  if me = #fullgamestatus_tiles then
     me.initBuffer()
     receiveUpdate(me.getID())
     me.Refresh(#gamestatus_flood, tdata)
   else
-    if tTopic = #gamereset then
+    if me = #gamereset then
       me.initBuffer()
       receiveUpdate(me.getID())
     else
-      if tTopic = #world_ready then
+      if me = #world_ready then
         pWorldReady = 1
       else
-        if tTopic = #gamestatus_tiles then
-          repeat while tTopic <= tdata
+        if me = #gamestatus_tiles then
+          repeat while me <= tdata
             tTileProps = getAt(tdata, tTopic)
             pPriorityTaskList.add(tTileProps)
             me.removeSecondaryTask(tTileProps)
           end repeat
         else
-          if tTopic = #gamestatus_flood then
-            repeat while tTopic <= tdata
+          if me = #gamestatus_flood then
+            repeat while me <= tdata
               tTileProps = getAt(tdata, tTopic)
               pSecondaryTaskList.add(tTileProps)
             end repeat
@@ -64,9 +64,10 @@ on Refresh me, tTopic, tdata
       end if
     end if
   end if
+  exit
 end
 
-on update me 
+on update(me)
   if pWorldReady = 0 then
     return(0)
   end if
@@ -97,9 +98,10 @@ on update me
     tTilesToRender = 1 + tTilesToRender
   end repeat
   return(1)
+  exit
 end
 
-on removeSecondaryTask me, tProps 
+on removeSecondaryTask(me, tProps)
   tLocX = tProps.getAt(#x)
   tLocY = tProps.getAt(#y)
   i = 1
@@ -112,9 +114,10 @@ on removeSecondaryTask me, tProps
     i = 1 + i
   end repeat
   return(1)
+  exit
 end
 
-on render me, tProps 
+on render(me, tProps)
   if not ilk(tProps) = #propList then
     return(0)
   end if
@@ -138,9 +141,10 @@ on render me, tProps
     pBuffer.copyPixels(tImage, tTargetRect, tImage.rect, [#ink:36])
   end if
   return(1)
+  exit
 end
 
-on getTileRect me, tX, tY 
+on getTileRect(me, tX, tY)
   tIndexX = tX + 1
   tIndexY = tY + 1
   if pGeometryCache.count >= tIndexY then
@@ -181,9 +185,10 @@ on getTileRect me, tX, tY
   tTargetRect = pTileImageRect + rect(tScreenLoc.getAt(1), tScreenLoc.getAt(2), tScreenLoc.getAt(1), tScreenLoc.getAt(2))
   pGeometryCache.getAt(tIndexY).setAt(tIndexX, tTargetRect)
   return(tTargetRect)
+  exit
 end
 
-on initBuffer me 
+on initBuffer(me)
   pPriorityTaskList = []
   pSecondaryTaskList = []
   tName = "bin_image"
@@ -207,13 +212,15 @@ on initBuffer me
   pMember.regPoint = tOrigMember.regPoint
   pBuffer = pMember.image
   pSprite.setMember(pMember)
+  exit
 end
 
-on clearAll me 
+on clearAll(me)
   if pMember.ilk = #member then
     pMember.image = image(1, 1, 8)
   end if
   pBuffer = void()
   pMember = void()
   return(1)
+  exit
 end

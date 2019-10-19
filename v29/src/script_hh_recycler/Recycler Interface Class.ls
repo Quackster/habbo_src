@@ -240,8 +240,8 @@ end
 
 on replaceTimeKeysText me, tText, tMinutes, tKeyPrefix 
   if not voidp(tMinutes) then
-    tHours = tMinutes / 60
-    tMinutes = tMinutes - tHours * 60
+    tHours = (tMinutes / 60)
+    tMinutes = tMinutes - (tHours * 60)
     tText = replaceChunks(tText, "%" & tKeyPrefix & "hours%", tHours)
     tText = replaceChunks(tText, "%" & tKeyPrefix & "minutes%", tMinutes)
   end if
@@ -270,13 +270,13 @@ on updateLastPageIndex me
   if tGivenAmount < pFurnisPerPage then
     pLastPageIndex = 1
   else
-    pLastPageIndex = tGivenAmount / pFurnisPerPage + 1
+    pLastPageIndex = (tGivenAmount / pFurnisPerPage) + 1
   end if
 end
 
 on removeItemFromSlot me, tSlotNo 
   tSlotNo = integer(tSlotNo)
-  tCurrentPageFirstIndex = pCurrentPageIndex - 1 * pFurnisPerPage + 1
+  tCurrentPageFirstIndex = (pCurrentPageIndex - 1 * pFurnisPerPage) + 1
   tRemovedIndex = tCurrentPageFirstIndex + tSlotNo - 1
   me.getComponent().removeFurniFromGivePool(tRemovedIndex)
   me.updateLastPageIndex()
@@ -289,7 +289,7 @@ end
 on updateFurniSlots me 
   tGiveFurniPool = me.getComponent().getGiveFurniPool()
   tFurniAmount = tGiveFurniPool.count
-  tCurrentPageFirstIndex = pCurrentPageIndex - 1 * pFurnisPerPage + 1
+  tCurrentPageFirstIndex = (pCurrentPageIndex - 1 * pFurnisPerPage) + 1
   tSlotWidth = pWindowObj.getElement("rec_drop_slot_1").getProperty(#width)
   tSlotHeight = pWindowObj.getElement("rec_drop_slot_1").getProperty(#height)
   tEmptyImage = image(tSlotWidth, tSlotHeight, 8)
@@ -311,8 +311,8 @@ on updateFurniSlots me
     tClass = tFurniItem.getAt(#class)
     tMemStr = me.detectMemberName(tClass, tProps)
     tFurniImage = getObject("Preview_renderer").renderPreviewImage(tMemStr, void(), tProps.getAt(#colors), tProps.getAt(#class))
-    tWidthMargin = tSlotWidth - tFurniImage.width / 2
-    tHeightMargin = tSlotHeight - tFurniImage.height / 2
+    tWidthMargin = (tSlotWidth - tFurniImage.width / 2)
+    tHeightMargin = (tSlotHeight - tFurniImage.height / 2)
     tTargetRect = tFurniImage.rect + rect(tWidthMargin, tHeightMargin, tWidthMargin, tHeightMargin)
     tIconImage.copyPixels(tFurniImage, tTargetRect, tFurniImage.rect)
     tSlotElement.feedImage(tIconImage)
@@ -418,9 +418,9 @@ on updateProgressBar me
     tNextAmount = tNextItem.getAt(#furniValue)
     if tCurrentSelectableFurni <> void() then
       tCurrentAcceptableCount = tCurrentSelectableFurni.getAt(#furniValue)
-      tPercentage = integer(float(tCurrentAmount - tCurrentAcceptableCount) / tNextAmount - tCurrentAcceptableCount * 100)
+      tPercentage = integer(((float(tCurrentAmount - tCurrentAcceptableCount) / tNextAmount - tCurrentAcceptableCount) * 100))
     else
-      tPercentage = integer(float(tCurrentAmount) / tNextAmount * 100)
+      tPercentage = integer(((float(tCurrentAmount) / tNextAmount) * 100))
     end if
     tNextFurniElement.setProperty(#blend, 100)
     tNextFurniElement.setText(tNextItem.getAt(#name))
@@ -467,7 +467,7 @@ on getBarImage me, tBarWidth, tPercentage, tColor
   tBarImage.copyPixels(tMarginRightImg, tTargetRect, tMarginRightImg.rect)
   tTargetRect = rect(tMarginWidth, 0, tBarWidth - tMarginWidth, tBarHeight)
   tBarImage.copyPixels(tBarBgImg, tTargetRect, tBarBgImg.rect)
-  tPercentagePixels = integer(tBarWidth - 2 * tMarginWidth * tPercentage / 100)
+  tPercentagePixels = integer((tBarWidth - (2 * tMarginWidth) * (tPercentage / 100)))
   tTargetRect = rect(tMarginWidth, 0, tMarginWidth + tPercentagePixels, tBarHeight)
   tBarImage.copyPixels(tBarPercentageImg, tTargetRect, tBarPercentageImg.rect)
   return(tBarImage)
@@ -480,7 +480,7 @@ on detectMemberName me, tClass, tProps
   tClass = tClass.getProp(#item, 1)
   the itemDelimiter = tDelim
   if tClass contains "post.it" then
-    tCount = integer(value(tProps.getAt(#props)) / 20 / 6)
+    tCount = integer((value(tProps.getAt(#props)) / (20 / 6)))
     if tCount > 6 then
       tCount = 6
     end if

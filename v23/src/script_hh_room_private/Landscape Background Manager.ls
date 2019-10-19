@@ -4,7 +4,7 @@ on construct me
   pimage = image(1, 1, 32)
   pwidth = 720
   pheight = 400
-  pTurnPoint = pwidth / 2
+  pTurnPoint = (pwidth / 2)
   pREquiresUpdate = 1
   return(1)
 end

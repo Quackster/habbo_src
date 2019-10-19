@@ -48,8 +48,8 @@ on setNewMoveTarget me
   pMovementTimer = 0
   tMovementDistX = pMoveTarget.getAt(1) - pInitialLoc.getAt(1)
   tMovementDistY = pMoveTarget.getAt(2) - pInitialLoc.getAt(2)
-  pPixelsPerTimeX = float(tMovementDistX) / pMoveTime
-  pPixelsPerTimeY = float(tMovementDistY) / pMoveTime
+  pPixelsPerTimeX = (float(tMovementDistX) / pMoveTime)
+  pPixelsPerTimeY = (float(tMovementDistY) / pMoveTime)
   me.enableMoving()
 end
 
@@ -74,8 +74,8 @@ on update me
       return(0)
     end if
     pMovementTimer = pMovementTimer + 1
-    tCurrX = pInitialLoc.getAt(1) + pMovementTimer * pPixelsPerTimeX
-    tCurrY = pInitialLoc.getAt(2) + pMovementTimer * pPixelsPerTimeY
+    tCurrX = pInitialLoc.getAt(1) + (pMovementTimer * pPixelsPerTimeX)
+    tCurrY = pInitialLoc.getAt(2) + (pMovementTimer * pPixelsPerTimeY)
     tloc = point(integer(tCurrX), integer(tCurrY))
     pSprite.loc = tloc
     if pMovementTimer > pMoveTime then

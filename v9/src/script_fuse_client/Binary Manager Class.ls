@@ -1,20 +1,15 @@
-property pConnectionId, pQueue, pHandshakeFinished, pUseCrypto, pCrypto, pTimeOutID
+property pConnectionId, pQueue, pTimeOutID
 
 on construct me 
   pConnectionId = getVariable("connection.mus.id", #mus)
   pTimeOutID = "mus_close_delay"
   pCallBacks = [:]
   pQueue = []
-  pCrypto = createObject(#temp, getClassVariable("connection.decoder.class"))
-  pUseCrypto = 0
-  pHandshakeFinished = 0
   return(me.registerCmds(1))
 end
 
 on deconstruct me 
   me.registerCmds(0)
-  pHandshakeFinished = 0
-  pUseCrypto = 0
   return(removeMultiuser(pConnectionId))
 end
 
@@ -43,14 +38,8 @@ on checkConnection me
   if not multiuserExists(pConnectionId) then
     return(error(me, "MUS connection not found:" && pConnectionId, #checkConnection))
   end if
-  if getMultiuser(pConnectionId).connectionReady() and pHandshakeFinished then
-    tUserName = getObject(#session).get(#userName)
-    tPassword = getObject(#session).get(#password)
-    if pUseCrypto then
-      tUserName = pCrypto.encipher(tUserName)
-      tPassword = pCrypto.encipher(tPassword)
-    end if
-    getMultiuser(pConnectionId).send("LOGIN" && tUserName && tPassword)
+  if getMultiuser(pConnectionId).connectionReady() then
+    getMultiuser(pConnectionId).send("LOGIN" && getObject(#session).get(#userName) && getObject(#session).get(#password))
     me.next()
   else
     me.delay(1000, #checkConnection)
@@ -130,7 +119,7 @@ on registerCmds me, tBool
   tList.setAt("BINDATA_SAVED", #binaryDataStored)
   tList.setAt("BINDATA_AUTHKEYERROR", #binaryDataAuthKeyError)
   tList.setAt("DISCONNECT", #deconstruct)
-  tList.setAt("HELLO", #helloReply)
+  tList.setAt("HELLO", #foo)
   tList.setAt("U_RTS", #foo)
   if tBool then
     return(getMultiuserManager().registerListener(pConnectionId, me.getID(), tList))
@@ -140,16 +129,4 @@ on registerCmds me, tBool
 end
 
 on foo me 
-end
-
-on helloReply me, tMsg 
-  tSecretKey = tMsg.getAt(#content)
-  tSecretKey = integer(tSecretKey)
-  if voidp(tSecretKey) or tSecretKey = "" or tSecretKey = 0 then
-    pUseCrypto = 0
-  else
-    pCrypto.setKey(tSecretKey)
-    pUseCrypto = 1
-  end if
-  pHandshakeFinished = 1
 end

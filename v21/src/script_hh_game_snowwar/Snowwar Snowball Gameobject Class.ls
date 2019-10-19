@@ -26,28 +26,28 @@ on calculateFlightPath me, tdata, tTargetX, tTargetY
   tX = tdata.x
   tY = tdata.y
   me.setProp(#pGameObjectSyncValues, #trajectory, tdata.getAt(#trajectory))
-  tDeltaX = tTargetX - tX / 200
-  tDeltaY = tTargetY - tY / 200
+  tDeltaX = (tTargetX - tX / 200)
+  tDeltaY = (tTargetY - tY / 200)
   me.setProp(#pGameObjectSyncValues, #movement_direction, tGameSystem.get360AngleFromComponents(tDeltaX, tDeltaY))
   if tdata.getAt(#trajectory) = pConstants.TRAJECTORY_QUICK_THROW then
     tZ = pConstants.QUICK_THROW_HEIGHT_LEVEL
     me.setProp(#pGameObjectSyncValues, #time_to_live, pConstants.QUICK_THROW_TIME_TO_LIVE)
   else
     if tdata.getAt(#trajectory) = pConstants.TRAJECTORY_SHORT_LOB then
-      tDistanceToTarget = tGameSystem.sqrt(tDeltaX * tDeltaX + tDeltaY * tDeltaY) * 200
+      tDistanceToTarget = (tGameSystem.sqrt((tDeltaX * tDeltaX) + (tDeltaY * tDeltaY)) * 200)
       tZ = pConstants.SHORT_LOB_HEIGHT_LEVEL
-      me.setProp(#pGameObjectSyncValues, #time_to_live, tDistanceToTarget / pConstants.SHORT_LOB_VELOCITY)
+      me.setProp(#pGameObjectSyncValues, #time_to_live, (tDistanceToTarget / pConstants.SHORT_LOB_VELOCITY))
     else
       if tdata.getAt(#trajectory) = pConstants.TRAJECTORY_LONG_LOB then
-        tDistanceToTarget = tGameSystem.sqrt(tDeltaX * tDeltaX + tDeltaY * tDeltaY) * 200
+        tDistanceToTarget = (tGameSystem.sqrt((tDeltaX * tDeltaX) + (tDeltaY * tDeltaY)) * 200)
         tZ = pConstants.LONG_LOB_HEIGHT_LEVEL
-        me.setProp(#pGameObjectSyncValues, #time_to_live, tDistanceToTarget / pConstants.LONG_LOB_VELOCITY)
+        me.setProp(#pGameObjectSyncValues, #time_to_live, (tDistanceToTarget / pConstants.LONG_LOB_VELOCITY))
       else
         return(0)
       end if
     end if
   end if
-  me.setProp(#pGameObjectSyncValues, #parabola_offset, me.getProp(#pGameObjectSyncValues, #time_to_live) / 2)
+  me.setProp(#pGameObjectSyncValues, #parabola_offset, (me.getProp(#pGameObjectSyncValues, #time_to_live) / 2))
   me.createSprites(tX, tY, tZ)
   return(1)
 end
@@ -59,25 +59,25 @@ on calculateFrameMovement me
   tLocation3D = me.getLocation()
   me.setProp(#pGameObjectSyncValues, #time_to_live, me.getProp(#pGameObjectSyncValues, #time_to_live) - 1)
   if me.getProp(#pGameObjectSyncValues, #trajectory) = pConstants.TRAJECTORY_QUICK_THROW then
-    tNewX = tLocation3D.x + pVelocityTable.GetBaseVelX(me.getProp(#pGameObjectSyncValues, #movement_direction)) * pConstants.QUICK_THROW_VELOCITY / 255
-    tNewY = tLocation3D.y + pVelocityTable.GetBaseVelY(me.getProp(#pGameObjectSyncValues, #movement_direction)) * pConstants.QUICK_THROW_VELOCITY / 255
+    tNewX = tLocation3D.x + ((pVelocityTable.GetBaseVelX(me.getProp(#pGameObjectSyncValues, #movement_direction)) * pConstants.QUICK_THROW_VELOCITY) / 255)
+    tNewY = tLocation3D.y + ((pVelocityTable.GetBaseVelY(me.getProp(#pGameObjectSyncValues, #movement_direction)) * pConstants.QUICK_THROW_VELOCITY) / 255)
     if me.getProp(#pGameObjectSyncValues, #time_to_live) > pConstants.QUICK_THROW_DESCENT_POINT then
       tTemp = pConstants.QUICK_THROW_DESCENT_POINT - me.getProp(#pGameObjectSyncValues, #parabola_offset)
     else
       tTemp = me.getProp(#pGameObjectSyncValues, #time_to_live) - me.getProp(#pGameObjectSyncValues, #parabola_offset)
     end if
-    tNewZ = me.getProp(#pGameObjectSyncValues, #parabola_offset) * me.getProp(#pGameObjectSyncValues, #parabola_offset) - tTemp * tTemp * 4 + pConstants.QUICK_THROW_HEIGHT_LEVEL
+    tNewZ = ((me.getProp(#pGameObjectSyncValues, #parabola_offset) * me.getProp(#pGameObjectSyncValues, #parabola_offset)) - (tTemp * tTemp) * 4) + pConstants.QUICK_THROW_HEIGHT_LEVEL
   else
     if me.getProp(#pGameObjectSyncValues, #trajectory) = pConstants.TRAJECTORY_SHORT_LOB then
-      tNewX = tLocation3D.x + pVelocityTable.GetBaseVelX(me.getProp(#pGameObjectSyncValues, #movement_direction)) * pConstants.SHORT_LOB_VELOCITY / 255
-      tNewY = tLocation3D.y + pVelocityTable.GetBaseVelY(me.getProp(#pGameObjectSyncValues, #movement_direction)) * pConstants.SHORT_LOB_VELOCITY / 255
+      tNewX = tLocation3D.x + ((pVelocityTable.GetBaseVelX(me.getProp(#pGameObjectSyncValues, #movement_direction)) * pConstants.SHORT_LOB_VELOCITY) / 255)
+      tNewY = tLocation3D.y + ((pVelocityTable.GetBaseVelY(me.getProp(#pGameObjectSyncValues, #movement_direction)) * pConstants.SHORT_LOB_VELOCITY) / 255)
       tTemp = me.getProp(#pGameObjectSyncValues, #time_to_live) - me.getProp(#pGameObjectSyncValues, #parabola_offset)
-      tNewZ = me.getProp(#pGameObjectSyncValues, #parabola_offset) * me.getProp(#pGameObjectSyncValues, #parabola_offset) - tTemp * tTemp * 10 + pConstants.SHORT_LOB_HEIGHT_LEVEL
+      tNewZ = ((me.getProp(#pGameObjectSyncValues, #parabola_offset) * me.getProp(#pGameObjectSyncValues, #parabola_offset)) - (tTemp * tTemp) * 10) + pConstants.SHORT_LOB_HEIGHT_LEVEL
     else
-      tNewX = tLocation3D.x + pVelocityTable.GetBaseVelX(me.getProp(#pGameObjectSyncValues, #movement_direction)) * pConstants.LONG_LOB_VELOCITY / 255
-      tNewY = tLocation3D.y + pVelocityTable.GetBaseVelY(me.getProp(#pGameObjectSyncValues, #movement_direction)) * pConstants.LONG_LOB_VELOCITY / 255
+      tNewX = tLocation3D.x + ((pVelocityTable.GetBaseVelX(me.getProp(#pGameObjectSyncValues, #movement_direction)) * pConstants.LONG_LOB_VELOCITY) / 255)
+      tNewY = tLocation3D.y + ((pVelocityTable.GetBaseVelY(me.getProp(#pGameObjectSyncValues, #movement_direction)) * pConstants.LONG_LOB_VELOCITY) / 255)
       tTemp = me.getProp(#pGameObjectSyncValues, #time_to_live) - me.getProp(#pGameObjectSyncValues, #parabola_offset)
-      tNewZ = me.getProp(#pGameObjectSyncValues, #parabola_offset) * me.getProp(#pGameObjectSyncValues, #parabola_offset) - tTemp * tTemp * 100 + pConstants.LONG_LOB_HEIGHT_LEVEL
+      tNewZ = ((me.getProp(#pGameObjectSyncValues, #parabola_offset) * me.getProp(#pGameObjectSyncValues, #parabola_offset)) - (tTemp * tTemp) * 100) + pConstants.LONG_LOB_HEIGHT_LEVEL
     end if
   end if
   me.setLocation(tNewX, tNewY, tNewZ)

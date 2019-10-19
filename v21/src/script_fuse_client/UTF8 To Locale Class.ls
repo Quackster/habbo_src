@@ -80,7 +80,7 @@ on generateStringFromUTF8 me, tUTF8Data
     i = i + 1
     if tValue >= 129 and tValue <= 159 or tValue >= 224 and tValue <= 239 then
       if i <= tUTF8Data.count then
-        tValue = tValue * 256 + tUTF8Data.getAt(i)
+        tValue = (tValue * 256) + tUTF8Data.getAt(i)
         i = i + 1
       else
       end if
@@ -104,13 +104,13 @@ on createcharacterconversionarrays me, tencodingformat
   if ilk(tText) = #string then
     tLineCount = the number of line in tText
     tChunkSize = 100
-    tChunkCount = tLineCount / tChunkSize
-    if tLineCount mod tChunkSize <> 0 then
+    tChunkCount = (tLineCount / tChunkSize)
+    if (tLineCount mod tChunkSize) <> 0 then
       tChunkCount = tChunkCount + 1
     end if
     j = 1
     repeat while j <= tChunkCount
-      tFirstLineIndex = 1 + j - 1 * tChunkSize
+      tFirstLineIndex = 1 + (j - 1 * tChunkSize)
       tLastLineIndex = tFirstLineIndex + tChunkSize - 1
       tSubText = tText.getProp(#line, tFirstLineIndex, tLastLineIndex)
       tSubLineCount = the number of line in tSubText
@@ -141,7 +141,7 @@ on hextoint me, tStr
   tValue = 0
   i = 1
   repeat while i <= tStr.length
-    tValue = tValue * 16
+    tValue = (tValue * 16)
     tChar = tStr.getProp(#char, i)
     tVal = value(tChar)
     if voidp(tVal) then

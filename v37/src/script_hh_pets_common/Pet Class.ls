@@ -259,7 +259,7 @@ on getScrLocation me
 end
 
 on getTileCenter me 
-  return(point(pScreenLoc.getAt(1) + pXFactor / 2, pScreenLoc.getAt(2)))
+  return(point(pScreenLoc.getAt(1) + (pXFactor / 2), pScreenLoc.getAt(2)))
 end
 
 on getPartLocation me, tPart 
@@ -346,7 +346,7 @@ on draw me, tRGB
 end
 
 on prepare me 
-  pAnimCounter = pAnimCounter + 1 mod 4
+  pAnimCounter = (pAnimCounter + 1 mod 4)
   if pEyesClosed then
     me.openEyes()
   else
@@ -383,11 +383,11 @@ on prepare me
     pChanges = 1
   end if
   if pMoving then
-    tFactor = float(the milliSeconds - pMoveStart) / pMoveTime
+    tFactor = (float(the milliSeconds - pMoveStart) / pMoveTime)
     if tFactor > 1 then
       tFactor = 1
     end if
-    pScreenLoc = pDestLScreen - pStartLScreen * tFactor + pStartLScreen
+    pScreenLoc = (pDestLScreen - pStartLScreen * tFactor) + pStartLScreen
     pChanges = 1
   end if
 end
@@ -431,7 +431,7 @@ on render me
     end if
   end if
   if pCorrectLocZ then
-    tOffZ = pLocH + pRestingHeight * 1000 + 2
+    tOffZ = (pLocH + pRestingHeight * 1000) + 2
   else
     tOffZ = 2
   end if

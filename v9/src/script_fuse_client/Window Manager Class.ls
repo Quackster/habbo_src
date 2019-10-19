@@ -7,7 +7,7 @@ on construct me
   me.pItemList = []
   me.pHideList = []
   me.setProperty(#defaultLocZ, getIntVariable("window.default.locz", 0))
-  0.pBoundary = rect(the stage, rect.width, the stage, rect.height) + getVariableValue("window.boundary.limit")
+  me.pBoundary = rect(0, 0, undefined.width, undefined.height) + getVariableValue("window.boundary.limit")
   me.pInstanceClass = getClassVariable("window.instance.class")
   pClsList = [:]
   pModalID = #modal
@@ -39,7 +39,7 @@ on create me, tid, tLayout, tLocX, tLocY, tSpecial
     if voidp(tLocY) then
       tLocY = me.get(tid).getProperty(#locY)
     end if
-    me.Remove(tid)
+    me.remove(tid)
   end if
   if integerp(tLocX) and integerp(tLocY) then
     tX = tLocX
@@ -65,11 +65,11 @@ on create me, tid, tLayout, tLocX, tLocY, tSpecial
   tProps.setAt(#elements, pClsList)
   tProps.setAt(#manager, me)
   if not tItem.define(tProps) then
-    getObjectManager().Remove(tid)
+    getObjectManager().remove(tid)
     return(0)
   end if
   if not tItem.merge(tLayout) then
-    getObjectManager().Remove(tid)
+    getObjectManager().remove(tid)
     return(0)
   end if
   me.add(tid)
@@ -78,13 +78,13 @@ on create me, tid, tLayout, tLocX, tLocY, tSpecial
   return(1)
 end
 
-on Remove me, tid 
+on remove me, tid 
   tWndObj = me.get(tid)
   if tWndObj = 0 then
     return(0)
   end if
   me.setProp(#pPosCache, tid, [tWndObj.getProperty(#locX), tWndObj.getProperty(#locY)])
-  getObjectManager().Remove(tid)
+  getObjectManager().remove(tid)
   me.deleteOne(tid)
   if me.pActiveItem = tid then
     tNextActive = me.getLast()
@@ -104,7 +104,7 @@ on Remove me, tid
       end if
     end repeat
     if not tModals then
-      me.Remove(pModalID)
+      me.remove(pModalID)
     end if
   end if
   me.Activate(tNextActive)
@@ -185,7 +185,7 @@ on modal me, tid, tLayout
     if me.create(pModalID, "modal.window") then
       tModal = me.get(pModalID)
       tModal.moveTo(0, 0)
-      rect.width.resizeTo(the stage, rect.height)
+      tModal.resizeTo(undefined.width, undefined.height)
       tModal.lock()
       tModal.getElement("modal").setProperty(#blend, 40)
     else

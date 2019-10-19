@@ -1,4 +1,4 @@
-property pSprite, pWriterID, pTransition, StateOfAd, pheight, pwidth, adMember, pTransitBuffer, adLink, adIdNum, pJumperObj, pScrImg, pTextShowState, pTargetObj, pTargetSpr, AdWaitScore, pLastCropPoint, pTextImgBuffer, pTextShowTime, pTextBlend, pSpeed, pVX, pFlexible, pVY, pTransitState, pFadeSpeed, adShowTime, pZoom, pXFactor
+property pSprite, pScrImg, pWriterID, pTransition, StateOfAd, pheight, pwidth, adMember, pTransitBuffer, adLink, adIdNum, pJumperObj, pTextShowState, pTargetObj, pTargetSpr, AdWaitScore, pLastCropPoint, pTextImgBuffer, pTextShowTime, pTextBlend, pSpeed, pVX, pFlexible, pVY, pTransitState, pFadeSpeed, adShowTime, pZoom, pXFactor
 
 on construct me 
   pheight = 108
@@ -16,7 +16,9 @@ on construct me
   pSprite = getThread(#room).getInterface().getRoomVisualizer().getSprById("cam1")
   pScrImg = member(getmemnum("fuse_screen")).image
   pTargetSpr = pSprite
-  member(getmemnum("fuse_screen")).image = member(getmemnum("fuse_screen_logo")).image
+  if memberExists("fuse_screen_logo") then
+    pScrImg.copyPixels(member(getmemnum("fuse_screen_logo")).image, pScrImg.rect, pScrImg.rect)
+  end if
   pTransition = 0
   pTextShowState = 0
   StateOfAd = 0
@@ -30,7 +32,6 @@ on construct me
     return(error(me, "Couldn't create writer for screen!", #construct))
   else
     getWriter(pWriterID).define([#alignment:#center, #rect:rect(0, 0, 108, 10)])
-    me.fuseShow_transition("fade")
     receivePrepare(me.getID())
     return(1)
   end if
@@ -71,16 +72,16 @@ on fuseShow_transition me, tTran
   if StateOfAd = 0 then
     if tTran = "cameraPan" then
       pTransition = "cameraPan"
-      pTargetObj = ""
+      pTargetObj = void()
       pSpeed = 5 + random(25)
       pFlexible = 30 + random(20)
     else
       if tTran = "fade" then
         pTransition = "fade"
-        pTargetObj = ""
+        pTargetObj = void()
         pTransitBuffer = image(pheight, pwidth, 16)
         pTransitState = 0
-        pFadeSpeed = random(2) * 10
+        pFadeSpeed = (random(2) * 10)
       end if
     end if
   end if
@@ -143,7 +144,7 @@ on mouseDown me
     if adLink contains "http:" then
       openNetPage(adLink)
     end if
-    getConnection(getVariable("connection.info.id")).send(#info, "ADCLICK" && adIdNum)
+    getConnection(getVariable("connection.info.id")).send("ADCLICK", adIdNum)
   end if
 end
 
@@ -236,7 +237,7 @@ on showText me
           pTextBlend = 0
           pTextShowState = 0
         end if
-        pScrImg.copyPixels(member(getmemnum("fuse_screen.bgbox")).image, rect(0, pwidth - pTextImgBuffer.height - 2, pheight, pwidth), member(getmemnum("fuse_screen.bgbox")).rect, [#blend:integer(pTextBlend / 2)])
+        pScrImg.copyPixels(member(getmemnum("fuse_screen.bgbox")).image, rect(0, pwidth - pTextImgBuffer.height - 2, pheight, pwidth), member(getmemnum("fuse_screen.bgbox")).rect, [#blend:integer((pTextBlend / 2))])
         pScrImg.copyPixels(pTextImgBuffer, rect(0, pwidth - pTextImgBuffer.height, pheight, pwidth), pTextImgBuffer.rect, [#blend:pTextBlend])
       end if
     end if
@@ -246,10 +247,10 @@ end
 on cameraPan me, tTransitionTargetPoint 
   tX = pLastCropPoint.locH
   tY = pLastCropPoint.locV
-  tAX = tTransitionTargetPoint.locH - tX * pSpeed / 100
-  tAY = tTransitionTargetPoint.locV - tY * pSpeed / 100
-  pVX = pVX + tAX * pFlexible / 100
-  pVY = pVY + tAY * pFlexible / 100
+  tAX = (tTransitionTargetPoint.locH - tX * (pSpeed / 100))
+  tAY = (tTransitionTargetPoint.locV - tY * (pSpeed / 100))
+  pVX = (pVX + tAX * (pFlexible / 100))
+  pVY = (pVY + tAY * (pFlexible / 100))
   tX = tX + pVX
   tY = tY + pVY
   me.cameraCrop(point(tX, tY))
@@ -304,19 +305,19 @@ on cameraCrop me, tpoint, tBufferImage
       tpoint = tpoint + point(pXFactor, 0)
     end if
   end if
-  if tpoint.locH - pheight / pZoom < 0 then
-    tpoint.locH = pheight / pZoom
+  if tpoint.locH - (pheight / pZoom) < 0 then
+    tpoint.locH = (pheight / pZoom)
   end if
-  if tpoint.locH + pheight / pZoom > the stageRight - the stageLeft then
-    tpoint.locH = the stageRight - the stageLeft - pheight / pZoom
+  if tpoint.locH + (pheight / pZoom) > the stageRight - the stageLeft then
+    tpoint.locH = the stageRight - the stageLeft - (pheight / pZoom)
   end if
-  if tpoint.locV - pwidth / pZoom < 0 then
-    tpoint.locV = pwidth / pZoom
+  if tpoint.locV - (pwidth / pZoom) < 0 then
+    tpoint.locV = (pwidth / pZoom)
   end if
-  if tpoint.locV + pwidth / pZoom > 480 then
-    tpoint.locV = 480 - pwidth / pZoom
+  if tpoint.locV + (pwidth / pZoom) > 480 then
+    tpoint.locV = 480 - (pwidth / pZoom)
   end if
-  tCropRect = rect(tpoint.locH - pheight / pZoom, tpoint.locV - pwidth / pZoom, tpoint.locH + pheight / pZoom, tpoint.locV + pwidth / pZoom)
+  tCropRect = rect(tpoint.locH - (pheight / pZoom), tpoint.locV - (pwidth / pZoom), tpoint.locH + (pheight / pZoom), tpoint.locV + (pwidth / pZoom))
   tCropScrImg = image.crop(tCropRect)
   if voidp(tBufferImage) then
     pScrImg.copyPixels(tCropScrImg, rect(0, 0, pheight, pwidth), tCropScrImg.rect)

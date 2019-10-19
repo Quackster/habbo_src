@@ -587,7 +587,7 @@ on buildVisual me, tLayout
       tSpr.blend = 100
       tGeometry = tThread.getInterface().getGeometry()
       tScreenLoc = tGeometry.getScreenCoordinate(2, 2, 0)
-      tSpr.locZ = tSpriteList.getAt(tSpriteList.count).locZ + 100 * 1000
+      tSpr.locZ = tSpriteList.getAt(tSpriteList.count).locZ + (100 * 1000)
       tSpriteList.append(tSpr)
       pSpriteData.append([:])
     end if

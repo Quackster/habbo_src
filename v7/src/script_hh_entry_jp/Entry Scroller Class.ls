@@ -83,13 +83,13 @@ on update me
       pStepForward = 0
     end if
     if pShowStep = "show" then
-      tTemp = pStepVariable - 1 * 104
+      tTemp = (pStepVariable - 1 * 104)
       image.copyPixels(pScrollFrmsMem.image, rect(0, 0, 104, 23), rect(tTemp, 0, tTemp + 104, 23), [#ink:0])
       pStepForward = 1
     else
       if pShowStep = "scroll" then
         image.copyPixels(pMember2D.image, rect(0, 0, 102, 23), rect(2, 0, 104, 23), [#ink:0])
-        tTemp = pStepVariable - 1 * 104 + pScrollPhase
+        tTemp = (pStepVariable - 1 * 104) + pScrollPhase
         image.copyPixels(pScrollFrmsMem.image, rect(102, 0, 104, 23), rect(tTemp, 0, tTemp + 2, 23), [#ink:0])
         pScrollPhase = pScrollPhase + 2
         if pScrollPhase > 103 then
@@ -98,7 +98,7 @@ on update me
         end if
       else
         if pShowStep = "pause" then
-          if the milliSeconds > pLastPauseStart + pStepVariable * 1000 then
+          if the milliSeconds > pLastPauseStart + (pStepVariable * 1000) then
             pStepForward = 1
           end if
         else
@@ -106,7 +106,7 @@ on update me
             tTempImage = image(104, 23, 8)
             tTempImage.copyPixels(pMember2D.image, rect(0, 0, 104, 23), rect(0, 0, 104, 23), [#ink:0])
             image.copyPixels(tTempImage, rect(0, 1, 104, 23), rect(0, 0, 104, 22), [#ink:0])
-            tTemp = pStepVariable - 1 * 104
+            tTemp = (pStepVariable - 1 * 104)
             image.copyPixels(pScrollFrmsMem.image, rect(0, 0, 104, 1), rect(tTemp, 22 - pScrollPhase, tTemp + 104, 23 - pScrollPhase), [#ink:0])
             pScrollPhase = pScrollPhase + 1
             if pScrollPhase > 22 then

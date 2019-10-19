@@ -191,10 +191,10 @@ on replaceTimeKeys me, tText, tTotalSeconds, tKeyPrefix
   if voidp(tTotalSeconds) then
     return(tText)
   end if
-  tTotalMinutes = tTotalSeconds / 60
-  tHours = tTotalMinutes / 60
-  tMinutes = tTotalMinutes mod 60
-  tSeconds = tTotalSeconds mod 60
+  tTotalMinutes = (tTotalSeconds / 60)
+  tHours = (tTotalMinutes / 60)
+  tMinutes = (tTotalMinutes mod 60)
+  tSeconds = (tTotalSeconds mod 60)
   tText = replaceChunks(tText, "%" & tKeyPrefix & "hours%", tHours)
   tText = replaceChunks(tText, "%" & tKeyPrefix & "minutes%", tMinutes)
   tText = replaceChunks(tText, "%" & tKeyPrefix & "seconds%", tSeconds)
@@ -236,8 +236,8 @@ on updateFurniSlots me
     tClass = tFurniItem.getAt(#class)
     tMemStr = me.detectMemberName(tClass, tProps)
     tFurniImage = getObject("Preview_renderer").renderPreviewImage(tMemStr, void(), tProps.getAt(#colors), tProps.getAt(#class))
-    tWidthMargin = tSlotWidth - tFurniImage.width / 2
-    tHeightMargin = tSlotHeight - tFurniImage.height / 2
+    tWidthMargin = (tSlotWidth - tFurniImage.width / 2)
+    tHeightMargin = (tSlotHeight - tFurniImage.height / 2)
     tTargetRect = tFurniImage.rect + rect(tWidthMargin, tHeightMargin, tWidthMargin, tHeightMargin)
     tIconImage.copyPixels(tFurniImage, tTargetRect, tFurniImage.rect)
     tSlotElement.feedImage(tIconImage)
@@ -270,7 +270,7 @@ on detectMemberName me, tClass, tProps
   tClass = tClass.getProp(#item, 1)
   the itemDelimiter = tDelim
   if tClass contains "post_it" then
-    tCount = integer(value(tProps.getAt(#props)) / 20 / 6)
+    tCount = integer((value(tProps.getAt(#props)) / (20 / 6)))
     if tCount > 6 then
       tCount = 6
     end if

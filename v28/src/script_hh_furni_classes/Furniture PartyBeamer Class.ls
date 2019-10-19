@@ -5,12 +5,12 @@ on define me, tdata
   pAnimItemList = []
   if me.pXFactor = 32 then
     pAreaDiameter = 15
-    pAnimItemList.add([#phase:random(pAreaDiameter * 1.5) - pAreaDiameter, #direction:1, #speed:2, #factor:me.getRandomAmplitudeFactor()])
-    pAnimItemList.add([#phase:random(pAreaDiameter * 1.5) - pAreaDiameter, #direction:-1, #speed:1, #factor:me.getRandomAmplitudeFactor()])
+    pAnimItemList.add([#phase:random((pAreaDiameter * 1.5)) - pAreaDiameter, #direction:1, #speed:2, #factor:me.getRandomAmplitudeFactor()])
+    pAnimItemList.add([#phase:random((pAreaDiameter * 1.5)) - pAreaDiameter, #direction:-1, #speed:1, #factor:me.getRandomAmplitudeFactor()])
   else
     pAreaDiameter = 31
-    pAnimItemList.add([#phase:random(pAreaDiameter * 1.5) - pAreaDiameter, #direction:1, #speed:2, #factor:me.getRandomAmplitudeFactor()])
-    pAnimItemList.add([#phase:random(pAreaDiameter * 1.5) - pAreaDiameter, #direction:-1, #speed:1, #factor:me.getRandomAmplitudeFactor()])
+    pAnimItemList.add([#phase:random((pAreaDiameter * 1.5)) - pAreaDiameter, #direction:1, #speed:2, #factor:me.getRandomAmplitudeFactor()])
+    pAnimItemList.add([#phase:random((pAreaDiameter * 1.5)) - pAreaDiameter, #direction:-1, #speed:1, #factor:me.getRandomAmplitudeFactor()])
   end if
   pMiddlePoint = void()
   return(me.define(tdata))
@@ -39,17 +39,17 @@ on getNewPoint me, tItem
   tDirection = tItem.getaProp(#direction)
   tSpeed = tItem.getaProp(#speed)
   tFactor = tItem.getaProp(#factor)
-  if abs(tPhase + tDirection * tSpeed) >= pAreaDiameter then
+  if abs(tPhase + (tDirection * tSpeed)) >= pAreaDiameter then
     tItem.setaProp(#direction, -tDirection)
   end if
-  tAmplitude = pAreaDiameter - abs(tPhase) * tFactor
-  tLocY = tDirection * sin(abs(tPhase / 4)) * tAmplitude
+  tAmplitude = (pAreaDiameter - abs(tPhase) * tFactor)
+  tLocY = ((tDirection * sin(abs((tPhase / 4)))) * tAmplitude)
   if tDirection > 0 then
     tLocY = tLocY - tAmplitude
   else
     tLocY = tLocY + tAmplitude
   end if
-  tItem.setaProp(#phase, tPhase + tDirection * tSpeed)
+  tItem.setaProp(#phase, tPhase + (tDirection * tSpeed))
   if integer(tLocY) = 0 then
     tItem.setaProp(#factor, me.getRandomAmplitudeFactor())
   end if
@@ -57,5 +57,5 @@ on getNewPoint me, tItem
 end
 
 on getRandomAmplitudeFactor me 
-  return(random(30) / 100 + 0.15)
+  return((random(30) / 100) + 0.15)
 end

@@ -18,7 +18,7 @@ on connect me, tHost, tPort
   pHost = tHost
   pPort = tPort
   pXtra = new(xtra("Multiuser"))
-  pXtra.setNetBufferLimits(16 * 1024, 100 * 1024, 100)
+  pXtra.setNetBufferLimits((16 * 1024), (100 * 1024), 100)
   tErrCode = pXtra.setNetMessageHandler(#xtraMsgHandler, me)
   if tErrCode = 0 then
     pXtra.connectToNetServer("*", "*", pHost, pPort, "*", 0)

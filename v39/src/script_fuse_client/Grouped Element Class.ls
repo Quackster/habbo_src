@@ -89,7 +89,7 @@ on resizeBy me, tOffH, tOffV
     pLocX = pLocX + tOffH
   else
     if pScaleH = #center then
-      pLocX = pLocX + tOffH / 2
+      pLocX = pLocX + (tOffH / 2)
     else
       if pScaleH = #scale then
         pwidth = pwidth + tOffH
@@ -100,7 +100,7 @@ on resizeBy me, tOffH, tOffV
     pLocY = pLocY + tOffV
   else
     if pScaleH = #center then
-      pLocY = pLocY + tOffV / 2
+      pLocY = pLocY + (tOffV / 2)
     else
       if pScaleH = #scale then
         pheight = pheight + tOffV

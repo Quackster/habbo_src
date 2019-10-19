@@ -19,7 +19,7 @@ on createWindow tid, tLayout, tLocX, tLocY, tSpecial
 end
 
 on removeWindow tid 
-  return(getWindowManager().Remove(tid))
+  return(getWindowManager().remove(tid))
 end
 
 on getWindow tid 

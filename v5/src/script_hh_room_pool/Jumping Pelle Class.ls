@@ -113,7 +113,7 @@ on StopJumping me
   else
     if pScreenUpOrDown = #down then
       pJumStoploc = point(429, 310)
-      jumpReadyV = pJumStoploc.locV + pJumStoploc.locH - pMyLoc.locH / 2
+      jumpReadyV = pJumStoploc.locV + (pJumStoploc.locH - pMyLoc.locH / 2)
       if pBigSplashActive = 0 and pMyLoc.locV >= jumpReadyV - 40 then
         pBigSplashActive = 1
         if not objectExists(#pool_bigSplash) then
@@ -219,8 +219,8 @@ on JumpingExitFrame me
         AnimListCounter = 1
       end if
       jumpAnimFrame = runAnimList.getAt(AnimListCounter)
-      pMyLoc.locH = pMyLoc.locH - 2 * integer(pSpeed)
-      pnewLocV = pnewLocV + 1 * integer(pSpeed)
+      pMyLoc.locH = pMyLoc.locH - (2 * integer(pSpeed))
+      pnewLocV = pnewLocV + (1 * integer(pSpeed))
       if pSpeed > 1 then
         pMyLoc.locV = pnewLocV - jumpAnimFrame
       else
@@ -241,12 +241,12 @@ on JumpingExitFrame me
     me.StopRunnig()
   else
     if pStatus = #jump then
-      pMyLoc.locH = pMyLoc.locH - 2 * integer(pSpeed)
-      pnewLocV = pnewLocV + 1 * integer(pSpeed) - pJumpSpeed
+      pMyLoc.locH = pMyLoc.locH - (2 * integer(pSpeed))
+      pnewLocV = pnewLocV + (1 * integer(pSpeed)) - pJumpSpeed
       pMyLoc.locV = pnewLocV
       pJumpSpeed = pJumpSpeed - pVelocityV
       if pMyLoc.locH > pjumpBoardEnd then
-        jumpBoardColV = pStartloc.locV + pStartloc.locH - pMyLoc.locH / 2
+        jumpBoardColV = pStartloc.locV + (pStartloc.locH - pMyLoc.locH / 2)
         if pMyLoc.locV >= jumpBoardColV then
           pMyLoc.locV = jumpBoardColV
           pStatus = #Run
@@ -364,7 +364,7 @@ on JumpingExitFrame me
 end
 
 on jumpBoardCollisionD me, tNum 
-  return(pStartloc.locV + integer(pStartloc.locH - tNum / 2))
+  return(pStartloc.locV + integer((pStartloc.locH - tNum / 2)))
 end
 
 on MykeyDown me, tPelleKey 
@@ -391,7 +391,7 @@ on MykeyDown me, tPelleKey
             pStatus = #jump
             pJumpSpeed = 0
             if pMyLoc.locH < pjumpBoardStart and pMyLoc.locH > pjumpBoardEnd then
-              pJumpSpeed = pjumpBoardStart - pMyLoc.locH / 22 * pSpeed
+              pJumpSpeed = ((pjumpBoardStart - pMyLoc.locH / 22) * pSpeed)
             end if
             pJumpSpeed = pJumpSpeed + 5
             pJumpDirection = "u"

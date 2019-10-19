@@ -52,7 +52,7 @@ on setupStatusWindow me, ttype
   tPrepaid = tClubInfo.getAt(#PrepaidPeriods)
   tArrowElem = tWndObj.getElement("club_arrow")
   tLocH = tArrowElem.getProperty(#locH)
-  tLocH = tLocH + 31 - tDaysLeft * 5
+  tLocH = tLocH + (31 - tDaysLeft * 5)
   tArrowElem.setProperty(#locH, tLocH)
   tElem = tWndObj.getElement("club_elapsed_periods")
   tElem.setText(string(tElapsed))

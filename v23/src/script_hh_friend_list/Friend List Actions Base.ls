@@ -51,7 +51,7 @@ on addFriend me, tFriendData
   me.setProp(#pContentList, tName, tFriendData.duplicate())
   tFriendImg = me.renderFriendItem(tFriendData, 0)
   tIndex = me.findPos(tName)
-  tPosV = tIndex - 1 * me.pItemHeight
+  tPosV = (tIndex - 1 * me.pItemHeight)
   me.pListImg = me.insertImageTo(tFriendImg, me.duplicate(), tPosV)
 end
 
@@ -63,7 +63,7 @@ on updateFriend me, tFriendData
   end if
   me.setProp(#pContentList, tName, tFriendData)
   tFriendImg = me.renderFriendItem(tFriendData, 0)
-  tPosV = tIndex - 1 * me.pItemHeight
+  tPosV = (tIndex - 1 * me.pItemHeight)
   me.pListImg = me.updateImagePart(tFriendImg, me.duplicate(), tPosV)
 end
 
@@ -73,7 +73,7 @@ on removeFriend me, tFriendID
     tFriend = me.getAt(tIndex)
     if tFriend.getAt(#id) = tFriendID then
       tIndex = me.findPos(tFriend.getAt(#name))
-      tStartPosV = tIndex - 1 * me.pItemHeight
+      tStartPosV = (tIndex - 1 * me.pItemHeight)
       tEndPosV = tStartPosV + me.pItemHeight
       me.pListImg = me.removeImagePart(me.duplicate(), tStartPosV, tEndPosV)
       me.deleteAt(tIndex)
@@ -88,7 +88,7 @@ on setFriendSelection me, tName, tSelected
   tFriendData = me.getProp(#pContentList, tName)
   tFriendImg = me.renderFriendItem(tFriendData, tSelected)
   tIndex = me.findPos(tName)
-  tPosV = tIndex - 1 * me.pItemHeight
+  tPosV = (tIndex - 1 * me.pItemHeight)
   me.pListImg = me.updateImagePart(tFriendImg, me.duplicate(), tPosV)
   if tSelected then
     me.selectFriend(tFriendData.getAt(#name))

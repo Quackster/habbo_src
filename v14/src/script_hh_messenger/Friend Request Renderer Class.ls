@@ -35,8 +35,8 @@ end
 
 on showNextPage me 
   pCurrentPageIndex = pCurrentPageIndex + 1
-  tPagesAvailable = pRequestList.count / pRequestsPerPage
-  if pRequestList.count mod pRequestsPerPage > 0 then
+  tPagesAvailable = (pRequestList.count / pRequestsPerPage)
+  if (pRequestList.count mod pRequestsPerPage) > 0 then
     tPagesAvailable = tPagesAvailable + 1
   end if
   if pCurrentPageIndex > tPagesAvailable then
@@ -104,7 +104,7 @@ on getDeclinedList me
 end
 
 on toggleItemSelection me, tItemNumber 
-  tRequestIndex = pCurrentPageIndex - 1 * pRequestsPerPage + tItemNumber
+  tRequestIndex = (pCurrentPageIndex - 1 * pRequestsPerPage) + tItemNumber
   if tRequestIndex > pRequestList.count then
     return(0)
   end if
@@ -155,8 +155,8 @@ on updateView me, tRequestPageIndex
   if voidp(tRequestPageIndex) then
     tRequestPageIndex = pCurrentPageIndex
   end if
-  tPagesAvailable = pRequestList.count / pRequestsPerPage
-  if pRequestList.count mod pRequestsPerPage > 0 then
+  tPagesAvailable = (pRequestList.count / pRequestsPerPage)
+  if (pRequestList.count mod pRequestsPerPage) > 0 then
     tPagesAvailable = tPagesAvailable + 1
   end if
   if tRequestPageIndex < 1 then
@@ -193,7 +193,7 @@ on updateListItemView me, tItemNumber
     return(0)
   end if
   tWindowObj = getWindow(pWindowID)
-  tFirstIndexOnPage = pCurrentPageIndex - 1 * pRequestsPerPage + 1
+  tFirstIndexOnPage = (pCurrentPageIndex - 1 * pRequestsPerPage) + 1
   tRequestIndex = tItemNumber + tFirstIndexOnPage - 1
   tCheckElemID = "fr_check_" & tItemNumber
   tCheckElem = tWindowObj.getElement(tCheckElemID)

@@ -145,7 +145,7 @@ on createStripItem me, tdata
         tIconClassStr = "poster" && tdata.getAt(#props)
       else
         if tdata.getAt(#class) contains "post_it" then
-          tPostnums = integer(value(tdata.getAt(#props)) / 20 / 6)
+          tPostnums = integer((value(tdata.getAt(#props)) / (20 / 6)))
           if tPostnums > 6 then
             tPostnums = 6
           end if
@@ -256,7 +256,7 @@ on expireStripItem me, tObjID
           tHand = getVisualizer(pHandVisID)
           tHandSpr = tHand.getSprById("room_hand")
           tLocZOffset = 500
-          tCloudEffect.defineWithSprite(tHandSpr, #large, point(-tHandSpr.width / 4, tHandSpr.height), tLocZOffset)
+          tCloudEffect.defineWithSprite(tHandSpr, #large, point((-tHandSpr.width / 4), tHandSpr.height), tLocZOffset)
         end if
       end if
       me.removeStripItem(tItem.getAt(#stripId))
@@ -660,8 +660,8 @@ on setHandButtonsVisible me, tVisible
       return(0)
     end if
     tLocX3 = tElem3.getProperty(#locX)
-    tcenter = tLocX3 + tElem1.getProperty(#locX) + tElem1.getProperty(#width) - tLocX3 / 2
-    tElem2.moveTo(tcenter - tElem2.getProperty(#width) / 2, tElem2.getProperty(#locY))
+    tcenter = tLocX3 + (tElem1.getProperty(#locX) + tElem1.getProperty(#width) - tLocX3 / 2)
+    tElem2.moveTo(tcenter - (tElem2.getProperty(#width) / 2), tElem2.getProperty(#locY))
   end if
   tWndObj = getWindow(pHandButtonsWnd)
   if not tWndObj.elementExists("habbo_hand_next") or not tWndObj.elementExists("habbo_hand_next") then

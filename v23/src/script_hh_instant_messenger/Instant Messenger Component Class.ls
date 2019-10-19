@@ -14,7 +14,7 @@ on construct me
   repeat while tCharNo <= tStamp.length
     tChar = chars(tStamp, tCharNo, tCharNo)
     tChar = charToNum(tChar)
-    tChar = tChar * tCharNo + 309203
+    tChar = (tChar * tCharNo) + 309203
     tReceipt.setAt(tCharNo, tChar)
     tCharNo = 1 + tCharNo
   end repeat

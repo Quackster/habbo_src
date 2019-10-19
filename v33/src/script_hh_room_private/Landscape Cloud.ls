@@ -68,9 +68,9 @@ end
 
 on getLocV me, tLocH 
   if pCurrentSide = #left then
-    tLocV = me.locV + pLastTurnPoint.locH - tLocH / 2
+    tLocV = me.locV + (pLastTurnPoint.locH - tLocH / 2)
   else
-    tLocV = me.locV + tLocH - pLastTurnPoint.locH / 2
+    tLocV = me.locV + (tLocH - pLastTurnPoint.locH / 2)
   end if
   return(tLocV + pOffsetV)
 end
@@ -81,11 +81,11 @@ on randomizeLoc me, tAlignToLeft
   else
     tLocX = random(the stageRight - the stageLeft)
   end if
-  if tLocX mod 2 = 1 then
+  if (tLocX mod 2) = 1 then
     tLocX = tLocX + 1
   end if
   pCurrentSide = #left
-  pOffsetV = random(pWallHeight - 2 * pImageLeft.height) + pImageLeft.height
+  pOffsetV = random(pWallHeight - (2 * pImageLeft.height)) + pImageLeft.height
   pLoc = point(tLocX, 0)
   me.saveNextTurnPoint()
   tLocY = me.getLocV(tLocX)
@@ -114,7 +114,7 @@ on render me, tImage
   else
     if pLoc.getAt(1) < pNextTurnPointH then
       if pCurrentSide = #left then
-        tSourceImage = image(pImageLeft.width, pImageLeft.height * 2, 8)
+        tSourceImage = image(pImageLeft.width, (pImageLeft.height * 2), 8)
         tSourceImage.copyPixels(pImageLeft, pImageLeft.rect, pImageLeft.rect)
         tWidthLeft = pNextTurnPointH - pLoc.getAt(1)
         tSourceImage.fill(tWidthLeft, 0, tSourceImage.width, tSourceImage.height, color(255, 255, 255))
@@ -124,10 +124,10 @@ on render me, tImage
         tRightTargetRect = tRightSourceRect + rect(0, tOffV, 0, tOffV)
         tSourceImage.copyPixels(pImageRight, tRightTargetRect, tRightSourceRect)
       else
-        tSourceImage = image(pImageRight.width, pImageRight.height * 2, 8)
+        tSourceImage = image(pImageRight.width, (pImageRight.height * 2), 8)
         tWidthRight = pNextTurnPointH - pLoc.getAt(1)
         tWidthLeft = pImageLeft.width - tWidthRight
-        tOffV = pImageRight.height / 2
+        tOffV = (pImageRight.height / 2)
         tSourceRect = rect(0, 0, tWidthRight, pImageRight.height)
         tTargetRect = tSourceRect + rect(0, tOffV, 0, tOffV)
         tSourceImage.copyPixels(pImageRight, tTargetRect, tSourceRect)

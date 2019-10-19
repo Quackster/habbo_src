@@ -1,4 +1,4 @@
-property pTaskQueue, pActiveTasks, pReceivedTasks, pCompleteTasks, pTypeDefList
+property pTaskQueue, pActiveTasks, pReceivedTasks, pCompleteTasks, pDefaultURL, pTypeDefList
 
 on construct me 
   pTaskQueue = [:]
@@ -6,6 +6,7 @@ on construct me
   pReceivedTasks = []
   pCompleteTasks = []
   pTypeDefList = [:]
+  pDefaultURL = the moviePath
   return(1)
 end
 
@@ -21,7 +22,7 @@ on create me, tURL, tMemName, ttype, tForceFlag
   return(queue(me, tURL, tMemName, ttype, tForceFlag))
 end
 
-on Remove me, tMemNameOrNum 
+on remove me, tMemNameOrNum 
   return(me.abort(tMemNameOrNum))
 end
 
@@ -143,7 +144,7 @@ on getProperty me, tPropID
         return(getIntVariable("net.operation.count"))
       else
         if tPropID = #defaultURL then
-          return(getMoviePath())
+          return(pDefaultURL)
         else
           return(0)
         end if
@@ -153,7 +154,11 @@ on getProperty me, tPropID
 end
 
 on setProperty me, tPropID, tValue 
-  return(0)
+  if tPropID = #defaultURL then
+    return(me.setDefaultURL(tValue))
+  else
+    return(0)
+  end if
 end
 
 on solveNetErrorMsg me, tErrorCode 
@@ -286,6 +291,14 @@ on searchTask me, tMemNameOrNum
     end if
   end if
   return(error(me, "Member's name or number expected:" && tMemNameOrNum, #searchTask))
+end
+
+on setDefaultURL me, tValue 
+  if not stringp(tValue) then
+    return(error(me, "String expected:" && tValue, #setDefaultURL))
+  end if
+  pDefaultURL = tValue
+  return(1)
 end
 
 on updateQueue me 

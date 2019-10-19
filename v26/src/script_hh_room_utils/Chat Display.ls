@@ -263,17 +263,17 @@ on update me
     return(0)
   end if
   if pMessageBuffer.count > pSpeedUpChatBufferLim then
-    pScrollSpdMultiplier = 1 + float(pMessageBuffer.count - pSpeedUpChatBufferLim) * 0.5
+    pScrollSpdMultiplier = 1 + (float(pMessageBuffer.count - pSpeedUpChatBufferLim) * 0.5)
   else
     pScrollSpdMultiplier = 1
   end if
   if pAutoScrollOn then
-    tOffV = integer(3 * pScrollSpdMultiplier)
+    tOffV = integer((3 * pScrollSpdMultiplier))
     if tOffV + pAutoScrolledNow > pAutoScrollAmountPx then
       tOffV = pAutoScrollAmountPx - pAutoScrolledNow
     end if
     pAutoScrolledNow = pAutoScrolledNow + tOffV
-    me.moveAllItemsUpBy(-1 * tOffV)
+    me.moveAllItemsUpBy((-1 * tOffV))
     if pAutoScrolledNow >= pAutoScrollAmountPx then
       pAutoScrolledNow = 0
       pAutoScrollOn = 0
@@ -294,7 +294,7 @@ on update me
         tCount = pMessageBuffer.count
         k = 1
         repeat while k <= tCount - pMaximumChatBufferSize
-          me.moveAllItemsUpBy(-1 * pAutoScrollAmountPx)
+          me.moveAllItemsUpBy((-1 * pAutoScrollAmountPx))
           if k <> 1 then
             me.showNextChatMessage()
           end if

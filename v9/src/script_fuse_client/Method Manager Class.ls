@@ -30,9 +30,9 @@ on getMethod me, tConnectionID, tCommand
   end if
 end
 
-on Remove me, tid 
+on remove me, tid 
   if voidp(me.getProp(#pItemList, tid)) then
-    return(error(me, "Object not found:" && tid, #Remove))
+    return(error(me, "Object not found:" && tid, #remove))
   else
     me.unregister(tid)
     me.deleteProp(tid)

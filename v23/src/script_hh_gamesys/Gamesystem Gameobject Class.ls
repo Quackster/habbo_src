@@ -81,7 +81,7 @@ on addChecksum me
   i = 1
   repeat while i <= pGameObjectSyncValues.count
     if ilk(pGameObjectSyncValues.getAt(i)) = #integer then
-      tCheckSum = tCheckSum + pGameObjectSyncValues.getAt(i) * tCounter
+      tCheckSum = tCheckSum + (pGameObjectSyncValues.getAt(i) * tCounter)
       tCounter = tCounter + 1
     end if
     i = 1 + i

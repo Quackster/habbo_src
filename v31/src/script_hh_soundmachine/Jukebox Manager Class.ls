@@ -1,6 +1,4 @@
-property pWriterID, pPlaylistWriterID, pPlaylistLimit, pOwner, pDiskListImage, pDiskListRenderList, pSelectedDisk, pPlaylistWidth, pPlaylistHeight, pDiskList, pDiskArrayWidth, pDiskArrayHeight, pSelectedEject, pItemWidth, pItemMarginX, pItemHeight, pItemMarginY, pEjectNameSelected, pConnectionId, pItemName, pItemNameSelected, pItemNameEmpty, pItemNameEmptySelected, pEjectName, pTextEmpty, pTextLoadTrax, pSelectedLoad
-
-on construct me 
+on construct(me)
   pConnectionId = getVariable("connection.info.id", #info)
   pWriterID = getUniqueID()
   tBold = getStructVariable("struct.font.plain")
@@ -33,26 +31,30 @@ on construct me
   pOwner = 1
   pDiskListImage = void()
   pEditorSongID = 0
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   if writerExists(pWriterID) then
     removeWriter(pWriterID)
   end if
   if writerExists(pPlaylistWriterID) then
     removeWriter(pPlaylistWriterID)
   end if
+  exit
 end
 
-on setOwner me, towner 
+on setOwner(me, towner)
   pOwner = towner
+  exit
 end
 
-on getOwner me 
+on getOwner(me)
   return(pOwner)
+  exit
 end
 
-on renderDiskList me 
+on renderDiskList(me)
   if voidp(pDiskListImage) then
     pDiskListRenderList = void()
   else
@@ -66,9 +68,10 @@ on renderDiskList me
   end if
   pDiskListRenderList = []
   return(tRetVal)
+  exit
 end
 
-on renderPlaylist me, tSongList 
+on renderPlaylist(me, tSongList)
   if ilk(tSongList) <> #list then
     return(0)
   end if
@@ -94,9 +97,10 @@ on renderPlaylist me, tSongList
     end repeat
   end if
   return(tImg)
+  exit
 end
 
-on diskListMouseClick me, tX, tY 
+on diskListMouseClick(me, tX, tY)
   tEmpty = 0
   if pSelectedDisk < 1 or pSelectedDisk > pDiskList.count then
     if pSelectedDisk > pDiskList.count and pSelectedDisk <= pDiskArrayWidth * pDiskArrayHeight then
@@ -119,9 +123,10 @@ on diskListMouseClick me, tX, tY
     end if
   end if
   return(0)
+  exit
 end
 
-on diskListMouseOver me, tX, tY 
+on diskListMouseOver(me, tX, tY)
   tItemX = 1 + tX / pItemWidth + pItemMarginX
   tItemY = 1 + tY / pItemHeight + pItemMarginY
   tItem = tItemX + tItemY - 1 * pDiskArrayWidth
@@ -158,9 +163,10 @@ on diskListMouseOver me, tX, tY
     return(1)
   end if
   return(tRetVal)
+  exit
 end
 
-on getJukeboxDisks me 
+on getJukeboxDisks(me)
   pDiskList = []
   pSelectedDisk = 0
   pSelectedEject = 0
@@ -168,9 +174,10 @@ on getJukeboxDisks me
     return(getConnection(pConnectionId).send("GET_JUKEBOX_DISCS"))
   end if
   return(0)
+  exit
 end
 
-on renderList me, tImg 
+on renderList(me, tImg)
   if ilk(pDiskList) <> #list then
     return(0)
   end if
@@ -260,9 +267,10 @@ on renderList me, tImg
     tImg = me.renderEjectImage(tImg)
   end if
   return(tImg)
+  exit
 end
 
-on renderEjectImage me, tImg 
+on renderEjectImage(me, tImg)
   tWidth = pItemWidth + pItemMarginX * pDiskArrayWidth - pItemMarginX
   tHeight = pItemHeight + pItemMarginY * pDiskArrayHeight - pItemMarginY
   if voidp(tImg) then
@@ -293,9 +301,10 @@ on renderEjectImage me, tImg
     tImg.copyPixels(tSourceImg, tRect, tSourceImg.rect, [#ink:8, #maskImage:tSourceImg.createMatte()])
   end if
   return(tImg)
+  exit
 end
 
-on getDiskName me, tIndex 
+on getDiskName(me, tIndex)
   if tIndex < 1 or tIndex > pDiskList.count then
     return(pTextEmpty)
   end if
@@ -305,9 +314,10 @@ on getDiskName me, tIndex
     end if
   end if
   return(pTextEmpty)
+  exit
 end
 
-on getDiskAuthor me, tIndex 
+on getDiskAuthor(me, tIndex)
   tLoad = 0
   if tIndex < 1 or tIndex > pDiskList.count then
     tLoad = 1
@@ -324,9 +334,10 @@ on getDiskAuthor me, tIndex
     return(pTextLoadTrax)
   end if
   return("")
+  exit
 end
 
-on parseDiskList me, tMsg 
+on parseDiskList(me, tMsg)
   if voidp(tMsg.connection) then
     return(0)
   end if
@@ -355,16 +366,18 @@ on parseDiskList me, tMsg
   end repeat
   pDiskListImage = void()
   return(1)
+  exit
 end
 
-on showLoadDisk me 
+on showLoadDisk(me)
   if pOwner then
     pSelectedLoad = pSelectedDisk
     executeMessage(#show_select_disk)
   end if
+  exit
 end
 
-on insertDisk me, tID 
+on insertDisk(me, tID)
   if pSelectedLoad < 1 or pSelectedLoad > pDiskList.count then
     return(0)
   end if
@@ -375,9 +388,10 @@ on insertDisk me, tID
     return(getConnection(pConnectionId).send("ADD_JUKEBOX_DISC", [#integer:tID, #integer:pSelectedLoad]))
   end if
   return(0)
+  exit
 end
 
-on removeDisk me 
+on removeDisk(me)
   if pSelectedDisk < 1 or pSelectedDisk > pDiskList.count then
     return(0)
   end if
@@ -389,9 +403,10 @@ on removeDisk me
     return(getConnection(pConnectionId).send("REMOVE_JUKEBOX_DISC", [#integer:pSelectedDisk]))
   end if
   return(0)
+  exit
 end
 
-on addPlaylistDisk me 
+on addPlaylistDisk(me)
   if pSelectedDisk < 1 or pSelectedDisk > pDiskList.count then
     return(0)
   end if
@@ -403,4 +418,5 @@ on addPlaylistDisk me
     return(getConnection(pConnectionId).send("JUKEBOX_PLAYLIST_ADD", [#integer:tID]))
   end if
   return(0)
+  exit
 end

@@ -2,7 +2,7 @@ property pDirection, pSprite, pPauseTime, pOffset, pTurnPnt
 
 on define me, tsprite, tID 
   pID = tID
-  if tID mod 2 then
+  if (tID mod 2) then
     tdir = #right
   else
     tdir = #left

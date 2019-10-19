@@ -33,7 +33,7 @@ on setText me, tText
   if me.elementExists(tCloseElemId) then
     tTextElem = me.getElement("bubble_text")
     tCloseElem = me.getElement(tCloseElemId)
-    tPosX = tTextElem.getProperty(#width) / 2 - tCloseElem.getProperty(#width) / 2 - 10
+    tPosX = (tTextElem.getProperty(#width) / 2) - (tCloseElem.getProperty(#width) / 2) - 10
     tCloseElem.moveBy(tPosX, tTextElem.getProperty(#height) - 5)
   end if
   me.selectPointerAndPosition(me.pDirection)

@@ -231,7 +231,7 @@ on handleFatalError me, tErrorData
   tErrorData.setAt("error_id", makeErrorId())
   if variableExists("account_id") then
     tAccountID = getVariable("account_id")
-    tAccoutnID = tAccountID mod 9999
+    tAccoutnID = (tAccountID mod 9999)
   else
     tAccountID = 0
   end if

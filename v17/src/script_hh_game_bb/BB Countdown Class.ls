@@ -30,8 +30,8 @@ end
 
 on startGameCountdown me, tSecondsLeft, tSecondsNowElapsed 
   me.removeGameCountdown()
-  tMSecLeft = tSecondsLeft * 1000
-  tDuration = tSecondsLeft + tSecondsNowElapsed * 1000
+  tMSecLeft = (tSecondsLeft * 1000)
+  tDuration = (tSecondsLeft + tSecondsNowElapsed * 1000)
   if tMSecLeft <= 0 then
     return(0)
   end if
@@ -94,8 +94,8 @@ on setBar me
   if the milliSeconds >= pEndTime then
     return(me.removeGameCountdown())
   end if
-  tProc = pEndTime - the milliSeconds / float(pDuration)
-  tNextWidth = 159 * tProc
+  tProc = (pEndTime - the milliSeconds / float(pDuration))
+  tNextWidth = (159 * tProc)
   tCurrWidth = tElem.getProperty(#width)
   if tNextWidth < 80 then
     if tNextWidth < 39 then

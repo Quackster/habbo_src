@@ -78,11 +78,11 @@ end
 on prepare me 
   tScreenLoc = pScreenLoc.duplicate()
   if me.pMoving then
-    tFactor = float(the milliSeconds - me.pMoveStart) / me.pMoveTime
+    tFactor = (float(the milliSeconds - me.pMoveStart) / me.pMoveTime)
     if tFactor > 1 then
       tFactor = 1
     end if
-    me.pScreenLoc = me.pDestLScreen - me.pStartLScreen * tFactor + me.pStartLScreen
+    me.pScreenLoc = (me.pDestLScreen - me.pStartLScreen * tFactor) + me.pStartLScreen
     me.adjustScreenLoc(1)
     me.pChanges = 1
   else
@@ -132,7 +132,7 @@ on adjustScreenLoc me, tMoving
   if me.pBounceAnimCount > tBounceLocV.count then
     me.pBounceAnimCount = 1
   end if
-  me.setProp(#pScreenLoc, 2, me.getProp(#pScreenLoc, 2) + 10 * tBounceLocV.getAt(me.pBounceAnimCount))
+  me.setProp(#pScreenLoc, 2, me.getProp(#pScreenLoc, 2) + (10 * tBounceLocV.getAt(me.pBounceAnimCount)))
 end
 
 on update me 

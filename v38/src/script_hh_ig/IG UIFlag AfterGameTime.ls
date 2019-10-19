@@ -43,9 +43,9 @@ on setTitleField me, tWindowID, tMode
   tElem = tWndObj.getElement("ig_tip_title")
   tTitleText = me.getTitleText()
   if tMode then
-    tWndObj.resizeTo(tTitleText.length * 8 + 19 + 15 + 6, tWndObj.getProperty(#height))
+    tWndObj.resizeTo((tTitleText.length * 8) + 19 + 15 + 6, tWndObj.getProperty(#height))
   else
-    tWndObj.resizeTo(tTitleText.length * 8 + 19 + 15 + 6, tWndObj.getProperty(#height))
+    tWndObj.resizeTo((tTitleText.length * 8) + 19 + 15 + 6, tWndObj.getProperty(#height))
   end if
   if tElem <> 0 then
     tElem.setText(tTitleText)
@@ -86,12 +86,12 @@ on getLayout me, tMode
 end
 
 on getFormatTime me 
-  tTimeLeft = integer(pEndTime - the milliSeconds / 1000)
+  tTimeLeft = integer((pEndTime - the milliSeconds / 1000))
   if tTimeLeft < 0 then
     return("0:00")
   end if
-  tMinutes = tTimeLeft / 60
-  tSeconds = tTimeLeft mod 60
+  tMinutes = (tTimeLeft / 60)
+  tSeconds = (tTimeLeft mod 60)
   if tSeconds < 10 then
     tSeconds = "0" & tSeconds
   end if
@@ -99,7 +99,7 @@ on getFormatTime me
 end
 
 on getTimeLeft me 
-  tTimeLeft = pEndTime - the milliSeconds / 1000
+  tTimeLeft = (pEndTime - the milliSeconds / 1000)
   if tTimeLeft < 0 then
     return(0)
   end if

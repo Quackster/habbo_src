@@ -1,6 +1,4 @@
-property pWindowID, pElementID, pUpdateTimer, pBlockTime
-
-on Init me, tWindowID, tElementId, tBlockTime 
+on Init(me, tWindowID, tElementId, tBlockTime)
   pWindowID = tWindowID
   pElementID = tElementId
   pBlockTime = the milliSeconds + tBlockTime
@@ -16,14 +14,16 @@ on Init me, tWindowID, tElementId, tBlockTime
   tElem.setEdit(0)
   receiveUpdate(me.getID())
   return(1)
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   removeUpdate(me.getID())
   return(1)
+  exit
 end
 
-on update me 
+on update(me)
   if pUpdateTimer > the milliSeconds then
     return()
   else
@@ -45,4 +45,5 @@ on update me
     tElem.setEdit(1)
     removeObject(me.getID())
   end if
+  exit
 end

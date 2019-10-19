@@ -71,7 +71,7 @@ on showTeamHighScore me, tGameRef
   end if
   i = 1
   repeat while i <= tCount
-    tWndObj = getWindow(me.getWindowItemId(2 + i * 2))
+    tWndObj = getWindow(me.getWindowItemId(2 + (i * 2)))
     if tWndObj = 0 then
       return(0)
     end if
@@ -109,7 +109,7 @@ on showTeamHighScore me, tGameRef
     end if
     tText = ""
     tBreak = 0
-    tLineCount = 1 + tPlayers.count / 2
+    tLineCount = 1 + (tPlayers.count / 2)
     j = 1
     repeat while j <= tPlayers.count
       if tPlayers.getAt(j).length > 14 then
@@ -134,7 +134,7 @@ on showTeamHighScore me, tGameRef
     tElem.setText(tText)
     tFont = tElem.getFont()
     tLineHeight = tFont.getaProp(#lineHeight)
-    tHeight = tPlayers.count + 1 / 2 * tLineHeight + 16
+    tHeight = ((tPlayers.count + 1 / 2) * tLineHeight) + 16
     tWndObj.resizeTo(tWndObj.getProperty(#width), tHeight)
     i = 1 + i
   end repeat

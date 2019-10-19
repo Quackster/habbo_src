@@ -186,14 +186,14 @@ on ShowToolTip me
     pToolTipSpr.member = member(getmemnum("adtooltip"))
   end if
   tNewLoc = the mouseLoc + point(0, 30)
-  if tNewLoc.locV - pToolTipSpr.height / 2 < 10 then
-    tNewLoc.locV = 10 + pToolTipSpr.height / 2
+  if tNewLoc.locV - (pToolTipSpr.height / 2) < 10 then
+    tNewLoc.locV = 10 + (pToolTipSpr.height / 2)
   end if
-  if tNewLoc.locH - pToolTipSpr.width / 2 < 10 then
-    tNewLoc.locH = 10 + pToolTipSpr.width / 2
+  if tNewLoc.locH - (pToolTipSpr.width / 2) < 10 then
+    tNewLoc.locH = 10 + (pToolTipSpr.width / 2)
   end if
   if the stage > rect.width - 10 then
-    the stage.locH = rect.width - 10 - pToolTipSpr.width / 2
+    the stage.locH = rect.width - 10 - (pToolTipSpr.width / 2)
   end if
   pToolTipSpr.loc = tNewLoc
 end
@@ -216,7 +216,7 @@ on createToolTipMember me
     i = getAt(undefined, undefined)
     tImgs.addProp(i, member(getmemnum(tList.getAt(i))).image)
   end repeat
-  tTextWidth = tmember.charPosToLoc(tmember.count(#char)).locH + tImgs.getAt("left").width * 2
+  tTextWidth = tmember.charPosToLoc(tmember.count(#char)).locH + (tImgs.getAt("left").width * 2)
   tWidth = tTextWidth + 9
   tmember.rect = rect(0, 0, tTextWidth, tmember.height)
   tTextImg = tmember.image
@@ -243,7 +243,7 @@ on createToolTipMember me
     tNewImg.copyPixels(tImgs.getProp(i), tdestrect, tImgs.getProp(i).rect)
   end repeat
   tMarginH = tImgs.getProp("left").width + 8
-  tMarginV = tNewImg.height - tTextImg.height / 2
+  tMarginV = (tNewImg.height - tTextImg.height / 2)
   tdestrect = tTextImg.rect + rect(tMarginH, tMarginV, tMarginH, tMarginV)
   tNewImg.copyPixels(tTextImg, tdestrect, tTextImg.rect)
   member(getmemnum("adtooltip")).image = tNewImg

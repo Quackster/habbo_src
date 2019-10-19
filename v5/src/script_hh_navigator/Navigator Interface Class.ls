@@ -176,8 +176,8 @@ on createImgResources me
   pWriterPrivUnder.define([#boxType:#adjust, #wordWrap:0, #fixedLineSpace:pListItemHeight])
   pPublicDotLineImg = image(pPublicListWidth, 1, pBufferDepth)
   tXPoint = 0
-  repeat while tXPoint <= pPublicListWidth / 2
-    pPublicDotLineImg.setPixel(tXPoint * 2, 0, rgb(0, 0, 0))
+  repeat while tXPoint <= (pPublicListWidth / 2)
+    pPublicDotLineImg.setPixel((tXPoint * 2), 0, rgb(0, 0, 0))
     tXPoint = 1 + tXPoint
   end repeat
   pFlatGoTextImg = pWriterUnderNormLeft.render(getText("nav_gobutton")).duplicate()
@@ -326,8 +326,8 @@ on renderUnitList me
     end if
     f = 1 + f
   end repeat
-  if pPublicListHeight <> pVisibleFlatCount + 1 * pListItemHeight then
-    pPublicListHeight = pVisibleFlatCount + 1 * pListItemHeight
+  if pPublicListHeight <> (pVisibleFlatCount + 1 * pListItemHeight) then
+    pPublicListHeight = (pVisibleFlatCount + 1 * pListItemHeight)
     pPublicUnitsImg = image(pPublicListWidth, pPublicListHeight, pBufferDepth)
   end if
   pPublicUnitsImg.copyPixels(PHotelEntryImg, PHotelEntryImg.rect, PHotelEntryImg.rect)
@@ -393,8 +393,8 @@ on renderLoadingText me, tTempElementId
   tHeight = tElem.getProperty(#height)
   tTempImg = image(tWidth, tHeight, pBufferDepth)
   tTextImg = pWriterPlainBoldCent.render(getText("loading"))
-  tOffX = tWidth - tTextImg.width / 2
-  tOffY = tHeight - tTextImg.height / 2
+  tOffX = (tWidth - tTextImg.width / 2)
+  tOffY = (tHeight - tTextImg.height / 2)
   tDstRect = tTextImg.rect + rect(tOffX, tOffY, tOffX, tOffY)
   tTempImg.copyPixels(tTextImg, tDstRect, tTextImg.rect)
   tElem.feedImage(tTempImg)
@@ -489,7 +489,7 @@ on saveFlatList me, tFlats, tMode
   end if
   pBufferDepth = tElement.getProperty(#depth)
   tItemWidth = tElement.getProperty(#width)
-  pPrivateListImg = image(tItemWidth, tFlats.count() * pListItemHeight, pBufferDepth)
+  pPrivateListImg = image(tItemWidth, (tFlats.count() * pListItemHeight), pBufferDepth)
   tUsersTxt = ""
   tFlatstxt = ""
   tLockMemImgA = member(getmemnum("lock1")).image
@@ -500,7 +500,7 @@ on saveFlatList me, tFlats, tMode
     tUsersTxt = tUsersTxt & tFlat.getAt(#usercount) & "\r"
     tFlatstxt = tFlatstxt & tFlat.getAt(#name) & "\r"
     tSrcRect = rect(0, 0, tItemWidth - 30, 1)
-    tCurrLocY = f * pListItemHeight
+    tCurrLocY = (f * pListItemHeight)
     tDstRect = tSrcRect + rect(20, tCurrLocY - 1, 20, tCurrLocY - 1)
     pPrivateListImg.copyPixels(pPublicDotLineImg, tDstRect, tSrcRect)
     tDstRect = pFlatGoTextImg.rect + rect(tItemWidth - pFlatGoTextImg.width, tCurrLocY - pFlatGoTextImg.height, tItemWidth - pFlatGoTextImg.width, tCurrLocY - pFlatGoTextImg.height)
@@ -517,7 +517,7 @@ on saveFlatList me, tFlats, tMode
       end if
       if tLockImg <> 0 then
         tSrcRect = tLockImg.rect
-        tDstRect = tSrcRect + rect(tItemWidth - pFlatGoTextImg.width - 20, tCurrLocY - tLockImg.height * 1.5, tItemWidth - pFlatGoTextImg.width - 20, tCurrLocY - tLockImg.height * 1.5)
+        tDstRect = tSrcRect + rect(tItemWidth - pFlatGoTextImg.width - 20, tCurrLocY - (tLockImg.height * 1.5), tItemWidth - pFlatGoTextImg.width - 20, tCurrLocY - (tLockImg.height * 1.5))
         pPrivateListImg.copyPixels(tLockImg, tDstRect, tSrcRect)
       end if
     end if
@@ -878,7 +878,7 @@ on eventProcNavigatorPublic me, tEvent, tSprID, tParm
         if pOpenWindow = "nav_public_start.window" then
           me.ChangeWindowView("nav_public_info.window")
         end if
-        tClickLine = integer(tParm.locV / pListItemHeight)
+        tClickLine = integer((tParm.locV / pListItemHeight))
         if tClickLine < 1 then
           tGoLinkArea = pPublicListWidth - pFlatGoTextImg.width
           if tParm.locH > tGoLinkArea then
@@ -975,7 +975,7 @@ on eventProcNavigatorPrivate me, tEvent, tSprID, tParm
         if not ilk(tParm, #point) or pFlatList.count = 0 then
           return(0)
         end if
-        tClickLine = integer(tParm.locV / pListItemHeight) + 1
+        tClickLine = integer((tParm.locV / pListItemHeight)) + 1
         if tClickLine > pFlatList.count then
           tClickLine = pFlatList.count
         end if

@@ -108,8 +108,8 @@ on update me
     tLocV = 40
   end if
   if pAnimFlag then
-    pAnimCntr = pAnimCntr + 4 mod 32
-    tOffY = tHumanLoc.getAt(2) + -8 * sin(float(pAnimCntr) / 10)
+    pAnimCntr = (pAnimCntr + 4 mod 32)
+    tOffY = tHumanLoc.getAt(2) + (-8 * sin((float(pAnimCntr) / 10)))
     pArrowSpr.locV = tOffY - tLocV
   end if
 end

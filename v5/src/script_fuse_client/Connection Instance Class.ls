@@ -21,7 +21,7 @@ on connect me, tHost, tPort
   pHost = tHost
   pPort = tPort
   pXtra = new(xtra("Multiuser"))
-  pXtra.setNetBufferLimits(16 * 1024, 100 * 1024, 100)
+  pXtra.setNetBufferLimits((16 * 1024), (100 * 1024), 100)
   tErrCode = pXtra.setNetMessageHandler(#xtraMsgHandler, me)
   if tErrCode = 0 then
     pXtra.connectToNetServer("*", "*", pHost, pPort, "*", 1)
@@ -125,8 +125,8 @@ on send me, tCmd, tMsg
     tChar = 1 + tChar
   end repeat
   tL1 = numToChar(bitOr(bitAnd(tLength, 127), 128))
-  tL2 = numToChar(bitOr(bitAnd(tLength / 128, 127), 128))
-  tL3 = numToChar(bitOr(bitAnd(tLength / 16384, 127), 128))
+  tL2 = numToChar(bitOr(bitAnd((tLength / 128), 127), 128))
+  tL3 = numToChar(bitOr(bitAnd((tLength / 16384), 127), 128))
   tMsg = tCmd & tL3 & tL2 & tL1 & tMsg
   pXtra.sendNetMessage(0, 0, tMsg)
   return(1)

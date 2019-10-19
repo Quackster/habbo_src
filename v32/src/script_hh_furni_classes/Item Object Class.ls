@@ -347,7 +347,7 @@ end
 on updateLocation me 
   if pFormatVer = #old then
     tGeometry = getThread(#room).getInterface().getGeometry()
-    tScreenLocs = tGeometry.getScreenCoordinate(pLocX, pLocY, pLocH * 18 / 32)
+    tScreenLocs = tGeometry.getScreenCoordinate(pLocX, pLocY, ((pLocH * 18) / 32))
     repeat while pFormatVer <= undefined
       tSpr = getAt(undefined, undefined)
       tSpr.locH = tScreenLocs.getAt(1)

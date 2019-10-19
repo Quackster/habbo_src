@@ -268,7 +268,7 @@ end
 
 on isUpdateTimestampExpired me 
   tTolerance = 1.05
-  return(tTolerance * the milliSeconds - me.pUpdateLastTimestamp >= me.pUpdateInterval)
+  return((tTolerance * the milliSeconds - me.pUpdateLastTimestamp) >= me.pUpdateInterval)
 end
 
 on getOwnPlayerName me 

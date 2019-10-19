@@ -1,6 +1,4 @@
-property pTeamIndex, pUpdateCounter, pLoadingElements
-
-on addWindows me 
+on addWindows(me)
   me.pWindowID = "te"
   tService = me.getIGComponent("PreGame")
   if tService = 0 then
@@ -13,7 +11,7 @@ on addWindows me
   tTeamMaxSize = tGameRef.getTeamMaxSize()
   tTeamCount = tGameRef.getTeamCount()
   tTeams = tGameRef.getAllTeamData()
-  pLoadingElements = [:]
+  pLoadingElements = []
   tWrapObjRef = me.getWindowWrapper()
   if tWrapObjRef = 0 then
     return(0)
@@ -28,11 +26,11 @@ on addWindows me
   end repeat
   tWrapObjRef.addOneWindow(me.getWindowId(tTeamPos), "ig_pg_load_plrs_" & tTeamMaxSize & "_btm.window", me.pWindowSetId, [#scrollFromLocX:tScrollStartOffset, #spaceBottom:2])
   me.setTeamColorBackground(me.getWindowId(tTeamPos), tTeamPos)
-  pTeamIndex = [:]
-  repeat while tTeams <= undefined
+  pTeamIndex = []
+  repeat while me <= undefined
     tTeamInfo = getAt(undefined, undefined)
     tPlayers = tTeamInfo.getaProp(#players)
-    repeat while tTeams <= undefined
+    repeat while me <= undefined
       tPlayerInfo = getAt(undefined, undefined)
       me.displayPlayer(tPlayerInfo)
     end repeat
@@ -52,9 +50,10 @@ on addWindows me
   end repeat
   tWrapObjRef.moveTo(10, 10)
   return(1)
+  exit
 end
 
-on update me 
+on update(me)
   pUpdateCounter = pUpdateCounter + 1
   if pUpdateCounter mod 5 > 0 then
     return(1)
@@ -63,7 +62,7 @@ on update me
     pUpdateCounter = 0
   end if
   tPhase = pUpdateCounter / 5
-  repeat while pLoadingElements <= undefined
+  repeat while me <= undefined
     tElemInfo = getAt(undefined, undefined)
     tWndObj = getWindow(me.getWindowId(tElemInfo.getAt(1)))
     if tWndObj = 0 then
@@ -80,9 +79,10 @@ on update me
     tElem.feedImage(me.alignIconImage(member(tMemNum).image, 19, 18))
   end repeat
   return(1)
+  exit
 end
 
-on displayPlayer me, tPlayerInfo, tTeamId, tPlayerPos 
+on displayPlayer(me, tPlayerInfo, tTeamId, tPlayerPos)
   if tPlayerInfo <> void() then
     tTeamId = tPlayerInfo.getaProp(#team_id)
     tPlayerId = tPlayerInfo.getaProp(#id)
@@ -143,9 +143,10 @@ on displayPlayer me, tPlayerInfo, tTeamId, tPlayerPos
   tFlagId = me.getBasicFlagId() & "_p_" & tTeamId & "_" & tPlayerPos
   me.removeFlagObject(tFlagId)
   return(1)
+  exit
 end
 
-on displayPlayerDone me, tID, tFigure, tsex 
+on displayPlayerDone(me, tID, tFigure, tsex)
   tElemInfo = pLoadingElements.getaProp(tID)
   if tElemInfo = 0 then
     return(0)
@@ -164,9 +165,10 @@ on displayPlayerDone me, tID, tFigure, tsex
   end if
   pLoadingElements.deleteProp(tID)
   return(1)
+  exit
 end
 
-on displayPlayerLeft me, tID 
+on displayPlayerLeft(me, tID)
   tTeamPos = 1
   repeat while tTeamPos <= pTeamIndex.count
     tPlayerPos = pTeamIndex.getAt(tTeamPos).findPos(tID)
@@ -186,4 +188,5 @@ on displayPlayerLeft me, tID
   tColorDark = me.getTeamColorDark(tTeamPos)
   me.setInfoFlag(tFlagId, me.getWindowId(tTeamPos), tElemID, "PreGameUserLeft", tColorDark)
   return(1)
+  exit
 end

@@ -4,7 +4,7 @@ on construct me
   pimage = image(1, 1, 32)
   pwidth = 720
   pheight = 400
-  pTurnPoint = pwidth / 2
+  pTurnPoint = (pwidth / 2)
   pREquiresUpdate = 1
   if threadExists(#room) then
     pWideScreenOffset = getThread(#room).getInterface().getProperty(#widescreenoffset)
@@ -101,7 +101,7 @@ on renderLandscape me
   if tImageCount = 0 then
     return(0)
   end if
-  tPieceCount = pwidth / tImageList.getAt(1).width + 1
+  tPieceCount = (pwidth / tImageList.getAt(1).width) + 1
   tImageSpots = me.getRandomImageOffsets(tImageCount, tPieceCount)
   tImageSpotCounter = 1
   tPalette = member(tMemNum).paletteRef
@@ -140,7 +140,7 @@ on renderLandscape me
           end if
           tFirstBottom = tLocV + pWallHeight
           if tside = #right then
-            tRightWallElemBottomOffset = -tItem.getaProp(#width) / 2
+            tRightWallElemBottomOffset = -(tItem.getaProp(#width) / 2)
           end if
         end if
         tPieceRight = tLocH + tItem.getaProp(#width)
@@ -161,15 +161,15 @@ on renderLandscape me
           end if
           tPieceHeight = tHeightA
           if tside = #right then
-            tY = tBottomY - tHeightA + tRightWallElemBottomOffset + tWidthA / 2
+            tY = tBottomY - tHeightA + tRightWallElemBottomOffset + (tWidthA / 2)
             tQuad = [point(tX + tPieceWidth, tY), point(tX, tY), point(tX, tY + tPieceHeight), point(tX + tPieceWidth, tY + tPieceHeight)]
             tSourceRect = rect(tWidthA - tPieceWidth, 0, tWidthA, tHeightA)
-            tBottomY = tBottomY + tPieceWidth / 2
+            tBottomY = tBottomY + (tPieceWidth / 2)
           else
             tY = tBottomY - tHeightA
             tQuad = [point(tX, tY), point(tX + tPieceWidth, tY), point(tX + tPieceWidth, tY + tPieceHeight), point(tX, tY + tPieceHeight)]
             tSourceRect = rect(0, 0, tPieceWidth, tHeightA)
-            tBottomY = tBottomY - tPieceWidth / 2
+            tBottomY = tBottomY - (tPieceWidth / 2)
           end if
           pimage.copyPixels(tImageA, tQuad, tSourceRect, [#palette:tPalette])
           tX = tX + tPieceWidth
@@ -191,15 +191,15 @@ on renderLandscape me
           end if
           tPieceHeight = tImageHeight
           if tside = #right then
-            tY = tBottomY - tImageHeight + tRightWallElemBottomOffset + tImageWidth / 2
+            tY = tBottomY - tImageHeight + tRightWallElemBottomOffset + (tImageWidth / 2)
             tQuad = [point(tX + tPieceWidth, tY), point(tX, tY), point(tX, tY + tPieceHeight), point(tX + tPieceWidth, tY + tPieceHeight)]
             tSourceRect = rect(tImageWidth - tPieceWidth, 0, tImageWidth - 0, tImageHeight)
-            tBottomY = tBottomY + tPieceWidth / 2
+            tBottomY = tBottomY + (tPieceWidth / 2)
           else
             tY = tBottomY - tImageHeight
             tQuad = [point(tX, tY), point(tX + tPieceWidth, tY), point(tX + tPieceWidth, tY + tPieceHeight), point(tX, tY + tPieceHeight)]
             tSourceRect = rect(0, 0, tPieceWidth, tImageHeight)
-            tBottomY = tBottomY - tPieceWidth / 2
+            tBottomY = tBottomY - (tPieceWidth / 2)
           end if
           tWallRandomPropList = me.getRandomPropList(tImageSpots.getAt(tImageSpotCounter))
           tQueueItem = [tImage, tQuad, tSourceRect, [#ink:36], tside, tX, tY, tX + tPieceWidth, tWallRandomPropList]

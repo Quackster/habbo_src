@@ -1,6 +1,4 @@
-property pSkipFrames, pHumanObj
-
-on construct me 
+on construct(me)
   pUpdate = 1
   receiveUpdate(me.getID())
   pSkipFrames = 1
@@ -15,16 +13,18 @@ on construct me
   me.Init()
   me.registerProcedure(#eventHandler, me.getID(), #mouseUp)
   return(1)
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   pUpdate = 0
   removeUpdate(me.getID())
   callAncestor(#deconstruct, [me])
   return(1)
+  exit
 end
 
-on setText me, tText 
+on setText(me, tText)
   callAncestor(#setText, [me], tText)
   if not objectp(me.pWindow) then
     return(0)
@@ -37,13 +37,15 @@ on setText me, tText
     tCloseElem.moveBy(tPosX, tTextElem.getProperty(#height) - 5)
   end if
   me.selectPointerAndPosition(me.pDirection)
+  exit
 end
 
-on setTargetHumanObj me, tHumanObj 
+on setTargetHumanObj(me, tHumanObj)
   pHumanObj = tHumanObj
+  exit
 end
 
-on update me 
+on update(me)
   pSkipFrames = not pSkipFrames
   if pSkipFrames = 1 then
     return(0)
@@ -63,4 +65,5 @@ on update me
   else
     me.selectPointerAndPosition(4)
   end if
+  exit
 end

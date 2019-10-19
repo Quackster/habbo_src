@@ -1,5 +1,5 @@
-on defineBalloon me, tMode, tColor, tMessage, tItemID, tSourceLoc 
-  me.pBalloonImg = [:]
+on defineBalloon(me, tMode, tColor, tMessage, tItemID, tSourceLoc)
+  me.pBalloonImg = []
   me.addProp(#left, undefined.duplicate())
   me.addProp(#middle, undefined.duplicate())
   me.addProp(#right, undefined.duplicate())
@@ -28,28 +28,29 @@ on defineBalloon me, tMode, tColor, tMessage, tItemID, tSourceLoc
   me.member = tBgMem
   me.ink = 8
   return(1)
+  exit
 end
 
-on renderBackground me, tWidth, tBalloonColor 
+on renderBackground(me, tWidth, tBalloonColor)
   tNewImg = image(me.getProp(#left).width + tWidth + me.getProp(#left).width, me.getPropRef(#pBalloonImg, #left).height, 32)
   tStartPointY = 0
   tEndPointY = me.getPropRef(#pBalloonImg, #left).height
   tStartPointX = 0
   tEndPointX = 0
-  repeat while [#left, #middle, #right] <= tBalloonColor
+  repeat while me <= tBalloonColor
     i = getAt(tBalloonColor, tWidth)
     tStartPointX = tEndPointX
-    if [#left, #middle, #right] = #left then
+    if me = #left then
       tEndPointX = tEndPointX + me.getProp(i).width
       tdestrect = rect(tStartPointX, tStartPointY, tEndPointX, tEndPointY)
       tNewImg.copyPixels(me.getProp(i), tdestrect, me.getProp(i).rect, [#bgColor:tBalloonColor, #maskImage:me.getProp(i).createMatte()])
     else
-      if [#left, #middle, #right] = #middle then
+      if me = #middle then
         tEndPointX = tEndPointX + tWidth - me.getProp(#left).width - me.getProp(#right).width
         tdestrect = rect(tStartPointX, tStartPointY, tEndPointX, tEndPointY)
         tNewImg.copyPixels(me.getProp(i), tdestrect, me.getProp(i).rect, [#bgColor:tBalloonColor, #maskImage:me.getProp(i).createMatte()])
       else
-        if [#left, #middle, #right] = #right then
+        if me = #right then
           tEndPointX = tEndPointX + me.getProp(i).width
           tdestrect = rect(tStartPointX, tStartPointY, tEndPointX, tEndPointY)
           tNewImg.copyPixels(me.getProp(i), tdestrect, me.getProp(i).rect, [#bgColor:tBalloonColor, #maskImage:me.getProp(i).createMatte()])
@@ -58,9 +59,10 @@ on renderBackground me, tWidth, tBalloonColor
     end if
   end repeat
   return(tNewImg)
+  exit
 end
 
-on renderWithWriter me, tText, tBgColor 
+on renderWithWriter(me, tText, tBgColor)
   tWriterId = "bubbly_writer_" & getUniqueID()
   if writerExists(tWriterId) then
     removeWriter(tWriterId)
@@ -79,4 +81,5 @@ on renderWithWriter me, tText, tBgColor
   end if
   removeWriter(tWriterId)
   return(tImage)
+  exit
 end

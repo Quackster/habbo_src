@@ -11,7 +11,7 @@ on deconstruct me
   i = 1
   repeat while i <= pItemList.count
     if tObjMngr.exists(pItemList.getAt(i)) then
-      tObjMngr.Remove(pItemList.getAt(i))
+      tObjMngr.remove(pItemList.getAt(i))
     end if
     i = 1 + i
   end repeat
@@ -34,12 +34,12 @@ on get me, tid
   return(getObjectManager().get(tid))
 end
 
-on Remove me, tid 
+on remove me, tid 
   if not me.exists(tid) then
     return(0)
   end if
   pItemList.deleteOne(tid)
-  return(getObjectManager().Remove(tid))
+  return(getObjectManager().remove(tid))
 end
 
 on exists me, tid 

@@ -123,18 +123,18 @@ on removeArrowCursor me
 end
 
 on poolTeleport me, tEvent, tSprID, tParm 
-  tMyName = getObject(#session).get("user_name")
-  tObject = getThread(#room).getComponent().getUserObject(tMyName)
+  tMyIndex = getObject(#session).get("user_index")
+  tObject = getThread(#room).getComponent().getUserObject(tMyIndex)
   if tObject = 0 then
-    return(error(me, "Userobject not found:" && tMyName, #poolTeleport))
+    return(error(me, "Userobject not found:" && tMyIndex, #poolTeleport))
   end if
   tloc = tObject.getLocation()
   getThread(#room).getInterface().eventProcRoom(tEvent, "floor", tParm)
   if not tSprID contains "pool_clickarea" and tloc.getAt(3) < 7 then
-    getConnection(getVariable("connection.room.id")).send(#room, "Move 21 28")
+    getConnection(getVariable("connection.room.id")).send("MOVE", [#short:21, #short:28])
   else
     if tSprID contains "pool_clickarea" and tloc.getAt(3) = 7 then
-      getConnection(getVariable("connection.room.id")).send(#room, "Move 20 28")
+      getConnection(getVariable("connection.room.id")).send("MOVE", [#short:20, #short:28])
     end if
   end if
 end

@@ -13,7 +13,7 @@ on construct me
   pAnimBottom = 400
   pAnimTop = 200
   pSkip = 0
-  pTurnPoint = pwidth / 2
+  pTurnPoint = (pwidth / 2)
   pAnimInstanceList = [:]
   pAnimImage = image(1, 1, 8)
   pMaxItemAmount = 15

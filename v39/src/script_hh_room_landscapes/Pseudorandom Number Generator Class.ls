@@ -17,7 +17,7 @@ on setModulus me, tModulus
 end
 
 on iterate me 
-  tX = abs(integer(pMult) * integer(pSeed) + integer(pIncrement)) mod integer(pModulus)
+  tX = (abs((integer(pMult) * integer(pSeed)) + integer(pIncrement)) mod integer(pModulus))
   pSeed = tX
   return(tX)
 end
@@ -31,8 +31,8 @@ on getScaled me, tMin, tMax
   if tRange = 0 then
     return(tMin)
   end if
-  tScale = pModulus / tRange
-  return(integer(tX / tScale + tMin))
+  tScale = (pModulus / tRange)
+  return(integer((tX / tScale) + tMin))
 end
 
 on getArray me, tCount, tMin, tMax 

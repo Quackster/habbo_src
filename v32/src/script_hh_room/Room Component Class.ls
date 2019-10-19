@@ -155,7 +155,7 @@ on enterRoom me, tRoomDataStruct
   repeat while tCharNo <= tStamp.length
     tChar = chars(tStamp, tCharNo, tCharNo)
     tChar = charToNum(tChar)
-    tChar = tChar * tCharNo + 309203
+    tChar = (tChar * tCharNo) + 309203
     tReceipt.setAt(tCharNo, tChar)
     tCharNo = 1 + tCharNo
   end repeat
@@ -1244,8 +1244,8 @@ on updateHeightMap me, tdata
         i = i + 1
         a = a + charToNum(tdata.getProp(#char, i))
       else
-        tStringPos = a + a / tMapWidth
-        if a mod tMapWidth = 0 then
+        tStringPos = a + (a / tMapWidth)
+        if (a mod tMapWidth) = 0 then
           tStringPos = tStringPos - 1
         end if
         -- UNK_21

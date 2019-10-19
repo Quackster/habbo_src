@@ -156,7 +156,7 @@ on render me
   tPosTable.sort()
   me.getScenePos([0, 0, 0], pScene, tPosTable)
   tRootPos = pGeometry.getScreenCoordinate(me.pLocX, me.pLocY, me.pLocH)
-  tRootPos.setAt(1, tRootPos.getAt(1) + pGeometry.pXFactor / 2)
+  tRootPos.setAt(1, tRootPos.getAt(1) + (pGeometry.pXFactor / 2))
   me.updateSprites(tRootPos, pScene, tPosTable)
 end
 

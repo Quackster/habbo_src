@@ -2,7 +2,7 @@ property pDirection, pSprite, pIndex, pPausedTime, pOffset, pTurnPnt
 
 on define me, tsprite, tCount 
   pIndex = tCount - 1
-  if tCount mod 2 then
+  if (tCount mod 2) then
     tdir = #right
   else
     tdir = #left
@@ -34,7 +34,7 @@ on reset me
   pSprite.height = member.height
   pSprite.ink = 41
   pSprite.backColor = random(150) + 20
-  pPausedTime = pIndex * 30 + random(50)
+  pPausedTime = (pIndex * 30) + random(50)
 end
 
 on update me 

@@ -45,7 +45,7 @@ on connect me, tHost, tPort
     return(fatalError(["error":"mus_xtra_not_found"]))
   end if
   pXtra = new(xtra("Multiuser"))
-  pXtra.setNetBufferLimits(16 * 1024, 100 * 1024, 100)
+  pXtra.setNetBufferLimits((16 * 1024), (100 * 1024), 100)
   tErrCode = pXtra.setNetMessageHandler(#xtraMsgHandler, me)
   if tErrCode = 0 then
     tConnectErrorCode = pXtra.connectToNetServer("*", "*", pHost, pPort, "*", 1)
@@ -172,12 +172,12 @@ on send me, tCmd, tMsg
   tChar = 1
   repeat while tChar <= length(tMsg)
     tCharNum = charToNum(tMsg.char[tChar])
-    tLength = tLength + 1 + tCharNum > 255 and tCharNum mod 256
+    tLength = tLength + 1 + tCharNum > 255 and (tCharNum mod 256)
     tChar = 1 + tChar
   end repeat
   tL1 = numToChar(bitOr(bitAnd(tLength, 63), 64))
-  tL2 = numToChar(bitOr(bitAnd(tLength / 64, 63), 64))
-  tL3 = numToChar(bitOr(bitAnd(tLength / 4096, 63), 64))
+  tL2 = numToChar(bitOr(bitAnd((tLength / 64), 63), 64))
+  tL3 = numToChar(bitOr(bitAnd((tLength / 4096), 63), 64))
   tMsg = tL3 & tL2 & tL1 & tMsg
   if pEncryptionOn and objectp(pEncoder) then
     tMsg = pEncoder.encipher(tMsg)
@@ -203,16 +203,16 @@ on sendNew me, tCmd, tParmArr
         tChar = 1
         repeat while tChar <= length(tParm)
           tNum = charToNum(tParm.char[tChar])
-          tLen = tLen + 1 + tNum > 255 and tNum mod 256
+          tLen = tLen + 1 + tNum > 255 and (tNum mod 256)
           tChar = 1 + tChar
         end repeat
-        tBy1 = numToChar(bitOr(64, tLen / 64))
+        tBy1 = numToChar(bitOr(64, (tLen / 64)))
         tBy2 = numToChar(bitOr(64, bitAnd(63, tLen)))
         tMsg = tMsg & tBy1 & tBy2 & tParm
         tLength = tLength + tLen + 2
       else
         if ttype = #short then
-          tBy1 = numToChar(bitOr(64, tParm / 64))
+          tBy1 = numToChar(bitOr(64, (tParm / 64)))
           tBy2 = numToChar(bitOr(64, bitAnd(63, tParm)))
           tMsg = tMsg & tBy1 & tBy2
           tLength = tLength + 2
@@ -226,10 +226,10 @@ on sendNew me, tCmd, tParmArr
             end if
             tStr = numToChar(64 + bitAnd(tParm, 3))
             tBytes = 1
-            tParm = tParm / 4
+            tParm = (tParm / 4)
             repeat while tParm <> 0
               tBytes = tBytes + 1
-              tParm = tParm / 64
+              tParm = (tParm / 64)
             end repeat
             tLength = tLength + tBytes
           else
@@ -259,8 +259,8 @@ on sendNew me, tCmd, tParmArr
   end if
   tMsg = tCmd & tMsg
   tL1 = numToChar(bitOr(bitAnd(tLength, 63), 64))
-  tL2 = numToChar(bitOr(bitAnd(tLength / 64, 63), 64))
-  tL3 = numToChar(bitOr(bitAnd(tLength / 4096, 63), 64))
+  tL2 = numToChar(bitOr(bitAnd((tLength / 64), 63), 64))
+  tL3 = numToChar(bitOr(bitAnd((tLength / 4096), 63), 64))
   tMsg = tL3 & tL2 & tL1 & tMsg
   if pEncryptionOn and objectp(pEncoder) then
     tMsg = pEncoder.encipher(tMsg)
@@ -377,7 +377,7 @@ end
 on GetIntFrom me 
   tByteStr = pMsgStruct.getaProp(#content)
   tByte = bitAnd(charToNum(tByteStr.char[1]), 63)
-  tByCnt = bitOr(bitAnd(tByte, 56) / 8, 0)
+  tByCnt = bitOr((bitAnd(tByte, 56) / 8), 0)
   tNeg = bitAnd(tByte, 4)
   tInt = bitAnd(tByte, 3)
   if tByCnt > 1 then
@@ -385,7 +385,7 @@ on GetIntFrom me
     i = 2
     repeat while i <= tByCnt
       tByte = bitAnd(charToNum(tByteStr.char[i]), 63)
-      tInt = bitOr(tByte * tPowTbl.getAt(i - 1), tInt)
+      tInt = bitOr((tByte * tPowTbl.getAt(i - 1)), tInt)
       i = 1 + i
     end repeat
   end if
@@ -491,13 +491,13 @@ on msghandler me, tContent
     end if
     tByte1 = bitAnd(charToNum(tContent.char[2]), 63)
     tByte2 = bitAnd(charToNum(tContent.char[1]), 63)
-    tMsgType = bitOr(tByte2 * 64, tByte1)
+    tMsgType = bitOr((tByte2 * 64), tByte1)
     tLength = offset(numToChar(1), tContent)
     if tLength = 0 and not pUnicodeDirector then
       i = 3
       repeat while i <= tContent.length
         tCharVal = charToNum(tContent.getProp(#char, i))
-        if tCharVal mod 256 = 1 then
+        if (tCharVal mod 256) = 1 then
           tContent = tContent.getProp(#char, 1, i - 1) & numToChar(tCharVal - 1) & numToChar(1) & tContent.getProp(#char, i + 1, tContent.length)
           tLength = i + 1
         else

@@ -21,7 +21,7 @@ on create me, tid, tHost, tPort
   if not integerp(tPort) then
     return(error(me, "Integer expected:" && tPort, #create))
   end if
-  if getIntVariable("connection.log.level") = 2 and the runMode contains "Author" then
+  if getIntVariable("connection.log.level") = 2 then
     if not memberExists("connectionLog.text") then
       tLogField = member(createMember("connectionLog.text", #field))
       tLogField.boxType = #scroll
@@ -88,13 +88,12 @@ on registerListener me, tid, tObjID, tMsgList
     tMsg = tMsgList.getPropAt(i)
     tMethod = tMsgList.getAt(i)
     if not tObject.handler(tMethod) then
-      error(me, "Method not found:" && tMethod & "/" & tObjID, #registerListener)
-    else
-      if voidp(tPtr.getaProp(#value).getaProp(tMsg)) then
-        tPtr.getaProp(#value).setaProp(tMsg, [])
-      end if
-      tPtr.getaProp(#value).getaProp(tMsg).add([tObjID, tMethod])
+      return(error(me, "Method not found:" && tMethod & "/" & tObjID, #registerListener))
     end if
+    if voidp(tPtr.getaProp(#value).getaProp(tMsg)) then
+      tPtr.getaProp(#value).setaProp(tMsg, [])
+    end if
+    tPtr.getaProp(#value).getaProp(tMsg).add([tObjID, tMethod])
     i = 1 + i
   end repeat
   return(1)
@@ -146,7 +145,7 @@ on registerCommands me, tid, tObjID, tCmdList
     tCmd = tCmdList.getPropAt(i)
     tNum = tCmdList.getAt(i)
     tOld = tPtr.getaProp(#value).getaProp(tCmd)
-    tBy1 = numToChar(bitOr(64, tNum / 64))
+    tBy1 = numToChar(bitOr(64, (tNum / 64)))
     tBy2 = numToChar(bitOr(64, bitAnd(63, tNum)))
     tNew = tBy1 & tBy2
     if tOld <> void() then

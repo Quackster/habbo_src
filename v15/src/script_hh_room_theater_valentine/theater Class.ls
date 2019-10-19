@@ -16,7 +16,7 @@ end
 
 on update me 
   if pAnimPhase = 0 then
-    if the timer > pAnimTimer + 60 * 20 then
+    if the timer > pAnimTimer + (60 * 20) then
       if random(20) = 1 then
         tMode = random(4)
         tObj = getThread(#room).getInterface().getRoomVisualizer()

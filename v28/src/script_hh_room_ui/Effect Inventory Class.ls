@@ -197,9 +197,9 @@ on updateSlots me
             tSlotElem.setProperty(#member, "slot")
           end if
         end if
-        tTimeInt = tEndTime - the milliSeconds / 1000
-        tMin = tTimeInt mod 60
-        tHour = tTimeInt - tMin / 60
+        tTimeInt = (tEndTime - the milliSeconds / 1000)
+        tMin = (tTimeInt mod 60)
+        tHour = (tTimeInt - tMin / 60)
         if tMin < 10 then
           tMin = "0" & tMin
         end if
@@ -324,7 +324,7 @@ on handle_avatar_effects me, tMsg
     if tTimeLeft > 0 then
       if tActiveIndex.findPos(ttype) = 0 then
         tActiveIndex.append(ttype)
-        tActiveList.setaProp(ttype, the milliSeconds + tTimeLeft * 1000)
+        tActiveList.setaProp(ttype, the milliSeconds + (tTimeLeft * 1000))
       end if
     end if
     i = 1 + i
@@ -369,7 +369,7 @@ on handle_avatar_effect_activated me, tMsg
   tTime = tConn.GetIntFrom()
   if pActiveEffectIndex.findPos(ttype) = 0 then
     pActiveEffectIndex.add(ttype)
-    pActiveEffects.setaProp(ttype, the milliSeconds + tTime * 1000)
+    pActiveEffects.setaProp(ttype, the milliSeconds + (tTime * 1000))
   end if
   getObject(#session).set("active_fx", pActiveEffects)
   tSlotCount = 5

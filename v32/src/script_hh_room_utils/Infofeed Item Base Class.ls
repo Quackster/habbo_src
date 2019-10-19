@@ -56,11 +56,11 @@ on renderFull me, tWndObj, tItemPos, tItemCount
   tWndObj.merge("if_full.window")
   tElem = tWndObj.getElement("if_btn_prev")
   if tElem <> 0 then
-    tElem.setProperty(#blend, 40 + not tIsFirstItem * 60)
+    tElem.setProperty(#blend, 40 + (not tIsFirstItem * 60))
   end if
   tElem = tWndObj.getElement("if_btn_next")
   if tElem <> 0 then
-    tElem.setProperty(#blend, 40 + not tIsLastItem * 60)
+    tElem.setProperty(#blend, 40 + (not tIsLastItem * 60))
   end if
   me.feedTopic(tWndObj)
   if not voidp(pData.getaProp(#bgColor)) then
@@ -205,8 +205,8 @@ on alignIconImage me, tImage, tWidth, tHeight
     return(0)
   end if
   tNewImage = image(tWidth, tHeight, tImage.depth)
-  tOffsetX = tWidth - tImage.width / 2
-  tOffsetY = tHeight - tImage.height / 2
+  tOffsetX = (tWidth - tImage.width / 2)
+  tOffsetY = (tHeight - tImage.height / 2)
   tNewImage.copyPixels(tImage, tImage.rect + rect(tOffsetX, tOffsetY, tOffsetX, tOffsetY), tImage.rect)
   return(tNewImage)
 end

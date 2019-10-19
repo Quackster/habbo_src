@@ -173,7 +173,7 @@ on fitRectToWall me, tRect, tSlope
   if pTypeDef = #wallleft then
     tHighestPoint = point(tRect.getAt(3), tRect.getAt(2))
     tLowestPoint = point(tRect.getAt(1), tRect.getAt(4))
-    tSlope = tSlope * -1
+    tSlope = (tSlope * -1)
     tdir = "leftwall"
   else
     tHighestPoint = point(tRect.getAt(1), tRect.getAt(2))
@@ -183,14 +183,14 @@ on fitRectToWall me, tRect, tSlope
   repeat while pPartList <= tSlope
     tPart = getAt(tSlope, tRect)
     if pTypeDef = #wallleft then
-      tSlopeSpace = abs(tPart.width * tSlope)
+      tSlopeSpace = abs((tPart.width * tSlope))
     else
       tSlopeSpace = 0
     end if
     tPartScreenrect = tPart.screenrect
     if tHighestPoint.inside(tPartScreenrect) then
       tDistX = tHighestPoint.getAt(1) - tPartScreenrect.getAt(1)
-      tDistY = tDistX * tSlope
+      tDistY = (tDistX * tSlope)
       tSlopeYAtX = tPartScreenrect.getAt(2) + tSlopeSpace + tDistY
       if tSlopeYAtX < tHighestPoint.getAt(2) then
         tPartForHighest = tPart
@@ -204,12 +204,12 @@ on fitRectToWall me, tRect, tSlope
         if pTypeDef = #wallleft then
           tSlopeSpace = 0
         else
-          tSlopeSpace = abs(tPart.width * tSlope)
+          tSlopeSpace = abs((tPart.width * tSlope))
         end if
         tPartScreenrect = tPart.screenrect
         if tLowestPoint.inside(tPartScreenrect) then
           tDistX = tLowestPoint.getAt(1) - tPartScreenrect.getAt(1)
-          tDistY = tDistX * tSlope
+          tDistY = (tDistX * tSlope)
           tSlopeYAtX = tPartScreenrect.getAt(2) + tPart.height - tSlopeSpace + tDistY
           if tSlopeYAtX > tLowestPoint.getAt(2) then
             tPartForLowest = tPart
@@ -397,7 +397,7 @@ on renderImage me
       tQuad = [point(tSourceImage.width, 0), point(0, 0), point(0, tSourceImage.height), point(tSourceImage.width, tSourceImage.height)]
       tImage.copyPixels(tSourceImage, tQuad, tSourceImage.rect)
       tSourceImage = tImage
-      tPartRectX1 = tPart.getAt(#locH) + tPart.getAt(#offsetx) - tPartMem.getProp(#regPoint, 1) * -1 - tSourceImage.width
+      tPartRectX1 = tPart.getAt(#locH) + tPart.getAt(#offsetx) - (tPartMem.getProp(#regPoint, 1) * -1) - tSourceImage.width
       tPartRectX2 = tPartRectX1 + tSourceImage.width
       tPartRectY1 = tPart.getAt(#locV) - tPartMem.getProp(#regPoint, 2)
       tPartRectY2 = tPartRectY1 + tSourceImage.height

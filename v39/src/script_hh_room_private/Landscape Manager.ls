@@ -262,7 +262,7 @@ on parseRoomLayout me, tRoomType
         tMaxPieceHeight = tHeight
       end if
       tWallPieceStruct.append(tItem)
-      tHeight = tHeight - tWidth / 2
+      tHeight = tHeight - (tWidth / 2)
       if tHeight > tWallHeight then
         tWallHeight = tHeight
       end if
@@ -298,7 +298,7 @@ on parseRoomLayout me, tRoomType
         if tside = #right then
           tSideLeftV = tSideLeftV + 1
         else
-          tSideLeftV = tSideLeftV + tSideLeftElemWidth / 2
+          tSideLeftV = tSideLeftV + (tSideLeftElemWidth / 2)
         end if
         pTurnPointList.setaProp(point(tSideLeftH + pWideScreenOffset, tSideLeftV), tside)
         tSideLeftH = void()

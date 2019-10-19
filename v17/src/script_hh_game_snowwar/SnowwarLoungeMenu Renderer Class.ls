@@ -246,7 +246,7 @@ on renderInstanceDetailButton me, tButtonState, tGameState
     else
       if tText <> #empty then
         tImage = pWriterPlainBoldLeft.render(tText)
-        tLocH = tWidth / 2 - tImage.width / 2
+        tLocH = (tWidth / 2) - (tImage.width / 2)
         tResult.copyPixels(tImage, tImage.rect + rect(tLocH, 3, tLocH, 3), tImage.rect)
       end if
     end if
@@ -382,8 +382,8 @@ on updateRadioButton me, tElement, tListOfOthersElements
 end
 
 on convertSecToMinSec me, tTime 
-  tMin = tTime / 60
-  tSec = tTime mod 60
+  tMin = (tTime / 60)
+  tSec = (tTime mod 60)
   if tSec < 10 then
     tSec = "0" & tSec
   end if

@@ -27,7 +27,7 @@ on startSong me, tStackIndex, tSongData, tLoop
   tSongLength = me.getSongLength(tSongData)
   tOffset = 0
   if not voidp(tSongData.getAt(#offset)) then
-    tOffset = tSongData.getAt(#offset) / 100
+    tOffset = (tSongData.getAt(#offset) / 100)
   end if
   tID = 1
   if not me.initPlaylist(tStackIndex, [[#length:tSongLength, #id:tID]], tOffset, tLoop) then
@@ -90,7 +90,7 @@ on initPlaylist me, tStackIndex, tSongList, tPlayTime, tLoop
       return(error(me, "Invalid data", #initPlaylist, #major))
     end if
     if not tLoop then
-      tSongLength = tSong.getAt(#length) / 100
+      tSongLength = (tSong.getAt(#length) / 100)
       if tPlayTime >= tSongLength then
         tPlayTime = tPlayTime - tSongLength
         tSong = void()
@@ -354,7 +354,7 @@ on getPlayTime me, tStackIndex
   if tPlaylistInstance = 0 then
     return(0)
   end if
-  return(tPlaylistInstance.getAt(#playTime) + the milliSeconds - tPlaylistInstance.getAt(#initialPlayTime) / 100)
+  return(tPlaylistInstance.getAt(#playTime) + (the milliSeconds - tPlaylistInstance.getAt(#initialPlayTime) / 100))
 end
 
 on initializePlaying me 
@@ -374,11 +374,11 @@ on initializePlaying me
       return(me.initializePlaying())
     end if
   end if
-  tPlaylistLength = me.getPlaylistLength(tStackIndex) / 100
+  tPlaylistLength = (me.getPlaylistLength(tStackIndex) / 100)
   tPlayTime = me.getPlayTime(tStackIndex)
-  tSyncDelta = 2000 / 100
-  tExtraOffset = tSyncDelta - tPlayTime mod tSyncDelta mod tSyncDelta * 100
-  tPlayTime = tPlayTime + tExtraOffset / 100
+  tSyncDelta = (2000 / 100)
+  tExtraOffset = ((tSyncDelta - (tPlayTime mod tSyncDelta) mod tSyncDelta) * 100)
+  tPlayTime = tPlayTime + (tExtraOffset / 100)
   tPlaylistInstance.setAt(#playOffset, 0)
   tPlaylistInstance.setAt(#listIndex, 1)
   if tPlaylistLength >= 1 then
@@ -386,14 +386,14 @@ on initializePlaying me
       return(0)
     end if
     tPos = 0
-    tOffset = tPlayTime mod tPlaylistLength
+    tOffset = (tPlayTime mod tPlaylistLength)
     i = 1
     repeat while i <= tPlaylistInstance.getAt(#songList).count
-      tLength = me.getPlaylistSongLength(tStackIndex, i) / 100
+      tLength = (me.getPlaylistSongLength(tStackIndex, i) / 100)
       tPos = tPos + tLength
       if tPos > tOffset then
         tPlaylistInstance.setAt(#listIndex, i)
-        tPlaylistInstance.setAt(#playOffset, tOffset - tPos - tLength * 100)
+        tPlaylistInstance.setAt(#playOffset, (tOffset - tPos - tLength * 100))
       else
         i = 1 + i
       end if
@@ -532,7 +532,7 @@ on addPlayRound me
     if not tPlaylistInstance.getAt(#loop) then
       tPlaylistInstance.setAt(#listIndex, tPlaylistInstance.getAt(#listIndex) + 1)
     else
-      tPlaylistInstance.setAt(#listIndex, 1 + tPlaylistInstance.getAt(#listIndex) mod tSongList.count)
+      tPlaylistInstance.setAt(#listIndex, 1 + (tPlaylistInstance.getAt(#listIndex) mod tSongList.count))
     end if
   end if
   if tSongData.getaProp(#sounds) = void() then
@@ -658,9 +658,9 @@ on removePlayedSongs me, tStackIndex
       tCount = min(tPlaylistInstance.getAt(#listIndex), tSongList.count)
       i = 1
       repeat while i <= tCount
-        if me.getPlayTime(tStackIndex) < tSongList.getAt(1).getAt(#length) / 100 then
+        if me.getPlayTime(tStackIndex) < (tSongList.getAt(1).getAt(#length) / 100) then
         else
-          tPlaylistInstance.setAt(#playTime, tPlaylistInstance.getAt(#playTime) - tSongList.getAt(1).getAt(#length) / 100)
+          tPlaylistInstance.setAt(#playTime, tPlaylistInstance.getAt(#playTime) - (tSongList.getAt(1).getAt(#length) / 100))
           tSongList.deleteAt(1)
           tPlaylistInstance.setAt(#listIndex, tPlaylistInstance.getAt(#listIndex) - 1)
           i = 1 + i

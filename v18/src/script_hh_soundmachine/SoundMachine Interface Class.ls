@@ -277,8 +277,8 @@ on updateSoundSetList me
         tHt = tElem.getProperty(#height)
         tCenteredImage = image(tWd, tHt, 32)
         tMatte = tIcon.createMatte()
-        tXchange = tCenteredImage.width - tIcon.width / 2
-        tYchange = tCenteredImage.height - tIcon.height / 2
+        tXchange = (tCenteredImage.width - tIcon.width / 2)
+        tYchange = (tCenteredImage.height - tIcon.height / 2)
         tRect1 = tIcon.rect + rect(tXchange, tYchange, tXchange, tYchange)
         tCenteredImage.copyPixels(tIcon, tRect1, tIcon.rect, [#maskImage:tMatte, #ink:41])
         tElem.feedImage(tCenteredImage)
@@ -391,8 +391,8 @@ on soundSetEvent me, tSetID, tPos, tEvent
     if tPos.locH < 0 or tPos.locV < 0 then
       return(0)
     end if
-    tX = 1 + tPos.locH / pSoundSetSlotWd + pSoundSetSlotMarginWd
-    tY = 1 + tPos.locV / pSoundSetSlotHt + pSoundSetSlotMarginHt
+    tX = 1 + (tPos.locH / pSoundSetSlotWd + pSoundSetSlotMarginWd)
+    tY = 1 + (tPos.locV / pSoundSetSlotHt + pSoundSetSlotMarginHt)
   else
     tX = 1
     tY = 1
@@ -415,8 +415,8 @@ on timeLineEvent me, tPos, tRect, tEvent
   if pPlayHeadDrag then
     return(1)
   end if
-  tX = 1 + tPos.locH / pTimeLineSlotWd + pTimeLineSlotMarginWd
-  tY = 1 + tPos.locV / pTimeLineSlotHt + pTimeLineSlotMarginHt
+  tX = 1 + (tPos.locH / pTimeLineSlotWd + pTimeLineSlotMarginWd)
+  tY = 1 + (tPos.locV / pTimeLineSlotHt + pTimeLineSlotMarginHt)
   if tEvent = #mouseLeave or tEvent = #mouseWithin then
     if tEvent = #mouseLeave then
       tX = -1
@@ -440,7 +440,7 @@ on updatePlayHead me, tManualUpdate
   end if
   tPlayTime = me.getComponent().getPlayTime()
   tSlotLength = me.getComponent().getTimeLineSlotLength()
-  tBehind = tPlayTime mod tSlotLength
+  tBehind = (tPlayTime mod tSlotLength)
   if tPlayTime then
     if not timeoutExists(pPlayHeadUpdateTimer) then
       createTimeout(pPlayHeadUpdateTimer, tSlotLength - tBehind, #updatePlayHead, me.getID(), void(), 1)
@@ -463,7 +463,7 @@ on updatePlayHead me, tManualUpdate
         if tElem <> 0 then
           tElem.setProperty(#visible, 1)
           tWd = tElem.getProperty(#width)
-          tElem.setProperty(#locX, tLocX + pTimeLineSlotWd - tWd / 2 + pTimeLineSlotWd * tPos + pTimeLineSlotMarginWd * tPos)
+          tElem.setProperty(#locX, tLocX + (pTimeLineSlotWd - tWd / 2) + (pTimeLineSlotWd * tPos) + (pTimeLineSlotMarginWd * tPos))
         end if
       end repeat
     end if
@@ -539,7 +539,7 @@ on playHeadMouseWithin me
   if tElem <> 0 then
     tRect = tElem.getProperty(#rect)
     tPos = point(the mouseH - tRect.getAt(1), the mouseV - tRect.getAt(2))
-    tX = 1 + tPos.locH / pTimeLineSlotWd + pTimeLineSlotMarginWd
+    tX = 1 + (tPos.locH / pTimeLineSlotWd + pTimeLineSlotMarginWd)
     if tPos < 0 then
       tX = 0
     end if

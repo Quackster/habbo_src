@@ -9,8 +9,8 @@ on getAngleFromComponents me, xComponent, yComponent
     if yComponent = 0 then
       yComponent = 1
     end if
-    xComponent = xComponent * 256
-    temp = integer(xComponent) / integer(yComponent)
+    xComponent = (xComponent * 256)
+    temp = (integer(xComponent) / integer(yComponent))
     if temp < 0 then
       temp = -temp
     end if
@@ -34,8 +34,8 @@ on getAngleFromComponents me, xComponent, yComponent
     if xComponent = 0 then
       xComponent = 1
     end if
-    yComponent = yComponent * 256
-    temp = integer(yComponent) / integer(xComponent)
+    yComponent = (yComponent * 256)
+    temp = (integer(yComponent) / integer(xComponent))
     if temp < 0 then
       temp = -temp
     end if

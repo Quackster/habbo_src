@@ -147,8 +147,8 @@ on renderStripItem me, tCategoryId, tIndex, tIsSelected
   if tImage.ilk <> #image then
     return(0)
   end if
-  tOffsetX = tSlotRect.width + tImage - rect.width / 2
-  tOffsetY = tSlotRect.height + tImage - rect.height / 2
+  tOffsetX = tSlotRect.width + (tImage - rect.width / 2)
+  tOffsetY = tSlotRect.height + (tImage - rect.height / 2)
   tRect = rect.offset(tOffsetX, tOffsetY)
   pStripBg.copyPixels(tImage, tRect, tImage.rect, [#ink:36])
 end

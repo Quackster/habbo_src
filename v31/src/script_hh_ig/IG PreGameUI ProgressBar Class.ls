@@ -1,6 +1,4 @@
-property pBarMaxWidth, pBarOrigX, pBarOrigY, pUpdateCounter, pCacheProgress
-
-on addWindows me 
+on addWindows(me)
   me.pWindowID = "pb"
   tWrapObjRef = me.getWindowWrapper()
   if tWrapObjRef = 0 then
@@ -21,9 +19,10 @@ on addWindows me
   pBarMaxWidth = tElem.getProperty(#width)
   pBarHeight = tElem.getProperty(#height)
   return(1)
+  exit
 end
 
-on render me, tProgress 
+on render(me, tProgress)
   if voidp(tProgress) then
     tProgress = 0
   end if
@@ -36,13 +35,14 @@ on render me, tProgress
     return(0)
   end if
   pCacheProgress = tProgress
-  tNewWidth = integer(pBarMaxWidth * 100 - tProgress / 100)
+  tNewWidth = integer(pBarMaxWidth * 100 - tProgress / 0)
   tElem.resizeTo(tNewWidth, tElem.getProperty(#height))
   tElem.moveTo(pBarOrigX + pBarMaxWidth - tNewWidth, pBarOrigY)
   return(1)
+  exit
 end
 
-on update me 
+on update(me)
   pUpdateCounter = pUpdateCounter + 1
   if pUpdateCounter mod 5 > 0 then
     return(1)
@@ -66,4 +66,5 @@ on update me
   tElem.setProperty(#member, member(tMemNum))
   me.render(pCacheProgress)
   return(1)
+  exit
 end

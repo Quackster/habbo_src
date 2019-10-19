@@ -94,7 +94,7 @@ on getPicture me, tImg
     tImg = tCanvas
   else
     tdestrect = tImg.rect - tCanvas.rect
-    tdestrect = rect(tdestrect.width / 2, tdestrect.height / 2, tCanvas.width + tdestrect.width / 2, tdestrect.height / 2 + tCanvas.height)
+    tdestrect = rect((tdestrect.width / 2), (tdestrect.height / 2), tCanvas.width + (tdestrect.width / 2), (tdestrect.height / 2) + tCanvas.height)
     tImg.copyPixels(tCanvas, tdestrect, tCanvas.rect, [#ink:36])
   end if
   return(tImg.trimWhiteSpace())

@@ -1,26 +1,27 @@
-property pQuestionList, pQuestionIndex, pThanksText, pConfirmedAction, pConnectionId, pPollOfferID
-
-on construct me 
+on construct(me)
   pQuestionList = []
   pQuestionIndex = 1
   pConnectionId = getVariable("connection.info.id", #info)
   registerMessage(#show_poll_question, me.getID(), #parseQuestion)
   return(1)
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   unregisterMessage(#show_poll_question, me.getID())
   return(1)
+  exit
 end
 
-on getQuestionAvailable me 
+on getQuestionAvailable(me)
   if pQuestionList.count >= pQuestionIndex then
     return(1)
   end if
   return(0)
+  exit
 end
 
-on getNewQuestion me, tNext 
+on getNewQuestion(me, tNext)
   if tNext then
     if pQuestionIndex < pQuestionList.count then
       pQuestionIndex = pQuestionIndex + 1
@@ -30,29 +31,35 @@ on getNewQuestion me, tNext
       pQuestionIndex = pQuestionIndex - 1
     end if
   end if
+  exit
 end
 
-on getPollHeadLine me 
+on getPollHeadLine(me)
   return(me.getQuestionData(#pollHeadLine))
+  exit
 end
 
-on getQuestionText me 
+on getQuestionText(me)
   return(me.getQuestionData(#questionText))
+  exit
 end
 
-on getQuestionNumber me 
+on getQuestionNumber(me)
   return(me.getQuestionData(#questionNumber))
+  exit
 end
 
-on getQuestionCount me 
+on getQuestionCount(me)
   return(me.getQuestionData(#questionCount))
+  exit
 end
 
-on getQuestionType me 
+on getQuestionType(me)
   return(me.getQuestionData(#questionType))
+  exit
 end
 
-on getSelectionCount me 
+on getSelectionCount(me)
   tSelectionData = me.getQuestionData(#selectionData)
   if voidp(tSelectionData) then
     return(0)
@@ -62,9 +69,10 @@ on getSelectionCount me
     return(0)
   end if
   return(tQuestions.count)
+  exit
 end
 
-on getSelectionMinCount me 
+on getSelectionMinCount(me)
   tSelectionData = me.getQuestionData(#selectionData)
   if voidp(tSelectionData) then
     return(0)
@@ -73,9 +81,10 @@ on getSelectionMinCount me
     return(0)
   end if
   return(tSelectionData.getAt(#minSelect))
+  exit
 end
 
-on getSelectionMaxCount me 
+on getSelectionMaxCount(me)
   tSelectionData = me.getQuestionData(#selectionData)
   if voidp(tSelectionData) then
     return(0)
@@ -84,9 +93,10 @@ on getSelectionMaxCount me
     return(0)
   end if
   return(tSelectionData.getAt(#maxSelect))
+  exit
 end
 
-on getSelectionText me, tIndex 
+on getSelectionText(me, tIndex)
   tSelectionData = me.getQuestionData(#selectionData)
   if voidp(tSelectionData) then
     return(0)
@@ -99,9 +109,10 @@ on getSelectionText me, tIndex
     return("")
   end if
   return(tQuestions.getAt(tIndex))
+  exit
 end
 
-on getSelectionState me, tIndex 
+on getSelectionState(me, tIndex)
   tSelections = me.getQuestionData(#answerSelections)
   if voidp(tSelections) then
     return(0)
@@ -110,9 +121,10 @@ on getSelectionState me, tIndex
     return(0)
   end if
   return(tSelections.getAt(tIndex))
+  exit
 end
 
-on changeSelectionState me, tIndex 
+on changeSelectionState(me, tIndex)
   tSelections = me.getQuestionData(#answerSelections)
   if voidp(tSelections) then
     return(0)
@@ -144,37 +156,43 @@ on changeSelectionState me, tIndex
   end if
   tSelections.setAt(tIndex, tstate)
   return(1)
+  exit
 end
 
-on setAnswerText me, tText 
+on setAnswerText(me, tText)
   if pQuestionList.count < pQuestionIndex then
     return(0)
   end if
   pQuestionList.getAt(pQuestionIndex).setAt(#answerText, tText)
   return(1)
+  exit
 end
 
-on getAnswerText me 
+on getAnswerText(me)
   return(me.getQuestionData(#answerText))
+  exit
 end
 
-on getThanks me 
+on getThanks(me)
   return(pThanksText)
+  exit
 end
 
-on confirmAction me, tAction 
+on confirmAction(me, tAction)
   pConfirmedAction = tAction
   return(1)
+  exit
 end
 
-on actionConfirmed me 
+on actionConfirmed(me)
   if pConfirmedAction = "cancel" then
     me.cancelAnswer()
     me.getInterface().hideQuestion()
   end if
+  exit
 end
 
-on sendAnswer me 
+on sendAnswer(me)
   if not me.getQuestionAvailable() then
     return(0)
   end if
@@ -231,9 +249,10 @@ on sendAnswer me
   end repeat
   pQuestionIndex = 1
   return(1)
+  exit
 end
 
-on cancelAnswer me 
+on cancelAnswer(me)
   tPollID = void()
   i = 1
   repeat while i <= pQuestionList.count
@@ -251,20 +270,23 @@ on cancelAnswer me
   end repeat
   pQuestionList = []
   pQuestionIndex = 1
+  exit
 end
 
-on getQuestionData me, tProperty 
+on getQuestionData(me, tProperty)
   if pQuestionList.count < pQuestionIndex then
     return("")
   end if
   return(pQuestionList.getAt(pQuestionIndex).getAt(tProperty))
+  exit
 end
 
-on setThanks me, tText 
+on setThanks(me, tText)
   pThanksText = tText
+  exit
 end
 
-on offerPoll me, tdata 
+on offerPoll(me, tdata)
   if ilk(tdata) <> #propList then
     return(0)
   end if
@@ -274,21 +296,24 @@ on offerPoll me, tdata
   pPollOfferID = tdata.getAt(#pollID)
   tPollDescription = tdata.getAt(#pollDescription)
   me.getInterface().showOffer(tPollDescription)
+  exit
 end
 
-on acceptPoll me 
+on acceptPoll(me)
   if getConnection(pConnectionId) <> 0 then
     getConnection(pConnectionId).send("POLL_START", [#integer:pPollOfferID])
   end if
+  exit
 end
 
-on rejectPoll me 
+on rejectPoll(me)
   if getConnection(pConnectionId) <> 0 then
     getConnection(pConnectionId).send("POLL_REJECT", [#integer:pPollOfferID])
   end if
+  exit
 end
 
-on parseQuestion me, tdata 
+on parseQuestion(me, tdata)
   if not me.validateQuestion(tdata) then
     return(0)
   end if
@@ -305,14 +330,15 @@ on parseQuestion me, tdata
   end repeat
   pQuestionIndex = tTmpIndex
   me.getInterface().showQuestion()
+  exit
 end
 
-on validateQuestion me, tdata 
+on validateQuestion(me, tdata)
   if ilk(tdata) <> #propList then
     return(0)
   end if
   tList = [#pollID, #pollHeadLine, #questionID, #questionNumber, #questionCount, #questionType, #questionText]
-  repeat while tList <= undefined
+  repeat while me <= undefined
     tItem = getAt(undefined, tdata)
     if voidp(tdata.getAt(tItem)) then
       return(0)
@@ -324,7 +350,7 @@ on validateQuestion me, tdata
     end if
     tSelectionData = tdata.getAt(#selectionData)
     tListSelection = [#minSelect, #maxSelect, #questions]
-    repeat while tList <= undefined
+    repeat while me <= undefined
       tItem = getAt(undefined, tdata)
       if voidp(tSelectionData.getAt(tItem)) then
         return(0)
@@ -346,9 +372,11 @@ on validateQuestion me, tdata
     end if
   end if
   return(1)
+  exit
 end
 
-on pollError me 
+on pollError(me)
   me.getInterface().hideWindows()
   me.getInterface().ShowAlert("server_error")
+  exit
 end

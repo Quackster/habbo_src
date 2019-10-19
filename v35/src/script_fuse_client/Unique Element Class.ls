@@ -107,7 +107,7 @@ on resizeBy me, tOffH, tOffV, tForcedTag
         pSprite.width = pSprite.width + tOffH
       else
         if pScaleH = #center then
-          me.moveBy(tOffH / 2, 0)
+          me.moveBy((tOffH / 2), 0)
         else
           if pScaleH = #fixed then
             if tForcedTag then
@@ -124,7 +124,7 @@ on resizeBy me, tOffH, tOffV, tForcedTag
         pSprite.height = pSprite.height + tOffV
       else
         if pScaleH = #center then
-          me.moveBy(0, tOffV / 2)
+          me.moveBy(0, (tOffV / 2))
         else
           if pScaleH = #fixed then
             if tForcedTag then

@@ -23,22 +23,22 @@ end
 
 on getRandomNumber this, iteratedSeed, maxValue 
   if iteratedSeed < 0 then
-    return(abs(iteratedSeed) mod maxValue)
+    return((abs(iteratedSeed) mod maxValue))
   else
-    return(iteratedSeed mod maxValue)
+    return((iteratedSeed mod maxValue))
   end if
 end
 
 on BitLeft this, n, s 
-  return(integer(n * power(2, s mod 32)))
+  return(integer((n * power(2, (s mod 32)))))
 end
 
 on BitRight this, n, s 
-  s = s mod 32
+  s = (s mod 32)
   if n > 0 then
-    return(bitOr(n / power(2, s), 0))
+    return(bitOr((n / power(2, s)), 0))
   else
-    f = n / power(2, s)
+    f = (n / power(2, s))
     i = integer(f)
     if i > f then
       return(i - 1)
@@ -49,23 +49,23 @@ on BitRight this, n, s
 end
 
 on BitRightZF this, n, s 
-  s = s mod 32
+  s = (s mod 32)
   if n < 0 then
     if s = 0 then
-      return(float(the maxinteger) * 2 + 2 + n)
+      return((float(the maxinteger) * 2) + 2 + n)
     else
-      return(bitOr(n + the maxinteger + 1 / power(2, s), power(2, 31 - s)))
+      return(bitOr((n + the maxinteger + 1 / power(2, s)), power(2, 31 - s)))
     end if
   else
-    return(bitOr(n / power(2, s), 0))
+    return(bitOr((n / power(2, s)), 0))
   end if
 end
 
 on IntToBits this, a_iInput 
   tDigits = "01"
   repeat while a_iInput > 0
-    tD = a_iInput mod 2
-    a_iInput = a_iInput / 2
+    tD = (a_iInput mod 2)
+    a_iInput = (a_iInput / 2)
     tHexstr = tDigits.getProp(#char, tD + 1) & tHexstr
   end repeat
   repeat while 1

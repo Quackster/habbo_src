@@ -56,7 +56,7 @@ on update me
     if pAnimFrame > 9 then
       pAnimFrame = 2
     end if
-    tFrameNum = pAnimFrame / 2
+    tFrameNum = (pAnimFrame / 2)
     pSprite.castNum = getmemnum("crt" & tFrameNum)
     pSprite.width = member.width
     pSprite.height = member.height

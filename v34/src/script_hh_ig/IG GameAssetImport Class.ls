@@ -125,7 +125,7 @@ on getLoadingStatus me
     tCastLoadId = getAt(undefined, undefined)
     tAverage = getCastLoadPercent(tCastLoadId) + tAverage
   end repeat
-  tAverage = tAverage / pCastLoadIdList.count
+  tAverage = (tAverage / pCastLoadIdList.count)
   return(tAverage)
 end
 

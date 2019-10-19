@@ -115,11 +115,11 @@ on renderPrivateFlag me, tValue
   end if
   tElem = tWndObj.getElement("ig_game_availability_0")
   if tElem <> 0 then
-    tElem.setProperty(#blend, 0 + not tValue * 100)
+    tElem.setProperty(#blend, 0 + (not tValue * 100))
   end if
   tElem = tWndObj.getElement("ig_game_availability_1")
   if tElem <> 0 then
-    tElem.setProperty(#blend, 0 + tValue * 100)
+    tElem.setProperty(#blend, 0 + (tValue * 100))
   end if
   return(1)
 end

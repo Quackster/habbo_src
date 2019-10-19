@@ -109,7 +109,7 @@ on parse_window me, tFieldName
       else
         tElem.setAt(#fixedLineSpace, getVariable("mac.fixedLineSpace"))
       end if
-      tSizeMultiplier = tElem.getAt(#fontSize) / 9
+      tSizeMultiplier = (tElem.getAt(#fontSize) / 9)
       if tLayDefinition.getAt(#elements) = #text then
         tUnderl = tElem.getAt(#fontStyle).getOne(#underline) > 0
         tItalic = tElem.getAt(#fontStyle).getOne(#italic) > 0
@@ -124,12 +124,12 @@ on parse_window me, tFieldName
       end if
       if tElem.getAt(#font) = "vb" or tElem.getAt(#font) = "VB" or tElem.getAt(#fontStyle) = [#bold] then
         tElem.setAt(#font, tStructBold.getaProp(#font))
-        tElem.setAt(#fontSize, tStructBold.getaProp(#fontSize) * tSizeMultiplier)
+        tElem.setAt(#fontSize, (tStructBold.getaProp(#fontSize) * tSizeMultiplier))
         tElem.setAt(#lineHeight, tStructBold.getaProp(#lineHeight))
         tElem.setAt(#fontStyle, tStructBold.getaProp(#fontStyle))
       else
         tElem.setAt(#font, tStructPlain.getaProp(#font))
-        tElem.setAt(#fontSize, tStructPlain.getaProp(#fontSize) * tSizeMultiplier)
+        tElem.setAt(#fontSize, (tStructPlain.getaProp(#fontSize) * tSizeMultiplier))
         tElem.setAt(#lineHeight, tStructPlain.getaProp(#lineHeight))
         tElem.setAt(#fontStyle, tStructPlain.getaProp(#fontStyle))
       end if
@@ -340,14 +340,14 @@ on parse_visual me, tFieldName
   repeat while tLayDefinition.getAt(#elements) <= undefined
     tElem = getAt(undefined, tFieldName)
     if tElem.getAt(#media) = #field or tElem.getAt(#media) = #text then
-      tSizeMultiplier = tElem.getAt(#fontSize) / 9
+      tSizeMultiplier = (tElem.getAt(#fontSize) / 9)
       if tElem.getAt(#font) = "vb" or tElem.getAt(#font) = "VB" or tElem.getAt(#fontStyle) = [#bold] then
         tElem.setAt(#font, tStructBold.getaProp(#font))
-        tElem.setAt(#fontSize, tStructBold.getaProp(#fontSize) * tSizeMultiplier)
+        tElem.setAt(#fontSize, (tStructBold.getaProp(#fontSize) * tSizeMultiplier))
         tElem.setAt(#fontStyle, tStructBold.getaProp(#fontStyle))
       else
         tElem.setAt(#font, tStructPlain.getaProp(#font))
-        tElem.setAt(#fontSize, tStructPlain.getaProp(#fontSize) * tSizeMultiplier)
+        tElem.setAt(#fontSize, (tStructPlain.getaProp(#fontSize) * tSizeMultiplier))
         tElem.setAt(#fontStyle, tStructPlain.getaProp(#fontStyle))
       end if
       if tElem.getAt(#media) = #field then

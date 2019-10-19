@@ -133,7 +133,7 @@ on drawGameBoardTicTacToe me, tGameProps
   repeat while i <= tGameProps.getAt(#gameboard).length
     tC = tGameProps.getAt(#gameboard).getProp(#char, i)
     if charToNum(tC) <> 32 then
-      me.drawTicTacToe(i mod tW - 1, i / tW, tC, tBuffer)
+      me.drawTicTacToe((i mod tW) - 1, (i / tW), tC, tBuffer)
     end if
     i = 1 + i
   end repeat
@@ -147,7 +147,7 @@ on drawTicTacToe me, tX, tY, tC, tBuffer
   end if
   tSquareSize = 10
   tMemImg = member(getmemnum("game_TicTacToe." & tC)).image
-  tdestrect = rect(tX * tSquareSize + 1, tY * tSquareSize + 1, tX + 1 * tSquareSize, tY + 1 * tSquareSize)
+  tdestrect = rect((tX * tSquareSize) + 1, (tY * tSquareSize) + 1, (tX + 1 * tSquareSize), (tY + 1 * tSquareSize))
   tBuffer.copyPixels(tMemImg, tdestrect, tMemImg.rect, [#ink:36])
 end
 
@@ -171,7 +171,7 @@ on selectedTypeTicTacToe me, tPlayerProps, tGameProps
 end
 
 on getTicTacToeSector me, tpoint 
-  return([tpoint.getAt(1) / 10, tpoint.getAt(2) / 10])
+  return([(tpoint.getAt(1) / 10), (tpoint.getAt(2) / 10)])
 end
 
 on eventProcTicTacToe me, tEvent, tElemID, tParam 
@@ -254,15 +254,15 @@ on drawChessPieces me, tX, tY, tC, tBuffer
   tmember = member(getmemnum(tC))
   tMemImg = tmember.image
   tMemRect = tmember.rect
-  tcenter = rect(tX * tSize + tSize / 2, tY * tSize + tSize / 2, tX * tSize + tSize / 2, tY * tSize + tSize / 2)
+  tcenter = rect((tX * tSize) + (tSize / 2), (tY * tSize) + (tSize / 2), (tX * tSize) + (tSize / 2), (tY * tSize) + (tSize / 2))
   tDstRect = tMemRect + tcenter
-  tDstRect = tDstRect - rect(tMemRect.width / 2, tMemRect.height / 2, tMemRect.width / 2, tMemRect.height / 2)
+  tDstRect = tDstRect - rect((tMemRect.width / 2), (tMemRect.height / 2), (tMemRect.width / 2), (tMemRect.height / 2))
   tBuffer.copyPixels(tMemImg, tDstRect, tMemRect, [#ink:36])
 end
 
 on getChessSector me, tpoint 
   tSquareSize = 27
-  return(string(tpoint.getAt(1) / tSquareSize & tpoint.getAt(2) / tSquareSize))
+  return(string((tpoint.getAt(1) / tSquareSize) & (tpoint.getAt(2) / tSquareSize)))
 end
 
 on makeChessSectorEmpty me, tX, tY 
@@ -275,7 +275,7 @@ on makeChessSectorEmpty me, tX, tY
     return(0)
   end if
   tSquareSize = 27
-  tdestrect = rect(tX * tSquareSize, tY * tSquareSize, tX * tSquareSize + tSquareSize, tY * tSquareSize + tSquareSize)
+  tdestrect = rect((tX * tSquareSize), (tY * tSquareSize), (tX * tSquareSize) + tSquareSize, (tY * tSquareSize) + tSquareSize)
   tElem.getProperty(#image).fill(tdestrect, rgb(255, 255, 255))
   tElem.render()
 end
@@ -408,15 +408,15 @@ on drawShip me, tX, tY, tmember, tImage
   tSquareSize = 19
   tMemberImg = tmember.image
   tMemRect = tmember.rect
-  tcenter = rect(tX * tSquareSize + tSquareSize / 2, tY * tSquareSize + tSquareSize / 2, tX * tSquareSize + tSquareSize / 2, tY * tSquareSize + tSquareSize / 2)
+  tcenter = rect((tX * tSquareSize) + (tSquareSize / 2), (tY * tSquareSize) + (tSquareSize / 2), (tX * tSquareSize) + (tSquareSize / 2), (tY * tSquareSize) + (tSquareSize / 2))
   tdestrect = tMemRect + tcenter
-  tdestrect = tdestrect - rect(tMemRect.width / 2, tMemRect.height / 2, tMemRect.width / 2, tMemRect.height / 2)
+  tdestrect = tdestrect - rect((tMemRect.width / 2), (tMemRect.height / 2), (tMemRect.width / 2), (tMemRect.height / 2))
   tImage.copyPixels(tMemberImg, tdestrect, tMemRect, [#ink:36])
 end
 
 on getBattleShipSector me, tpoint 
   tSquareSize = 19
-  return(string(tpoint.getAt(1) / tSquareSize && tpoint.getAt(2) / tSquareSize))
+  return(string((tpoint.getAt(1) / tSquareSize) && (tpoint.getAt(2) / tSquareSize)))
 end
 
 on battleShipWaitOtherPlayer me 
@@ -522,9 +522,9 @@ on updateBattleShipBoard me, tBoardData
     ttype = tShoot.getAt(3)
     tHitImage = member(getmemnum("game_bs_" & string(ttype))).image
     if ttype = #miss then
-      tdestrect = rect(tX * tSquareSize, tY * tSquareSize, tX * tSquareSize + tHitImage.width - 1, tY * tSquareSize + tHitImage.height - 1)
+      tdestrect = rect((tX * tSquareSize), (tY * tSquareSize), (tX * tSquareSize) + tHitImage.width - 1, (tY * tSquareSize) + tHitImage.height - 1)
     else
-      tdestrect = rect(tX * tSquareSize + 1, tY * tSquareSize + 1, tX * tSquareSize + tHitImage.width, tY * tSquareSize + tHitImage.height)
+      tdestrect = rect((tX * tSquareSize) + 1, (tY * tSquareSize) + 1, (tX * tSquareSize) + tHitImage.width, (tY * tSquareSize) + tHitImage.height)
     end if
     tBuffer.copyPixels(tHitImage, tdestrect, tHitImage.rect, [#ink:36])
   end repeat

@@ -91,7 +91,7 @@ on updateHealth me, tValue
   if pOrigHealthBarLoc = void() then
     pOrigHealthBarLoc = point(tElem.getProperty(#locH), tElem.getProperty(#locV))
   end if
-  tPercent = tValue * 1 / pMaxHealth
+  tPercent = ((tValue * 1) / pMaxHealth)
   if tPercent > 0.7 then
     tmember = "ui_healthbar_green"
   else
@@ -109,7 +109,7 @@ on updateHealth me, tValue
   if tValue = pMaxHealth then
     pMaxHealthBarHeight = tElemHeight
   end if
-  tHeightAdjust = integer(tPercent * pMaxHealthBarHeight - tElemHeight)
+  tHeightAdjust = integer((tPercent * pMaxHealthBarHeight) - tElemHeight)
   tTotalAdjust = pMaxHealthBarHeight - tElemHeight + tHeightAdjust
   tElem.resizeBy(0, tHeightAdjust)
   tElem.moveTo(pOrigHealthBarLoc.locH, pOrigHealthBarLoc.locV + tTotalAdjust)
@@ -163,7 +163,7 @@ on animateBallCountFlashing me
   if tWndObj = 0 then
     return(0)
   end if
-  tMemNum = 1 + pBallCountAnimTimer / 4 mod 2
+  tMemNum = 1 + ((pBallCountAnimTimer / 4) mod 2)
   tMemName = ["ui_snowball_slots", "ui_snowball_slots_hilite"].getAt(tMemNum)
   tElem = tWndObj.getElement("int_alapalkki_balls_bg")
   if tElem = 0 then

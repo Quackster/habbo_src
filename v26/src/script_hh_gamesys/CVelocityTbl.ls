@@ -9,10 +9,10 @@ end
 
 on ValidateDirValue this, a_iDirValue 
   if a_iDirValue > 359 then
-    return(a_iDirValue mod 360)
+    return((a_iDirValue mod 360))
   else
     if a_iDirValue < 0 then
-      return(360 + a_iDirValue mod 360)
+      return(360 + (a_iDirValue mod 360))
     end if
   end if
   return(a_iDirValue)

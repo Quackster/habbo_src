@@ -83,7 +83,7 @@ on showLogo me
     pLogoSpr.ink = 0
     pLogoSpr.blend = 90
     pLogoSpr.locZ = -20000001
-    pLogoSpr.loc = point(undefined.width / 2, undefined.height / 2 - tmember.height)
+    pLogoSpr.loc = point((undefined.width / 2), (undefined.height / 2) - tmember.height)
     pLogoStartTime = the milliSeconds
   end if
   return(1)

@@ -72,7 +72,7 @@ on define me, tMetrics
     end if
   end if
   if ilk(tMetrics.getAt(#rect), #rect) then
-    if tMetrics <> rect.width then
+    if pMember.width <> tMetrics.width then
       pMember.rect = tMetrics.rect
     end if
   end if
@@ -137,12 +137,12 @@ on renderHTML me, tHtml, tRect
       tAlignment = pMember.alignment
       pMember.alignment = #left
       pMember.rect = pDefRect
-      tTotal = length(text.getProp(#line, 1))
+      tTotal = length(pMember.getProp(#line, 1))
       tWidth = pMember.charPosToLoc(tTotal).locH
-      if text.count(#line) > 1 then
+      if pMember.count(#line) > 1 then
         i = 2
-        repeat while pMember <= text.count(#line)
-          tTotal = pMember + length(text.getProp(#line, i)) + 1
+        repeat while i <= pMember.count(#line)
+          tTotal = tTotal + length(pMember.getProp(#line, i)) + 1
           tNext = pMember.charPosToLoc(tTotal).locH
           if tNext > tWidth then
             tWidth = tNext

@@ -87,7 +87,7 @@ on prepare me
 end
 
 on executeEscape me 
-  pSpeed = pSpeed * 1.2
+  pSpeed = (pSpeed * 1.2)
   pCurLoc = pCurLoc + [-pSpeed, pSpeed]
   pElevSpr_a.loc = pCurLoc
   pElevSpr_b.loc = pElevSpr_b.loc + [pSpeed, -pSpeed]
@@ -141,7 +141,7 @@ on createFigurePrew me
     tHeight = tWndObj.getElement("preview_img").getProperty(#height)
     tPrewImg = image(tWidth, tHeight, 16)
     tMargins = rect(39, 0, 39, 0)
-    tdestrect = rect(0, tPrewImg.height - tHumanImg.height * 4, tHumanImg.width * 4, tPrewImg.height) + tMargins
+    tdestrect = rect(0, tPrewImg.height - (tHumanImg.height * 4), (tHumanImg.width * 4), tPrewImg.height) + tMargins
     tPrewImg.copyPixels(tHumanImg, tdestrect, tHumanImg.rect)
     tWndObj.getElement("preview_img").feedImage(tPrewImg)
   end if

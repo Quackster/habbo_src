@@ -1,36 +1,37 @@
-property pSelectedFriends
-
-on isFriendselected me, tName 
+on isFriendselected(me, tName)
   if voidp(pSelectedFriends) then
     pSelectedFriends = []
   end if
   return(pSelectedFriends.getOne(tName) > 0)
+  exit
 end
 
-on selectFriend me, tName 
+on selectFriend(me, tName)
   if voidp(pSelectedFriends) then
     pSelectedFriends = []
   end if
   if pSelectedFriends.getOne(tName) = 0 then
     pSelectedFriends.add(tName)
   end if
+  exit
 end
 
-on deselectFriend me, tName 
+on deselectFriend(me, tName)
   if voidp(pSelectedFriends) then
     pSelectedFriends = []
   end if
   if pSelectedFriends.getOne(tName) > 0 then
     pSelectedFriends.deleteOne(tName)
   end if
+  exit
 end
 
-on getSelectedFriends me 
+on getSelectedFriends(me)
   if voidp(pSelectedFriends) then
     pSelectedFriends = []
   end if
   tList = []
-  repeat while pSelectedFriends <= undefined
+  repeat while me <= undefined
     tName = getAt(undefined, undefined)
     tFriendData = me.getaProp(tName)
     if ilk(tFriendData) = #propList then
@@ -38,9 +39,10 @@ on getSelectedFriends me
     end if
   end repeat
   return(tList)
+  exit
 end
 
-on addFriend me, tFriendData 
+on addFriend(me, tFriendData)
   if ilk(tFriendData) <> #propList then
     return(0)
   end if
@@ -54,9 +56,10 @@ on addFriend me, tFriendData
   tIndex = me.findPos(tName)
   tPosV = tIndex - 1 * me.pItemHeight
   me.pListImg = tFriendImg.insertImageTo(me, pListImg.duplicate(), tPosV)
+  exit
 end
 
-on updateFriend me, tFriendData 
+on updateFriend(me, tFriendData)
   tName = string(tFriendData.getAt(#name))
   tIndex = me.findPos(tName)
   if tIndex < 1 then
@@ -66,9 +69,10 @@ on updateFriend me, tFriendData
   tFriendImg = me.renderFriendItem(tFriendData, 0)
   tPosV = tIndex - 1 * me.pItemHeight
   me.pListImg = me.updateImagePart(tFriendImg, me.pListImg, tPosV)
+  exit
 end
 
-on removeFriend me, tFriendID 
+on removeFriend(me, tFriendID)
   tIndex = 1
   repeat while tIndex <= me.count(#pContentList)
     tFriend = me.getAt(tIndex)
@@ -84,9 +88,10 @@ on removeFriend me, tFriendID
       tIndex = 1 + tIndex
     end if
   end repeat
+  exit
 end
 
-on setFriendSelection me, tName, tSelected 
+on setFriendSelection(me, tName, tSelected)
   tFriendData = me.getProp(#pContentList, tName)
   tFriendImg = me.renderFriendItem(tFriendData, tSelected)
   tIndex = me.findPos(tName)
@@ -97,9 +102,10 @@ on setFriendSelection me, tName, tSelected
   else
     me.deselectFriend(tFriendData.getAt(#name))
   end if
+  exit
 end
 
-on userSelectionEvent me, tName 
+on userSelectionEvent(me, tName)
   if voidp(tName) then
     return(0)
   end if
@@ -112,4 +118,5 @@ on userSelectionEvent me, tName
   else
     me.setFriendSelection(tName, 1)
   end if
+  exit
 end

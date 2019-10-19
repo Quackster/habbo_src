@@ -2,7 +2,7 @@ property pAnimLength, pBlendSpriteList, pActiveLayer, pActiveLayerNew, pCounter,
 
 on define me, tProps 
   pAnimLength = 20
-  pCrossFadeLength = pAnimLength / 2
+  pCrossFadeLength = (pAnimLength / 2)
   tRetVal = callAncestor(#define, [me], tProps)
   pBlendSpriteList = []
   i = 1
@@ -20,10 +20,10 @@ on update me
     if pCounter > pAnimLength - pCrossFadeLength then
       tDelta = pCounter - pAnimLength - pCrossFadeLength
       if me.count(#pSprList) >= pActiveLayer then
-        me.getPropRef(#pSprList, pActiveLayer).blend = pCrossFadeLength - tDelta * 100 / pCrossFadeLength
+        me.getPropRef(#pSprList, pActiveLayer).blend = ((pCrossFadeLength - tDelta * 100) / pCrossFadeLength)
       end if
       if me.count(#pSprList) >= pActiveLayerNew then
-        me.getPropRef(#pSprList, pActiveLayerNew).blend = tDelta * 100 / pCrossFadeLength
+        me.getPropRef(#pSprList, pActiveLayerNew).blend = ((tDelta * 100) / pCrossFadeLength)
       end if
     end if
     if pCounter = pAnimLength then
@@ -34,7 +34,7 @@ on update me
       tAnimData = me.getPropRef(#pLayerDataList, pActiveLayer).getAt(2)
       if not voidp(tAnimData.getAt(#delay)) then
         pAnimLength = tAnimData.getAt(#delay)
-        pCrossFadeLength = pAnimLength / 2
+        pCrossFadeLength = (pAnimLength / 2)
       end if
       pActiveLayerNew = tList.getAt(random(tList.count))
       me.initBlends()
@@ -66,7 +66,7 @@ on setState me, tNewState
       tAnimData = me.getPropRef(#pLayerDataList, pActiveLayer).getAt(2)
       if not voidp(tAnimData.getAt(#delay)) then
         pAnimLength = tAnimData.getAt(#delay)
-        pCrossFadeLength = pAnimLength / 2
+        pCrossFadeLength = (pAnimLength / 2)
       end if
       pActiveLayerNew = tList.getAt(random(tList.count))
     end if

@@ -28,7 +28,7 @@ on deconstruct me
 end
 
 on update me 
-  pFrames = pFrames + 1 mod the frameTempo
+  pFrames = (pFrames + 1 mod the frameTempo)
   tTime = the milliSeconds - pTimerA
   tWndObj = getWindow(pWndID)
   tWndObj.getElement("perf_per_frm").setText(tTime && "ms.")

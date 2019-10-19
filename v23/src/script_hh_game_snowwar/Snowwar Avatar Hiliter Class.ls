@@ -19,7 +19,7 @@ on display me, tName, tScore, tTeamId, tloc, tOwnPlayer
     tsprite.member = tmember
   end if
   tsprite.locZ = 1000000
-  tsprite.loc = point(tloc.getAt(1) - tmember.width / 2, tloc.getAt(2) + 10)
+  tsprite.loc = point(tloc.getAt(1) - (tmember.width / 2), tloc.getAt(2) + 10)
   tsprite.ink = 36
   if not tOwnPlayer then
     tmember = member(getmemnum("sw_avatar_hilite_team_" & tTeamId))

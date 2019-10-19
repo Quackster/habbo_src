@@ -112,7 +112,7 @@ on sliderMouseWithin me
   tWndObj = getWindow(pWindowID)
   tScaleElem = tWndObj.getElement("dimmer.slider.scale")
   tRect = tScaleElem.getProperty(#rect)
-  tValue = float(the mouseH - tRect.getAt(1)) / tRect.width
+  tValue = (float(the mouseH - tRect.getAt(1)) / tRect.width)
   if tValue < 0 then
     tValue = 0
   else
@@ -121,8 +121,8 @@ on sliderMouseWithin me
     end if
   end if
   tMinLightness = pMinLightnesses.getaProp(pSelectedEffectID)
-  tMappedLightness = tMinLightness + 1 - tMinLightness * tValue
-  pSelectedLightness = integer(tMappedLightness * 255)
+  tMappedLightness = tMinLightness + (1 - tMinLightness * tValue)
+  pSelectedLightness = integer((tMappedLightness * 255))
   me.updateSlider()
   me.updatePreview()
 end
@@ -193,9 +193,9 @@ end
 
 on updateSlider me 
   tLightness = pSelectedLightness
-  tLightness = tLightness / 255
+  tLightness = (tLightness / 255)
   tMinLightness = pMinLightnesses.getaProp(pSelectedEffectID)
-  tMappedValue = tLightness - tMinLightness / 1 - tMinLightness
+  tMappedValue = (tLightness - tMinLightness / 1 - tMinLightness)
   if tMappedValue < 0 then
     tMappedValue = 0
   end if
@@ -204,7 +204,7 @@ on updateSlider me
   tHandle = tWndObj.getElement("dimmer.slider.handle")
   tRect = tScale.getProperty(#rect)
   tLocV = tHandle.getProperty(#locV)
-  tLocH = tScale.getProperty(#locH) + tRect.width * tMappedValue - tHandle.getProperty(#width) / 2
+  tLocH = tScale.getProperty(#locH) + (tRect.width * tMappedValue) - (tHandle.getProperty(#width) / 2)
   tHandle.moveTo(tLocH, tLocV)
 end
 

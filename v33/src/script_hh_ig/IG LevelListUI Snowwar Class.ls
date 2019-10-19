@@ -25,7 +25,7 @@ end
 
 on renderProperty me, tKey, tValue 
   if tKey = #duration then
-    return(me.renderDuration(tValue / 60))
+    return(me.renderDuration((tValue / 60)))
   end if
   return(me.renderProperty(tKey, tValue))
 end
@@ -39,7 +39,7 @@ on renderDuration me, tValue
     i = getAt(undefined, tValue)
     tElement = tWndObj.getElement("ig_game_drt_" & i)
     if tElement <> 0 then
-      tElement.setProperty(#blend, 0 + i = tValue * 100)
+      tElement.setProperty(#blend, 0 + (i = tValue * 100))
     end if
   end repeat
 end
@@ -51,7 +51,7 @@ on eventProcMouseDown me, tEvent, tSprID, tParam, tWndID, tIntParam
     return(0)
   end if
   if tSprID = "ig_game_drt" then
-    return(tService.setProperty(#duration, tIntParam * 60))
+    return(tService.setProperty(#duration, (tIntParam * 60)))
   end if
   return(0)
 end

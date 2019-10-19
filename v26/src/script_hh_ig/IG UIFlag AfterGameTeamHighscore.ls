@@ -18,7 +18,7 @@ on showInfo me, tWindowList, tdata, tMode
   end if
   i = 1
   repeat while i <= tCount
-    tWndObj = getWindow(tWindowList.getAt(i * 2))
+    tWndObj = getWindow(tWindowList.getAt((i * 2)))
     if tWndObj = 0 then
       return(0)
     end if
@@ -75,7 +75,7 @@ on showInfo me, tWindowList, tdata, tMode
     tElem.setText(tText)
     tFont = tElem.getFont()
     tLineHeight = tFont.getaProp(#lineHeight)
-    tHeight = tPlayers.count + 1 / 2 * tLineHeight + 14
+    tHeight = ((tPlayers.count + 1 / 2) * tLineHeight) + 14
     tWndObj.resizeTo(tWndObj.getProperty(#width), tHeight)
     i = 1 + i
   end repeat

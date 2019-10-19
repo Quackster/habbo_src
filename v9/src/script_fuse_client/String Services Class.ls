@@ -91,12 +91,12 @@ on convertIntToHex me, tInt
     return("00")
   else
     repeat while tInt > 0
-      tD = tInt mod 16
-      tInt = tInt / 16
+      tD = (tInt mod 16)
+      tInt = (tInt / 16)
       tHexstr = pDigits.getProp(#char, tD + 1) & tHexstr
     end repeat
   end if
-  if length(tHexstr) mod 2 = 1 then
+  if (length(tHexstr) mod 2) = 1 then
     tHexstr = "0" & tHexstr
   end if
   return(tHexstr)
@@ -108,8 +108,8 @@ on convertHexToInt me, tHex
   repeat while length(tHex) > 0
     tLc = the last char in tHex
     tVl = offset(tLc, pDigits) - 1
-    tValue = tValue + tBase * tVl
-    tBase = tBase * 16
+    tValue = tValue + (tBase * tVl)
+    tBase = (tBase * 16)
   end repeat
   return(tValue)
 end
@@ -132,51 +132,6 @@ on replaceChunks me, tString, tChunkA, tChunkB
     tPos + length(tChunkA).getPropRef().delete()
   end repeat
   return(tStr)
-end
-
-on obfuscate me, tStr 
-  tResult = ""
-  i = 1
-  repeat while i <= tStr.length
-    tRandom = random(127)
-    tNumber = charToNum(tStr.getProp(#char, i))
-    tRandom = [bitAnd(tRandom, 216), bitAnd(tRandom, 223), bitAnd(tRandom, 7)]
-    tNumbers = [bitAnd(tNumber, 216), bitAnd(tNumber, 32), bitAnd(tNumber, 7)]
-    tNewNumbers = [bitOr(tNumbers.getAt(3), tRandom.getAt(1)), bitOr(tNumbers.getAt(2), tRandom.getAt(2)), bitOr(tNumbers.getAt(1), tRandom.getAt(3))]
-    tResult = tResult & numToChar(tNewNumbers.getAt(2)) & numToChar(tNewNumbers.getAt(1)) & numToChar(tNewNumbers.getAt(3))
-    i = 1 + i
-  end repeat
-  return(tResult)
-end
-
-on deobfuscate me, tStr 
-  tResult = ""
-  i = 1
-  repeat while i <= tStr.length
-    if i >= tStr.length then
-    else
-      tRawNumbers = [charToNum(tStr.getProp(#char, i + 1)), charToNum(tStr.getProp(#char, i)), charToNum(tStr.getProp(#char, i + 2))]
-      tNumbers = [bitAnd(tRawNumbers.getAt(3), 216), bitAnd(tRawNumbers.getAt(2), 32), bitAnd(tRawNumbers.getAt(1), 7)]
-      tNumber = bitOr(bitOr(tNumbers.getAt(1), tNumbers.getAt(3)), tNumbers.getAt(2))
-      tResult = tResult & numToChar(tNumber)
-      i = i + 2
-      i = 1 + i
-    end if
-  end repeat
-  return(tResult)
-end
-
-on getLocalFloat me, tStrFloat 
-  if not stringp(tStrFloat) then
-    return(float(tStrFloat))
-  end if
-  if not tStrFloat contains "." then
-    return(float(tStrFloat))
-  end if
-  tStrFloatLocal = tStrFloat
-  if not value("1.2") > value("1.0") then
-  end if
-  return(float(tStrFloatLocal))
 end
 
 on initConvList me 

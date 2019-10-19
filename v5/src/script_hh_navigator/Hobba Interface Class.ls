@@ -81,7 +81,7 @@ on updateCryWnd me
 end
 
 on update me 
-  pAlertTimer = pAlertTimer + 1 mod 4
+  pAlertTimer = (pAlertTimer + 1 mod 4)
   if pAlertTimer <> 0 then
     return()
   end if

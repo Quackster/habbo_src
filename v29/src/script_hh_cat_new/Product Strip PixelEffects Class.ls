@@ -22,7 +22,7 @@ end
 
 on setTargetElement me, tElement, tScroll 
   callAncestor(#setTargetElement, [me], tElement, tScroll)
-  pItemsPerRow = pBgImages.getAt(#unselected) / image.width + pSpacing
+  pItemsPerRow = (pBgImages.getAt(#unselected) / image.width + pSpacing)
   if ilk(me.pStripData) <> #propList then
     return(error(me, "Stripdata was invalid", #setTargetElement, #major))
   end if
@@ -67,11 +67,11 @@ on renderStripBg me
     return(error(me, "Strip data invalid", #renderStripBg, #major))
   end if
   tItemCount = me.count(#pStripData)
-  tRowCount = tItemCount / pItemsPerRow + 1
-  if tItemCount mod pItemsPerRow = 0 then
+  tRowCount = (tItemCount / pItemsPerRow) + 1
+  if (tItemCount mod pItemsPerRow) = 0 then
     tRowCount = tRowCount - 1
   end if
-  tImageHeight = image.height + pSpacing * tRowCount
+  tImageHeight = (image.height + pSpacing * tRowCount)
   pimage = image(me.pwidth, tImageHeight, 32)
   pimage.fill(pimage.rect, [#shapeType:#rect, #color:pBgColor])
 end
@@ -89,8 +89,8 @@ on renderStripItem me, tItemIndex, tImageOverride
   if tItemIndex > tItemCount then
     return()
   end if
-  tOffsetY = tRowHeight * tItemIndex - 1 / pItemsPerRow
-  tOffsetX = tItemIndex - 1 mod pItemsPerRow * tItemWidth
+  tOffsetY = (tRowHeight * (tItemIndex - 1 / pItemsPerRow))
+  tOffsetX = ((tItemIndex - 1 mod pItemsPerRow) * tItemWidth)
   if pSelectedItem = tItemIndex then
     tBgImg = pBgImages.getAt(#selected).image
   else
@@ -117,15 +117,15 @@ end
 
 on centerRectInRect me, tSmallrect, tLargeRect 
   tpoint = point(0, 0)
-  tpoint.locH = tLargeRect.width - tSmallrect.width / 2
-  tpoint.locV = tLargeRect.height - tSmallrect.height / 2
+  tpoint.locH = (tLargeRect.width - tSmallrect.width / 2)
+  tpoint.locV = (tLargeRect.height - tSmallrect.height / 2)
   return(tpoint)
 end
 
 on getItemIndexAt me, tloc 
   tRowHeight = image.height + pSpacing
   tItemWidth = image.width + pSpacing
-  return(tloc.locV / tRowHeight * pItemsPerRow + tloc.locH / tItemWidth + 1)
+  return(((tloc.locV / tRowHeight) * pItemsPerRow) + (tloc.locH / tItemWidth) + 1)
 end
 
 on downloadCompleted me, tProps 

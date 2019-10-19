@@ -22,7 +22,7 @@ end
 on update me 
   pDelay = pDelay + 1
   if pDelay > 4 then
-    pFrame = pFrame + 1 mod pMaxFrames
+    pFrame = (pFrame + 1 mod pMaxFrames)
     me.setAnimMembersToFrame(pFrame)
     pDelay = 0
   end if

@@ -32,7 +32,7 @@ on update me
       return()
     end if
     if not pKill then
-      pTimer = pTimer + 1 mod 3
+      pTimer = (pTimer + 1 mod 3)
       if pTimer = 0 then
         tDelim = the itemDelimiter
         the itemDelimiter = "_"
@@ -42,10 +42,10 @@ on update me
         tdata = tName.getProp(#item, tName.count(#item) - 4, tName.count(#item) - 1)
         tRand = random(6)
         if tRand = pLastFrm then
-          tRand = tRand + 1 mod 6 + 1
+          tRand = (tRand + 1 mod 6) + 1
         end if
         pLastFrm = tRand
-        pLastAnm = pLastAnm + 1 mod 6 + 1
+        pLastAnm = (pLastAnm + 1 mod 6) + 1
         tNewNameA = tItem & "_" & "a" & "_" & tdata & "_" & pLastFrm
         tNewNameB = tItem & "_" & "b" & "_" & tdata & "_" & pSwitch
         tNewNameC = tItem & "_" & "c" & "_" & tdata & "_" & pSwitch

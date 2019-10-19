@@ -4,7 +4,7 @@ on define me, tProps
   pAnimState = 0
   pActiveLayer = 0
   pAnimLength = 20
-  pCrossFadeLength = pAnimLength / 2
+  pCrossFadeLength = (pAnimLength / 2)
   tRetVal = callAncestor(#define, [me], tProps)
   i = me.count(#pLayerDataList)
   repeat while i >= 1
@@ -35,7 +35,7 @@ on define me, tProps
     tAnimData = me.getPropRef(#pLayerDataList, pActiveLayer).getAt(pAnimState)
     if not voidp(tAnimData.getAt(#delay)) then
       pAnimLength = tAnimData.getAt(#delay)
-      pCrossFadeLength = pAnimLength / 2
+      pCrossFadeLength = (pAnimLength / 2)
     end if
   end if
   me.initBlends()
@@ -44,13 +44,13 @@ end
 
 on update me 
   if pActiveLayer > 0 and pActiveLayer <= me.count(#pSprList) and me.pState = pAnimState then
-    if pCounter > pAnimLength / 2 - pCrossFadeLength and pCounter <= pAnimLength / 2 then
-      tDelta = pCounter - pAnimLength / 2 - pCrossFadeLength
-      me.getPropRef(#pSprList, pActiveLayer).blend = tDelta * 100 / pCrossFadeLength
+    if pCounter > (pAnimLength / 2) - pCrossFadeLength and pCounter <= (pAnimLength / 2) then
+      tDelta = pCounter - (pAnimLength / 2) - pCrossFadeLength
+      me.getPropRef(#pSprList, pActiveLayer).blend = ((tDelta * 100) / pCrossFadeLength)
     else
       if pCounter > pAnimLength - pCrossFadeLength then
         tDelta = pCounter - pAnimLength - pCrossFadeLength
-        me.getPropRef(#pSprList, pActiveLayer).blend = pCrossFadeLength - tDelta * 100 / pCrossFadeLength
+        me.getPropRef(#pSprList, pActiveLayer).blend = ((pCrossFadeLength - tDelta * 100) / pCrossFadeLength)
       end if
     end if
     if pCounter = pAnimLength then

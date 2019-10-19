@@ -51,11 +51,7 @@ on error me, tObject, tMsg, tMethod
     if pDebugLevel = 2 then
       put("Error:" & tError)
     else
-      if pDebugLevel = 3 then
-        executeMessage(#debugdata, "Error: " & tError)
-      else
-        put("Error:" & tError)
-      end if
+      put("Error:" & tError)
     end if
   end if
   return(0)

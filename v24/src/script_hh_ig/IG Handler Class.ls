@@ -221,7 +221,7 @@ on send_LOAD_STAGE_READY me, tPercentage
   if tConn = 0 then
     return(0)
   end if
-  tPercentage = integer(tPercentage * 100)
+  tPercentage = integer((tPercentage * 100))
   tConn.send("IG_LOAD_STAGE_READY", [#integer:tPercentage])
   return(1)
 end

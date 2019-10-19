@@ -75,7 +75,7 @@ on displayPlayerLeft me, tTeamId, tPlayerPos
   end if
   tImage = member(tMemNum).image
   tElem.feedImage(tImage)
-  tElem.moveBy(tElem.getProperty(#width) - tImage.width / 2, tElem.getProperty(#height) - tImage.height / 2)
+  tElem.moveBy((tElem.getProperty(#width) - tImage.width / 2), (tElem.getProperty(#height) - tImage.height / 2))
   tElem = tWndObj.getElement("info_rejoined_" & tPlayerPos)
   if tElem = 0 then
     return(0)
@@ -99,7 +99,7 @@ on displayPlayerRejoined me, tTeamPos, tPlayerPos
   end if
   tImage = member(tMemNum).image
   tElem.feedImage(tImage)
-  tElem.moveBy(tElem.getProperty(#width) - tImage.width / 2, tElem.getProperty(#height) - tImage.height / 2)
+  tElem.moveBy((tElem.getProperty(#width) - tImage.width / 2), (tElem.getProperty(#height) - tImage.height / 2))
   return(1)
 end
 

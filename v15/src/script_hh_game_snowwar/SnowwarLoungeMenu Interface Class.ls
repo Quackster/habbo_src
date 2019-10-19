@@ -97,9 +97,9 @@ on showInstanceList me
   if not listp(tList) then
     tList = [:]
   end if
-  tStartIndex = pGameListPage - 1 * pGamesPerPage + 1
+  tStartIndex = (pGameListPage - 1 * pGamesPerPage) + 1
   pRenderObj.renderInstanceList(tList, tStartIndex, pGamesPerPage)
-  tNumPages = integer(tList.count - 1 / pGamesPerPage) + 1
+  tNumPages = integer((tList.count - 1 / pGamesPerPage)) + 1
   if pGameListPage > tNumPages then
     pGameListPage = 1
   end if
@@ -233,27 +233,27 @@ on eventProcMainWindow me, tEvent, tSprID, tParam
     return(error(me, "Gamesystem not found.", #eventProcMainWindow))
   end if
   if tSprID = "gs_area_gameList1" then
-    tIndexOnPage = 1 + pGameListPage - 1 * pGamesPerPage
+    tIndexOnPage = 1 + (pGameListPage - 1 * pGamesPerPage)
     return(me.getComponent().observeInstance(tIndexOnPage))
   else
     if tSprID = "gs_area_gameList2" then
-      tIndexOnPage = 2 + pGameListPage - 1 * pGamesPerPage
+      tIndexOnPage = 2 + (pGameListPage - 1 * pGamesPerPage)
       return(me.getComponent().observeInstance(tIndexOnPage))
     else
       if tSprID = "gs_area_gameList3" then
-        tIndexOnPage = 3 + pGameListPage - 1 * pGamesPerPage
+        tIndexOnPage = 3 + (pGameListPage - 1 * pGamesPerPage)
         return(me.getComponent().observeInstance(tIndexOnPage))
       else
         if tSprID = "gs_area_gameList4" then
-          tIndexOnPage = 4 + pGameListPage - 1 * pGamesPerPage
+          tIndexOnPage = 4 + (pGameListPage - 1 * pGamesPerPage)
           return(me.getComponent().observeInstance(tIndexOnPage))
         else
           if tSprID = "gs_area_gameList5" then
-            tIndexOnPage = 5 + pGameListPage - 1 * pGamesPerPage
+            tIndexOnPage = 5 + (pGameListPage - 1 * pGamesPerPage)
             return(me.getComponent().observeInstance(tIndexOnPage))
           else
             if tSprID = "gs_area_gameList6" then
-              tIndexOnPage = 6 + pGameListPage - 1 * pGamesPerPage
+              tIndexOnPage = 6 + (pGameListPage - 1 * pGamesPerPage)
               return(me.getComponent().observeInstance(tIndexOnPage))
             else
               if tSprID = "gs_arrow_pageFwd" then
@@ -456,7 +456,7 @@ on changeInstanceListPage me, tOffset
   if not listp(tList) then
     return(0)
   end if
-  tNumPages = integer(tList.count - 1 / pGamesPerPage) + 1
+  tNumPages = integer((tList.count - 1 / pGamesPerPage)) + 1
   if tOffset = 1 then
     if pGameListPage >= tNumPages then
       return(0)

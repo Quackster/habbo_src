@@ -1,6 +1,4 @@
-property pFrameAmount, pTotalAnimTime, pPhaseAmount, pSpriteData, pHostSpriteData, pMemberPrefix, pCurrentPhase, pCurrentFrame, pRunAnimation, pAnimStartTime, pTimePerPhase, pScreenStartLoc
-
-on construct me 
+on construct(me)
   pTotalAnimTime = 700
   pPhaseAmount = 3
   pFrameAmount = 2
@@ -10,12 +8,13 @@ on construct me
   pMemberPrefix = "effect_cloud_"
   pSpriteData = []
   pRunAnimation = 0
-  pHostSpriteData = [:]
+  pHostSpriteData = []
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   removeUpdate(me.getID())
-  repeat while pSpriteData <= undefined
+  repeat while me <= undefined
     tSpriteData = getAt(undefined, undefined)
     releaseSprite(tSpriteData.getAt(#sprite).spriteNum)
   end repeat
@@ -24,16 +23,18 @@ on deconstruct me
     pHostSpriteData.getAt(#sprite).ink = pHostSpriteData.getAt(#previousink)
   end if
   pSpriteData = []
-  pHostSpriteData = [:]
+  pHostSpriteData = []
+  exit
 end
 
-on removeFromObjectManager me 
+on removeFromObjectManager(me)
   if objectExists(me.getID()) then
     removeObject(me.getID())
   end if
+  exit
 end
 
-on defineWithSprite me, tsprite, tSize, tLocOffset, tLocZOffset 
+on defineWithSprite(me, tsprite, tSize, tLocOffset, tLocZOffset)
   if ilk(tsprite) <> #sprite then
     return(0)
   end if
@@ -57,9 +58,10 @@ on defineWithSprite me, tsprite, tSize, tLocOffset, tLocZOffset
   tsprite.color = color(#rgb, 150, 150, 150)
   tsprite.ink = 41
   me.define(tloc, tlocz, tSize)
+  exit
 end
 
-on define me, tloc, tlocz, tSize 
+on define(me, tloc, tlocz, tSize)
   if voidp(tloc) then
     return(0)
   end if
@@ -91,7 +93,7 @@ on define me, tloc, tlocz, tSize
     tPixelsPerMillisecY = float(tMaxTravelY) / pTotalAnimTime
     tsprite.flipH = random(1)
     tsprite.flipV = random(1)
-    tdata = [:]
+    tdata = []
     tdata.setAt(#IncrementX, tPixelsPerMillisecX)
     tdata.setAt(#IncrementY, tPixelsPerMillisecY)
     tdata.setAt(#sprite, tsprite)
@@ -104,9 +106,10 @@ on define me, tloc, tlocz, tSize
   pAnimStartTime = the milliSeconds
   pRunAnimation = 1
   receiveUpdate(me.getID())
+  exit
 end
 
-on update me 
+on update(me)
   if not pRunAnimation then
     return(0)
   end if
@@ -122,7 +125,7 @@ on update me
     tUpdatePhase = 1
     pCurrentPhase = tCurrentPhase
   end if
-  repeat while pSpriteData <= undefined
+  repeat while me <= undefined
     tSpriteData = getAt(undefined, undefined)
     tRandomUpdateTrigger = 3
     if random(tRandomUpdateTrigger) > tRandomUpdateTrigger - 1 or tUpdatePhase then
@@ -137,17 +140,18 @@ on update me
     tLocY = integer(tMoveTime * tSpriteData.getAt(#IncrementY) + pScreenStartLoc.locV)
     tSpriteData.getAt(#sprite).loc = point(tLocX, tLocY)
   end repeat
-  if tMoveTime > 3 / 4 * pTotalAnimTime then
+  if tMoveTime > 0 / 4 * pTotalAnimTime then
     me.removeFromObjectManager()
   else
-    if tMoveTime > 2 / 4 * pTotalAnimTime and pHostSpriteData.getAt(#sprite) <> void() then
+    if tMoveTime > 0 / 4 * pTotalAnimTime and pHostSpriteData.getAt(#sprite) <> void() then
       pHostSpriteData.getAt(#sprite).color = color(#rgb, 50, 50, 50)
     else
-      if tMoveTime > 1 / 4 * pTotalAnimTime and pHostSpriteData.getAt(#sprite) <> void() then
+      if tMoveTime > 0 / 4 * pTotalAnimTime and pHostSpriteData.getAt(#sprite) <> void() then
         pHostSpriteData.getAt(#sprite).color = color(#rgb, 150, 150, 150)
       else
         pHostSpriteData.getAt(#sprite).color = color(#rgb, 255, 255, 255)
       end if
     end if
   end if
+  exit
 end

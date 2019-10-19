@@ -102,11 +102,11 @@ on ColorTiles me, tStyle, tOrCols, tMultiplier, tSpeed, tRange, tHorz
   pActiveColors = tRange
   i = 1
   repeat while i <= pSpriteList.count
-    tX = i mod 6
+    tX = (i mod 6)
     if tX = 0 then
       tX = 6
     end if
-    tY = i - 1 / 6 + 1
+    tY = (i - 1 / 6) + 1
     if tStyle = "#vertRotateSin" then
       tColNum = me.vertRotateSin(tX, tY, tOrCols, tMultiplier, tSpeed, pActiveColors)
     else
@@ -136,7 +136,7 @@ on ColorTiles me, tStyle, tOrCols, tMultiplier, tSpeed, tRange, tHorz
         end if
       end if
     end if
-    tNum = tColNum mod pColorOrder.count + 1
+    tNum = (tColNum mod pColorOrder.count) + 1
     pSpriteList.getAt(i).member = getMember("disco_" & pColorOrder.getAt(tNum))
     pGlowList.getAt(i).member = getMember("light_disco_" & pColorOrder.getAt(tNum))
     i = 1 + i
@@ -148,13 +148,13 @@ on randomColor me, tX, tY, tOrCols, tMultiplier, tSpeed, tRange
 end
 
 on chessBoard me, tX, tY, tOrCols, tMultiplier, tSpeed, tRange 
-  tPhase = pDiscoCounter mod 2
+  tPhase = (pDiscoCounter mod 2)
   tCols = []
   k = 1
   repeat while k <= 3
     tCol1 = tRange.getAt(k + 3)
     tCol2 = tRange.getAt(k)
-    if tX + tY + tPhase mod 2 = 1 then
+    if (tX + tY + tPhase mod 2) = 1 then
       tCols.setAt(k, tCol1)
     else
       tCols.setAt(k, tCol2)
@@ -168,14 +168,14 @@ on vertRotateSin me, tX, tY, tOrCols, tMultiplier, tSpeed, tRange
   tCols = []
   k = 1
   repeat while k <= 3
-    tCols.setAt(k, tOrCols.getAt(k) + tX + tY + tMultiplier * sin(pSin) * tSpeed)
+    tCols.setAt(k, tOrCols.getAt(k) + tX + tY + ((tMultiplier * sin(pSin)) * tSpeed))
     tMax = tRange.getAt(k + 3)
     tMin = tRange.getAt(k)
     if tCols.getAt(k) > tMax then
-      tCols.setAt(k, tMax - tCols.getAt(k) mod tMax - tMin)
+      tCols.setAt(k, tMax - (tCols.getAt(k) mod tMax - tMin))
     end if
     if tCols.getAt(k) < tMin then
-      tCols.setAt(k, tMin - tCols.getAt(k) mod tMax - tMin)
+      tCols.setAt(k, tMin - (tCols.getAt(k) mod tMax - tMin))
     end if
     k = 1 + k
   end repeat
@@ -186,14 +186,14 @@ on vertRotate me, tX, tY, tOrCols, tMultiplier, tSpeed, tRange
   tCols = []
   k = 1
   repeat while k <= 3
-    tCols.setAt(k, tOrCols.getAt(k) + tX + tY + tMultiplier * pSin * tSpeed)
+    tCols.setAt(k, tOrCols.getAt(k) + tX + tY + ((tMultiplier * pSin) * tSpeed))
     tMax = tRange.getAt(k + 3)
     tMin = tRange.getAt(k)
     if tCols.getAt(k) > tMax then
-      tCols.setAt(k, tMax - tCols.getAt(k) mod tMax - tMin)
+      tCols.setAt(k, tMax - (tCols.getAt(k) mod tMax - tMin))
     end if
     if tCols.getAt(k) < tMin then
-      tCols.setAt(k, tMin - tCols.getAt(k) mod tMax - tMin)
+      tCols.setAt(k, tMin - (tCols.getAt(k) mod tMax - tMin))
     end if
     k = 1 + k
   end repeat
@@ -202,17 +202,17 @@ end
 
 on centerRotateMovX me, tX, tY, tOrCols, tMultiplier, tSpeed, tRange 
   tCols = []
-  tRow = abs(pDiscoCounter mod 12 - 6)
+  tRow = abs((pDiscoCounter mod 12) - 6)
   tCenterX = tRow
   tCenterY = 4
   tCenterMultiplier = abs(tX - tCenterX) + abs(tY - tCenterY)
-  tMultiplier = tMultiplier * tCenterMultiplier
+  tMultiplier = (tMultiplier * tCenterMultiplier)
   return(tRow + tX)
 end
 
 on centerRotateMovXY me, tX, tY, tOrCols, tMultiplier, tSpeed, tRange 
   tCols = []
-  tPlace = pDiscoCounter mod 18
+  tPlace = (pDiscoCounter mod 18)
   if tPlace < 6 then
     tCenterX = tPlace + 1
     tCenterY = 1
@@ -231,17 +231,17 @@ on centerRotateMovXY me, tX, tY, tOrCols, tMultiplier, tSpeed, tRange
     end if
   end if
   tCenterMultiplier = abs(tX - tCenterX) + abs(tY - tCenterY)
-  tMultiplier = tMultiplier * tCenterMultiplier
+  tMultiplier = (tMultiplier * tCenterMultiplier)
   k = 1
   repeat while k <= 3
-    tCols.setAt(k, tOrCols.getAt(k) + tX + tY + tMultiplier * pSin * tSpeed / 7)
+    tCols.setAt(k, tOrCols.getAt(k) + tX + tY + (((tMultiplier * pSin) * tSpeed) / 7))
     tMax = tRange.getAt(k + 3)
     tMin = tRange.getAt(k)
     if tCols.getAt(k) > tMax then
-      tCols.setAt(k, tMax - tCols.getAt(k) mod tMax - tMin)
+      tCols.setAt(k, tMax - (tCols.getAt(k) mod tMax - tMin))
     end if
     if tCols.getAt(k) < tMin then
-      tCols.setAt(k, tMin - tCols.getAt(k) mod tMax - tMin)
+      tCols.setAt(k, tMin - (tCols.getAt(k) mod tMax - tMin))
     end if
     k = 1 + k
   end repeat
@@ -252,18 +252,18 @@ on centerRotate me, tX, tY, tOrCols, tMultiplier, tSpeed, tRange
   tCenterX = 3
   tCenterY = 3
   tCenterMultiplier = abs(tX - tCenterX) + abs(tY - tCenterY)
-  tMultiplier = tMultiplier * tCenterMultiplier
+  tMultiplier = (tMultiplier * tCenterMultiplier)
   tCols = []
   k = 1
   repeat while k <= 3
-    tCols.setAt(k, tOrCols.getAt(k) + tX + tY * tMultiplier + pSin * tSpeed)
+    tCols.setAt(k, tOrCols.getAt(k) + (tX + tY * tMultiplier) + (pSin * tSpeed))
     tMax = tRange.getAt(k + 3)
     tMin = tRange.getAt(k)
     if tCols.getAt(k) > tMax then
-      tCols.setAt(k, tMax - tCols.getAt(k) mod tMax - tMin)
+      tCols.setAt(k, tMax - (tCols.getAt(k) mod tMax - tMin))
     end if
     if tCols.getAt(k) < tMin then
-      tCols.setAt(k, tMin - tCols.getAt(k) mod tMax - tMin)
+      tCols.setAt(k, tMin - (tCols.getAt(k) mod tMax - tMin))
     end if
     k = 1 + k
   end repeat

@@ -50,7 +50,7 @@ on createFurnitureWindow me, tID, tProps
     tExpireTime = -1
   end if
   if tExpireTime > -1 and tRoomController or tRoomOwner or tAnyRoomController > 0 then
-    tExpireTimeLeft = tExpireTime - the milliSeconds / 1000 / 60
+    tExpireTimeLeft = ((tExpireTime - the milliSeconds / 1000) / 60)
     tExpireTimeLeft = max([0, tExpireTimeLeft])
     tWndObj = me.initWindow(tID, "obj_disp_furni_expire.window")
     if tWndObj <> 0 then
@@ -59,8 +59,8 @@ on createFurnitureWindow me, tID, tProps
       else
         tExpireTxt = getText("object_displayer_furni_expires")
       end if
-      tHours = tExpireTimeLeft / 60
-      tMinutes = tExpireTimeLeft mod 60
+      tHours = (tExpireTimeLeft / 60)
+      tMinutes = (tExpireTimeLeft mod 60)
       tExpireTxt = replaceChunks(tExpireTxt, "%minutes%", tMinutes)
       tExpireTxt = replaceChunks(tExpireTxt, "%hours%", tHours)
       if tWndObj.elementExists("room_obj_disp_expiration") then
@@ -461,7 +461,7 @@ on scaleButtonWindow me, tID, tButtonList, tShowButtons
     end if
     tIndex = 1 + tIndex
   end repeat
-  tStackHeight = tLine * tButtonHeight + tButtonVertMargins + 2 * tButtonVertMargins
+  tStackHeight = (tLine * tButtonHeight + tButtonVertMargins) + (2 * tButtonVertMargins)
   me.resizeWindowTo(tID, tMaxWidth, tStackHeight)
 end
 
@@ -529,8 +529,8 @@ on createUserFxWindow me, tID, tFx
   if not integerp(tFXTime) then
     return(0)
   end if
-  tSec = tFXTime mod 60
-  tMin = tFXTime - tSec / 60
+  tSec = (tFXTime mod 60)
+  tMin = (tFXTime - tSec / 60)
   if tSec < 10 then
     tSec = "0" & tSec
   end if
@@ -608,9 +608,9 @@ on updateFXDropDown me, tWndObj
     tAvailableFX = tAvailableFX.duplicate()
     i = 1
     repeat while i <= tAvailableFX.count
-      tTimeInt = tAvailableFX.getAt(i) - the milliSeconds / 1000
-      tMin = tTimeInt mod 60
-      tHour = tTimeInt - tMin / 60
+      tTimeInt = (tAvailableFX.getAt(i) - the milliSeconds / 1000)
+      tMin = (tTimeInt mod 60)
+      tHour = (tTimeInt - tMin / 60)
       if tMin < 10 then
         tMin = "0" & tMin
       end if

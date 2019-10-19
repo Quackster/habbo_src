@@ -454,7 +454,7 @@ on renderHistory me, tNodeId, tHistoryTxt, tShowRecoms
   end if
   tRoomlistCurrentV = tWndObj.getElement("nav_roomlist").getProperty(#locV)
   tRoomlistOffset = tRoomlistOrigV - tRoomlistCurrentV
-  tHistoryOffset = tItemCount * pHistoryItemHeight
+  tHistoryOffset = (tItemCount * pHistoryItemHeight)
   if me.getNaviView() = #flat and tItemCount > 0 then
     tHistoryOffset = tHistoryOffset + 7
   end if
@@ -681,7 +681,7 @@ on showNodeInfo me, tNodeId, tCategoryId
     tDepth = tElement.getProperty(#depth)
     tPrewImg = image(tWidth, tHeight, tDepth)
     tdestrect = tPrewImg.rect - tTempImg.rect
-    tdestrect = rect(tdestrect.width / 2, tdestrect.height / 2, tTempImg.width + tdestrect.width / 2, tdestrect.height / 2 + tTempImg.height)
+    tdestrect = rect((tdestrect.width / 2), (tdestrect.height / 2), tTempImg.width + (tdestrect.width / 2), (tdestrect.height / 2) + tTempImg.height)
     tPrewImg.copyPixels(tTempImg, tdestrect, tTempImg.rect, [#ink:8])
     tElement.clearImage()
     tElement.feedImage(tPrewImg)
@@ -806,7 +806,7 @@ on renderRoomList me, tList
     return(0)
   end if
   tCount = tList.count
-  tListHeight = tCount * me.pListItemHeight
+  tListHeight = (tCount * me.pListItemHeight)
   tTargetImg = image(me.pListAreaWidth, tListHeight, me.pBufferDepth)
   tLockMemImgA = member(getmemnum("lock1")).image
   tLockMemImgB = member(getmemnum("lock2")).image
@@ -819,7 +819,7 @@ on renderRoomList me, tList
     if tItem.getAt(#maxUsers) < 1 then
       tItem.setAt(#maxUsers, 25)
     end if
-    tUserStatus = float(tItem.getAt(#usercount)) / tItem.getAt(#maxUsers)
+    tUserStatus = (float(tItem.getAt(#usercount)) / tItem.getAt(#maxUsers))
     if tItem.getAt(#nodeType) = 0 then
       me.renderRoomListItem(#cat, i, tTargetImg, tUserStatus)
     else
@@ -836,7 +836,7 @@ on renderRoomList me, tList
     end if
     if tLockImg <> 0 then
       tSrcRect = tLockImg.rect
-      tLocV = i - 1 * me.pListItemHeight
+      tLocV = (i - 1 * me.pListItemHeight)
       tdestrect = tSrcRect + rect(7, tLocV + 5, 7, tLocV + 5)
       tTargetImg.copyPixels(tLockImg, tdestrect, tSrcRect, [#ink:36])
     end if
@@ -899,7 +899,7 @@ on renderRoomListItem me, ttype, tNum, tTargetImg, tUserStatus, tNodeType
   else
     tBackImg = me.getProp(#pCatBackImages, tBackImgId)
   end if
-  tLocV = tNum - 1 * me.pListItemHeight
+  tLocV = (tNum - 1 * me.pListItemHeight)
   tdestrect = tBackImg.rect + rect(0, tLocV, 0, tLocV)
   tTargetImg.copyPixels(tBackImg, tdestrect, tBackImg.rect)
   if ttype = #room then
@@ -1002,8 +1002,8 @@ on renderLoadingText me, tTempElementId
   tHeight = tElem.getProperty(#height)
   tTempImg = image(tWidth, tHeight, pBufferDepth)
   tTextImg = pWriterPlainBoldCent.render(getText("loading"))
-  tOffX = tWidth - tTextImg.width / 2
-  tOffY = tHeight - tTextImg.height / 2
+  tOffX = (tWidth - tTextImg.width / 2)
+  tOffY = (tHeight - tTextImg.height / 2)
   tDstRect = tTextImg.rect + rect(tOffX, tOffY, tOffX, tOffY)
   tTempImg.copyPixels(tTextImg, tDstRect, tTextImg.rect)
   tElem.feedImage(tTempImg)

@@ -41,7 +41,7 @@ on renderListImage me
   if not listp(pEventData) then
     return(0)
   end if
-  tListImage = image(pListWidth, pLineHeight * pEventData.count, 8)
+  tListImage = image(pListWidth, (pLineHeight * pEventData.count), 8)
   tListColors = [rgb("#EFEFEF"), rgb("#E1E1E1")]
   tBgImages = []
   repeat while tListColors <= undefined
@@ -57,13 +57,13 @@ on renderListImage me
   if pEventData.count > 0 then
     tLine = 1
     repeat while tLine <= pEventData.count
-      tLineImage = tBgImages.getAt(tLine mod 2 + 1).duplicate()
+      tLineImage = tBgImages.getAt((tLine mod 2) + 1).duplicate()
       tName = pEventData.getAt(tLine).getaProp(#name)
       tTextImage = pWriter.render(tName).duplicate()
       tLineImage.copyPixels(tTextImage, tTextImage.rect + tMarginH + tMarginV, tTextImage.rect)
       tTargetRect = rect(tLineImage.width - tArrowImage.width, 0, tLineImage.width, tArrowImage.height)
       tLineImage.copyPixels(tArrowImage, tTargetRect + tMarginV, tArrowImage.rect)
-      tTargetRect = rect(0, tLine - 1 * pLineHeight, pListWidth, tLine * pLineHeight)
+      tTargetRect = rect(0, (tLine - 1 * pLineHeight), pListWidth, (tLine * pLineHeight))
       tListImage.copyPixels(tLineImage, tTargetRect, tLineImage.rect)
       pEventData.getAt(tLine).setaProp(#rect, tTargetRect)
       tLine = 1 + tLine
@@ -82,7 +82,7 @@ on getEventAt me, tpoint
   if ilk(tpoint) <> #point then
     return(0)
   end if
-  tLine = tpoint.getAt(2) / pLineHeight + 1
+  tLine = (tpoint.getAt(2) / pLineHeight) + 1
   if tLine > pEventData.count then
     return(0)
   end if

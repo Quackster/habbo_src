@@ -113,8 +113,8 @@ on handle_status me, tMsg
     tuser.setAt(#x, tConn.GetIntFrom())
     tuser.setAt(#y, tConn.GetIntFrom())
     tuser.setAt(#h, getLocalFloat(tConn.GetStrFrom()))
-    tuser.setAt(#dirHead, tConn.GetIntFrom() mod 8)
-    tuser.setAt(#dirBody, tConn.GetIntFrom() mod 8)
+    tuser.setAt(#dirHead, (tConn.GetIntFrom() mod 8))
+    tuser.setAt(#dirBody, (tConn.GetIntFrom() mod 8))
     tActionString = tConn.GetStrFrom()
     tActions = []
     tActionIndex = []
@@ -346,7 +346,7 @@ on handle_OBJECTS me, tMsg
       tObj.setAt(#x, tObj.getAt(#x) + tObj.getAt(#width) - 1)
       tObj.setAt(#y, tObj.getAt(#y) + tObj.getAt(#height) - 1)
     else
-      tdir = tConn.GetIntFrom() mod 8
+      tdir = (tConn.GetIntFrom() mod 8)
       tObj.setAt(#direction, [tdir, tdir, tdir])
       tObj.setAt(#dimensions, 0)
     end if
@@ -392,14 +392,14 @@ on parseActiveObject me, tConn
   end if
   tObj.setAt(#x, tConn.GetIntFrom())
   tObj.setAt(#y, tConn.GetIntFrom())
-  tDirection = tConn.GetIntFrom() mod 8
+  tDirection = (tConn.GetIntFrom() mod 8)
   tObj.setAt(#direction, [tDirection, tDirection, tDirection])
   tObj.setAt(#altitude, getLocalFloat(tConn.GetStrFrom()))
   tExtra = tConn.GetIntFrom()
   tStuffData = tConn.GetStrFrom()
   tExpireTime = tConn.GetIntFrom()
   if tExpireTime > -1 then
-    tExpireTime = tExpireTime * 60 * 1000 + the milliSeconds
+    tExpireTime = ((tExpireTime * 60) * 1000) + the milliSeconds
   end if
   tObj.setAt(#expire, tExpireTime)
   if tClassID < 0 then

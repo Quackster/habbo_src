@@ -80,12 +80,12 @@ on convertIntToHex me, tInt
     return("00")
   else
     repeat while tInt > 0
-      tD = tInt mod 16
-      tInt = tInt / 16
+      tD = (tInt mod 16)
+      tInt = (tInt / 16)
       tHexstr = pDigits.getProp(#char, tD + 1) & tHexstr
     end repeat
   end if
-  if length(tHexstr) mod 2 = 1 then
+  if (length(tHexstr) mod 2) = 1 then
     tHexstr = "0" & tHexstr
   end if
   return(tHexstr)
@@ -97,8 +97,8 @@ on convertHexToInt me, tHex
   repeat while length(tHex) > 0
     tLc = the last char in tHex
     tVl = offset(tLc, pDigits) - 1
-    tValue = tValue + tBase * tVl
-    tBase = tBase * 16
+    tValue = tValue + (tBase * tVl)
+    tBase = (tBase * 16)
   end repeat
   return(tValue)
 end

@@ -383,7 +383,7 @@ on feedPageData me
           tSourceImg = tmember.image
           tdestrect = tDestImg.rect - tSourceImg.rect
           tMargins = rect(0, 0, 0, 0)
-          tdestrect = rect(tdestrect.width / 2, tdestrect.height / 2, tSourceImg.width + tdestrect.width / 2, tdestrect.height / 2 + tSourceImg.height) + tMargins
+          tdestrect = rect((tdestrect.width / 2), (tdestrect.height / 2), tSourceImg.width + (tdestrect.width / 2), (tdestrect.height / 2) + tSourceImg.height) + tMargins
           tDestImg.copyPixels(tSourceImg, tdestrect, tSourceImg.rect, [#ink:8])
           tElem.feedImage(tDestImg)
         else
@@ -436,7 +436,7 @@ on feedPageData me
               tSourceImg = member(tmember).image
               tdestrect = tDestImg.rect - tSourceImg.rect
               tMargins = rect(0, 0, 0, 0)
-              tdestrect = rect(tdestrect.width / 2, tdestrect.height / 2, tSourceImg.width + tdestrect.width / 2, tdestrect.height / 2 + tSourceImg.height) + tMargins
+              tdestrect = rect((tdestrect.width / 2), (tdestrect.height / 2), tSourceImg.width + (tdestrect.width / 2), (tdestrect.height / 2) + tSourceImg.height) + tMargins
               tDestImg.copyPixels(tSourceImg, tdestrect, tSourceImg.rect, [#ink:36])
               tElem.feedImage(tDestImg)
             else
@@ -532,7 +532,7 @@ on showSpecialText me, tSpecialText
     tDestImg.fill(tDestImg.rect, rgb(255, 255, 255))
     tdestrect = tDestImg.rect - tSourceImg.rect
     tMargins = rect(0, 0, 0, 0)
-    tdestrect = rect(tdestrect.width / 2, tdestrect.height / 2, tSourceImg.width + tdestrect.width / 2, tdestrect.height / 2 + tSourceImg.height) + tMargins
+    tdestrect = rect((tdestrect.width / 2), (tdestrect.height / 2), tSourceImg.width + (tdestrect.width / 2), (tdestrect.height / 2) + tSourceImg.height) + tMargins
     tDestImg.copyPixels(tSourceImg, tdestrect, tSourceImg.rect, [#ink:8])
     tElem.feedImage(tDestImg)
   end if
@@ -654,8 +654,8 @@ on ShowSmallIcons me, tstate, tPram
               tCenteredImage.copyPixels(tBgImage, tBgImage.rect, tBgImage.rect)
             end if
             tMatte = tRenderedImage.createMatte()
-            tXchange = tCenteredImage.width - tRenderedImage.width / 2
-            tYchange = tCenteredImage.height - tRenderedImage.height / 2
+            tXchange = (tCenteredImage.width - tRenderedImage.width / 2)
+            tYchange = (tCenteredImage.height - tRenderedImage.height / 2)
             tRect1 = tRenderedImage.rect + rect(tXchange, tYchange, tXchange, tYchange)
             tCenteredImage.copyPixels(tRenderedImage, tRect1, tRenderedImage.rect, [#maskImage:tMatte, #ink:41])
             tElem.feedImage(tCenteredImage)
@@ -766,7 +766,7 @@ on showPreviewImage me, tProps, tElemID
     tDestImg.fill(tDestImg.rect, rgb(255, 255, 255))
     tdestrect = tDestImg.rect - tSourceImg.rect
     tMargins = rect(0, 0, 0, 0)
-    tdestrect = rect(tdestrect.width / 2, tdestrect.height / 2, tSourceImg.width + tdestrect.width / 2, tdestrect.height / 2 + tSourceImg.height) + tMargins
+    tdestrect = rect((tdestrect.width / 2), (tdestrect.height / 2), tSourceImg.width + (tdestrect.width / 2), (tdestrect.height / 2) + tSourceImg.height) + tMargins
     tDestImg.copyPixels(tSourceImg, tdestrect, tSourceImg.rect, [#ink:36])
     tElem.feedImage(tDestImg)
   end if
@@ -927,8 +927,8 @@ on showProductPageCounter me
         tWndObj.getElement("ctlg_page_text").setText(tPage)
       end if
       if tWndObj.elementExists("ctlg_page_counter") then
-        tCurrent = integer(pProductOffset / pProductPerPage) + 1
-        tTotalPages = float(pCurrentPageData.getAt("productList").count) / float(pProductPerPage)
+        tCurrent = integer((pProductOffset / pProductPerPage)) + 1
+        tTotalPages = (float(pCurrentPageData.getAt("productList").count) / float(pProductPerPage))
         if tTotalPages - integer(tTotalPages) > 0 then
           tTotalPages = integer(tTotalPages) + 1
         else

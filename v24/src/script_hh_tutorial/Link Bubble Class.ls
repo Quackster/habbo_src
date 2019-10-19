@@ -99,7 +99,7 @@ on setCheckmarks me, tStatusList, tBlockTextReset
     tID = me.getPropAt(tLinkNum)
     if tStatusList.getaProp(tID) then
     else
-      tY1 = me.pLinkLineHeight * tLinkNum - 1 + tVerticalOffset
+      tY1 = (me.pLinkLineHeight * tLinkNum - 1) + tVerticalOffset
       tY2 = tY1 + tMarkImage.height
       tImage.copyPixels(tMarkImage, rect(0, tY1, tMarkImage.width, tY2), tMarkImage.rect)
     end if
@@ -126,7 +126,7 @@ on eventHandler me, tEvent, tSpriteID, tParam
     if tParam.ilk <> #point then
       return(0)
     end if
-    tLineNum = tParam.getAt(2) / 16 + 1
+    tLineNum = (tParam.getAt(2) / 16) + 1
     tTopicID = me.getPropAt(tLineNum)
     getThread(#tutorial).getComponent().selectTopic(tTopicID)
   end if

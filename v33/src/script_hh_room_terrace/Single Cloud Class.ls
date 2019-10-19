@@ -6,7 +6,7 @@ on prepare me, tsprite, tStartPointX
   pStartPointX = tStartPointX
   tRand = random(50) - 25
   pSprite.locH = tStartPointX + tRand
-  pSprite.locV = tStartPointX - tRand / 2
+  pSprite.locV = (tStartPointX - tRand / 2)
   pSpeed = random(3) - 1
   tRand = random(5)
   tmember = member(getmemnum("pilvi" & tRand))
@@ -18,9 +18,9 @@ end
 
 on update me 
   pAnimFrame = pAnimFrame + 1
-  if pAnimFrame mod pSpeed = 0 then
+  if (pAnimFrame mod pSpeed) = 0 then
     pSprite.locH = pSprite.locH + 1
-    if pSprite.locH mod 2 = 0 then
+    if (pSprite.locH mod 2) = 0 then
       pSprite.locV = pSprite.locV + 1
     end if
     if the stage > rect.width + 45 then

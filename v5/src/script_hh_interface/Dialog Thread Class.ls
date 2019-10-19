@@ -87,7 +87,7 @@ on ShowAlert me, tProps
   end if
   tWndObj.resizeBy(tOffW, tOffH)
   tWndObj.center()
-  tLocOff = pAlertList.count * 10
+  tLocOff = (pAlertList.count * 10)
   tWndObj.moveBy(tLocOff, tLocOff)
   tWndObj.registerClient(me.getID())
   tWndObj.registerProcedure(#eventProcAlert, me.getID(), #mouseUp)
@@ -264,7 +264,7 @@ end
 on eventProcHelp me, tEvent, tElemID, tParam, tWndID 
   if tEvent = #mouseUp then
     if tElemID = "link_list" then
-      tLineNum = tParam.getAt(2) / 14 + 1
+      tLineNum = (tParam.getAt(2) / 14) + 1
       if textExists("url_help_" & tLineNum) then
         tSession = getObject(#session)
         tURL = getText("url_help_" & tLineNum)

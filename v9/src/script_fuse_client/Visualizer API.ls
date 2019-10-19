@@ -19,7 +19,7 @@ on createVisualizer tid, tLayout
 end
 
 on removeVisualizer tid 
-  return(getVisualizerManager().Remove(tid))
+  return(getVisualizerManager().remove(tid))
 end
 
 on getVisualizer tid 

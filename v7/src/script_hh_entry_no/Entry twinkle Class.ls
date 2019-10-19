@@ -22,7 +22,7 @@ on update me
       sprite(pSprite).blend = pCount
     else
       if 1 = pCount > 100 then
-        pAdd = pAdd * -1
+        pAdd = (pAdd * -1)
       else
         if 1 = pCount < 0 then
           me.reset()

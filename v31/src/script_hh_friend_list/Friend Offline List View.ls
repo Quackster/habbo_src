@@ -1,8 +1,6 @@
-property pContentList, pWriterIdPlain, pItemWidth, pItemHeight, pListImg
-
-on construct me 
+on construct(me)
   pListImg = image(1, 1, 32)
-  pContentList = [:]
+  pContentList = []
   pContentList.sort()
   pContentListState = void()
   pWriterIdPlain = getUniqueID()
@@ -12,21 +10,24 @@ on construct me
   pItemHeight = integer(getVariable("fr.offline.item.height"))
   pItemWidth = integer(getVariable("fr.list.panel.width"))
   pEmptyListText = getText("friend_list_no_friends_online_category")
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   pListImg = void()
   removeWriter(pWriterIdPlain)
+  exit
 end
 
-on setListData me, tdata 
+on setListData(me, tdata)
   if ilk(tdata) = #propList then
     pContentList = tdata.duplicate()
     me.renderListImage()
   end if
+  exit
 end
 
-on renderFriendItem me, tFriendData, tSelected 
+on renderFriendItem(me, tFriendData, tSelected)
   pItemHeight = integer(getVariable("fr.offline.item.height"))
   pItemWidth = integer(getVariable("fr.list.panel.width"))
   tNameWriter = getWriter(pWriterIdPlain)
@@ -43,9 +44,10 @@ on renderFriendItem me, tFriendData, tSelected
   tdestrect = tSourceRect + rect(tNamePosH, tNamePosV, tNamePosH, tNamePosV)
   tItemImg.copyPixels(tNameImg, tdestrect, tNameImg.rect)
   return(tItemImg.duplicate())
+  exit
 end
 
-on renderListImage me 
+on renderListImage(me)
   if pContentList.count = 0 then
     me.pListImg = image(1, 1, 32)
     return(me.pListImg)
@@ -58,7 +60,7 @@ on renderListImage me
   me.pListImg = image(pItemWidth, pItemHeight * pContentList.count, 32)
   tCurrentPosV = 0
   tNameWriter = getWriter(pWriterIdPlain)
-  repeat while pContentList <= undefined
+  repeat while me <= undefined
     tFriend = getAt(undefined, undefined)
     tName = tFriend.getAt(#name)
     if me.isFriendselected(tName) then
@@ -68,9 +70,10 @@ on renderListImage me
     me.append(tFriend)
     tCurrentPosV = tCurrentPosV + pItemHeight
   end repeat
+  exit
 end
 
-on renderFromQueue me, tContentElement 
+on renderFromQueue(me, tContentElement)
   if tContentElement = 0 then
     me.pFriendRenderQueue = []
     return(1)
@@ -96,9 +99,10 @@ on renderFromQueue me, tContentElement
     i = 1 + i
   end repeat
   tContentElement.feedImage(pListImg)
+  exit
 end
 
-on renderBackgroundImage me 
+on renderBackgroundImage(me)
   if ilk(pContentList) <> #propList then
     return(image(1, 1, 32))
   end if
@@ -117,11 +121,12 @@ on renderBackgroundImage me
     tIndex = 1 + tIndex
   end repeat
   return(tImage)
+  exit
 end
 
-on relayEvent me, tEvent, tLocX, tLocY 
+on relayEvent(me, tEvent, tLocX, tLocY)
   tListIndex = tLocY / me.pItemHeight + 1
-  tEventResult = [:]
+  tEventResult = []
   tEventResult.setAt(#Event, tEvent)
   if tListIndex > me.count(#pContentList) or tListIndex < 1 then
     nothing()
@@ -137,4 +142,5 @@ on relayEvent me, tEvent, tLocX, tLocY
     tEventResult.setAt(#update, 1)
   end if
   return(tEventResult)
+  exit
 end

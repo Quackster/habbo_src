@@ -101,7 +101,7 @@ on rotate me, tChange
   end if
   j = 0
   repeat while j <= 3
-    tDirection = tDirection + tChange + j mod 8
+    tDirection = (tDirection + tChange + j mod 8)
     if tDirection.getAt(1) < 0 then
       tDirection = 8 + tDirection
     end if
@@ -315,7 +315,7 @@ on updateLocation me
     end if
     tZ = pLoczList.getAt(i).getAt(pDirection.getAt(1) + 1)
     if pCorrectLocZ then
-      tSpr.locZ = tScreenLocs.getAt(3) + pLocH * 1000 + tZ - 1
+      tSpr.locZ = tScreenLocs.getAt(3) + (pLocH * 1000) + tZ - 1
     else
       tSpr.locZ = tScreenLocs.getAt(3) + tZ - 1
     end if

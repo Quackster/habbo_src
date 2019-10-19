@@ -38,7 +38,7 @@ on getViewImage me
     tFont = getStructVariable("struct.font.plain")
     tFont.setaProp(#wordWrap, 1)
     tOffsets = rect(5, 2, 5, 2)
-    tWidth = getVariable("fr.list.panel.width") - tOffsets.getAt(1) * 2
+    tWidth = getVariable("fr.list.panel.width") - (tOffsets.getAt(1) * 2)
     tFont.setaProp(#rect, rect(0, 0, tWidth, 0))
     tWriter.define(tFont)
     tEmptyListTextImg = tWriter.render(me.pEmptyListText)

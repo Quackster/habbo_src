@@ -43,9 +43,9 @@ on fullRotation me, tGx, tGy, tYx, tYy, tRx, try, tGoffset, tYOffset, tRoffset
   if tRoffset = void() then
     tRoffset = point(0, 0)
   end if
-  pSpriteList.getAt(1).loc = pOrigLocs.getAt(1) + tGoffset + point(sin(pSin2) * tGx, cos(pSin2) * tGy)
-  pSpriteList.getAt(2).loc = pOrigLocs.getAt(2) + tYOffset + point(cos(pSin) * tYx, sin(pSin) * tYy) * 1.7
-  pSpriteList.getAt(3).loc = pOrigLocs.getAt(3) + tRoffset + point(sin(pSin2 + 0.5) * tRx, cos(pSin2 - 0.3) * try) * 1.3
+  pSpriteList.getAt(1).loc = pOrigLocs.getAt(1) + tGoffset + point((sin(pSin2) * tGx), (cos(pSin2) * tGy))
+  pSpriteList.getAt(2).loc = pOrigLocs.getAt(2) + tYOffset + (point((cos(pSin) * tYx), (sin(pSin) * tYy)) * 1.7)
+  pSpriteList.getAt(3).loc = pOrigLocs.getAt(3) + tRoffset + (point((sin(pSin2 + 0.5) * tRx), (cos(pSin2 - 0.3) * try)) * 1.3)
   return(1)
 end
 

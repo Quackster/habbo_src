@@ -26,7 +26,7 @@ on showLogo me
     pLogoSpr.blend = 60
     pLogoSpr.member = tmember
     pLogoSpr.locZ = -20000001
-    pLogoSpr.loc = point(undefined.width / 2, undefined.height / 2 - tmember.height)
+    pLogoSpr.loc = point((undefined.width / 2), (undefined.height / 2) - tmember.height)
   end if
   return(1)
 end

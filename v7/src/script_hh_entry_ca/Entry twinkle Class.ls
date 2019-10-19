@@ -17,7 +17,7 @@ on update me
   tFrameList = [0, 1, 2, 3, 4, 5, 6, 7]
   pCount = pCount + 1
   if 1 = pCount > 0 and pCount <= 15 then
-    if pCount mod 2 then
+    if (pCount mod 2) then
       tImage = getmemnum("twinkle_" & tFrameList.getAt(pFrameCount))
       pSprite.member = tImage
       pFrameCount = pFrameCount + 1

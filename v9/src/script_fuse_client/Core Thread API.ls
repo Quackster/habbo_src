@@ -19,7 +19,7 @@ on createThread tid, tInitField
 end
 
 on removeThread tid 
-  return(getThreadManager().Remove(tid))
+  return(getThreadManager().remove(tid))
 end
 
 on getThread tid 

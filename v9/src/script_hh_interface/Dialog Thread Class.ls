@@ -130,10 +130,10 @@ on ShowAlert me, tProps
   if tTitle <> "" then
     tTitleV = tTitleElem.getProperty(#locV)
     tTitleH = tTitleElem.getProperty(#locH)
-    tTitleElem.moveTo(tWndObj.getProperty(#width) / 2 - tTitleWidth / 2 - tTitleH, tTitleV)
+    tTitleElem.moveTo((tWndObj.getProperty(#width) / 2) - (tTitleWidth / 2) - tTitleH, tTitleV)
   end if
   tWndObj.center()
-  tLocOff = pAlertList.count * 10
+  tLocOff = (pAlertList.count * 10)
   tWndObj.moveBy(tLocOff, tLocOff)
   tWndObj.registerClient(me.getID())
   if symbolp(tProps.getAt(#registerProcedure)) then
@@ -408,7 +408,7 @@ end
 on eventProcHelp me, tEvent, tElemID, tParam, tWndID 
   if tEvent = #mouseUp then
     if tElemID = "link_list" then
-      tLineNum = tParam.getAt(2) / 14 + 1
+      tLineNum = (tParam.getAt(2) / 14) + 1
       if textExists("url_help_" & tLineNum) then
         tSession = getObject(#session)
         tURL = getText("url_help_" & tLineNum)

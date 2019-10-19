@@ -253,7 +253,7 @@ on getMinutesLeftToRecycle me
     return(void())
   end if
   tMillisSinceStarted = the milliSeconds - pTimeProps.getAt(#timeStamp)
-  tMinutesSinceStarted = tMillisSinceStarted / 1000 / 60
+  tMinutesSinceStarted = ((tMillisSinceStarted / 1000) / 60)
   tMinutesLeft = pTimeProps.getAt(#minutesLeft) - tMinutesSinceStarted
   if tMinutesLeft < 0 then
     tMinutesLeft = 0

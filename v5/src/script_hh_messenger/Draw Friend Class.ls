@@ -72,7 +72,7 @@ on select me, tClickPoint, tBuffer, tPosition
     tMsgStruct = getThread(#messenger).getComponent().getMessageBySenderId(pID)
     getThread(#messenger).getInterface().renderMessage(tMsgStruct)
   else
-    tPos = tPosition * pheight
+    tPos = (tPosition * pheight)
     tRect = pCacheImage.rect + rect(0, 1, -4, -2) + [0, tPos, 0, tPos]
     if pSelected then
       pSelected = 0
@@ -95,7 +95,7 @@ on render me, tBuffer, tPosition
     pNeedUpdate = 1
   end if
   if not pNeedUpdate then
-    tDstRect = pCacheImage.rect + rect(0, tPosition * pheight, 0, tPosition * pheight)
+    tDstRect = pCacheImage.rect + rect(0, (tPosition * pheight), 0, (tPosition * pheight))
     tBuffer.copyPixels(pCacheImage, tDstRect, pCacheImage.rect)
   else
     pNeedUpdate = 0
@@ -163,7 +163,7 @@ on render me, tBuffer, tPosition
       tMissionImg = pWriterText.render("\"" & pMsg & "\"")
       tX1 = pLeftMarg
       tX2 = tX1 + tMissionImg.width
-      tY1 = pLineHeight * 2 + pTopMarg
+      tY1 = (pLineHeight * 2) + pTopMarg
       tY2 = tY1 + tMissionImg.height
       tDstRect = rect(tX1, tY1, tX2, tY2)
       pCacheImage.fill(tDstRect, rgb(255, 255, 255))
@@ -176,7 +176,7 @@ on render me, tBuffer, tPosition
     tY2 = tY1 + 1
     tDstRect = rect(tX1, tY1, tX2, tY2)
     pCacheImage.copyPixels(pDotLineImg, tDstRect, pDotLineImg.rect)
-    tDstRect = pCacheImage.rect + rect(0, tPosition * pheight, 0, tPosition * pheight)
+    tDstRect = pCacheImage.rect + rect(0, (tPosition * pheight), 0, (tPosition * pheight))
     tBuffer.copyPixels(pCacheImage, tDstRect, pCacheImage.rect)
     pData.update = 0
   end if

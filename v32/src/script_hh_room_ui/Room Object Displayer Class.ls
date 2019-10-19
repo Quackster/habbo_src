@@ -391,7 +391,7 @@ on alignWindows me
     if not windowExists(tWindowID) then
     else
       tWindowObj = getWindow(tWindowID)
-      tWindowObj.moveZ(pBaseLocZ + tIndex - 1 * 100)
+      tWindowObj.moveZ(pBaseLocZ + (tIndex - 1 * 100))
       tWindowType = pBaseWindowIds.getOne(tWindowID)
       tAlignment = tAlignments.getaProp(tWindowType)
       if voidp(tAlignment) then

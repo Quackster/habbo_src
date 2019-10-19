@@ -97,7 +97,7 @@ on TestPointToCircleCollision me, tThisObject, tOtherObject
   if distanceY < 0 then
     distanceY = -distanceY
   end if
-  if sqrt(distanceX * distanceX + distanceY * distanceY) < tOtherObject.getGameObjectProperty(#gameobject_collisionshape_radius) then
+  if sqrt((distanceX * distanceX) + (distanceY * distanceY)) < tOtherObject.getGameObjectProperty(#gameobject_collisionshape_radius) then
     return(1)
   else
     return(0)
@@ -115,7 +115,7 @@ on TestCircleToCircleCollision me, tThisObject, tOtherObject, tDump
   end if
   collisionDistance = tOtherObject.getGameObjectProperty(#gameobject_collisionshape_radius) + tThisObject.getGameObjectProperty(#gameobject_collisionshape_radius)
   if distanceY < collisionDistance and distanceX < collisionDistance then
-    if distanceX * distanceX + distanceY * distanceY < collisionDistance * collisionDistance then
+    if (distanceX * distanceX) + (distanceY * distanceY) < (collisionDistance * collisionDistance) then
       return(1)
     end if
   end if
@@ -128,7 +128,7 @@ on testDistance me, i_pos1X, i_pos1Y, i_pos2X, i_pos2Y, i_distance
   if distX > i_distance or distY > i_distance then
     return(0)
   else
-    if distX * distX + distY * distY < i_distance * i_distance then
+    if (distX * distX) + (distY * distY) < (i_distance * i_distance) then
       return(1)
     end if
   end if

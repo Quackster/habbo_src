@@ -1,4 +1,4 @@
-on resolveLargePreview me, tOffer 
+on resolveLargePreview(me, tOffer)
   if not objectp(tOffer) then
     return(error(me, "Invalid input format", #resolveLargePreview, #major))
   end if
@@ -20,9 +20,10 @@ on resolveLargePreview me, tOffer
     return(ancestor.resolveLargePreview(tOffer))
   end if
   return(getMember("no_icon_small").image)
+  exit
 end
 
-on showPreview me, tOfferGroup 
+on showPreview(me, tOfferGroup)
   if voidp(me.pWndObj) then
     return("\r", error(me, "Missing handle to window object!", #showPreview, #major))
   end if
@@ -66,11 +67,12 @@ on showPreview me, tOfferGroup
     end repeat
     i = 1 + i
   end repeat
+  exit
 end
 
-on handleClick me, tEvent, tSprID, tProp 
+on handleClick(me, tEvent, tSprID, tProp)
   if tEvent = #mouseUp then
-    if tSprID = "ctlg_productstrip" then
+    if me = "ctlg_productstrip" then
       if ilk(tProp) <> #point then
         return()
       end if
@@ -80,7 +82,7 @@ on handleClick me, tEvent, tSprID, tProp
         tSelectedItem = me.getSelectedItem()
       end if
       if not voidp(tSelectedItem) then
-        repeat while tSprID <= tSprID
+        repeat while me <= tSprID
           tElement = getAt(tSprID, tEvent)
           if pWndObj.elementExists(tElement) then
             pWndObj.getElement(tElement).hide()
@@ -91,9 +93,9 @@ on handleClick me, tEvent, tSprID, tProp
         me.setBuyButtonStates(me.getOfferTypeList(tSelectedItem))
       end if
     else
-      if tSprID <> "ctlg_buy_button" then
-        if tSprID <> "ctlg_buy_pixels_credits" then
-          if tSprID = "ctlg_buy_pixels" then
+      if me <> "ctlg_buy_button" then
+        if me <> "ctlg_buy_pixels_credits" then
+          if me = "ctlg_buy_pixels" then
             if not objectp(me.pProductStrip) then
               return()
             end if
@@ -111,7 +113,7 @@ on handleClick me, tEvent, tSprID, tProp
               getThread(#catalogue).getComponent().requestPurchase(tOfferType, me.getProp(#pPageData, #pageid), tOffer, #sendPurchaseFromCatalog, tExtraProps)
             end if
           else
-            if tSprID = "ctlg_buy_andwear" then
+            if me = "ctlg_buy_andwear" then
               if not objectp(me.pProductStrip) then
                 return()
               end if
@@ -138,6 +140,7 @@ on handleClick me, tEvent, tSprID, tProp
               end if
             end if
           end if
+          exit
         end if
       end if
     end if

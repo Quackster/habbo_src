@@ -1,21 +1,22 @@
-property pScore
-
-on prepare me, tdata 
+on prepare(me, tdata)
   pScore = 0
   tTemp = tdata.getaProp(#stuffdata)
   me.setScore(tTemp, me.pSprList)
   return(1)
+  exit
 end
 
-on relocate me, tSpriteList 
+on relocate(me, tSpriteList)
   me.setScore(pScore, tSpriteList)
+  exit
 end
 
-on updateStuffdata me, tValue 
+on updateStuffdata(me, tValue)
   me.setScore(tValue, me.pSprList)
+  exit
 end
 
-on setScore me, tScore, tSpriteList 
+on setScore(me, tScore, tSpriteList)
   if tSpriteList.count < 4 then
     return(0)
   end if
@@ -70,9 +71,10 @@ on setScore me, tScore, tSpriteList
   tSpriteList.getAt(3).blend = 100
   tSpriteList.getAt(4).blend = 100
   return(1)
+  exit
 end
 
-on select me 
+on select(me)
   if me.count(#pSprList) < 1 then
     return(0)
   end if
@@ -108,4 +110,5 @@ on select me
     tConnection.send("USEFURNITURE", [#integer:integer(me.getID()), #integer:0])
   end if
   return(1)
+  exit
 end

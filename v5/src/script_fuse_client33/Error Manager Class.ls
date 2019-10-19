@@ -78,7 +78,7 @@ on SendMailAlert me, tErr, tMsgA, tMsgB
       tEnvironment = tEnvironment & "\t" & the environment.getPropAt(i) & ":" && the environment.getAt(i) & "\r"
       i = 1 + i
     end repeat
-    tEnvironment = tEnvironment & "\t" & "Memory:" && the memorysize / 1024 / 1024 & "\r" & "\r"
+    tEnvironment = tEnvironment & "\t" & "Memory:" && ((the memorysize / 1024) / 1024) & "\r" & "\r"
     if objectExists(#session) then
       tClientVer = getObject(#session).get("client_version")
       tStartDate = getObject(#session).get("client_startdate")
@@ -207,13 +207,13 @@ on sendErrorReport me, tErr, tMsgA, tMsgB
   tErrProps.setAt("ec", the environment.getAt(#colorDepth))
   tErrProps.setAt("el", the environment.getAt(#uiLanguage) & "," && the environment.getAt(#osLanguage))
   tErrProps.setAt("ee", the environment.getAt(#productBuildVersion))
-  tErrProps.setAt("em", the memorysize / 1024 / 1024)
+  tErrProps.setAt("em", ((the memorysize / 1024) / 1024))
   tErrProps.setAt("cl", tCastlibs)
   tErrProps.setAt("rt", getThreadManager().getaProp(#pThreadList))
   tErrProps.setAt("err", pErrorCache)
   tCheckSum1 = value(tStartTime.getProp(#char, 1, 2) & tStartTime.getProp(#char, 4, 5) & tStartTime.getProp(#char, 7, 8))
   tCheckSum2 = value(tEndTime.getProp(#char, 1, 2) & tEndTime.getProp(#char, 4, 5) & tEndTime.getProp(#char, 7, 8))
-  tErrProps.setAt("cs", tCheckSum1 + tCheckSum2 / value(tEndTime.getProp(#char, 8)) + 1)
+  tErrProps.setAt("cs", (tCheckSum1 + tCheckSum2 / value(tEndTime.getProp(#char, 8)) + 1))
   put(tErrProps)
   return(0)
 end

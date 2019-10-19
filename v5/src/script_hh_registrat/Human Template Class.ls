@@ -85,7 +85,7 @@ on simulateUpdate me
     else
       me.render()
     end if
-    me.delay(1000 / the frameTempo, #simulateUpdate)
+    me.delay((1000 / the frameTempo), #simulateUpdate)
   end if
 end
 
@@ -174,7 +174,7 @@ on openEyes me
 end
 
 on prepare me 
-  pAnimCounter = pAnimCounter + 1 mod 4
+  pAnimCounter = (pAnimCounter + 1 mod 4)
   if pEyesClosed and not pSleeping then
     me.openEyes()
   else
@@ -244,7 +244,7 @@ on setPartLists me, tModels
     else
       tColor = tModels.getAt(tPartSymbol).getAt("color")
     end if
-    if tColor.red + tColor.green + tColor.blue > 238 * 3 then
+    if tColor.red + tColor.green + tColor.blue > (238 * 3) then
       tColor = rgb("EEEEEE")
     end if
     tPartObj.define(tPartSymbol, tModels.getAt(tPartSymbol).getAt("model"), tColor, pDirection, tAction, me)

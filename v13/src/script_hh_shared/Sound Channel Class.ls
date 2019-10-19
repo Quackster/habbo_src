@@ -53,7 +53,7 @@ on play me, tSoundObj
   else
     tChannel.volume = 0
   end if
-  pEndTime = the milliSeconds + tmember.duration * tLoopCount
+  pEndTime = the milliSeconds + (tmember.duration * tLoopCount)
   if tLoopCount = 0 then
     pEndTime = -1
   end if

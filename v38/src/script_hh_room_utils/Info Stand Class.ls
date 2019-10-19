@@ -88,7 +88,7 @@ on showObjectInfo me, tObjType
     end if
     if ilk(tProps.getAt(#image)) = #image then
       tElem.resizeTo(tProps.getAt(#image).width, tProps.getAt(#image).height)
-      member.regPoint = point(tProps.getAt(#image).width / 2, tProps.getAt(#image).height)
+      member.regPoint = point((tProps.getAt(#image).width / 2), tProps.getAt(#image).height)
       tElem.feedImage(tProps.getAt(#image))
     end if
     me.updateInfoStandBadge(tProps.getAt(#badge))

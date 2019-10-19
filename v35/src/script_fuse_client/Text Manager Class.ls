@@ -25,10 +25,10 @@ on dump me, tField, tDelimiter
   tSpecialChunks = ["\\r":"\r", "\\t":"\t", "\\s":space(), "<BR>":"\r"]
   tLineChunks = []
   tMaxLinesPerChunk = 100
-  tTotalChunkCount = tRawStr.count(#line) / tMaxLinesPerChunk + 1
+  tTotalChunkCount = (tRawStr.count(#line) / tMaxLinesPerChunk) + 1
   tChunk = 1
   repeat while tChunk <= tTotalChunkCount
-    tStartChunkIndex = tChunk - 1 * tMaxLinesPerChunk + 1
+    tStartChunkIndex = (tChunk - 1 * tMaxLinesPerChunk) + 1
     tEndChunkIndex = tStartChunkIndex + tMaxLinesPerChunk - 1
     tLines = tRawStr.getProp(#line, tStartChunkIndex, tEndChunkIndex)
     tLineChunks.setAt(tChunk, tLines)

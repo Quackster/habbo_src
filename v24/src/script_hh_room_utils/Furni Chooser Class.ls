@@ -150,7 +150,7 @@ on eventProcChooser me, tEvent, tSprID, tParam
       if tCount = 0 then
         return(0)
       end if
-      tLineNum = tParam.locV / pListHeight / tCount + 1
+      tLineNum = (tParam.locV / (pListHeight / tCount)) + 1
       if tLineNum < 1 then
         tLineNum = 1
       end if

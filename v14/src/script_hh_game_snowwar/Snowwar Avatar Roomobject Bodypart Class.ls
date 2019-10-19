@@ -38,7 +38,7 @@ on update me
               tAnimCntr = me.pAnimCounter
             else
               if tAction = "wav" then
-                tAnimCntr = me.pAnimCounter mod 2
+                tAnimCntr = (me.pAnimCounter mod 2)
               else
                 if ["crr", "drk", "ohd"].getPos(tAction) <> 0 then
                   if me.pDirection >= 4 then
@@ -65,7 +65,7 @@ on update me
                   tAnimCntr = me.pAnimCounter
                 else
                   if tAction = "wav" then
-                    tAnimCntr = me.pAnimCounter mod 2
+                    tAnimCntr = (me.pAnimCounter mod 2)
                     tPart = "l" & me.getProp(#char, 2)
                     tdir = me.pDirection
                   else
@@ -86,16 +86,16 @@ on update me
                       else
                         tAction = "spk"
                       end if
-                      tAnimCntr = me.pAnimCounter mod 2
+                      tAnimCntr = (me.pAnimCounter mod 2)
                     end if
                   else
                     if me.pPart = "ey" then
-                      if me.pTalking and me.pAction <> "lay" and me.pAnimCounter mod 2 = 0 then
+                      if me.pTalking and me.pAction <> "lay" and (me.pAnimCounter mod 2) = 0 then
                         me.pYFix = -1
                       end if
                     else
                       if me.pPart = "hr" then
-                        if me.pTalking and me.pAnimCounter mod 2 = 0 then
+                        if me.pTalking and (me.pAnimCounter mod 2) = 0 then
                           if me.pAction <> "lay" then
                             tAction = "spk"
                           end if

@@ -348,11 +348,11 @@ on resizeInterstitialWindow me
   tAdLocY = tBorderWidth
   tOffX = 0
   tOffY = tAdHeight + 10 + tBorderWidth
-  if tAdWidth > tWndWidth - tBorderWidth * 2 then
-    tOffX = tAdWidth - tWndWidth + tBorderWidth * 2
+  if tAdWidth > tWndWidth - (tBorderWidth * 2) then
+    tOffX = tAdWidth - tWndWidth + (tBorderWidth * 2)
     tAdLocX = tBorderWidth
   else
-    tAdLocX = tWndWidth - tAdWidth / 2
+    tAdLocX = (tWndWidth - tAdWidth / 2)
   end if
   tWndObj.resizeBy(tOffX, tOffY)
   tWndObj.center()

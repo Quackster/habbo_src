@@ -27,7 +27,7 @@ end
 
 on reset me 
   if pDelayCounter <= 0 then
-    pDelayCounter = random(8) * 10
+    pDelayCounter = (random(8) * 10)
   end if
   pDirection = [#left, #right].getAt(random(2))
   if pmodel = "boat_1" then

@@ -1,22 +1,25 @@
-on construct me 
+on construct(me)
   me.regMsgList(1)
   return(1)
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   me.regMsgList(0)
   return(1)
+  exit
 end
 
-on send_CHECK_DIRECTORY_STATUS me 
+on send_CHECK_DIRECTORY_STATUS(me)
   tConn = me.getGameConnection()
   if tConn = 0 then
     return(0)
   end if
   return(tConn.send("IG_CHECK_DIRECTORY_STATUS"))
+  exit
 end
 
-on send_ROOM_GAME_STATUS me, tJoinedFlag, tGameId, tGameType 
+on send_ROOM_GAME_STATUS(me, tJoinedFlag, tGameId, tGameType)
   if me.getComponent().getSystemState() <> #ready then
     return(0)
   end if
@@ -29,10 +32,11 @@ on send_ROOM_GAME_STATUS me, tJoinedFlag, tGameId, tGameType
   else
     return(tConn.send("IG_ROOM_GAME_STATUS", [#integer:0]))
   end if
+  exit
 end
 
-on send_PLAY_AGAIN me 
-  tList = [:]
+on send_PLAY_AGAIN(me)
+  tList = []
   tList.setAt("showDialog", 1)
   executeMessage(#getHotelClosingStatus, tList)
   if tList.getAt("retval") = 1 then
@@ -43,9 +47,10 @@ on send_PLAY_AGAIN me
     return(0)
   end if
   return(tConn.send("IG_PLAY_AGAIN"))
+  exit
 end
 
-on send_GET_LEVEL_HALL_OF_FAME me, tLevelId 
+on send_GET_LEVEL_HALL_OF_FAME(me, tLevelId)
   tConn = me.getGameConnection()
   if tConn = 0 then
     return(0)
@@ -55,10 +60,11 @@ on send_GET_LEVEL_HALL_OF_FAME me, tLevelId
     return(0)
   end if
   return(tConn.send("IG_GET_LEVEL_HALL_OF_FAME", [#integer:tLevelId]))
+  exit
 end
 
-on send_CREATE_GAME me, tLevelId, tGameParams 
-  tList = [:]
+on send_CREATE_GAME(me, tLevelId, tGameParams)
+  tList = []
   tList.setAt("showDialog", 1)
   executeMessage(#getHotelClosingStatus, tList)
   if tList.getAt("retval") = 1 then
@@ -76,14 +82,15 @@ on send_CREATE_GAME me, tLevelId, tGameParams
     i = 1 + i
   end repeat
   return(tConn.send("IG_CREATE_GAME", tParamList))
+  exit
 end
 
-on send_GET_GAME_LIST me, tStartObservingFirstGame, tMaxResultCount 
+on send_GET_GAME_LIST(me, tStartObservingFirstGame, tMaxResultCount)
   tConn = me.getGameConnection()
   if tConn = 0 then
     return(0)
   end if
-  tParams = [:]
+  tParams = []
   if tStartObservingFirstGame = void() then
     tStartObservingFirstGame = 0
   end if
@@ -92,45 +99,50 @@ on send_GET_GAME_LIST me, tStartObservingFirstGame, tMaxResultCount
   tParams.addProp(#integer, integer(tMaxResultCount))
   tConn.send("IG_GET_GAME_LIST", tParams)
   return(1)
+  exit
 end
 
-on send_GET_CREATE_GAME_INFO me 
+on send_GET_CREATE_GAME_INFO(me)
   tConn = me.getGameConnection()
   if tConn = 0 then
     return(0)
   end if
   tConn.send("IG_GET_CREATE_GAME_INFO")
   return(1)
+  exit
 end
 
-on send_LIST_POSSIBLE_INVITEES me, tQuery 
+on send_LIST_POSSIBLE_INVITEES(me, tQuery)
   tConn = me.getGameConnection()
   if tConn = 0 then
     return(0)
   end if
   tDefaultInviteMax = 10
   tConn.send("IG_LIST_POSSIBLE_INVITEES", [#integer:tQuery - 1, #integer:tDefaultInviteMax])
+  exit
 end
 
-on send_INVITE_USER me, tUserName, tMessage 
+on send_INVITE_USER(me, tUserName, tMessage)
   tConn = me.getGameConnection()
   if tConn = 0 then
     return(0)
   end if
   tConn.send("IG_INVITE_USER", [#string:tUserName, #string:tMessage])
+  exit
 end
 
-on send_KICK_USER me, tUserID 
+on send_KICK_USER(me, tUserID)
   tConn = me.getGameConnection()
   if tConn = 0 then
     return(0)
   end if
   tConn.send("IG_KICK_USER", [#integer:tUserID])
   return(1)
+  exit
 end
 
-on send_START_GAME me 
-  tList = [:]
+on send_START_GAME(me)
+  tList = []
   tList.setAt("showDialog", 1)
   executeMessage(#getHotelClosingStatus, tList)
   if tList.getAt("retval") = 1 then
@@ -142,10 +154,11 @@ on send_START_GAME me
   end if
   tConn.send("IG_START_GAME")
   return(1)
+  exit
 end
 
-on send_JOIN_GAME me, tGameId, tTeamId 
-  tList = [:]
+on send_JOIN_GAME(me, tGameId, tTeamId)
+  tList = []
   tList.setAt("showDialog", 1)
   executeMessage(#getHotelClosingStatus, tList)
   if tList.getAt("retval") = 1 then
@@ -157,18 +170,20 @@ on send_JOIN_GAME me, tGameId, tTeamId
   end if
   tConn.send("IG_JOIN_GAME", [#integer:tGameId, #integer:tTeamId])
   return(1)
+  exit
 end
 
-on send_LEAVE_GAME me 
+on send_LEAVE_GAME(me)
   tConn = me.getGameConnection()
   if tConn = 0 then
     return(0)
   end if
   tConn.send("IG_LEAVE_GAME")
   return(1)
+  exit
 end
 
-on send_START_OBSERVING_GAME me, tGameId, tLongData 
+on send_START_OBSERVING_GAME(me, tGameId, tLongData)
   if me.getComponent().getSystemState() <> #ready then
     return(0)
   end if
@@ -178,9 +193,10 @@ on send_START_OBSERVING_GAME me, tGameId, tLongData
   end if
   tConn.send("IG_START_OBSERVING_GAME", [#integer:tGameId, #integer:tLongData])
   return(1)
+  exit
 end
 
-on send_STOP_OBSERVING_GAME me, tGameId 
+on send_STOP_OBSERVING_GAME(me, tGameId)
   if me.getComponent().getSystemState() <> #ready then
     return(0)
   end if
@@ -196,27 +212,30 @@ on send_STOP_OBSERVING_GAME me, tGameId
   end if
   tConn.send("IG_STOP_OBSERVING_GAME", [#integer:tGameId])
   return(1)
+  exit
 end
 
-on send_ACCEPT_INVITE_REQUEST me, tGameId 
+on send_ACCEPT_INVITE_REQUEST(me, tGameId)
   tConn = me.getGameConnection()
   if tConn = 0 then
     return(0)
   end if
   tConn.send("IG_ACCEPT_INVITE_REQUEST", [#integer:tGameId])
   return(1)
+  exit
 end
 
-on send_DECLINE_INVITE_REQUEST me, tGameId 
+on send_DECLINE_INVITE_REQUEST(me, tGameId)
   tConn = me.getGameConnection()
   if tConn = 0 then
     return(0)
   end if
   tConn.send("IG_DECLINE_INVITE_REQUEST", [#integer:tGameId])
   return(1)
+  exit
 end
 
-on send_LOAD_STAGE_READY me, tPercentage 
+on send_LOAD_STAGE_READY(me, tPercentage)
   tConn = me.getGameConnection()
   if tConn = 0 then
     return(0)
@@ -224,9 +243,10 @@ on send_LOAD_STAGE_READY me, tPercentage
   tPercentage = integer(tPercentage * 100)
   tConn.send("IG_LOAD_STAGE_READY", [#integer:tPercentage])
   return(1)
+  exit
 end
 
-on send_EXIT_GAME me, tRedirectFlag 
+on send_EXIT_GAME(me, tRedirectFlag)
   executeMessage(#ig_clear_game_info)
   tConn = me.getGameConnection()
   if tConn = 0 then
@@ -237,9 +257,10 @@ on send_EXIT_GAME me, tRedirectFlag
   end if
   tConn.send("IG_EXIT_GAME", [#integer:integer(tRedirectFlag)])
   return(1)
+  exit
 end
 
-on handle_directory_status me, tMsg 
+on handle_directory_status(me, tMsg)
   tConn = tMsg.connection
   tCode = tConn.GetIntFrom()
   if tCode = 0 then
@@ -247,23 +268,26 @@ on handle_directory_status me, tMsg
   end if
   error(me, "TODO: Directory not available, code:" && tCode, #handle_directory_status)
   return(1)
+  exit
 end
 
-on handle_ENTER_ARENA_FAILED me, tMsg 
+on handle_ENTER_ARENA_FAILED(me, tMsg)
   tConn = tMsg.connection
   tCode = tConn.GetIntFrom()
   me.getInterface().showBasicAlert("ig_error_enter_arena_" & tCode)
   return(1)
+  exit
 end
 
-on handle_GAME_REJOIN me, tMsg 
+on handle_GAME_REJOIN(me, tMsg)
   tConn = tMsg.connection
   tTimeLeft = tConn.GetIntFrom()
   me.getComponent().displayIGComponentEvent("AfterGame", #time_to_next_state, tTimeLeft)
   return(1)
+  exit
 end
 
-on handle_player_exited_game_arena me, tMsg 
+on handle_player_exited_game_arena(me, tMsg)
   tConn = tMsg.connection
   tRoomIndex = tConn.GetIntFrom()
   tActiveMode = me.getComponent().getActiveIGComponentId()
@@ -271,10 +295,10 @@ on handle_player_exited_game_arena me, tMsg
   if tGameDataService = 0 then
     return(error(me, "Game data IGComponent not found.", #handle_game_ending))
   end if
-  if tActiveMode = "PreGame" then
+  if me = "PreGame" then
     me.getComponent().displayIGComponentEvent(tActiveMode, #user_left_game, tRoomIndex)
   else
-    if tActiveMode = "AfterGame" then
+    if me = "AfterGame" then
       tPlayerId = tGameDataService.getPlayerIdByRoomIndex(tRoomIndex)
       me.getComponent().displayIGComponentEvent(tActiveMode, #user_left_game, tPlayerId)
     end if
@@ -285,18 +309,19 @@ on handle_player_exited_game_arena me, tMsg
   end if
   executeMessage(#ig_user_left_game, tRoomIndex)
   return(1)
+  exit
 end
 
-on handle_level_hall_of_fame me, tMsg 
+on handle_level_hall_of_fame(me, tMsg)
   tConn = tMsg.connection
-  tdata = [:]
+  tdata = []
   tdata.setaProp(#id, tConn.GetIntFrom())
   tdata.setaProp(#name, tConn.GetStrFrom())
   tNumTopLevelScores = tConn.GetIntFrom()
   tList = []
   i = 1
   repeat while i <= tNumTopLevelScores
-    tPlayer = [:]
+    tPlayer = []
     tPlayer.setaProp(#name, tConn.GetStrFrom())
     tPlayer.setaProp(#score, tConn.GetIntFrom())
     tList.append(tPlayer)
@@ -307,7 +332,7 @@ on handle_level_hall_of_fame me, tMsg
   tList = []
   i = 1
   repeat while i <= tNumLevelTeamScores
-    tItem = [:]
+    tItem = []
     tItem.setaProp(#score, tConn.GetIntFrom())
     tNumPlayers = tConn.GetIntFrom()
     tPlayers = []
@@ -328,16 +353,18 @@ on handle_level_hall_of_fame me, tMsg
   end if
   tService.updateEntry(tdata)
   return(1)
+  exit
 end
 
-on handle_start_failed me, tMsg 
+on handle_start_failed(me, tMsg)
   tConn = tMsg.connection
   tCode = tConn.GetIntFrom()
   me.getInterface().showBasicAlert("ig_error_start_failed_" & tCode)
   return(1)
+  exit
 end
 
-on handle_join_failed me, tMsg 
+on handle_join_failed(me, tMsg)
   tConn = tMsg.connection
   tCode = tConn.GetIntFrom()
   me.getInterface().showBasicAlert("ig_error_join_failed_" & tCode)
@@ -347,20 +374,22 @@ on handle_join_failed me, tMsg
   end if
   tService.storeJoinedGameInstance(0)
   return(1)
+  exit
 end
 
-on handle_in_arena_queue me, tMsg 
+on handle_in_arena_queue(me, tMsg)
   me.getComponent().removeIGComponent("JoinedGame")
   me.getComponent().setSystemState(#pre_game)
   me.getInterface().resetToDefaultAndHide()
   tConn = tMsg.connection
   tQueuePos = tConn.GetIntFrom()
   return(me.getInterface().showArenaQueue(tQueuePos))
+  exit
 end
 
-on handle_stage_still_loading me, tMsg 
+on handle_stage_still_loading(me, tMsg)
   tConn = tMsg.connection
-  tdata = [:]
+  tdata = []
   tdata.setaProp(#progress, tConn.GetIntFrom())
   tFinishedPlayers = []
   tNumItems = tConn.GetIntFrom()
@@ -372,9 +401,10 @@ on handle_stage_still_loading me, tMsg
   tdata.setaProp(#finished_players, tFinishedPlayers)
   me.getComponent().displayIGComponentEvent("PreGame", #still_loading, tdata)
   return(1)
+  exit
 end
 
-on handle_game_not_found me, tMsg 
+on handle_game_not_found(me, tMsg)
   tConn = tMsg.connection
   tGameId = tConn.GetIntFrom()
   tObserving = tConn.GetIntFrom()
@@ -387,11 +417,12 @@ on handle_game_not_found me, tMsg
     return(0)
   end if
   return(tService.removeGameInstance(tGameId))
+  exit
 end
 
-on handle_game_chat me, tMsg 
+on handle_game_chat(me, tMsg)
   tConn = tMsg.connection
-  tdata = [:]
+  tdata = []
   tdata.setaProp(#id, tConn.GetIntFrom())
   tdata.setaProp(#message, tConn.GetStrFrom())
   tService = me.getComponent().getIGComponent("GameChat")
@@ -400,22 +431,23 @@ on handle_game_chat me, tMsg
   end if
   tService.executeGameChat(tdata)
   return(1)
+  exit
 end
 
-on handle_enter_arena me, tMsg 
+on handle_enter_arena(me, tMsg)
   tConn = tMsg.connection
   me.getComponent().removeIGComponent("JoinedGame")
   me.getComponent().removeIGComponent("ArenaQueue")
-  tdata = [:]
+  tdata = []
   tdata.setaProp(#game_type, tConn.GetIntFrom())
   tdata.setaProp(#level_id, tConn.GetIntFrom())
   tdata.setaProp(#number_of_teams, tConn.GetIntFrom())
   executeMessage(#sendTrackingPoint, "/game/started/" & tdata.getaProp(#game_type) & "/" & tdata.getaProp(#level_id))
   tUserCount = tConn.GetIntFrom()
-  tTeamList = [:]
+  tTeamList = []
   i = 1
   repeat while i <= tUserCount
-    tuser = [:]
+    tuser = []
     tID = tConn.GetIntFrom()
     tuser.setaProp(#id, tID)
     tuser.setaProp(#name, tConn.GetStrFrom())
@@ -424,7 +456,7 @@ on handle_enter_arena me, tMsg
     tTeamId = tConn.GetIntFrom()
     tuser.setaProp(#team_id, tTeamId)
     if tTeamList.findPos(tTeamId) = 0 then
-      tTeamList.setaProp(tTeamId, [#players:[:]])
+      tTeamList.setaProp(tTeamId, [#players:[]])
     end if
     tTeam = tTeamList.getaProp(tTeamId).getaProp(#players)
     tTeam.setaProp(tID, tuser)
@@ -454,20 +486,22 @@ on handle_enter_arena me, tMsg
   tService.setActiveFlag(1)
   tService.displayEvent(#stage_starting, tdata)
   return(1)
+  exit
 end
 
-on handle_arena_entered me, tMsg 
+on handle_arena_entered(me, tMsg)
   tConn = tMsg.connection
-  tdata = [:]
+  tdata = []
   me.parse_player(tdata, tConn)
   tdata.setaProp(#team_id, tConn.GetIntFrom())
   me.getComponent().displayIGComponentEvent("PreGame", #arena_entered, tdata)
   return(1)
+  exit
 end
 
-on handle_load_stage me, tMsg 
+on handle_load_stage(me, tMsg)
   tConn = tMsg.connection
-  tdata = [:]
+  tdata = []
   tdata.addProp(#game_type, tConn.GetIntFrom())
   tService = me.getComponent().getIGComponent("GameAssetImport")
   if tService = 0 then
@@ -475,11 +509,12 @@ on handle_load_stage me, tMsg
   end if
   tService.startCastDownload(tdata)
   return(1)
+  exit
 end
 
-on handle_stage_starting me, tMsg 
+on handle_stage_starting(me, tMsg)
   tConn = tMsg.connection
-  tdata = [:]
+  tdata = []
   tdata.setaProp(#game_type, tConn.GetIntFrom())
   tdata.setaProp(#room_marker, tConn.GetStrFrom())
   tdata.setaProp(#state, #created)
@@ -496,14 +531,15 @@ on handle_stage_starting me, tMsg
   tService.constructArena(tdata, tMsg)
   me.getComponent().displayIGComponentEvent("PreGame", #stage_starting, tdata)
   return(1)
+  exit
 end
 
-on handle_stage_running me, tMsg 
+on handle_stage_running(me, tMsg)
   tConn = tMsg.connection
   me.getComponent().removeIGComponent("GameAssetImport")
   me.getComponent().removeIGComponent("RoomLoader")
   me.getComponent().removeIGComponent("PreGame")
-  tdata = [:]
+  tdata = []
   tdata.addProp(#state, #started)
   tTimer = tConn.GetIntFrom()
   tdata.addProp(#state_duration, tTimer)
@@ -524,17 +560,19 @@ on handle_stage_running me, tMsg
   tService.setActiveFlag(1)
   tService.displayEvent(#stage_running, tdata)
   return(1)
+  exit
 end
 
-on handle_stage_ending me, tMsg 
+on handle_stage_ending(me, tMsg)
   tConn = tMsg.connection
-  tdata = [:]
+  tdata = []
   tdata.setaProp(#time_to_next_state, tConn.GetIntFrom())
   executeMessage(#gamesystem_sendevent, #gameend, tdata)
   return(1)
+  exit
 end
 
-on handle_game_ending me, tMsg 
+on handle_game_ending(me, tMsg)
   tConn = tMsg.connection
   tGameDataService = me.getComponent().getIGComponent("GameData")
   if tGameDataService = 0 then
@@ -543,26 +581,26 @@ on handle_game_ending me, tMsg
   tGameType = tGameDataService.getProperty(#game_type)
   tLevelId = tGameDataService.getProperty(#level_id)
   executeMessage(#sendTrackingPoint, "/game/ended/" & tGameType & "/" & tLevelId)
-  tdata = [:]
+  tdata = []
   tdata.setaProp(#time_to_next_state, tConn.GetIntFrom())
   tMaxNumPlayers = 0
   tNumTeams = tConn.GetIntFrom()
-  tTeams = [:]
+  tTeams = []
   i = 1
   repeat while i <= tNumTeams
-    tTeam = [:]
+    tTeam = []
     tTeam.setaProp(#id, tConn.GetIntFrom())
     tTeam.setaProp(#pos, i)
     tTeam.setaProp(#score, tConn.GetIntFrom())
     tTeam.setaProp(#is_highscore, tConn.GetIntFrom())
-    tPlayers = [:]
+    tPlayers = []
     tNumPlayers = tConn.GetIntFrom()
     if tNumPlayers > tMaxNumPlayers then
       tMaxNumPlayers = tNumPlayers
     end if
     j = 1
     repeat while j <= tNumPlayers
-      tPlayer = [:]
+      tPlayer = []
       tPlayer.setaProp(#room_index, tConn.GetIntFrom())
       tPlayer.setaProp(#pos, j)
       tPlayer.setaProp(#team_id, tTeam.getaProp(#id))
@@ -576,7 +614,7 @@ on handle_game_ending me, tMsg
       tPlayerInfo = tGameDataService.getPlayerInfoByRoomIndex(tPlayer.getaProp(#room_index))
       tKeyList = [#id, #figure, #sex, #class, #name, #disconnected]
       if tPlayerInfo <> 0 then
-        repeat while tKeyList <= undefined
+        repeat while me <= undefined
           tKey = getAt(undefined, tMsg)
           tPlayer.setaProp(tKey, tPlayerInfo.getaProp(tKey))
         end repeat
@@ -594,7 +632,7 @@ on handle_game_ending me, tMsg
   tList = []
   i = 1
   repeat while i <= tNumTopLevelScores
-    tPlayer = [:]
+    tPlayer = []
     tPlayer.setaProp(#name, tConn.GetStrFrom())
     tPlayer.setaProp(#score, tConn.GetIntFrom())
     tPlayer.setaProp(#room_index, tConn.GetIntFrom())
@@ -606,7 +644,7 @@ on handle_game_ending me, tMsg
   tList = []
   i = 1
   repeat while i <= tNumLevelTeamScores
-    tItem = [:]
+    tItem = []
     tItem.setaProp(#score, tConn.GetIntFrom())
     tItem.setaProp(#id, tConn.GetIntFrom())
     tNumPlayers = tConn.GetIntFrom()
@@ -629,11 +667,12 @@ on handle_game_ending me, tMsg
   tService.setActiveFlag(1)
   tService.displayEvent(#game_ending, tdata)
   return(1)
+  exit
 end
 
-on handle_game_created me, tMsg 
+on handle_game_created(me, tMsg)
   tConn = tMsg.connection
-  tdata = [:]
+  tdata = []
   me.parse_game_long_data(tdata, tConn)
   tService = me.getComponent().getIGComponent("GameList")
   if tService = 0 then
@@ -650,11 +689,12 @@ on handle_game_created me, tMsg
     end if
   end if
   return(1)
+  exit
 end
 
-on handle_game_long_data me, tMsg 
+on handle_game_long_data(me, tMsg)
   tConn = tMsg.connection
-  tdata = [:]
+  tdata = []
   me.parse_game_long_data(tdata, tConn)
   tService = me.getComponent().getIGComponent("GameList")
   if tService = 0 then
@@ -662,9 +702,10 @@ on handle_game_long_data me, tMsg
   end if
   tService.storeGameInstance(tdata)
   return(1)
+  exit
 end
 
-on handle_create_game_info me, tMsg 
+on handle_create_game_info(me, tMsg)
   tConn = tMsg.connection
   tService = me.getComponent().getIGComponent("GameTypes")
   if tService = 0 then
@@ -674,7 +715,7 @@ on handle_create_game_info me, tMsg
   tNumLevels = tConn.GetIntFrom()
   i = 1
   repeat while i <= tNumLevels
-    tItem = [:]
+    tItem = []
     tItem.addProp(#id, tConn.GetStrFrom())
     tItem.addProp(#level_name, tConn.GetStrFrom())
     tItem.addProp(#game_type, tConn.GetIntFrom())
@@ -689,17 +730,18 @@ on handle_create_game_info me, tMsg
     return(0)
   end if
   return(tService.storeLevelListInfo(tLevels))
+  exit
 end
 
-on handle_game_list me, tMsg 
+on handle_game_list(me, tMsg)
   tConn = tMsg.connection
-  tdata = [:]
+  tdata = []
   tInstanceCount = tConn.GetIntFrom()
   tdata.setaProp(#instance_count, tInstanceCount)
   tInstanceList = []
   i = 1
   repeat while i <= tInstanceCount
-    tInstance = [:]
+    tInstance = []
     me.parse_game_short_data(tInstance, tConn)
     tInstanceList.append(tInstance)
     i = 1 + i
@@ -710,9 +752,10 @@ on handle_game_list me, tMsg
     return(0)
   end if
   return(tService.storeGameList(tdata))
+  exit
 end
 
-on parse_game_short_data me, tdata, tConn 
+on parse_game_short_data(me, tdata, tConn)
   tdata.setaProp(#id, tConn.GetIntFrom())
   tdata.setaProp(#level_name, tConn.GetStrFrom())
   tdata.setaProp(#game_type, tConn.GetIntFrom())
@@ -728,18 +771,19 @@ on parse_game_short_data me, tdata, tConn
   tdata.setaProp(#game_type_icon, tTypeService.getAction(tdata.getaProp(#game_type), #get_icon_image))
   tTypeService.getAction(tdata.getaProp(#game_type), #parse_short_data, tdata, tConn)
   return(tdata)
+  exit
 end
 
-on parse_game_long_data me, tdata, tConn 
+on parse_game_long_data(me, tdata, tConn)
   me.parse_game_short_data(tdata, tConn)
   tdata.setaProp(#level_id, tConn.GetIntFrom())
   tTeamCount = tConn.GetIntFrom()
-  tAllTeamData = [:]
+  tAllTeamData = []
   tdata.setaProp(#number_of_teams, tTeamCount)
   tTeamIndex = 1
   repeat while tTeamIndex <= tTeamCount
-    tTeamInfo = [:]
-    tPlayerList = [:]
+    tTeamInfo = []
+    tPlayerList = []
     tPlayerCount = tConn.GetIntFrom()
     j = 1
     repeat while j <= tPlayerCount
@@ -760,11 +804,12 @@ on parse_game_long_data me, tdata, tConn
   end if
   tTypeService.getAction(tdata.getaProp(#game_type), #parse_long_data, tdata, tConn)
   return(tdata)
+  exit
 end
 
-on parse_required_players me, tdata, tConn 
+on parse_required_players(me, tdata, tConn)
   tInvalidTeamCount = tConn.GetIntFrom()
-  tList = [:]
+  tList = []
   i = 1
   repeat while i <= tInvalidTeamCount
     tTeamId = tConn.GetIntFrom()
@@ -774,11 +819,12 @@ on parse_required_players me, tdata, tConn
   end repeat
   tdata.setaProp(#players_required, tList)
   return(tdata)
+  exit
 end
 
-on handle_user_joined_game me, tMsg 
+on handle_user_joined_game(me, tMsg)
   tConn = tMsg.connection
-  tdata = [:]
+  tdata = []
   tdata.setaProp(#game_id, tConn.GetIntFrom())
   me.parse_player(tdata, tConn)
   tdata.setaProp(#team_id, tConn.GetIntFrom())
@@ -810,22 +856,24 @@ on handle_user_joined_game me, tMsg
   if tSystemState = #after_game then
     me.getComponent().displayIGComponentEvent("AfterGame", #user_joined_game, tdata)
   end if
+  exit
 end
 
-on parse_player me, tdata, tConn 
+on parse_player(me, tdata, tConn)
   if tdata = void() then
-    tdata = [:]
+    tdata = []
   end if
   tdata.setaProp(#id, tConn.GetIntFrom())
   tdata.setaProp(#name, tConn.GetStrFrom())
   tdata.setaProp(#figure, tConn.GetStrFrom())
   tdata.setaProp(#sex, tConn.GetStrFrom())
   return(tdata)
+  exit
 end
 
-on handle_user_left_game me, tMsg 
+on handle_user_left_game(me, tMsg)
   tConn = tMsg.connection
-  tdata = [:]
+  tdata = []
   tdata.setaProp(#game_id, tConn.GetIntFrom())
   tdata.setaProp(#id, tConn.GetIntFrom())
   tdata.setaProp(#was_kicked, tConn.GetIntFrom())
@@ -838,11 +886,12 @@ on handle_user_left_game me, tMsg
   end if
   tService.removeUserFromGame(tdata)
   return(1)
+  exit
 end
 
-on handle_game_observation_started_short me, tMsg 
+on handle_game_observation_started_short(me, tMsg)
   tConn = tMsg.connection
-  tdata = [:]
+  tdata = []
   me.parse_game_short_data(tdata, tConn)
   tService = me.getComponent().getIGComponent("GameList")
   if tService = 0 then
@@ -850,9 +899,10 @@ on handle_game_observation_started_short me, tMsg
   end if
   tService.storeGameInstance(tdata)
   return(1)
+  exit
 end
 
-on handle_game_cancelled me, tMsg 
+on handle_game_cancelled(me, tMsg)
   tConn = tMsg.connection
   tGameId = tConn.GetIntFrom()
   tReasonCode = tConn.GetIntFrom()
@@ -867,9 +917,10 @@ on handle_game_cancelled me, tMsg
     me.getComponent().removeIGComponent("Prejoin")
   end if
   return(tService.removeGameInstance(tGameId))
+  exit
 end
 
-on handle_game_started me, tMsg 
+on handle_game_started(me, tMsg)
   tConn = tMsg.connection
   tGameId = tConn.GetIntFrom()
   tService = me.getComponent().getIGComponent("GameList")
@@ -881,22 +932,25 @@ on handle_game_started me, tMsg
     me.getComponent().setSystemState(#enter_arena)
   end if
   return(tService.removeGameInstance(tGameId))
+  exit
 end
 
-on getOwnPlayerName me 
+on getOwnPlayerName(me)
   tSession = getObject(#session)
   if tSession = 0 then
     return(0)
   end if
   return(tSession.GET(#user_name))
+  exit
 end
 
-on getGameConnection me 
+on getGameConnection(me)
   return(getConnection(#info))
+  exit
 end
 
-on regMsgList me, tBool 
-  tMsgs = [:]
+on regMsgList(me, tBool)
+  tMsgs = []
   tMsgs.setaProp(387, #handle_directory_status)
   tMsgs.setaProp(388, #handle_ENTER_ARENA_FAILED)
   tMsgs.setaProp(389, #handle_GAME_REJOIN)
@@ -925,7 +979,7 @@ on regMsgList me, tBool
   tMsgs.setaProp(416, #handle_game_cancelled)
   tMsgs.setaProp(417, #handle_game_long_data)
   tMsgs.setaProp(418, #handle_game_started)
-  tCmds = [:]
+  tCmds = []
   tCmds.setaProp("IG_CHECK_DIRECTORY_STATUS", 288)
   tCmds.setaProp("IG_ROOM_GAME_STATUS", 289)
   tCmds.setaProp("IG_PLAY_AGAIN", 290)
@@ -957,4 +1011,5 @@ on regMsgList me, tBool
     unregisterCommands(getVariable("connection.room.id"), me.getID(), tCmds)
   end if
   return(1)
+  exit
 end

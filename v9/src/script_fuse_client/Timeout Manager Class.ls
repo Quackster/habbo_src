@@ -62,14 +62,14 @@ on get me, tid
     if tObjMngr.exists(tTask.getAt(#client)) then
       call(tTask.getAt(#handler), tObjMngr.get(tTask.getAt(#client)), tTask.getAt(#argument))
     else
-      return(me.Remove(tid))
+      return(me.remove(tid))
     end if
   end if
 end
 
-on Remove me, tid 
+on remove me, tid 
   if not me.exists(tid) then
-    return(error(me, "Item not found:" && tid, #Remove))
+    return(error(me, "Item not found:" && tid, #remove))
   end if
   tObjMngr = getObjectManager()
   tObject = tObjMngr.get(me.getPropRef(#pItemList, tid).getAt(#uniqueid))
@@ -77,7 +77,7 @@ on Remove me, tid
     tObject.target = void()
     tObject.forget()
     tObject = void()
-    tObjMngr.Remove(me.getPropRef(#pItemList, tid).getAt(#uniqueid))
+    tObjMngr.remove(me.getPropRef(#pItemList, tid).getAt(#uniqueid))
   end if
   return(me.deleteProp(tid))
 end
@@ -102,7 +102,7 @@ on executeTimeOut me, tTimeout
   end if
   me.getPropRef(#pItemList, tid).setAt(#count, me.getPropRef(#pItemList, tid).getAt(#count) + 1)
   if me.getPropRef(#pItemList, tid).getAt(#count) = me.getPropRef(#pItemList, tid).getAt(#iterations) then
-    me.Remove(tid)
+    me.remove(tid)
   end if
   if voidp(tTask.getAt(#client)) then
     value(tTask.getAt(#handler) & "(" & tTask.getAt(#argument) & ")")
@@ -111,7 +111,7 @@ on executeTimeOut me, tTimeout
     if objectp(tObject) then
       call(tTask.getAt(#handler), tObject, tTask.getAt(#argument))
     else
-      return(me.Remove(tid))
+      return(me.remove(tid))
     end if
   end if
   return(1)

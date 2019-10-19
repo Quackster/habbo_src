@@ -20,11 +20,11 @@ on deconstruct me
 end
 
 on getWorldPosition me 
-  return([pRadius * cos(pPosition + pArcOffset), pRadius * sin(pPosition + pArcOffset), pheight])
+  return([(pRadius * cos(pPosition + pArcOffset)), (pRadius * sin(pPosition + pArcOffset)), pheight])
 end
 
 on updateObject me 
-  pPosition = pPosition + float(pArcSpeed / float(getIntVariable("system.tempo", 30)))
+  pPosition = pPosition + float((pArcSpeed / float(getIntVariable("system.tempo", 30))))
 end
 
 on addChild me, tObject 
@@ -60,8 +60,8 @@ end
 
 on setProps me, tProps 
   pRadius = float(tProps.getAt(#radius))
-  pArcSpeed = float(tProps.getAt(#arcspeed) * pi() * 2 / 360)
-  pArcOffset = float(tProps.getAt(#arcoffset) * pi() * 2 / 360)
+  pArcSpeed = float((((tProps.getAt(#arcspeed) * pi()) * 2) / 360))
+  pArcOffset = float((((tProps.getAt(#arcoffset) * pi()) * 2) / 360))
   pFrameList = value(tProps.getAt(#frameList))
   pInk = integer(tProps.getAt(#ink))
   pBlend = 100 - integer(tProps.getAt(#blend))

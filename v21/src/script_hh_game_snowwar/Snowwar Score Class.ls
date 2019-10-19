@@ -74,7 +74,7 @@ on startGameTimer me, tTimeUntilNextState, tStateDuration, tTimeUntilGameEnd
   if tTimeUntilNextState <= 0 then
     return(0)
   end if
-  pTimerEndTime = the milliSeconds + tTimeUntilNextState * 1000
+  pTimerEndTime = the milliSeconds + (tTimeUntilNextState * 1000)
   pTimerDurationSec = tStateDuration
   if timeoutExists(pTimeOutID) then
     removeTimeout(pTimeOutID)
@@ -84,8 +84,8 @@ on startGameTimer me, tTimeUntilNextState, tStateDuration, tTimeUntilGameEnd
 end
 
 on convertToMinSec me, tTime 
-  tMin = tTime / 60000
-  tSec = tTime mod 60000 / 1000
+  tMin = (tTime / 60000)
+  tSec = ((tTime mod 60000) / 1000)
   if tSec < 10 then
     tSec = "0" & tSec
   end if

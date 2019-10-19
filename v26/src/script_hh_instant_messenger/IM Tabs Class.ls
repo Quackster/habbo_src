@@ -8,7 +8,7 @@ on construct me
   pMaxTabs = 7
   pTabWidth = 30
   pTabHeight = 30
-  pTabsImage = image(pMaxTabs * pTabWidth, pTabHeight, 32)
+  pTabsImage = image((pMaxTabs * pTabWidth), pTabHeight, 32)
   me.initTabPieces()
   me.renderTabs()
   return(1)
@@ -147,7 +147,7 @@ on renderTabs me
         tImage = me.getTabImage(tTab)
         tRectID = tTab.getaProp(#id)
       end if
-      tTargetRect = rect(tTabPos - 1 * pTabWidth, 0, tTabPos * pTabWidth, pTabHeight)
+      tTargetRect = rect((tTabPos - 1 * pTabWidth), 0, (tTabPos * pTabWidth), pTabHeight)
       pTabsImage.copyPixels(tImage, tTargetRect, tImage.rect)
       pRects.setaProp(tRectID, tTargetRect)
       tTabPos = 1 + tTabPos
@@ -208,8 +208,8 @@ on getTabImage me, tTabData
   tstate = tTabData.getaProp(#state)
   tTabImage = pTabPieces.getaProp(tstate).duplicate()
   tHeadImage = me.getHeadImage(tUserID)
-  tMarginH = tTabImage.width - tHeadImage.width * 0.5
-  tMarginV = tTabImage.height - tHeadImage.height * 0.5
+  tMarginH = (tTabImage.width - tHeadImage.width * 0.5)
+  tMarginV = (tTabImage.height - tHeadImage.height * 0.5)
   tMargin = rect(tMarginH, tMarginV, tMarginH, tMarginV)
   tTabImage.copyPixels(tHeadImage, tHeadImage.rect + tMargin, tHeadImage.rect, [#ink:36])
   return(tTabImage)

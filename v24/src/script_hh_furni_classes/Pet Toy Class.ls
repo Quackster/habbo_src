@@ -41,7 +41,7 @@ on update me
   if pActive then
     pUpdateFrame = not pUpdateFrame
     if pUpdateFrame then
-      pLastFrm = pLastFrm + 1 mod 6
+      pLastFrm = (pLastFrm + 1 mod 6)
       i = 1
       repeat while i <= 4
         tMemName = member.name

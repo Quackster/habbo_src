@@ -75,7 +75,7 @@ on parse_units me, tMsg
         error(me, "Public room's ID not found:" && tTempUnitID && tUnit.getAt(#name), #parse_units)
       else
         tUnitid = getVariable(tTempUnitID)
-        tUnit.setAt(#subunitcount, tLine.count(#item) - 5 / 4)
+        tUnit.setAt(#subunitcount, (tLine.count(#item) - 5 / 4))
         tList.setAt(tUnitid, tUnit)
         if tUnit.getAt(#subunitcount) > 1 then
           tSubOrderNum = 1

@@ -41,8 +41,8 @@ on convertToHigherCase tString
   return(getStringServices().convertToHigherCase(tString))
 end
 
-on convertSpecialChars tString, tDirection 
-  return(getStringServices().convertSpecialChars(tString, tDirection))
+on convertSpecialChars tString 
+  return(getStringServices().convertSpecialChars(tString))
 end
 
 on convertIntToHex tInt 
@@ -59,16 +59,4 @@ end
 
 on replaceChunks tString, tChunkA, tChunkB 
   return(getStringServices().replaceChunks(tString, tChunkA, tChunkB))
-end
-
-on obfuscate tString 
-  return(getStringServices().obfuscate(tString))
-end
-
-on deobfuscate tString 
-  return(getStringServices().deobfuscate(tString))
-end
-
-on getLocalFloat tStrFloat 
-  return(getStringServices().getLocalFloat(tStrFloat))
 end

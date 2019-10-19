@@ -21,9 +21,9 @@ on define me, tProps
   pMaxH = tProps.getaProp(#maxh)
   pTurnPoint = tProps.getaProp(#turnpoint)
   tLocX = random(pMaxH)
-  tLocY = pMinV + random(pMaxV - pMinV) - tLocX / 2
+  tLocY = pMinV + random(pMaxV - pMinV) - (tLocX / 2)
   if tLocX > pTurnPoint then
-    tLocY = tLocY + tLocX - pTurnPoint / 2
+    tLocY = tLocY + (tLocX - pTurnPoint / 2)
   end if
   pLoc = point(tLocX, tLocY)
   pRefLoc = point(tLocX, tLocY)

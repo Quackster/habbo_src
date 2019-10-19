@@ -35,7 +35,7 @@ on define me, tLoadID, tProps
   pDrawPoint = 0
   pReadyFlag = 0
   if ilk(tProps, #propList) then
-    if ilk(tProps.getAt(#buffer)) = #image then
+    if ilk(tProps.getAt(#buffer), #image) then
       pBuffer = tProps.getAt(#buffer)
     end if
     if ilk(tProps.getAt(#width), #integer) then
@@ -72,7 +72,7 @@ on define me, tLoadID, tProps
   if pheight > tRect.height then
     pheight = tRect.height
   end if
-  pBarRect = rect(tRect.width / 2 - pwidth / 2, tRect.height / 2 - pheight / 2, tRect.width / 2 + pwidth / 2, tRect.height / 2 + pheight / 2)
+  pBarRect = rect((tRect.width / 2) - (pwidth / 2), (tRect.height / 2) - (pheight / 2), (tRect.width / 2) + (pwidth / 2), (tRect.height / 2) + (pheight / 2))
   pOffRect = rect(pBarRect.getAt(1) + 2, pBarRect.getAt(2) + 2, pBarRect.getAt(3) - 2, pBarRect.getAt(4) - 2)
   pBuffer.fill(pBarRect, pBgColor)
   pBuffer.draw(pBarRect, [#color:pcolor, #shapeType:#rect])
@@ -91,18 +91,16 @@ on prepare me
     end if
   end if
   pDrawPoint = pDrawPoint + 1
-  if pDrawPoint <= pPercent * pOffRect.width then
+  if pDrawPoint <= (pPercent * pOffRect.width) then
     tRect = rect(pOffRect.getAt(1) + pDrawPoint - 1, pOffRect.getAt(2), pOffRect.getAt(1) + pDrawPoint, pOffRect.getAt(4))
     pBuffer.fill(tRect, pcolor)
   end if
   if pPercent = tPercent then
     return()
   end if
-  pBuffer.fill(pBarRect, pBgColor)
-  pBuffer.draw(pBarRect, [#color:pcolor, #shapeType:#rect])
-  tRect = rect(pOffRect.getAt(1), pOffRect.getAt(2), pPercent * pOffRect.width + pOffRect.getAt(1), pOffRect.getAt(4))
+  tRect = rect(pOffRect.getAt(1), pOffRect.getAt(2), (pPercent * pOffRect.width) + pOffRect.getAt(1), pOffRect.getAt(4))
   pBuffer.fill(tRect, pcolor)
-  pDrawPoint = pPercent * pOffRect.width
+  pDrawPoint = (pPercent * pOffRect.width)
   pPercent = tPercent
   if pPercent >= 1 then
     pBuffer.fill(pOffRect, pcolor)

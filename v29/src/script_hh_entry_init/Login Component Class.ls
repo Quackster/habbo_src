@@ -260,16 +260,16 @@ on handleLatencyTest me, tID
       pLatencyTotalValue = pLatencyTotalValue + pLatencyValueList.getAt(i)
       i = 1 + i
     end repeat
-    tLatency = pLatencyTotalValue / pLatencyValueCount
+    tLatency = (pLatencyTotalValue / pLatencyValueCount)
     i = 1
     repeat while i <= pLatencyValueList.count
-      if pLatencyValueList.getAt(i) < tLatency * 2 then
+      if pLatencyValueList.getAt(i) < (tLatency * 2) then
         pLatencyClearedValue = pLatencyClearedValue + pLatencyValueList.getAt(i)
         pLatencyClearedCount = pLatencyClearedCount + 1
       end if
       i = 1 + i
     end repeat
-    tLatencyCleared = pLatencyClearedValue / pLatencyClearedCount
+    tLatencyCleared = (pLatencyClearedValue / pLatencyClearedCount)
     if abs(tLatency - pLatencyReported) > pLatencyReportDelta or pLatencyReported = 0 then
       pLatencyReported = tLatency
       tConnection.send("REPORT_LATENCY", [#integer:tLatency, #integer:tLatencyCleared, #integer:pLatencyValueCount])

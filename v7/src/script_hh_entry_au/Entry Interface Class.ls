@@ -47,7 +47,7 @@ on showHotel me
     repeat while 1
       tSpr = tVisObj.getSprById("car" & i)
       if tSpr <> 0 then
-        if i mod 2 then
+        if (i mod 2) then
           tdir = #right
         else
           tdir = #left
@@ -93,7 +93,7 @@ on resetCarAfterDelay me, tid
     if pNextCarUpdateTime < the milliSeconds then
       pNextCarUpdateTime = the milliSeconds
     end if
-    pNextCarUpdateTime = pNextCarUpdateTime + 15 + random(30) * 100
+    pNextCarUpdateTime = pNextCarUpdateTime + (15 + random(30) * 100)
     tInterval = pNextCarUpdateTime - the milliSeconds
   end if
   createTimeout("carTimer" & tid, tInterval, #resetCar, me.getID(), tid, 1)
@@ -262,12 +262,12 @@ on openView me
   end if
   tTopSpr = tVisObj.getSprById("box_top")
   tBotSpr = tVisObj.getSprById("box_bottom")
-  tTimeLeft = pViewMaxTime - the milliSeconds - pViewOpenTime / 1000
+  tTimeLeft = (pViewMaxTime - the milliSeconds - pViewOpenTime / 1000)
   tmoveLeft = tTopSpr.height - abs(tTopSpr.locV)
   if tTimeLeft <= 0 then
     tOffset = abs(tmoveLeft)
   else
-    tOffset = abs(tmoveLeft / tTimeLeft) / the frameTempo
+    tOffset = (abs((tmoveLeft / tTimeLeft)) / the frameTempo)
   end if
   tTopSpr.locV = tTopSpr.locV - tOffset
   tBotSpr.locV = tBotSpr.locV + tOffset
@@ -284,12 +284,12 @@ on closeView me
   end if
   tTopSpr = tVisObj.getSprById("box_top")
   tBotSpr = tVisObj.getSprById("box_bottom")
-  tTimeLeft = pViewMaxTime - the milliSeconds - pViewCloseTime / 1000
+  tTimeLeft = (pViewMaxTime - the milliSeconds - pViewCloseTime / 1000)
   tmoveLeft = 0 - abs(tTopSpr.locV)
   if tTimeLeft <= 0 then
     tOffset = abs(tmoveLeft)
   else
-    tOffset = abs(tmoveLeft / tTimeLeft) / the frameTempo
+    tOffset = (abs((tmoveLeft / tTimeLeft)) / the frameTempo)
   end if
   tTopSpr.locV = tTopSpr.locV + tOffset
   tBotSpr.locV = tBotSpr.locV - tOffset

@@ -14,29 +14,29 @@ on fast_sqrt me, x
     if x >= 16777216 then
       if x >= 268435456 then
         if x >= 1073741824 then
-          return(table.getAt(x / 16777216 + 1) * 256)
+          return((table.getAt((x / 16777216) + 1) * 256))
         else
-          return(table.getAt(x / 4194304 + 1) * 128)
+          return((table.getAt((x / 4194304) + 1) * 128))
         end if
       else
         if x >= 67108864 then
-          return(table.getAt(x / 1048576 + 1) * 64)
+          return((table.getAt((x / 1048576) + 1) * 64))
         else
-          return(table.getAt(x / 262144 + 1) * 32)
+          return((table.getAt((x / 262144) + 1) * 32))
         end if
       end if
     else
       if x >= 1048576 then
         if x >= 4194304 then
-          return(table.getAt(x / 65536 + 1) * 16)
+          return((table.getAt((x / 65536) + 1) * 16))
         else
-          return(table.getAt(x / 16384 + 1) * 8)
+          return((table.getAt((x / 16384) + 1) * 8))
         end if
       else
         if x >= 262144 then
-          return(table.getAt(x / 4096 + 1) * 4)
+          return((table.getAt((x / 4096) + 1) * 4))
         else
-          return(table.getAt(x / 1024 + 1) * 2)
+          return((table.getAt((x / 1024) + 1) * 2))
         end if
       end if
     end if
@@ -44,20 +44,20 @@ on fast_sqrt me, x
     if x >= 256 then
       if x >= 4096 then
         if x >= 16384 then
-          return(table.getAt(x / 256 + 1))
+          return(table.getAt((x / 256) + 1))
         else
-          return(table.getAt(x / 64 + 1) / 2)
+          return((table.getAt((x / 64) + 1) / 2))
         end if
       else
         if x >= 1024 then
-          return(table.getAt(x / 16 + 1) / 4)
+          return((table.getAt((x / 16) + 1) / 4))
         else
-          return(table.getAt(x / 4 + 1) / 8)
+          return((table.getAt((x / 4) + 1) / 8))
         end if
       end if
     else
       if x >= 0 then
-        return(table.getAt(x + 1) / 16)
+        return((table.getAt(x + 1) / 16))
       end if
     end if
   end if

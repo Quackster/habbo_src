@@ -77,7 +77,7 @@ on align me
   tElemWidth = tElem.getProperty(#width)
   tOwnWidth = tRequestWindow.getProperty(#width)
   tOwnHeight = tRequestWindow.getProperty(#height)
-  tLocX = tWinLocX + tElemLocX + tElemWidth / 2 - tOwnWidth / 2
+  tLocX = tWinLocX + tElemLocX + (tElemWidth / 2) - (tOwnWidth / 2)
   tLocY = tWinLocY + tElemLocY - tOwnHeight
   tOffset = the stage - rect.width
   if tOffset > 0 then

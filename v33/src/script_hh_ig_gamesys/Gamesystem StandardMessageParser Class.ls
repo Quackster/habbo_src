@@ -223,7 +223,7 @@ on handle_msgstruct_objects me, tdata
       tObj.setAt(#y, integer(tLine.getProp(#word, 4)))
       tObj.setAt(#h, integer(tLine.getProp(#word, 5)))
       if tLine.count(#word) = 6 then
-        tdir = integer(tLine.getProp(#word, 6)) mod 8
+        tdir = (integer(tLine.getProp(#word, 6)) mod 8)
         tObj.setAt(#direction, [tdir, tdir, tdir])
         tObj.setAt(#dimensions, 0)
       else

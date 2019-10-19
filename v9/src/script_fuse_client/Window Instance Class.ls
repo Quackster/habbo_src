@@ -15,7 +15,7 @@ on construct me
   pScaleFlag = 0
   pDragFlag = 0
   pDragOffset = [0, 0]
-  pBoundary = rect(the stage, rect.width, the stage, rect.height) + [-20, -20, 20, 20]
+  pBoundary = rect(0, 0, undefined.width, undefined.height) + [-20, -20, 20, 20]
   pClientID = void()
   pMemberList = [:]
   pElemList = [:]
@@ -87,9 +87,9 @@ on unmerge me
     pElemList.deleteProp(pElemList.getOne(tItem))
   end repeat
   repeat while tGroupData.getAt(#items) <= undefined
-    tsprite = getAt(undefined, undefined)
-    pSpriteList.deleteProp(pSpriteList.getOne(tsprite))
-    releaseSprite(tsprite.spriteNum)
+    tSprite = getAt(undefined, undefined)
+    pSpriteList.deleteProp(pSpriteList.getOne(tSprite))
+    releaseSprite(tSprite.spriteNum)
   end repeat
   repeat while tGroupData.getAt(#items) <= undefined
     tmember = getAt(undefined, undefined)
@@ -163,8 +163,8 @@ on moveZ me, tZ
 end
 
 on center me 
-  tX = the stageRight - the stageLeft / 2 - pwidth / 2
-  tY = the stageBottom - the stageTop / 2 - pheight / 2
+  tX = (the stageRight - the stageLeft / 2) - (pwidth / 2)
+  tY = (the stageBottom - the stageTop / 2) - (pheight / 2)
   return(me.moveTo(tX, tY))
 end
 
@@ -387,7 +387,7 @@ on mouseUp me, tNull, tSprID
       else
         if tSprID contains "close" then
           if voidp(pClientID) then
-            return(pWindowMngr.Remove(me.getID()))
+            return(pWindowMngr.remove(me.getID()))
           else
             tSprID = "close"
           end if
@@ -463,8 +463,8 @@ on buildVisual me, tLayout
       tid = tid & tGroupNum
     end if
     tmember = member(tResManager.createMember(me.getID() & "_" & tid, #bitmap))
-    tsprite = sprite(tSprManager.reserveSprite(me.getID()))
-    if tsprite.spriteNum < 1 then
+    tSprite = sprite(tSprManager.reserveSprite(me.getID()))
+    if tSprite.spriteNum < 1 then
       repeat while tLayout.getAt(#elements) <= undefined
         t_rSpr = getAt(undefined, tLayout)
         releaseSprite(t_rSpr.spriteNum, me.getID())
@@ -478,14 +478,14 @@ on buildVisual me, tLayout
       return(error(me, "Failed to build window. System out of sprites!", #buildVisual))
     end if
     tmemberlist.setAt(tid, tmember)
-    tSpriteList.setAt(tid, tsprite)
-    tsprite.castNum = tmember.number
-    tsprite.ink = 8
+    tSpriteList.setAt(tid, tSprite)
+    tSprite.castNum = tmember.number
+    tSprite.ink = 8
     tElemRect = rect(2000, 2000, -2000, -2000)
     tGroupData.getAt(#members).add(tmember)
-    tGroupData.getAt(#sprites).add(tsprite)
-    tSprManager.setEventBroker(tsprite.spriteNum, tid)
-    tsprite.registerProcedure(void(), me.getID(), void())
+    tGroupData.getAt(#sprites).add(tSprite)
+    tSprManager.setEventBroker(tSprite.spriteNum, tid)
+    tSprite.registerProcedure(void(), me.getID(), void())
     tBlend = tElement.getAt(1).getAt(#blend)
     tInk = tElement.getAt(1).getAt(#ink)
     tColor = tElement.getAt(1).getAt(#color)
@@ -501,7 +501,7 @@ on buildVisual me, tLayout
       tItem.setAt(#id, tid)
       tItem.setAt(#mother, me.getID())
       tItem.setAt(#buffer, tmember)
-      tItem.setAt(#sprite, tsprite)
+      tItem.setAt(#sprite, tSprite)
       if tItem.getAt(#blend) <> tBlend then
         tIsBlendShared = 0
       end if
@@ -539,9 +539,9 @@ on buildVisual me, tLayout
         tElemRect.setAt(4, tItem.getAt(#locV) + tItem.getAt(#height))
       end if
       if not voidp(tItem.getAt(#cursor)) then
-        tsprite.setcursor(tItem.getAt(#cursor))
+        tSprite.setcursor(tItem.getAt(#cursor))
       else
-        tsprite.setcursor(#arrow)
+        tSprite.setcursor(#arrow)
       end if
     end repeat
     if tIsPaletteShared and not voidp(tPalette) then
@@ -561,7 +561,7 @@ on buildVisual me, tLayout
       end if
       tWrapper = me.CreateElement(tItem)
     else
-      tProps = [#id:tid, #type:#wrapper, #style:#wrapper, #buffer:tmember, #sprite:tsprite, #locX:tElemRect.getAt(1), #locY:tElemRect.getAt(2)]
+      tProps = [#id:tid, #type:#wrapper, #style:#wrapper, #buffer:tmember, #sprite:tSprite, #locX:tElemRect.getAt(1), #locY:tElemRect.getAt(2)]
       tWrapper = me.CreateElement(tProps)
       repeat while tLayout.getAt(#elements) <= undefined
         tItem = getAt(undefined, tLayout)
@@ -579,21 +579,21 @@ on buildVisual me, tLayout
       tGroupData.getAt(#items).add(tWrapper)
     end if
     if tIsBlendShared then
-      tsprite.blend = tBlend
+      tSprite.blend = tBlend
     end if
     if tIsInkShared then
-      tsprite.ink = tInk
+      tSprite.ink = tInk
     end if
     if tIsColorShared then
-      tsprite.color = tColor
+      tSprite.color = tColor
     end if
     if tIsBgColorShared then
-      tsprite.bgColor = tBgColor
+      tSprite.bgColor = tBgColor
     end if
-    tsprite.locH = tElemRect.getAt(1) + pClientRect.getAt(1)
-    tsprite.locV = tElemRect.getAt(2) + pClientRect.getAt(2)
-    tsprite.width = tElemRect.width
-    tsprite.height = tElemRect.height
+    tSprite.locH = tElemRect.getAt(1) + pClientRect.getAt(1)
+    tSprite.locV = tElemRect.getAt(2) + pClientRect.getAt(2)
+    tSprite.width = tElemRect.width
+    tSprite.height = tElemRect.height
   end repeat
   tGroupData.setAt(#rect, tLayout.getAt(#rect).getAt(1))
   tGroupData.setAt(#border, tLayout.getAt(#border).getAt(1))
@@ -745,8 +745,8 @@ on null me
 end
 
 on movePartBy me, ttype, tX, tY, tInverse 
-  tsprite = pSpriteList.getAt(ttype)
-  if voidp(tsprite) then
+  tSprite = pSpriteList.getAt(ttype)
+  if voidp(tSprite) then
     return(0)
   end if
   if tInverse then
@@ -754,14 +754,14 @@ on movePartBy me, ttype, tX, tY, tInverse
     repeat while i <= pSpriteList.count
       tSymbol = pSpriteList.getPropAt(i)
       if tSymbol <> ttype then
-        tsprite = pSpriteList.getAt(tSymbol)
-        tsprite.loc = tsprite.loc + [tX, tY]
+        tSprite = pSpriteList.getAt(tSymbol)
+        tSprite.loc = tSprite.loc + [tX, tY]
       end if
       i = 1 + i
     end repeat
     exit repeat
   end if
-  tsprite.loc = tsprite.loc + [tX, tY]
+  tSprite.loc = tSprite.loc + [tX, tY]
 end
 
 on movePartTo me, ttype, tX, tY, tInverse 

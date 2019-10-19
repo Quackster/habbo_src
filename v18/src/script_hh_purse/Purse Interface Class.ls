@@ -304,12 +304,12 @@ on drawColumns me, tElementName, tList, tLeftMarg
     tElem = tWndObj.getElement(tElementName)
     tWidth = tElem.getProperty(#width)
     tHeight = tElem.getProperty(#height)
-    tVerticMarg = pPageLineHeight - tWriteObj.getFont().getAt(#lineHeight) / 2
+    tVerticMarg = (pPageLineHeight - tWriteObj.getFont().getAt(#lineHeight) / 2)
     if voidp(tLeftMarg) then
       tLeftMarg = 8
     end if
     tPageCounter = tList.count
-    tImgHeight = pPageLineHeight * tPageCounter + 1
+    tImgHeight = (pPageLineHeight * tPageCounter) + 1
     tPageListImg = image(tWidth - tLeftMarg, tImgHeight, 8)
     f = 1
     repeat while f <= tList.count
@@ -321,7 +321,7 @@ on drawColumns me, tElementName, tList, tLeftMarg
       end if
       tX1 = tLeftMarg
       tX2 = tX1 + tPageImg.width
-      tY1 = tVerticMarg + pPageLineHeight * f - 1
+      tY1 = tVerticMarg + (pPageLineHeight * f - 1)
       tY2 = tY1 + tPageImg.height
       tDstRect = rect(tX1, tY1, tX2, tY2)
       tPageListImg.copyPixels(tPageImg, tDstRect, tPageImg.rect)
@@ -366,8 +366,8 @@ on showPurseAd me
     tSrcHeight = tSourceImg.height
     tDestHeight = tDestImg.height
     if tSrcWidth < tDestWidth then
-      tRectList.setAt(1, tDestWidth - tSrcWidth / 2)
-      tRectList.setAt(3, tDestWidth - tDestWidth - tSrcWidth / 2)
+      tRectList.setAt(1, (tDestWidth - tSrcWidth / 2))
+      tRectList.setAt(3, tDestWidth - (tDestWidth - tSrcWidth / 2))
     else
       if tSrcWidth > tDestWidth then
         tSourceRect.setAt(1, tdestrect.getAt(1))
@@ -375,8 +375,8 @@ on showPurseAd me
       end if
     end if
     if tSrcHeight < tDestHeight then
-      tRectList.setAt(2, tDestHeight - tSrcHeight / 2)
-      tRectList.setAt(4, tDestHeight - tDestHeight - tSrcHeight / 2)
+      tRectList.setAt(2, (tDestHeight - tSrcHeight / 2))
+      tRectList.setAt(4, tDestHeight - (tDestHeight - tSrcHeight / 2))
     else
       if tSrcHeight > tDestHeight then
         tSourceRect.setAt(2, tdestrect.getAt(2))
@@ -484,7 +484,7 @@ on changePurseWindowView me, tWindowName
         tImgHeight = tPageImg.height
         tPageListImg = image(tWidth, tImgHeight, 8)
         tX2 = tPageImg.width
-        tY1 = tHeight - tPageImg.height / 2
+        tY1 = (tHeight - tPageImg.height / 2)
         tY2 = tY1 + tPageImg.height
         tDstRect = rect(0, tY1, tX2, tY2)
         tPageListImg.copyPixels(tPageImg, tDstRect, tPageImg.rect, [#ink:36])
@@ -539,7 +539,7 @@ on changePurseWindowView me, tWindowName
           tImgHeight = tPageImg.height
           tPageListImg = image(tWidth, tImgHeight, 8)
           tX2 = tPageImg.width
-          tY1 = tHeight - tPageImg.height / 2
+          tY1 = (tHeight - tPageImg.height / 2)
           tY2 = tY1 + tPageImg.height
           tDstRect = rect(0, tY1, tX2, tY2)
           tPageListImg.copyPixels(tPageImg, tDstRect, tPageImg.rect, [#ink:36])
@@ -578,7 +578,7 @@ on changePurseWindowView me, tWindowName
             tImgHeight = tPageImg.height
             tPageListImg = image(tWidth, tImgHeight, 8)
             tX2 = tPageImg.width
-            tY1 = tHeight - tPageImg.height / 2
+            tY1 = (tHeight - tPageImg.height / 2)
             tY2 = tY1 + tPageImg.height
             tDstRect = rect(0, tY1, tX2, tY2)
             tPageListImg.copyPixels(tPageImg, tDstRect, tPageImg.rect, [#ink:36])
@@ -656,8 +656,8 @@ on drawPurseCoins me, tCoinAmount
               tStackCount = 1
               tDestImg.copyPixels(tSourceImg1, rect(tV, tX - 2, tW, tY - 5), tSourceImg1.rect, [#blend:70])
             end if
-            tX = tX - 7 * tStackCount
-            tY = tY - 7 * tStackCount
+            tX = tX - (7 * tStackCount)
+            tY = tY - (7 * tStackCount)
             tDestImg.copyPixels(tSourceImg, rect(tV, tX, tW, tY), tSourceImg.rect, [#ink:36])
             i = 1 + i
           end repeat
@@ -710,9 +710,9 @@ on checkSaldo me, tElement
       tPageImg = tWriteObj.render(tText)
       tImgHeight = tPageImg.height
       tPageListImg = image(tWidth, tImgHeight, 8)
-      tX1 = tWidth - tPageImg.width / 2
+      tX1 = (tWidth - tPageImg.width / 2)
       tX2 = tX1 + tPageImg.width
-      tY1 = tHeight - tPageImg.height / 2
+      tY1 = (tHeight - tPageImg.height / 2)
       tY2 = tY1 + tPageImg.height
       tDstRect = rect(tX1, tY1, tX2, tY2)
       tPageListImg.copyPixels(tPageImg, tDstRect, tPageImg.rect, [#ink:36])

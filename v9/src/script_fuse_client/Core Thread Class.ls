@@ -5,7 +5,7 @@ on construct me
   tSession.set("client_startdate", the date)
   tSession.set("client_starttime", the long time)
   tSession.set("client_version", getVariable("system.version"))
-  tSession.set("client_url", getMoviePath())
+  tSession.set("client_url", the moviePath)
   tSession.set("client_lastclick", "")
   createObject(#headers, getClassVariable("variable.manager.class"))
   createObject(#classes, getClassVariable("variable.manager.class"))
@@ -26,7 +26,7 @@ on showLogo me
     pLogoSpr.blend = 60
     pLogoSpr.member = tmember
     pLogoSpr.locZ = -20000001
-    rect.width / 2.loc = point(the stage, rect.height / 2 - tmember.height)
+    pLogoSpr.loc = point((undefined.width / 2), (undefined.height / 2) - tmember.height)
   end if
   return(1)
 end
@@ -46,29 +46,22 @@ on updateState me, tstate
     cursor(4)
     if the runMode contains "Plugin" then
       tDelim = the itemDelimiter
+      the itemDelimiter = "="
       i = 1
-      repeat while i <= 9
-        tParamBundle = externalParamValue("sw" & i)
-        if not voidp(tParamBundle) then
-          the itemDelimiter = ";"
-          j = 1
-          repeat while j <= tParamBundle.count(#item)
-            tParam = tParamBundle.getProp(#item, j)
-            the itemDelimiter = "="
-            if tParam.count(#item) > 1 then
-              if tParam.getProp(#item, 1) = "external.variables.txt" then
-                getSpecialServices().setExtVarPath(tParam.getProp(#item, 2, tParam.count(#item)))
-              end if
+      repeat while i <= 12
+        tParam = externalParamValue("sw" & i)
+        if not voidp(tParam) then
+          if tParam.count(#item) > 1 then
+            if tParam.getProp(#item, 1) = "external.variables.txt" then
+              getVariableManager().set("external.variables.txt", tParam.getProp(#item, 2, tParam.count(#item)))
             end if
-            the itemDelimiter = ";"
-            j = 1 + j
-          end repeat
+          end if
         end if
         i = 1 + i
       end repeat
       the itemDelimiter = tDelim
     end if
-    tURL = getExtVarPath()
+    tURL = getVariableManager().get("external.variables.txt")
     tMemName = tURL
     if tURL contains "?" then
       tParamDelim = "&"
@@ -87,35 +80,28 @@ on updateState me, tstate
   else
     if tstate = "load_params" then
       pState = tstate
-      dumpVariableField(getExtVarPath())
-      removeMember(getExtVarPath())
+      dumpVariableField(getVariable("external.variables.txt"))
+      removeMember(getVariable("external.variables.txt"))
       if the runMode contains "Plugin" then
         tDelim = the itemDelimiter
+        the itemDelimiter = "="
         i = 1
         repeat while i <= 9
-          tParamBundle = externalParamValue("sw" & i)
-          if not voidp(tParamBundle) then
-            the itemDelimiter = ";"
-            j = 1
-            repeat while j <= tParamBundle.count(#item)
-              tParam = tParamBundle.getProp(#item, j)
-              the itemDelimiter = "="
-              if tParam.count(#item) > 1 then
-                getVariableManager().set(tParam.getProp(#item, 1), tParam.getProp(#item, 2, tParam.count(#item)))
-              end if
-              the itemDelimiter = ";"
-              j = 1 + j
-            end repeat
+          tParam = externalParamValue("sw" & i)
+          if not voidp(tParam) then
+            if tParam.count(#item) > 1 then
+              getVariableManager().set(tParam.getProp(#item, 1), tParam.getProp(#item, 2, tParam.count(#item)))
+            end if
           end if
           i = 1 + i
         end repeat
         the itemDelimiter = tDelim
       end if
-      setDebugLevel(0)
+      setDebugLevel(getIntVariable("system.debug", 0))
       getStringServices().initConvList()
       puppetTempo(getIntVariable("system.tempo", 30))
       if variableExists("client.reload.url") then
-        getObject(#session).set("client_url", obfuscate(getVariable("client.reload.url")))
+        getObject(#session).set("client_url", getVariable("client.reload.url"))
       end if
       return(me.updateState("load_texts"))
     else

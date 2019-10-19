@@ -37,7 +37,7 @@ on update me
         tdata = tName.getProp(#item, tName.count(#item) - 4, tName.count(#item) - 1)
         tRand = random(4)
         if tRand = pLastFrm then
-          tRand = tRand + 1 mod 4 + 1
+          tRand = (tRand + 1 mod 4) + 1
         end if
         pLastFrm = tRand
         tNewNameA = tItem & "_" & "b" & "_" & tdata & "_" & pLastFrm

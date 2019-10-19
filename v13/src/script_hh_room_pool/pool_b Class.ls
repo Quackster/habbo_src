@@ -150,31 +150,31 @@ end
 
 on eventProcJumpTicketAutomatic me 
   if threadExists(#pellehyppy) then
-    return(getThread(#pellehyppy).getInterface().showTicketWnd())
+    return(executeMessage(#show_ticketWindow))
   else
     return(0)
   end if
 end
 
 on poolTeleport me, tEvent, tSprID, tParam 
-  tMyName = getObject(#session).get("user_name")
-  if not getThread(#room).getComponent().userObjectExists(tMyName) then
+  tMyIndex = getObject(#session).get("user_index")
+  if not getThread(#room).getComponent().userObjectExists(tMyIndex) then
     return(0)
   end if
-  tloc = getThread(#room).getComponent().getUserObject(tMyName).getLocation()
+  tloc = getThread(#room).getComponent().getUserObject(tMyIndex).getLocation()
   getThread(#room).getInterface().eventProcRoom(tEvent, "floor", tParam)
   if not tSprID contains "pool_clickarea" and tloc.getAt(3) < 7 then
     if tloc.getAt(2) > 11 and tloc.getAt(1) < 20 then
-      getConnection(getVariable("connection.room.id")).send(#room, "Move 17 22")
+      getConnection(getVariable("connection.room.id")).send("MOVE", [#short:17, #short:22])
     else
-      getConnection(getVariable("connection.room.id")).send(#room, "Move 31 11")
+      getConnection(getVariable("connection.room.id")).send("MOVE", [#short:31, #short:11])
     end if
   else
     if tSprID contains "pool_clickarea" and tloc.getAt(3) = 7 then
       if tloc.getAt(2) > 11 then
-        getConnection(getVariable("connection.room.id")).send(#room, "Move 17 21")
+        getConnection(getVariable("connection.room.id")).send("MOVE", [#short:17, #short:21])
       else
-        getConnection(getVariable("connection.room.id")).send(#room, "Move 31 10")
+        getConnection(getVariable("connection.room.id")).send("MOVE", [#short:31, #short:10])
       end if
     end if
   end if

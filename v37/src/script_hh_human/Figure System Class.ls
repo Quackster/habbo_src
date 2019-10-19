@@ -61,12 +61,12 @@ on parseFigure me, tFigureData, tsex, tClass
           return(me.parseOldBotFigure(tFigureData, tsex, tClass))
         end if
         tTempFigure = [:]
-        if tFigureData.count(#char) mod 5 = 0 and integerp(integer(tFigureData)) then
+        if (tFigureData.count(#char) mod 5) = 0 and integerp(integer(tFigureData)) then
           tFigureData = tFigureData.getProp(#char, 1, tFigureData.count(#char))
-          tPartCount = tFigureData.count(#char) / 5
+          tPartCount = (tFigureData.count(#char) / 5)
           i = 0
           repeat while i <= tPartCount - 1
-            tPart = tFigureData.getProp(#char, i * 5 + 1, i * 5 + 5)
+            tPart = tFigureData.getProp(#char, (i * 5) + 1, (i * 5) + 5)
             tSetID = tPart.getProp(#char, 1, 3)
             tColorId = tPart.getProp(#char, 4, 5)
             tTempFigure.setAt(tSetID, value(tColorId))
@@ -134,7 +134,7 @@ on parseOldBotFigure me, tFigureData, tsex, tClass
         if voidp(tValue.getAt("color")) then
           tValue.setAt("color", rgb("EEEEEE"))
         end if
-        if tValue.getAt("color").red + tValue.getAt("color").green + tValue.getAt("color").blue > 238 * 3 then
+        if tValue.getAt("color").red + tValue.getAt("color").green + tValue.getAt("color").blue > (238 * 3) then
           tValue.setAt("color", rgb("EEEEEE"))
         end if
       else
@@ -214,7 +214,7 @@ on checkDataLoaded me
   repeat while tCharNo <= tStamp.length
     tChar = chars(tStamp, tCharNo, tCharNo)
     tChar = charToNum(tChar)
-    tChar = tChar * tCharNo + 309203
+    tChar = (tChar * tCharNo) + 309203
     tReceipt.setAt(tCharNo, tChar)
     tCharNo = 1 + tCharNo
   end repeat

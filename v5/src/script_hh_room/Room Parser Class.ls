@@ -68,8 +68,8 @@ on parse_status me, tMsg
       tuser.setAt(#x, integer(tloc.getProp(#item, 1)))
       tuser.setAt(#y, integer(tloc.getProp(#item, 2)))
       tuser.setAt(#h, integer(tloc.getProp(#item, 3)))
-      tuser.setAt(#dirHead, integer(tloc.getProp(#item, 4)) mod 8)
-      tuser.setAt(#dirBody, integer(tloc.getProp(#item, 5)) mod 8)
+      tuser.setAt(#dirHead, (integer(tloc.getProp(#item, 4)) mod 8))
+      tuser.setAt(#dirBody, (integer(tloc.getProp(#item, 5)) mod 8))
       tActions = []
       the itemDelimiter = "/"
       j = 2
@@ -215,7 +215,7 @@ on parse_objects me, tMsg
       tObj.setAt(#y, integer(tLine.getProp(#word, 4)))
       tObj.setAt(#h, integer(tLine.getProp(#word, 5)))
       if tLine.count(#word) = 6 then
-        tdir = integer(tLine.getProp(#word, 6)) mod 8
+        tdir = (integer(tLine.getProp(#word, 6)) mod 8)
         tObj.setAt(#direction, [tdir, tdir, tdir])
         tObj.setAt(#dimensions, 0)
       else
@@ -254,7 +254,7 @@ on parse_active_objects me, tMsg
       tObj.setAt(#y, integer(tOther.getProp(#word, 3)))
       tObj.setAt(#width, integer(tOther.getProp(#word, 4)))
       tObj.setAt(#height, integer(tOther.getProp(#word, 5)))
-      tDirection = integer(tOther.getProp(#word, 6)) mod 8
+      tDirection = (integer(tOther.getProp(#word, 6)) mod 8)
       tObj.setAt(#direction, [tDirection, tDirection, tDirection])
       tObj.setAt(#dimensions, [tObj.width, tObj.height])
       tObj.setAt(#altitude, float(tOther.getProp(#word, 7)))
@@ -306,7 +306,7 @@ on parse_activeobject_update me, tMsg
   tObj.setAt(#y, integer(tOther.getProp(#word, 3)))
   tObj.setAt(#width, integer(tOther.getProp(#word, 4)))
   tObj.setAt(#height, integer(tOther.getProp(#word, 5)))
-  tDirection = integer(tOther.getProp(#word, 6)) mod 8
+  tDirection = (integer(tOther.getProp(#word, 6)) mod 8)
   tObj.setAt(#direction, [tDirection, tDirection, tDirection])
   tObj.setAt(#dimensions, [tObj.width, tObj.height])
   tObj.setAt(#altitude, float(tOther.getProp(#word, 7)))
@@ -620,7 +620,7 @@ end
 
 on parse_dice_value me, tMsg 
   tid = tMsg.getProp(#word, 2)
-  tValue = integer(tMsg.getProp(#word, 3) - tid * 38)
+  tValue = integer(tMsg.getProp(#word, 3) - (tid * 38))
   if me.getComponent().activeObjectExists(tid) then
     me.getComponent().getActiveObject(tid).diceThrown(tValue)
   end if

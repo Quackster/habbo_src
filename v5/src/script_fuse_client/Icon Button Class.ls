@@ -92,19 +92,19 @@ on createButtonImg me, tText, tstate
     tOptImgWidth = pIconImg.width + tOptImgMargH
   end if
   if me.pFixedSize = 1 then
-    tCharPosH = tTextMem.locToCharPos(point(me.pOrigWidth - tMarginH * 2, 5))
+    tCharPosH = tTextMem.locToCharPos(point(me.pOrigWidth - (tMarginH * 2), 5))
     tTextWidth = tTextMem.charPosToLoc(tCharPosH).locH
     tTextMem.rect = rect(0, 0, tTextWidth, tTextMem.height)
     tTextImg = tTextMem.image
     tWidth = me.pOrigWidth
   else
-    tTextWidth = tTextMem.charPosToLoc(tTextMem.count(#char)).locH + tFontDesc.getAt(#fontSize) * 2
-    if tTextWidth + tMarginH * 2 > me.pMaxWidth then
-      tTextWidth = me.pMaxWidth - tMarginH * 2 + tOptImgWidth
+    tTextWidth = tTextMem.charPosToLoc(tTextMem.count(#char)).locH + (tFontDesc.getAt(#fontSize) * 2)
+    if tTextWidth + (tMarginH * 2) > me.pMaxWidth then
+      tTextWidth = me.pMaxWidth - (tMarginH * 2) + tOptImgWidth
     end if
     tTextMem.rect = rect(0, 0, tTextWidth, tTextMem.height)
     tTextImg = tTextMem.image
-    tWidth = tTextWidth + tMarginH * 2 + tOptImgWidth
+    tWidth = tTextWidth + (tMarginH * 2) + tOptImgWidth
   end if
   tNewImg = image(tWidth, me.getPropRef(#pButtonImg, #left).height, 8, member(me.pPalette))
   tStartPointY = 0
@@ -132,7 +132,7 @@ on createButtonImg me, tText, tstate
     tAlignment = me.getPropRef(#pProp, #icon).getAt(#props).getPropAt(1)
     tOptImgRect = pIconImg.rect
     tOptImgMargH = me.getPropRef(#pProp, #icon).getAt(#props).getAt(tAlignment).getAt(#marginH)
-    tOptImgMargV = tNewImg.height / 2 - tOptImgRect.height / 2
+    tOptImgMargV = (tNewImg.height / 2) - (tOptImgRect.height / 2)
     if [#left, #middle, #right] = #right then
       tDstRect = tOptImgRect + rect(me.pwidth - tOptImgMargH - tOptImgRect.width, tOptImgMargV, me.pwidth - tOptImgMargH - tOptImgRect.width, tOptImgMargV)
     else
@@ -140,7 +140,7 @@ on createButtonImg me, tText, tstate
         tDstRect = tOptImgRect + rect(tOptImgMargH, tOptImgMargV, tOptImgMargH, tOptImgMargV)
       else
         if [#left, #middle, #right] = #center then
-          tDstRect = tOptImgRect + rect(tNewImg.width / 2, 0, tNewImg.width / 2, 0) - rect(pIconImg / 2, 0, pIconImg / 2, 0)
+          tDstRect = tOptImgRect + rect((tNewImg.width / 2), 0, (tNewImg.width / 2), 0) - rect((pIconImg / 2), 0, (pIconImg / 2), 0)
         end if
       end if
     end if
@@ -155,7 +155,7 @@ on createButtonImg me, tText, tstate
     tDstRect = tDstRect + rect(me.getProp(#left).width, 0, me.getProp(#left).width, 0)
   else
     if [#left, #middle, #right] = #center then
-      tDstRect = tDstRect + rect(tNewImg.width / 2, 0, tNewImg.width / 2, 0) - rect(tTextWidth / 2, 0, tTextWidth / 2, 0)
+      tDstRect = tDstRect + rect((tNewImg.width / 2), 0, (tNewImg.width / 2), 0) - rect((tTextWidth / 2), 0, (tTextWidth / 2), 0)
     else
       if [#left, #middle, #right] = #right then
         tDstRect = tDstRect + rect(tNewImg.width, 0, tNewImg.width, 0) - rect(tTextWidth + me.getProp(#right).width, 0, tTextWidth + me.getProp(#right).width, 0)

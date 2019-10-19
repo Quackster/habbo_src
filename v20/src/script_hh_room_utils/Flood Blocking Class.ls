@@ -39,7 +39,7 @@ on update me
   end if
   if the milliSeconds < pBlockTime then
     tText = getText("floodblocking", "YOU TYPE TOO FAST! YOU MUST WAIT A MOMENT")
-    tElem.setText(tText && pBlockTime - the milliSeconds / 1000)
+    tElem.setText(tText && (pBlockTime - the milliSeconds / 1000))
   else
     tElem.setText("")
     tElem.setEdit(1)

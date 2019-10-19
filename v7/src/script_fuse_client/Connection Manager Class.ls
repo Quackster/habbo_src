@@ -145,7 +145,7 @@ on registerCommands me, tid, tObjID, tCmdList
     tCmd = tCmdList.getPropAt(i)
     tNum = tCmdList.getAt(i)
     tOld = tPtr.getaProp(#value).getaProp(tCmd)
-    tBy1 = numToChar(bitOr(64, tNum / 64))
+    tBy1 = numToChar(bitOr(64, (tNum / 64)))
     tBy2 = numToChar(bitOr(64, bitAnd(63, tNum)))
     tNew = tBy1 & tBy2
     if tOld <> void() then

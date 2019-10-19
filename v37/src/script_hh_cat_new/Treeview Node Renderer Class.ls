@@ -90,7 +90,7 @@ on render me
   sendProcessTracking(840)
   pimage = image(pwidth, pheight, 32)
   tLevel = integer(pData.getData(#level)) - 1
-  tOffsetX = getIntVariable("treeview.node.start.offset") + getIntVariable("treeview.node.item.offset") * max([tLevel, 0])
+  tOffsetX = getIntVariable("treeview.node.start.offset") + (getIntVariable("treeview.node.item.offset") * max([tLevel, 0]))
   if pData.getSelected() then
     pSelectedBg.image.copyPixels(pimage.rect, pSelectedBg, image.rect, [#useFastQuads:1])
   else
@@ -120,5 +120,5 @@ end
 
 on getCenteredOfs me, tDest, tSource 
   sendProcessTracking(850)
-  return(tDest - tSource / 2)
+  return((tDest - tSource / 2))
 end

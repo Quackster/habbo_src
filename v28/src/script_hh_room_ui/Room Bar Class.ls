@@ -615,7 +615,7 @@ on eventProcVote me, tEvent, tSprID, tParam
         tDropElem.getProperty(#buffer).regPoint = point(0, 0)
         tDropElem.setProperty(#height, tSignMem.height)
         if voidp(pSignState) or pOldPosV < 7 then
-          tSignMode = pOldPosH * 7 + pOldPosV + 1
+          tSignMode = (pOldPosH * 7) + pOldPosV + 1
           if tSignMode > 14 then
             tSignMode = 14
           else
@@ -648,19 +648,19 @@ on eventProcVote me, tEvent, tSprID, tParam
             tSignMem = member(getmemnum("pelle_kyltti2"))
             tDropElem = tWndObj.getElement("int_drop_vote")
             tSpr = tDropElem.getProperty(#sprite)
-            if pOldPosH <> the mouseH - tSpr.left / w or pOldPosV <> the mouseV - tSpr.top / h then
-              if the mouseV - tSpr.top / h < 7 then
-                pOldPosH = the mouseH - tSpr.left / w
-                pOldPosV = the mouseV - tSpr.top / h
+            if pOldPosH <> (the mouseH - tSpr.left / w) or pOldPosV <> (the mouseV - tSpr.top / h) then
+              if (the mouseV - tSpr.top / h) < 7 then
+                pOldPosH = (the mouseH - tSpr.left / w)
+                pOldPosV = (the mouseV - tSpr.top / h)
                 pSignImg.copyPixels(tSignMem.image, pSignImg.rect, pSignImg.rect)
                 tSignHiliterImg = member(getmemnum("kyltti_hiliter")).image
                 tSignHiliterImg = image(w, h, 16)
                 tSignHiliterImg.fill(tSignHiliterImg.rect, rgb(187, 187, 187))
-                tdestrect = tSignHiliterImg.rect + rect(w * pOldPosH + 1, h * pOldPosV + 1, w * pOldPosH + 1, h * pOldPosV + 1)
+                tdestrect = tSignHiliterImg.rect + rect((w * pOldPosH) + 1, (h * pOldPosV) + 1, (w * pOldPosH) + 1, (h * pOldPosV) + 1)
                 pSignImg.copyPixels(tSignHiliterImg, tdestrect, tSignHiliterImg.rect, [#ink:39])
               else
-                pOldPosH = the mouseH - tSpr.left / w
-                pOldPosV = the mouseV - tSpr.top / h
+                pOldPosH = (the mouseH - tSpr.left / w)
+                pOldPosV = (the mouseV - tSpr.top / h)
                 pSignImg.copyPixels(tSignMem.image, pSignImg.rect, pSignImg.rect)
               end if
               tDropElem.getProperty(#buffer).image = pSignImg

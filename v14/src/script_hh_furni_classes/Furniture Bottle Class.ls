@@ -49,10 +49,10 @@ end
 on roll me 
   if pRolling and the milliSeconds - pRollingStartTime < 3300 or voidp(pRollDir) then
     tTime = the milliSeconds - pRollingStartTime
-    f = tTime * 1 / 3200 * 3.14159 * 0.5
-    pRollAnimDir = pRollAnimDir + cos(f) * float(pRollingDirection)
-    me.setProp(#pDirection, 1, abs(integer(pRollAnimDir) mod 8))
-    me.setProp(#pDirection, 2, abs(integer(pRollAnimDir) mod 8))
+    f = ((((tTime * 1) / 3200) * 3.14159) * 0.5)
+    pRollAnimDir = pRollAnimDir + (cos(f) * float(pRollingDirection))
+    me.setProp(#pDirection, 1, abs((integer(pRollAnimDir) mod 8)))
+    me.setProp(#pDirection, 2, abs((integer(pRollAnimDir) mod 8)))
   else
     pRolling = 0
     pChanges = 1

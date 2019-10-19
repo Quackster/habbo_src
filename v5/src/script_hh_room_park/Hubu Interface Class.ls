@@ -84,7 +84,7 @@ on showVoteResults me, tTotalVotes, tVoteResults
     tWndObj.getElement("hubu_res_" & i).setProperty(#blend, 100)
     tWndObj.getElement("hubu_res_" & i).setText(tVoteResults.getAt(i) & "/" & tTotalVotes && getText("hubu_answ_count", "kpl"))
     tW = tWndObj.getElement("hubu_answ_" & i).getProperty(#width)
-    tWndObj.getElement("hubu_answ_" & i).setProperty(#width, tW / tBarMultiplier * tVoteResults.getAt(i))
+    tWndObj.getElement("hubu_answ_" & i).setProperty(#width, ((tW / tBarMultiplier) * tVoteResults.getAt(i)))
     tWndObj.getElement("hubu_answ_" & i).setProperty(#blend, 100)
     i = 1 + i
   end repeat
@@ -96,15 +96,15 @@ on update me
   if tWndObj = 0 then
     return(removeUpdate(me.getID()))
   end if
-  tTime = float(the milliSeconds - pTimerStart) / 30000
+  tTime = (float(the milliSeconds - pTimerStart) / 30000)
   if tTime > 1 then
     tTime = 1
   end if
-  tSecsLeft = integer(30 - float(the milliSeconds - pTimerStart) * 0.001)
+  tSecsLeft = integer(30 - (float(the milliSeconds - pTimerStart) * 0.001))
   if tSecsLeft < 0 then
     tSecsLeft = 0
   end if
-  tNewHeight = integer(1 - tTime * pTimerBarHeight)
+  tNewHeight = integer((1 - tTime * pTimerBarHeight))
   if tNewHeight < 0 then
     tNewHeight = 0
   end if

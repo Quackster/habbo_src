@@ -361,7 +361,7 @@ on showActualPic me, tloc
       pSprList.getAt(i).locH = tScreenCoord.getAt(1) + pGeometry.pXFactor
     end if
     tZ = pLoczList.getAt(i).getAt(pSavedDir + 1)
-    pSprList.getAt(i).locZ = tScreenCoord.getAt(3) + pClientObj.pLocH * 1000 + tZ - 1
+    pSprList.getAt(i).locZ = tScreenCoord.getAt(3) + (pClientObj.pLocH * 1000) + tZ - 1
     i = 1 + i
   end repeat
 end

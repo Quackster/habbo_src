@@ -152,20 +152,20 @@ on ShowAlert me, tProps
   if not voidp(tTitle) then
     tLocV = tTitleElem.getProperty(#locV)
     tLocH = tTitleElem.getProperty(#locH)
-    tTitleElem.moveTo(tWndObj.getProperty(#width) - tTitleImg.width / 2 - tLocH, tLocV)
+    tTitleElem.moveTo((tWndObj.getProperty(#width) - tTitleImg.width / 2) - tLocH, tLocV)
   end if
   if not voidp(tText) then
     tLocV = tTextElem.getProperty(#locV)
     tLocH = tTextElem.getProperty(#locH)
-    tTextElem.moveTo(tWndObj.getProperty(#width) - tTextImg.width / 2 - tLocH, tLocV)
+    tTextElem.moveTo((tWndObj.getProperty(#width) - tTextImg.width / 2) - tLocH, tLocV)
   end if
   if not voidp(tURL) then
     tLocV = tLinkElem.getProperty(#locV)
     tLocH = tLinkElem.getProperty(#locH)
-    tLinkElem.moveTo(tWndObj.getProperty(#width) - tLinkImg.width / 2 - tLocH, tLocV)
+    tLinkElem.moveTo((tWndObj.getProperty(#width) - tLinkImg.width / 2) - tLocH, tLocV)
   end if
   tWndObj.center()
-  tLocOff = pAlertList.count * 10
+  tLocOff = (pAlertList.count * 10)
   tWndObj.moveBy(tLocOff, tLocOff)
   tWndObj.registerClient(me.getID())
   if symbolp(tProps.getAt(#registerProcedure)) then
@@ -514,7 +514,7 @@ on eventProcHelp me, tEvent, tElemID, tParam, tWndID
       if tParam.ilk <> #point then
         return(0)
       end if
-      tLineNum = tParam.getAt(2) / 14 + 1
+      tLineNum = (tParam.getAt(2) / 14) + 1
       if textExists("url_help_" & tLineNum) then
         tSession = getObject(#session)
         tURL = getText("url_help_" & tLineNum)

@@ -178,9 +178,9 @@ on removeBuddy me, tid
   tH = pBuddyListBuffer.height - pBuddylistItemHeigth
   tD = pBuddyListBuffer.depth
   tImg = image(tW, tH, tD)
-  tRect = rect(0, 0, tW, tPos - 1 * pBuddylistItemHeigth)
+  tRect = rect(0, 0, tW, (tPos - 1 * pBuddylistItemHeigth))
   tImg.copyPixels(pBuddyListBuffer, tRect, tRect)
-  tRect = rect(0, tPos * pBuddylistItemHeigth, tW, pBuddyListBuffer.height)
+  tRect = rect(0, (tPos * pBuddylistItemHeigth), tW, pBuddyListBuffer.height)
   tImg.copyPixels(pBuddyListBuffer, tRect - [0, pBuddylistItemHeigth, 0, pBuddylistItemHeigth], tRect)
   pBuddyListBuffer = tImg
   return(me.updateBuddyListImg())
@@ -295,7 +295,7 @@ on buildBuddyListImg me
     return(0)
   else
     pListRendering = 1
-    pBuddyListBuffer = image(pBuddyListBufferWidth, pBuddyListPntr.getaProp(#value).count(#buddies) * pBuddylistItemHeigth, 8)
+    pBuddyListBuffer = image(pBuddyListBufferWidth, (pBuddyListPntr.getaProp(#value).count(#buddies) * pBuddylistItemHeigth), 8)
     return(receivePrepare(me.getID()))
   end if
 end
@@ -400,7 +400,7 @@ on createHeadPreview me, tElemID
       tDepth = tElement.getProperty(#depth)
       tPrewImg = image(tWidth, tHeight, tDepth)
       tdestrect = tPrewImg.rect - tTempImg.rect
-      tdestrect = rect(tdestrect.width / 2, tdestrect.height / 2, tTempImg.width + tdestrect.width / 2, tdestrect.height / 2 + tTempImg.height)
+      tdestrect = rect((tdestrect.width / 2), (tdestrect.height / 2), tTempImg.width + (tdestrect.width / 2), (tdestrect.height / 2) + tTempImg.height)
       tPrewImg.copyPixels(tTempImg, tdestrect, tTempImg.rect, [#ink:8])
       tElement.clearImage()
       tElement.feedImage(tPrewImg)
@@ -664,7 +664,7 @@ on eventProcMessenger me, tEvent, tElemID, tParm
                   if tRenderList.count = 0 then
                     return(0)
                   end if
-                  tClickLine = integer(tParm.locV / pBuddylistItemHeigth)
+                  tClickLine = integer((tParm.locV / pBuddylistItemHeigth))
                   if tClickLine < 0 then
                     return(0)
                   end if
@@ -673,10 +673,10 @@ on eventProcMessenger me, tEvent, tElemID, tParm
                   end if
                   if not the doubleClick then
                     tPosition = tClickLine + 1
-                    tpoint = tParm - [0, tClickLine * pBuddylistItemHeigth]
+                    tpoint = tParm - [0, (tClickLine * pBuddylistItemHeigth)]
                     tName = tRenderList.getAt(tPosition)
                     pBuddyDrawObjList.getAt(tName).select(tpoint, pBuddyListBuffer, tClickLine)
-                    pBuddyDrawObjList.getAt(tName).clickAt(tParm.locH, tParm.locV - tClickLine * pBuddylistItemHeigth)
+                    pBuddyDrawObjList.getAt(tName).clickAt(tParm.locH, tParm.locV - (tClickLine * pBuddylistItemHeigth))
                     me.updateBuddyListImg()
                     tElem = getWindow(pWindowTitle).getElement("console_select_friend_field")
                     if tElem <> 0 then
@@ -910,15 +910,15 @@ on eventProcMessenger me, tEvent, tElemID, tParm
               tBuddy = tBuddyList.getAt(i)
               if tBuddy.getProp(#char, 1) = the key then
                 tScrollRange = tElem.getProperty(#scrollrange)
-                tElem.setScrollOffset(tScrollRange * i - 1 / tBuddyList.count())
+                tElem.setScrollOffset(((tScrollRange * i - 1) / tBuddyList.count()))
               else
                 if tBuddy.getProp(#char, 1) > the key then
                   tScrollRange = tElem.getProperty(#scrollrange)
-                  tElem.setScrollOffset(tScrollRange * i - 2 / tBuddyList.count())
+                  tElem.setScrollOffset(((tScrollRange * i - 2) / tBuddyList.count()))
                 else
                   if i = tBuddyList.count() then
                     tScrollRange = tElem.getProperty(#scrollrange)
-                    tElem.setScrollOffset(tScrollRange * i - 1 / tBuddyList.count())
+                    tElem.setScrollOffset(((tScrollRange * i - 1) / tBuddyList.count()))
                   else
                     i = 1 + i
                   end if

@@ -176,7 +176,7 @@ on createItemImg me, tProps
           tMemStr = "rightwall" && tClass && tProps.getAt(#props)
         else
           if tClass contains "post.it" then
-            tCount = integer(value(tProps.getAt(#props)) / 20 / 6)
+            tCount = integer((value(tProps.getAt(#props)) / (20 / 6)))
             if tCount > 6 then
               tCount = 6
             end if
@@ -205,11 +205,11 @@ end
 on cropToFit me, tImage 
   tOffset = rect(0, 0, 0, 0)
   if tImage.width < pItemSlotRect.width then
-    tOffset.setAt(1, integer(pItemSlotRect.width - tImage.width / 2))
+    tOffset.setAt(1, integer((pItemSlotRect.width - tImage.width / 2)))
     tOffset.setAt(3, tOffset.getAt(1))
   end if
   if tImage.height < pItemSlotRect.height then
-    tOffset.setAt(2, integer(pItemSlotRect.height - tImage.height / 2))
+    tOffset.setAt(2, integer((pItemSlotRect.height - tImage.height / 2)))
     tOffset.setAt(4, tOffset.getAt(2))
   end if
   tNewImg = image(pItemSlotRect.width, pItemSlotRect.height, 32)

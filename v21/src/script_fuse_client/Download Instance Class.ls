@@ -64,7 +64,7 @@ on update me
       tBytesTotal = tBytesSoFar
     end if
     if tStreamStatus.getAt(#bytesSoFar) > 0 then
-      pPercent = 1 * tBytesSoFar / tBytesTotal
+      pPercent = ((1 * tBytesSoFar) / tBytesTotal)
     end if
   end if
   if netDone(pNetId) = 1 then

@@ -115,7 +115,7 @@ on resizeBy me, tOffH, tOffV
           me.pwidth = me.pwidth + tOffH
         else
           if me.pScaleH = #center then
-            me.moveBy(tOffH / 2, 0)
+            me.moveBy((tOffH / 2), 0)
           end if
         end if
       end if
@@ -126,7 +126,7 @@ on resizeBy me, tOffH, tOffV
           me.pheight = me.pheight + tOffV
         else
           if me.pScaleH = #center then
-            me.moveBy(0, tOffV / 2)
+            me.moveBy(0, (tOffV / 2))
           end if
         end if
       end if
@@ -150,7 +150,7 @@ on resizeBy me, tOffH, tOffV
           pOwnW = pOwnW + tOffH
         else
           if me.pScaleH = #center then
-            pOwnX = pOwnX + tOffH / 2
+            pOwnX = pOwnX + (tOffH / 2)
           end if
         end if
       end if
@@ -161,7 +161,7 @@ on resizeBy me, tOffH, tOffV
           pOwnH = pOwnH + tOffV
         else
           if me.pScaleH = #center then
-            pOwnY = pOwnY + tOffV / 2
+            pOwnY = pOwnY + (tOffV / 2)
           end if
         end if
       end if

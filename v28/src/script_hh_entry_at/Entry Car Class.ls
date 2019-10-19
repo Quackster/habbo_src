@@ -53,7 +53,7 @@ on update me
     else
       pSprite.flipH = 0
     end if
-    pVAdv = pVAdv * -1
+    pVAdv = (pVAdv * -1)
   end if
   if pSprite.locH > 748 or pSprite.locH < 140 then
     me.reset()

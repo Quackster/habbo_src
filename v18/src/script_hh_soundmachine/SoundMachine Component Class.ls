@@ -167,7 +167,7 @@ on getSoundSetID me, tIndex
 end
 
 on getSoundSetListID me, tIndex 
-  tIndex = tIndex + pSoundSetListPage - 1 * pSoundSetListPageSize
+  tIndex = tIndex + (pSoundSetListPage - 1 * pSoundSetListPageSize)
   if tIndex < 1 or tIndex > pSoundSetInventoryList.count then
     return(0)
   end if
@@ -183,7 +183,7 @@ on getSoundListPage me
 end
 
 on getSoundListPageCount me 
-  return(1 + pSoundSetInventoryList.count() - 1 / pSoundSetListPageSize)
+  return(1 + (pSoundSetInventoryList.count() - 1 / pSoundSetListPageSize))
 end
 
 on getHooveredSampleReady me 
@@ -194,7 +194,7 @@ on getPlayTime me
   if not pSongPlaying then
     return(0)
   end if
-  tTime = the milliSeconds + 30 - pSongStartTime mod pTimeLineSlotLength * pSongLength
+  tTime = (the milliSeconds + 30 - pSongStartTime mod (pTimeLineSlotLength * pSongLength))
   if tTime = 0 then
     tTime = 1
   end if
@@ -213,9 +213,9 @@ on getPlayHeadPosition me
   tPlayTime = me.getComponent().getPlayTime()
   tSlotLength = me.getComponent().getTimeLineSlotLength()
   if pSongPlaying then
-    tPos = tPlayTime / tSlotLength + pPlayHeadPosX mod pSongLength
+    tPos = ((tPlayTime / tSlotLength) + pPlayHeadPosX mod pSongLength)
   else
-    tPos = tPlayTime / tSlotLength + pPlayHeadPosX mod pTimeLineSlotCount
+    tPos = ((tPlayTime / tSlotLength) + pPlayHeadPosX mod pTimeLineSlotCount)
   end if
   tPos = 1 + tPos - pTimeLineScrollX
   if tPos < 1 or tPos > pTimeLineViewSlotCount then
@@ -446,7 +446,7 @@ on getFreeSoundSetCount me
 end
 
 on loadSoundSet me, tIndex 
-  tIndex = tIndex + pSoundSetListPage - 1 * pSoundSetListPageSize
+  tIndex = tIndex + (pSoundSetListPage - 1 * pSoundSetListPageSize)
   if tIndex < 1 or tIndex > pSoundSetInventoryList.count then
     return(0)
   end if
@@ -545,7 +545,7 @@ end
 on soundSetEvent me, tSetID, tX, tY, tEvent 
   if tX >= 1 and tX <= pSampleHorCount and tY >= 1 and tY <= pSampleVerCount and tSetID >= 1 and tSetID <= pSoundSetLimit then
     if tEvent = #mouseDown then
-      tSampleIndex = tX + tY - 1 * pSampleHorCount
+      tSampleIndex = tX + (tY - 1 * pSampleHorCount)
       if not me.getSampleReady(tSampleIndex, tSetID) then
         return(0)
       end if
@@ -558,12 +558,12 @@ on soundSetEvent me, tSetID, tX, tY, tEvent
       end if
     else
       if tEvent = #mouseWithin then
-        tSample = tX + tY - 1 * pSampleHorCount
+        tSample = tX + (tY - 1 * pSampleHorCount)
         if pHooveredSoundSet = tSetID and pHooveredSoundSetSample = tSample then
           return(0)
         end if
         pHooveredSoundSet = tSetID
-        pHooveredSoundSetSample = tX + tY - 1 * pSampleHorCount
+        pHooveredSoundSetSample = tX + (tY - 1 * pSampleHorCount)
         pHooveredSampleReady = me.getSampleReady(pHooveredSoundSetSample, pHooveredSoundSet)
         if pHooveredSampleReady then
           me.playSample(pHooveredSoundSetSample, pHooveredSoundSet)
@@ -677,15 +677,15 @@ on renderSoundSet me, tIndex, tWd, tHt, tMarginWd, tMarginHt, tNameBase, tSample
   if voidp(pSoundSetList.getAt(tIndex)) then
     return(0)
   end if
-  tImg = image(pSampleHorCount * tWd + tMarginWd * pSampleHorCount - 1, pSampleVerCount * tHt + tMarginHt * pSampleVerCount - 1, 32)
+  tImg = image((pSampleHorCount * tWd) + (tMarginWd * pSampleHorCount - 1), (pSampleVerCount * tHt) + (tMarginHt * pSampleVerCount - 1), 32)
   tSampleList = pSoundSetList.getAt(tIndex).getAt(#samples)
   if voidp(tSampleList) then
     return(0)
   end if
   tSample = 1
   repeat while tSample <= tSampleList.count
-    tX = 1 + tSample - 1 mod pSampleHorCount
-    tY = 1 + tSample - 1 / pSampleVerCount
+    tX = 1 + (tSample - 1 mod pSampleHorCount)
+    tY = 1 + (tSample - 1 / pSampleVerCount)
     if tY > pSampleVerCount then
     else
       ttype = 1
@@ -705,10 +705,10 @@ on renderSoundSet me, tIndex, tWd, tHt, tMarginWd, tMarginHt, tNameBase, tSample
           tRect = tSourceImg.rect
           tImgWd = tRect.getAt(3) - tRect.getAt(1)
           tImgHt = tRect.getAt(4) - tRect.getAt(2)
-          tRect.setAt(1, tRect.getAt(1) + tX - 1 * tWd + tMarginWd + tWd - tImgWd / 2)
-          tRect.setAt(2, tRect.getAt(2) + tY - 1 * tHt + tMarginHt + tHt - tImgHt / 2)
-          tRect.setAt(3, tRect.getAt(3) + tX - 1 * tWd + tMarginWd + tWd - tImgWd / 2)
-          tRect.setAt(4, tRect.getAt(4) + tY - 1 * tHt + tMarginHt + tHt - tImgHt / 2)
+          tRect.setAt(1, tRect.getAt(1) + (tX - 1 * tWd + tMarginWd) + (tWd - tImgWd / 2))
+          tRect.setAt(2, tRect.getAt(2) + (tY - 1 * tHt + tMarginHt) + (tHt - tImgHt / 2))
+          tRect.setAt(3, tRect.getAt(3) + (tX - 1 * tWd + tMarginWd) + (tWd - tImgWd / 2))
+          tRect.setAt(4, tRect.getAt(4) + (tY - 1 * tHt + tMarginHt) + (tHt - tImgHt / 2))
           tImg.copyPixels(tSourceImg, tRect, tSourceImg.rect, [#ink:8, #maskImage:tSourceImg.createMatte()])
         end if
         tPart = 1 + tPart
@@ -720,7 +720,7 @@ on renderSoundSet me, tIndex, tWd, tHt, tMarginWd, tMarginHt, tNameBase, tSample
 end
 
 on renderTimeLine me, tWd, tHt, tMarginWd, tMarginHt, tNameBaseList, tSampleNameBase, tBgImage 
-  tImg = image(pTimeLineViewSlotCount * tWd + tMarginWd * pTimeLineViewSlotCount - 1, pTimeLineChannelCount * tHt + tMarginHt * pTimeLineChannelCount - 1, 32)
+  tImg = image((pTimeLineViewSlotCount * tWd) + (tMarginWd * pTimeLineViewSlotCount - 1), (pTimeLineChannelCount * tHt) + (tMarginHt * pTimeLineChannelCount - 1), 32)
   tmember = getMember(tBgImage)
   if tmember <> 0 then
     tmember.image.copyPixels(tImg.rect, tmember, image.rect)
@@ -781,13 +781,13 @@ on renderSample me, tSampleNumber, tSlot, tChannel, tWd, tHt, tMarginWd, tMargin
       tRectOrig = tSourceImg.rect
       tImgWd = tRectOrig.getAt(3) - tRectOrig.getAt(1)
       tImgHt = tRectOrig.getAt(4) - tRectOrig.getAt(2)
-      tRectOrig.setAt(2, tRectOrig.getAt(2) + tChannel - 1 * tHt + tMarginHt + tHt - tImgHt / 2)
-      tRectOrig.setAt(4, tRectOrig.getAt(4) + tChannel - 1 * tHt + tMarginHt + tHt - tImgHt / 2)
+      tRectOrig.setAt(2, tRectOrig.getAt(2) + (tChannel - 1 * tHt + tMarginHt) + (tHt - tImgHt / 2))
+      tRectOrig.setAt(4, tRectOrig.getAt(4) + (tChannel - 1 * tHt + tMarginHt) + (tHt - tImgHt / 2))
       tPos = tstart
       repeat while tPos <= tEnd
         tRect = tRectOrig.duplicate()
-        tRect.setAt(1, tRect.getAt(1) + tPos - 1 * tWd + tMarginWd + tWd - tImgWd / 2)
-        tRect.setAt(3, tRect.getAt(3) + tPos - 1 * tWd + tMarginWd + tWd - tImgWd / 2)
+        tRect.setAt(1, tRect.getAt(1) + (tPos - 1 * tWd + tMarginWd) + (tWd - tImgWd / 2))
+        tRect.setAt(3, tRect.getAt(3) + (tPos - 1 * tWd + tMarginWd) + (tWd - tImgWd / 2))
         tProps = [#ink:8, #maskImage:tSourceImg.createMatte(), #blend:tBlend]
         tImg.copyPixels(tSourceImg, tRect, tSourceImg.rect, tProps)
         tPos = 1 + tPos
@@ -802,14 +802,14 @@ on renderSample me, tSampleNumber, tSlot, tChannel, tWd, tHt, tMarginWd, tMargin
     tRectOrig = tSourceImg.rect
     tImgWd = tRectOrig.getAt(3) - tRectOrig.getAt(1)
     tImgHt = tRectOrig.getAt(4) - tRectOrig.getAt(2)
-    tRectOrig.setAt(2, tRectOrig.getAt(2) + tChannel - 1 * tHt + tMarginHt + tHt - tImgHt / 2)
-    tRectOrig.setAt(4, tRectOrig.getAt(4) + tChannel - 1 * tHt + tMarginHt + tHt - tImgHt / 2)
+    tRectOrig.setAt(2, tRectOrig.getAt(2) + (tChannel - 1 * tHt + tMarginHt) + (tHt - tImgHt / 2))
+    tRectOrig.setAt(4, tRectOrig.getAt(4) + (tChannel - 1 * tHt + tMarginHt) + (tHt - tImgHt / 2))
     tProps = [#ink:8, #maskImage:tSourceImg.createMatte(), #blend:tBlend]
     tPos = max(0, tSlot)
     repeat while tPos <= min(pTimeLineViewSlotCount, tSlot + tLength - 2)
       tRect = tRectOrig.duplicate()
-      tRect.setAt(1, tRect.getAt(1) + tPos * tWd + tMarginWd - tImgWd / 2)
-      tRect.setAt(3, tRect.getAt(3) + tPos * tWd + tMarginWd - tImgWd / 2)
+      tRect.setAt(1, tRect.getAt(1) + (tPos * tWd + tMarginWd) - (tImgWd / 2))
+      tRect.setAt(3, tRect.getAt(3) + (tPos * tWd + tMarginWd) - (tImgWd / 2))
       tImg.copyPixels(tSourceImg, tRect, tSourceImg.rect, tProps)
       tPos = 1 + tPos
     end repeat
@@ -818,7 +818,7 @@ on renderSample me, tSampleNumber, tSlot, tChannel, tWd, tHt, tMarginWd, tMargin
 end
 
 on renderTimeLineBar me, tWd, tHt, tMarginWd, tNameBaseList, tSampleNameBase, tBgImage 
-  tImg = image(pTimeLineViewSlotCount * tWd + tMarginWd * pTimeLineViewSlotCount - 1, tHt, 32)
+  tImg = image((pTimeLineViewSlotCount * tWd) + (tMarginWd * pTimeLineViewSlotCount - 1), tHt, 32)
   tImgHt = tImg.getProp(#rect, 4) - tImg.getProp(#rect, 2)
   tWriterObj = getWriter(pWriterID)
   if tWriterObj = 0 then
@@ -828,17 +828,17 @@ on renderTimeLineBar me, tWd, tHt, tMarginWd, tNameBaseList, tSampleNameBase, tB
   tEnd = min(pTimeLineScrollX + pTimeLineViewSlotCount - 1, pTimeLineSlotCount)
   tSlot = tstart
   repeat while tSlot <= tEnd
-    if tSlot * pTimeLineSlotLength mod 10000 = 0 then
-      tOffset = rect(tWd + tMarginWd * tSlot - pTimeLineScrollX, 0, tWd + tMarginWd * tSlot - pTimeLineScrollX, 0)
-      tSeconds = tSlot * pTimeLineSlotLength / 1000
+    if ((tSlot * pTimeLineSlotLength) mod 10000) = 0 then
+      tOffset = rect((tWd + tMarginWd * tSlot - pTimeLineScrollX), 0, (tWd + tMarginWd * tSlot - pTimeLineScrollX), 0)
+      tSeconds = ((tSlot * pTimeLineSlotLength) / 1000)
       if tSeconds < 60 then
         tStr = getText("sound_machine_time_1")
       else
         tStr = getText("sound_machine_time_2")
       end if
-      tMinStr = string(tSeconds / 60)
-      if tSeconds mod 60 <> 0 then
-        tSecStr = string(tSeconds mod 60)
+      tMinStr = string((tSeconds / 60))
+      if (tSeconds mod 60) <> 0 then
+        tSecStr = string((tSeconds mod 60))
       else
         tSecStr = "00"
       end if
@@ -848,9 +848,9 @@ on renderTimeLineBar me, tWd, tHt, tMarginWd, tNameBaseList, tSampleNameBase, tB
       tStampImgTrimmed = image(tStampImg.getProp(#rect, 3), tStampImg.getProp(#rect, 4), 32)
       tStampImgTrimmed.copyPixels(tStampImg, tStampImg.rect, tStampImg.rect, [#ink:8, #maskImage:tStampImg.createMatte()])
       tStampImg = tStampImgTrimmed.trimWhiteSpace()
-      tOffset.setAt(1, tOffset.getAt(1) - tStampImg.getProp(#rect, 3) - tStampImg.getProp(#rect, 1) / 2)
+      tOffset.setAt(1, tOffset.getAt(1) - (tStampImg.getProp(#rect, 3) - tStampImg.getProp(#rect, 1) / 2))
       tOffset.setAt(3, tOffset.getAt(1))
-      tOffset.setAt(2, tImgHt - tStampImg.getProp(#rect, 4) - tStampImg.getProp(#rect, 2) / 2)
+      tOffset.setAt(2, (tImgHt - tStampImg.getProp(#rect, 4) - tStampImg.getProp(#rect, 2) / 2))
       tOffset.setAt(4, tOffset.getAt(2))
       tImg.copyPixels(tStampImg, tStampImg.rect + tOffset, tStampImg.rect, [#ink:8, #maskImage:tStampImg.createMatte()])
     end if
@@ -914,13 +914,13 @@ on getSampleLength me, tSampleID
       the itemDelimiter = "_"
       tSampleno = tSampleName.getProp(#item, 4)
       tSamplesPerSEt = 9
-      tParentNo = integer(tSampleno / tSamplesPerSEt + 1)
+      tParentNo = integer((tSampleno / tSamplesPerSEt) + 1)
       tParentId = "sound_set_" & tParentNo
       the itemDelimiter = tDelim
       tSongController.preloadSounds([[#sound:tSampleName, #parent:tParentId]])
     else
       tLength = tSongController.getSampleLength(tSampleName)
-      tLength = tLength + pTimeLineSlotLength - 1 / pTimeLineSlotLength
+      tLength = (tLength + pTimeLineSlotLength - 1 / pTimeLineSlotLength)
     end if
   end if
   return(tLength)
@@ -1054,7 +1054,7 @@ on playSong me, tEditor
       pPlayHeadPosX = 0
       me.getInterface().updatePlayHead()
     end if
-    tPosition = pTimeLineSlotLength * pPlayHeadPosX
+    tPosition = (pTimeLineSlotLength * pPlayHeadPosX)
   else
     tPosition = pPlayTime
   end if
@@ -1129,7 +1129,7 @@ on stopSong me
   if pSongPlaying then
     tPlayTime = me.getComponent().getPlayTime()
     tSlotLength = me.getComponent().getTimeLineSlotLength()
-    tPos = tPlayTime / tSlotLength + pPlayHeadPosX mod pSongLength
+    tPos = ((tPlayTime / tSlotLength) + pPlayHeadPosX mod pSongLength)
     pPlayHeadPosX = tPos
     pSongPlaying = 0
     pSongLength = 0
@@ -1213,11 +1213,11 @@ on processSongData me, tPlayTime
           tWasReady = 0
         end if
         if tID <> 0 then
-          tRepeats = tLength / tSampleLength
+          tRepeats = (tLength / tSampleLength)
           k = 1
           repeat while k <= tRepeats
-            if me.getCanInsertSample(j + k - 1 * tSampleLength, i, tID) then
-              tTimeLineChannel.setAt(j + k - 1 * tSampleLength, tID)
+            if me.getCanInsertSample(j + (k - 1 * tSampleLength), i, tID) then
+              tTimeLineChannel.setAt(j + (k - 1 * tSampleLength), tID)
             end if
             k = 1 + k
           end repeat
@@ -1240,8 +1240,8 @@ on processSongData me, tPlayTime
   tSongLength = me.resolveSongLength()
   if not voidp(tPlayTime) then
     if tSongLength then
-      pPlayTime = tPlayTime mod tSongLength * pTimeLineSlotLength / 100
-      pPlayTime = pPlayTime * 100
+      pPlayTime = (tPlayTime mod ((tSongLength * pTimeLineSlotLength) / 100))
+      pPlayTime = (pPlayTime * 100)
     else
       pPlayTime = 0
     end if
@@ -1252,7 +1252,7 @@ on processSongData me, tPlayTime
     if pSoundMachineFurniID <> 0 then
       tIsEditing = 1
     end if
-    pPlayTime = pPlayTime + the milliSeconds - pInitialProcessTime mod tSongLength * pTimeLineSlotLength
+    pPlayTime = (pPlayTime + the milliSeconds - pInitialProcessTime mod (tSongLength * pTimeLineSlotLength))
     pInitialProcessTime = 0
     if not tIsEditing and pSoundMachineFurniOn then
       pSongPlaying = 0
@@ -1384,7 +1384,7 @@ on roomActivityUpdate me, tInitialUpdate
       getConnection(pConnectionId).send("MOVE", [#short:1000, #short:1000])
     end if
     if not timeoutExists(pRoomActivityUpdateTimer) then
-      createTimeout(pRoomActivityUpdateTimer, 30 * 1000, #roomActivityUpdate, me.getID(), void(), 1)
+      createTimeout(pRoomActivityUpdateTimer, (30 * 1000), #roomActivityUpdate, me.getID(), void(), 1)
     end if
   end if
 end

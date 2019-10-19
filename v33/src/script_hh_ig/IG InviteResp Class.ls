@@ -30,7 +30,7 @@ on updateExpirationTimers me
   repeat while i <= pInviteList.count
     tItem = pInviteList.getAt(i)
     tExpires = tItem.getaProp(#expires_msec)
-    tSeconds = tExpires - the milliSeconds / 1000
+    tSeconds = (tExpires - the milliSeconds / 1000)
     tItem.setaProp(#seconds_valid, tSeconds)
     if tSeconds < 1 then
       tPurgeList.append(tItem.getaProp(#id))

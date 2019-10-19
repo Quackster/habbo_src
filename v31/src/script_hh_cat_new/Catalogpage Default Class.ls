@@ -1,6 +1,4 @@
-property pProductStrip, pPageItemDownloader, pPersistentFurniData, pPersistentCatalogData, pTextElements, pWndObj, pImageElements, pOfferTypesAvailable, pDealPreviewObj, pHideElements
-
-on construct me 
+on construct(me)
   pWndObj = void()
   pProductStrip = void()
   pSelectedProduct = void()
@@ -11,9 +9,10 @@ on construct me
   pTextElements = getStructVariable("layout.fields.text.default")
   pHideElements = getStructVariable("layout.hide.onclick.default")
   return(callAncestor(#construct, [me]))
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   if not voidp(me.pProductStrip) then
     if objectExists(pProductStrip.getID()) then
       removeObject(pProductStrip.getID())
@@ -21,9 +20,10 @@ on deconstruct me
   end if
   pPageItemDownloader.removeCallback(me, #downloadCompleted)
   return(callAncestor(#deconstruct, [me]))
+  exit
 end
 
-on define me, tdata 
+on define(me, tdata)
   callAncestor(#define, [me], tdata)
   if variableExists("layout.class." & me.getProp(#pPageData, #layout) & ".productstrip") then
     tClass = getClassVariable("layout.class." & me.getProp(#pPageData, #layout) & ".productstrip")
@@ -49,9 +49,10 @@ on define me, tdata
   if variableExists("layout.hide.onclick." & me.getProp(#pPageData, #layout)) then
     pHideElements = getStructVariable("layout.hide.onclick." & me.getProp(#pPageData, #layout))
   end if
+  exit
 end
 
-on mergeWindow me, tParentWndObj 
+on mergeWindow(me, tParentWndObj)
   tLayoutMember = "ctlg_" & me.getProp(#pPageData, #layout) & ".window"
   if not memberExists(tLayoutMember) then
     return(error(me, "Layout member " & tLayoutMember & " missing.", #mergeWindow))
@@ -84,7 +85,7 @@ on mergeWindow me, tParentWndObj
   end repeat
   if tObjectLoadList.count > 0 then
     pPageItemDownloader.defineCallback(me, #downloadCompleted)
-    repeat while tObjectLoadList <= undefined
+    repeat while me <= undefined
       tLoadObject = getAt(undefined, tParentWndObj)
       pPageItemDownloader.registerDownload(tLoadObject.getAt(#type), tLoadObject.getAt(#assetId), tLoadObject.getAt(#props))
     end repeat
@@ -94,17 +95,19 @@ on mergeWindow me, tParentWndObj
   end if
   pOfferTypesAvailable = me.getPossibleBuyButtonTypes(tParentWndObj)
   me.hidePriceBox()
+  exit
 end
 
-on unmergeWindow me, tParentWndObj 
+on unmergeWindow(me, tParentWndObj)
   tLayoutMember = "ctlg_" & me.getProp(#pPageData, #layout) & ".window"
   if not memberExists(tLayoutMember) then
     return(error(me, "Layout member " & tLayoutMember & " missing.", #mergeWindow))
   end if
   tParentWndObj.unmerge()
+  exit
 end
 
-on hidePriceBox me 
+on hidePriceBox(me)
   i = 1
   repeat while i <= pOfferTypesAvailable.count
     tElementList = pOfferTypesAvailable.getAt(i).getAt(#hideelements)
@@ -117,9 +120,10 @@ on hidePriceBox me
     end repeat
     i = 1 + i
   end repeat
+  exit
 end
 
-on showPriceBox me 
+on showPriceBox(me)
   i = 1
   repeat while i <= pOfferTypesAvailable.count
     tElementList = pOfferTypesAvailable.getAt(i).getAt(#hideelements)
@@ -132,9 +136,10 @@ on showPriceBox me
     end repeat
     i = 1 + i
   end repeat
+  exit
 end
 
-on setBuyButtonStates me, tOfferTypeList 
+on setBuyButtonStates(me, tOfferTypeList)
   i = 1
   repeat while i <= pOfferTypesAvailable.count
     if pWndObj.elementExists(pOfferTypesAvailable.getPropAt(i)) then
@@ -155,9 +160,10 @@ on setBuyButtonStates me, tOfferTypeList
     end repeat
     j = 1 + j
   end repeat
+  exit
 end
 
-on resolveLargePreview me, tOffer 
+on resolveLargePreview(me, tOffer)
   if not objectp(tOffer) then
     return(error(me, "Invalid input format", #resolveLargePreview, #major))
   end if
@@ -179,7 +185,7 @@ on resolveLargePreview me, tOffer
       tClass = tClass && tOffer.getContent(1).getExtraParam()
     end if
     if getThread(#dynamicdownloader).getComponent().isAssetDownloaded(tClass) then
-      tPrevProps = [:]
+      tPrevProps = []
       tPrevProps.setAt("class", tFurniProps.getAt(#class))
       tPrevProps.setAt("objectType", tFurniProps.getAt(#type))
       tPrevProps.setAt("direction", tFurniProps.getAt(#defaultDir))
@@ -208,9 +214,10 @@ on resolveLargePreview me, tOffer
     pDealPreviewObj.define(me.convertOfferListToDeallist(tOffer))
     return(pDealPreviewObj.getPicture())
   end if
+  exit
 end
 
-on showPreview me, tOfferGroup 
+on showPreview(me, tOfferGroup)
   if voidp(pWndObj) then
     return("\r", error(me, "Missing handle to window object!", #showPreview, #major))
   end if
@@ -250,7 +257,7 @@ on showPreview me, tOfferGroup
   repeat while i <= pOfferTypesAvailable.count
     tElements = pOfferTypesAvailable.getAt(i).getaProp(#elements)
     tText = me.getOfferPriceTextByType(tOfferGroup, pOfferTypesAvailable.getAt(i).getaProp(#type))
-    repeat while tElements <= undefined
+    repeat while me <= undefined
       tElement = getAt(undefined, tOfferGroup)
       me.setElementText(pWndObj, tElement, tText)
     end repeat
@@ -277,9 +284,10 @@ on showPreview me, tOfferGroup
       end if
     end if
   end if
+  exit
 end
 
-on downloadCompleted me, tProps 
+on downloadCompleted(me, tProps)
   if tProps.getAt(#props).getAt(#pageid) <> me.getProp(#pPageData, #pageid) then
     return()
   end if
@@ -307,19 +315,21 @@ on downloadCompleted me, tProps
       end if
     end if
   end if
+  exit
 end
 
-on getSelectedProduct me 
+on getSelectedProduct(me)
   tSelectedItem = void()
   if objectp(pProductStrip) then
     tSelectedItem = pProductStrip.getSelectedItem()
   end if
   return(tSelectedItem)
+  exit
 end
 
-on handleClick me, tEvent, tSprID, tProp 
+on handleClick(me, tEvent, tSprID, tProp)
   if tEvent = #mouseUp then
-    if tSprID = "ctlg_productstrip" then
+    if me = "ctlg_productstrip" then
       if ilk(tProp) <> #point then
         return()
       end if
@@ -329,7 +339,7 @@ on handleClick me, tEvent, tSprID, tProp
         tSelectedItem = pProductStrip.getSelectedItem()
       end if
       if not voidp(tSelectedItem) then
-        repeat while tSprID <= tSprID
+        repeat while me <= tSprID
           tElement = getAt(tSprID, tEvent)
           if pWndObj.elementExists(tElement) then
             pWndObj.getElement(tElement).hide()
@@ -340,10 +350,10 @@ on handleClick me, tEvent, tSprID, tProp
         me.showPreview(tSelectedItem)
       end if
     else
-      if tSprID <> "ctlg_buy_button" then
-        if tSprID <> "ctlg_buy_pixels_credits" then
-          if tSprID <> "ctlg_buy_pixels" then
-            if tSprID = "ctlg_buy_andwear" then
+      if me <> "ctlg_buy_button" then
+        if me <> "ctlg_buy_pixels_credits" then
+          if me <> "ctlg_buy_pixels" then
+            if me = "ctlg_buy_andwear" then
               if not objectp(pProductStrip) then
                 return()
               end if
@@ -373,6 +383,7 @@ on handleClick me, tEvent, tSprID, tProp
                 getThread(#catalogue).getComponent().requestPurchase(#credits, me.getProp(#pPageData, #pageid), tOffer, #sendPurchaseFromCatalog)
               end if
             end if
+            exit
           end if
         end if
       end if

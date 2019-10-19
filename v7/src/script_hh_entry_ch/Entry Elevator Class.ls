@@ -10,22 +10,22 @@ on define me, tSpriteA, tSpriteB
   pFloors = 8
   pCurrentFloor = random(pFloors - 1)
   pContinueTime = the milliSeconds
-  pSpriteA.locV = pBottomLimit - pBottomLimit - pTopLimit / pFloors * pCurrentFloor
+  pSpriteA.locV = pBottomLimit - ((pBottomLimit - pTopLimit / pFloors) * pCurrentFloor)
   pSpriteB.locV = pSpriteA.locV
 end
 
 on update me 
   if pContinueTime < the milliSeconds then
-    if pSpriteA.locV > pBottomLimit - pBottomLimit - pTopLimit / pFloors * pTargetFloor then
+    if pSpriteA.locV > pBottomLimit - ((pBottomLimit - pTopLimit / pFloors) * pTargetFloor) then
       pSpriteA.locV = pSpriteA.locV - 2
       pSpriteB.locV = pSpriteA.locV
     end if
-    if pSpriteA.locV < pBottomLimit - pBottomLimit - pTopLimit / pFloors * pTargetFloor then
+    if pSpriteA.locV < pBottomLimit - ((pBottomLimit - pTopLimit / pFloors) * pTargetFloor) then
       pSpriteA.locV = pSpriteA.locV + 2
       pSpriteB.locV = pSpriteA.locV
     end if
-    if abs(pSpriteA.locV - pBottomLimit - pBottomLimit - pTopLimit / pFloors * pTargetFloor) < 2 then
-      pContinueTime = the milliSeconds + random(5) + 2 * 1000
+    if abs(pSpriteA.locV - pBottomLimit - ((pBottomLimit - pTopLimit / pFloors) * pTargetFloor)) < 2 then
+      pContinueTime = the milliSeconds + (random(5) + 2 * 1000)
       pCurrentFloor = pTargetFloor
       me.modechange()
     end if

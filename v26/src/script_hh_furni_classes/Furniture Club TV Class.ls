@@ -96,7 +96,7 @@ on runEffect me
     end if
   else
     if pActiveEffect = #lines1 then
-      if pEffectCounter mod 2 = 1 then
+      if (pEffectCounter mod 2) = 1 then
         return(1)
       end if
       pLineSprite1.visible = 1

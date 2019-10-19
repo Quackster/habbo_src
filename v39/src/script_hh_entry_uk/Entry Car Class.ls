@@ -1,7 +1,7 @@
 property pDirection, pSprite, pOffset, pTurnPnt
 
 on define me, tsprite, tCount 
-  if tCount mod 2 then
+  if (tCount mod 2) then
     tdir = #right
   else
     tdir = #left

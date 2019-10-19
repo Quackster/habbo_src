@@ -359,7 +359,7 @@ on renderWrappedParts me, tColor
   if ilk(tColor) <> #color then
     return(0)
   end if
-  if tColor.red + tColor.green + tColor.blue > 250 * 3 then
+  if tColor.red + tColor.green + tColor.blue > (250 * 3) then
     tColor = color(248, 248, 248)
   end if
   repeat while pWrappedParts <= undefined
@@ -596,7 +596,7 @@ on buildVisual me, tLayout
         tSpr.blend = 100
         tGeometry = tThread.getInterface().getGeometry()
         tScreenLoc = tGeometry.getScreenCoordinate(2, 2, 0)
-        tSpr.locZ = tSpriteList.getAt(tSpriteList.count).locZ + 100 * 1000
+        tSpr.locZ = tSpriteList.getAt(tSpriteList.count).locZ + (100 * 1000)
         tSpriteList.append(tSpr)
         pSpriteData.append([:])
       end if

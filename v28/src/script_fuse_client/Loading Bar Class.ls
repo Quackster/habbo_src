@@ -87,7 +87,7 @@ on define me, tLoadID, tProps
   if pheight > tRect.height then
     pheight = tRect.height
   end if
-  pBarRect = rect(tRect.width / 2 - pwidth / 2, tRect.height / 2 - pheight / 2, tRect.width / 2 + pwidth / 2, tRect.height / 2 + pheight / 2)
+  pBarRect = rect((tRect.width / 2) - (pwidth / 2), (tRect.height / 2) - (pheight / 2), (tRect.width / 2) + (pwidth / 2), (tRect.height / 2) + (pheight / 2))
   pOffRect = rect(pBarRect.getAt(1) + 2, pBarRect.getAt(2) + 2, pBarRect.getAt(3) - 2, pBarRect.getAt(4) - 2)
   pBuffer.fill(pBarRect, pBgColor)
   pBuffer.draw(pBarRect, [#color:pcolor, #shapeType:#rect])
@@ -114,11 +114,11 @@ on prepare me
   repeat while pTaskType <= undefined
     tTask = getAt(undefined, undefined)
     if not tTask then
-      tPercent = tPercent - 0.1 / pExtraTasks.count
+      tPercent = tPercent - (0.1 / pExtraTasks.count)
     end if
   end repeat
   pDrawPoint = pDrawPoint + 1
-  if pDrawPoint <= pPercent * pOffRect.width then
+  if pDrawPoint <= (pPercent * pOffRect.width) then
     tRect = rect(pOffRect.getAt(1) + pDrawPoint - 1, pOffRect.getAt(2), pOffRect.getAt(1) + pDrawPoint, pOffRect.getAt(4))
     pBuffer.fill(tRect, pcolor)
   end if
@@ -127,9 +127,9 @@ on prepare me
   end if
   pBuffer.fill(pBarRect, pBgColor)
   pBuffer.draw(pBarRect, [#color:pcolor, #shapeType:#rect])
-  tRect = rect(pOffRect.getAt(1), pOffRect.getAt(2), pPercent * pOffRect.width + pOffRect.getAt(1), pOffRect.getAt(4))
+  tRect = rect(pOffRect.getAt(1), pOffRect.getAt(2), (pPercent * pOffRect.width) + pOffRect.getAt(1), pOffRect.getAt(4))
   pBuffer.fill(tRect, pcolor)
-  pDrawPoint = pPercent * pOffRect.width
+  pDrawPoint = (pPercent * pOffRect.width)
   pPercent = tPercent
   if pPercent >= 1 then
     pBuffer.fill(pOffRect, pcolor)

@@ -196,8 +196,8 @@ on getCountryOrderNum me, tCountry, tContinentKey
 end
 
 on getClickedLineNum me, tpoint 
-  tLine = tpoint.locV / pLineHeight
-  if tpoint.locV mod pLineHeight > 0 then
+  tLine = (tpoint.locV / pLineHeight)
+  if (tpoint.locV mod pLineHeight) > 0 then
     tLine = tLine + 1
   end if
   if tLine < 1 then
@@ -214,7 +214,7 @@ on selectCountry me, tCountryName, tContinentKey
   tImg = pWriterObjUnderLine.render(tCountryName)
   tPos = me.getCountryOrderNum(tCountryName, tContinentKey)
   pSelection = [#number:me.getNthCountryNum(tPos, tContinentKey), #name:tCountryName, #continent:tContinent]
-  tY = tPos * pLineHeight - pLineHeight
+  tY = (tPos * pLineHeight) - pLineHeight
   pImgBuffer.copyPixels(tImg, rect(0, tY, tImg.width, tY + tImg.height), tImg.rect)
   return(1)
 end
@@ -228,7 +228,7 @@ on unselectCountry me, tCountryName, tContinentKey
   tPos = me.getCountryOrderNum(tCountryName, tContinentKey)
   pSelection.setAt(#name, void())
   pSelection.setAt(#number, void())
-  tY = tPos * pLineHeight - pLineHeight
+  tY = (tPos * pLineHeight) - pLineHeight
   pImgBuffer.copyPixels(tImg, rect(0, tY, tImg.width, tY + tImg.height), tImg.rect)
   return(1)
 end

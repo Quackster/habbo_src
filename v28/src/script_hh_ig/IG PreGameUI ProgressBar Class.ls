@@ -36,7 +36,7 @@ on render me, tProgress
     return(0)
   end if
   pCacheProgress = tProgress
-  tNewWidth = integer(pBarMaxWidth * 100 - tProgress / 100)
+  tNewWidth = integer((pBarMaxWidth * (100 - tProgress / 100)))
   tElem.resizeTo(tNewWidth, tElem.getProperty(#height))
   tElem.moveTo(pBarOrigX + pBarMaxWidth - tNewWidth, pBarOrigY)
   return(1)
@@ -44,13 +44,13 @@ end
 
 on update me 
   pUpdateCounter = pUpdateCounter + 1
-  if pUpdateCounter mod 5 > 0 then
+  if (pUpdateCounter mod 5) > 0 then
     return(1)
   end if
   if pUpdateCounter >= 25 then
     pUpdateCounter = 0
   end if
-  tPhase = pUpdateCounter / 5
+  tPhase = (pUpdateCounter / 5)
   tWndObj = getWindow(me.getWindowId())
   if tWndObj = 0 then
     return(0)

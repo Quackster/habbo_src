@@ -1,7 +1,7 @@
 property pDirection, pSprite, pmodel, pDelayCounter, pOffset
 
 on define me, tsprite, tCount 
-  if tCount mod 2 = 1 then
+  if (tCount mod 2) = 1 then
     tDirection = #right
   else
     tDirection = #left
@@ -15,7 +15,7 @@ end
 
 on reset me 
   if random(2) = 2 then
-    pDelayCounter = random(25) * 10
+    pDelayCounter = (random(25) * 10)
   else
     pDelayCounter = 0
   end if

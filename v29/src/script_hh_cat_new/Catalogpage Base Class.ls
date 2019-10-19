@@ -190,8 +190,8 @@ end
 
 on centerRectInRect me, tSmallrect, tLargeRect 
   tpoint = point(0, 0)
-  tpoint.locH = tLargeRect.width - tSmallrect.width / 2
-  tpoint.locV = tLargeRect.height - tSmallrect.height / 2
+  tpoint.locH = (tLargeRect.width - tSmallrect.width / 2)
+  tpoint.locV = (tLargeRect.height - tSmallrect.height / 2)
   return(tpoint)
 end
 
@@ -208,8 +208,8 @@ on centerBlitImageToElement me, tImage, tElement
     if tOffset.locH < 0 and tOffset.locV >= 0 then
       tOffsetDest = point(0, 0)
       tOffsetSrc = point(0, 0)
-      tOffsetSrc.locH = tImage.width - tOldImage.width / 2
-      tOffsetDest.locV = tOldImage.height - tImage.height / 2
+      tOffsetSrc.locH = (tImage.width - tOldImage.width / 2)
+      tOffsetDest.locV = (tOldImage.height - tImage.height / 2)
       tSrcRect = tImage.rect + rect(tOffsetSrc.locH, tOffsetSrc.locV, tOffsetSrc.locH, tOffsetSrc.locV)
       tdestrect = tImage.rect + rect(tOffsetDest.locH, tOffsetDest.locV, tOffsetDest.locH, tOffsetDest.locV)
       tOldImage.copyPixels(tImage, tdestrect, tSrcRect)
@@ -217,8 +217,8 @@ on centerBlitImageToElement me, tImage, tElement
       if tOffset.locH >= 0 and tOffset.locV < 0 then
         tOffsetDest = point(0, 0)
         tOffsetSrc = point(0, 0)
-        tOffsetSrc.locV = tImage.height - tOldImage.height / 2
-        tOffsetDest.locH = tOldImage.width - tImage.width / 2
+        tOffsetSrc.locV = (tImage.height - tOldImage.height / 2)
+        tOffsetDest.locH = (tOldImage.width - tImage.width / 2)
         tSrcRect = tImage.rect + rect(tOffsetSrc.locH, tOffsetSrc.locV, tOffsetSrc.locH, tOffsetSrc.locV)
         tdestrect = tImage.rect + rect(tOffsetDest.locH, tOffsetDest.locV, tOffsetDest.locH, tOffsetDest.locV)
         tOldImage.copyPixels(tImage, tdestrect, tSrcRect)

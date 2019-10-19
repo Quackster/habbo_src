@@ -45,7 +45,7 @@ on update me
   tTmpName = tName.getProp(#item, 1, tName.count(#item) - 1) & "_"
   the itemDelimiter = tDelim
   pTvFrame = pTvFrame + 1
-  if pActive and pTvFrame mod 3 = 1 then
+  if pActive and (pTvFrame mod 3) = 1 then
     if pChannelNum = 1 then
       tNewName = tTmpName & random(10)
     else

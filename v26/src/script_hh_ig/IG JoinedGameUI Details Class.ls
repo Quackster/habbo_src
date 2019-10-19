@@ -123,7 +123,7 @@ on renderCanStart me, tValue
   tImage.copyPixels(tBgImage, tImage.rect, tBgImage.rect)
   tImage.copyPixels(tTextImage, tTextImage.rect + rect(16, 5, 16, 5), tTextImage.rect)
   tElem.feedImage(tImage)
-  tOffsetH = tWndObj.getProperty(#width) - tImage.width / 2
+  tOffsetH = (tWndObj.getProperty(#width) - tImage.width / 2)
   tElem.moveTo(tOffsetH, tElem.getProperty(#locY))
   tElem.resizeTo(tImage.width, tImage.height)
   return(1)

@@ -145,8 +145,8 @@ on feedIconToCard me, tImg
   tHei = tElem.getProperty(#height)
   tCenteredImage = image(tWid, tHei, 32)
   tMatte = tImg.createMatte()
-  tXchange = tCenteredImage.width - tImg.width / 2
-  tYchange = tCenteredImage.height - tImg.height / 2
+  tXchange = (tCenteredImage.width - tImg.width / 2)
+  tYchange = (tCenteredImage.height - tImg.height / 2)
   tRect1 = tImg.rect + rect(tXchange, tYchange, tXchange, tYchange)
   tCenteredImage.copyPixels(tImg, tRect1, tImg.rect, [#maskImage:tMatte, #ink:41])
   tElem.feedImage(tCenteredImage)

@@ -1,6 +1,4 @@
-property pUpdateCounter, pAnimFrame, pCurrentLayout, pEndTime
-
-on update me 
+on update(me)
   pUpdateCounter = pUpdateCounter + 1
   if pUpdateCounter < 4 then
     return(1)
@@ -32,9 +30,10 @@ on update me
     return(0)
   end if
   tElem.setProperty(#image, member(tMemNum).image)
+  exit
 end
 
-on addWindows me 
+on addWindows(me)
   me.pWindowID = "a"
   tService = me.getIGComponent("GameList")
   if tService = 0 then
@@ -62,9 +61,10 @@ on addWindows me
   tWrapObjRef.addOneWindow(me.getWindowId("btn"), "ig_ag_leave_game.window", me.pWindowSetId)
   tWrapObjRef.moveTo(4, 10)
   return(1)
+  exit
 end
 
-on render me 
+on render(me)
   tService = me.getIGComponent("GameList")
   if tService = 0 then
     return(0)
@@ -118,9 +118,10 @@ on render me
     me.setJoinButtonState(tTeamIndex, tTeamIndex <> tOwnTeamIndex and tTeamPlayers.count < tTeamMaxSize)
     tTeamIndex = 1 + tTeamIndex
   end repeat
+  exit
 end
 
-on displayPlayerLeft me, tTeamId, tPlayerPos 
+on displayPlayerLeft(me, tTeamId, tPlayerPos)
   me.setPlayerFlags(me.getWindowId(tTeamId), tPlayerPos, tTeamId)
   tWndObj = getWindow(me.getWindowId(tTeamId))
   if tWndObj = 0 then
@@ -138,15 +139,17 @@ on displayPlayerLeft me, tTeamId, tPlayerPos
   tImage = member(tMemNum).image
   tElem.feedImage(tImage)
   return(1)
+  exit
 end
 
-on displayTimeLeft me, tTime 
+on displayTimeLeft(me, tTime)
   pEndTime = tTime * 1000 + the milliSeconds
   me.render()
   return(1)
+  exit
 end
 
-on setScoreWindowPlayer me, tWndID, tPlayerPos, tPlayerInfo, tPlayerActive 
+on setScoreWindowPlayer(me, tWndID, tPlayerPos, tPlayerInfo, tPlayerActive)
   if tPlayerInfo <> 0 then
     tOwnPlayer = tPlayerInfo.getaProp(#name) = me.getOwnPlayerName()
   end if
@@ -190,9 +193,10 @@ on setScoreWindowPlayer me, tWndID, tPlayerPos, tPlayerInfo, tPlayerActive
     tElem.setFont(tFontStruct)
   end if
   return(1)
+  exit
 end
 
-on setJoinButtonState me, tTeamIndex, tstate 
+on setJoinButtonState(me, tTeamIndex, tstate)
   tWndObj = getWindow(me.getWindowId(tTeamIndex))
   if tWndObj = 0 then
     return(0)
@@ -208,10 +212,11 @@ on setJoinButtonState me, tTeamIndex, tstate
     tElem.setProperty(#cursor, 0)
   end if
   return(1)
+  exit
 end
 
-on getFormatTime me 
-  tTimeLeft = integer(pEndTime - the milliSeconds / 1000)
+on getFormatTime(me)
+  tTimeLeft = integer(pEndTime - the milliSeconds / 0)
   if tTimeLeft < 0 then
     return("0:00")
   end if
@@ -221,12 +226,14 @@ on getFormatTime me
     tSeconds = "0" & tSeconds
   end if
   return(tMinutes & ":" & tSeconds)
+  exit
 end
 
-on getTimeLeft me 
-  tTimeLeft = pEndTime - the milliSeconds / 1000
+on getTimeLeft(me)
+  tTimeLeft = pEndTime - the milliSeconds / 0
   if tTimeLeft < 0 then
     return(0)
   end if
   return(tTimeLeft)
+  exit
 end

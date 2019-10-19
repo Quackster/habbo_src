@@ -27,7 +27,7 @@ on define me, tProps
   pImageLeft = image.duplicate()
   pImageRight = image.duplicate()
   me.randomizeLoc(0)
-  pMinLocV = pLoc.getAt(2) - abs(pTurnPoint - pLoc.getAt(1)) / 2
+  pMinLocV = pLoc.getAt(2) - (abs(pTurnPoint - pLoc.getAt(1)) / 2)
   pMatteLeft = pImageLeft.createMatte()
   pMatteRight = pImageRight.createMatte()
   if pLoc.getAt(1) < pTurnPoint then
@@ -38,7 +38,7 @@ on define me, tProps
 end
 
 on getLocV me, tLocH 
-  tLocV = abs(tLocH - pTurnPoint / 2) + pMinLocV
+  tLocV = abs((tLocH - pTurnPoint / 2)) + pMinLocV
   return(tLocV)
 end
 
@@ -46,23 +46,23 @@ on randomizeLoc me, tAlignToLeft
   tMinV = pInitMinV
   tMaxV = pInitMaxV
   if ilk(pImageLeft) = #image then
-    tMinV = tMinV - pImageLeft.height / 2
-    tMaxV = tMaxV - pImageLeft.height / 2
+    tMinV = tMinV - (pImageLeft.height / 2)
+    tMaxV = tMaxV - (pImageLeft.height / 2)
   end if
   if tAlignToLeft then
     tLocX = random(100) - 150
   else
     tLocX = random(the stageRight - the stageLeft)
   end if
-  if tLocX mod 2 = 1 then
+  if (tLocX mod 2) = 1 then
     tLocX = tLocX + 1
   end if
-  tLocY = tMinV + random(tMaxV - tMinV) - tLocX / 2
+  tLocY = tMinV + random(tMaxV - tMinV) - (tLocX / 2)
   if tLocX > pTurnPoint then
     tLocY = tLocY + tLocX - pTurnPoint
   end if
   pLoc = point(tLocX, tLocY)
-  pMinLocV = pLoc.getAt(2) - abs(pTurnPoint - pLoc.getAt(1)) / 2
+  pMinLocV = pLoc.getAt(2) - (abs(pTurnPoint - pLoc.getAt(1)) / 2)
   pNeedsAdjustV = 1
 end
 
@@ -86,7 +86,7 @@ on render me, tImage
       tSourceImage = pImageRight
       tMatte = pMatteRight
     else
-      tSourceImage = image(pImageLeft.width, pImageLeft.height * 2, 8)
+      tSourceImage = image(pImageLeft.width, (pImageLeft.height * 2), 8)
       tSourceImage.copyPixels(pImageLeft, pImageLeft.rect, pImageLeft.rect)
       tWidthLeft = pTurnPoint - pLoc.getAt(1)
       tSourceImage.fill(tWidthLeft, 0, tSourceImage.width, tSourceImage.height, color(255, 255, 255))

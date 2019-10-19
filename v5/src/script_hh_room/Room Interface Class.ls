@@ -298,7 +298,7 @@ on showObjectInfo me, tObjType
     tElem = tWndObj.getElement("info_image")
     if ilk(tProps.getAt(#image)) = #image then
       tElem.resizeTo(tProps.getAt(#image).width, tProps.getAt(#image).height)
-      member.regPoint = point(tProps.getAt(#image).width / 2, tProps.getAt(#image).height)
+      member.regPoint = point((tProps.getAt(#image).width / 2), tProps.getAt(#image).height)
       tElem.feedImage(tProps.getAt(#image))
     end if
     tElem = tWndObj.getElement("info_badge")

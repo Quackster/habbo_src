@@ -27,7 +27,7 @@ on Init me, tID
     f = 1 + f
   end repeat
   pMemberImg.fill(pMemberImg.rect, rgb(109, 187, 226))
-  pLocFixPoint = point(tSpr.locH - pMemberImg.width / 2, tSpr.locV - pMemberImg.height / 2)
+  pLocFixPoint = point(tSpr.locH - (pMemberImg.width / 2), tSpr.locV - (pMemberImg.height / 2))
   receivePrepare(me.getID())
 end
 

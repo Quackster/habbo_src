@@ -31,7 +31,7 @@ on resizeBy me, tOffH, tOffV
         me.pwidth = me.pwidth + tOffH
       else
         if me.pScaleH = #center then
-          me.pLocX = me.pLocX + tOffH / 2
+          me.pLocX = me.pLocX + (tOffH / 2)
         end if
       end if
     end if
@@ -42,7 +42,7 @@ on resizeBy me, tOffH, tOffV
         me.pheight = me.pheight + tOffV
       else
         if me.pScaleH = #center then
-          me.pLocY = me.pLocY + tOffV / 2
+          me.pLocY = me.pLocY + (tOffV / 2)
         end if
       end if
     end if
@@ -53,14 +53,14 @@ end
 on render me 
   tW = me.width
   tH = me.height
-  tXW = me.pwidth / me.width
-  tXH = me.pheight / me.height
+  tXW = (me.pwidth / me.width)
+  tXH = (me.pheight / me.height)
   i = 0
   repeat while i <= tXW - 1
     j = 0
     repeat while j <= tXH - 1
-      tXi = me.pLocX + i * tW
-      tYi = me.pLocY + j * tH
+      tXi = me.pLocX + (i * tW)
+      tYi = me.pLocY + (j * tH)
       tRect = rect(tXi, tYi, tXi + tW, tYi + tH)
       undefined.copyPixels(me.pimage, tRect, me.rect, me.pParams)
       j = 1 + j

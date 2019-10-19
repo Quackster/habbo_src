@@ -139,7 +139,7 @@ on alignIconImage me, tImage, tWidth, tHeight
     return(0)
   end if
   tNewImage = image(tWidth, tHeight, tImage.depth)
-  tOffsetX = tWidth - tImage.width / 2
+  tOffsetX = (tWidth - tImage.width / 2)
   tOffsetY = 0
   tNewImage.copyPixels(tImage, tImage.rect + rect(tOffsetX, tOffsetY, tOffsetX, tOffsetY), tImage.rect)
   return(tNewImage)

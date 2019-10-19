@@ -75,7 +75,7 @@ on displayAfterGame me, tdata
   me.storePlayerIndex(tdata)
   tdata.setaProp(#id, pGameId)
   me.updateEntry(tdata)
-  pMsecAtNextState = the milliSeconds + tdata.getaProp(#time_to_next_state) * 1000
+  pMsecAtNextState = the milliSeconds + (tdata.getaProp(#time_to_next_state) * 1000)
   pState = 1
   tRenderObj = me.getRenderer()
   if objectp(tRenderObj) then

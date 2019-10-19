@@ -70,7 +70,7 @@ on setHelpItemClosed me, tHelpItemName
     repeat while pPostponedHelps <= undefined
       tHelpId = getAt(undefined, tHelpItemName)
       tTimeoutID = "NUH_help_" & tHelpId & "_postponed"
-      createTimeout(tTimeoutID, 1000 + 100 * i, #tryToShowHelp, me.getID(), tHelpId, 1)
+      createTimeout(tTimeoutID, 1000 + (100 * i), #tryToShowHelp, me.getID(), tHelpId, 1)
       i = i + 1
     end repeat
     pPostponedHelps = []

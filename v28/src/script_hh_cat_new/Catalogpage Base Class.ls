@@ -173,8 +173,8 @@ end
 
 on centerRectInRect me, tSmallrect, tLargeRect 
   tpoint = point(0, 0)
-  tpoint.locH = tLargeRect.width - tSmallrect.width / 2
-  tpoint.locV = tLargeRect.height - tSmallrect.height / 2
+  tpoint.locH = (tLargeRect.width - tSmallrect.width / 2)
+  tpoint.locV = (tLargeRect.height - tSmallrect.height / 2)
   if tpoint.locH < 0 then
     tpoint.locH = 0
   end if

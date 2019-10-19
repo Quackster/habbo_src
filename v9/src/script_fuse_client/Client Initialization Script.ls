@@ -39,10 +39,10 @@ on resetClient
     stopClient()
     startClient()
   else
-    tURL = getMoviePath()
+    tURL = the moviePath
     if objectExists(#session) then
       if getObject(#session).exists("client_url") then
-        tURL = deobfuscate(getObject(#session).get("client_url"))
+        tURL = getObject(#session).get("client_url")
       end if
     end if
     gotoNetPage(tURL)

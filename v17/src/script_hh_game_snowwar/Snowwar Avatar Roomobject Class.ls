@@ -73,7 +73,7 @@ on changeFigureAndData me, tdata
     if ilk(tNewModelItem) = #propList then
       tmodel = tNewModelItem.getAt("model")
       tColor = tNewModelItem.getAt("color")
-      if tColor.red + tColor.green + tColor.blue > 238 * 3 then
+      if tColor.red + tColor.green + tColor.blue > (238 * 3) then
         tColor = rgb("EEEEEE")
       end if
       if tPartDefinition.findPos(tPartId) = 0 then
@@ -213,7 +213,7 @@ on gameObjectAction me, tAction, tdata
         else
           if me = "start_create" then
             pAvatarAction.setAt(#tag, "")
-            tDirection = me.pDirection - me.pDirection mod 2
+            tDirection = me.pDirection - (me.pDirection mod 2)
             call(#defineDir, me.pPartList, tDirection)
             me.pMainAction = "pck"
             call(#defineActMultiple, me.pPartList, "pck", ["bd", "sh"])
@@ -223,9 +223,9 @@ on gameObjectAction me, tAction, tdata
           else
             if me = "start_stunned" then
               me.gameObjectMoveDone(me.pLocX, me.pLocY, me.pLocH, me.pDirection, me.pDirection)
-              tBallDirection = tdata.getAt(#hit_direction) - tdata.getAt(#hit_direction) mod 2
-              tMyDirection = me.pDirection - me.pDirection mod 2
-              if tBallDirection <> tMyDirection and tBallDirection mod 4 = tMyDirection mod 4 then
+              tBallDirection = tdata.getAt(#hit_direction) - (tdata.getAt(#hit_direction) mod 2)
+              tMyDirection = me.pDirection - (me.pDirection mod 2)
+              if tBallDirection <> tMyDirection and (tBallDirection mod 4) = (tMyDirection mod 4) then
                 tDeathDirection = tMyDirection
                 tFaceUp = 1
               else
@@ -290,13 +290,13 @@ on prepare me
       me.pInvincibleCounter = 0
     end if
   end if
-  me.pAnimCounter = me.pAnimCounter + 1 mod 4
+  me.pAnimCounter = (me.pAnimCounter + 1 mod 4)
   if me.pMoving then
-    tFactor = float(the milliSeconds - me.pMoveStart) / me.pMoveTime
+    tFactor = (float(the milliSeconds - me.pMoveStart) / me.pMoveTime)
     if tFactor > 1 then
       tFactor = 1
     end if
-    me.pScreenLoc = me.pDestLScreen - me.pStartLScreen * tFactor + me.pStartLScreen
+    me.pScreenLoc = (me.pDestLScreen - me.pStartLScreen * tFactor) + me.pStartLScreen
     me.pChanges = 1
   end if
 end
@@ -445,7 +445,7 @@ on render me
     me.regPoint = pMember.regPoint + tpoint
   end if
   if me.pCorrectLocZ then
-    tOffZ = me.pLocH + me.pRestingHeight * 1000 + 2
+    tOffZ = (me.pLocH + me.pRestingHeight * 1000) + 2
   else
     tOffZ = 2
   end if
@@ -699,7 +699,7 @@ on setPartLists me, tmodels
     else
       tColor = tmodels.getAt(tPartSymbol).getAt("color")
     end if
-    if tColor.red + tColor.green + tColor.blue > 238 * 3 then
+    if tColor.red + tColor.green + tColor.blue > (238 * 3) then
       tColor = rgb("EEEEEE")
     end if
     tPartObj.define(tPartSymbol, tmodels.getAt(tPartSymbol).getAt("model"), tColor, me.pDirection, tAction, me)
@@ -776,7 +776,7 @@ on setOwnHiliter me, tstate
     tsprite.visible = tstate
   end if
   tsprite.locZ = me.getProp(#pScreenLoc, 3) + 1
-  me.getProp(#pScreenLoc, 1).loc = point(tsprite + member.width / 2, me.getProp(#pScreenLoc, 2))
+  me.getProp(#pScreenLoc, 1).loc = point(tsprite + (member.width / 2), me.getProp(#pScreenLoc, 2))
 end
 
 on getPicture me, tImg 

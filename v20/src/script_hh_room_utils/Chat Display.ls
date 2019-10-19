@@ -203,7 +203,7 @@ on update me
   if pAutoScrollOn then
     tOffV = 3
     pAutoScrolledNow = pAutoScrolledNow + tOffV
-    me.moveAllItemsUpBy(-1 * tOffV)
+    me.moveAllItemsUpBy((-1 * tOffV))
     if pAutoScrolledNow >= pAutoScrollAmountPx then
       pAutoScrolledNow = 0
       pAutoScrollOn = 0

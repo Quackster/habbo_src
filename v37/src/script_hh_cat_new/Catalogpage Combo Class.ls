@@ -45,8 +45,8 @@ on showPreview me, tOfferGroup
     tDesc = tCatalogProps.getAt(#description)
     tExp = tOfferGroup.getOffer(1).getContent(1).getExpiration()
     if tExp <> -1 then
-      tHours = tExp / 60
-      tMins = tExp mod 60
+      tHours = (tExp / 60)
+      tMins = (tExp mod 60)
       tExpText = replaceChunks(getText("expiring_item_postfix", "Lasts %x% hours %y% minutes."), "%x%", tHours)
       tExpText = replaceChunks(tExpText, "%y%", tMins)
       tDesc = tDesc && tExpText

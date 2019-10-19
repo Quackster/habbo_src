@@ -102,7 +102,7 @@ on handle_recycler_status me, tMsg
       tFurniName = tFurniProps.getAt(#localizedName)
       me.getComponent().setRewardProps(tRewardType, tFurniClass, tFurniName)
       me.getComponent().setTimeLeftProps(tMinutesLeft)
-      tTimeoutTime = tMinutesLeft + 1 * 60 * 1000
+      tTimeoutTime = ((tMinutesLeft + 1 * 60) * 1000)
       createTimeout("recycler_status_request", tTimeoutTime, #statusRequestTimeout, me.getID(), void(), 1)
     else
       if tStatus = 2 then

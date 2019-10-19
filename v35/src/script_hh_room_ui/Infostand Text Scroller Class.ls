@@ -36,7 +36,7 @@ on centerText me
     return(0)
   end if
   tElem = getWindow(pWindowID).getElement(pElemName)
-  tElem.adjustOffsetTo(pMaxOffset / 2, 0)
+  tElem.adjustOffsetTo((pMaxOffset / 2), 0)
   return(1)
 end
 

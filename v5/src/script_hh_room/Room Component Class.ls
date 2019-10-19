@@ -440,13 +440,13 @@ on roomCastLoaded me
     tDoorID = 0
   end if
   tL1 = numToChar(bitOr(bitAnd(tRoomId, 127), 128))
-  tL2 = numToChar(bitOr(bitAnd(tRoomId / 128, 127), 128))
-  tL3 = numToChar(bitOr(bitAnd(tRoomId / 16384, 127), 128))
-  tL4 = numToChar(bitOr(bitAnd(tRoomId / integer(power(2, 21)), 127), 128))
+  tL2 = numToChar(bitOr(bitAnd((tRoomId / 128), 127), 128))
+  tL3 = numToChar(bitOr(bitAnd((tRoomId / 16384), 127), 128))
+  tL4 = numToChar(bitOr(bitAnd((tRoomId / integer(power(2, 21))), 127), 128))
   tL5 = numToChar(bitOr(bitAnd(tDoorID, 127), 128))
-  tL6 = numToChar(bitOr(bitAnd(tDoorID / 128, 127), 128))
-  tL7 = numToChar(bitOr(bitAnd(tDoorID / 16384, 127), 128))
-  tL8 = numToChar(bitOr(bitAnd(tDoorID / integer(power(2, 21)), 127), 128))
+  tL6 = numToChar(bitOr(bitAnd((tDoorID / 128), 127), 128))
+  tL7 = numToChar(bitOr(bitAnd((tDoorID / 16384), 127), 128))
+  tL8 = numToChar(bitOr(bitAnd((tDoorID / integer(power(2, 21))), 127), 128))
   return(getConnection(pRoomConnID).send(#room_directory, tTypeID & tL4 & tL3 & tL2 & tL1 & tL8 & tL7 & tL6 & tL5))
 end
 

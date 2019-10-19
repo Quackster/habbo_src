@@ -56,13 +56,13 @@ end
 
 on update me 
   pUpdateCounter = pUpdateCounter + 1
-  if pUpdateCounter mod 5 > 0 then
+  if (pUpdateCounter mod 5) > 0 then
     return(1)
   end if
   if pUpdateCounter >= 30 then
     pUpdateCounter = 0
   end if
-  tPhase = pUpdateCounter / 5
+  tPhase = (pUpdateCounter / 5)
   repeat while pLoadingElements <= undefined
     tElemInfo = getAt(undefined, undefined)
     tWndObj = getWindow(me.getWindowId(tElemInfo.getAt(1)))

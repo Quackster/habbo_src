@@ -7,7 +7,6 @@ on construct me
   pCommandsPntr = getStructVariable("struct.pointer")
   pListenersPntr = getStructVariable("struct.pointer")
   me.setLogMode(getIntVariable("connection.log.level", 0))
-  pMsgStruct = getStructVariable("struct.message")
   return(1)
 end
 
@@ -19,7 +18,7 @@ on connect me, tHost, tPort
   pHost = tHost
   pPort = tPort
   pXtra = new(xtra("Multiuser"))
-  pXtra.setNetBufferLimits(16 * 1024, 100 * 1024, 100)
+  pXtra.setNetBufferLimits((16 * 1024), (100 * 1024), 100)
   tErrCode = pXtra.setNetMessageHandler(#xtraMsgHandler, me)
   if tErrCode = 0 then
     pXtra.connectToNetServer("*", "*", pHost, pPort, "*", 0)
@@ -159,7 +158,6 @@ on xtraMsgHandler me
   tNewMsg = pXtra.getNetMessage()
   tErrCode = tNewMsg.getaProp(#errorCode)
   tContent = tNewMsg.getaProp(#content)
-  tSubject = tNewMsg.getaProp(#subject)
   if tErrCode <> 0 then
     me.disconnect()
     return(0)
@@ -171,9 +169,7 @@ on xtraMsgHandler me
     me.forwardMsg(tNewMsg.subject & "\r" & tContent)
   else
     if tContent.ilk = #void then
-      if tSubject <> "ConnectToNetServer" then
-        error(me, "Message content is VOID!!!", #xtraMsgHandler)
-      end if
+      error(me, "Message content is VOID!!!", #xtraMsgHandler)
     else
       if voidp(pBinDataCallback.method) then
         return(error(me, "No callback registered!", #xtraMsgHandler))

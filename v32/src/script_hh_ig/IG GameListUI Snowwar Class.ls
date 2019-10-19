@@ -20,7 +20,7 @@ on render me
   end if
   tWndObj.unmerge()
   tWndObj.merge("ig_duration.window")
-  me.renderDuration(tItemRef.getProperty(#duration) / 60)
+  me.renderDuration((tItemRef.getProperty(#duration) / 60))
   tWrapObjRef = me.getWindowWrapper()
   if tWrapObjRef = 0 then
     return(0)
@@ -38,7 +38,7 @@ on renderDuration me, tValue
     i = getAt(undefined, tValue)
     tElement = tWndObj.getElement("ig_game_drt_" & i)
     if tElement <> 0 then
-      tElement.setProperty(#blend, 0 + i = tValue * 100)
+      tElement.setProperty(#blend, 0 + (i = tValue * 100))
     end if
   end repeat
 end

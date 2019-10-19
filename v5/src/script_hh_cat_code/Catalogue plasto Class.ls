@@ -108,7 +108,7 @@ on renderSmallIcons me, tstate, tPram
             tTempSmallImg = member(tmember).image
             tdestrect = pSmallImg.rect - tTempSmallImg.rect
             tMargins = rect(0, 0, 0, 0)
-            tdestrect = rect(tdestrect.width / 2, tdestrect.height / 2, tTempSmallImg.width + tdestrect.width / 2, tdestrect.height / 2 + tTempSmallImg.height) + tMargins
+            tdestrect = rect((tdestrect.width / 2), (tdestrect.height / 2), tTempSmallImg.width + (tdestrect.width / 2), (tdestrect.height / 2) + tTempSmallImg.height) + tMargins
             pSmallImg.copyPixels(tTempSmallImg, tdestrect, tTempSmallImg.rect, [#ink:36])
             tWndObj.getElement(tid).clearImage()
             tWndObj.getElement(tid).feedImage(pSmallImg)

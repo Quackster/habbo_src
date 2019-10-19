@@ -23,12 +23,12 @@ on deconstruct me
   end if
   i = pInstanceList.count
   repeat while i >= 1
-    me.Remove(pInstanceList.getAt(i))
+    me.remove(pInstanceList.getAt(i))
     i = 255 + i
   end repeat
   i = pManagerList.count
   repeat while i >= 1
-    me.Remove(pManagerList.getAt(i))
+    me.remove(pManagerList.getAt(i))
     i = 255 + i
   end repeat
   pObjectList = [:]
@@ -107,7 +107,7 @@ on get me, tid
   end if
 end
 
-on Remove me, tid 
+on remove me, tid 
   tObj = pObjectList.getAt(tid)
   if voidp(tObj) then
     return(0)
@@ -226,7 +226,7 @@ on receivePrepare me, tid
   pPrepareList.add(pObjectList.getAt(tid))
   if not pUpdatePause then
     if voidp(pTimeOut) then
-      pTimeOut = timeout("objectmanager" & the milliSeconds).new(60 * 1000 * 60, #null, me)
+      pTimeOut = timeout("objectmanager" & the milliSeconds).new(((60 * 1000) * 60), #null, me)
     end if
   end if
   return(1)
@@ -259,7 +259,7 @@ on receiveUpdate me, tid
   pUpdateList.add(pObjectList.getAt(tid))
   if not pUpdatePause then
     if voidp(pTimeOut) then
-      pTimeOut = timeout("objectmanager" & the milliSeconds).new(60 * 1000 * 60, #null, me)
+      pTimeOut = timeout("objectmanager" & the milliSeconds).new(((60 * 1000) * 60), #null, me)
     end if
   end if
   return(1)
@@ -293,7 +293,7 @@ end
 
 on resumeUpdate me 
   if pUpdateList.count > 0 and voidp(pTimeOut) then
-    pTimeOut = timeout("objectmanager" & the milliSeconds).new(60 * 1000 * 60, #null, me)
+    pTimeOut = timeout("objectmanager" & the milliSeconds).new(((60 * 1000) * 60), #null, me)
   end if
   pUpdatePause = 0
   return(1)

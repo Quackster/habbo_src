@@ -236,8 +236,8 @@ on processItemMessage me, tMsg
                         end if
                         i = 1
                         repeat while i <= s.length
-                          ay = i - 1 / 13
-                          ax = i - 1 mod 13
+                          ay = (i - 1 / 13)
+                          ax = (i - 1 mod 13)
                           if j <> value(pOpenGameProps.getAt(#myTurnNum)) + 1 then
                             if pOpenGameProps.getAt(#name) = "O" then
                               add(pOpenGameProps.getAt(#player1Data), [ax, ay, #miss])

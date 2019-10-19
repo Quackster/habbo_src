@@ -104,14 +104,14 @@ on addChecksum me
     tValue = pGameObjectSyncValues.getAt(i)
     tIlk = ilk(tValue)
     if tIlk = #integer then
-      tCheckSum = tCheckSum + tValue * tCounter
+      tCheckSum = tCheckSum + (tValue * tCounter)
       tCounter = tCounter + 1
     end if
     if tIlk = #list then
       if tValue.count > 0 then
         repeat while tValue <= undefined
           tValueItem = getAt(undefined, undefined)
-          tCheckSum = tCheckSum + tValueItem * tCounter
+          tCheckSum = tCheckSum + (tValueItem * tCounter)
           tCounter = tCounter + 1
         end repeat
       end if

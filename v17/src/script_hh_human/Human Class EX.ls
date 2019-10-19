@@ -296,7 +296,7 @@ on getScrLocation me
 end
 
 on getTileCenter me 
-  return(point(pScreenLoc.getAt(1) + pXFactor / 2, pScreenLoc.getAt(2)))
+  return(point(pScreenLoc.getAt(1) + (pXFactor / 2), pScreenLoc.getAt(2)))
 end
 
 on getPartLocation me, tPart 
@@ -307,7 +307,7 @@ on getPartLocation me, tPart
   if pMainAction <> "lay" then
     tloc = pSprite.loc + tPartLoc
   else
-    tloc = point(pSprite.getProp(#rect, 1) + pSprite.width / 2, pSprite.getProp(#rect, 2) + pSprite.height / 2)
+    tloc = point(pSprite.getProp(#rect, 1) + (pSprite.width / 2), pSprite.getProp(#rect, 2) + (pSprite.height / 2))
   end if
   return(tloc)
 end
@@ -560,7 +560,7 @@ on draw me, tRGB
 end
 
 on prepare me 
-  pAnimCounter = pAnimCounter + 1 mod 4
+  pAnimCounter = (pAnimCounter + 1 mod 4)
   if pEyesClosed and not pSleeping then
     me.openEyes()
   else
@@ -577,11 +577,11 @@ on prepare me
     pChanges = 1
   end if
   if pMoving then
-    tFactor = float(the milliSeconds - pMoveStart) / pMoveTime
+    tFactor = (float(the milliSeconds - pMoveStart) / pMoveTime)
     if tFactor > 1 then
       tFactor = 1
     end if
-    pScreenLoc = pDestLScreen - pStartLScreen * tFactor + pStartLScreen
+    pScreenLoc = (pDestLScreen - pStartLScreen * tFactor) + pStartLScreen
     pChanges = 1
   end if
   if pWaving and pMainAction <> "lay" then
@@ -642,7 +642,7 @@ on render me, tForceUpdate
     pShadowSpr.flipH = 0
   end if
   if pCorrectLocZ then
-    tOffZ = pLocH + pRestingHeight * 1000 + 2
+    tOffZ = (pLocH + pRestingHeight * 1000) + 2
   else
     tOffZ = 2
   end if
@@ -759,7 +759,7 @@ on setPartLists me, tmodels
     else
       tColor = tmodels.getAt(tPartSymbol).getAt("color")
     end if
-    if tColor.red + tColor.green + tColor.blue > 238 * 3 then
+    if tColor.red + tColor.green + tColor.blue > (238 * 3) then
       tColor = rgb("EEEEEE")
     end if
     tFlipPart = tFlipList.getAt(tPartSymbol)

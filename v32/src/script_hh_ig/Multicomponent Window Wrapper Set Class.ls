@@ -28,9 +28,9 @@ on update me
         tLocX = tWindowX + pScrollStep
       end if
     else
-      tScrollActive = pLocX - tWindowX / 2 >= 1
+      tScrollActive = (pLocX - tWindowX / 2) >= 1
       if tScrollActive then
-        tLocX = tWindowX + pLocX - tWindowX / 2
+        tLocX = tWindowX + (pLocX - tWindowX / 2)
       end if
     end if
     if tScrollActive then

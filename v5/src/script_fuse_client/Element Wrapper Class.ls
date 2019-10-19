@@ -83,7 +83,7 @@ on resizeBy me, tOffW, tOffH
           me.moveBy(tOffW, 0)
         else
           if pScaleH = #center then
-            me.moveBy(tOffW / 2, 0)
+            me.moveBy((tOffW / 2), 0)
           end if
         end if
       end if
@@ -101,7 +101,7 @@ on resizeBy me, tOffW, tOffH
           me.moveBy(0, tOffH)
         else
           if pScaleH = #center then
-            me.moveBy(0, tOffH / 2)
+            me.moveBy(0, (tOffH / 2))
           end if
         end if
       end if

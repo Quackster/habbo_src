@@ -373,7 +373,7 @@ on showPreviewImage me, tProps, tElemID
     tDestImg.fill(tDestImg.rect, rgb(255, 255, 255))
     tdestrect = tDestImg.rect - tSourceImg.rect
     tMargins = rect(0, 0, 0, 0)
-    tdestrect = rect(tdestrect.width / 2, tdestrect.height / 2, tSourceImg.width + tdestrect.width / 2, tdestrect.height / 2 + tSourceImg.height) + tMargins
+    tdestrect = rect((tdestrect.width / 2), (tdestrect.height / 2), tSourceImg.width + (tdestrect.width / 2), (tdestrect.height / 2) + tSourceImg.height) + tMargins
     tDestImg.copyPixels(tSourceImg, tdestrect, tSourceImg.rect, [#ink:36])
     tElem.feedImage(tDestImg)
   end if

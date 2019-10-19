@@ -49,7 +49,7 @@ on createToolTip me, tText
       tText = "..."
     end if
     pToolTipSpr.visible = 0
-    pToolTipMem.rect = rect(0, 0, length(tText.getProp(#line, 1)) * 8, 20)
+    pToolTipMem.rect = rect(0, 0, (length(tText.getProp(#line, 1)) * 8), 20)
     pToolTipMem.text = tText
     pToolTipID = the milliSeconds
     return(me.delay(pToolTipDel, #renderToolTip, pToolTipID))
@@ -73,7 +73,7 @@ on renderToolTip me, tNextID
     end if
     pToolTipSpr.loc = the mouseLoc + [-2, 15]
     pToolTipSpr.visible = 1
-    me.delay(pToolTipDel * 2, #removeToolTip, pToolTipID)
+    me.delay((pToolTipDel * 2), #removeToolTip, pToolTipID)
   end if
 end
 
@@ -120,13 +120,6 @@ on openNetPage me, tURL_key
   else
     tURL = tURL_key
   end if
-  if tURL contains "http://%predefined%/" then
-    if getVariable("url.prefix").ilk = #string then
-      tURL = replaceChunks(tURL, "http://%predefined%/", getVariable("url.prefix"))
-    else
-      return(error(me, "URL prefix not defined, invalid link.", #openNetPage))
-    end if
-  end if
   gotoNetPage(tURL, "_new")
   put("Open page:" && tURL)
   return(1)
@@ -148,15 +141,9 @@ end
 
 on getMachineID me 
   tMachineID = getPref(getVariable("pref.value.id"))
-  if voidp(tMachineID) or tMachineID = "" then
+  if voidp(tMachineID) then
     tMachineID = pDecoder.encipher(string(the milliSeconds))
     setPref(getVariable("pref.value.id"), tMachineID)
-  end if
-  if string(tMachineID).length < 10 then
-    tMachineID = tMachineID & pDecoder.encipher(string(random(9999999999)))
-  end if
-  if string(tMachineID).length < 10 then
-    tMachineID = tMachineID & random(9999999999)
   end if
   if tMachineID.getProp(#char, 1, 4) = "uid:" then
     tMachineID = pDecoder.encipher(string(the milliSeconds))
@@ -165,45 +152,29 @@ on getMachineID me
   return(tMachineID)
 end
 
-on getMoviePath me 
-  tVariableID = "system.v1"
-  if not variableExists(tVariableID) then
-    setVariable(tVariableID, obfuscate(the moviePath))
-  end if
-  return(deobfuscate(getVariable(tVariableID)))
-end
-
-on getExtVarPath me 
-  tVariableID = "system.v2"
-  if not variableExists(tVariableID) then
-    return(getVariableManager().get("external.variables.txt"))
-  end if
-  return(deobfuscate(getVariable(tVariableID)))
-end
-
 on secretDecode me, tKey 
   tLength = tKey.length
-  if tLength mod 2 = 1 then
+  if (tLength mod 2) = 1 then
     tLength = tLength - 1
   end if
-  tTable = tKey.getProp(#char, 1, tKey.length / 2)
-  tKey = tKey.getProp(#char, 1 + tKey.length / 2, tLength)
+  tTable = tKey.getProp(#char, 1, (tKey.length / 2))
+  tKey = tKey.getProp(#char, 1 + (tKey.length / 2), tLength)
   tCheckSum = 0
   i = 1
   repeat while i <= tKey.length
     c = tKey.getProp(#char, i)
     a = offset(c, tTable) - 1
-    if a mod 2 = 0 then
-      a = a * 2
+    if (a mod 2) = 0 then
+      a = (a * 2)
     end if
-    if i - 1 mod 3 = 0 then
-      a = a * 3
+    if (i - 1 mod 3) = 0 then
+      a = (a * 3)
     end if
     if a < 0 then
-      a = tKey.length mod 2
+      a = (tKey.length mod 2)
     end if
     tCheckSum = tCheckSum + a
-    tCheckSum = bitXor(tCheckSum, a * power(2, i - 1 mod 3 * 8))
+    tCheckSum = bitXor(tCheckSum, (a * power(2, ((i - 1 mod 3) * 8))))
     i = 1 + i
   end repeat
   return(tCheckSum)
@@ -261,10 +232,6 @@ on print me, tObj, tMsg
   tObj = tObj.getProp(#word, 2, tObj.count(#word) - 2)
   tObj = tObj.getProp(#char, 2, length(tObj))
   put("Print:" & "\r" & "\t" && "Object: " && tObj & "\r" & "\t" && "Message:" && tMsg)
-end
-
-on setExtVarPath me, tURL 
-  return(setVariable("system.v2", obfuscate(tURL)))
 end
 
 on prepareToolTip me 

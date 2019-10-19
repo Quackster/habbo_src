@@ -10,7 +10,7 @@ end
 
 on update me 
   pSprite.locH = pSprite.locH + 1
-  if pSprite.locH mod 2 = 0 then
+  if (pSprite.locH mod 2) = 0 then
     pSprite.locV = pSprite.locV + pVertDir
   end if
   if pSprite.locH > pTurnPoint then

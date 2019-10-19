@@ -35,7 +35,7 @@ on update me
     return()
   end if
   pTvFrame = pTvFrame + 1
-  if pActive and pTvFrame mod 3 = 1 then
+  if pActive and (pTvFrame mod 3) = 1 then
     tName = member.name
     tDelim = the itemDelimiter
     the itemDelimiter = "_"

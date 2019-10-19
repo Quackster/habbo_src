@@ -99,7 +99,7 @@ on eventProcRoom me, tEvent, tSprID, tParam
     return(1)
   end if
   if tEvent = #mouseUp then
-    tMouseDownTime = the milliSeconds - pMouseClickTime / 1000
+    tMouseDownTime = (the milliSeconds - pMouseClickTime / 1000)
     if the optionDown then
       pMouseClickTime = -1
       return(me.sendThrowBall(tloc, 2))

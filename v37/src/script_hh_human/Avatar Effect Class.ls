@@ -329,7 +329,7 @@ on setMember me, tdir, tloc, tlocz, tXFactor, tForcedUpdate
     if tsprite <> void() then
       if tChanges or tForcedUpdate then
         tProps.setaProp(#direction, tdir)
-        tdir = tdir + tDFix mod 8
+        tdir = (tdir + tDFix mod 8)
         tMemName = pPeopleSize & "_" & tProps.getaProp(#member)
         tList = [tMemName & "_" & tdir & "_" & tFrameMem, tMemName & "_" & tdir & "_0", tMemName & "_0_" & tFrameMem, tMemName & "_0_0"]
         repeat while pSpriteList <= tloc
@@ -365,8 +365,8 @@ on setMember me, tdir, tloc, tlocz, tXFactor, tForcedUpdate
             else
               tSizeMultiplier = 1
             end if
-            tXFix = tXFix * tSizeMultiplier
-            tYFix = tYFix * tSizeMultiplier
+            tXFix = (tXFix * tSizeMultiplier)
+            tYFix = (tYFix * tSizeMultiplier)
             if tsprite.rotation = 0 then
               tsprite.loc = tloc + point(tXFix, tYFix)
             else

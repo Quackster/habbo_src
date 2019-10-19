@@ -4,10 +4,10 @@ on defineLine me, tStartX, tStartY, tTargetX, tTargetY
   pVectorX = tTargetX - tStartX
   pVectorY = tTargetY - tStartY
   if pVectorX <> 0 then
-    pVectorX = pVectorX / abs(pVectorX)
+    pVectorX = (pVectorX / abs(pVectorX))
   end if
   if pVectorY <> 0 then
-    pVectorY = pVectorY / abs(pVectorY)
+    pVectorY = (pVectorY / abs(pVectorY))
   end if
   pDirection = me.getAngleFromComponents(pVectorX, pVectorY)
   return(1)

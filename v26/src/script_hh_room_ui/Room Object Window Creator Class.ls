@@ -385,7 +385,7 @@ on scaleButtonWindow me, tID, tButtonList, tShowButtons
     end if
     tIndex = 1 + tIndex
   end repeat
-  tStackHeight = tLine * tButtonHeight + tButtonVertMargins + 2 * tButtonVertMargins
+  tStackHeight = (tLine * tButtonHeight + tButtonVertMargins) + (2 * tButtonVertMargins)
   me.resizeWindowTo(tID, tOffsetV, tStackHeight)
 end
 

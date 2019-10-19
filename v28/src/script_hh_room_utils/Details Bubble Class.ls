@@ -83,7 +83,7 @@ on shapeAndPosition me, atargetRect, aPreferSide
       tArrowElement = pWndObj.getElement("details.info.arrow.left")
     end if
   end if
-  tArrowPos = tLockPos.locV - tArrowElement.getProperty(#height) / 2 - tVerticalPos
+  tArrowPos = tLockPos.locV - (tArrowElement.getProperty(#height) / 2) - tVerticalPos
   if tArrowPos < 3 then
     tArrowPos = 3
   end if
@@ -96,10 +96,10 @@ end
 
 on getLockPos me, atargetRect, aPreferSide 
   if aPreferSide = #left then
-    tLockPos = point(atargetRect.left, atargetRect.top + atargetRect.bottom / 2)
+    tLockPos = point(atargetRect.left, (atargetRect.top + atargetRect.bottom / 2))
   else
     if aPreferSide = #right then
-      tLockPos = point(atargetRect.right, atargetRect.top + atargetRect.bottom / 2)
+      tLockPos = point(atargetRect.right, (atargetRect.top + atargetRect.bottom / 2))
     end if
   end if
   return(tLockPos)

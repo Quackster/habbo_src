@@ -2,7 +2,7 @@ property pDirection, pSprite, pIndex, pInitDelay, pOffset, pTurnPnt
 
 on define me, tsprite, tCounter 
   pIndex = tCounter - 1
-  if tCounter mod 2 = 1 then
+  if (tCounter mod 2) = 1 then
     tDirection = #left
   else
     tDirection = #right
@@ -32,7 +32,7 @@ on reset me
   end if
   pSprite.width = member.width
   pSprite.height = member.height
-  pInitDelay = pIndex * 50 + random(70)
+  pInitDelay = (pIndex * 50) + random(70)
 end
 
 on update me 

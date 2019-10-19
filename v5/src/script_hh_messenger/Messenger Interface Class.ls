@@ -133,9 +133,9 @@ on removeBuddy me, tid
   tH = pBuddyListBuffer.height - pBuddylistItemHeigth
   tD = pBuddyListBuffer.depth
   tImg = image(tW, tH, tD)
-  tRect = rect(0, 0, tW, tPos - 1 * pBuddylistItemHeigth)
+  tRect = rect(0, 0, tW, (tPos - 1 * pBuddylistItemHeigth))
   tImg.copyPixels(pBuddyListBuffer, tRect, tRect)
-  tRect = rect(0, tPos * pBuddylistItemHeigth, tW, pBuddyListBuffer.height)
+  tRect = rect(0, (tPos * pBuddylistItemHeigth), tW, pBuddyListBuffer.height)
   tImg.copyPixels(pBuddyListBuffer, tRect - [0, pBuddylistItemHeigth, 0, pBuddylistItemHeigth], tRect)
   pBuddyListBuffer = tImg
   return(me.updateBuddyListImg())
@@ -229,7 +229,7 @@ on buildBuddyListImg me
     end if
     return(0)
   else
-    pBuddyListBuffer = image(pBuddyListBufferWidth, pBuddyListPntr.getaProp(#value).count(#buddies) * pBuddylistItemHeigth, 8)
+    pBuddyListBuffer = image(pBuddyListBufferWidth, (pBuddyListPntr.getaProp(#value).count(#buddies) * pBuddylistItemHeigth), 8)
     me.updateBuddyListImg()
     return(receivePrepare(me.getID()))
   end if
@@ -328,7 +328,7 @@ on createHeadPreview me, tElemID
       tDepth = tElement.getProperty(#depth)
       tPrewImg = image(tWidth, tHeight, tDepth)
       tdestrect = tPrewImg.rect - tTempImg.rect
-      tdestrect = rect(tdestrect.width / 2, tdestrect.height / 2, tTempImg.width + tdestrect.width / 2, tdestrect.height / 2 + tTempImg.height)
+      tdestrect = rect((tdestrect.width / 2), (tdestrect.height / 2), tTempImg.width + (tdestrect.width / 2), (tdestrect.height / 2) + tTempImg.height)
       tPrewImg.copyPixels(tTempImg, tdestrect, tTempImg.rect, [#ink:8])
       tElement.clearImage()
       tElement.feedImage(tPrewImg)
@@ -476,7 +476,7 @@ on renderProfileData me
   tImg = tImg.crop(rect(0, 0, tImgWidth - tOffset, tImg.height))
   pProfileBuffer = image(tImgWidth, tImg.height, 8)
   pProfileBuffer.copyPixels(tImg, rect(tOffset, 0, tImg.width + tOffset, tImg.height), tImg.rect)
-  tLineHeight = pProfileBuffer.height / pCurrProf.count
+  tLineHeight = (pProfileBuffer.height / pCurrProf.count)
   tSymbols = [:]
   tSymbols.setAt("check1", member(getmemnum("messenger_check_1")).image)
   tSymbols.setAt("check0", member(getmemnum("messenger_check_0")).image)
@@ -486,7 +486,7 @@ on renderProfileData me
   repeat while i <= pCurrProf.count
     tdata = pCurrProf.getAt(i)
     tImg = tSymbols.getAt(tdata.img)
-    tOffY = i - 1 * tLineHeight + 4
+    tOffY = (i - 1 * tLineHeight) + 4
     tOffX = tOffset - tImg.width - 8 + tdata.OffX
     pProfileBuffer.copyPixels(tImg, rect(tOffX, tOffY, tOffX + tImg.width, tOffY + tImg.height), tImg.rect)
     i = 1 + i
@@ -499,8 +499,8 @@ on profileClick me, tpoint
   if pCurrProf.count = 0 then
     return(0)
   end if
-  tLineHeight = pProfileBuffer.height / pCurrProf.count
-  tCurrLine = tpoint.locV / tLineHeight + 1
+  tLineHeight = (pProfileBuffer.height / pCurrProf.count)
+  tCurrLine = (tpoint.locV / tLineHeight) + 1
   if tCurrLine < 1 or tCurrLine > pCurrProf.count then
     return(0)
   end if
@@ -701,7 +701,7 @@ on eventProcMessenger me, tEvent, tElemID, tParm
                     if tRenderList.count = 0 then
                       return(0)
                     end if
-                    tClickLine = integer(tParm.locV / pBuddylistItemHeigth)
+                    tClickLine = integer((tParm.locV / pBuddylistItemHeigth))
                     if tClickLine < 0 then
                       return(0)
                     end if
@@ -710,7 +710,7 @@ on eventProcMessenger me, tEvent, tElemID, tParm
                     end if
                     if not the doubleClick then
                       tPosition = tClickLine + 1
-                      tpoint = tParm - [0, tClickLine * pBuddylistItemHeigth]
+                      tpoint = tParm - [0, (tClickLine * pBuddylistItemHeigth)]
                       tName = tRenderList.getAt(tPosition)
                       pBuddyDrawObjList.getAt(tName).select(tpoint, pBuddyListBuffer, tClickLine)
                       me.updateBuddyListImg()

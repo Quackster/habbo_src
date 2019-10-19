@@ -8,7 +8,7 @@ on construct me
   me.clearImage()
   tFont = getStructVariable("struct.font.plain")
   tFont.setaProp(#wordWrap, 1)
-  tFont.setaProp(#rect, rect(0, 0, pChatWidth - 2 * pMargin, 0))
+  tFont.setaProp(#rect, rect(0, 0, pChatWidth - (2 * pMargin), 0))
   tID = getUniqueID()
   createWriter(tID, tFont)
   pWriter = getWriter(tID)
@@ -58,7 +58,7 @@ on renderChatEntry me, tEntry, tPos
     end if
   end if
   tTextImage = pWriter.render(tText).duplicate()
-  tEntryImage = image(pChatWidth, tTextImage.height + 2 * pMargin, 8)
+  tEntryImage = image(pChatWidth, tTextImage.height + (2 * pMargin), 8)
   tEntryImage.fill(tEntryImage.rect, rgb(tColor))
   tTargetRect = tTextImage.rect + rect(pMargin, pMargin, pMargin, pMargin)
   tEntryImage.copyPixels(tTextImage, tTargetRect, tTextImage.rect)

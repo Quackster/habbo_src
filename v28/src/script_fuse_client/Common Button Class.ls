@@ -35,7 +35,7 @@ on setButtonImage me
   me.pLocX = me.locH
   me.pLocY = me.locV
   if me = #center then
-    me.pLocX = me.pLocX - me.pwidth - tOrigWidth / 2
+    me.pLocX = me.pLocX - (me.pwidth - tOrigWidth / 2)
   else
     if me = #right then
       me.pLocX = me.pLocX - me.pwidth - tOrigWidth
@@ -184,20 +184,20 @@ on createButtonImg me, tText, tstate
   end if
   if pFixedSize = 1 then
     tTextWidth = me.getTextWidth(tTextMem)
-    if tTextWidth + tMarginH * 2 > pOrigWidth then
-      tTextWidth = pOrigWidth - tMarginH * 2
+    if tTextWidth + (tMarginH * 2) > pOrigWidth then
+      tTextWidth = pOrigWidth - (tMarginH * 2)
     end if
     tTextMem.rect = rect(0, 0, tTextWidth, tTextMem.height)
     tTextImg = tTextMem.image
     tWidth = pOrigWidth
   else
     tTextWidth = me.getTextWidth(tTextMem)
-    if tTextWidth + tMarginH * 2 > pMaxWidth then
-      tTextWidth = pMaxWidth - tMarginH * 2
+    if tTextWidth + (tMarginH * 2) > pMaxWidth then
+      tTextWidth = pMaxWidth - (tMarginH * 2)
     end if
     tTextMem.rect = rect(0, 0, tTextWidth, tTextMem.height)
     tTextImg = tTextMem.image
-    tWidth = tTextWidth + tMarginH * 2
+    tWidth = tTextWidth + (tMarginH * 2)
   end if
   tNewImg = image(tWidth, pButtonImg.getAt(#left).height, me.pDepth, me.pPalette)
   tStartPointY = 0
@@ -226,7 +226,7 @@ on createButtonImg me, tText, tstate
     tDstRect = tDstRect + rect(pButtonImg.getProp(#left).width, 0, pButtonImg.getProp(#left).width, 0)
   else
     if [#left, #middle, #right] = #center then
-      tDstRect = tDstRect + rect(tNewImg.width / 2, 0, tNewImg.width / 2, 0) - rect(tTextWidth / 2, 0, tTextWidth / 2, 0)
+      tDstRect = tDstRect + rect((tNewImg.width / 2), 0, (tNewImg.width / 2), 0) - rect((tTextWidth / 2), 0, (tTextWidth / 2), 0)
     else
       if [#left, #middle, #right] = #right then
         tDstRect = tDstRect + rect(tNewImg.width, 0, tNewImg.width, 0) - rect(tTextWidth + pButtonImg.getProp(#right).width, 0, tTextWidth + pButtonImg.getProp(#right).width, 0)

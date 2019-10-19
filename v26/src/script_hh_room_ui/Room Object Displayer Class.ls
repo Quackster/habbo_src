@@ -292,7 +292,7 @@ on alignWindows me
   repeat while tIndex >= 1
     tWindowID = pWindowList.getAt(tIndex)
     tWindowObj = getWindow(tWindowID)
-    tWindowObj.moveZ(pBaseLocZ + tIndex - 1 * 100)
+    tWindowObj.moveZ(pBaseLocZ + (tIndex - 1 * 100))
     tWindowType = pBaseWindowIds.getOne(tWindowID)
     tAlignment = tAlignments.getaProp(tWindowType)
     if voidp(tAlignment) then

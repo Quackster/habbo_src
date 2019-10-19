@@ -134,7 +134,7 @@ on renderSmallIcons me, tstate, tPram
             end if
             tdestrect = pSmallImg.rect - tTempSmallImg.rect
             tMargins = rect(0, 0, 0, 0)
-            tdestrect = rect(tdestrect.width / 2, tdestrect.height / 2, tTempSmallImg.width + tdestrect.width / 2, tdestrect.height / 2 + tTempSmallImg.height) + tMargins
+            tdestrect = rect((tdestrect.width / 2), (tdestrect.height / 2), tTempSmallImg.width + (tdestrect.width / 2), (tdestrect.height / 2) + tTempSmallImg.height) + tMargins
             pSmallImg.copyPixels(tTempSmallImg, tdestrect, tTempSmallImg.rect, [#ink:36])
             tWndObj.getElement(tID).clearImage()
             tWndObj.getElement(tID).feedImage(pSmallImg)

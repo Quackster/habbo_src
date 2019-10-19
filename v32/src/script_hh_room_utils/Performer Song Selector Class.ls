@@ -66,7 +66,7 @@ on Refresh me
   end if
   tListElem = tWindow.getElement("performer_song_list")
   tListWidth = tListElem.getProperty(#width)
-  tListHeight = pSongList.count * pRowHeight
+  tListHeight = (pSongList.count * pRowHeight)
   if pListImage.width <> tListWidth or pListImage.height <> tListHeight then
     pListImage = image(tListWidth, tListHeight, 32)
   end if
@@ -74,20 +74,20 @@ on Refresh me
   repeat while i <= pSongList.count
     tSongName = pSongList.getAt(i)
     tNameImage = pWriter.render(tSongName).duplicate()
-    tRowRect = rect(0, i - 1 * pRowHeight, tListWidth, i * pRowHeight)
+    tRowRect = rect(0, (i - 1 * pRowHeight), tListWidth, (i * pRowHeight))
     if pSelectedRow = i then
       pListImage.fill(tRowRect, pSelectionColor)
     else
       pListImage.fill(tRowRect, rgb("FFFFFF"))
     end if
-    tOffsetY = tRowRect.top + tRowRect.height - tNameImage.height / 2
+    tOffsetY = tRowRect.top + (tRowRect.height - tNameImage.height / 2)
     tNameTarget = tNameImage.rect + [pOffsetX, tOffsetY, pOffsetX, tOffsetY]
     pListImage.copyPixels(tNameImage, tNameTarget, tNameImage.rect, [#ink:36])
     i = 1 + i
   end repeat
   tListElem.feedImage(pListImage)
   if tWindow.elementExists("performer_song_list_scroll") then
-    tShowScroll = pSongList.count * pRowHeight > tListElem.getProperty(#height)
+    tShowScroll = (pSongList.count * pRowHeight) > tListElem.getProperty(#height)
     tWindow.getElement("performer_song_list_scroll").setProperty(#visible, tShowScroll)
   end if
 end
@@ -97,7 +97,7 @@ on eventProcSongList me, tEvent, tSprID, tParam
     if tParam.ilk <> #point then
       return(0)
     end if
-    pSelectedRow = tParam.getAt(2) / pRowHeight + 1
+    pSelectedRow = (tParam.getAt(2) / pRowHeight) + 1
     me.Refresh()
   else
     if tSprID = "performer_start_button" then

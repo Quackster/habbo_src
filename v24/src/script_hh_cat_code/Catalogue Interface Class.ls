@@ -449,7 +449,7 @@ on feedPageData me
         tSourceImg = member(pCurrentPageData.getAt("headerImage")).image
         tdestrect = tDestImg.rect - tSourceImg.rect
         tMargins = rect(0, 0, 0, 0)
-        tdestrect = rect(tdestrect.width / 2, tdestrect.height / 2, tSourceImg.width + tdestrect.width / 2, tdestrect.height / 2 + tSourceImg.height) + tMargins
+        tdestrect = rect((tdestrect.width / 2), (tdestrect.height / 2), tSourceImg.width + (tdestrect.width / 2), (tdestrect.height / 2) + tSourceImg.height) + tMargins
         tDestImg.copyPixels(tSourceImg, tdestrect, tSourceImg.rect, [#ink:8])
         tElem.feedImage(tDestImg)
       end if
@@ -485,7 +485,7 @@ on feedPageData me
             tSourceImg = member(tmember).image
             tdestrect = tDestImg.rect - tSourceImg.rect
             tMargins = rect(0, 0, 0, 0)
-            tdestrect = rect(tdestrect.width / 2, tdestrect.height / 2, tSourceImg.width + tdestrect.width / 2, tdestrect.height / 2 + tSourceImg.height) + tMargins
+            tdestrect = rect((tdestrect.width / 2), (tdestrect.height / 2), tSourceImg.width + (tdestrect.width / 2), (tdestrect.height / 2) + tSourceImg.height) + tMargins
             tDestImg.copyPixels(tSourceImg, tdestrect, tSourceImg.rect, [#ink:36])
             tElem.feedImage(tDestImg)
           end if
@@ -604,7 +604,7 @@ on showSpecialText me, tSpecialText
     tDestImg.fill(tDestImg.rect, rgb(255, 255, 255))
     tdestrect = tDestImg.rect - tSourceImg.rect
     tMargins = rect(0, 0, 0, 0)
-    tdestrect = rect(tdestrect.width / 2, tdestrect.height / 2, tSourceImg.width + tdestrect.width / 2, tdestrect.height / 2 + tSourceImg.height) + tMargins
+    tdestrect = rect((tdestrect.width / 2), (tdestrect.height / 2), tSourceImg.width + (tdestrect.width / 2), (tdestrect.height / 2) + tSourceImg.height) + tMargins
     tDestImg.copyPixels(tSourceImg, tdestrect, tSourceImg.rect, [#ink:8])
     tElem.feedImage(tDestImg)
   end if
@@ -651,8 +651,8 @@ on showProductPageCounter me
         tWndObj.getElement("ctlg_page_text").setText(tPage)
       end if
       if tWndObj.elementExists("ctlg_page_counter") then
-        tCurrent = integer(pProductOffset / pProductPerPage) + 1
-        tTotalPages = float(pCurrentPageData.getAt("productList").count) / float(pProductPerPage)
+        tCurrent = integer((pProductOffset / pProductPerPage)) + 1
+        tTotalPages = (float(pCurrentPageData.getAt("productList").count) / float(pProductPerPage))
         if tTotalPages - integer(tTotalPages) > 0 then
           tTotalPages = integer(tTotalPages) + 1
         else
@@ -859,8 +859,8 @@ on ShowSmallIcons me, tstate, tPram
               tCenteredImage.copyPixels(tBgImage, tBgImage.rect, tBgImage.rect)
             end if
             tMatte = tRenderedImage.createMatte()
-            tXchange = tCenteredImage.width - tRenderedImage.width / 2
-            tYchange = tCenteredImage.height - tRenderedImage.height / 2
+            tXchange = (tCenteredImage.width - tRenderedImage.width / 2)
+            tYchange = (tCenteredImage.height - tRenderedImage.height / 2)
             tRect1 = tRenderedImage.rect + rect(tXchange, tYchange, tXchange, tYchange)
             tCenteredImage.copyPixels(tRenderedImage, tRect1, tRenderedImage.rect, [#maskImage:tMatte, #ink:41])
             tElem.feedImage(tCenteredImage)
@@ -969,7 +969,7 @@ on showPreviewImage me, tProps, tElemID
     tDestImg.fill(tDestImg.rect, rgb(255, 255, 255))
     tdestrect = tDestImg.rect - tSourceImg.rect
     tMargins = rect(0, 0, 0, 0)
-    tdestrect = rect(tdestrect.width / 2, tdestrect.height / 2, tSourceImg.width + tdestrect.width / 2, tdestrect.height / 2 + tSourceImg.height) + tMargins
+    tdestrect = rect((tdestrect.width / 2), (tdestrect.height / 2), tSourceImg.width + (tdestrect.width / 2), (tdestrect.height / 2) + tSourceImg.height) + tMargins
     tDestImg.copyPixels(tSourceImg, tdestrect, tSourceImg.rect, [#ink:36])
     tElem.feedImage(tDestImg)
   end if
@@ -995,13 +995,13 @@ on renderPageList me, tPages
   tBgColor = rgb("#DDDDDD")
   tLeftMarg = 6
   tWriteObj = getWriter(pWriterPages)
-  tVerticMarg = pPageLineHeight - tWriteObj.getFont().getAt(#lineHeight) / 2 + tIndexVertMargin
+  tVerticMarg = (pPageLineHeight - tWriteObj.getFont().getAt(#lineHeight) / 2) + tIndexVertMargin
   if tPages.ilk = #propList then
     tPageCounter = tPages.count
   else
     tPageCounter = 0
   end if
-  tImgHeight = pPageLineHeight * tPageCounter + 1
+  tImgHeight = (pPageLineHeight * tPageCounter) + 1
   if tImgHeight < tHeight then
     tImgHeight = tHeight
   end if
@@ -1015,11 +1015,11 @@ on renderPageList me, tPages
       tPageImg = tWriteObj.render(tText).duplicate()
       tX1 = tLeftMarg
       tX2 = tX1 + tPageImg.width
-      tY1 = tVerticMarg + pPageLineHeight * f - 1 + 1
+      tY1 = tVerticMarg + (pPageLineHeight * f - 1) + 1
       tY2 = tY1 + tPageImg.height
       tDstRect = rect(tX1, tY1, tX2, tY2)
       pPageListImg.copyPixels(tPageImg, tDstRect, tPageImg.rect)
-      pPageListImg.draw(rect(0, pPageLineHeight * f, pPageListImg.width, pPageLineHeight * f + 1), [#shapeType:#rect, #lineSize:1, #color:rgb("#AAAAAA")])
+      pPageListImg.draw(rect(0, (pPageLineHeight * f), pPageListImg.width, (pPageLineHeight * f) + 1), [#shapeType:#rect, #lineSize:1, #color:rgb("#AAAAAA")])
       f = 1 + f
     end repeat
   end if
@@ -1044,24 +1044,24 @@ on renderSelectPage me, tClickLine, tLastSelectLine
   end if
   tElem = tWndObj.getElement("ctlg_pages")
   tImg = tElem.getProperty(#image)
-  tY1 = tClickLine - 1 * pPageLineHeight + 1
+  tY1 = (tClickLine - 1 * pPageLineHeight) + 1
   tY2 = tY1 + pPageLineHeight - 1
   tImg.fill(rect(0, tY1, tImg.width, tY2), rgb("#EEEEEE"))
   tLeftImg = member(getmemnum("ctlg.pagelist.left.active")).image
   tImg.copyPixels(tLeftImg, rect(0, tY1, tLeftImg.width, tY2), tLeftImg.rect)
   tWriteObj = getWriter(pWriterPages)
-  tVerticMarg = pPageLineHeight - tWriteObj.getFont().getAt(#lineHeight) / 2
+  tVerticMarg = (pPageLineHeight - tWriteObj.getFont().getAt(#lineHeight) / 2)
   tLeftMarg = 6
   tText = pPagePropList.getAt(tClickLine)
   tPageImg = tWriteObj.render(tText).duplicate()
   tX1 = tLeftMarg
   tX2 = tX1 + tPageImg.width
-  tY1 = tVerticMarg + pPageLineHeight * tClickLine - 1 + 1 + tIndexVertMargin
+  tY1 = tVerticMarg + (pPageLineHeight * tClickLine - 1) + 1 + tIndexVertMargin
   tY2 = tY1 + tPageImg.height
   tDstRect = rect(tX1, tY1, tX2, tY2)
   tImg.copyPixels(tPageImg, tDstRect, tPageImg.rect)
   if not voidp(tLastSelectLine) then
-    tY1 = tLastSelectLine - 1 * pPageLineHeight + 1
+    tY1 = (tLastSelectLine - 1 * pPageLineHeight) + 1
     tY2 = tY1 + pPageLineHeight - 1
     tImg.copyPixels(pPageListImg, rect(0, tY1, tImg.width, tY2), rect(0, tY1, tImg.width, tY2))
   end if
@@ -1257,7 +1257,7 @@ on eventProcCatalogue me, tEvent, tSprID, tParam
       if not ilk(tParam, #point) or pPagePropList.count = 0 then
         return()
       end if
-      tClickLine = integer(tParam.locV / pPageLineHeight) + 1
+      tClickLine = integer((tParam.locV / pPageLineHeight)) + 1
       selectPage(me, tClickLine)
     else
       if tSprID = "ctlg_next_button" then

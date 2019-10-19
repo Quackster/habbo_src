@@ -88,7 +88,7 @@ on buildBufferImage me
   if tBuddyCount = 0 then
     pBufferImage = image(pBufferWidth, pBufferHeight, 8)
   else
-    pBufferImage = image(pBufferWidth, tBuddyCount * pBufferHeight, 8)
+    pBufferImage = image(pBufferWidth, (tBuddyCount * pBufferHeight), 8)
     receivePrepare(me.getID())
   end if
   return(1)

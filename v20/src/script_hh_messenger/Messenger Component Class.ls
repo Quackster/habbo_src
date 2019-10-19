@@ -84,7 +84,7 @@ on deleteAllMessages me
 end
 
 on getRequestSet me, tSetIndex, tRequestsInSet 
-  tStartIndex = tSetIndex - 1 * tRequestsInSet + 1
+  tStartIndex = (tSetIndex - 1 * tRequestsInSet) + 1
   tEndIndex = tStartIndex + tRequestsInSet - 1
   if tEndIndex > pFriendRequestList.count then
     tEndIndex = pFriendRequestList.count

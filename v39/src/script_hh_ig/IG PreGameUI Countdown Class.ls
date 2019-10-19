@@ -98,7 +98,7 @@ on getTimeLeftSec me
   if tGameRef = 0 then
     return(0)
   end if
-  tTimeLeftSec = integer(tService.getMsecAtNextState() - the milliSeconds / 1000)
+  tTimeLeftSec = integer((tService.getMsecAtNextState() - the milliSeconds / 1000))
   if tTimeLeftSec < 0 then
     return(0)
   end if

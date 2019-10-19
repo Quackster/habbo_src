@@ -82,7 +82,7 @@ on createTooltipToPoint me, tMsg, tloc
   tmember.text = tMsg & " "
   tmember.lineHeight = tFontStruct.getaProp(#fontSize)
   tLineCount = tmember.lineCount
-  tHelpHeight = 2 * 11 + tLineCount * tFontStruct.getaProp(#fontSize)
+  tHelpHeight = (2 * 11) + (tLineCount * tFontStruct.getaProp(#fontSize))
   if tHelpHeight < 40 then
     tHelpHeight = 40
   end if
@@ -98,7 +98,7 @@ on createTooltipToPoint me, tMsg, tloc
     tSpr = getAt(tloc, tMsg)
     tSpr.locZ = tSpr.locZ + 1000
   end repeat
-  tTimeOutList = [2500, tMsg.length * 100, 10000]
+  tTimeOutList = [2500, (tMsg.length * 100), 10000]
   tTimeOutList.sort()
   me.createTipTimeout(tTimeOutList.getAt(2))
   tWndObj.registerProcedure(#eventProcHelpTooltip, me.getID(), #mouseUp)

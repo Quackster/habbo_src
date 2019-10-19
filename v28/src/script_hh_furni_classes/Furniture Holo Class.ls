@@ -28,7 +28,7 @@ on update me
     return()
   end if
   if pDelay = 0 then
-    pAnimFrm = pAnimFrm + 1 mod 8
+    pAnimFrm = (pAnimFrm + 1 mod 8)
     tNameB = member.name
     tNameC = member.name
     tNewNameB = tNameB.getProp(#char, 1, length(tNameB) - 3) & pAnimFrm & "_1"
@@ -49,7 +49,7 @@ on update me
       me.getPropRef(#pSprList, 3).blend = 100
     end if
   end if
-  pDelay = pDelay + 1 mod 4
+  pDelay = (pDelay + 1 mod 4)
 end
 
 on setHoloLight me 

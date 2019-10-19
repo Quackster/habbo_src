@@ -82,11 +82,11 @@ on getPicture me, tImg
         tInk = tProps.getAt(#ink)
         tImage = member(tMemNum).image
         tRegp = member(tMemNum).regPoint
-        tY = tCanvas.height / 2 - tRegp.getAt(2)
+        tY = (tCanvas.height / 2) - tRegp.getAt(2)
         if tProps.getAt(#flipH) then
           tImage = me.flipImage(tImage)
           tNewRegX = tImage.width - tRegp.getAt(1)
-          tX = tCanvas.width / 2 - tNewRegX + 64
+          tX = (tCanvas.width / 2) - tNewRegX + 64
           if ilk(tTempLocShifts.getAt(j)) = #point then
             tX = tX - tTempLocShifts.getAt(j).locH
             tY = tY + tTempLocShifts.getAt(j).locV
@@ -97,7 +97,7 @@ on getPicture me, tImg
             end if
           end if
         else
-          tX = tCanvas.width / 2 - tRegp.getAt(1)
+          tX = (tCanvas.width / 2) - tRegp.getAt(1)
           if ilk(tTempLocShifts.getAt(j)) = #point then
             tX = tX + tTempLocShifts.getAt(j).locH
             tY = tY + tTempLocShifts.getAt(j).locV
@@ -122,7 +122,7 @@ on getPicture me, tImg
     tImg = tCanvas
   else
     tdestrect = tImg.rect - tCanvas.rect
-    tdestrect = rect(tdestrect.width / 2, tdestrect.height / 2, tCanvas.width + tdestrect.width / 2, tdestrect.height / 2 + tCanvas.height)
+    tdestrect = rect((tdestrect.width / 2), (tdestrect.height / 2), tCanvas.width + (tdestrect.width / 2), (tdestrect.height / 2) + tCanvas.height)
     tImg.copyPixels(tCanvas, tdestrect, tCanvas.rect, [#ink:36])
   end if
   if tFlipItem then

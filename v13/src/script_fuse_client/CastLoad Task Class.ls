@@ -56,7 +56,7 @@ on UpdateTaskPercent me, tInstancePercent, tFile
   pTmpLoadCount = pTmpLoadCount + 1
   pTempPercent = pTempPercent + tInstancePercent
   if pTmpLoadCount = pCurLoadCount then
-    tTemp = 1 * pTempPercent + pLoadedSoFar / pCastcount
+    tTemp = ((1 * pTempPercent + pLoadedSoFar) / pCastcount)
     if tTemp <= 1 and pLastPercent <= tTemp then
       pCurrPercent = tTemp
     else

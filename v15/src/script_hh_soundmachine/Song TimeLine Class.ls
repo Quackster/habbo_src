@@ -259,16 +259,16 @@ on processSongData me
           if not me.getIsFreeBlock(j, i, tLength) then
             tIsFree = 0
           end if
-          tRepeats = tLength / tSampleLength
+          tRepeats = (tLength / tSampleLength)
           k = 1
           repeat while k <= tRepeats
             if tIsFree then
               tCanInsert = 1
             else
-              tCanInsert = me.getCanInsertSample(j + k - 1 * tSampleLength, i, tid)
+              tCanInsert = me.getCanInsertSample(j + (k - 1 * tSampleLength), i, tid)
             end if
             if tCanInsert then
-              tTimeLineChannel.setAt(j + k - 1 * tSampleLength, tid)
+              tTimeLineChannel.setAt(j + (k - 1 * tSampleLength), tid)
             end if
             k = 1 + k
           end repeat
@@ -541,13 +541,13 @@ on getSampleLength me, tSampleID
       the itemDelimiter = "_"
       tSampleno = tSampleName.getProp(#item, 4) - 1
       tSamplesPerSEt = 9
-      tParentNo = integer(tSampleno) / tSamplesPerSEt + 1
+      tParentNo = (integer(tSampleno) / tSamplesPerSEt) + 1
       tParentId = "sound_set_" & tParentNo
       the itemDelimiter = tDelim
       tSongController.preloadSounds([[#sound:tSampleName, #parent:tParentId]])
     else
       tLength = tSongController.getSampleLength(tSampleName)
-      tLength = tLength + pSlotDuration - 1 / pSlotDuration
+      tLength = (tLength + pSlotDuration - 1 / pSlotDuration)
     end if
   end if
   return(tLength)
@@ -559,5 +559,5 @@ on getSampleName me, tSampleID
 end
 
 on getSampleSetID me, tSampleID 
-  return(1 + tSampleID - 1 / 9)
+  return(1 + (tSampleID - 1 / 9))
 end

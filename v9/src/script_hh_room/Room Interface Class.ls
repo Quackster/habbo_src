@@ -417,7 +417,7 @@ on showObjectInfo me, tObjType
     tElem = tWndObj.getElement("info_image")
     if ilk(tProps.getAt(#image)) = #image then
       tElem.resizeTo(tProps.getAt(#image).width, tProps.getAt(#image).height)
-      undefined.regPoint = point(tProps.getAt(#image).width / 2, tProps.getAt(#image).height)
+      undefined.regPoint = point((tProps.getAt(#image).width / 2), tProps.getAt(#image).height)
       tElem.feedImage(tProps.getAt(#image))
     end if
     me.updateInfoStandBadge(tProps.getAt(#badge))
@@ -599,11 +599,11 @@ on resizeInterstitialWindow me
   tAdLocY = tBorderWidth
   tOffX = 0
   tOffY = tAdHeight + 10 + tBorderWidth
-  if tAdWidth > tWndWidth - tBorderWidth * 2 then
-    tOffX = tAdWidth - tWndWidth + tBorderWidth * 2
+  if tAdWidth > tWndWidth - (tBorderWidth * 2) then
+    tOffX = tAdWidth - tWndWidth + (tBorderWidth * 2)
     tAdLocX = tBorderWidth
   else
-    tAdLocX = tWndWidth - tAdWidth / 2
+    tAdLocX = (tWndWidth - tAdWidth / 2)
   end if
   tWndObj.resizeBy(tOffX, tOffY)
   tWndObj.center()

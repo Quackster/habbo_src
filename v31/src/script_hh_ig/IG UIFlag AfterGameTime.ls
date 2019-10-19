@@ -1,6 +1,4 @@
-property pUpdateCounter, pWindowHidden, pEndTime
-
-on update me 
+on update(me)
   me.update()
   pUpdateCounter = pUpdateCounter + 1
   if pUpdateCounter < 4 then
@@ -32,9 +30,10 @@ on update me
   end if
   tElem.setText(me.getTitleText())
   return(1)
+  exit
 end
 
-on setTitleField me, tWindowID, tMode 
+on setTitleField(me, tWindowID, tMode)
   tWndObj = getWindow(tWindowID)
   if tWndObj = 0 then
     return(0)
@@ -51,22 +50,25 @@ on setTitleField me, tWindowID, tMode
     tElem.setText(tTitleText)
   end if
   return(1)
+  exit
 end
 
-on showInfo me, tWindowList, tdata, tMode 
+on showInfo(me, tWindowList, tdata, tMode)
   if tWindowList.count < 1 then
     return(1)
   end if
   pWindowID = tWindowList.getAt(1)
   pEndTime = tdata
   return(1)
+  exit
 end
 
-on getTitleText me 
+on getTitleText(me)
   return(replaceChunks(getText("ig_tip_time_to_join_x"), "\\x", me.getFormatTime()))
+  exit
 end
 
-on createWindows me 
+on createWindows(me)
   pEndTime = me.pData
   if me.getTimeLeft() > 30 then
     pWindowHidden = 1
@@ -74,19 +76,21 @@ on createWindows me
   else
     return(me.createWindows())
   end if
+  exit
 end
 
-on getLayout me, tMode 
+on getLayout(me, tMode)
   if tMode then
     tLayout = ["ig_ag_tip_jointime_close.window"]
   else
     tLayout = ["ig_ag_tip_jointime.window"]
   end if
   return(tLayout)
+  exit
 end
 
-on getFormatTime me 
-  tTimeLeft = integer(pEndTime - the milliSeconds / 1000)
+on getFormatTime(me)
+  tTimeLeft = integer(pEndTime - the milliSeconds / 0)
   if tTimeLeft < 0 then
     return("0:00")
   end if
@@ -96,12 +100,14 @@ on getFormatTime me
     tSeconds = "0" & tSeconds
   end if
   return(tMinutes & ":" & tSeconds)
+  exit
 end
 
-on getTimeLeft me 
-  tTimeLeft = pEndTime - the milliSeconds / 1000
+on getTimeLeft(me)
+  tTimeLeft = pEndTime - the milliSeconds / 0
   if tTimeLeft < 0 then
     return(0)
   end if
   return(tTimeLeft)
+  exit
 end

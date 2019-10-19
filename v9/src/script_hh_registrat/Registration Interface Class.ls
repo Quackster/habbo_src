@@ -741,9 +741,9 @@ on updateFigurePreview me
       tWidth = tWndObj.getElement("human.preview.img").getProperty(#width)
       tHeight = tWndObj.getElement("human.preview.img").getProperty(#height)
       tPrewImg = image(tWidth, tHeight, 16)
-      tdestrect = tPrewImg.rect - tHumanImg.rect * 2
+      tdestrect = tPrewImg.rect - (tHumanImg.rect * 2)
       tMargins = rect(-11, -6, -11, -6)
-      tdestrect = rect(tdestrect.bottom, tHumanImg.width * 2, tPrewImg, rect.bottom) + tMargins
+      tdestrect = rect(tdestrect.bottom, (tHumanImg.width * 2), tPrewImg, rect.bottom) + tMargins
       tPrewImg.copyPixels(tHumanImg, tdestrect, tHumanImg.rect)
       if tWndObj.elementExists("human.preview.img") then
         tWndObj.getElement("human.preview.img").feedImage(tPrewImg)
@@ -815,8 +815,8 @@ on updatePartPreview me, tPart, tChangingPartPropList
     tHeight = tElem.getProperty(#height)
     tPrewImg = image(tWidth, tHeight, 16)
     tdestrect = tPrewImg.rect - tTempPartImg.rect
-    tMarginH = tPrewImg.width / 2 - tTempPartImg.width / 2
-    tMarginV = tPrewImg.height / 2 - tTempPartImg.height / 2
+    tMarginH = (tPrewImg.width / 2) - (tTempPartImg.width / 2)
+    tMarginV = (tPrewImg.height / 2) - (tTempPartImg.height / 2)
     tdestrect = tTempPartImg.rect + rect(tMarginH, tMarginV, tMarginH, tMarginV)
     tPrewImg.copyPixels(tTempPartImg, tdestrect, tTempPartImg.rect)
     tElem.feedImage(tPrewImg)

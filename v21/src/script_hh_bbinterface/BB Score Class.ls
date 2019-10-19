@@ -41,7 +41,7 @@ on resumeGameTimer me, tdata
   if tdata.getAt(#time_to_next_state) <= 0 then
     return(0)
   end if
-  pTimerEndTime = the milliSeconds + tdata.getAt(#time_to_next_state) * 1000
+  pTimerEndTime = the milliSeconds + (tdata.getAt(#time_to_next_state) * 1000)
   pTimerDurationSec = tdata.getAt(#state_duration)
   if timeoutExists(pTimeOutID) then
     removeTimeout(pTimeOutID)
@@ -54,7 +54,7 @@ on startGameTimer me, tdata
   if tdata.getAt(#time_until_game_end) <= 0 then
     return(0)
   end if
-  pTimerEndTime = the milliSeconds + tdata.getAt(#time_until_game_end) * 1000
+  pTimerEndTime = the milliSeconds + (tdata.getAt(#time_until_game_end) * 1000)
   pTimerDurationSec = tdata.getAt(#time_until_game_end)
   if timeoutExists(pTimeOutID) then
     removeTimeout(pTimeOutID)
@@ -64,8 +64,8 @@ on startGameTimer me, tdata
 end
 
 on convertToMinSec me, tTime 
-  tMin = tTime / 60000
-  tSec = tTime mod 60000 / 1000
+  tMin = (tTime / 60000)
+  tSec = ((tTime mod 60000) / 1000)
   if tSec < 10 then
     tSec = "0" & tSec
   end if
@@ -96,9 +96,9 @@ on renderScore me, tdata
     return(0)
   end if
   if pTimerEndTime - the milliSeconds >= 0 then
-    tElapsedTimePct = pTimerDurationSec * 1000 - pTimerEndTime - the milliSeconds / float(pTimerDurationSec * 1000)
+    tElapsedTimePct = ((pTimerDurationSec * 1000) - pTimerEndTime - the milliSeconds / float((pTimerDurationSec * 1000)))
   end if
-  tMaxWidth = tElapsedTimePct * 159
+  tMaxWidth = (tElapsedTimePct * 159)
   tHighest = 0
   repeat while tdata <= undefined
     tTeamScore = getAt(undefined, tdata)
@@ -111,11 +111,11 @@ on renderScore me, tdata
   end if
   tTeamId = 1
   repeat while tTeamId <= tdata.count
-    tPercent = tdata.getAt(tTeamId) / tHighest
+    tPercent = (tdata.getAt(tTeamId) / tHighest)
     tElem = tWndObj.getElement("bb_bar_scores" & tTeamId)
     if tElem <> 0 then
       tOldSize = tElem.getProperty(#width)
-      tNewSize = tMaxWidth * tPercent
+      tNewSize = (tMaxWidth * tPercent)
       tElem.resizeBy(tNewSize - tOldSize, 0)
     end if
     tTeamId = 1 + tTeamId

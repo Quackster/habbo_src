@@ -48,7 +48,7 @@ on cleanUp me
   repeat while tIndex <= tNewList.count
     tRequest = tNewList.getAt(tIndex)
     tRequestId = string(tRequest.getAt(#id))
-    tPosV = tIndex - 1 * me.pItemHeight
+    tPosV = (tIndex - 1 * me.pItemHeight)
     tRequestImg = me.renderRequestItem(tRequest)
     pListImg = me.insertImageTo(tRequestImg, pListImg.duplicate(), tPosV)
     tIndex = 1 + tIndex
@@ -62,7 +62,7 @@ on addRequest me, tRequest
   tRequestId = string(tRequest.getAt(#id))
   pContentList.setAt(tRequestId, tRequest)
   tIndex = pContentList.findPos(tRequestId)
-  tPosV = tIndex - 1 * me.pItemHeight
+  tPosV = (tIndex - 1 * me.pItemHeight)
   tRequestImg = me.renderRequestItem(tRequest)
   pListImg = me.insertImageTo(tRequestImg, pListImg.duplicate(), tPosV)
 end
@@ -75,7 +75,7 @@ on handleRequestState me, tRequestId, tstate
   tRequest.setAt(#state, tstate)
   pContentList.setAt(tRequestId, tRequest)
   tIndex = pContentList.findPos(tRequestId)
-  tPosV = tIndex - 1 * me.pItemHeight
+  tPosV = (tIndex - 1 * me.pItemHeight)
   tRequestImg = me.renderRequestItem(tRequest)
   pListImg = me.updateImagePart(tRequestImg, pListImg.duplicate(), tPosV)
 end
@@ -87,7 +87,7 @@ on handleAll me, tstate
     if tRequest.getAt(#state) = #pending then
       tRequest.setAt(#state, tstate)
       pContentList.setAt(string(tRequest.getAt(#id)), tRequest)
-      tPosV = tIndex - 1 * me.pItemHeight
+      tPosV = (tIndex - 1 * me.pItemHeight)
       tRequestImg = me.renderRequestItem(tRequest)
       pListImg = me.updateImagePart(tRequestImg, pListImg.duplicate(), tPosV)
     end if
@@ -102,20 +102,20 @@ on renderRequestItem me, tRequestData
   tNameImg = tNameWriter.render(tName)
   tSourceRect = tNameImg.rect
   tNamePosH = integer(getVariable("fr.requests.name.offset.h"))
-  tNamePosV = pItemHeight - tNameImg.height / 2
+  tNamePosV = (pItemHeight - tNameImg.height / 2)
   tdestrect = tSourceRect + rect(tNamePosH, tNamePosV, tNamePosH, tNamePosV)
   tItemImg.copyPixels(tNameImg, tdestrect, tSourceRect)
   if tRequestData.getAt(#state) = #pending then
     tAcceptIconImg = getMember(getVariable("fr.requests.accept.icon")).image
     tAcceptIconRect = tAcceptIconImg.rect
     tAcceptIconPosH = integer(getVariable("fr.requests.accept.offset.h"))
-    tAcceptIconPosV = pItemHeight - tAcceptIconImg.height / 2
+    tAcceptIconPosV = (pItemHeight - tAcceptIconImg.height / 2)
     tdestrect = tAcceptIconRect + rect(tAcceptIconPosH, tAcceptIconPosV, tAcceptIconPosH, tAcceptIconPosV)
     tItemImg.copyPixels(tAcceptIconImg, tdestrect, tAcceptIconRect, [#ink:36])
     tRejectIconImg = getMember(getVariable("fr.requests.reject.icon")).image
     tRejectIconRect = tAcceptIconImg.rect
     tRejectIconPosH = integer(getVariable("fr.requests.reject.offset.h"))
-    tRejectIconPosV = pItemHeight - tRejectIconImg.height / 2
+    tRejectIconPosV = (pItemHeight - tRejectIconImg.height / 2)
     tdestrect = tRejectIconRect + rect(tRejectIconPosH, tRejectIconPosV, tRejectIconPosH, tRejectIconPosV)
     tItemImg.copyPixels(tRejectIconImg, tdestrect, tRejectIconRect, [#ink:36])
   else
@@ -124,7 +124,7 @@ on renderRequestItem me, tRequestData
       tSourceRect = tNameImg.rect
       tMargin = integer(getVariable("fr.requests.status.margin.h"))
       tPosH = pItemWidth - tImg.width + tMargin
-      tPosV = pItemHeight - tImg.height / 2
+      tPosV = (pItemHeight - tImg.height / 2)
       tdestrect = tSourceRect + rect(tPosH, tPosV, tPosH, tPosV)
       tItemImg.copyPixels(tImg, tdestrect, tImg.rect)
     else
@@ -133,7 +133,7 @@ on renderRequestItem me, tRequestData
         tSourceRect = tNameImg.rect
         tMargin = integer(getVariable("fr.requests.status.margin.h"))
         tPosH = pItemWidth - tImg.width + tMargin
-        tPosV = pItemHeight - tImg.height / 2
+        tPosV = (pItemHeight - tImg.height / 2)
         tdestrect = tSourceRect + rect(tPosH, tPosV, tPosH, tPosV)
         tItemImg.copyPixels(tImg, tdestrect, tImg.rect)
       else
@@ -142,7 +142,7 @@ on renderRequestItem me, tRequestData
           tSourceRect = tNameImg.rect
           tMargin = integer(getVariable("fr.requests.status.margin.h"))
           tPosH = pItemWidth - tImg.width + tMargin
-          tPosV = pItemHeight - tImg.height / 2
+          tPosV = (pItemHeight - tImg.height / 2)
           tdestrect = tSourceRect + rect(tPosH, tPosV, tPosH, tPosV)
           tItemImg.copyPixels(tImg, tdestrect, tImg.rect)
         end if
@@ -162,19 +162,19 @@ on renderBackgroundImage me
   tDarkBg = rgb(string(getVariable("fr.requests.bg.dark")))
   pItemHeight = integer(getVariable("fr.requests.item.height"))
   pItemWidth = integer(getVariable("fr.list.panel.width"))
-  tImage = image(pItemWidth, pContentList.count * pItemHeight, 32)
+  tImage = image(pItemWidth, (pContentList.count * pItemHeight), 32)
   tCurrentPosV = 0
   tIndex = 1
-  repeat while tIndex <= pContentList.count / 2 + 1
+  repeat while tIndex <= (pContentList.count / 2) + 1
     tImage.fill(0, tCurrentPosV, pItemWidth, tCurrentPosV + pItemHeight, tDarkBg)
-    tCurrentPosV = tCurrentPosV + pItemHeight * 2
+    tCurrentPosV = tCurrentPosV + (pItemHeight * 2)
     tIndex = 1 + tIndex
   end repeat
   return(tImage)
 end
 
 on relayEvent me, tEvent, tLocX, tLocY 
-  tListIndex = tLocY / me.pItemHeight + 1
+  tListIndex = (tLocY / me.pItemHeight) + 1
   tEventResult = [:]
   tEventResult.setAt(#Event, tEvent)
   if tEvent = #mouseWithin then

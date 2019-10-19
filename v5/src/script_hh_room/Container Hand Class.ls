@@ -116,7 +116,7 @@ on createStripItem me, tdata
         tdata.setAt(#member, "poster" && tdata.getAt(#props) & "_small")
       else
         if tdata.getAt(#class) contains "post.it" then
-          tPostnums = integer(value(tdata.getAt(#props)) / 20 / 6)
+          tPostnums = integer((value(tdata.getAt(#props)) / (20 / 6)))
           if tPostnums > 6 then
             tPostnums = 6
           end if

@@ -306,7 +306,7 @@ on handleErr me, tMsg
     if getObject(#session).exists("failed_password") then
       openNetPage(getText("login_forgottenPassword_url"))
       me.getInterface().showLogin()
-      executeMessage(#externalLinkClick, point(undefined.width / 2, undefined.height / 2))
+      executeMessage(#externalLinkClick, point((undefined.width / 2), (undefined.height / 2)))
       return(0)
     else
       getObject(#session).set("failed_password", 1)
@@ -392,7 +392,7 @@ on responseWithPublicKey me, tConnection
   tLength = 24
   tHexChars = "012345679"
   tNo = 1
-  repeat while tNo <= tLength * 2
+  repeat while tNo <= (tLength * 2)
     tRandPos = random(tHexChars.length)
     if tRandPos = 1 and tNo = 1 then
       tRandPos = 1 + random(tHexChars.length - 1)

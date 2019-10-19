@@ -1,6 +1,4 @@
-property pPageItemDownloader, pStripData, pTargetElement, pPersistentFurniData, pDealPreviewObj, pDealNumbers, pDealNumber, pSmallItemWidth, pSmallItemHeight, pPersistentCatalogData
-
-on construct me 
+on construct(me)
   pPageItemDownloader = getThread(#catalogue).getComponent().getPageItemDownloader()
   pPersistentFurniData = void()
   pPersistentCatalogData = void()
@@ -11,50 +9,57 @@ on construct me
   pTargetScroll = void()
   pDealPreviewObj = getObject("catalogue_deal_preview_object")
   pDealNumber = 0
-  pDealNumbers = [:]
+  pDealNumbers = []
   pSmallItemWidth = 0
   pSmallItemHeight = 0
   pNumberPosX = getVariable("catalogue.deal.numberpos.x")
   pNumberPosY = getVariable("catalogue.deal.numberpos.y")
   pPageId = -1
   return(1)
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   pPageItemDownloader.removeCallback(me, #downloadCompleted)
   pStripData = void()
   return(1)
+  exit
 end
 
-on define me, tdata, tWidth, tHeight, tPageID 
+on define(me, tdata, tWidth, tHeight, tPageID)
   me.pPageId = tPageID
   me.pStripData = tdata
   me.resolveMembers()
+  exit
 end
 
-on setStripItemState me, tItemIndex, tstate 
+on setStripItemState(me, tItemIndex, tstate)
   if ilk(pStripData) <> #propList then
     return(error(me, "Strip data invalid", #setStripItemState, #major))
   end if
   pStripData.getAt(tItemIndex).setAt(#state, tstate)
+  exit
 end
 
-on setTargetElement me, tElement, tScroll 
+on setTargetElement(me, tElement, tScroll)
   pTargetElement = tElement
   pwidth = pTargetElement.getProperty(#width)
   pheight = pTargetElement.getProperty(#height)
   pTargetScroll = tScroll
+  exit
 end
 
-on selectItemAt me, tloc 
+on selectItemAt(me, tloc)
   return()
+  exit
 end
 
-on getSelectedItem me 
+on getSelectedItem(me)
   return(void())
+  exit
 end
 
-on resolveSmallPreview me, tOffer 
+on resolveSmallPreview(me, tOffer)
   if not objectp(tOffer) then
     return(error(me, "Invalid input format", #resolveSmallPreview, #major))
   end if
@@ -106,9 +111,10 @@ on resolveSmallPreview me, tOffer
     return(pDealPreviewObj.renderDealPreviewImage(pDealNumbers.getAt(tOfferName), me.convertOfferListToDeallist(tOffer), pSmallItemWidth, pSmallItemHeight))
   end if
   return(void())
+  exit
 end
 
-on resolveMembers me 
+on resolveMembers(me)
   if voidp(pPersistentFurniData) then
     pPersistentFurniData = getThread("dynamicdownloader").getComponent().getPersistentFurniDataObject()
   end if
@@ -121,7 +127,7 @@ on resolveMembers me
   end if
   pDealNumber = 1
   i = 0
-  repeat while pStripData <= undefined
+  repeat while me <= undefined
     tProduct = getAt(undefined, undefined)
     i = i + 1
     if tProduct.getCount() < 1 then
@@ -168,17 +174,18 @@ on resolveMembers me
           if tObjectLoadList.count > 0 then
             pPageItemDownloader.defineCallback(me, #downloadCompleted)
           end if
-          repeat while pStripData <= undefined
+          repeat while me <= undefined
             tLoadObject = getAt(undefined, undefined)
             pPageItemDownloader.registerDownload(tLoadObject.getAt(#type), tLoadObject.getAt(#assetId), tLoadObject.getAt(#props))
           end repeat
+          exit
         end if
       end if
     end if
   end repeat
 end
 
-on getClassAsset me, tClassName 
+on getClassAsset(me, tClassName)
   if ilk(tClassName) <> #string then
     return("")
   end if
@@ -187,9 +194,10 @@ on getClassAsset me, tClassName
     tClass = tClass.getProp(#char, 1, offset("*", tClass) - 1)
   end if
   return(tClass)
+  exit
 end
 
-on downloadCompleted me, tProps 
+on downloadCompleted(me, tProps)
   if tProps.getAt(#props).getaProp(#imagedownload) then
     return()
   end if
@@ -214,9 +222,10 @@ on downloadCompleted me, tProps
     pStripData.getAt(tItemIndex).setSmallPreview(tSmallPrev)
   end if
   return()
+  exit
 end
 
-on convertOfferListToDeallist me, tOffer 
+on convertOfferListToDeallist(me, tOffer)
   if not objectp(tOffer) then
     return(error(me, "Invalid input format", #convertOfferListToDeallist, #major))
   end if
@@ -239,4 +248,5 @@ on convertOfferListToDeallist me, tOffer
     i = 1 + i
   end repeat
   return(tDealList)
+  exit
 end

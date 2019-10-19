@@ -38,7 +38,7 @@ on update me
     if tBytesTotal = 0 then
       tBytesTotal = tBytesSoFar
     end if
-    pPercent = 1 * tBytesSoFar / tBytesTotal
+    pPercent = ((1 * tBytesSoFar) / tBytesTotal)
     getCastLoadManager().TellStreamState(pFile, pState, pPercent, pGroupId)
   end if
   if tStreamStatus.bytesSoFar <> pBytesSoFar then

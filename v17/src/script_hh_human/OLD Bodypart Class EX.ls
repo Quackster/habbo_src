@@ -40,28 +40,28 @@ on update me, tForcedUpdate
   if me.pAnimating and me.checkPartNotCarrying() then
     tMemString = me.animate()
     if me.pDirection = 0 then
-      pYFix = pYFix + pXFix / 2
-      pXFix = pXFix / 2
+      pYFix = pYFix + (pXFix / 2)
+      pXFix = (pXFix / 2)
     else
       if me.pDirection = 1 then
         pYFix = pYFix + pXFix
         pXFix = 0
       else
         if me.pDirection = 2 then
-          pYFix = pYFix - pXFix / 2
-          pXFix = pXFix / 2
+          pYFix = pYFix - (pXFix / 2)
+          pXFix = (pXFix / 2)
         else
           if me.pDirection = 4 then
-            pYFix = pYFix + pXFix / 2
-            pXFix = -pXFix / 2
+            pYFix = pYFix + (pXFix / 2)
+            pXFix = (-pXFix / 2)
           else
             if me.pDirection = 5 then
               pYFix = pYFix - pXFix
               pXFix = 0
             else
               if me.pDirection = 6 then
-                pYFix = pYFix - pXFix / 2
-                pXFix = -pXFix / 2
+                pYFix = pYFix - (pXFix / 2)
+                pXFix = (-pXFix / 2)
               else
                 if me.pDirection = 7 then
                   pXFix = -pXFix
@@ -77,8 +77,8 @@ on update me, tForcedUpdate
     else
       tSizeMultiplier = 1
     end if
-    pXFix = pXFix * tSizeMultiplier
-    pYFix = pYFix * tSizeMultiplier
+    pXFix = (pXFix * tSizeMultiplier)
+    pYFix = (pYFix * tSizeMultiplier)
   else
     if me.pDirection <> "bd" then
       if me.pDirection <> "lg" then
@@ -102,7 +102,7 @@ on update me, tForcedUpdate
                 tAnimCntr = me.pAnimCounter
               else
                 if tAction = "wav" then
-                  tAnimCntr = me.pAnimCounter mod 2
+                  tAnimCntr = (me.pAnimCounter mod 2)
                 else
                   if ["crr", "drk", "ohd"].getPos(tAction) <> 0 then
                     if pDirection >= 4 then
@@ -129,7 +129,7 @@ on update me, tForcedUpdate
                     tAnimCntr = me.pAnimCounter
                   else
                     if tAction = "wav" then
-                      tAnimCntr = me.pAnimCounter mod 2
+                      tAnimCntr = (me.pAnimCounter mod 2)
                       tPart = "l" & pPart.getProp(#char, 2)
                       tdir = pDirection
                     else
@@ -150,16 +150,16 @@ on update me, tForcedUpdate
                         else
                           tAction = "spk"
                         end if
-                        tAnimCntr = me.pAnimCounter mod 2
+                        tAnimCntr = (me.pAnimCounter mod 2)
                       end if
                     else
                       if me.pDirection = "ey" then
-                        if me.pTalking and pAction <> "lay" and me.pAnimCounter mod 2 = 0 then
+                        if me.pTalking and pAction <> "lay" and (me.pAnimCounter mod 2) = 0 then
                           pYFix = -1
                         end if
                       else
                         if me.pDirection = "hr" then
-                          if me.pTalking and me.pAnimCounter mod 2 = 0 then
+                          if me.pTalking and (me.pAnimCounter mod 2) = 0 then
                             if pAction <> "lay" then
                               tAction = "spk"
                             end if
@@ -374,7 +374,7 @@ on getLocation me
   end if
   tmember = member(getmemnum(pMemString))
   tImgRect = tmember.rect
-  tCntrPoint = point(tImgRect.width / 2, tImgRect.height / 2)
+  tCntrPoint = point((tImgRect.width / 2), (tImgRect.height / 2))
   tRegPoint = tmember.regPoint
   return(-tRegPoint + tCntrPoint)
 end

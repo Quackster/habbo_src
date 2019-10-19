@@ -2,7 +2,7 @@ property pDirection, pSprite, pInitDelay, pOffset, pTurnPnt
 
 on define me, tsprite, tCount 
   tDirection = #right
-  if tCount mod 2 = 1 then
+  if (tCount mod 2) = 1 then
     tDirection = #left
   end if
   pSprite = tsprite

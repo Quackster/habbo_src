@@ -1,6 +1,4 @@
-property pPupItemList
-
-on render me 
+on render(me)
   me.render(me)
   tService = me.getIGComponent("GameList")
   if tService = 0 then
@@ -30,9 +28,10 @@ on render me
   end if
   tWrapObjRef.render()
   return(1)
+  exit
 end
 
-on renderBBPowerups me, tList 
+on renderBBPowerups(me, tList)
   if tList = 0 then
     tList = []
   end if
@@ -52,7 +51,7 @@ on renderBBPowerups me, tList
   tHeight = tElem.getProperty(#height)
   tImage = image(tWidth, tHeight, 8)
   tOffsetX = tWidth / 2 - tList.count * 16
-  repeat while tList <= undefined
+  repeat while me <= undefined
     ttype = getAt(undefined, tList)
     tMemNum = getmemnum("ig_bb_icon_pwrup_" & ttype)
     if tMemNum > 0 then
@@ -64,9 +63,10 @@ on renderBBPowerups me, tList
   tElem.feedImage(tImage)
   tElem.moveBy(tElem.getProperty(#width) / 2 - tImage.width / 2, 0)
   return(1)
+  exit
 end
 
-on eventProcMouseHover me, tEvent, tSprID, tParam, tWndID 
+on eventProcMouseHover(me, tEvent, tSprID, tParam, tWndID)
   if tSprID <> "ig_chosen_powerups" then
     return(0)
   end if
@@ -99,4 +99,5 @@ on eventProcMouseHover me, tEvent, tSprID, tParam, tWndID
   tLocX = tsprite.left + tIndex * 32 - 16
   tLocY = tsprite.locV
   return(tObject.createTooltipWindow(getText("bb_powerup_desc_" & pPupItemList.getAt(tIndex)), tLocX, tLocY))
+  exit
 end

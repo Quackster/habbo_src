@@ -54,7 +54,7 @@ on update me
               tAnimCounter = me.pAnimCounter
             else
               if tAction = "wav" then
-                tAnimCounter = me.pAnimCounter mod 2
+                tAnimCounter = (me.pAnimCounter mod 2)
               else
                 if ["crr", "drk", "ohd"].getPos(tAction) <> 0 then
                   pXFix = -40
@@ -79,7 +79,7 @@ on update me
                   tAnimCounter = me.pAnimCounter
                 else
                   if tAction = "wav" then
-                    tAnimCounter = me.pAnimCounter mod 2
+                    tAnimCounter = (me.pAnimCounter mod 2)
                     tPart = "l" & pPart.getProp(#char, 2)
                     tdir = pDirection
                   else
@@ -100,16 +100,16 @@ on update me
                       else
                         tAction = "spk"
                       end if
-                      tAnimCounter = me.pAnimCounter mod 2
+                      tAnimCounter = (me.pAnimCounter mod 2)
                     end if
                   else
                     if pPart = "ey" then
-                      if me.pTalking and pAction <> "lay" and me.pAnimCounter mod 2 = 0 then
+                      if me.pTalking and pAction <> "lay" and (me.pAnimCounter mod 2) = 0 then
                         pYFix = -1
                       end if
                     else
                       if pPart = "hr" then
-                        if me.pTalking and me.pAnimCounter mod 2 = 0 then
+                        if me.pTalking and (me.pAnimCounter mod 2) = 0 then
                           if pAction <> "lay" then
                             tAction = "spk"
                           end if
@@ -284,9 +284,9 @@ on getLocation me
   end if
   tmember = member(getmemnum(pMemString))
   tImgRect = tmember.rect
-  tCntrPoint = point(tImgRect.width / 2, tImgRect.height / 2)
+  tCntrPoint = point((tImgRect.width / 2), (tImgRect.height / 2))
   tRegPoint = tmember.regPoint
-  return(tRegPoint * -1 + tCntrPoint)
+  return((tRegPoint * -1) + tCntrPoint)
 end
 
 on copyPicture me, tImg, tdir, tHumanSize, tAction, tAnimFrame 

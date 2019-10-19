@@ -17,7 +17,7 @@ on parseActiveObject me, tConn
   tObj.setAt(#y, tConn.GetIntFrom())
   tWidth = tConn.GetIntFrom()
   tHeight = tConn.GetIntFrom()
-  tDirection = tConn.GetIntFrom() mod 8
+  tDirection = (tConn.GetIntFrom() mod 8)
   tObj.setAt(#direction, [tDirection, tDirection, tDirection])
   tObj.setAt(#dimensions, [tWidth, tHeight])
   tObj.setAt(#altitude, getLocalFloat(tConn.GetStrFrom()))

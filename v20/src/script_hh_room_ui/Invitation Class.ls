@@ -45,7 +45,7 @@ on align me, tWindowID, tElemID
   tInvitationWindow = getWindow(pWindowID)
   tOwnWidth = tInvitationWindow.getProperty(#width)
   tOwnHeight = tInvitationWindow.getProperty(#height)
-  tLocX = tWinLocX + tElemLocX + tElemWidth / 2 - tOwnWidth / 2
+  tLocX = tWinLocX + tElemLocX + (tElemWidth / 2) - (tOwnWidth / 2)
   tLocY = tWinLocY + tElemLocY - tOwnHeight
   tOffset = tLocX + tOwnWidth - undefined.width
   if tOffset > 0 then

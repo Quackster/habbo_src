@@ -28,7 +28,7 @@ on update me
       tBubble = member("bubble" & random(3)).image
       tLocH = random(132)
       tDrawLoc = tBubble.rect + rect(tLocH, 330, tLocH, 330)
-      pBubblesImg.copyPixels(tBubble, tDrawLoc, tBubble.rect, [#ink:36, #blendLevel:random(2) * 128])
+      pBubblesImg.copyPixels(tBubble, tDrawLoc, tBubble.rect, [#ink:36, #blendLevel:(random(2) * 128)])
     end if
     pBubblesImg.copyPixels(pBubblesImg, rect(0, 0, 132, 334), rect(0, 2, 132, 336), [#ink:0])
     pBubblesImg.fill(0, 334, 132, 336, rgb(255, 255, 255))

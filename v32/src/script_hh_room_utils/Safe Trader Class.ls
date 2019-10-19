@@ -572,7 +572,7 @@ on createItemImg me, tProps, tDownloadPrevented
     end if
   end if
   if tClass contains "post.it" then
-    tCount = integer(value(tProps.getAt(#data)) / 20 / 6)
+    tCount = integer((value(tProps.getAt(#data)) / (20 / 6)))
     if tCount > 6 then
       tCount = 6
     end if
@@ -679,11 +679,11 @@ on cropToFit me, tImage
   end if
   tOffset = rect(0, 0, 0, 0)
   if tImage.width < pItemSlotRect.width then
-    tOffset.setAt(1, integer(pItemSlotRect.width - tImage.width / 2))
+    tOffset.setAt(1, integer((pItemSlotRect.width - tImage.width / 2)))
     tOffset.setAt(3, tOffset.getAt(1))
   end if
   if tImage.height < pItemSlotRect.height then
-    tOffset.setAt(2, integer(pItemSlotRect.height - tImage.height / 2))
+    tOffset.setAt(2, integer((pItemSlotRect.height - tImage.height / 2)))
     tOffset.setAt(4, tOffset.getAt(2))
   end if
   tNewImg = image(pItemSlotRect.width, pItemSlotRect.height, 32)
@@ -787,9 +787,9 @@ on updateDetailsBubble me, towner, tSlotNumber
         tFurniName = tSlotProps.getAt(tSlotNumber).getAt(#name)
         tNameElem = tBubbleWindow.getElement("trading_details_name")
         tNameElem.setText(tFurniName)
-        tMarginH = max(tNameElem.getProperty(#width) - tImage.width / 2, 10)
+        tMarginH = max((tNameElem.getProperty(#width) - tImage.width / 2), 10)
         tMarginV = 10
-        tNewImage = image(tImage.width + tMarginH * 2, tImage.height + tMarginV * 2, 32)
+        tNewImage = image(tImage.width + (tMarginH * 2), tImage.height + (tMarginV * 2), 32)
         tNewImage.copyPixels(tImage, tImage.rect + [tMarginH, tMarginV, tMarginH, tMarginV], tImage.rect)
         tImage = tNewImage
         if not tBubbleWindow.elementExists("trading_details_image") then

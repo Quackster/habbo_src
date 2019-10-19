@@ -92,7 +92,7 @@ on renderPreviewImage me, tMemStr, tColorList, tColorListToSolve, tClass
   tMem = member(getmemnum(tMemStr))
   tOffset = point(50, 50)
   tRect = rect(tMem, rect.width + tOffset.locH, tMem, rect.height + tOffset.locV)
-  tRendered = image(tMem, rect.height + tOffset.locV * 2, 32)
+  tRendered = image(tMem, rect.height + (tOffset.locV * 2), 32)
   tRendered.copyPixels(tMem.image, tRect, tMem.rect)
   i = 1
   repeat while i <= pPossibleParts.count

@@ -293,11 +293,11 @@ end
 
 on zoom me 
   tRect = pCamShotImage.rect
-  tH = pCamShotImage.height / pZoomLevel
-  tW = pCamShotImage.width / pZoomLevel
-  tRect.top = pCamShotImage.height / 2 - tH / 2
+  tH = (pCamShotImage.height / pZoomLevel)
+  tW = (pCamShotImage.width / pZoomLevel)
+  tRect.top = (pCamShotImage.height / 2) - (tH / 2)
   tRect.bottom = tRect.top + tH
-  tRect.left = pCamShotImage.width / 2 - tW / 2
+  tRect.left = (pCamShotImage.width / 2) - (tW / 2)
   tRect.right = tRect.left + tW
   pCamShotImage.copyPixels(pCamMember, image.rect, tRect, [#bgColor:rgb(238, 238, 238)])
 end

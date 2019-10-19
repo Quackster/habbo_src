@@ -75,7 +75,7 @@ on handleRecommendedRoomListClicked me, tParm
   if not listp(tRoomList) then
     return(0)
   end if
-  tClickedLine = integer(tParm.locV / me.pListItemHeight) + 1
+  tClickedLine = integer((tParm.locV / me.pListItemHeight)) + 1
   if tClickedLine > tRoomList.count then
     return(0)
   end if
@@ -111,7 +111,7 @@ on handleRoomListClicked me, tParm
   if ilk(tParm) <> #point or tNodeCount = 0 then
     return(0)
   end if
-  tClickedLine = integer(tParm.locV / me.pListItemHeight) + 1
+  tClickedLine = integer((tParm.locV / me.pListItemHeight)) + 1
   if tClickedLine > tNodeCount then
     tClickedLine = tNodeCount
   else
@@ -394,7 +394,7 @@ on eventProcNavigatorPublic me, tEvent, tSprID, tParm
         me.ChangeWindowView("nav_gr0")
       else
         if tSprID = "nav_roomlistBackLinks" then
-          return(me.getComponent().expandHistoryItem(integer(tParm.locV / me.pHistoryItemHeight) + 1))
+          return(me.getComponent().expandHistoryItem(integer((tParm.locV / me.pHistoryItemHeight)) + 1))
         else
           if tSprID = "nav_roomlist" then
             me.handleRoomListClicked(tParm)
@@ -457,7 +457,7 @@ on eventProcNavigatorPrivate me, tEvent, tSprID, tParm
               else
                 if tSprID = "nav_roomlistBackLinks" then
                   me.setLoadingCursor(1)
-                  return(me.getComponent().expandHistoryItem(integer(tParm.locV / me.pHistoryItemHeight) + 1))
+                  return(me.getComponent().expandHistoryItem(integer((tParm.locV / me.pHistoryItemHeight)) + 1))
                 end if
               end if
             end if

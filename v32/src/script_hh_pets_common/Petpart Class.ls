@@ -45,7 +45,7 @@ on update me
         else
           if pPart <> "pla" then
             if pPart = "scr" then
-              tAnimCntr = 1 mod me.pAnimCounter
+              tAnimCntr = (1 mod me.pAnimCounter)
             end if
             if pDirection <> pCacheDir then
               tUpdate = 1
@@ -61,7 +61,7 @@ on update me
                 tYFix = tOffsetList.getAt("hd_" & me.pMainAction).getAt(tBodyDir).getAt(2)
               end if
               if tAction = "snf" or tAction = "eat" or tAction = "spk" then
-                tAnimCntr = me.pAnimCounter mod 2
+                tAnimCntr = (me.pAnimCounter mod 2)
               end if
               tUpdate = 1
             else
@@ -74,7 +74,7 @@ on update me
                   tYFix = tOffsetList.getAt("tl_" & me.pMainAction).getAt(tBodyDir).getAt(2)
                 end if
                 if tAction = "wav" then
-                  tAnimCntr = me.pAnimCounter mod 2
+                  tAnimCntr = (me.pAnimCounter mod 2)
                 end if
                 tUpdate = 1
               end if

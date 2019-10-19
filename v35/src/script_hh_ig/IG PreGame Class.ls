@@ -130,7 +130,7 @@ end
 
 on displayStageStarting me, tdata 
   tTimeLeftSec = tdata.getaProp(#time_to_stage_running)
-  pMsecAtNextState = the milliSeconds + tTimeLeftSec * 1000
+  pMsecAtNextState = the milliSeconds + (tTimeLeftSec * 1000)
   tRenderObj = me.getRenderer()
   if tRenderObj = 0 then
     return(0)

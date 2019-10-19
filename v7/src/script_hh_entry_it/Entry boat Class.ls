@@ -26,11 +26,11 @@ on update me
     return()
   end if
   pSprite.locH = pSprite.locH - 1
-  if pSprite.locH mod 2 = 0 then
+  if (pSprite.locH mod 2) = 0 then
     pSprite.locV = pSprite.locV + pVertDir
   end if
   if pSprite.locH = pTurnPnt then
-    pVertDir = pVertDir * -1
+    pVertDir = (pVertDir * -1)
     tMemName = member.name
     tDirNum = integer(tMemName.getProp(#char, length(tMemName)))
     tDirNum = not tDirNum - 1 + 1

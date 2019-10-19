@@ -111,17 +111,17 @@ on fullRotation me, tGx, tGy, tYx, tYy, tRx, try, tGoffset, tYoffset, tRoffset
   if tRoffset = void() then
     tRoffset = point(0, 0)
   end if
-  pSpriteList.getAt(3).loc = pOrigLocs.getAt(1) + tGoffset + point(sin(pSin) * tGx, cos(pSin) * tGy)
-  pSpriteList.getAt(6).loc = pOrigLocs.getAt(2) + tYoffset + point(cos(pSin) * tYx, sin(pSin) * tYy)
-  pSpriteList.getAt(9).loc = pOrigLocs.getAt(3) + tRoffset + point(sin(pSin) * tRx, cos(pSin) * try)
-  tLocs = [pSpriteList.getAt(3).loc + point(pSpriteList.getAt(3).width / 2, 0), pSpriteList.getAt(6).loc + point(pSpriteList.getAt(6).width / 2, 0), pSpriteList.getAt(9).loc + point(pSpriteList.getAt(9).width / 2, 0)]
+  pSpriteList.getAt(3).loc = pOrigLocs.getAt(1) + tGoffset + point((sin(pSin) * tGx), (cos(pSin) * tGy))
+  pSpriteList.getAt(6).loc = pOrigLocs.getAt(2) + tYoffset + point((cos(pSin) * tYx), (sin(pSin) * tYy))
+  pSpriteList.getAt(9).loc = pOrigLocs.getAt(3) + tRoffset + point((sin(pSin) * tRx), (cos(pSin) * try))
+  tLocs = [pSpriteList.getAt(3).loc + point((pSpriteList.getAt(3).width / 2), 0), pSpriteList.getAt(6).loc + point((pSpriteList.getAt(6).width / 2), 0), pSpriteList.getAt(9).loc + point((pSpriteList.getAt(9).width / 2), 0)]
   pSpriteList.getAt(2).rect = rect(pSpriteList.getAt(2).getProp(#rect, 1), pSpriteList.getAt(2).getProp(#rect, 2), tLocs.getAt(1).getAt(1), tLocs.getAt(1).getAt(2))
   pSpriteList.getAt(5).rect = rect(pSpriteList.getAt(5).getProp(#rect, 1), pSpriteList.getAt(5).getProp(#rect, 2), tLocs.getAt(2).getAt(1), tLocs.getAt(2).getAt(2))
   pSpriteList.getAt(8).rect = rect(pSpriteList.getAt(8).getProp(#rect, 1), pSpriteList.getAt(8).getProp(#rect, 2), tLocs.getAt(3).getAt(1), tLocs.getAt(3).getAt(2))
 end
 
 on switchLights me, tStyle, tTime 
-  if the timer < pLightSwitchTimer + tTime * 60 then
+  if the timer < pLightSwitchTimer + (tTime * 60) then
     return(1)
   end if
   pLightSwitchTimer = the timer
@@ -134,7 +134,7 @@ on switchLights me, tStyle, tTime
         if tLightStart > 2 then
           tLightStart = 0
         end if
-        tLightStart = tLightStart * 3
+        tLightStart = (tLightStart * 3)
         j = 1
         repeat while j <= 9
           if j = tLightStart + 1 or j = tLightStart + 2 or j = tLightStart + 3 then

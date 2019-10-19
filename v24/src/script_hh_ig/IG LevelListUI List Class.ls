@@ -47,7 +47,7 @@ on render me
 end
 
 on getItemIndexFromPoint me, tpoint 
-  tItemID = tpoint.locV / pListItemHeight + 1
+  tItemID = (tpoint.locV / pListItemHeight) + 1
   return(tItemID)
 end
 
@@ -71,7 +71,7 @@ on renderListImage me
     tWidth = 233
   end if
   me.setScrollBar(tScrollBars)
-  tImage = image(tWidth, pListItemHeight * tImageSize, 32)
+  tImage = image(tWidth, (pListItemHeight * tImageSize), 32)
   tBackImage = 0
   i = 1
   repeat while i <= tIdCount
@@ -96,11 +96,11 @@ on renderListImage me
 end
 
 on renderShort me, tImage, tGameRef, tCount 
-  tOffsetV = pListItemHeight * tCount - 1
+  tOffsetV = (pListItemHeight * tCount - 1)
   tIcon = tGameRef.getProperty(#game_type_icon)
   if ilk(tIcon) = #image then
-    tPicOffsetH = 19 - tIcon.width / 2 + 8
-    tPicOffsetV = 20 - tIcon.height / 3 + 3
+    tPicOffsetH = (19 - tIcon.width / 2) + 8
+    tPicOffsetV = (20 - tIcon.height / 3) + 3
     tImage.copyPixels(tIcon, tIcon.rect + rect(tPicOffsetH, tOffsetV + tPicOffsetV, tPicOffsetH, tOffsetV + tPicOffsetV), tIcon.rect, [#ink:36])
   end if
   tGameNameWriter = me.getPlainWriter()
@@ -114,7 +114,7 @@ on renderShort me, tImage, tGameRef, tCount
 end
 
 on renderSlotBackground me, tImage, tBackImage, tCount 
-  tOffsetY = tCount - 1 * pListItemHeight
+  tOffsetY = (tCount - 1 * pListItemHeight)
   tTargetRect = rect(0, tOffsetY, tImage.width, tOffsetY + pListItemHeight)
   tImage.copyPixels(tBackImage, tTargetRect, tBackImage.rect)
   return(1)

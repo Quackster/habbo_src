@@ -42,7 +42,7 @@ on update me
     if pTimer then
       tRand = random(4)
       if tRand = pLastFrm then
-        tRand = tRand + 1 mod 4 + 1
+        tRand = (tRand + 1 mod 4) + 1
       end if
       pLastFrm = tRand
       me.setAnimMembersToFrame(pLastFrm)

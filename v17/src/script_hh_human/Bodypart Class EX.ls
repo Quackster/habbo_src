@@ -50,28 +50,28 @@ on update me, tForcedUpdate, tRectMod
   if pBody.pAnimating then
     tMemString = me.animate()
     if pBody.pDirection = 0 then
-      pYFix = pYFix + pXFix / 2
-      pXFix = pXFix / 2
+      pYFix = pYFix + (pXFix / 2)
+      pXFix = (pXFix / 2)
     else
       if pBody.pDirection = 1 then
         pYFix = pYFix + pXFix
         pXFix = 0
       else
         if pBody.pDirection = 2 then
-          pYFix = pYFix - pXFix / 2
-          pXFix = pXFix / 2
+          pYFix = pYFix - (pXFix / 2)
+          pXFix = (pXFix / 2)
         else
           if pBody.pDirection = 4 then
-            pYFix = pYFix + pXFix / 2
-            pXFix = -pXFix / 2
+            pYFix = pYFix + (pXFix / 2)
+            pXFix = (-pXFix / 2)
           else
             if pBody.pDirection = 5 then
               pYFix = pYFix - pXFix
               pXFix = 0
             else
               if pBody.pDirection = 6 then
-                pYFix = pYFix - pXFix / 2
-                pXFix = -pXFix / 2
+                pYFix = pYFix - (pXFix / 2)
+                pXFix = (-pXFix / 2)
               else
                 if pBody.pDirection = 7 then
                   pXFix = -pXFix
@@ -87,8 +87,8 @@ on update me, tForcedUpdate, tRectMod
     else
       tSizeMultiplier = 1
     end if
-    pXFix = pXFix * tSizeMultiplier
-    pYFix = pYFix * tSizeMultiplier
+    pXFix = (pXFix * tSizeMultiplier)
+    pYFix = (pYFix * tSizeMultiplier)
   else
     if pDirection = tdir then
       pFlipH = 0
@@ -97,7 +97,7 @@ on update me, tForcedUpdate, tRectMod
     end if
     if not voidp(pAnimList.getAt(pAction)) then
       if pAnimList.getAt(pAction).count > 0 then
-        tIndex = pBody.pAnimCounter mod pAnimList.getAt(pAction).count
+        tIndex = (pBody.pAnimCounter mod pAnimList.getAt(pAction).count)
         tAnimCntr = pAnimList.getAt(pAction).getAt(tIndex + 1)
       end if
     end if
@@ -114,7 +114,7 @@ on update me, tForcedUpdate, tRectMod
     end if
     if pBody.pDirection = "ey" then
       if pBody.pTalking then
-        if pAction <> "lay" and pBody.pAnimCounter mod 2 = 0 then
+        if pAction <> "lay" and (pBody.pAnimCounter mod 2) = 0 then
           pYFix = -1
         end if
       end if
@@ -305,7 +305,7 @@ on getLocation me
   end if
   tmember = member(getmemnum(pMemString))
   tImgRect = tmember.rect
-  tCntrPoint = point(tImgRect.width / 2, tImgRect.height / 2)
+  tCntrPoint = point((tImgRect.width / 2), (tImgRect.height / 2))
   tRegPoint = tmember.regPoint
   return(-tRegPoint + tCntrPoint)
 end

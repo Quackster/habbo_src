@@ -66,7 +66,7 @@ on getValue me, tVariable, tDefault
   return(tValue)
 end
 
-on Remove me, tVariable 
+on remove me, tVariable 
   return(me.deleteProp(tVariable))
 end
 

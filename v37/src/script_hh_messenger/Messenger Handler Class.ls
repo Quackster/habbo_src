@@ -176,7 +176,7 @@ on handle_buddy_request_result me, tMsg
       end if
     end if
     tNames = tNames & " - " & tReason
-    if tNameNum mod tNamesPerAlert = 0 then
+    if (tNameNum mod tNamesPerAlert) = 0 then
       tMessage = getText("console_friend_request_error") & tNames
       executeMessage(#alert, [#Msg:tMessage])
       tNames = "\r"

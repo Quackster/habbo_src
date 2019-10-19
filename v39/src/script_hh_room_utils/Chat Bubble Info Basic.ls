@@ -72,7 +72,7 @@ on defineBalloon me, tMode, tColor, tMessage, tItemID, tSourceLoc
   tBalloonWidth = pMargins.getAt(#left) + tTextWidth + pMargins.getAt(#right)
   tBackgroundImg = me.renderBackground(tBalloonWidth, tColor)
   tTextOffH = pMargins.getAt(#left)
-  tTextOffV = pBalloonImg.getAt(#middle).height - tTextImg.height / 2 + 1
+  tTextOffV = (pBalloonImg.getAt(#middle).height - tTextImg.height / 2) + 1
   tTextDestRect = rect(tTextOffH, tTextOffV, tTextOffH + tTextWidth, tTextOffV + tTextImg.height)
   tBackgroundImg.copyPixels(tTextImg, tTextDestRect, tTextImg.rect)
   tBgMem = getMember(pBgMemName)
@@ -108,12 +108,12 @@ on setLocation me, tloc
   else
     return(0)
   end if
-  tRelativeLocH = tloc.getAt(1) - tMemWidth / 2
+  tRelativeLocH = tloc.getAt(1) - (tMemWidth / 2)
   tRelativeLocH = max(tRelativeLocH, pBalloonLeftMarg)
   tRelativeLocH = min(pBgSprite, member - image.width)
   pLocation = tloc
   pBgSprite.loc = point(tRelativeLocH, pLocation.getAt(2))
-  pBgSprite.locZ = getIntVariable("window.default.locz") - 2000 + pLocation.getAt(2) / 10
+  pBgSprite.locZ = getIntVariable("window.default.locz") - 2000 + (pLocation.getAt(2) / 10)
   return(point(tRelativeLocH, pLocation.getAt(2)))
 end
 
@@ -132,16 +132,16 @@ end
 on renderBackground me, tWidth, tBalloonColor 
   if tBalloonColor.red + tBalloonColor.green + tBalloonColor.blue >= 600 then
     tBalloonColorDarken = rgb(0, 0, 0)
-    tBalloonColorDarken.red = tBalloonColor.red * 0.9
-    tBalloonColorDarken.green = tBalloonColor.green * 0.9
-    tBalloonColorDarken.blue = tBalloonColor.blue * 0.9
+    tBalloonColorDarken.red = (tBalloonColor.red * 0.9)
+    tBalloonColorDarken.green = (tBalloonColor.green * 0.9)
+    tBalloonColorDarken.blue = (tBalloonColor.blue * 0.9)
     tBalloonColor = tBalloonColorDarken
   end if
   if tBalloonColor.red + tBalloonColor.green + tBalloonColor.blue <= 100 then
     tBalloonColorDarken = rgb(0, 0, 0)
-    tBalloonColorDarken.red = tBalloonColor.red * 3
-    tBalloonColorDarken.green = tBalloonColor.green * 3
-    tBalloonColorDarken.blue = tBalloonColor.blue * 3
+    tBalloonColorDarken.red = (tBalloonColor.red * 3)
+    tBalloonColorDarken.green = (tBalloonColor.green * 3)
+    tBalloonColorDarken.blue = (tBalloonColor.blue * 3)
     tBalloonColor = tBalloonColorDarken
   end if
   tNewImg = image(tWidth, pBalloonImg.getAt(#left).height + pBalloonImg.getAt(#left).height, 32)

@@ -197,9 +197,9 @@ on removeBuddy me, tID
   tH = pBuddyListBuffer.height - pBuddylistItemHeight
   tD = pBuddyListBuffer.depth
   tImg = image(tW, tH, tD)
-  tRect = rect(0, 0, tW, tPos - 1 * pBuddylistItemHeight)
+  tRect = rect(0, 0, tW, (tPos - 1 * pBuddylistItemHeight))
   tImg.copyPixels(pBuddyListBuffer, tRect, tRect)
-  tRect = rect(0, tPos * pBuddylistItemHeight, tW, pBuddyListBuffer.height)
+  tRect = rect(0, (tPos * pBuddylistItemHeight), tW, pBuddyListBuffer.height)
   tImg.copyPixels(pBuddyListBuffer, tRect - [0, pBuddylistItemHeight, 0, pBuddylistItemHeight], tRect)
   pBuddyListBuffer = tImg
   return(me.updateBuddyListImg())
@@ -314,7 +314,7 @@ on buildBuddyListImg me
     return(0)
   else
     pListRendering = 1
-    pBuddyListBuffer = image(pBuddyListBufferWidth, pBuddyListPntr.getaProp(#value).count(#buddies) * pBuddylistItemHeight, 8)
+    pBuddyListBuffer = image(pBuddyListBufferWidth, (pBuddyListPntr.getaProp(#value).count(#buddies) * pBuddylistItemHeight), 8)
     return(receivePrepare(me.getID()))
   end if
 end
@@ -634,7 +634,7 @@ on getBuddyListName me, tpoint
   if tRenderList.count = 0 then
     return(0)
   end if
-  tLine = integer(tpoint.locV / pBuddylistItemHeight) + 1
+  tLine = integer((tpoint.locV / pBuddylistItemHeight)) + 1
   if tLine < 1 then
     return(0)
   end if
@@ -645,7 +645,7 @@ on getBuddyListName me, tpoint
 end
 
 on getBuddyListPoint me, tpoint 
-  return(point(tpoint.locH, tpoint.locV mod pBuddylistItemHeight))
+  return(point(tpoint.locH, (tpoint.locV mod pBuddylistItemHeight)))
 end
 
 on eventProcMessenger me, tEvent, tElemID, tParm 
@@ -682,7 +682,7 @@ on eventProcMessenger me, tEvent, tElemID, tParm
                   if tRenderList.count = 0 then
                     return(0)
                   end if
-                  tClickLine = integer(tParm.locV / pBuddylistItemHeight)
+                  tClickLine = integer((tParm.locV / pBuddylistItemHeight))
                   if tClickLine < 0 then
                     return(0)
                   end if
@@ -691,7 +691,7 @@ on eventProcMessenger me, tEvent, tElemID, tParm
                   end if
                   if not the doubleClick then
                     tPosition = tClickLine + 1
-                    tpoint = tParm - [0, tClickLine * pBuddylistItemHeight]
+                    tpoint = tParm - [0, (tClickLine * pBuddylistItemHeight)]
                     tName = tRenderList.getAt(tPosition)
                     pBuddyDrawObjList.getAt(tName).clickAt(tpoint, pBuddyListBuffer, tClickLine)
                     me.updateBuddyListImg()
@@ -978,15 +978,15 @@ on eventProcMessenger me, tEvent, tElemID, tParm
               tBuddy = tBuddyList.getAt(i)
               if tBuddy.getProp(#char, 1) = the key then
                 tScrollRange = tElem.getProperty(#scrollrange)
-                tElem.setScrollOffset(tScrollRange * i - 1 / tBuddyList.count())
+                tElem.setScrollOffset(((tScrollRange * i - 1) / tBuddyList.count()))
               else
                 if tBuddy.getProp(#char, 1) > the key then
                   tScrollRange = tElem.getProperty(#scrollrange)
-                  tElem.setScrollOffset(tScrollRange * i - 2 / tBuddyList.count())
+                  tElem.setScrollOffset(((tScrollRange * i - 2) / tBuddyList.count()))
                 else
                   if i = tBuddyList.count() then
                     tScrollRange = tElem.getProperty(#scrollrange)
-                    tElem.setScrollOffset(tScrollRange * i - 1 / tBuddyList.count())
+                    tElem.setScrollOffset(((tScrollRange * i - 1) / tBuddyList.count()))
                   else
                     i = 1 + i
                   end if

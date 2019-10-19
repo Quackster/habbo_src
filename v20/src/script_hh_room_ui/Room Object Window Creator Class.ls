@@ -305,7 +305,7 @@ on scaleButtonWindow me, tID, tButtonList, tShowButtons
     end if
     tIndex = 1 + tIndex
   end repeat
-  tNewHeight = tWndObj.getProperty(#height) - tHiddenRowCount * tButtonHeight + tButtonVertMargins - tButtonVertMargins
+  tNewHeight = tWndObj.getProperty(#height) - (tHiddenRowCount * tButtonHeight + tButtonVertMargins) - tButtonVertMargins
   me.resizeWindowTo(tID, tWndObj.getProperty(#width), tNewHeight)
 end
 

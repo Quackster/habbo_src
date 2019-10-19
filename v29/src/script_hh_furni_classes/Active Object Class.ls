@@ -142,7 +142,7 @@ on rotate me, tChange
   end if
   j = 0
   repeat while j <= 3
-    tDirection = tDirection + tChange + j mod 8
+    tDirection = (tDirection + tChange + j mod 8)
     if tDirection.getAt(1) < 0 then
       tDirection = 8 + tDirection
     end if
@@ -195,7 +195,7 @@ on setSlideTo me, tFromLoc, tToLoc, tTimeNow, tHasCharacter
   tDistances.setAt(1, abs(tFromLoc.getAt(1) - tToLoc.getAt(1)))
   tDistances.setAt(2, abs(tFromLoc.getAt(2) - tToLoc.getAt(2)))
   tDistances.setAt(3, abs(tFromLoc.getAt(3) - tToLoc.getAt(3)))
-  tMoveTime = max(tDistances) * pSlideTimePerTile
+  tMoveTime = (max(tDistances) * pSlideTimePerTile)
   pSlideEndTime = pSlideStartTime + tMoveTime
   pStartloc = [pLocX, pLocY, pLocH]
   pDestLoc = tToLoc
@@ -215,10 +215,10 @@ on animateSlide me, tTimeNow
     return(1)
   end if
   tTimeUsed = float(tTimeNow - pSlideStartTime)
-  tPercentSlided = tTimeUsed / float(pSlideEndTime - pSlideStartTime)
-  pLocX = float(pDestLoc.getAt(1) - pStartloc.getAt(1)) * tPercentSlided + pStartloc.getAt(1)
-  pLocY = float(pDestLoc.getAt(2) - pStartloc.getAt(2)) * tPercentSlided + pStartloc.getAt(2)
-  pLocH = float(pDestLoc.getAt(3) - pStartloc.getAt(3)) * tPercentSlided + pStartloc.getAt(3)
+  tPercentSlided = (tTimeUsed / float(pSlideEndTime - pSlideStartTime))
+  pLocX = (float(pDestLoc.getAt(1) - pStartloc.getAt(1)) * tPercentSlided) + pStartloc.getAt(1)
+  pLocY = (float(pDestLoc.getAt(2) - pStartloc.getAt(2)) * tPercentSlided) + pStartloc.getAt(2)
+  pLocH = (float(pDestLoc.getAt(3) - pStartloc.getAt(3)) * tPercentSlided) + pStartloc.getAt(3)
   me.updateLocation()
   return(1)
 end
@@ -247,7 +247,7 @@ on getScreenLocation me
     return(point(0, 0))
   end if
   tSpr = pSprList.getAt(1)
-  tloc = point(tSpr.getProp(#rect, 1) + tSpr.width / 2, tSpr.getProp(#rect, 2) + tSpr.height / 2)
+  tloc = point(tSpr.getProp(#rect, 1) + (tSpr.width / 2), tSpr.getProp(#rect, 2) + (tSpr.height / 2))
   return(tloc)
 end
 
@@ -623,7 +623,7 @@ on updateLocation me
     tSpr.loc = tSpr.loc + tLocShift
     tZ = pLoczList.getAt(i).getAt(pDirection.getAt(1) + 1)
     if pCorrectLocZ then
-      tSpr.locZ = tScreenLocs.getAt(3) + pLocH * 1000 + tZ - 1
+      tSpr.locZ = tScreenLocs.getAt(3) + (pLocH * 1000) + tZ - 1
     else
       tSpr.locZ = tScreenLocs.getAt(3) + tZ - 1
     end if

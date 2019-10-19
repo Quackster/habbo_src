@@ -163,8 +163,8 @@ on moveZ me, tZ
 end
 
 on center me 
-  tX = the stageRight - the stageLeft / 2 - pwidth / 2
-  tY = the stageBottom - the stageTop / 2 - pheight / 2
+  tX = (the stageRight - the stageLeft / 2) - (pwidth / 2)
+  tY = (the stageBottom - the stageTop / 2) - (pheight / 2)
   return(me.moveTo(tX, tY))
 end
 

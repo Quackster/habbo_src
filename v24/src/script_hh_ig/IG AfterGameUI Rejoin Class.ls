@@ -141,7 +141,7 @@ on displayPlayerLeft me, tTeamId, tPlayerPos
 end
 
 on displayTimeLeft me, tTime 
-  pEndTime = tTime * 1000 + the milliSeconds
+  pEndTime = (tTime * 1000) + the milliSeconds
   me.render()
   return(1)
 end
@@ -202,7 +202,7 @@ on setJoinButtonState me, tTeamIndex, tstate
   if tElem = 0 then
     return(0)
   end if
-  tElem.setProperty(#blend, 20 + tstate * 80)
+  tElem.setProperty(#blend, 20 + (tstate * 80))
   if tstate then
     tElem.setProperty(#cursor, "cursor.finger")
   else
@@ -212,12 +212,12 @@ on setJoinButtonState me, tTeamIndex, tstate
 end
 
 on getFormatTime me 
-  tTimeLeft = integer(pEndTime - the milliSeconds / 1000)
+  tTimeLeft = integer((pEndTime - the milliSeconds / 1000))
   if tTimeLeft < 0 then
     return("0:00")
   end if
-  tMinutes = tTimeLeft / 60
-  tSeconds = tTimeLeft mod 60
+  tMinutes = (tTimeLeft / 60)
+  tSeconds = (tTimeLeft mod 60)
   if tSeconds < 10 then
     tSeconds = "0" & tSeconds
   end if
@@ -225,7 +225,7 @@ on getFormatTime me
 end
 
 on getTimeLeft me 
-  tTimeLeft = pEndTime - the milliSeconds / 1000
+  tTimeLeft = (pEndTime - the milliSeconds / 1000)
   if tTimeLeft < 0 then
     return(0)
   end if

@@ -170,16 +170,16 @@ on handle_catalogpage me, tMsg
                             tDealList = []
                             tDealItem = [:]
                             i = 1
-                            repeat while i <= tdata.count(#item) - 5 / 3
-                              ttype = tdata.getProp(#item, 5 + i - 1 * 3 + 1)
-                              tClassID = value(tdata.getProp(#item, 5 + i - 1 * 3 + 2))
+                            repeat while i <= (tdata.count(#item) - 5 / 3)
+                              ttype = tdata.getProp(#item, 5 + (i - 1 * 3) + 1)
+                              tClassID = value(tdata.getProp(#item, 5 + (i - 1 * 3) + 2))
                               tFurniProps = pPersistentFurniData.getProps(ttype, tClassID)
                               if voidp(tFurniProps) then
                                 error(me, "Persistent furnidata missing for classid " & tClassID & " type " & ttype, #handle_catalogpage, #major)
                                 tTemp.setAt("class", "")
                               else
                                 tDealItem.setAt("class", tFurniProps.getAt(#class))
-                                tDealItem.setAt("count", tdata.getProp(#item, 5 + i - 1 * 3 + 3))
+                                tDealItem.setAt("count", tdata.getProp(#item, 5 + (i - 1 * 3) + 3))
                                 tDealItem.setAt("partColors", tFurniProps.getAt(#partColors))
                                 tDealList.setAt(i, tDealItem.duplicate())
                               end if

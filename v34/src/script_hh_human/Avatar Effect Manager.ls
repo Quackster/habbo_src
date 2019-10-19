@@ -229,7 +229,7 @@ on getEffectTimeRemaining me, tID
     return(-1)
   end if
   tEndTime = tActiveList.getaProp(tID)
-  tTime = tEndTime - the milliSeconds / 1000
+  tTime = (tEndTime - the milliSeconds / 1000)
   if tTime < 0 then
     return(0)
   end if

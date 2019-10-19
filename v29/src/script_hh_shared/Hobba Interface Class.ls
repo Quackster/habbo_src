@@ -288,7 +288,7 @@ on openCryReplyWindow me
 end
 
 on update me 
-  pAlertTimer = pAlertTimer + 1 mod 4
+  pAlertTimer = (pAlertTimer + 1 mod 4)
   if pAlertTimer <> 0 then
     return(1)
   end if
@@ -494,7 +494,7 @@ on initializeBanDropDown me
   tVisOptions.add("365" && tDays)
   tVisOptions.add("730" && tDays)
   tVisOptions.add("4167" && tDays)
-  tBanLengths = [2, 4, 12, 24, 2 * 24, 3 * 24, 7 * 24, 14 * 24, 21 * 24, 30 * 24, 60 * 24, 365 * 24, 730 * 24, 100000]
+  tBanLengths = [2, 4, 12, 24, (2 * 24), (3 * 24), (7 * 24), (14 * 24), (21 * 24), (30 * 24), (60 * 24), (365 * 24), (730 * 24), 100000]
   tDropDown.updateData(tVisOptions, tBanLengths, 1)
   tDropDown.setOrdering(0)
   return(1)

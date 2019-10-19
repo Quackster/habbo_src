@@ -22,12 +22,12 @@ on create me, tMessage
   return(1)
 end
 
-on Remove me, tMessage 
+on remove me, tMessage 
   if not symbolp(tMessage) and not stringp(tMessage) then
-    return(error(me, "Symbol or string expected:" && tMessage, #Remove))
+    return(error(me, "Symbol or string expected:" && tMessage, #remove))
   end if
   if voidp(me.getProp(#pItemList, tMessage)) then
-    return(error(me, "Broker task not found:" && tMessage, #Remove))
+    return(error(me, "Broker task not found:" && tMessage, #remove))
   end if
   return(me.deleteProp(tMessage))
 end
@@ -56,7 +56,7 @@ on unregister me, tMessage, tClientID
   end if
   tList.deleteProp(tClientID)
   if tList.count = 0 then
-    me.Remove(tMessage)
+    me.remove(tMessage)
   end if
   return(1)
 end

@@ -177,7 +177,7 @@ on getTileRect me, tX, tY
     return(0)
   end if
   tScreenLoc.setAt(1, tScreenLoc.getAt(1) - pSprite.left + 2)
-  tScreenLoc.setAt(2, tScreenLoc.getAt(2) - pSprite.top - pTileImageRect.height / 2 - 1)
+  tScreenLoc.setAt(2, tScreenLoc.getAt(2) - pSprite.top - (pTileImageRect.height / 2) - 1)
   tTargetRect = pTileImageRect + rect(tScreenLoc.getAt(1), tScreenLoc.getAt(2), tScreenLoc.getAt(1), tScreenLoc.getAt(2))
   pGeometryCache.getAt(tIndexY).setAt(tIndexX, tTargetRect)
   return(tTargetRect)

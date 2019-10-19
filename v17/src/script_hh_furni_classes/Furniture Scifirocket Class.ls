@@ -81,7 +81,7 @@ on initializeSmokeSprites me
   i = 2
   repeat while i <= pSmokelist.count
     tSp = pSmokelist.getAt(i)
-    tSp.loc = tStartLoc + point(-3, -21) + point(random(6), random(4)) * pSizeMultiplier
+    tSp.loc = tStartLoc + (point(-3, -21) + point(random(6), random(4)) * pSizeMultiplier)
     tSp.ink = 8
     tSp.locZ = me.getPropRef(#pSprList, 4).locZ + 1
     tSp.blend = 100
@@ -104,28 +104,28 @@ on animateSmallSmokes me, tVal
     repeat while i <= pSmokelist.count
       if tVal = 2 then
         if random(2) = 2 then
-          pSmokeLocs.getAt(i).setAt(2, pSmokeLocs.getAt(i).getAt(2) - 0.6 * pSizeMultiplier)
+          pSmokeLocs.getAt(i).setAt(2, pSmokeLocs.getAt(i).getAt(2) - (0.6 * pSizeMultiplier))
         end if
       else
         if tVal = 3 then
-          pSmokeLocs.getAt(i).setAt(1, pSmokeLocs.getAt(i).getAt(1) + 0.6 - random(6) / 12 * pSizeMultiplier)
+          pSmokeLocs.getAt(i).setAt(1, pSmokeLocs.getAt(i).getAt(1) + (0.6 - (random(6) / 12) * pSizeMultiplier))
         else
           if tVal = 4 then
-            pSmokeLocs.getAt(i).setAt(1, pSmokeLocs.getAt(i).getAt(1) - random(6) / 12 * pSizeMultiplier)
+            pSmokeLocs.getAt(i).setAt(1, pSmokeLocs.getAt(i).getAt(1) - ((random(6) / 12) * pSizeMultiplier))
           else
             if tVal = 5 then
-              pSmokeLocs.getAt(i).setAt(1, pSmokeLocs.getAt(i).getAt(1) + 1 - random(6) / 12 * pSizeMultiplier)
-              pSmokeLocs.getAt(i).setAt(2, pSmokeLocs.getAt(i).getAt(2) + random(10) / 12 * pSizeMultiplier)
+              pSmokeLocs.getAt(i).setAt(1, pSmokeLocs.getAt(i).getAt(1) + (1 - (random(6) / 12) * pSizeMultiplier))
+              pSmokeLocs.getAt(i).setAt(2, pSmokeLocs.getAt(i).getAt(2) + ((random(10) / 12) * pSizeMultiplier))
             else
               if tVal = 6 then
-                pSmokeLocs.getAt(i).setAt(1, pSmokeLocs.getAt(i).getAt(1) - 0.5 + random(6) / 12 * pSizeMultiplier)
-                pSmokeLocs.getAt(i).setAt(2, pSmokeLocs.getAt(i).getAt(2) + random(10) / 12 * pSizeMultiplier)
+                pSmokeLocs.getAt(i).setAt(1, pSmokeLocs.getAt(i).getAt(1) - (0.5 + (random(6) / 12) * pSizeMultiplier))
+                pSmokeLocs.getAt(i).setAt(2, pSmokeLocs.getAt(i).getAt(2) + ((random(10) / 12) * pSizeMultiplier))
               end if
             end if
           end if
         end if
       end if
-      pSmokeLocs.getAt(i).setAt(2, pSmokeLocs.getAt(i).getAt(2) - 0.7 - random(6) / 12 * pSizeMultiplier)
+      pSmokeLocs.getAt(i).setAt(2, pSmokeLocs.getAt(i).getAt(2) - (0.7 - (random(6) / 12) * pSizeMultiplier))
       pSmokeLocs.getAt(i).setAt(1, pSmokeLocs.getAt(i).getAt(1) + sin(the timer))
       pSmokelist.getAt(i).visible = 1
       pSmokelist.getAt(i).loc = pSmokeLocs.getAt(i)
@@ -203,7 +203,7 @@ on update me
     if pAnimFrame = 14 then
       me.changeMember(tSmokeBig, "scifirocket_sm_big")
     end if
-    pSmokeLocs.getAt(1).setAt(2, pSmokeLocs.getAt(1).getAt(2) - 0.9 * pSizeMultiplier)
+    pSmokeLocs.getAt(1).setAt(2, pSmokeLocs.getAt(1).getAt(2) - (0.9 * pSizeMultiplier))
     tSmokeBig.visible = 1
     tSmokeBig.loc = pSmokeLocs.getAt(1)
   else

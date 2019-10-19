@@ -19,7 +19,7 @@ on createWriter tid, tMetrics
 end
 
 on removeWriter tid 
-  return(getWriterManager().Remove(tid))
+  return(getWriterManager().remove(tid))
 end
 
 on getWriter tid, tDefault 

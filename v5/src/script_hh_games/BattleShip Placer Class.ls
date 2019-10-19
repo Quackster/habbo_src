@@ -80,7 +80,7 @@ on setShipMember me
 end
 
 on getBoardSector me, tpoint 
-  return(string(tpoint.getAt(1) / pSquareSize && tpoint.getAt(2) / pSquareSize))
+  return(string((tpoint.getAt(1) / pSquareSize) && (tpoint.getAt(2) / pSquareSize)))
 end
 
 on ShipPlace me, tPoint1, tPoint2 
@@ -154,7 +154,7 @@ on update me
     if the mouseDown then
       tloc = point(pSpr.left - pGameBoardSpr.left, pSpr.top - pGameBoardSpr.top)
       tTempLoc = me.getBoardSector(tloc)
-      tNewLoc = point(value(tTempLoc.getProp(#word, 1)) * pSquareSize, value(tTempLoc.getProp(#word, 2)) * pSquareSize)
+      tNewLoc = point((value(tTempLoc.getProp(#word, 1)) * pSquareSize), (value(tTempLoc.getProp(#word, 2)) * pSquareSize))
       tloc = tNewLoc
       tLoc2 = tNewLoc + point(pSpr.width, pSpr.height)
       me.ShipPlace(tloc, tLoc2)

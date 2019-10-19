@@ -93,7 +93,7 @@ on countCS me, tImg
   tH = tImg.height
   i = 1
   repeat while i <= 100
-    tA = tA + tImg.getPixel(i mod tW, i * i mod tH).paletteIndex * tL.getAt(i mod tL.count + 1) mod 85000
+    tA = (tA + (tImg.getPixel((i mod tW), ((i * i) mod tH)).paletteIndex * tL.getAt((i mod tL.count) + 1)) mod 85000)
     i = 1 + i
   end repeat
   return(tA)

@@ -265,7 +265,7 @@ on alignWindows me
   repeat while tIndex >= 1
     tWindowID = pWindowList.getAt(tIndex)
     tWindowObj = getWindow(tWindowID)
-    tWindowObj.moveZ(pBaseLocZ + tIndex - 1 * 100)
+    tWindowObj.moveZ(pBaseLocZ + (tIndex - 1 * 100))
     if tIndex = pWindowList.count then
       tWindowObj.moveTo(tDefLeftPos, tDefBottomPos - tWindowObj.getProperty(#height))
     else
