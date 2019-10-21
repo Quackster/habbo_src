@@ -9,7 +9,7 @@ on construct me
     tStartPointX = [200, 330, 490, 630].getAt(f)
     tCloud.prepare(tsprite, tStartPointX)
     pCloudList.add(tCloud)
-    f = 1 + f
+    f = (1 + f)
   end repeat
   return(receivePrepare(me.getID()))
 end
@@ -17,7 +17,7 @@ end
 on deconstruct me 
   pCloudList = void()
   removePrepare(me.getID())
-  return(1)
+  return TRUE
 end
 
 on prepare me 

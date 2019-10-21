@@ -8,15 +8,15 @@ on construct me
     pStarSpr.ink = 36
   end if
   receiveUpdate(me.getID())
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
   removeUpdate(me.getID())
-  if pStarSpr.ilk = #sprite then
+  if (pStarSpr.ilk = #sprite) then
     releaseSprite(pStarSpr.spriteNum)
   end if
-  return(1)
+  return TRUE
 end
 
 on Init me, tRect 
@@ -24,24 +24,24 @@ on Init me, tRect
 end
 
 on update me 
-  pFrameCount = pFrameCount + 1
+  pFrameCount = (pFrameCount + 1)
   if (pFrameCount mod 3) <> 0 then
     return()
   end if
-  if pDestRect.ilk = #rect then
-    pAnimFrame = pAnimFrame + 1
+  if (pDestRect.ilk = #rect) then
+    pAnimFrame = (pAnimFrame + 1)
     if pAnimFrame > 9 then
       pAnimFrame = 1
-      tX = random(pDestRect.width) + pDestRect.left
-      tY = random(pDestRect.height) + pDestRect.top
+      tX = (random(pDestRect.width) + pDestRect.left)
+      tY = (random(pDestRect.height) + pDestRect.top)
       pStarSpr.loc = point(tX, tY)
     end if
-    pStarSpr.member = member(getmemnum("starblink" & pAnimFrame))
+    pStarSpr.sprite.member = member(getmemnum("starblink" & pAnimFrame))
     if objectExists(#session) then
-      if getObject(#session).GET("badge_visible") = 0 then
-        pStarSpr.visible = 0
+      if (getObject(#session).GET("badge_visible") = 0) then
+        pStarSpr.sprite.visible = 0
       else
-        pStarSpr.visible = 1
+        pStarSpr.sprite.visible = 1
       end if
     end if
   end if

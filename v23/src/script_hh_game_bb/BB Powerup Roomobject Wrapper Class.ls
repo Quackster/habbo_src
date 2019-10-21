@@ -1,12 +1,12 @@
 property pObjectId
 
 on construct me 
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
   me.removeRoomObject()
-  return(1)
+  return TRUE
 end
 
 on define me, tdata 
@@ -20,11 +20,11 @@ on createRoomObject me, tdata
   tdata.setAt(#altitude, tdata.getAt(#z))
   tdata.setAt(#dimensions, [1, 1])
   tRoomComponent = getObject(#room_component)
-  if tRoomComponent = 0 then
-    return(0)
+  if (tRoomComponent = 0) then
+    return FALSE
   end if
   tClassContainer = tRoomComponent.getClassContainer()
-  if tClassContainer = 0 then
+  if (tClassContainer = 0) then
     return(error(me, "Room class container not found!", #createRoomObject))
   end if
   tClassContainer.set(tdata.getAt("class"), getClassVariable(tdata.getAt(#classID)))
@@ -33,7 +33,7 @@ end
 
 on getRoomObject me 
   tRoomComponentObj = getObject(#room_component)
-  if tRoomComponentObj = 0 then
+  if (tRoomComponentObj = 0) then
     return(error(me, "Room component unavailable!", #getRoomObject))
   end if
   return(tRoomComponentObj.getActiveObject(pObjectId))
@@ -41,22 +41,22 @@ end
 
 on removeRoomObject me 
   tRoomComponentObj = getObject(#room_component)
-  if tRoomComponentObj = 0 then
+  if (tRoomComponentObj = 0) then
     return(error(me, "Room component unavailable!", #removeRoomObject))
   end if
-  if pObjectId = void() then
-    return(0)
+  if (pObjectId = void()) then
+    return FALSE
   end if
   if not tRoomComponentObj.activeObjectExists(pObjectId) then
-    return(1)
+    return TRUE
   end if
   return(tRoomComponentObj.removeActiveObject(pObjectId))
 end
 
 on roomObjectAction me, tAction, tdata 
   tRoomObject = me.getRoomObject()
-  if tRoomObject = 0 then
-    return(0)
+  if (tRoomObject = 0) then
+    return FALSE
   end if
   return(tRoomObject.roomObjectAction(tAction, tdata))
 end

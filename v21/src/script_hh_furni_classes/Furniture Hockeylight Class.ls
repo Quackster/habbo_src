@@ -5,14 +5,14 @@ on prepare me, tdata
   pFrame = 0
   pCycles = 0
   pDelay = 0
-  return(1)
+  return TRUE
 end
 
 on updateStuffdata me, tValue 
-  if tValue = "I" then
+  if (tValue = "I") then
     me.setOn()
   end if
-  return(1)
+  return TRUE
 end
 
 on update me 
@@ -26,18 +26,18 @@ on update me
   if pDelay then
     return()
   end if
-  pFrame = pFrame + 1
-  if pFrame = 5 then
+  pFrame = (pFrame + 1)
+  if (pFrame = 5) then
     pFrame = 1
-    pCycles = pCycles + 1
-    if pCycles = 4 then
+    pCycles = (pCycles + 1)
+    if (pCycles = 4) then
       pCycles = 0
       me.setOff()
     end if
   end if
   the itemDelimiter = "_"
-  tMemName = member.name
-  tClass = tMemName.getProp(#item, 1, tMemName.count(#item) - 6)
+  tMemName = me.getPropRef(#pSprList, 3).member.name
+  tClass = tMemName.getProp(#item, 1, (tMemName.count(#item) - 6))
   if pActive then
     tmember = member(getmemnum(tClass & "_c_0_1_1_0_" & pFrame))
   else
@@ -60,5 +60,5 @@ on select me
   if the doubleClick then
     getThread(#room).getComponent().getRoomConnection().send("SETSTUFFDATA", [#string:string(me.getID()), #string:"I"])
   end if
-  return(1)
+  return TRUE
 end

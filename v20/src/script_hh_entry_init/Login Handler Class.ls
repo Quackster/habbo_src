@@ -19,7 +19,7 @@ on handleDisconnect me, tMsg
   if objectp(tSession) then
     tUserLoggedIn = tSession.GET("userLoggedIn")
   end if
-  error("Connection was disconnected:", tMsg && connection.getID(), #handleDisconnect, #dummy)
+  error(me, "Connection was disconnected:" && tMsg.connection.getID(), #handleDisconnect, #dummy)
   if tUserLoggedIn then
     return(me.getInterface().showDisconnect())
   else
@@ -35,62 +35,62 @@ on handleDisconnect me, tMsg
 end
 
 on handleHello me, tMsg 
-  return(connection.send("INIT_CRYPTO"))
+  return(tMsg.connection.send("INIT_CRYPTO"))
 end
 
 on handleSessionParameters me, tMsg 
-  tPairsCount = connection.GetIntFrom()
+  tPairsCount = tMsg.connection.GetIntFrom()
   if integerp(tPairsCount) then
     if tPairsCount > 0 then
       i = 1
       repeat while i <= tPairsCount
-        tID = connection.GetIntFrom()
+        tID = tMsg.connection.GetIntFrom()
         tSession = getObject(#session)
-        if tMsg = 0 then
-          tValue = connection.GetIntFrom()
+        if (tID = 0) then
+          tValue = tMsg.connection.GetIntFrom()
           tSession.set("conf_coppa", tValue > 0)
           tSession.set("conf_strong_coppa_required", tValue > 1)
         else
-          if tMsg = 1 then
-            tValue = connection.GetIntFrom()
+          if (tID = 1) then
+            tValue = tMsg.connection.GetIntFrom()
             tSession.set("conf_voucher", tValue > 0)
           else
-            if tMsg = 2 then
-              tValue = connection.GetIntFrom()
+            if (tID = 2) then
+              tValue = tMsg.connection.GetIntFrom()
               tSession.set("conf_parent_email_request", tValue > 0)
             else
-              if tMsg = 3 then
-                tValue = connection.GetIntFrom()
+              if (tID = 3) then
+                tValue = tMsg.connection.GetIntFrom()
                 tSession.set("conf_parent_email_request_reregistration", tValue > 0)
               else
-                if tMsg = 4 then
-                  tValue = connection.GetIntFrom()
+                if (tID = 4) then
+                  tValue = tMsg.connection.GetIntFrom()
                   tSession.set("conf_allow_direct_mail", tValue > 0)
                 else
-                  if tMsg = 5 then
-                    tValue = connection.GetStrFrom()
+                  if (tID = 5) then
+                    tValue = tMsg.connection.GetStrFrom()
                     if not objectExists(#dateFormatter) then
                       createObject(#dateFormatter, ["Date Class"])
                     end if
                     tDateForm = getObject(#dateFormatter)
-                    if not tDateForm = 0 then
+                    if not (tDateForm = 0) then
                       tDateForm.define(tValue)
                     end if
                   else
-                    if tMsg = 6 then
-                      tValue = connection.GetIntFrom()
+                    if (tID = 6) then
+                      tValue = tMsg.connection.GetIntFrom()
                       tSession.set("conf_partner_integration", tValue > 0)
                     else
-                      if tMsg = 7 then
-                        tValue = connection.GetIntFrom()
+                      if (tID = 7) then
+                        tValue = tMsg.connection.GetIntFrom()
                         tSession.set("allow_profile_editing", tValue > 0)
                       else
-                        if tMsg = 8 then
-                          tValue = connection.GetStrFrom()
+                        if (tID = 8) then
+                          tValue = tMsg.connection.GetStrFrom()
                           tSession.set("tracking_header", tValue)
                         else
-                          if tMsg = 9 then
-                            tValue = connection.GetIntFrom()
+                          if (tID = 9) then
+                            tValue = tMsg.connection.GetIntFrom()
                             tSession.set("tutorial_enabled", tValue)
                           end if
                         end if
@@ -102,7 +102,7 @@ on handleSessionParameters me, tMsg
             end if
           end if
         end if
-        i = 1 + i
+        i = (1 + i)
       end repeat
     end if
   end if
@@ -110,14 +110,14 @@ on handleSessionParameters me, tMsg
 end
 
 on handlePing me, tMsg 
-  connection.send("PONG")
+  tMsg.connection.send("PONG")
 end
 
 on handleLoginOK me, tMsg 
-  connection.send("GET_INFO")
-  connection.send("GET_CREDITS")
-  connection.send("GETAVAILABLEBADGES")
-  connection.send("GET_SOUND_SETTING")
+  tMsg.connection.send("GET_INFO")
+  tMsg.connection.send("GET_CREDITS")
+  tMsg.connection.send("GETAVAILABLEBADGES")
+  tMsg.connection.send("GET_SOUND_SETTING")
   me.getComponent().initLatencyTest()
   if objectExists(#session) then
     getObject(#session).set("userLoggedIn", 1)
@@ -126,7 +126,7 @@ on handleLoginOK me, tMsg
   if not objectExists("loggertool") then
     if memberExists("Debug System Class") then
       createObject("loggertool", "Debug System Class")
-      if getIntVariable("client.debug.window", 0) = 3 then
+      if (getIntVariable("client.debug.window", 0) = 3) then
         getObject("loggertool").initDebug()
       else
         getObject("loggertool").tryAutoStart()
@@ -165,7 +165,7 @@ on handleUserObj me, tMsg
   i = 1
   repeat while i <= tuser.count
     tSession.set("user_" & tuser.getPropAt(i), tuser.getAt(i))
-    i = 1 + i
+    i = (1 + i)
   end repeat
   tSession.set(#userName, tSession.GET("user_name"))
   executeMessage(#updateFigureData)
@@ -181,7 +181,7 @@ end
 on handleUserBanned me, tMsg 
   tBanMsg = getText("Alert_YouAreBanned") & "\r" & tMsg.content
   executeMessage(#openGeneralDialog, #ban, [#id:"BannWarning", #title:"Alert_YouAreBanned_T", #Msg:tBanMsg, #modal:1])
-  removeConnection(connection.getID())
+  removeConnection(tMsg.connection.getID())
 end
 
 on handleEPSnotify me, tMsg 
@@ -190,27 +190,27 @@ on handleEPSnotify me, tMsg
   tDelim = the itemDelimiter
   the itemDelimiter = "="
   f = 1
-  repeat while tMsg <= content.count(#line)
-    tProp = content.getPropRef(#line, f).getProp(#item, 1)
-    tDesc = content.getPropRef(#line, f).getProp(#item, 2)
-    if f = "t" then
+  repeat while f <= tMsg.content.count(#line)
+    tProp = tMsg.content.getPropRef(#line, f).getProp(#item, 1)
+    tDesc = tMsg.content.getPropRef(#line, f).getProp(#item, 2)
+    if (tProp = "t") then
       ttype = integer(tDesc)
     else
-      if f = "p" then
+      if (tProp = "p") then
         tdata = tDesc
       end if
     end if
-    f = 1 + f
+    f = (1 + f)
   end repeat
   the itemDelimiter = tDelim
-  if f = 580 then
+  if (tProp = 580) then
     if not createObject("lang_test", "CLangTest") then
       return(error(me, "Failed to init lang tester!", #handleEPSnotify, #minor))
     else
       return(getObject("lang_test").setWord(tdata))
     end if
   end if
-  executeMessage(ttype, tdata, tMsg, connection.getID())
+  executeMessage(#notify, ttype, tdata, tMsg.connection.getID())
 end
 
 on handleSystemBroadcast me, tMsg 
@@ -227,16 +227,16 @@ end
 
 on handleAvailableBadges me, tMsg 
   tBadgeList = []
-  tNumber = connection.GetIntFrom()
+  tNumber = tMsg.connection.GetIntFrom()
   i = 1
   repeat while i <= tNumber
-    tBadgeID = connection.GetStrFrom()
+    tBadgeID = tMsg.connection.GetStrFrom()
     tBadgeList.add(tBadgeID)
-    i = 1 + i
+    i = (1 + i)
   end repeat
-  tChosenBadge = connection.GetIntFrom()
-  tVisible = connection.GetIntFrom()
-  tChosenBadge = tChosenBadge + 1
+  tChosenBadge = tMsg.connection.GetIntFrom()
+  tVisible = tMsg.connection.GetIntFrom()
+  tChosenBadge = (tChosenBadge + 1)
   if tChosenBadge < 1 then
     tChosenBadge = 1
   end if
@@ -250,44 +250,44 @@ on handleRights me, tMsg
   tSession.set("user_rights", [])
   tRights = tSession.GET("user_rights")
   tPrivilegeFound = 1
-  repeat while tPrivilegeFound = 1
-    tPrivilege = connection.GetStrFrom()
-    if tPrivilege = void() or tPrivilege = "" then
+  repeat while (tPrivilegeFound = 1)
+    tPrivilege = tMsg.connection.GetStrFrom()
+    if (tPrivilege = void()) or (tPrivilege = "") then
       tPrivilegeFound = 0
       next repeat
     end if
     tRights.add(tPrivilege)
   end repeat
-  return(1)
+  return TRUE
 end
 
 on handleErr me, tMsg 
   error(me, "Error from server:" && tMsg.content, #handleErr, #dummy)
-  if 1 = tMsg.content contains "login incorrect" then
-    removeConnection(connection.getID())
+  if (1 = tMsg.content contains "login incorrect") then
+    removeConnection(tMsg.connection.getID())
     me.getComponent().setaProp(#pOkToLogin, 0)
     if getObject(#session).exists("failed_password") then
       openNetPage(getText("login_forgottenPassword_url"))
       me.getInterface().showLogin()
-      return(0)
+      return FALSE
     else
       getObject(#session).set("failed_password", 1)
       me.getInterface().showLogin()
       executeMessage(#alert, [#Msg:"Alert_WrongNameOrPassword"])
     end if
   else
-    if 1 = tMsg.content contains "mod_warn" then
+    if (1 = tMsg.content contains "mod_warn") then
       tDelim = the itemDelimiter
       the itemDelimiter = "/"
-      tTextStr = #item.getProp(2, tMsg, content.count(#item))
+      tTextStr = tMsg.content.getProp(#item, 2, tMsg.content.count(#item))
       the itemDelimiter = tDelim
       executeMessage(#alert, [#title:"alert_warning", #Msg:tTextStr, #modal:1])
     else
-      if 1 = tMsg.content contains "Version not correct" then
+      if (1 = tMsg.content contains "Version not correct") then
         executeMessage(#alert, [#Msg:"alert_old_client"])
       else
-        if 1 = tMsg.content contains "Duplicate session" then
-          removeConnection(connection.getID())
+        if (1 = tMsg.content contains "Duplicate session") then
+          removeConnection(tMsg.connection.getID())
           me.getComponent().setaProp(#pOkToLogin, 0)
           me.getInterface().showLogin()
           executeMessage(#alert, [#Msg:"alert_duplicatesession"])
@@ -295,7 +295,7 @@ on handleErr me, tMsg
       end if
     end if
   end if
-  return(1)
+  return TRUE
 end
 
 on handleModAlert me, tMsg 
@@ -303,11 +303,11 @@ on handleModAlert me, tMsg
   tConn = tMsg.connection
   if not tConn then
     error(me, "Error in moderation alert.", #handleModerationAlert, #minor)
-    return(0)
+    return FALSE
   end if
   tMessageText = tConn.GetStrFrom()
   tURL = tConn.GetStrFrom()
-  if tURL = "" then
+  if (tURL = "") then
     tURL = void()
   end if
   executeMessage(#alert, [#title:"alert_warning", #Msg:tMessageText, #modal:1, #url:tURL])
@@ -315,18 +315,18 @@ end
 
 on handleCryptoParameters me, tMsg 
   tClientToServer = 1
-  tServerToClient = connection.GetIntFrom() <> 0
+  tServerToClient = tMsg.connection.GetIntFrom() <> 0
   pCryptoParams = [#ClientToServer:tClientToServer, #ServerToClient:tServerToClient]
   if tClientToServer then
     me.responseWithPublicKey()
   else
     if tServerToClient then
       error(me, "Server to client encryption only is not supported.", #handleCryptoParameters, #minor)
-      return(connection.disconnect(1))
+      return(tMsg.connection.disconnect(1))
     end if
     me.startSession()
   end if
-  return(1)
+  return TRUE
 end
 
 on responseWithPublicKey me, tConnection 
@@ -338,7 +338,7 @@ on responseWithPublicKey me, tConnection
   repeat while tNo <= (tLength * 2)
     tRandPos = random(tHexChars.length)
     tHex = tHex & chars(tHexChars, tRandPos, tRandPos)
-    tNo = 1 + tNo
+    tNo = (1 + tNo)
   end repeat
   pBigJob = BigInt_str2bigInt(tHex, 0, tLength)
   p = BigInt_str2bigInt("455de99a7bcd4cf7a2d2ed03ad35ee047750cea4b446cd7e297102ebec1daaad", 16)
@@ -363,30 +363,30 @@ on handleSecretKey me, tMsg
   tStrSrv = getStringServices()
   a = 1
   repeat while a <= length(t_sSharedKey)
-    t = tStrSrv.convertHexToInt(t_sSharedKey.getProp(#char, a, a + 1))
+    t = tStrSrv.convertHexToInt(t_sSharedKey.getProp(#char, a, (a + 1)))
     tSharedKeyString = tSharedKeyString & numToChar(t)
-    a = a + 1
-    a = 1 + a
+    a = (a + 1)
+    a = (1 + a)
   end repeat
   debug_array = []
   a = 1
   repeat while a <= tSharedKeyString.length
     debug_array.append(charToNum(tSharedKeyString.getProp(#char, a)))
-    a = 1 + a
+    a = (1 + a)
   end repeat
   t_rDecoder = createObject(#temp, getClassVariable("connection.decoder.class"))
   t_rDecoder.setKey(tSharedKeyString, #old)
   tConnection.setDecoder(t_rDecoder)
   tConnection.setEncryption(1)
-  connection.setEncoder(createObject(#temp, getClassVariable("connection.decoder.class")))
-  connection.getEncoder().setKey(tSharedKeyString, #old)
-  connection.setEncryption(1)
-  if pCryptoParams.getaProp(#ServerToClient) = 1 then
+  tMsg.connection.setEncoder(createObject(#temp, getClassVariable("connection.decoder.class")))
+  tMsg.connection.getEncoder().setKey(tSharedKeyString, #old)
+  tMsg.connection.setEncryption(1)
+  if (pCryptoParams.getaProp(#ServerToClient) = 1) then
     me.makeServerToClientKey()
   else
     me.startSession()
   end if
-  return(1)
+  return TRUE
 end
 
 on handleEndCrypto me, tMsg 
@@ -394,18 +394,18 @@ on handleEndCrypto me, tMsg
 end
 
 on handleHotelLogout me, tMsg 
-  tLogoutMsgId = connection.GetIntFrom()
-  if tMsg = -1 then
+  tLogoutMsgId = tMsg.connection.GetIntFrom()
+  if (tLogoutMsgId = -1) then
     me.getComponent().disconnect()
     me.getInterface().showDisconnect()
   else
-    if tMsg = 1 then
+    if (tLogoutMsgId = 1) then
       openNetPage(getText("url_logged_out"), "self")
     else
-      if tMsg = 2 then
+      if (tLogoutMsgId = 2) then
         openNetPage(getText("url_logout_concurrent"), "self")
       else
-        if tMsg = 3 then
+        if (tLogoutMsgId = 3) then
           openNetPage(getText("url_logout_timeout"), "self")
         end if
       end if
@@ -414,7 +414,7 @@ on handleHotelLogout me, tMsg
 end
 
 on handleSoundSetting me, tMsg 
-  tstate = connection.GetIntFrom()
+  tstate = tMsg.connection.GetIntFrom()
   setSoundState(tstate)
   executeMessage(#soundSettingChanged, tstate)
 end
@@ -470,7 +470,7 @@ on hideLogin me
 end
 
 on handleLatencyTest me, tMsg 
-  tID = connection.GetIntFrom()
+  tID = tMsg.connection.GetIntFrom()
   me.getComponent().handleLatencyTest(tID)
 end
 
@@ -524,5 +524,5 @@ on regMsgList me, tBool
     unregisterListener(tConn, me.getID(), tMsgs)
     unregisterCommands(tConn, me.getID(), tCmds)
   end if
-  return(1)
+  return TRUE
 end

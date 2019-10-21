@@ -1,14 +1,14 @@
 on showInfo me, tWindowList, tdata, tMode 
   if not tMode then
-    return(1)
+    return TRUE
   end if
   if tWindowList.count < 2 then
-    return(1)
+    return TRUE
   end if
   tWndObj = getWindow(tWindowList.getAt(2))
   tScoreData = tdata.getaProp(#top_level_scores)
   if not listp(tScoreData) then
-    return(0)
+    return FALSE
   end if
   tRankText = ""
   tNameText = ""
@@ -22,10 +22,10 @@ on showInfo me, tWindowList, tdata, tMode
   i = 1
   repeat while i <= tDataCount
     tItem = tScoreData.getAt(i)
-    tOwnUser = tOwnId > -1 and tItem.getaProp(#room_index) = tOwnId
+    tOwnUser = tOwnId > -1 and (tItem.getaProp(#room_index) = tOwnId)
     tElem = tWndObj.getElement("ig_highscore_rank" & i)
-    if tElem = 0 then
-      return(0)
+    if (tElem = 0) then
+      return FALSE
     end if
     if tOwnUser then
       tFontStruct = tElem.getFont()
@@ -34,8 +34,8 @@ on showInfo me, tWindowList, tdata, tMode
     end if
     tElem.setText(i & ".")
     tElem = tWndObj.getElement("ig_highscore_player" & i)
-    if tElem = 0 then
-      return(0)
+    if (tElem = 0) then
+      return FALSE
     end if
     if tOwnUser then
       tFontStruct = tElem.getFont()
@@ -44,8 +44,8 @@ on showInfo me, tWindowList, tdata, tMode
     end if
     tElem.setText(tItem.getaProp(#name))
     tElem = tWndObj.getElement("ig_highscore_score" & i)
-    if tElem = 0 then
-      return(0)
+    if (tElem = 0) then
+      return FALSE
     end if
     if tOwnUser then
       tFontStruct = tElem.getFont()
@@ -53,9 +53,9 @@ on showInfo me, tWindowList, tdata, tMode
       tElem.setFont(tFontStruct)
     end if
     tElem.setText(tItem.getaProp(#score))
-    i = 1 + i
+    i = (1 + i)
   end repeat
-  return(1)
+  return TRUE
 end
 
 on getTitleText me 

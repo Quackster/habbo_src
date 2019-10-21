@@ -19,7 +19,7 @@ on deconstruct me
 end
 
 on setListData me, tdata 
-  if ilk(tdata) = #propList then
+  if (ilk(tdata) = #propList) then
     pContentList = tdata.duplicate()
     me.renderListImage()
   end if
@@ -38,14 +38,14 @@ on renderFriendItem me, tFriendData, tSelected
   tNameImg = tNameWriter.render(tName)
   tSourceRect = tNameImg.rect
   tNamePosH = integer(getVariable("fr.offline.name.offset.h"))
-  tNamePosV = (pItemHeight - tNameImg.height / 2)
-  tdestrect = tSourceRect + rect(tNamePosH, tNamePosV, tNamePosH, tNamePosV)
+  tNamePosV = ((pItemHeight - tNameImg.height) / 2)
+  tdestrect = (tSourceRect + rect(tNamePosH, tNamePosV, tNamePosH, tNamePosV))
   tItemImg.copyPixels(tNameImg, tdestrect, tNameImg.rect)
   return(tItemImg.duplicate())
 end
 
 on renderListImage me 
-  if pContentList.count = 0 then
+  if (pContentList.count = 0) then
     return(image(1, 1, 32))
   end if
   pItemHeight = integer(getVariable("fr.offline.item.height"))
@@ -59,14 +59,14 @@ on renderListImage me
     tFriend = getAt(undefined, undefined)
     tName = tFriend.getAt(#name)
     if me.isFriendselected(tName) then
-      tImage.fill(0, tCurrentPosV, pItemWidth, tCurrentPosV + pItemHeight, tSelectedBg)
+      tImage.fill(0, tCurrentPosV, pItemWidth, (tCurrentPosV + pItemHeight), tSelectedBg)
     end if
     tNameImage = tNameWriter.render(tName)
     tSourceRect = tNameImage.rect
-    tNamePosV = tCurrentPosV + (pItemHeight - tNameImage.height / 2)
-    tdestrect = tSourceRect + rect(tNamePosH, tNamePosV, tNamePosH, tNamePosV)
+    tNamePosV = (tCurrentPosV + ((pItemHeight - tNameImage.height) / 2))
+    tdestrect = (tSourceRect + rect(tNamePosH, tNamePosV, tNamePosH, tNamePosV))
     tImage.copyPixels(tNameImage, tdestrect, tNameImage.rect)
-    tCurrentPosV = tCurrentPosV + pItemHeight
+    tCurrentPosV = (tCurrentPosV + pItemHeight)
   end repeat
   pListImg = tImage.duplicate()
 end
@@ -75,7 +75,7 @@ on renderBackgroundImage me
   if ilk(pContentList) <> #propList then
     return(image(1, 1, 32))
   end if
-  if pContentList.count = 0 then
+  if (pContentList.count = 0) then
     return(image(1, 1, 32))
   end if
   tDarkBg = rgb(string(getVariable("fr.offline.bg.dark")))
@@ -84,19 +84,19 @@ on renderBackgroundImage me
   tImage = image(pItemWidth, (pContentList.count * pItemHeight), 32)
   tCurrentPosV = 0
   tIndex = 1
-  repeat while tIndex <= (pContentList.count / 2) + 1
-    tImage.fill(0, tCurrentPosV, pItemWidth, tCurrentPosV + pItemHeight, tDarkBg)
-    tCurrentPosV = tCurrentPosV + (pItemHeight * 2)
-    tIndex = 1 + tIndex
+  repeat while tIndex <= ((pContentList.count / 2) + 1)
+    tImage.fill(0, tCurrentPosV, pItemWidth, (tCurrentPosV + pItemHeight), tDarkBg)
+    tCurrentPosV = (tCurrentPosV + (pItemHeight * 2))
+    tIndex = (1 + tIndex)
   end repeat
   return(tImage)
 end
 
 on relayEvent me, tEvent, tLocX, tLocY 
-  tListIndex = (tLocY / me.pItemHeight) + 1
+  tListIndex = ((tLocY / me.pItemHeight) + 1)
   tEventResult = [:]
   tEventResult.setAt(#Event, tEvent)
-  if tEvent = #mouseWithin then
+  if (tEvent = #mouseWithin) then
     return(tEventResult)
   end if
   if tListIndex > me.count(#pContentList) then

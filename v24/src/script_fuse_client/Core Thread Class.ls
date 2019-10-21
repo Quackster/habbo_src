@@ -16,7 +16,7 @@ on construct me
   pFadingLogo = 0
   pLogoStartTime = 0
   pCrapFixSpr = sprite(reserveSprite())
-  if ilk(pCrapFixSpr) = #sprite then
+  if (ilk(pCrapFixSpr) = #sprite) then
     pCrapFixSpr.member = member("crap.fixer")
     pCrapFixSpr.width = 560
     pCrapFixSpr.height = 75
@@ -43,27 +43,27 @@ on showLogo me
     pLogoSpr.ink = 0
     pLogoSpr.blend = 90
     pLogoSpr.locZ = -20000001
-    (rect.width / 2).loc = point(the stage, (rect.height / 2) - tmember.height)
+    pLogoSpr.loc = point((the stage.rect.width / 2), ((the stage.rect.height / 2) - tmember.height))
     pLogoStartTime = the milliSeconds
   end if
-  return(1)
+  return TRUE
 end
 
 on hideLogo me 
-  if pLogoSpr.ilk = #sprite then
+  if (pLogoSpr.ilk = #sprite) then
     releaseSprite(pLogoSpr.spriteNum)
     pLogoSpr = void()
   end if
-  return(1)
+  return TRUE
 end
 
 on initTransferToHotelView me 
   tShowLogoForMs = 1000
-  tLogoNowShownMs = the milliSeconds - pLogoStartTime
+  tLogoNowShownMs = (the milliSeconds - pLogoStartTime)
   if tLogoNowShownMs >= tShowLogoForMs then
     createTimeout("logo_timeout", 2000, #initUpdate, me.getID(), void(), 1)
   else
-    createTimeout("init_timeout", tShowLogoForMs - tLogoNowShownMs + 1, #initTransferToHotelView, me.getID(), void(), 1)
+    createTimeout("init_timeout", ((tShowLogoForMs - tLogoNowShownMs) + 1), #initTransferToHotelView, me.getID(), void(), 1)
   end if
 end
 
@@ -80,7 +80,7 @@ on update me
   if pFadingLogo then
     tBlend = 0
     if pLogoSpr <> void() then
-      pLogoSpr.blend = pLogoSpr.blend - 10
+      pLogoSpr.blend = (pLogoSpr.blend - 10)
       tBlend = pLogoSpr.blend
     end if
     if tBlend <= 0 then
@@ -94,13 +94,13 @@ on update me
     end if
   end if
   if pCrapFixing then
-    if ilk(pCrapFixSpr) = #sprite then
+    if (ilk(pCrapFixSpr) = #sprite) then
       if pCrapFixRegionInvalidated then
         pCrapFixSpr.visible = 1
-        if pCrapFixSpr = 0 then
+        if (pCrapFixSpr.loc.locH = 0) then
           pCrapFixSpr.loc = point(-1, 0)
         else
-          if pCrapFixSpr = -1 then
+          if (pCrapFixSpr.loc.locH = -1) then
             pCrapFixSpr.loc = point(0, 0)
           else
             pCrapFixSpr.loc = point(0, 0)
@@ -113,23 +113,23 @@ on update me
 end
 
 on assetDownloadCallbacks me, tAssetId, tSuccess 
-  if tSuccess = 0 then
+  if (tSuccess = 0) then
     if tAssetId <> "load_variables" then
       if tAssetId <> "load_texts" then
-        if tAssetId = "load_casts" then
+        if (tAssetId = "load_casts") then
           fatalError(["error":tAssetId])
         end if
-        return(0)
-        if tAssetId = "load_variables" then
+        return FALSE
+        if (tAssetId = "load_variables") then
           me.updateState("load_params")
         else
-          if tAssetId = "load_texts" then
+          if (tAssetId = "load_texts") then
             me.updateState("load_casts")
           else
-            if tAssetId = "load_casts" then
+            if (tAssetId = "load_casts") then
               me.updateState("validate_resources")
             else
-              if tAssetId = "validate_resources" then
+              if (tAssetId = "validate_resources") then
                 me.updateState("validate_resources")
               end if
             end if
@@ -141,7 +141,7 @@ on assetDownloadCallbacks me, tAssetId, tSuccess
 end
 
 on updateState me, tstate 
-  if tstate = "load_variables" then
+  if (tstate = "load_variables") then
     pState = tstate
     me.showLogo()
     cursor(4)
@@ -159,22 +159,22 @@ on updateState me, tstate
             if tParam.count(#item) > 1 then
               tKey = tParam.getProp(#item, 1)
               tValue = tParam.getProp(#item, 2, tParam.count(#item))
-              if tKey = "client.fatal.error.url" then
+              if (tKey = "client.fatal.error.url") then
                 getVariableManager().set(tKey, tValue)
               else
-                if tKey = "client.allow.cross.domain" then
+                if (tKey = "client.allow.cross.domain") then
                   getVariableManager().set(tKey, tValue)
                 else
-                  if tKey = "client.notify.cross.domain" then
+                  if (tKey = "client.notify.cross.domain") then
                     getVariableManager().set(tKey, tValue)
                   else
-                    if tKey = "external.variables.txt" then
+                    if (tKey = "external.variables.txt") then
                       getSpecialServices().setExtVarPath(tValue)
                     else
-                      if tKey = "processlog.url" then
+                      if (tKey = "processlog.url") then
                         getVariableManager().set(tKey, tValue)
                       else
-                        if tKey = "account_id" then
+                        if (tKey = "account_id") then
                           getVariableManager().set(tKey, tValue)
                         end if
                       end if
@@ -184,10 +184,10 @@ on updateState me, tstate
               end if
             end if
             the itemDelimiter = ";"
-            j = 1 + j
+            j = (1 + j)
           end repeat
         end if
-        i = 1 + i
+        i = (1 + i)
       end repeat
       the itemDelimiter = tDelim
     end if
@@ -195,14 +195,14 @@ on updateState me, tstate
     tMemName = tURL
     tMemNum = queueDownload(tURL, tMemName, #field, 1)
     sendProcessTracking(9)
-    if tMemNum = 0 then
+    if (tMemNum = 0) then
       fatalError(["error":tstate])
-      return(0)
+      return FALSE
     else
       return(registerDownloadCallback(tMemNum, #assetDownloadCallbacks, me.getID(), tstate))
     end if
   else
-    if tstate = "load_params" then
+    if (tstate = "load_params") then
       pState = tstate
       dumpVariableField(getExtVarPath())
       removeMember(getExtVarPath())
@@ -224,10 +224,10 @@ on updateState me, tstate
                 getVariableManager().set(tParam.getProp(#item, 1), tParam.getProp(#item, 2, tParam.count(#item)))
               end if
               the itemDelimiter = ";"
-              j = 1 + j
+              j = (1 + j)
             end repeat
           end if
-          i = 1 + i
+          i = (1 + i)
         end repeat
         the itemDelimiter = tDelim
       end if
@@ -239,23 +239,23 @@ on updateState me, tstate
       end if
       return(me.updateState("load_texts"))
     else
-      if tstate = "load_texts" then
+      if (tstate = "load_texts") then
         pState = tstate
         tURL = getVariable("external.texts.txt")
         tMemName = tURL
-        if tMemName = "" then
+        if (tMemName = "") then
           return(me.updateState("load_casts"))
         end if
         tMemNum = queueDownload(tURL, tMemName, #field)
         sendProcessTracking(12)
-        if tMemNum = 0 then
+        if (tMemNum = 0) then
           fatalError(["error":tstate])
-          return(0)
+          return FALSE
         else
           return(registerDownloadCallback(tMemNum, #assetDownloadCallbacks, me.getID(), tstate))
         end if
       else
-        if tstate = "load_casts" then
+        if (tstate = "load_casts") then
           pState = tstate
           tTxtFile = getVariable("external.texts.txt")
           if tTxtFile <> 0 then
@@ -272,7 +272,7 @@ on updateState me, tstate
             else
               tFileName = getVariable("cast.entry." & i)
               tCastList.add(tFileName)
-              i = i + 1
+              i = (i + 1)
             end if
           end repeat
           if count(tCastList) > 0 then
@@ -285,7 +285,7 @@ on updateState me, tstate
             return(me.updateState("init_threads"))
           end if
         else
-          if tstate = "validate_resources" then
+          if (tstate = "validate_resources") then
             pState = tstate
             tCastList = []
             tNewList = []
@@ -296,7 +296,7 @@ on updateState me, tstate
               else
                 tFileName = tVarMngr.GET("cast.entry." & i)
                 tCastList.add(tFileName)
-                i = i + 1
+                i = (i + 1)
               end if
             end repeat
             if count(tCastList) > 0 then
@@ -317,7 +317,7 @@ on updateState me, tstate
               return(me.updateState("init_threads"))
             end if
           else
-            if tstate = "init_threads" then
+            if (tstate = "init_threads") then
               sendProcessTracking(24)
               pState = tstate
               cursor(0)

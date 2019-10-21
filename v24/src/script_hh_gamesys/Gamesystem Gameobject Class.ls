@@ -14,15 +14,15 @@ on setGameObjectProperty me, tProp, tValue
     i = 1
     repeat while i <= tProp.count
       me.setGameObjectProperty(tProp.getPropAt(i), tProp.getAt(i))
-      i = 1 + i
+      i = (1 + i)
     end repeat
-    return(1)
+    return TRUE
   end if
   return(me.setaProp(tProp, tValue))
 end
 
 on getGameObjectProperty me, tProp 
-  if pGameObjectSyncValues = void() then
+  if (pGameObjectSyncValues = void()) then
     pGameObjectSyncValues = [:]
   end if
   if pGameObjectSyncValues.findPos(tProp) > 0 then
@@ -45,27 +45,27 @@ on setGameSystemReference me, tObject
 end
 
 on setGameObjectSyncProperty me, tList, tdata 
-  if pGameObjectSyncValues = void() then
+  if (pGameObjectSyncValues = void()) then
     pGameObjectSyncValues = [:]
   end if
   if listp(tList) then
     i = 1
     repeat while i <= tList.count
-      me.setaProp(tList.getPropAt(i), tList.getAt(i))
-      i = 1 + i
+      me.pGameObjectSyncValues.setaProp(tList.getPropAt(i), tList.getAt(i))
+      i = (1 + i)
     end repeat
     exit repeat
   end if
-  me.setaProp(tList, tdata)
-  return(1)
+  me.pGameObjectSyncValues.setaProp(tList, tdata)
+  return TRUE
 end
 
 on executeGameObjectEvent me, tEvent, tdata 
-  if tEvent = #set_target then
-    me.setLoc(tdata.x, tdata.y, tdata.z)
+  if (tEvent = #set_target) then
+    me.pGameObjectFinalTarget.setLoc(tdata.x, tdata.y, tdata.z)
   else
-    if tEvent = #set_target_tile then
-      me.setTileLoc(tdata.x, tdata.y, tdata.z)
+    if (tEvent = #set_target_tile) then
+      me.pGameObjectFinalTarget.setTileLoc(tdata.x, tdata.y, tdata.z)
     else
       put("* Standard UNDEFINED EVENT:" && tEvent && tdata)
     end if
@@ -75,34 +75,34 @@ end
 on addChecksum me 
   tCheckSum = 0
   tCounter = 1
-  if pGameObjectSyncValues = void() then
+  if (pGameObjectSyncValues = void()) then
     pGameObjectSyncValues = [:]
   end if
   i = 1
   repeat while i <= pGameObjectSyncValues.count
-    if ilk(pGameObjectSyncValues.getAt(i)) = #integer then
-      tCheckSum = tCheckSum + (pGameObjectSyncValues.getAt(i) * tCounter)
-      tCounter = tCounter + 1
+    if (ilk(pGameObjectSyncValues.getAt(i)) = #integer) then
+      tCheckSum = (tCheckSum + (pGameObjectSyncValues.getAt(i) * tCounter))
+      tCounter = (tCounter + 1)
     end if
-    i = 1 + i
+    i = (1 + i)
   end repeat
   return(tCheckSum)
 end
 
 on define me 
-  return(1)
+  return TRUE
 end
 
 on gameObjectRefreshLocation me 
-  return(0)
+  return FALSE
 end
 
 on gameObjectNewMoveTarget me 
-  return(0)
+  return FALSE
 end
 
 on calculateFrameMovement me 
-  return(0)
+  return FALSE
 end
 
 on getLocation me 
@@ -124,35 +124,35 @@ end
 
 on existsFinalTarget me 
   if not objectp(pGameObjectFinalTarget) then
-    return(0)
+    return FALSE
   end if
   if not objectp(pGameObjectLocation) then
-    return(0)
+    return FALSE
   end if
   return(pGameObjectLocation.getLocation() <> pGameObjectFinalTarget.getLocation())
 end
 
 on existsNextTarget me 
   if not objectp(pGameObjectNextTarget) then
-    return(0)
+    return FALSE
   end if
   if not objectp(pGameObjectLocation) then
-    return(0)
+    return FALSE
   end if
   return(pGameObjectLocation.getLocation() <> pGameObjectNextTarget.getLocation())
 end
 
 on dump me 
   tDumpList = []
-  if pGameObjectSyncValues = void() then
+  if (pGameObjectSyncValues = void()) then
     pGameObjectSyncValues = [:]
   end if
   i = 1
   repeat while i <= pGameObjectSyncValues.count
-    if ilk(pGameObjectSyncValues.getAt(i)) = #integer then
+    if (ilk(pGameObjectSyncValues.getAt(i)) = #integer) then
       tDumpList.add(pGameObjectSyncValues.getPropAt(i) & ":" && pGameObjectSyncValues.getAt(i))
     end if
-    i = 1 + i
+    i = (1 + i)
   end repeat
   return(tDumpList)
 end

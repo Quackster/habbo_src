@@ -14,7 +14,7 @@ on construct me
   registerMessage(#rejectInvitation, me.getID(), #rejectInvitation)
   registerMessage(#messengerOpened, me.getID(), #clearFriendRequestsFromStack)
   registerMessage(#updateBuddyrequestCount, me.getID(), #showPendingInstantFriendRequest)
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
@@ -24,7 +24,7 @@ on deconstruct me
   unregisterMessage(#hideInvitation, me.getID())
   unregisterMessage(#messengerOpened, me.getID())
   unregisterMessage(#updateBuddyrequestCount, me.getID())
-  return(1)
+  return TRUE
 end
 
 on define me, tBottomBarID 
@@ -48,34 +48,34 @@ end
 
 on showPendingInvitation me 
   if pVisibleItem <> void() then
-    return(0)
+    return FALSE
   end if
   if pInvitationData.count < 1 then
-    return(0)
+    return FALSE
   end if
   tInvitationObj = createObject(pVisibleItemID, pRoomInvitationClass)
   tInvitationObj.show(pInvitationData, pBottomBarId, "int_messenger_image")
   pVisibleItem = #invitation
-  return(1)
+  return TRUE
 end
 
 on showPendingInstantFriendRequest me 
   if not pShowInstantFriendRequests then
-    return(0)
+    return FALSE
   end if
-  if not voidp(pVisibleItem) and not pVisibleItem = #friendrequest then
-    return(0)
+  if not voidp(pVisibleItem) and not (pVisibleItem = #friendrequest) then
+    return FALSE
   end if
   if not threadExists(#messenger) then
-    return(0)
+    return FALSE
   end if
   if not windowExists(pBottomBarId) then
-    return(0)
+    return FALSE
   end if
   tMessengerComponent = getThread(#messenger).getComponent()
   tMessengerInterface = getThread(#messenger).getInterface()
   if tMessengerInterface.isMessengerOpen() then
-    return(0)
+    return FALSE
   end if
   tPendingRequest = tMessengerComponent.getNextPendingInstantBuddyRequest()
   if listp(tPendingRequest) then
@@ -85,11 +85,11 @@ on showPendingInstantFriendRequest me
     tObj.show()
     pFriendRequestData = tPendingRequest
     pVisibleItem = #friendrequest
-    return(1)
+    return TRUE
   else
     me.hideFriendRequest()
   end if
-  return(0)
+  return FALSE
 end
 
 on ignoreInstantFriendRequests me 
@@ -114,7 +114,7 @@ on confirmFriendRequest me, tAccept
       if tMessengerInterface.getFriendRequestRenderer().isBuddyListFull() then
         executeMessage(#alert, "console_fr_limit_exceeded_error")
         me.hideFriendRequest()
-        return(0)
+        return FALSE
       end if
       tMessengerComponent.acceptRequest(tRequestId)
     else
@@ -128,7 +128,7 @@ end
 on acceptInvitation me 
   tSenderId = pInvitationData.getaProp(#userID)
   if voidp(tSenderId) then
-    return(0)
+    return FALSE
   end if
   if connectionExists(getVariable("connection.info.id")) then
     getConnection(getVariable("connection.info.id")).send("MSG_ACCEPT_TUTOR_INVITATION", [#string:tSenderId])
@@ -139,7 +139,7 @@ end
 on rejectInvitation me 
   tSenderId = pInvitationData.getaProp(#userID)
   if voidp(tSenderId) then
-    return(0)
+    return FALSE
   end if
   if connectionExists(getVariable("connection.info.id")) then
     getConnection(getVariable("connection.info.id")).send("MSG_REJECT_TUTOR_INVITATION", [#string:tSenderId])
@@ -149,7 +149,7 @@ on rejectInvitation me
 end
 
 on hideInvitation me 
-  if pVisibleItem = #invitation then
+  if (pVisibleItem = #invitation) then
     removeObject(pVisibleItemID)
     pVisibleItem = void()
   end if
@@ -157,7 +157,7 @@ on hideInvitation me
 end
 
 on hideFriendRequest me 
-  if pVisibleItem = #friendrequest then
+  if (pVisibleItem = #friendrequest) then
     removeObject(pVisibleItemID)
     pVisibleItem = void()
   end if

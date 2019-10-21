@@ -29,8 +29,8 @@ on define me, tProps
   end if
   if tMemNum > 0 and pType <> "image" then
     tmember = member(tMemNum)
-    pDepth = tmember.depth
-    pimage = tmember.duplicate()
+    pDepth = tmember.image.depth
+    pimage = tmember.image.duplicate()
     if pimage.paletteRef <> pPalette then
       pimage.paletteRef = pPalette
     end if
@@ -57,10 +57,10 @@ on define me, tProps
   if tProps.getAt(#ink) <> 0 then
     pParams.setAt(#ink, tProps.getAt(#ink))
   end if
-  if pParams.count = 0 then
+  if (pParams.count = 0) then
     pParams = void()
   end if
-  return(1)
+  return TRUE
 end
 
 on prepare me 
@@ -73,37 +73,37 @@ on moveTo me, tLocX, tLocY
 end
 
 on moveBy me, tOffX, tOffY 
-  pLocX = pLocX + tOffX
-  pLocY = pLocY + tOffY
+  pLocX = (pLocX + tOffX)
+  pLocY = (pLocY + tOffY)
   me.render()
 end
 
 on resizeTo me, tX, tY 
-  tOffX = tX - pwidth
-  tOffY = tY - pheight
+  tOffX = (tX - pwidth)
+  tOffY = (tY - pheight)
   return(me.resizeBy(tOffX, tOffY))
 end
 
 on resizeBy me, tOffH, tOffV 
-  if pScaleH = #move then
-    pLocX = pLocX + tOffH
+  if (pScaleH = #move) then
+    pLocX = (pLocX + tOffH)
   else
-    if pScaleH = #center then
-      pLocX = pLocX + (tOffH / 2)
+    if (pScaleH = #center) then
+      pLocX = (pLocX + (tOffH / 2))
     else
-      if pScaleH = #scale then
-        pwidth = pwidth + tOffH
+      if (pScaleH = #scale) then
+        pwidth = (pwidth + tOffH)
       end if
     end if
   end if
-  if pScaleH = #move then
-    pLocY = pLocY + tOffV
+  if (pScaleH = #move) then
+    pLocY = (pLocY + tOffV)
   else
-    if pScaleH = #center then
-      pLocY = pLocY + (tOffV / 2)
+    if (pScaleH = #center) then
+      pLocY = (pLocY + (tOffV / 2))
     else
-      if pScaleH = #scale then
-        pheight = pheight + tOffV
+      if (pScaleH = #scale) then
+        pheight = (pheight + tOffV)
       end if
     end if
   end if
@@ -125,37 +125,37 @@ on flipV me
 end
 
 on getProperty me, tProp 
-  if tProp = #buffer then
+  if (tProp = #buffer) then
     return(pBuffer)
   else
-    if tProp = #sprite then
+    if (tProp = #sprite) then
       return(pSprite)
     else
-      if tProp = #width then
+      if (tProp = #width) then
         return(pwidth)
       else
-        if tProp = #height then
+        if (tProp = #height) then
           return(pheight)
         else
-          if tProp = #locX then
+          if (tProp = #locX) then
             return(pLocX)
           else
-            if tProp = #locY then
+            if (tProp = #locY) then
               return(pLocY)
             else
-              if tProp = #scaleH then
+              if (tProp = #scaleH) then
                 return(pScaleH)
               else
-                if tProp = #scaleV then
+                if (tProp = #scaleV) then
                   return(pScaleV)
                 else
-                  if tProp = #depth then
+                  if (tProp = #depth) then
                     return(pDepth)
                   else
-                    if tProp = #palette then
+                    if (tProp = #palette) then
                       return(pPalette)
                     else
-                      return(0)
+                      return FALSE
                     end if
                   end if
                 end if
@@ -169,15 +169,15 @@ on getProperty me, tProp
 end
 
 on render me 
-  tTargetRect = rect(pLocX, pLocY, pLocX + pwidth, pLocY + pheight)
+  tTargetRect = rect(pLocX, pLocY, (pLocX + pwidth), (pLocY + pheight))
   tSourceRect = pimage.rect
-  pBuffer.copyPixels(pimage, tTargetRect, tSourceRect, pParams)
+  pBuffer.image.copyPixels(pimage, tTargetRect, tSourceRect, pParams)
 end
 
 on draw me, tRGB 
   if not ilk(tRGB, #color) then
     tRGB = rgb(0, 0, 255)
   end if
-  tTargetRect = rect(pLocX, pLocY, pLocX + pwidth, pLocY + pheight)
-  pBuffer.draw(tTargetRect, [#shapeType:#rect, #color:tRGB])
+  tTargetRect = rect(pLocX, pLocY, (pLocX + pwidth), (pLocY + pheight))
+  pBuffer.image.draw(tTargetRect, [#shapeType:#rect, #color:tRGB])
 end

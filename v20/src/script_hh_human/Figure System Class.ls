@@ -10,12 +10,12 @@ on construct me
   me.loadActionSetXML()
   me.loadAnimationSetXML()
   pFigureData = createObject(#temp, "Figure Data Class")
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
   me.regMsgList(0)
-  return(1)
+  return TRUE
 end
 
 on define me, tProps 
@@ -26,10 +26,10 @@ on define me, tProps
   if voidp(tProps.getAt("type")) then
     error(me, "source type of figure list is void", #define, #major)
   end if
-  if tProps.getAt("type") = "url" then
+  if (tProps.getAt("type") = "url") then
     me.loadFigurePartList(tProps.getAt("source"))
   else
-    if tProps.getAt("type") = "proplist" then
+    if (tProps.getAt("type") = "proplist") then
       tProlist = tProps.getAt("source")
       initializeValidPartLists(tProlist)
     else
@@ -43,18 +43,18 @@ on parseFigure me, tFigureData, tsex, tClass
     tClass = "user"
   end if
   if tClass <> "user" then
-    if tClass = "pelle" then
+    if (tClass = "pelle") then
       tTempFigure = [:]
-      if (tFigureData.count(#char) mod 5) = 0 and integerp(integer(tFigureData)) then
+      if ((tFigureData.count(#char) mod 5) = 0) and integerp(integer(tFigureData)) then
         tFigureData = tFigureData.getProp(#char, 1, tFigureData.count(#char))
         tPartCount = (tFigureData.count(#char) / 5)
         i = 0
-        repeat while i <= tPartCount - 1
-          tPart = tFigureData.getProp(#char, (i * 5) + 1, (i * 5) + 5)
+        repeat while i <= (tPartCount - 1)
+          tPart = tFigureData.getProp(#char, ((i * 5) + 1), ((i * 5) + 5))
           tSetID = tPart.getProp(#char, 1, 3)
           tColorId = tPart.getProp(#char, 4, 5)
           tTempFigure.setAt(tSetID, value(tColorId))
-          i = 1 + i
+          i = (1 + i)
         end repeat
         exit repeat
       end if
@@ -72,12 +72,12 @@ on parseFigure me, tFigureData, tsex, tClass
           tColorId = tPartData.getProp(#item, 3)
           tTempFigure.setAt(tSetID, tColorId)
         end if
-        i = 1 + i
+        i = (1 + i)
       end repeat
       the itemDelimiter = tDelim
       tFigure = me.parseNewTypeFigure(tTempFigure, tsex)
     else
-      if tClass = "bot" then
+      if (tClass = "bot") then
         the itemDelimiter = "&"
         tPartCount = tFigureData.count(#item)
         tFigure = [:]
@@ -90,25 +90,25 @@ on parseFigure me, tFigureData, tsex, tClass
           the itemDelimiter = "/"
           tValue = [:]
           tValue.setAt("model", tDesc.getProp(#item, 1))
-          repeat while tValue.getAt("model").getProp(#char, 1) = "0"
+          repeat while (tValue.getAt("model").getProp(#char, 1) = "0")
             tValue.setAt("model", tValue.getAt("model").getProp(#char, 2, tValue.getAt("model").length))
           end repeat
           tColor = tDesc.getPropRef(#item, 2).getProp(#line, 1)
           the itemDelimiter = ","
-          if tColor.count(#item) = 1 then
-            if integer(tColor) = 0 then
+          if (tColor.count(#item) = 1) then
+            if (integer(tColor) = 0) then
               tValue.setAt("color", rgb("EEEEEE"))
             else
               tPalette = paletteIndex(integer(tColor))
               tValue.setAt("color", rgb(tPalette.red, tPalette.green, tPalette.blue))
             end if
           else
-            if tColor.count(#item) = 3 then
+            if (tColor.count(#item) = 3) then
               tValue.setAt("color", value("rgb(" & tColor & ")"))
               if voidp(tValue.getAt("color")) then
                 tValue.setAt("color", rgb("EEEEEE"))
               end if
-              if tValue.getAt("color").red + tValue.getAt("color").green + tValue.getAt("color").blue > (238 * 3) then
+              if ((tValue.getAt("color").red + tValue.getAt("color").green) + tValue.getAt("color").blue) > (238 * 3) then
                 tValue.setAt("color", rgb("EEEEEE"))
               end if
             else
@@ -117,7 +117,7 @@ on parseFigure me, tFigureData, tsex, tClass
           end if
           tFigure.setAt(tProp, tValue)
           the itemDelimiter = "&"
-          i = 1 + i
+          i = (1 + i)
         end repeat
         exit repeat
       end if
@@ -138,7 +138,7 @@ on parseNewTypeFigure me, tFigure, tsex
       tColorId = 1
     end if
     tColor = pFigureData.getColor(tColorId)
-    if tColor = 0 then
+    if (tColor = 0) then
       tColor = rgb("#EEEEEE")
     else
       tColor = rgb(tColor)
@@ -156,14 +156,14 @@ on parseNewTypeFigure me, tFigure, tsex
           tTempFigure.addProp(tPart, ["model":tmodel, "color":rgb("#EEEEEE"), "setid":tSetID, "colorid":tColorId])
         end if
       end if
-      i = 1 + i
+      i = (1 + i)
     end repeat
     tHidden = pFigureData.getSetHiddenLayers(tSetID)
     tSetType = pFigureData.getSetType(tSetID)
     if tHidden <> 0 and tSetType <> 0 then
       tHiddenLayers.setAt(tSetType, tHidden)
     end if
-    f = 1 + f
+    f = (1 + f)
   end repeat
   tTempFigure = me.checkAndFixFigure(tTempFigure, tHiddenLayers)
   return(tTempFigure)
@@ -174,18 +174,18 @@ on checkDataLoaded me
   repeat while tList <= undefined
     tName = getAt(undefined, undefined)
     if not variableExists(tName) then
-      return(0)
+      return FALSE
     end if
     if getVariable(tName) <> 1 then
-      return(0)
+      return FALSE
     end if
   end repeat
   tStamp = ""
   tNo = 1
   repeat while tNo <= 100
-    tChar = numToChar(random(48) + 74)
+    tChar = numToChar((random(48) + 74))
     tStamp = tStamp & tChar
-    tNo = 1 + tNo
+    tNo = (1 + tNo)
   end repeat
   tFuseReceipt = getSpecialServices().getReceipt(tStamp)
   tReceipt = []
@@ -193,16 +193,16 @@ on checkDataLoaded me
   repeat while tCharNo <= tStamp.length
     tChar = chars(tStamp, tCharNo, tCharNo)
     tChar = charToNum(tChar)
-    tChar = (tChar * tCharNo) + 309203
+    tChar = ((tChar * tCharNo) + 309203)
     tReceipt.setAt(tCharNo, tChar)
-    tCharNo = 1 + tCharNo
+    tCharNo = (1 + tCharNo)
   end repeat
   if tReceipt <> tFuseReceipt then
     error(me, "Invalid build structure", #checkDataLoaded, #critical)
-    return(0)
+    return FALSE
   end if
   setVariable("figurepartlist.loaded", 1)
-  return(1)
+  return TRUE
 end
 
 on loadFigurePartList me, tURL 
@@ -213,7 +213,7 @@ on loadFigurePartList me, tURL
     tCastName = getAt(undefined, tURL)
     tCastLib = castLib(tCastName)
     if tCastLib <> 0 then
-      tMemberCount = tCastName + the number of castMembers
+      tMemberCount = (tCastName + the number of castMembers)
     end if
   end repeat
   tSeparator = "?"
@@ -238,7 +238,7 @@ on partListLoaded me, tParams, tSuccess
     return(error(me, "Failure while loading part list", #partListLoaded, #critical))
   end if
   tMemName = getVariable("external.figurepartlist.txt")
-  if tMemName = 0 then
+  if (tMemName = 0) then
     tMemName = ""
   end if
   if not memberExists(tMemName) then
@@ -267,7 +267,7 @@ on checkAndFixFigure me, tFigure, tHiddenLayers
     tHiddenLayers = [:]
   end if
   tPartDefinition = getVariableValue("human.parts.h")
-  if tPartDefinition = 0 then
+  if (tPartDefinition = 0) then
     tPartDefinition = []
   end if
   tHiddenLayersOrdered = [:]
@@ -277,7 +277,7 @@ on checkAndFixFigure me, tFigure, tHiddenLayers
     if not voidp(tHiddenLayers.getAt(tPartSymbol)) then
       tHiddenLayersOrdered.addProp(tPartSymbol, tHiddenLayers.getAt(tPartSymbol))
     end if
-    i = 255 + i
+    i = (255 + i)
   end repeat
   i = 1
   repeat while i <= tHiddenLayersOrdered.count
@@ -291,7 +291,7 @@ on checkAndFixFigure me, tFigure, tHiddenLayers
         tHiddenLayersOrdered.deleteProp(tPart)
       end if
     end repeat
-    i = 1 + i
+    i = (1 + i)
   end repeat
   tRemoveList = getVariable("human.parts.removeList")
   if ilk(tRemoveList) <> #propList then
@@ -304,19 +304,19 @@ on checkAndFixFigure me, tFigure, tHiddenLayers
       tRemovePart = tRemoveList.getAt(i)
       tFigure.deleteProp(tRemovePart)
     end if
-    i = 1 + i
+    i = (1 + i)
   end repeat
   return(tFigure)
 end
 
 on loadPartSetXML me 
   if variableExists("partsets.xml.loaded") then
-    if getVariable("partsets.xml.loaded") = 1 then
-      return(1)
+    if (getVariable("partsets.xml.loaded") = 1) then
+      return TRUE
     end if
   end if
   tURL = getVariable("figure.partsets.xml")
-  if tURL = 0 then
+  if (tURL = 0) then
     return(error(me, "Can't load partset XML - no URL configured", #loadPartSetXML, #critical))
   end if
   tMem = tURL
@@ -327,12 +327,12 @@ end
 
 on loadActionSetXML me 
   if variableExists("draworder.xml.loaded") then
-    if getVariable("draworder.xml.loaded") = 1 then
-      return(1)
+    if (getVariable("draworder.xml.loaded") = 1) then
+      return TRUE
     end if
   end if
   tURL = getVariable("figure.draworder.xml")
-  if tURL = 0 then
+  if (tURL = 0) then
     return(error(me, "Can't load action set XML - no URL configured", #loadActionSetXML, #critical))
   end if
   tMem = tURL
@@ -343,12 +343,12 @@ end
 
 on loadAnimationSetXML me 
   if variableExists("animation.xml.loaded") then
-    if getVariable("animation.xml.loaded") = 1 then
-      return(1)
+    if (getVariable("animation.xml.loaded") = 1) then
+      return TRUE
     end if
   end if
   tURL = getVariable("figure.animation.xml")
-  if tURL = 0 then
+  if (tURL = 0) then
     return(error(me, "Can't load animation XML - no URL configured", #loadAnimationSetXML, #critical))
   end if
   tMem = tURL
@@ -364,7 +364,7 @@ on partSetLoaded me, tParams, tSuccess
     return(error(me, "Failure while loading partset XML", #partSetLoaded, #critical))
   end if
   tMemName = getVariable("figure.partsets.xml")
-  if tMemName = 0 then
+  if (tMemName = 0) then
     return(error(me, "Failure while loading partset XML", #partSetLoaded, #critical))
   end if
   if not memberExists(tMemName) then
@@ -381,11 +381,11 @@ on partSetLoaded me, tParams, tSuccess
       i = 1
       repeat while i <= tParserObject.count(#child)
         tName = tParserObject.getPropRef(#child, i).name
-        if tName = "partSets" then
+        if (tName = "partSets") then
           j = 1
           repeat while j <= tParserObject.getPropRef(#child, i).count(#child)
             tElementPartSet = tParserObject.getPropRef(#child, i).getProp(#child, j)
-            if tElementPartSet.name = "partSet" then
+            if (tElementPartSet.name = "partSet") then
               tFullList = []
               tSwimList = []
               tSmallList = []
@@ -395,14 +395,14 @@ on partSetLoaded me, tParams, tSuccess
               k = 1
               repeat while k <= tElementPartSet.count(#child)
                 tElementPart = tElementPartSet.getProp(#child, k)
-                if tElementPart.name = "part" then
+                if (tElementPart.name = "part") then
                   tAttributes = ["swim":1, "small":1]
                   l = 1
                   repeat while l <= tElementPart.count(#attributeName)
                     tName = tElementPart.getProp(#attributeName, l)
                     tValue = tElementPart.getProp(#attributeValue, l)
                     tAttributes.setAt(tName, tValue)
-                    l = 1 + l
+                    l = (1 + l)
                   end repeat
                   if not voidp(tAttributes.getAt("set-type")) then
                     tFullList.add(tAttributes.getAt("set-type"))
@@ -425,7 +425,7 @@ on partSetLoaded me, tParams, tSuccess
                     error(me, "missing set-type attribute for part in partSet element!", #loadPartSetXML, #major)
                   end if
                 end if
-                k = 1 + k
+                k = (1 + k)
               end repeat
               setVariable("human.parts." & tPeopleSize, tFullList)
               setVariable("human.parts." & tPeopleSize50, tSmallList)
@@ -434,36 +434,36 @@ on partSetLoaded me, tParams, tSuccess
               setVariable("human.parts.flipList", tFlipList)
               setVariable("human.parts.removeList", tRemoveList)
             else
-              if tElementPartSet.name = "activePartSet" then
+              if (tElementPartSet.name = "activePartSet") then
                 tPartList = []
                 tID = void()
                 l = 1
                 repeat while l <= tElementPartSet.count(#attributeName)
                   tName = tElementPartSet.getProp(#attributeName, l)
                   tValue = tElementPartSet.getProp(#attributeValue, l)
-                  if tName = "id" then
+                  if (tName = "id") then
                     tID = tValue
                   end if
-                  l = 1 + l
+                  l = (1 + l)
                 end repeat
                 if not voidp(tID) then
                   k = 1
                   repeat while k <= tElementPartSet.count(#child)
                     tElementPart = tElementPartSet.getProp(#child, k)
-                    if tElementPart.name = "activePart" then
+                    if (tElementPart.name = "activePart") then
                       tAttributes = ["set-type":void()]
                       l = 1
                       repeat while l <= tElementPart.count(#attributeName)
                         tName = tElementPart.getProp(#attributeName, l)
                         tValue = tElementPart.getProp(#attributeValue, l)
                         tAttributes.setAt(tName, tValue)
-                        l = 1 + l
+                        l = (1 + l)
                       end repeat
                       if not voidp(tAttributes.getAt("set-type")) then
                         tPartList.add(tAttributes.getAt("set-type"))
                       end if
                     end if
-                    k = 1 + k
+                    k = (1 + k)
                   end repeat
                   setVariable("human.partset." & tID & "." & tPeopleSize, tPartList)
                   setVariable("human.partset." & tID & "." & tPeopleSize50, tPartList)
@@ -472,10 +472,10 @@ on partSetLoaded me, tParams, tSuccess
                 end if
               end if
             end if
-            j = 1 + j
+            j = (1 + j)
           end repeat
         end if
-        i = 1 + i
+        i = (1 + i)
       end repeat
     end if
   end if
@@ -490,7 +490,7 @@ on actionSetLoaded me, tParams, tSuccess
     return(error(me, "Failure while loading action set XML", #actionSetLoaded, #critical))
   end if
   tMemName = getVariable("figure.draworder.xml")
-  if tMemName = 0 then
+  if (tMemName = 0) then
     return(error(me, "Failure while loading action set XML", #actionSetLoaded, #critical))
   end if
   if not memberExists(tMemName) then
@@ -507,47 +507,47 @@ on actionSetLoaded me, tParams, tSuccess
       i = 1
       repeat while i <= tParserObject.count(#child)
         tName = tParserObject.getPropRef(#child, i).name
-        if tName = "actionSet" then
+        if (tName = "actionSet") then
           j = 1
           repeat while j <= tParserObject.getPropRef(#child, i).count(#child)
             tElementAction = tParserObject.getPropRef(#child, i).getProp(#child, j)
-            if tElementAction.name = "action" then
+            if (tElementAction.name = "action") then
               tID = void()
               l = 1
               repeat while l <= tElementAction.count(#attributeName)
                 tName = tElementAction.getProp(#attributeName, l)
                 tValue = tElementAction.getProp(#attributeValue, l)
-                if tName = "id" then
+                if (tName = "id") then
                   tID = tValue
                 end if
-                l = 1 + l
+                l = (1 + l)
               end repeat
               if not voidp(tID) then
                 k = 1
                 repeat while k <= tElementAction.count(#child)
                   tElementDirection = tElementAction.getProp(#child, k)
-                  if tElementDirection.name = "direction" then
+                  if (tElementDirection.name = "direction") then
                     tDirection = void()
                     l = 1
                     repeat while l <= tElementDirection.count(#attributeName)
                       tName = tElementDirection.getProp(#attributeName, l)
                       tValue = tElementDirection.getProp(#attributeValue, l)
-                      if tName = "id" then
+                      if (tName = "id") then
                         tDirection = tValue
                       end if
-                      l = 1 + l
+                      l = (1 + l)
                     end repeat
                     if not voidp(tDirection) then
                       tPartList = []
                       l = 1
                       repeat while l <= tElementDirection.count(#child)
                         tElementPartList = tElementDirection.getProp(#child, l)
-                        if tElementPartList.name = "partList" then
+                        if (tElementPartList.name = "partList") then
                           tPartList = me.parsePartListXML(tElementPartList)
                         end if
-                        l = 1 + l
+                        l = (1 + l)
                       end repeat
-                      if tID = "std" then
+                      if (tID = "std") then
                         setVariable("human.parts." & tPeopleSize & "." & tDirection, tPartList)
                         setVariable("human.parts." & tPeopleSize50 & "." & tDirection, tPartList)
                       else
@@ -557,16 +557,16 @@ on actionSetLoaded me, tParams, tSuccess
                     else
                     end if
                   end if
-                  k = 1 + k
+                  k = (1 + k)
                 end repeat
                 exit repeat
               end if
               error(me, "missing id attribute for partSet!", #loadPartSetXML, #major)
             end if
-            j = 1 + j
+            j = (1 + j)
           end repeat
         end if
-        i = 1 + i
+        i = (1 + i)
       end repeat
     end if
   end if
@@ -582,7 +582,7 @@ on animationSetLoaded me, tParams, tSuccess
   end if
   tAnimationData = [:]
   tMemName = getVariable("figure.animation.xml")
-  if tMemName = 0 then
+  if (tMemName = 0) then
     return(error(me, "Failure while loading animation XML", #animationSetLoaded, #critical))
   end if
   if not memberExists(tMemName) then
@@ -599,33 +599,33 @@ on animationSetLoaded me, tParams, tSuccess
       i = 1
       repeat while i <= tParserObject.count(#child)
         tName = tParserObject.getPropRef(#child, i).name
-        if tName = "animationSet" then
+        if (tName = "animationSet") then
           j = 1
           repeat while j <= tParserObject.getPropRef(#child, i).count(#child)
             tElementAction = tParserObject.getPropRef(#child, i).getProp(#child, j)
-            if tElementAction.name = "action" then
+            if (tElementAction.name = "action") then
               tID = void()
               l = 1
               repeat while l <= tElementAction.count(#attributeName)
                 tName = tElementAction.getProp(#attributeName, l)
                 tValue = tElementAction.getProp(#attributeValue, l)
-                if tName = "id" then
+                if (tName = "id") then
                   tID = tValue
                 end if
-                l = 1 + l
+                l = (1 + l)
               end repeat
               if not voidp(tID) then
                 k = 1
                 repeat while k <= tElementAction.count(#child)
                   tElementPart = tElementAction.getProp(#child, k)
-                  if tElementPart.name = "part" then
+                  if (tElementPart.name = "part") then
                     tAttributes = ["set-type":void()]
                     l = 1
                     repeat while l <= tElementPart.count(#attributeName)
                       tName = tElementPart.getProp(#attributeName, l)
                       tValue = tElementPart.getProp(#attributeValue, l)
                       tAttributes.setAt(tName, tValue)
-                      l = 1 + l
+                      l = (1 + l)
                     end repeat
                     if not voidp(tAttributes.getAt("set-type")) then
                       tFrameList = me.parseFrameListXML(tElementPart)
@@ -637,16 +637,16 @@ on animationSetLoaded me, tParams, tSuccess
                       error(me, "missing set-type attribute for part in action element!", #loadPartSetXML, #major)
                     end if
                   end if
-                  k = 1 + k
+                  k = (1 + k)
                 end repeat
               end if
               exit repeat
             end if
             error(me, "missing id attribute in action element!", #loadPartSetXML, #major)
-            j = 1 + j
+            j = (1 + j)
           end repeat
         end if
-        i = 1 + i
+        i = (1 + i)
       end repeat
     end if
   end if
@@ -661,23 +661,23 @@ on parsePartListXML me, tElement
   i = 1
   repeat while i <= tElement.count(#child)
     tElementPart = tElement.getProp(#child, i)
-    if tElementPart.name = "part" then
+    if (tElementPart.name = "part") then
       tAttributes = ["set-type":void()]
       l = 1
       repeat while l <= tElementPart.count(#attributeName)
         tName = tElementPart.getProp(#attributeName, l)
         tValue = tElementPart.getProp(#attributeValue, l)
         tAttributes.setAt(tName, tValue)
-        l = 1 + l
+        l = (1 + l)
       end repeat
       if not voidp(tAttributes.getAt("set-type")) then
         tPartList.setAt(tIndex, tAttributes.getAt("set-type"))
-        tIndex = tIndex + 1
+        tIndex = (tIndex + 1)
       else
         error(me, "missing set-type attribute for part!", #parsePartListXML, #major)
       end if
     end if
-    i = 1 + i
+    i = (1 + i)
   end repeat
   return(tPartList)
 end
@@ -688,23 +688,23 @@ on parseFrameListXML me, tElement
   i = 1
   repeat while i <= tElement.count(#child)
     tElementFrame = tElement.getProp(#child, i)
-    if tElementFrame.name = "frame" then
+    if (tElementFrame.name = "frame") then
       tAttributes = ["number":void()]
       l = 1
       repeat while l <= tElementFrame.count(#attributeName)
         tName = tElementFrame.getProp(#attributeName, l)
         tValue = tElementFrame.getProp(#attributeValue, l)
         tAttributes.setAt(tName, tValue)
-        l = 1 + l
+        l = (1 + l)
       end repeat
       if not voidp(tAttributes.getAt("number")) then
         tFrameList.setAt(tIndex, tAttributes.getAt("number"))
-        tIndex = tIndex + 1
+        tIndex = (tIndex + 1)
       else
         error(me, "missing number attribute for frame!", #parseFrameListXML, #major)
       end if
     end if
-    i = 1 + i
+    i = (1 + i)
   end repeat
   return(tFrameList)
 end

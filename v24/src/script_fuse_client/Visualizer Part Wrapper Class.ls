@@ -10,7 +10,7 @@ on construct me
   pSpriteProps = [#blend:100, #ink:41, #bgColor:rgb(255, 255, 255)]
   pVisualizerLocZ = 0
   pBgColor = rgb(254, 254, 254)
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
@@ -20,7 +20,7 @@ on deconstruct me
       removeMember(pImgMemberID)
     end if
   end if
-  return(1)
+  return TRUE
 end
 
 on define me, tProps 
@@ -38,7 +38,7 @@ on define me, tProps
   pVisualizerLocZ = integer(tProps.getAt(#locZ))
   pImgMemberID = "VizWrap_" & pWrapID & "_" & me.getID()
   pWrapperStatus = [#rendered:0, #rectOk:0]
-  return(1)
+  return TRUE
 end
 
 on addPart me, tProps 
@@ -55,10 +55,10 @@ on addPart me, tProps
   else
     tPartMember = member(abs(getmemnum(tProps.getAt(#member))))
   end if
-  tX1 = tProps.getAt(#locH) + pOffsets.getAt(1) - tPartMember.getProp(#regPoint, 1)
-  tY1 = tProps.getAt(#locV) + pOffsets.getAt(2) - tPartMember.getProp(#regPoint, 2)
-  tX2 = tX1 + tProps.getAt(#width)
-  tY2 = tY1 + tProps.getAt(#height)
+  tX1 = ((tProps.getAt(#locH) + pOffsets.getAt(1)) - tPartMember.getProp(#regPoint, 1))
+  tY1 = ((tProps.getAt(#locV) + pOffsets.getAt(2)) - tPartMember.getProp(#regPoint, 2))
+  tX2 = (tX1 + tProps.getAt(#width))
+  tY2 = (tY1 + tProps.getAt(#height))
   tProps.setAt(#screenrect, rect(tX1, tY1, tX2, tY2))
   tDelim = the itemDelimiter
   the itemDelimiter = "_"
@@ -76,22 +76,22 @@ on addPart me, tProps
   if not voidp(tProps.getAt(#palette)) then
     pSpriteProps.setAt(#palette, tProps.getAt(#palette))
   end if
-  if pCapturesEvents = 0 then
+  if (pCapturesEvents = 0) then
     pCapturesEvents = tProps.getAt(#catchEvents)
   end if
   pPartList.append(tProps)
   pWrapperStatus = [#rendered:0, #rectOk:0]
-  return(1)
+  return TRUE
 end
 
 on removePart me, tPartId 
   tPos = 1
   repeat while tPos <= pPartList.count
-    if pPartList.getAt(tPos).getAt(#id) = tPartId then
+    if (pPartList.getAt(tPos).getAt(#id) = tPartId) then
       pPartList.deleteAt(tPos)
       pWrapperStatus = [#rendered:0, #rectOk:0]
     else
-      tPos = 1 + tPos
+      tPos = (1 + tPos)
     end if
   end repeat
   return(me.updateWrap())
@@ -99,27 +99,27 @@ end
 
 on setProperty me, tProp, tValue 
   if voidp(tProp) or voidp(tValue) then
-    return(0)
+    return FALSE
   end if
-  if tProp = #sprite then
+  if (tProp = #sprite) then
     me.setSprite(integer(tValue))
   else
-    if tProp = #owner then
+    if (tProp = #owner) then
       pOwnerID = tValue
     else
-      if tProp = #locZ then
+      if (tProp = #locZ) then
         pLocZ = integer(tValue)
       else
-        if tProp = #visLocZ then
+        if (tProp = #visLocZ) then
           pVisualizerLocZ = integer(tValue)
         else
-          if tProp = #blend then
+          if (tProp = #blend) then
             pSpriteProps.setAt(#blend, integer(tValue))
           else
-            if tProp = #ink then
+            if (tProp = #ink) then
               pSpriteProps.setAt(#ink, tValue)
             else
-              if tProp = #palette then
+              if (tProp = #palette) then
                 pSpriteProps.setAt(#palette, tValue)
               end if
             end if
@@ -128,29 +128,29 @@ on setProperty me, tProp, tValue
       end if
     end if
   end if
-  return(1)
+  return TRUE
 end
 
 on getProperty me, tProp 
-  if tProp = #locZ then
-    return(pLocZ + pVisualizerLocZ)
+  if (tProp = #locZ) then
+    return((pLocZ + pVisualizerLocZ))
   else
-    if tProp = #sprite then
+    if (tProp = #sprite) then
       return(pSprite)
     else
-      if tProp = #type then
+      if (tProp = #type) then
         return(pTypeDef)
       else
-        if tProp = #id then
+        if (tProp = #id) then
           return(me.getID())
         else
-          if tProp = #imagePntr then
+          if (tProp = #imagePntr) then
             return(me.getImagePointer())
           else
-            if tProp = #Active then
+            if (tProp = #Active) then
               return(pCapturesEvents)
             else
-              if tProp = #blend then
+              if (tProp = #blend) then
                 return(pSpriteProps.getAt(#blend))
               end if
             end if
@@ -159,18 +159,18 @@ on getProperty me, tProp
       end if
     end if
   end if
-  return(0)
+  return FALSE
 end
 
 on fitRectToWall me, tRect, tSlope 
-  if not pTypeDef = #wallleft or pTypeDef = #wallright then
+  if not (pTypeDef = #wallleft) or (pTypeDef = #wallright) then
     return([#insideWall:0])
   end if
   tB = me.getBounds()
   if tB.getAt(1) > tRect.getAt(1) or tB.getAt(2) > tRect.getAt(2) or tB.getAt(3) < tRect.getAt(3) or tB.getAt(4) < tRect.getAt(4) then
     return([#insideWall:0])
   end if
-  if pTypeDef = #wallleft then
+  if (pTypeDef = #wallleft) then
     tHighestPoint = point(tRect.getAt(3), tRect.getAt(2))
     tLowestPoint = point(tRect.getAt(1), tRect.getAt(4))
     tSlope = (tSlope * -1)
@@ -182,16 +182,16 @@ on fitRectToWall me, tRect, tSlope
   end if
   repeat while pPartList <= tSlope
     tPart = getAt(tSlope, tRect)
-    if pTypeDef = #wallleft then
+    if (pTypeDef = #wallleft) then
       tSlopeSpace = abs((tPart.width * tSlope))
     else
       tSlopeSpace = 0
     end if
     tPartScreenrect = tPart.screenrect
     if tHighestPoint.inside(tPartScreenrect) then
-      tDistX = tHighestPoint.getAt(1) - tPartScreenrect.getAt(1)
+      tDistX = (tHighestPoint.getAt(1) - tPartScreenrect.getAt(1))
       tDistY = (tDistX * tSlope)
-      tSlopeYAtX = tPartScreenrect.getAt(2) + tSlopeSpace + tDistY
+      tSlopeYAtX = ((tPartScreenrect.getAt(2) + tSlopeSpace) + tDistY)
       if tSlopeYAtX < tHighestPoint.getAt(2) then
         tPartForHighest = tPart
       else
@@ -201,16 +201,16 @@ on fitRectToWall me, tRect, tSlope
       end if
       repeat while pPartList <= tSlope
         tPart = getAt(tSlope, tRect)
-        if pTypeDef = #wallleft then
+        if (pTypeDef = #wallleft) then
           tSlopeSpace = 0
         else
           tSlopeSpace = abs((tPart.width * tSlope))
         end if
         tPartScreenrect = tPart.screenrect
         if tLowestPoint.inside(tPartScreenrect) then
-          tDistX = tLowestPoint.getAt(1) - tPartScreenrect.getAt(1)
+          tDistX = (tLowestPoint.getAt(1) - tPartScreenrect.getAt(1))
           tDistY = (tDistX * tSlope)
-          tSlopeYAtX = tPartScreenrect.getAt(2) + tPart.height - tSlopeSpace + tDistY
+          tSlopeYAtX = (((tPartScreenrect.getAt(2) + tPart.height) - tSlopeSpace) + tDistY)
           if tSlopeYAtX > tLowestPoint.getAt(2) then
             tPartForLowest = tPart
           else
@@ -218,7 +218,7 @@ on fitRectToWall me, tRect, tSlope
           if voidp(tPartForLowest) then
             return([#insideWall:0])
           end if
-          if pTypeDef = #wallleft then
+          if (pTypeDef = #wallleft) then
             tRePart = tPartForLowest
           else
             tRePart = tPartForHighest
@@ -227,8 +227,8 @@ on fitRectToWall me, tRect, tSlope
           tReturnProps = [:]
           tReturnProps.setAt(#insideWall, 1)
           tReturnProps.setAt(#wallLocation, point(tRePart.locX, tRePart.locY))
-          tLocalX = tRect.getAt(1) - tPartScreenrect.getAt(1)
-          tLocalY = tRect.getAt(2) - tPartScreenrect.getAt(2)
+          tLocalX = (tRect.getAt(1) - tPartScreenrect.getAt(1))
+          tLocalY = (tRect.getAt(2) - tPartScreenrect.getAt(2))
           tReturnProps.setAt(#localCoordinate, point(tLocalX, tLocalY))
           tReturnProps.setAt(#direction, tdir)
           tReturnProps.setAt(#wallSprites, [pSprite])
@@ -241,7 +241,7 @@ end
 
 on setPartPattern me, tPatternType, tPalette, tColor, tWrapType 
   if tWrapType <> pTypeDef then
-    return(0)
+    return FALSE
   end if
   tDelim = the itemDelimiter
   the itemDelimiter = "_"
@@ -279,27 +279,27 @@ end
 on getPartAt me, tLocX, tLocY 
   repeat while pPartList <= tLocY
     tPart = getAt(tLocY, tLocX)
-    if tPart.getAt(#locX) = tLocX and tPart.getAt(#locY) = tLocY then
+    if (tPart.getAt(#locX) = tLocX) and (tPart.getAt(#locY) = tLocY) then
       tPartValues = [:]
       tPartValues.setAt(#member, tPart.getAt(#member))
-      tPartValues.setAt(#locH, tPart.getAt(#locH) + pOffsets.getAt(1))
-      tPartValues.setAt(#locV, tPart.getAt(#locV) + pOffsets.getAt(2))
-      tPartValues.setAt(#locZ, pLocZ + pVisualizerLocZ)
+      tPartValues.setAt(#locH, (tPart.getAt(#locH) + pOffsets.getAt(1)))
+      tPartValues.setAt(#locV, (tPart.getAt(#locV) + pOffsets.getAt(2)))
+      tPartValues.setAt(#locZ, (pLocZ + pVisualizerLocZ))
       return(tPartValues)
     end if
   end repeat
-  return(0)
+  return FALSE
 end
 
 on getBounds me 
   if not pWrapperStatus.getAt(#rectOk) then
     me.updateBounds()
   end if
-  return(pBoundingRect + rect(pOffsets.getAt(1), pOffsets.getAt(2), pOffsets.getAt(1), pOffsets.getAt(2)))
+  return((pBoundingRect + rect(pOffsets.getAt(1), pOffsets.getAt(2), pOffsets.getAt(1), pOffsets.getAt(2))))
 end
 
 on renderWithColor me, tColor 
-  if ilk(tColor) = #color then
+  if (ilk(tColor) = #color) then
     pBgColor = tColor
     me.renderImage()
   end if
@@ -314,25 +314,25 @@ end
 
 on setSprite me, tSpr 
   pSprite = sprite(integer(tSpr))
-  return(1)
+  return TRUE
 end
 
 on updateBounds me 
-  if pPartList.count = 0 then
+  if (pPartList.count = 0) then
     pBoundingRect = rect(0, 0, 0, 0)
     pWrapperStatus.setAt(#rectOk, 1)
-    return(1)
+    return TRUE
   end if
   tLocs = [#X1:[], #X2:[], #Y1:[], #Y2:[]]
   repeat while pPartList <= undefined
     tPart = getAt(undefined, undefined)
     tPartMem = member(abs(getmemnum(tPart.getAt(#member))))
-    tX1 = tPart.locH - tPartMem.getProp(#regPoint, 1)
-    tY1 = tPart.locV - tPartMem.getProp(#regPoint, 2)
+    tX1 = (tPart.locH - tPartMem.getProp(#regPoint, 1))
+    tY1 = (tPart.locV - tPartMem.getProp(#regPoint, 2))
     tLocs.getAt(#X1).append(tX1)
     tLocs.getAt(#Y1).append(tY1)
-    tLocs.getAt(#X2).append(tX1 + tPart.width)
-    tLocs.getAt(#Y2).append(tY1 + tPart.height)
+    tLocs.getAt(#X2).append((tX1 + tPart.width))
+    tLocs.getAt(#Y2).append((tY1 + tPart.height))
   end repeat
   tMinX1 = min(tLocs.getAt(#X1))
   tMaxX2 = max(tLocs.getAt(#X2))
@@ -340,26 +340,26 @@ on updateBounds me
   tMaxY2 = max(tLocs.getAt(#Y2))
   pBoundingRect = rect(tMinX1, tMinY1, tMaxX2, tMaxY2)
   pWrapperStatus.setAt(#rectOk, 1)
-  return(1)
+  return TRUE
 end
 
 on updateSprite me 
   if voidp(pSprite) then
-    return(0)
+    return FALSE
   end if
   tMemNum = getmemnum(pImgMemberID)
-  if tMemNum = 0 then
-    return(0)
+  if (tMemNum = 0) then
+    return FALSE
   end if
   pSprite.member = member(tMemNum)
   pSprite.width = member(tMemNum).width
   pSprite.height = member(tMemNum).height
-  pSprite.locZ = pLocZ + pVisualizerLocZ
+  pSprite.locZ = (pLocZ + pVisualizerLocZ)
   pSprite.bgColor = pSpriteProps.getAt(#bgColor)
   pSprite.ink = pSpriteProps.getAt(#ink)
   pSprite.blend = pSpriteProps.getAt(#blend)
   pSprite.loc = point(pOffsets.getAt(1), pOffsets.getAt(2))
-  return(1)
+  return TRUE
 end
 
 on renderImage me 
@@ -367,40 +367,40 @@ on renderImage me
     createMember(pImgMemberID, #bitmap)
   end if
   tImgMember = member(getmemnum(pImgMemberID))
-  tStageWidth = the stageRight - the stageLeft
-  tStageHeight = the stageBottom - the stageTop
+  tStageWidth = (the stageRight - the stageLeft)
+  tStageHeight = (the stageBottom - the stageTop)
   tTargetImage = image(tStageWidth, tStageHeight, 32)
   repeat while pPartList <= undefined
     tPart = getAt(undefined, undefined)
     tPartMem = member(getmemnum(tPart.getAt(#member)))
     tPalette = pSpriteProps.getAt(#palette)
-    if ilk(tPalette) = #symbol then
+    if (ilk(tPalette) = #symbol) then
       tPartMem.paletteRef = tPalette
     else
       tPartMem.palette = member(getmemnum(tPalette))
     end if
-    tPartRectX1 = tPart.getAt(#locH) - tPartMem.getProp(#regPoint, 1)
-    tPartRectY1 = tPart.getAt(#locV) - tPartMem.getProp(#regPoint, 2)
-    tPartRectX2 = tPartRectX1 + tPart.getAt(#width)
-    tPartRectY2 = tPartRectY1 + tPart.getAt(#height)
+    tPartRectX1 = (tPart.getAt(#locH) - tPartMem.getProp(#regPoint, 1))
+    tPartRectY1 = (tPart.getAt(#locV) - tPartMem.getProp(#regPoint, 2))
+    tPartRectX2 = (tPartRectX1 + tPart.getAt(#width))
+    tPartRectY2 = (tPartRectY1 + tPart.getAt(#height))
     tSourceImage = tPartMem.image
     if tPart.getAt(#flipH) then
       tImage = image(tSourceImage.width, tSourceImage.height, tSourceImage.depth, tSourceImage.paletteRef)
       tQuad = [point(tSourceImage.width, 0), point(0, 0), point(0, tSourceImage.height), point(tSourceImage.width, tSourceImage.height)]
       tImage.copyPixels(tSourceImage, tQuad, tSourceImage.rect)
       tSourceImage = tImage
-      tPartRectX1 = tPartRectX1 - tSourceImage.width
-      tPartRectX2 = tPartRectX2 - tSourceImage.width
+      tPartRectX1 = (tPartRectX1 - tSourceImage.width)
+      tPartRectX2 = (tPartRectX2 - tSourceImage.width)
     end if
     if tPart.getAt(#multiflip) then
       tImage = image(tSourceImage.width, tSourceImage.height, tSourceImage.depth, tSourceImage.paletteRef)
       tQuad = [point(tSourceImage.width, 0), point(0, 0), point(0, tSourceImage.height), point(tSourceImage.width, tSourceImage.height)]
       tImage.copyPixels(tSourceImage, tQuad, tSourceImage.rect)
       tSourceImage = tImage
-      tPartRectX1 = tPart.getAt(#locH) + tPart.getAt(#offsetx) - (tPartMem.getProp(#regPoint, 1) * -1) - tSourceImage.width
-      tPartRectX2 = tPartRectX1 + tSourceImage.width
-      tPartRectY1 = tPart.getAt(#locV) - tPartMem.getProp(#regPoint, 2)
-      tPartRectY2 = tPartRectY1 + tSourceImage.height
+      tPartRectX1 = (((tPart.getAt(#locH) + tPart.getAt(#offsetx)) - (tPartMem.getProp(#regPoint, 1) * -1)) - tSourceImage.width)
+      tPartRectX2 = (tPartRectX1 + tSourceImage.width)
+      tPartRectY1 = (tPart.getAt(#locV) - tPartMem.getProp(#regPoint, 2))
+      tPartRectY2 = (tPartRectY1 + tSourceImage.height)
     end if
     tPartRect = rect(tPartRectX1, tPartRectY1, tPartRectX2, tPartRectY2)
     tMatte = tSourceImage.createMatte()
@@ -410,5 +410,5 @@ on renderImage me
   tImgMember.image = tTargetImage
   tImgMember.regPoint = point(0, 0)
   pWrapperStatus.setAt(#rendered, 1)
-  return(1)
+  return TRUE
 end

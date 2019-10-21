@@ -21,7 +21,7 @@ on showInfostand me
     tWndObj.registerClient(me.getID())
     tWndObj.registerProcedure(#eventProcInfoStand, me.getID(), #mouseUp)
   end if
-  return(1)
+  return TRUE
 end
 
 on hideInfoStand me 
@@ -35,24 +35,24 @@ on showObjectInfo me, tObjType
   executeMessage(#showObjectDEVELOPMENT, tObjType)
   tWndObj = getWindow(pInfoStandId)
   if not tWndObj then
-    return(0)
+    return FALSE
   end if
   tRoomComponent = getThread(#room).getComponent()
   tRoomInterface = getThread(#room).getInterface()
   tSelectedObj = tRoomInterface.getSelectedObject()
-  if tObjType = "user" then
+  if (tObjType = "user") then
     tObj = tRoomComponent.getUserObject(tSelectedObj)
     pCurrentlySelectedUserIdId = tSelectedObj
   else
-    if tObjType = "active" then
+    if (tObjType = "active") then
       tObj = tRoomComponent.getActiveObject(tSelectedObj)
       pCurrentlySelectedUserIdId = void()
     else
-      if tObjType = "item" then
+      if (tObjType = "item") then
         tObj = tRoomComponent.getItemObject(tSelectedObj)
         pCurrentlySelectedUserIdId = void()
       else
-        if tObjType = "pet" then
+        if (tObjType = "pet") then
           tObj = tRoomComponent.getUserObject(tSelectedObj)
           pCurrentlySelectedUserIdId = void()
         else
@@ -63,7 +63,7 @@ on showObjectInfo me, tObjType
       end if
     end if
   end if
-  if tObj = 0 then
+  if (tObj = 0) then
     tProps = 0
   else
     tProps = tObj.getInfo()
@@ -75,19 +75,19 @@ on showObjectInfo me, tObjType
     tWndObj.getElement("info_name").setText(tProps.getAt(#name))
     tWndObj.getElement("info_text").setText(tProps.getAt(#custom))
     tElem = tWndObj.getElement("info_image")
-    if ilk(tProps.getAt(#image)) = #image then
+    if (ilk(tProps.getAt(#image)) = #image) then
       tElem.resizeTo(tProps.getAt(#image).width, tProps.getAt(#image).height)
-      member.regPoint = point((tProps.getAt(#image).width / 2), tProps.getAt(#image).height)
+      tElem.getProperty(#sprite).member.regPoint = point((tProps.getAt(#image).width / 2), tProps.getAt(#image).height)
       tElem.feedImage(tProps.getAt(#image))
     end if
     me.updateInfoStandBadge(tProps.getAt(#badge))
     me.updateInfoStandGroup(tProps.getAt(#groupid))
-    if tObjType = "user" then
+    if (tObjType = "user") then
       pInfoStandName = tProps.getAt(#name)
     else
       pInfoStandName = void()
     end if
-    return(1)
+    return TRUE
   else
     return(me.hideObjectInfo())
   end if
@@ -95,10 +95,10 @@ end
 
 on updateInfostandAvatar me, tUserObj 
   if call(#getClass, [tUserObj]) <> "user" then
-    return(1)
+    return TRUE
   end if
   if tUserObj.getName() <> pInfoStandName then
-    return(1)
+    return TRUE
   end if
   tRoomInterface = getThread(#room).getInterface()
   tSelectedObj = tRoomInterface.getSelectedObject()
@@ -106,7 +106,7 @@ on updateInfostandAvatar me, tUserObj
   tRoomInterface.setSelectedObject(tUserObj.getID())
   me.showObjectInfo("user")
   tRoomInterface.setSelectedObject(tSaveSelectedObj)
-  return(1)
+  return TRUE
 end
 
 on hideObjectInfo me 
@@ -115,7 +115,7 @@ on hideObjectInfo me
     removeObject("BadgeEffect")
   end if
   if not windowExists(pInfoStandId) then
-    return(0)
+    return FALSE
   end if
   tWndObj = getWindow(pInfoStandId)
   tWndObj.getElement("info_image").clearImage()
@@ -126,7 +126,7 @@ on hideObjectInfo me
   tWndObj.getElement("info_group_badge").clearImage()
   pCurrentlySelectedUserId = void()
   me.updateInfoStandGroup()
-  return(1)
+  return TRUE
 end
 
 on updateInfoStandBadge me, tBadgeID, tUserID 
@@ -141,15 +141,15 @@ on updateInfoStandGroup me, tGroupId
     if tWindowObj.elementExists("info_group_badge") then
       tElem = tWindowObj.getElement("info_group_badge")
     else
-      return(0)
+      return FALSE
     end if
   else
-    return(0)
+    return FALSE
   end if
   if voidp(tGroupId) or tGroupId < 0 then
     tElem.clearImage()
     tElem.setProperty(#cursor, "cursor.arrow")
-    return(0)
+    return FALSE
   end if
   tRoomComponent = getThread(#room).getComponent()
   tGroupInfoObject = tRoomComponent.getGroupInfoObject()
@@ -169,25 +169,25 @@ on groupLogoDownloaded me, tGroupId
   tRoomComponent = getThread(#room).getComponent()
   tSelectedObj = tRoomInterface.getSelectedObject()
   tObj = tRoomComponent.getUserObject(tSelectedObj)
-  if tObj = 0 then
-    return(0)
+  if (tObj = 0) then
+    return FALSE
   end if
   tUsersGroup = tObj.getProperty(#groupid)
-  if tUsersGroup = tGroupId then
+  if (tUsersGroup = tGroupId) then
     me.updateInfoStandGroup(tGroupId)
   end if
 end
 
 on eventProcInfoStand me, tEvent, tSprID, tParam 
-  if tSprID = "info_badge" then
+  if (tSprID = "info_badge") then
     tSession = getObject(#session)
     tRoomInterface = getThread(#room).getInterface()
     tSelectedObj = tRoomInterface.getSelectedObject()
-    if tSelectedObj = tSession.GET("user_index") then
+    if (tSelectedObj = tSession.GET("user_index")) then
       tRoomInterface.getBadgeObject().toggleOwnBadgeVisibility()
     end if
   else
-    if tSprID = "info_group_badge" then
+    if (tSprID = "info_group_badge") then
       tRoomInterface = getThread(#room).getInterface()
       tSelectedObj = tRoomInterface.getSelectedObject()
       if not voidp(tSelectedObj) and tSelectedObj <> "" then
@@ -197,5 +197,5 @@ on eventProcInfoStand me, tEvent, tSprID, tParam
       end if
     end if
   end if
-  return(1)
+  return TRUE
 end

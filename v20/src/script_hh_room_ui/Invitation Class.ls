@@ -6,14 +6,14 @@ on construct me
   registerMessage(#enterRoom, me.getID(), #close)
   registerMessage(#leaveRoom, me.getID(), #close)
   registerMessage(#changeRoom, me.getID(), #close)
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
   if windowExists(pWindowID) then
     removeWindow(pWindowID)
   end if
-  return(1)
+  return TRUE
 end
 
 on close me 
@@ -22,15 +22,15 @@ end
 
 on align me, tWindowID, tElemID 
   if not windowExists(tWindowID) then
-    return(0)
+    return FALSE
   end if
   tTargetWindow = getWindow(tWindowID)
   if not tTargetWindow.elementExists(tElemID) then
-    return(0)
+    return FALSE
   end if
   tElem = tTargetWindow.getElement(tElemID)
   if not tElem.getProperty(#visible) then
-    return(0)
+    return FALSE
   end if
   createWindow(pWindowID, "popup_bg_white.window")
   tWindow = getWindow(pWindowID)
@@ -45,31 +45,31 @@ on align me, tWindowID, tElemID
   tInvitationWindow = getWindow(pWindowID)
   tOwnWidth = tInvitationWindow.getProperty(#width)
   tOwnHeight = tInvitationWindow.getProperty(#height)
-  tLocX = tWinLocX + tElemLocX + (tElemWidth / 2) - (tOwnWidth / 2)
-  tLocY = tWinLocY + tElemLocY - tOwnHeight
-  tOffset = tLocX + tOwnWidth - undefined.width
+  tLocX = (((tWinLocX + tElemLocX) + (tElemWidth / 2)) - (tOwnWidth / 2))
+  tLocY = ((tWinLocY + tElemLocY) - tOwnHeight)
+  tOffset = ((tLocX + tOwnWidth) - the stage.rect.width)
   if tOffset > 0 then
-    tLocX = tLocX - tOffset
+    tLocX = (tLocX - tOffset)
     tPointerElem = tInvitationWindow.getElement("pointer")
     tPointerElem.moveBy(tOffset, 0)
   end if
   tInvitationWindow.moveTo(tLocX, tLocY)
-  return(1)
+  return TRUE
 end
 
 on show me, tdata, tWindowID, tElemID 
   if tdata.ilk <> #propList then
-    return(0)
+    return FALSE
   end if
   if voidp(tdata.findPos(#name)) then
-    return(0)
+    return FALSE
   end if
   pData = tdata
   if not me.align(tWindowID, tElemID) then
-    return(0)
+    return FALSE
   end if
   if not windowExists(pWindowID) then
-    return(0)
+    return FALSE
   end if
   tWindow = getWindow(pWindowID)
   tHeader = tdata.getAt(#name)
@@ -85,16 +85,16 @@ end
 
 on eventProcInvitation me, tEvent, tSprID 
   if tSprID <> "invitation_button_accept" then
-    if tSprID = "invitation_button_accept_text" then
+    if (tSprID = "invitation_button_accept_text") then
       executeMessage(#acceptInvitation)
       me.close()
     else
       if tSprID <> "invitation_button_deny" then
-        if tSprID = "invitation_button_deny_text" then
+        if (tSprID = "invitation_button_deny_text") then
           executeMessage(#rejectInvitation)
           me.close()
         else
-          if tSprID = "popup_button_close" then
+          if (tSprID = "popup_button_close") then
             me.close()
           end if
         end if

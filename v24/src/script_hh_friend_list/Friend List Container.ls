@@ -23,7 +23,7 @@ on populateCategoryData me, tdata
     tCat.setAt(#id, tID)
     tCat.setAt(#name, tdata.getAt(tNo))
     pCategories.setAt(tID, tCat)
-    tNo = 1 + tNo
+    tNo = (1 + tNo)
   end repeat
   tCat = [:]
   tID = "-1"
@@ -49,8 +49,8 @@ on setListLimit me, tLimit
 end
 
 on isListFull me 
-  if pListLimit = -1 then
-    return(0)
+  if (pListLimit = -1) then
+    return FALSE
   end if
   return(pFriendList.count >= pListLimit)
 end
@@ -68,10 +68,10 @@ on updateFriend me, tFriendData
     repeat while tNo <= tFriendData.count
       tProp = tFriendData.getPropAt(tNo)
       tValue = tFriendData.getAt(tNo)
-      if not tProp = #figure and tValue = "" then
+      if not (tProp = #figure) and (tValue = "") then
         tFriendProps.setAt(tProp, tValue)
       end if
-      tNo = 1 + tNo
+      tNo = (1 + tNo)
     end repeat
     tName = tFriendProps.getAt(#name)
     pFriendList.setAt(tID, tFriendProps.duplicate())
@@ -85,7 +85,7 @@ end
 on getFriendByID me, tFriendID 
   tFriend = pFriendList.getAt(string(tFriendID))
   if voidp(tFriend) then
-    return(0)
+    return FALSE
   else
     return(tFriend)
   end if
@@ -96,12 +96,12 @@ on getFriendByName me, tName
   tNo = 1
   repeat while tNo <= pFriendList.count
     tFriend = pFriendList.getAt(tNo)
-    if tName = string(tFriend.getAt(#name)) then
+    if (tName = string(tFriend.getAt(#name))) then
       return(tFriend)
     end if
-    tNo = 1 + tNo
+    tNo = (1 + tNo)
   end repeat
-  return(0)
+  return FALSE
 end
 
 on getFriendsInCategory me, tCategoryId 
@@ -110,10 +110,10 @@ on getFriendsInCategory me, tCategoryId
   tNo = 1
   repeat while tNo <= pFriendList.count
     tFriend = pFriendList.getAt(tNo)
-    if tFriend.getAt(#categoryId) = tCategoryId then
+    if (tFriend.getAt(#categoryId) = tCategoryId) then
       tList.setAt(tFriend.getAt(#name), tFriend)
     end if
-    tNo = 1 + tNo
+    tNo = (1 + tNo)
   end repeat
   return(tList)
 end

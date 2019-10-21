@@ -1,10 +1,10 @@
 on construct me 
   me.registerServerMessages(1)
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
-  return(1)
+  return TRUE
 end
 
 on handleHelpItems me, tMsg 
@@ -15,22 +15,22 @@ on handleHelpItems me, tMsg
   repeat while tNo <= tIdCount
     tID = tConn.GetIntFrom()
     tKey = ""
-    if tID = 1 then
+    if (tID = 1) then
       tKey = "own_user"
     else
-      if tID = 2 then
+      if (tID = 2) then
         tKey = "messenger"
       else
-        if tID = 3 then
+        if (tID = 3) then
           tKey = "navigator"
         else
-          if tID = 4 then
+          if (tID = 4) then
             tKey = "chat"
           else
-            if tID = 5 then
+            if (tID = 5) then
               tKey = "hand"
             else
-              if tID = 6 then
+              if (tID = 6) then
                 tKey = "invite"
               end if
             end if
@@ -41,7 +41,7 @@ on handleHelpItems me, tMsg
     if tKey <> "" then
       tdata.setAt(tKey, 1)
     end if
-    tNo = 1 + tNo
+    tNo = (1 + tNo)
   end repeat
   me.getComponent().setHelpStatusData(tdata)
 end
@@ -50,10 +50,10 @@ on handleTutorsAvailable me, tMsg
   tConn = tMsg.getaProp(#connection)
   tAreAvailable = tConn.GetIntFrom()
   if not tAreAvailable then
-    return(0)
+    return FALSE
   end if
   me.getComponent().showInviteWindow()
-  return(1)
+  return TRUE
 end
 
 on handleInvitationExpired me, tMsg 
@@ -81,5 +81,5 @@ on registerServerMessages me, tBool
     unregisterListener(getVariable("connection.info.id", #info), me.getID(), tMsgs)
     unregisterCommands(getVariable("connection.info.id", #info), me.getID(), tCmds)
   end if
-  return(1)
+  return TRUE
 end

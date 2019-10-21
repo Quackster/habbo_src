@@ -1,17 +1,17 @@
 property pFacadeId
 
 on construct me 
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
-  return(1)
+  return TRUE
 end
 
 on setID me, tID, tFacadeId 
   pID = tID
   pFacadeId = tFacadeId
-  return(1)
+  return TRUE
 end
 
 on handleUpdate me, tTopic, tdata 
@@ -19,7 +19,7 @@ on handleUpdate me, tTopic, tdata
 end
 
 on Refresh me, tTopic, tdata 
-  return(1)
+  return TRUE
 end
 
 on getGameSystem me 
@@ -28,8 +28,8 @@ end
 
 on sendGameSystemEvent me, tTopic, tdata 
   tGameSystem = me.getGameSystem()
-  if tGameSystem = 0 then
-    return(0)
+  if (tGameSystem = 0) then
+    return FALSE
   end if
   return(tGameSystem.sendGameSystemEvent(tTopic, tdata))
 end

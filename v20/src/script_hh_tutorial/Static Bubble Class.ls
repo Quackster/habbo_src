@@ -9,8 +9,8 @@ on construct me
   pTargetY = pLocY
   pBubbleId = void()
   me.Init()
-  me.registerProcedure(#eventHandler, me.getID(), #mouseUp)
-  return(1)
+  me.pWindow.registerProcedure(#eventHandler, me.getID(), #mouseUp)
+  return TRUE
 end
 
 on setProperty me, tProperty, tValue 
@@ -18,17 +18,17 @@ on setProperty me, tProperty, tValue
     i = 1
     repeat while i <= tProperty.count
       me.setProperty(tProperty.getPropAt(i), tProperty.getAt(i))
-      i = 1 + i
+      i = (1 + i)
     end repeat
   end if
-  if tProperty = #bubbleId then
+  if (tProperty = #bubbleId) then
     pBubbleId = tValue
   else
-    if tProperty = #targetX then
+    if (tProperty = #targetX) then
       pTargetX = tValue
       me.selectPointerAndPosition(me.pDirection)
     else
-      if tProperty = #targetY then
+      if (tProperty = #targetY) then
         pTargetY = tValue
         me.selectPointerAndPosition(me.pDirection)
       else
@@ -42,20 +42,20 @@ on moveTo me, tLocX, tLocY
   pLocX = tLocX
   pLocY = tLocY
   if objectp(me.pWindow) then
-    me.moveTo(pLocX, pLocY)
+    me.pWindow.moveTo(pLocX, pLocY)
   end if
 end
 
 on setText me, tText 
   callAncestor(#setText, [me], tText)
   if not objectp(me.pWindow) then
-    return(0)
+    return FALSE
   end if
   tCloseElemId = "bubble_close"
-  if me.elementExists(tCloseElemId) then
-    tTextElem = me.getElement("bubble_text")
-    tCloseElem = me.getElement(tCloseElemId)
-    tCloseElem.moveTo(tTextElem.getProperty(#width) + tTextElem.getProperty(#locX) + 5, tCloseElem.getProperty(#locY))
+  if me.pWindow.elementExists(tCloseElemId) then
+    tTextElem = me.pWindow.getElement("bubble_text")
+    tCloseElem = me.pWindow.getElement(tCloseElemId)
+    tCloseElem.moveTo(((tTextElem.getProperty(#width) + tTextElem.getProperty(#locX)) + 5), tCloseElem.getProperty(#locY))
   end if
   me.selectPointerAndPosition(me.pDirection)
 end
@@ -63,33 +63,33 @@ end
 on selectPointerAndPosition me, tPointerIndex 
   callAncestor(#selectPointer, [me], tPointerIndex)
   if not objectp(me.pWindow) then
-    return(0)
+    return FALSE
   end if
   tMarginH = 20
   tMarginV = 15
-  if tPointerIndex = 1 then
-    me.moveTo(pTargetX - tMarginH, pTargetY)
+  if (tPointerIndex = 1) then
+    me.pWindow.moveTo((pTargetX - tMarginH), pTargetY)
   else
-    if tPointerIndex = 2 then
-      me.moveTo(pTargetX - me.getProperty(#width) + tMarginH, pTargetY)
+    if (tPointerIndex = 2) then
+      me.pWindow.moveTo(((pTargetX - me.pWindow.getProperty(#width)) + tMarginH), pTargetY)
     else
-      if tPointerIndex = 3 then
-        me.moveTo(pTargetX - me.getProperty(#width), pTargetY - tMarginV)
+      if (tPointerIndex = 3) then
+        me.pWindow.moveTo((pTargetX - me.pWindow.getProperty(#width)), (pTargetY - tMarginV))
       else
-        if tPointerIndex = 4 then
-          me.moveTo(pTargetX - me.getProperty(#width), pTargetY - me.getProperty(#height) + tMarginV)
+        if (tPointerIndex = 4) then
+          me.pWindow.moveTo((pTargetX - me.pWindow.getProperty(#width)), ((pTargetY - me.pWindow.getProperty(#height)) + tMarginV))
         else
-          if tPointerIndex = 5 then
-            me.moveTo(pTargetX - me.getProperty(#width) + tMarginH, pTargetY - me.getProperty(#height))
+          if (tPointerIndex = 5) then
+            me.pWindow.moveTo(((pTargetX - me.pWindow.getProperty(#width)) + tMarginH), (pTargetY - me.pWindow.getProperty(#height)))
           else
-            if tPointerIndex = 6 then
-              me.moveTo(pTargetX - tMarginH, pTargetY - me.getProperty(#height))
+            if (tPointerIndex = 6) then
+              me.pWindow.moveTo((pTargetX - tMarginH), (pTargetY - me.pWindow.getProperty(#height)))
             else
-              if tPointerIndex = 7 then
-                me.moveTo(pTargetX, pTargetY - me.getProperty(#height) + tMarginV)
+              if (tPointerIndex = 7) then
+                me.pWindow.moveTo(pTargetX, ((pTargetY - me.pWindow.getProperty(#height)) + tMarginV))
               else
-                if tPointerIndex = 8 then
-                  me.moveTo(pTargetX, pTargetY - tMarginV)
+                if (tPointerIndex = 8) then
+                  me.pWindow.moveTo(pTargetX, (pTargetY - tMarginV))
                 end if
               end if
             end if
@@ -101,7 +101,7 @@ on selectPointerAndPosition me, tPointerIndex
 end
 
 on eventHandler me, tEvent, tSpriteID, tParam 
-  if tSpriteID = "bubble_close" then
+  if (tSpriteID = "bubble_close") then
     me.hide()
     if threadExists("new_user_help") then
       getThread("new_user_help").getComponent().setHelpItemClosed(pBubbleId)

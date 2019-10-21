@@ -9,7 +9,7 @@ on construct me
   registerMessage(#changeRoom, me.getID(), #removeHelp)
   registerMessage(#enterRoom, me.getID(), #removeHelp)
   registerMessage(#roomInterfaceHidden, me.getID(), #removeHelp)
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
@@ -18,29 +18,29 @@ on deconstruct me
   unregisterMessage(#changeReady, me.getID())
   unregisterMessage(#enterReady, me.getID())
   unregisterMessage(#roomInterfaceHidden, me.getID())
-  return(1)
+  return TRUE
 end
 
 on setHelpItemClosed me, tHelpItemId 
   pHelpStatusData.setAt(tHelpItemId, 0)
   tConn = getConnection(getVariableValue("connection.info.id"))
   tKey = ""
-  if tHelpItemId = "own_user" then
+  if (tHelpItemId = "own_user") then
     tKey = 1
   else
-    if tHelpItemId = "messenger" then
+    if (tHelpItemId = "messenger") then
       tKey = 2
     else
-      if tHelpItemId = "navigator" then
+      if (tHelpItemId = "navigator") then
         tKey = 3
       else
-        if tHelpItemId = "chat" then
+        if (tHelpItemId = "chat") then
           tKey = 4
         else
-          if tHelpItemId = "hand" then
+          if (tHelpItemId = "hand") then
             tKey = 5
           else
-            if tHelpItemId = "invite" then
+            if (tHelpItemId = "invite") then
               tKey = 6
             end if
           end if
@@ -71,7 +71,7 @@ on isChatHelpOn me
   if not voidp(pHelpStatusData.getAt("chat")) then
     return(pHelpStatusData.getAt("chat"))
   end if
-  return(0)
+  return FALSE
 end
 
 on initHelpOnRoomEntry me 
@@ -87,7 +87,7 @@ on removeHelp me
     if timeoutExists(tTimeoutID) then
       removeTimeout(tTimeoutID)
     end if
-    tItemNo = 1 + tItemNo
+    tItemNo = (1 + tItemNo)
   end repeat
   me.getInterface().removeAll()
   pPostponedHelps = []
@@ -113,7 +113,7 @@ on showNewUserHelpItems me
       tTimeoutID = "NUH_help_" & tItem
       createTimeout(tTimeoutID, tTimeout, #tryToShowHelp, me.getID(), tItem, 1)
     end if
-    tItemNo = 1 + tItemNo
+    tItemNo = (1 + tItemNo)
   end repeat
 end
 
@@ -121,14 +121,14 @@ on tryToShowHelp me, tHelpId
   if pOpenHelps.count > 1 then
     tPos = pPostponedHelps.findPos(tHelpId)
     if tPos > 0 then
-      return(1)
+      return TRUE
     end if
     pPostponedHelps.add(tHelpId)
-    return(1)
+    return TRUE
   end if
-  if tHelpId = "messenger" then
+  if (tHelpId = "messenger") then
     if not threadExists("messenger") then
-      return(0)
+      return FALSE
     end if
     tMessengerComponent = getThread("messenger").getComponent()
     tMsgCount = tMessengerComponent.getNumOfMessages()
@@ -138,22 +138,22 @@ on tryToShowHelp me, tHelpId
       pOpenHelps.add(tHelpId)
     end if
   else
-    if tHelpId = "navigator" then
+    if (tHelpId = "navigator") then
       me.getInterface().showGenericHelp(tHelpId)
       pOpenHelps.add(tHelpId)
     else
-      if tHelpId = "own_user" then
+      if (tHelpId = "own_user") then
         me.getInterface().showOwnUserHelp(tHelpId)
         pOpenHelps.add(tHelpId)
       else
-        if tHelpId = "hand" then
+        if (tHelpId = "hand") then
           towner = getObject(#session).GET(#room_owner)
           if towner then
             me.getInterface().showGenericHelp(tHelpId)
             pOpenHelps.add(tHelpId)
           end if
         else
-          if tHelpId = "invite" then
+          if (tHelpId = "invite") then
             me.checkHelpers()
           end if
         end if
@@ -171,7 +171,7 @@ on checkHelpers me
 end
 
 on showInviteWindow me 
-  pOpenHelps.add("invite")
+  me.pOpenHelps.add("invite")
   me.getInterface().showInviteWindow()
 end
 

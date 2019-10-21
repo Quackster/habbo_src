@@ -7,7 +7,7 @@ on define me, tX, tY, tZ, tTileWidth, tAccuracyFactor
   pTileWidth = tTileWidth
   pAccuracyFactor = tAccuracyFactor
   pTileFactor = (pTileWidth * pAccuracyFactor)
-  return(1)
+  return TRUE
 end
 
 on setLocation me, tX, tY, tZ 
@@ -35,19 +35,19 @@ on setTileLoc me, tX, tY, tZ
 end
 
 on getTileLoc me 
-  return([#x:(x + (pTileFactor / 2) / pTileFactor), #y:(y + (pTileFactor / 2) / pTileFactor)])
+  return([#x:((x + (pTileFactor / 2)) / pTileFactor), #y:((y + (pTileFactor / 2)) / pTileFactor)])
 end
 
 on getTileX me 
-  return((x + (pTileFactor / 2) / pTileFactor))
+  return(((x + (pTileFactor / 2)) / pTileFactor))
 end
 
 on getTileY me 
-  return((y + (pTileFactor / 2) / pTileFactor))
+  return(((y + (pTileFactor / 2)) / pTileFactor))
 end
 
 on getTileZ me 
-  return((z + (pTileFactor / 2) / pTileFactor))
+  return(((z + (pTileFactor / 2)) / pTileFactor))
 end
 
 on dump me 

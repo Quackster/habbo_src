@@ -13,7 +13,7 @@ on construct me
       pItemObjList.add(tObj)
     else
     end if
-    i = i + 1
+    i = (i + 1)
   end repeat
 end
 

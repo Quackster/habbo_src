@@ -16,7 +16,7 @@ on construct me
   pWallPreviewIdList.add("catalog_thumb_wall_pattern")
   pWallPreviewIdList.add("catalog_wall_preview_a_left")
   pWallPreviewIdList.add("catalog_wall_preview_b_right")
-  return(1)
+  return TRUE
 end
 
 on define me, tPageProps 
@@ -37,7 +37,7 @@ on define me, tPageProps
       if tWndObj.elementExists("ctlg_buy_floor") then
         tWndObj.getElement("ctlg_buy_floor").setProperty(#visible, 0)
       end if
-      return(0)
+      return FALSE
     end if
     tItemNo = 1
     repeat while tItemNo <= tProdList.count
@@ -45,7 +45,7 @@ on define me, tPageProps
       tClass = tProp.getAt("class")
       tClassPrefix = tClass.getProp(#word, 1)
       tClassPostfix = tClass.getProp(#word, 2)
-      if tClassPrefix = "wallpaper" and tClassPostfix <> "" then
+      if (tClassPrefix = "wallpaper") and tClassPostfix <> "" then
         tPatternNo = tClassPostfix
         tPatternMemName = tWallPatterns.getProp(#line, integer(tPatternNo))
         tModelsRawData = member(tPatternMemName).text
@@ -77,17 +77,17 @@ on define me, tPageProps
             tModelProps.setAt(#rgb, tRGB)
             tModelProps.setAt(#palette, tPalette)
             tmodellist.setAt(string(tModelNo), tModelProps)
-            tModelNo = 1 + tModelNo
+            tModelNo = (1 + tModelNo)
           end if
         end repeat
         pWallPatterns.setAt(tPatternNo, tmodellist)
         the itemDelimiter = tDelim
       else
-        if tClass = "floor" then
+        if (tClass = "floor") then
           pFloorProps = tProp
         end if
       end if
-      tItemNo = 1 + tItemNo
+      tItemNo = (1 + tItemNo)
     end repeat
   end if
   me.setWallPaper("pattern", 6)
@@ -99,8 +99,8 @@ on setWallPaper me, ttype, tChange
   if not tWndObj then
     return(error(me, "Couldn't access catalogue window!", #setWallPaper, #major))
   end if
-  if ttype = "pattern" then
-    pWallPattern = pWallPattern + tChange
+  if (ttype = "pattern") then
+    pWallPattern = (pWallPattern + tChange)
     if pWallPattern > pWallPatterns.count then
       pWallPattern = 1
     else
@@ -119,8 +119,8 @@ on setWallPaper me, ttype, tChange
       tElemNext.Activate()
     end if
   else
-    if ttype = "model" then
-      pWallModel = pWallModel + tChange
+    if (ttype = "model") then
+      pWallModel = (pWallModel + tChange)
       if pWallModel > pWallPatterns.getAt(pWallPattern).count then
         pWallModel = 1
       else
@@ -134,7 +134,7 @@ on setWallPaper me, ttype, tChange
   ttype = tWallData.getAt(#patternID)
   tPalette = tWallData.getAt(#palette)
   tColor = tWallData.getAt(#rgb)
-  tColors = ["left":tColor - rgb(16, 16, 16), "right":tColor, "a":tColor - rgb(16, 16, 16), "b":tColor, "pattern":tColor]
+  tColors = ["left":(tColor - rgb(16, 16, 16)), "right":tColor, "a":(tColor - rgb(16, 16, 16)), "b":tColor, "pattern":tColor]
   pWallProps = tWallData
   tDelim = the itemDelimiter
   the itemDelimiter = "_"
@@ -169,12 +169,12 @@ on setWallPaper me, ttype, tChange
       end if
     end if
   end if
-  return(1)
+  return TRUE
 end
 
 on setFloorPattern me, ttype, tChange 
-  if ttype = "pattern" then
-    pFloorPattern = pFloorPattern + tChange
+  if (ttype = "pattern") then
+    pFloorPattern = (pFloorPattern + tChange)
     if pFloorPattern > pFloorPatterns.count(#line) then
       pFloorPattern = 1
     else
@@ -184,8 +184,8 @@ on setFloorPattern me, ttype, tChange
     end if
     pFloorModel = 1
   else
-    if ttype = "model" then
-      pFloorModel = pFloorModel + tChange
+    if (ttype = "model") then
+      pFloorModel = (pFloorModel + tChange)
       if pFloorPatterns.getProp(#line, pFloorPattern) > field(0).count(#line) then
         pFloorModel = 1
       else
@@ -242,47 +242,47 @@ on setFloorPattern me, ttype, tChange
       end if
     end if
   end if
-  return(1)
+  return TRUE
 end
 
 on eventProc me, tEvent, tSprID, tProp 
-  if tEvent = #mouseUp then
-    if tSprID = "close" then
-      return(0)
+  if (tEvent = #mouseUp) then
+    if (tSprID = "close") then
+      return FALSE
     end if
   end if
-  if tEvent = #mouseDown then
-    if tSprID = "ctlg_wall_pattern_prev" then
+  if (tEvent = #mouseDown) then
+    if (tSprID = "ctlg_wall_pattern_prev") then
       me.setWallPaper("pattern", -1)
     else
-      if tSprID = "ctlg_wall_pattern_next" then
+      if (tSprID = "ctlg_wall_pattern_next") then
         me.setWallPaper("pattern", 1)
       else
-        if tSprID = "ctlg_wall_color_prev" then
+        if (tSprID = "ctlg_wall_color_prev") then
           me.setWallPaper("model", -1)
         else
-          if tSprID = "ctlg_wall_color_next" then
+          if (tSprID = "ctlg_wall_color_next") then
             me.setWallPaper("model", 1)
           else
-            if tSprID = "ctlg_floor_pattern_prev" then
+            if (tSprID = "ctlg_floor_pattern_prev") then
               me.setFloorPattern("pattern", -1)
             else
-              if tSprID = "ctlg_floor_pattern_next" then
+              if (tSprID = "ctlg_floor_pattern_next") then
                 me.setFloorPattern("pattern", 1)
               else
-                if tSprID = "ctlg_floor_color_prev" then
+                if (tSprID = "ctlg_floor_color_prev") then
                   me.setFloorPattern("model", -1)
                 else
-                  if tSprID = "ctlg_floor_color_next" then
+                  if (tSprID = "ctlg_floor_color_next") then
                     me.setFloorPattern("model", 1)
                   else
-                    if tSprID = "ctlg_buy_wall" then
+                    if (tSprID = "ctlg_buy_wall") then
                       getThread(#catalogue).getComponent().checkProductOrder(pWallProps)
                     else
-                      if tSprID = "ctlg_buy_floor" then
+                      if (tSprID = "ctlg_buy_floor") then
                         getThread(#catalogue).getComponent().checkProductOrder(pFloorProps)
                       else
-                        return(0)
+                        return FALSE
                       end if
                     end if
                   end if
@@ -294,5 +294,5 @@ on eventProc me, tEvent, tSprID, tProp
       end if
     end if
   end if
-  return(1)
+  return TRUE
 end

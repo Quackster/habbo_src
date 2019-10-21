@@ -9,28 +9,28 @@ end
 on changeStatus me, tMsg 
   tConnection = tMsg.getaProp(#connection)
   if voidp(tConnection) then
-    return(0)
+    return FALSE
   end if
   tID = tConnection.GetIntFrom()
   tStatus = tConnection.GetIntFrom()
   if not threadExists(#room) then
     error(me, "Room thread not found.", #changeStatus, #critical)
-    return(0)
+    return FALSE
   end if
   tComponent = getThread(#room).getComponent()
   if voidp(tComponent) then
     error(me, "Room component not found.", #changeStatus, #critical)
-    return(0)
+    return FALSE
   end if
   tActiveObject = tComponent.getActiveObject(tID)
   if voidp(tActiveObject) then
     error(me, "One way door object" && tID && "not found.", #changeStatus, #major)
-    return(0)
+    return FALSE
   end if
   if tActiveObject.handler(#setDoor) then
     tActiveObject.setDoor(tStatus)
   end if
-  return(1)
+  return TRUE
 end
 
 on regMessageListener me, tBool 
@@ -45,5 +45,5 @@ on regMessageListener me, tBool
     unregisterListener(getVariable("connection.info.id"), me.getID(), tMsgs)
     unregisterCommands(getVariable("connection.info.id"), me.getID(), tCmds)
   end if
-  return(1)
+  return TRUE
 end

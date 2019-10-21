@@ -5,7 +5,7 @@ on construct me
   pTimeOutID = getUniqueID()
   pActivateID = getUniqueID()
   registerMessage(#externalLinkClick, me.getID(), #notifyExternalLinkClick)
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
@@ -13,7 +13,7 @@ on deconstruct me
   me.removeWindowTimeout()
   me.removeActivateTimeout()
   unregisterMessage(#externalLinkClick)
-  return(1)
+  return TRUE
 end
 
 on removeTooltipWindow me 
@@ -48,8 +48,8 @@ end
 
 on activateToolTip me 
   tWndObj = getWindow(pWindowID)
-  if tWndObj = 0 then
-    return(0)
+  if (tWndObj = 0) then
+    return FALSE
   end if
   activateWindow(pWindowID)
 end
@@ -57,38 +57,38 @@ end
 on createTooltipWindow me 
   createWindow(pWindowID, "tooltip_external_link.window")
   tWndObj = getWindow(pWindowID)
-  if tWndObj = 0 then
-    return(0)
+  if (tWndObj = 0) then
+    return FALSE
   end if
   tWndObj.registerProcedure(#eventProc, me.getID(), #mouseUp)
 end
 
 on notifyExternalLinkClick me, tClickLocation 
   if voidp(tClickLocation) then
-    return(0)
+    return FALSE
   end if
   if ilk(tClickLocation) <> #point then
-    return(0)
+    return FALSE
   end if
   if not windowExists(pWindowID) then
     me.createTooltipWindow()
   end if
   tWndObj = getWindow(pWindowID)
-  if tWndObj = 0 then
-    return(0)
+  if (tWndObj = 0) then
+    return FALSE
   end if
   tWndWidth = tWndObj.getProperty(#width)
   tWndHeight = tWndObj.getProperty(#height)
   tMarginH = getVariable("external_link_win_offset_h")
   tMarginV = getVariable("external_link_win_offset_v")
-  tScreenWidth = the stageRight - the stageLeft
-  tOpenLocH = tClickLocation.getAt(1) + tMarginH
-  if tOpenLocH + tWndWidth > tScreenWidth then
-    tOpenLocH = tClickLocation.getAt(1) - tMarginH - tWndWidth
+  tScreenWidth = (the stageRight - the stageLeft)
+  tOpenLocH = (tClickLocation.getAt(1) + tMarginH)
+  if (tOpenLocH + tWndWidth) > tScreenWidth then
+    tOpenLocH = ((tClickLocation.getAt(1) - tMarginH) - tWndWidth)
   end if
-  tOpenLocV = tClickLocation.getAt(2) - tMarginV - tWndHeight
-  if tOpenLocV - tMarginV < 0 then
-    tOpenLocV = tClickLocation.getAt(2) + tMarginV
+  tOpenLocV = ((tClickLocation.getAt(2) - tMarginV) - tWndHeight)
+  if (tOpenLocV - tMarginV) < 0 then
+    tOpenLocV = (tClickLocation.getAt(2) + tMarginV)
   end if
   tWndObj.moveTo(tOpenLocH, tOpenLocV)
   me.createWindowTimeout()
@@ -97,10 +97,10 @@ end
 
 on eventProc me, tEvent, tElemID, tParam 
   tWndObj = getWindow(pWindowID)
-  if tWndObj = 0 then
-    return(0)
+  if (tWndObj = 0) then
+    return FALSE
   end if
-  if tEvent = #mouseUp then
+  if (tEvent = #mouseUp) then
     me.removeTooltipWindow()
   end if
 end

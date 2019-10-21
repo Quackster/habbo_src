@@ -3,7 +3,7 @@ property i, pKey, pSbox, j
 on setKey me, tMyKey, tMode 
   if undefined <> void() then
     if undefined.traceScript then
-      return(0)
+      return FALSE
     end if
   end if
   pLog = void()
@@ -19,19 +19,19 @@ on setKey me, tMyKey, tMode
     end if
   end if
   if tMode <> #old then
-    if tMode = void() then
+    if (tMode = void()) then
       i = 0
       repeat while i <= 255
-        pKey.setAt(i + 1, charToNum(tMyKeyS.getProp(#char, (i mod length(tMyKeyS)) + 1)))
-        pSbox.setAt(i + 1, i)
-        i = 1 + i
+        pKey.setAt((i + 1), charToNum(tMyKeyS.getProp(#char, ((i mod length(tMyKeyS)) + 1))))
+        pSbox.setAt((i + 1), i)
+        i = (1 + i)
       end repeat
       exit repeat
     end if
-    if tMode = #artificialKey then
+    if (tMode = #artificialKey) then
       len = (bitAnd(tMyKey, 248) / 8)
       if len < 20 then
-        len = len + 20
+        len = (len + 20)
       end if
       tOffset = (tMyKey mod 1024)
       ckey = []
@@ -39,59 +39,59 @@ on setKey me, tMyKey, tMode
       prevKey = 0
       m = 5
       i = 0
-      repeat while i <= len - 1
+      repeat while i <= (len - 1)
         tGiven = me.bitshiftright(tMyKey, (i mod 32))
-        tOwn = artificialKey.getAt((abs(tOffset + i) mod artificialKey.count) + 1)
-        ckey.setAt(i + 1, bitAnd(bitXor(tGiven, tOwn), 32767))
-        i = 1 + i
+        tOwn = artificialKey.getAt(((abs((tOffset + i)) mod artificialKey.count) + 1))
+        ckey.setAt((i + 1), bitAnd(bitXor(tGiven, tOwn), 32767))
+        i = (1 + i)
       end repeat
       i = 0
       repeat while i <= 255
-        pKey.setAt(i + 1, ckey.getAt((i mod len) + 1))
-        fakeKey.setAt(i + 1, pKey.getAt(i + 1))
-        pSbox.setAt(i + 1, i)
-        i = 1 + i
+        pKey.setAt((i + 1), ckey.getAt(((i mod len) + 1)))
+        fakeKey.setAt((i + 1), pKey.getAt((i + 1)))
+        pSbox.setAt((i + 1), i)
+        i = (1 + i)
       end repeat
       exit repeat
     end if
-    if tMode = #new then
+    if (tMode = #new) then
       i = 0
       repeat while i <= 255
-        pKey.setAt(i + 1, i)
-        i = 1 + i
+        pKey.setAt((i + 1), i)
+        i = (1 + i)
       end repeat
       i = 0
       repeat while i <= 1019
-        pKey.setAt((i mod 256) + 1, (charToNum(tMyKeyS.getProp(#char, (i mod length(tMyKeyS)) + 1)) + pKey.getAt((i mod 256) + 1) mod 256))
-        i = 1 + i
+        pKey.setAt(((i mod 256) + 1), ((charToNum(tMyKeyS.getProp(#char, ((i mod length(tMyKeyS)) + 1))) + pKey.getAt(((i mod 256) + 1))) mod 256))
+        i = (1 + i)
       end repeat
       i = 0
       repeat while i <= 255
-        pSbox.setAt(i + 1, i)
-        i = 1 + i
+        pSbox.setAt((i + 1), i)
+        i = (1 + i)
       end repeat
       exit repeat
     end if
-    if tMode = #initPremix then
+    if (tMode = #initPremix) then
       i = 0
       repeat while i <= 255
-        pKey.setAt(i + 1, charToNum(tMyKeyS.getProp(#char, (i mod length(tMyKeyS)) + 1)))
-        pSbox.setAt(i + 1, i)
-        i = 1 + i
+        pKey.setAt((i + 1), charToNum(tMyKeyS.getProp(#char, ((i mod length(tMyKeyS)) + 1))))
+        pSbox.setAt((i + 1), i)
+        i = (1 + i)
       end repeat
     end if
     j = 0
     i = 0
     repeat while i <= 255
-      j = (j + pSbox.getAt(i + 1) + pKey.getAt(i + 1) mod 256)
-      k = pSbox.getAt(i + 1)
-      pSbox.setAt(i + 1, pSbox.getAt(j + 1))
-      pSbox.setAt(j + 1, k)
-      i = 1 + i
+      j = (((j + pSbox.getAt((i + 1))) + pKey.getAt((i + 1))) mod 256)
+      k = pSbox.getAt((i + 1))
+      pSbox.setAt((i + 1), pSbox.getAt((j + 1)))
+      pSbox.setAt((j + 1), k)
+      i = (1 + i)
     end repeat
     i = 0
     j = 0
-    if tMode = #initPremix then
+    if (tMode = #initPremix) then
       me.preMixEncodeSbox("1wz8rzgiv87708l9oi7ot8l9smdqv5yvzz8tavkyuoi9p3kgrrq7r5p53kchnb5hly8jkfx5hsoo6imx8o5ktczwdst8dooa7r331wkrw8zi8789io89mq5vztvyo93gr755khbhyjf5soixokcws8oar3wr", 17)
     end if
   end if
@@ -100,7 +100,7 @@ end
 on encipher me, tdata 
   if undefined <> void() then
     if undefined.traceScript then
-      return(0)
+      return FALSE
     end if
   end if
   tCipher = ""
@@ -109,26 +109,26 @@ on encipher me, tdata
   repeat while e <= length(tdata)
     a = charToNum(tdata.char[e])
     if a > 255 then
-      add(tBytes, (a - (a mod 256) / 256))
+      add(tBytes, ((a - (a mod 256)) / 256))
       if (a mod 256) then
         add(tBytes, (a mod 256))
       end if
     else
       add(tBytes, a)
     end if
-    e = 1 + e
+    e = (1 + e)
   end repeat
   tStrServ = getStringServices()
   a = 1
   repeat while a <= tBytes.count
-    i = (i + 1 mod 256)
-    j = (j + pSbox.getAt(i + 1) mod 256)
-    temp = pSbox.getAt(i + 1)
-    pSbox.setAt(i + 1, pSbox.getAt(j + 1))
-    pSbox.setAt(j + 1, temp)
-    d = pSbox.getAt((pSbox.getAt(i + 1) + pSbox.getAt(j + 1) mod 256) + 1)
+    i = ((i + 1) mod 256)
+    j = ((j + pSbox.getAt((i + 1))) mod 256)
+    temp = pSbox.getAt((i + 1))
+    pSbox.setAt((i + 1), pSbox.getAt((j + 1)))
+    pSbox.setAt((j + 1), temp)
+    d = pSbox.getAt((((pSbox.getAt((i + 1)) + pSbox.getAt((j + 1))) mod 256) + 1))
     tCipher = tCipher & tStrServ.convertIntToHex(bitXor(tBytes.getAt(a), d))
-    a = 1 + a
+    a = (1 + a)
   end repeat
   me.preMixEncodeSbox("wR9uuSLoPgt8pkCABkoZ", 10)
   return(tCipher)
@@ -137,23 +137,23 @@ end
 on decipher me, tdata 
   if undefined <> void() then
     if undefined.traceScript then
-      return(0)
+      return FALSE
     end if
   end if
   tCipher = ""
   tStrServ = getStringServices()
   a = 1
   repeat while a <= length(tdata)
-    i = (i + 1 mod 256)
-    j = (j + pSbox.getAt(i + 1) mod 256)
-    temp = pSbox.getAt(i + 1)
-    pSbox.setAt(i + 1, pSbox.getAt(j + 1))
-    pSbox.setAt(j + 1, temp)
-    d = pSbox.getAt((pSbox.getAt(i + 1) + pSbox.getAt(j + 1) mod 256) + 1)
-    t = tStrServ.convertHexToInt(tdata.getProp(#char, a, a + 1))
+    i = ((i + 1) mod 256)
+    j = ((j + pSbox.getAt((i + 1))) mod 256)
+    temp = pSbox.getAt((i + 1))
+    pSbox.setAt((i + 1), pSbox.getAt((j + 1)))
+    pSbox.setAt((j + 1), temp)
+    d = pSbox.getAt((((pSbox.getAt((i + 1)) + pSbox.getAt((j + 1))) mod 256) + 1))
+    t = tStrServ.convertHexToInt(tdata.getProp(#char, a, (a + 1)))
     tCipher = tCipher & numToChar(bitXor(t, d))
-    a = a + 1
-    a = 1 + a
+    a = (a + 1)
+    a = (1 + a)
   end repeat
   return(tCipher)
 end
@@ -161,7 +161,7 @@ end
 on createKey me 
   if undefined <> void() then
     if undefined.traceScript then
-      return(0)
+      return FALSE
     end if
   end if
   tKeyMinLength = 30
@@ -169,17 +169,17 @@ on createKey me
   tCharacters = "abcdefghijklmnopqrstuvwxyz1234567890"
   tSeed = the randomSeed
   the randomSeed = the milliSeconds
-  tLength = tKeyMinLength + abs((random(65536) mod tKeyLengthVariation))
+  tLength = (tKeyMinLength + abs((random(65536) mod tKeyLengthVariation)))
   tTable = ""
   tKey = ""
   i = 1
   repeat while i <= tLength
-    c = tCharacters.getProp(#char, (random(65536) mod tCharacters.length) + 1)
+    c = tCharacters.getProp(#char, ((random(65536) mod tCharacters.length) + 1))
     tTable = tTable & c
-    c = tCharacters.getProp(#char, (random(65536) mod tCharacters.length) + 1)
+    c = tCharacters.getProp(#char, ((random(65536) mod tCharacters.length) + 1))
     tTable = tTable & c
     tKey = tKey & c
-    i = 1 + i
+    i = (1 + i)
   end repeat
   tCodedKey = tTable & tKey
   the randomSeed = tSeed
@@ -197,18 +197,18 @@ on preMixDecodeSbox me, tdata, tCount
     tStrServ = getStringServices()
     a = 1
     repeat while a <= length(tdata)
-      i = (i + 1 mod 256)
-      j = (j + pSbox.getAt(i + 1) mod 256)
-      temp = pSbox.getAt(i + 1)
-      pSbox.setAt(i + 1, pSbox.getAt(j + 1))
-      pSbox.setAt(j + 1, temp)
-      d = pSbox.getAt((pSbox.getAt(i + 1) + pSbox.getAt(j + 1) mod 256) + 1)
-      t = tStrServ.convertHexToInt(tdata.getProp(#char, a, a + 1))
+      i = ((i + 1) mod 256)
+      j = ((j + pSbox.getAt((i + 1))) mod 256)
+      temp = pSbox.getAt((i + 1))
+      pSbox.setAt((i + 1), pSbox.getAt((j + 1)))
+      pSbox.setAt((j + 1), temp)
+      d = pSbox.getAt((((pSbox.getAt((i + 1)) + pSbox.getAt((j + 1))) mod 256) + 1))
+      t = tStrServ.convertHexToInt(tdata.getProp(#char, a, (a + 1)))
       tCipher = tCipher & numToChar(bitXor(t, d))
-      a = a + 1
-      a = 1 + a
+      a = (a + 1)
+      a = (1 + a)
     end repeat
-    k = 1 + k
+    k = (1 + k)
   end repeat
 end
 
@@ -221,28 +221,28 @@ on preMixEncodeSbox me, tdata, tCount
     repeat while e <= length(tdata)
       a = charToNum(tdata.char[e])
       if a > 255 then
-        add(tBytes, (a - (a mod 256) / 256))
+        add(tBytes, ((a - (a mod 256)) / 256))
         if (a mod 256) then
           add(tBytes, (a mod 256))
         end if
       else
         add(tBytes, a)
       end if
-      e = 1 + e
+      e = (1 + e)
     end repeat
     tStrServ = getStringServices()
     a = 1
     repeat while a <= tBytes.count
-      i = (i + 1 mod 256)
-      j = (j + pSbox.getAt(i + 1) mod 256)
-      temp = pSbox.getAt(i + 1)
-      pSbox.setAt(i + 1, pSbox.getAt(j + 1))
-      pSbox.setAt(j + 1, temp)
-      d = pSbox.getAt((pSbox.getAt(i + 1) + pSbox.getAt(j + 1) mod 256) + 1)
+      i = ((i + 1) mod 256)
+      j = ((j + pSbox.getAt((i + 1))) mod 256)
+      temp = pSbox.getAt((i + 1))
+      pSbox.setAt((i + 1), pSbox.getAt((j + 1)))
+      pSbox.setAt((j + 1), temp)
+      d = pSbox.getAt((((pSbox.getAt((i + 1)) + pSbox.getAt((j + 1))) mod 256) + 1))
       tCipher = tCipher & tStrServ.convertIntToHex(bitXor(tBytes.getAt(a), d))
-      a = 1 + a
+      a = (1 + a)
     end repeat
-    l = 1 + l
+    l = (1 + l)
   end repeat
 end
 

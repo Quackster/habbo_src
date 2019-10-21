@@ -6,24 +6,24 @@ on construct me
   dumpVariableField("gamesystem.variable.index")
   registerMessage(#gamesystem_getfacade, me.getID(), #getFacade)
   registerMessage(#gamesystem_removefacade, me.getID(), #removeFacade)
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
   unregisterMessage(#gamesystem_getfacade, me.getID())
   unregisterMessage(#gamesystem_removefacade, me.getID())
   me.removeGamesystem()
-  return(1)
+  return TRUE
 end
 
 on getFacade me, tID 
   if not objectp(pSystemThread) then
     me.createGamesystem(tID)
   end if
-  if getObject(tID) = 0 then
+  if (getObject(tID) = 0) then
     createObject(tID, getClassVariable("gamesystem.facade.class"))
-    if getObject(tID) = 0 then
-      return(0)
+    if (getObject(tID) = 0) then
+      return FALSE
     end if
     getObject(tID).defineClient(pSystemThread)
   end if
@@ -31,15 +31,15 @@ on getFacade me, tID
 end
 
 on removeFacade me, tID 
-  if getObject(tID) = 0 then
-    return(0)
+  if (getObject(tID) = 0) then
+    return FALSE
   else
-    if removeObject(tID) = 0 then
-      return(0)
+    if (removeObject(tID) = 0) then
+      return FALSE
     end if
   end if
   me.removeGamesystem()
-  return(1)
+  return TRUE
 end
 
 on createGamesystem me, tSystemId 
@@ -61,7 +61,7 @@ on createGamesystem me, tSystemId
   tModuleObj = createObject(symbol(pSystemId & "_variablemanager"), getClassVariable("variable.manager.class"))
   pSystemThread.setaProp(#variablemanager, tModuleObj)
   executeMessage(#gamesystem_constructed)
-  return(1)
+  return TRUE
 end
 
 on removeGamesystem me 
@@ -73,5 +73,5 @@ on removeGamesystem me
   removeObject(symbol(pSystemId & "_variablemanager"))
   pSystemThread = void()
   executeMessage(#gamesystem_deconstructed)
-  return(1)
+  return TRUE
 end

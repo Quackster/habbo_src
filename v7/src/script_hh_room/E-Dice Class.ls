@@ -24,6 +24,7 @@ on select me
       if abs((tUserObj.pLocX - me.pLocX)) > 1 or abs((tUserObj.pLocY - me.pLocY)) > 1 then
         tX = (me.pLocX - 1)
         repeat while tX <= (me.pLocX + 1)
+          tY = (me.pLocY - 1)
           repeat while tY <= (me.pLocY + 1)
             if (tY = me.pLocY) or (tX = me.pLocX) then
               if getThread(#room).getInterface().getGeometry().emptyTile(tX, tY) then

@@ -12,18 +12,18 @@ on construct me
   registerMessage(#roomReady, me.getID(), #requestGroups)
   registerMessage(#leaveRoom, me.getID(), #clearGroups)
   registerMessage(#changeRoom, me.getID(), #clearGroups)
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
   unregisterMessage(#userClicked, me.getID())
   unregisterMessage(#leaveRoom, me.getID())
-  return(1)
+  return TRUE
 end
 
 on updateGroupInformation me, tGroupsArr 
   if not listp(tGroupsArr) then
-    return(0)
+    return FALSE
   end if
   repeat while tGroupsArr <= undefined
     tIncomingGroupData = getAt(undefined, tGroupsArr)
@@ -37,13 +37,13 @@ on updateGroupInformation me, tGroupsArr
       tKey = getAt(undefined, tGroupsArr)
       if not voidp(tIncomingGroupData.getAt(tKey)) then
         tCombinedData.setAt(tKey, tIncomingGroupData.getAt(tKey))
-        if tKey = #logo then
+        if (tKey = #logo) then
           tCombinedData.setAt(#download, #invalid)
         end if
       end if
     end repeat
     pGroupData.setAt(tID, tCombinedData)
-    if pLastPendingData.getAt(#groupid) = tID then
+    if (pLastPendingData.getAt(#groupid) = tID) then
       me.showUsersInfo(pLastPendingData.getAt(#userindex))
       pGroupData.getAt(tID).setAt(#download, #done)
       pLastPendingData = [:]
@@ -90,11 +90,11 @@ end
 
 on getLogoURL me, tGroupId 
   if voidp(tGroupId) then
-    return(0)
+    return FALSE
   end if
   tURL = ""
   tGroupData = pGroupData.getAt(tGroupId)
-  if ilk(tGroupData) = #propList then
+  if (ilk(tGroupData) = #propList) then
     tURL = pGroupLogoUrlTemplate
     tGroupLogoPath = tGroupData.getAt(#logo)
     tURL = replaceChunks(tURL, "%imagerdata%", tGroupLogoPath)
@@ -109,8 +109,8 @@ on requestLogoDownload me, tGroupId
     return(error(me, "No group found: " & tGroupId, me.getID(), #requestLogoDownload, #minor))
   end if
   tDownloadStatus = tGroupData.getAt(#download)
-  if not voidp(tDownloadStatus) or tDownloadStatus = #invalid then
-    return(0)
+  if not voidp(tDownloadStatus) or (tDownloadStatus = #invalid) then
+    return FALSE
   else
     pGroupData.getAt(tGroupId).setAt(#download, #downloading)
   end if
@@ -136,26 +136,26 @@ on showUsersInfo me, tUserIndex
   tRoomComponent = getThread(#room).getComponent()
   tuser = tRoomComponent.getUserObject(tUserIndex)
   if voidp(tuser) then
-    return(0)
+    return FALSE
   end if
   tGroupId = tuser.getProperty(#groupid)
   tGroupId = string(tGroupId)
   tGroupStatus = tuser.getProperty(#groupstatus)
-  if tGroupId = "" then
-    return(0)
+  if (tGroupId = "") then
+    return FALSE
   end if
   if integer(tGroupId) < 0 then
-    return(0)
+    return FALSE
   end if
   if voidp(pGroupData.getAt(tGroupId)) then
     pLastPendingData = [#userindex:tUserIndex, #groupid:tGroupId]
     getConnection(getVariable("connection.info.id")).send("GET_GROUP_DETAILS", [#integer:integer(tGroupId)])
-    return(0)
+    return FALSE
   end if
   if voidp(pGroupData.getAt(tGroupId).getAt(#name)) then
     pLastPendingData = [#userindex:tUserIndex, #groupid:tGroupId]
     getConnection(getVariable("connection.info.id")).send("GET_GROUP_DETAILS", [#integer:integer(tGroupId)])
-    return(0)
+    return FALSE
   end if
   if not windowExists(pGroupWindowID) then
     createWindow(pGroupWindowID, "habbo_full.window")
@@ -166,13 +166,13 @@ on showUsersInfo me, tUserIndex
   tWindowObj = getWindow(pGroupWindowID)
   tGroup = pGroupData.getAt(tGroupId)
   tUserStatusTxt = ""
-  if tGroupStatus = 1 then
+  if (tGroupStatus = 1) then
     tUserStatusTxt = getText("group_owner")
   else
-    if tGroupStatus = 2 then
+    if (tGroupStatus = 2) then
       tUserStatusTxt = getText("group_admin")
     else
-      if tGroupStatus = 3 then
+      if (tGroupStatus = 3) then
         tUserStatusTxt = getText("group_member")
       end if
     end if
@@ -188,17 +188,17 @@ end
 
 on updateGroupLogoToWindow me, tGroupId 
   if voidp(tGroupId) then
-    return(0)
+    return FALSE
   end if
   if not windowExists(pGroupWindowID) then
-    return(0)
+    return FALSE
   end if
   if pCurrentShownGroupId <> tGroupId then
-    return(0)
+    return FALSE
   end if
   tWindowObj = getWindow(pGroupWindowID)
   if not tWindowObj.elementExists("group_logo") then
-    return(0)
+    return FALSE
   end if
   tGroupLogoMemNum = me.getGroupLogoMemberNum(tGroupId)
   tLogoImg = member(tGroupLogoMemNum).image
@@ -207,7 +207,7 @@ on updateGroupLogoToWindow me, tGroupId
 end
 
 on eventProcInfoWindow me, tEvent, tSprID, tParams 
-  if tSprID = "group_homepage_link" then
+  if (tSprID = "group_homepage_link") then
     tGroupId = pGroupData.getAt(pCurrentShownGroupId).getAt(#id)
     tGroupURL = getText("group_homepage_url")
     tGroupURL = replaceChunks(tGroupURL, "%groupid%", tGroupId)

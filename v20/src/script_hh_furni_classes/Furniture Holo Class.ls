@@ -4,16 +4,16 @@ on prepare me, tdata
   pActive = 0
   pAnimFrm = 0
   pDelay = 1
-  if tdata.getAt(#stuffdata) = "ON" then
+  if (tdata.getAt(#stuffdata) = "ON") then
     me.setOn()
   else
     me.setOff()
   end if
-  return(1)
+  return TRUE
 end
 
 on updateStuffdata me, tValue 
-  if tValue = "ON" then
+  if (tValue = "ON") then
     me.setOn()
   else
     me.setOff()
@@ -27,12 +27,12 @@ on update me
   if me.count(#pSprList) < 3 then
     return()
   end if
-  if pDelay = 0 then
-    pAnimFrm = (pAnimFrm + 1 mod 8)
-    tNameB = member.name
-    tNameC = member.name
-    tNewNameB = tNameB.getProp(#char, 1, length(tNameB) - 3) & pAnimFrm & "_1"
-    tNewNameC = tNameC.getProp(#char, 1, length(tNameC) - 3) & pAnimFrm & "_1"
+  if (pDelay = 0) then
+    pAnimFrm = ((pAnimFrm + 1) mod 8)
+    tNameB = me.getPropRef(#pSprList, 2).member.name
+    tNameC = me.getPropRef(#pSprList, 3).member.name
+    tNewNameB = tNameB.getProp(#char, 1, (length(tNameB) - 3)) & pAnimFrm & "_1"
+    tNewNameC = tNameC.getProp(#char, 1, (length(tNameC) - 3)) & pAnimFrm & "_1"
     tmember = member(getmemnum(tNewNameB))
     me.getPropRef(#pSprList, 2).castNum = tmember.number
     me.getPropRef(#pSprList, 2).width = tmember.width
@@ -44,26 +44,26 @@ on update me
     me.getPropRef(#pSprList, 3).height = tmember.height
     me.getPropRef(#pSprList, 3).blend = 70
   else
-    if pDelay = 3 then
+    if (pDelay = 3) then
       me.getPropRef(#pSprList, 2).blend = 66
       me.getPropRef(#pSprList, 3).blend = 100
     end if
   end if
-  pDelay = (pDelay + 1 mod 4)
+  pDelay = ((pDelay + 1) mod 4)
 end
 
 on setHoloLight me 
   if me.count(#pSprList) < 4 then
-    return(0)
+    return FALSE
   end if
-  tNameA = member.name
-  tNameB = member.name
-  tNameC = member.name
-  tNameD = member.name
-  tNewNameA = tNameA.getProp(#char, 1, length(tNameA) - 1) & pActive
-  tNewNameB = tNameB.getProp(#char, 1, length(tNameB) - 3) & 0 & "_0"
-  tNewNameC = tNameC.getProp(#char, 1, length(tNameC) - 3) & 0 & "_0"
-  tNewNameD = tNameD.getProp(#char, 1, length(tNameD) - 1) & pActive
+  tNameA = me.getPropRef(#pSprList, 1).member.name
+  tNameB = me.getPropRef(#pSprList, 2).member.name
+  tNameC = me.getPropRef(#pSprList, 3).member.name
+  tNameD = me.getPropRef(#pSprList, 4).member.name
+  tNewNameA = tNameA.getProp(#char, 1, (length(tNameA) - 1)) & pActive
+  tNewNameB = tNameB.getProp(#char, 1, (length(tNameB) - 3)) & 0 & "_0"
+  tNewNameC = tNameC.getProp(#char, 1, (length(tNameC) - 3)) & 0 & "_0"
+  tNewNameD = tNameD.getProp(#char, 1, (length(tNameD) - 1)) & pActive
   tmember = member(getmemnum(tNewNameA))
   me.getPropRef(#pSprList, 1).castNum = tmember.number
   me.getPropRef(#pSprList, 1).width = tmember.width
@@ -97,7 +97,7 @@ end
 
 on select me 
   if the doubleClick then
-    if pActive = 1 then
+    if (pActive = 1) then
       tOnString = "OFF"
     else
       tOnString = "ON"

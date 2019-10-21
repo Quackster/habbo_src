@@ -6,11 +6,11 @@ on construct me
   pheight = 400
   pTurnPoint = (pwidth / 2)
   pREquiresUpdate = 1
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
-  return(1)
+  return TRUE
 end
 
 on define me, tdata 
@@ -22,7 +22,7 @@ on define me, tdata
     tRoomDef = getVariableValue("landscape.def." & pRoomTypeID)
     pTurnPoint = tRoomDef.getAt(#middle)
   end if
-  pTurnPoint = pTurnPoint + tdata.getAt(#offset)
+  pTurnPoint = (pTurnPoint + tdata.getAt(#offset))
   pREquiresUpdate = 1
 end
 

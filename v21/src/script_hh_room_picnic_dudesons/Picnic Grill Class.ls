@@ -6,7 +6,7 @@ on prepare me
     pTokenList = [7]
   end if
   pActiveSpots = [[0, 1], [1, 0], [2, -1], [2, -2], [2, -3], [1, -4], [0, -4]]
-  return(1)
+  return TRUE
 end
 
 on select me 
@@ -19,9 +19,9 @@ on select me
   end if
   repeat while pActiveSpots <= undefined
     tSpot = getAt(undefined, undefined)
-    if me.pLocX + tSpot.getAt(1) = tUserObj.pLocX and me.pLocY + tSpot.getAt(2) = tUserObj.pLocY then
+    if ((me.pLocX + tSpot.getAt(1)) = tUserObj.pLocX) and ((me.pLocY + tSpot.getAt(2)) = tUserObj.pLocY) then
       me.giveItem()
-      return(1)
+      return TRUE
     end if
   end repeat
 end

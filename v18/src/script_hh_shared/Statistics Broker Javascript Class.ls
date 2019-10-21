@@ -11,7 +11,7 @@ on construct me
   registerListener(getVariable("connection.info.id", #info), me.getID(), [166:#handle_update_stats])
   registerMessage(#sendTrackingData, me.getID(), #handle_update_stats)
   registerMessage(#sendTrackingPoint, me.getID(), #sendTrackingPoint)
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
@@ -19,12 +19,12 @@ on deconstruct me
   unregisterMessage(#sendTrackingData, me.getID())
   unregisterMessage(#sendTrackingPoint, me.getID())
   pProxy = void()
-  return(1)
+  return TRUE
 end
 
 on sendJsMessage me, tMsg, tMsgType 
-  if the runMode = "Author" then
-    return(0)
+  if (the runMode = "Author") then
+    return FALSE
   end if
   if voidp(tMsgType) then
     tMsgType = pDefaultCallType
@@ -39,7 +39,7 @@ end
 
 on sendTrackingPoint me, tPointStr 
   tTrackingHeader = getObject(#session).GET("tracking_header")
-  if tTrackingHeader = 0 then
+  if (tTrackingHeader = 0) then
     return(error(me, "Tracking header not in session.", #sendTrackingCall, #minor))
   end if
   if chars(tPointStr, 1, 1) <> "/" then

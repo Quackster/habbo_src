@@ -12,12 +12,12 @@ on construct me
   tBold.setaProp(#color, rgb("#EEEEEE"))
   createWriter(tWriterId, tBold)
   pWriterBold = getWriter(tWriterId)
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
   removeObject(pScroller.getID())
-  return(1)
+  return TRUE
 end
 
 on initWindow me, tID, ttype 
@@ -46,7 +46,7 @@ on createFurnitureWindow me, tID, tProps
   end if
   tWndObj.getElement("room_obj_disp_avatar").feedImage(tImage)
   tWndObj.lock()
-  return(1)
+  return TRUE
 end
 
 on createHumanWindow me, tID, tProps, tSelectedObj, tBadgeObjID, tShowTags 
@@ -61,7 +61,7 @@ on createHumanWindow me, tID, tProps, tSelectedObj, tBadgeObjID, tShowTags
   tBadgeObj.updateInfoStandBadge(tID, tSelectedObj, tProps.getAt(#badge))
   me.showHideTags(tID, tShowTags)
   tWndObj.lock()
-  return(1)
+  return TRUE
 end
 
 on createBotWindow me, tID, tProps 
@@ -72,7 +72,7 @@ on createBotWindow me, tID, tProps
   pScroller.registerElement(tID, "room_obj_disp_name")
   pScroller.setScroll(1)
   tWndObj.lock()
-  return(1)
+  return TRUE
 end
 
 on createPetWindow me, tID, tProps 
@@ -84,13 +84,13 @@ on createPetWindow me, tID, tProps
   pScroller.setScroll(1)
   tWndObj.getElement("room_obj_disp_avatar").feedImage(tProps.getAt(#image))
   tWndObj.lock()
-  return(1)
+  return TRUE
 end
 
 on createActionsHumanWindow me, tID, tTargetUserName, tShowButtons 
   tSessionObj = getObject(#session)
   tUserRights = tSessionObj.GET("user_rights")
-  if tTargetUserName = tSessionObj.GET("user_name") then
+  if (tTargetUserName = tSessionObj.GET("user_name")) then
     tOwnUser = getThread("room").getComponent().getOwnUser()
     tWindowModel = "obj_disp_actions_own.window"
     tButtonList = [:]
@@ -99,8 +99,8 @@ on createActionsHumanWindow me, tID, tTargetUserName, tShowButtons
     tButtonList.setAt("hcdance", #hidden)
     tMainAction = tOwnUser.getProperty(#mainAction)
     tSwimming = tOwnUser.getProperty(#swimming)
-    tSitting = tMainAction = "sit"
-    tLaying = tMainAction = "lay"
+    tSitting = (tMainAction = "sit")
+    tLaying = (tMainAction = "lay")
     tDanceButtonState = #visible
     if tLaying or tSwimming then
       tDanceButtonState = #deactive
@@ -133,7 +133,7 @@ on createActionsHumanWindow me, tID, tTargetUserName, tShowButtons
       tBuddyList = tBuddyData.getaProp(#buddies)
       repeat while tBuddyList <= tTargetUserName
         tBuddy = getAt(tTargetUserName, tID)
-        if tBuddy.name = tTargetUserName then
+        if (tBuddy.name = tTargetUserName) then
           tButtonList.setAt("friend", #deactive)
         else
         end if
@@ -141,7 +141,7 @@ on createActionsHumanWindow me, tID, tTargetUserName, tShowButtons
     end if
     tRoomComponent = getThread(#room).getComponent()
     tNotPrivateRoom = tRoomComponent.getRoomID() <> "private"
-    tNoTrading = tRoomComponent.getRoomData().getAt(#trading) = 0
+    tNoTrading = (tRoomComponent.getRoomData().getAt(#trading) = 0)
     tTradeTimeout = 0
     tTradeProhibited = not tUserRights.getOne("fuse_trade")
     if tTradeTimeout or tNotPrivateRoom or tNoTrading or tTradeProhibited then
@@ -168,18 +168,18 @@ on createActionsHumanWindow me, tID, tTargetUserName, tShowButtons
       tButtonList.setAt("ban", #hidden)
     end if
     tRoomData = tRoomComponent.getRoomData()
-    if tRoomData.getaProp(#type) = #public then
+    if (tRoomData.getaProp(#type) = #public) then
       tButtonList.setAt("kick", #hidden)
       tButtonList.setAt("ban", #hidden)
     end if
     if tRoomOwner then
-      if tUserInfo.ctrl = 0 then
+      if (tUserInfo.ctrl = 0) then
         tButtonList.setAt("take_rights", #hidden)
       else
-        if tUserInfo.ctrl = "furniture" then
+        if (tUserInfo.ctrl = "furniture") then
           tButtonList.setAt("give_rights", #hidden)
         else
-          if tUserInfo.ctrl = "useradmin" then
+          if (tUserInfo.ctrl = "useradmin") then
             tButtonList.setAt("give_rights", #hidden)
           end if
         end if
@@ -219,7 +219,7 @@ on createActionsFurniWindow me, tID, tClass, tShowButtons
     tButtonList.setAt("rotate", #visible)
     tButtonList.setAt("pick", #visible)
   end if
-  if tClass = "item" then
+  if (tClass = "item") then
     tButtonList.setAt("move", #hidden)
     tButtonList.setAt("rotate", #hidden)
   end if
@@ -267,12 +267,12 @@ end
 
 on scaleButtonWindow me, tID, tButtonList, tShowButtons 
   tWndObj = getWindow(tID)
-  if tShowButtons = 0 then
+  if (tShowButtons = 0) then
     tIndex = 1
     repeat while tIndex <= tButtonList.count
       tButtonID = tButtonList.getPropAt(tIndex)
       tButtonList.setAt(tButtonID, #hidden)
-      tIndex = 1 + tIndex
+      tIndex = (1 + tIndex)
     end repeat
     tArrowElem = tWndObj.getElement("object_displayer_toggle_actions_icon")
     tArrowElem.setProperty(#member, pExtensionClosedID)
@@ -290,43 +290,43 @@ on scaleButtonWindow me, tID, tButtonList, tShowButtons
     tButtonVisibility = tButtonList.getAt(tButtonID)
     tElement = tWndObj.getElement(tButtonID & ".button")
     tLeftPos = tElement.getProperty(#locX)
-    if tIndex = 1 then
+    if (tIndex = 1) then
       tCurrentButtonTopPos = tElement.getProperty(#locY)
     end if
-    if tButtonVisibility = #visible then
+    if (tButtonVisibility = #visible) then
       tElement.moveTo(tLeftPos, tCurrentButtonTopPos)
-      tCurrentButtonTopPos = tCurrentButtonTopPos + tButtonHeight + tButtonVertMargins
+      tCurrentButtonTopPos = ((tCurrentButtonTopPos + tButtonHeight) + tButtonVertMargins)
     else
-      if tButtonVisibility = #deactive then
+      if (tButtonVisibility = #deactive) then
         tElement.moveTo(tLeftPos, tCurrentButtonTopPos)
         tElement.deactivate()
-        tCurrentButtonTopPos = tCurrentButtonTopPos + tButtonHeight + tButtonVertMargins
+        tCurrentButtonTopPos = ((tCurrentButtonTopPos + tButtonHeight) + tButtonVertMargins)
       else
-        if tButtonVisibility = #hidden then
+        if (tButtonVisibility = #hidden) then
           tElement.setProperty(#visible, 0)
-          tHiddenRowCount = tHiddenRowCount + 1
+          tHiddenRowCount = (tHiddenRowCount + 1)
         end if
       end if
     end if
-    tIndex = 1 + tIndex
+    tIndex = (1 + tIndex)
   end repeat
-  tNewHeight = tWndObj.getProperty(#height) - (tHiddenRowCount * tButtonHeight + tButtonVertMargins) - tButtonVertMargins
+  tNewHeight = ((tWndObj.getProperty(#height) - (tHiddenRowCount * (tButtonHeight + tButtonVertMargins))) - tButtonVertMargins)
   me.resizeWindowTo(tID, tWndObj.getProperty(#width), tNewHeight)
 end
 
 on createLinksWindow me, tID, tFormat 
-  if tFormat = #own then
+  if (tFormat = #own) then
     tWindowModel = "obj_disp_links_own.window"
   else
-    if tFormat = #peer then
+    if (tFormat = #peer) then
       tWindowModel = "obj_disp_links_peer.window"
     end if
   end if
   tWndObj = me.initWindow(tID, tWindowModel)
-  if tFormat = #own then
+  if (tFormat = #own) then
     tBadgeList = getObject(#session).GET("available_badges")
     if listp(tBadgeList) then
-      if tBadgeList.count = 0 then
+      if (tBadgeList.count = 0) then
         tElem = tWndObj.getElement("room_obj_disp_badge_sel")
         tElem.setProperty(#blend, 20)
         tElem.setProperty(#cursor, 0)
@@ -365,11 +365,11 @@ end
 
 on clearWindow me, tWindowID 
   if not windowExists(tWindowID) then
-    return(0)
+    return FALSE
   end if
   tWndObj = getWindow(tWindowID)
   tWndObj.hide()
   tWndObj.unmerge()
   pScroller.setScroll(0)
-  return(1)
+  return TRUE
 end

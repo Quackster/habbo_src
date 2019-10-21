@@ -18,25 +18,25 @@ on construct me
     if ilk(pErrorDialogLevel) <> #symbol then
       pErrorDialogLevel = pErrorLevelList.getAt(pErrorLevelList.count)
     else
-      if pErrorLevelList.findPos(pErrorDialogLevel) = 0 then
+      if (pErrorLevelList.findPos(pErrorDialogLevel) = 0) then
         pErrorDialogLevel = pErrorLevelList.getAt(pErrorLevelList.count)
       end if
     end if
   end if
   pFatalReportParamOrder = ["error", "version", "build", "os", "host", "port", "client_version", "mus_errorcode", "error_id"]
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
   the alertHook = 0
-  return(1)
+  return TRUE
 end
 
 on error me, tObject, tMsg, tMethod, tErrorLevel 
   if objectp(tObject) then
     tObject = string(tObject)
-    tObject = tObject.getProp(#word, 2, tObject.count(#word) - 2)
-    tObject = tObject.getProp(#char, 2, length(tObject) - 1)
+    tObject = tObject.getProp(#word, 2, (tObject.count(#word) - 2))
+    tObject = tObject.getProp(#char, 2, (length(tObject) - 1))
   else
     tObject = "Unknown"
   end if
@@ -57,20 +57,20 @@ on error me, tObject, tMsg, tMethod, tErrorLevel
     i = 2
     repeat while i <= tMsg.count(#line)
       tError = tError & "\t" && "        " && tMsg.getProp(#line, i) & "\r"
-      i = 1 + i
+      i = (1 + i)
     end repeat
   end if
   pErrorCache = pErrorCache & tError
   if pErrorCache.count(#line) > pCacheSize then
-    pErrorCache = pErrorCache.getProp(#line, pErrorCache.count(#line) - pCacheSize, pErrorCache.count(#line))
+    pErrorCache = pErrorCache.getProp(#line, (pErrorCache.count(#line) - pCacheSize), pErrorCache.count(#line))
   end if
-  if pDebugLevel = 1 then
+  if (pDebugLevel = 1) then
     put("Error:" & tError)
   else
-    if pDebugLevel = 2 then
+    if (pDebugLevel = 2) then
       put("Error:" & tError)
     else
-      if pDebugLevel = 3 then
+      if (pDebugLevel = 3) then
         executeMessage(#debugdata, "Error: " & tError)
       else
         put("Error:" & tError)
@@ -90,11 +90,11 @@ on error me, tObject, tMsg, tMethod, tErrorLevel
     tError = tError & "Message:" && tMsg.getProp(#line, 1) & "\r"
     executeMessage(#showErrorMessage, "client", tError)
   end if
-  return(0)
+  return FALSE
 end
 
 on serverError me, tErrorList 
-  if ilk(tErrorList) = #propList then
+  if (ilk(tErrorList) = #propList) then
     tErrorStr = tErrorList.getAt(#errorId) & "-" & tErrorList.getAt(#errorMsgId) & "-" & tErrorList.getAt(#time)
     pServerErrorList.add(tErrorStr)
   end if
@@ -107,7 +107,7 @@ on getClientErrors me
     tErrorStr = tErrorStr & tError & ";"
   end repeat
   tMaxLength = 1000
-  tErrorStr = chars(tErrorStr, tErrorStr.length - tMaxLength, tErrorStr.length)
+  tErrorStr = chars(tErrorStr, (tErrorStr.length - tMaxLength), tErrorStr.length)
   return(tErrorStr)
 end
 
@@ -118,7 +118,7 @@ on getServerErrors me
     tErrorStr = tErrorStr & tError & ";"
   end repeat
   tMaxLength = 1000
-  tErrorStr = chars(tErrorStr, tErrorStr.length - tMaxLength, tErrorStr.length)
+  tErrorStr = chars(tErrorStr, (tErrorStr.length - tMaxLength), tErrorStr.length)
   return(tErrorStr)
 end
 
@@ -128,15 +128,15 @@ end
 
 on setDebugLevel me, tDebugLevel 
   if not integerp(tDebugLevel) then
-    return(0)
+    return FALSE
   end if
   pDebugLevel = tDebugLevel
-  return(1)
+  return TRUE
 end
 
 on print me 
   put("Errors:" & "\r" & pErrorCache)
-  return(1)
+  return TRUE
 end
 
 on fatalError me, tErrorData 
@@ -167,7 +167,7 @@ on alertHook me, tErr, tMsgA, tMsgB
     end if
     me.handleFatalError(tErrorData)
   end if
-  return(1)
+  return TRUE
 end
 
 on makeErrorId me 
@@ -183,7 +183,7 @@ on makeErrorId me
     end if
     if tDst.length >= tLength then
     else
-      i = 1 + i
+      i = (1 + i)
     end if
   end repeat
   return(tDst)
@@ -197,7 +197,7 @@ on handleFatalError me, tErrorData
     tErrorData = [:]
   end if
   tErrorType = tErrorData.getAt("error")
-  if tErrorType = "socket_init" then
+  if (tErrorType = "socket_init") then
     if variableExists("client.connection.failed.url") then
       tErrorUrl = getVariable("client.connection.failed.url")
     end if
@@ -243,15 +243,15 @@ on handleFatalError me, tErrorData
     if tErrorData.getaProp(tKey) <> void() then
       tNuErrorData.setaProp(tKey, tValue)
     end if
-    i = 1 + i
+    i = (1 + i)
   end repeat
   k = 1
   repeat while k <= tErrorData.count
     tKey = tErrorData.getPropAt(k)
-    if tNuErrorData.getaProp(tKey) = void() then
+    if (tNuErrorData.getaProp(tKey) = void()) then
       tNuErrorData.setaProp(tKey, tErrorData.getaProp(tKey))
     end if
-    k = 1 + k
+    k = (1 + k)
   end repeat
   tErrorData = tNuErrorData
   tItemNo = 1
@@ -260,12 +260,12 @@ on handleFatalError me, tErrorData
     tKey = urlEncode(tKey)
     tValue = string(tErrorData.getAt(tKey))
     tValue = urlEncode(tValue)
-    if tItemNo = 1 then
+    if (tItemNo = 1) then
       tParams = tParams & tKey & "=" & tValue
     else
       tParams = tParams & "&" & tKey & "=" & tValue
     end if
-    tItemNo = 1 + tItemNo
+    tItemNo = (1 + tItemNo)
   end repeat
   tPrefTxt = date() && time() & "\r" & replaceChunks(tParams, "&", "\r")
   setPref("ClientFatalParams", tPrefTxt)
@@ -275,21 +275,21 @@ on handleFatalError me, tErrorData
     openNetPage(tErrorUrl & tParams, "self")
     pFatalReported = 1
   end if
-  return(1)
+  return TRUE
 end
 
 on showErrorDialog me 
   if createWindow(#error, "error.window", 0, 0, #modal) <> 0 then
     getWindow(#error).registerClient(me.getID())
     getWindow(#error).registerProcedure(#eventProcError, me.getID(), #mouseUp)
-    return(1)
+    return TRUE
   else
-    return(0)
+    return FALSE
   end if
 end
 
 on eventProcError me, tEvent, tSprID, tParam 
-  if tEvent = #mouseUp and tSprID = "error_close" then
+  if (tEvent = #mouseUp) and (tSprID = "error_close") then
     removeWindow(#error)
   end if
 end

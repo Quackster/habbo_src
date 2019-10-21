@@ -11,10 +11,10 @@ on construct me
   i = 1
   repeat while i <= tCharCodeList.count(#line)
     pProhibitedCharCodes.add(integer(tCharCodeList.getProp(#line, i)))
-    i = 1 + i
+    i = (1 + i)
   end repeat
   sort(pProhibitedCharCodes)
-  return(1)
+  return TRUE
 end
 
 on validateString me, tString 
@@ -27,12 +27,12 @@ on validateString me, tString
     tChar = tString.char[i]
     if pProhibitedCharCodes.getOne(charToNum(tChar)) then
       pLastFailedCharacter = tChar
-      return(0)
+      return FALSE
     else
-      i = 1 + i
+      i = (1 + i)
     end if
   end repeat
-  return(1)
+  return TRUE
 end
 
 on getFailedChar me 

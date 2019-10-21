@@ -7,33 +7,33 @@ on deconstruct me
 end
 
 on handle_cannot_enter_bus me, tMsg 
-  content.showBusClosed(#line.getProp(1, tMsg, content.count(#line)))
+  me.getInterface().showBusClosed(tMsg.content.getProp(#line, 1, tMsg.content.count(#line)))
 end
 
 on handle_vote_question me, tMsg 
-  tQuestion = content.getProp(#line, 1)
+  tQuestion = tMsg.content.getProp(#line, 1)
   tChoices = []
   i = 2
-  repeat while tMsg <= content.count(#line)
-    tLine = content.getProp(#line, i)
+  repeat while i <= tMsg.content.count(#line)
+    tLine = tMsg.content.getProp(#line, i)
     if length(tLine) > 2 then
       tChoices.add(tLine.getProp(#char, 3, length(tLine)))
     end if
-    i = 1 + i
+    i = (1 + i)
   end repeat
   me.getInterface().showVoteQuestion(tQuestion, tChoices)
 end
 
 on handle_vote_results me, tMsg 
   tDelim = the itemDelimiter
-  tLine = content.getProp(#line, 1)
+  tLine = tMsg.content.getProp(#line, 1)
   the itemDelimiter = "/"
   tTotalVotes = value(tLine.getProp(#item, 2))
   tChoiceVotes = []
   i = 3
   repeat while i <= tLine.count(#item)
     tChoiceVotes.add(value(tLine.getProp(#item, i)))
-    i = 1 + i
+    i = (1 + i)
   end repeat
   the itemDelimiter = tDelim
   me.getInterface().showVoteResults(tTotalVotes, tChoiceVotes)
@@ -55,5 +55,5 @@ on regMsgList me, tBool
     unregisterListener(getVariable("connection.room.id"), me.getID(), tMsgs)
     unregisterCommands(getVariable("connection.room.id"), me.getID(), tCmds)
   end if
-  return(1)
+  return TRUE
 end

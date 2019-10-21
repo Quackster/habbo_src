@@ -24,7 +24,7 @@ on construct me
   if not variableExists("denied.name.chars") then
     setVariable("denied.name.chars", "_")
   end if
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
@@ -38,7 +38,7 @@ on deconstruct me
   if objectExists("CountryMngr") then
     removeObject("CountryMngr")
   end if
-  return(1)
+  return TRUE
 end
 
 on showHideFigureCreator me, tNewOrUpdate, tForceOpen 
@@ -75,14 +75,14 @@ on closeFigureCreator me
   if objectExists(#session) then
     getObject(#session).set("creatingCharacter", 0)
   end if
-  return(1)
+  return TRUE
 end
 
 on showLoadingWindow me, tMode 
   pmode = tMode
   me.ChangeWindowView("reg_loading.window")
   me.blinkLoading()
-  return(1)
+  return TRUE
 end
 
 on finishRegistration me, tdata 
@@ -95,13 +95,13 @@ on finishRegistration me, tdata
 end
 
 on userNameOk me 
-  if pOpenWindow = "reg_loading.window" then
+  if (pOpenWindow = "reg_loading.window") then
     me.changePage(1)
   end if
 end
 
 on userNameUnacceptable me 
-  if pOpenWindow = "reg_loading.window" then
+  if (pOpenWindow = "reg_loading.window") then
     me.changePage("reg_namepage.window")
   end if
   executeMessage(#alert, [#Msg:"Alert_unacceptableName", #id:"namenogood", #modal:1])
@@ -109,14 +109,14 @@ on userNameUnacceptable me
 end
 
 on userNameTooLong me 
-  if pOpenWindow = "reg_loading.window" then
+  if (pOpenWindow = "reg_loading.window") then
     me.changePage("reg_namepage.window")
   end if
   executeMessage(#alert, [#Msg:"Alert_NameTooLong", #id:"nametoolong", #modal:1])
 end
 
 on userNameAlreadyReserved me 
-  if pOpenWindow = "reg_loading.window" then
+  if (pOpenWindow = "reg_loading.window") then
     me.changePage("reg_namepage.window")
   end if
   executeMessage(#alert, [#Msg:"Alert_NameAlreadyUse", #id:"namereserved", #modal:1])
@@ -126,44 +126,44 @@ end
 on userEmailOk me 
   pEmailChecked = 1
   me.changePage(1)
-  return(1)
+  return TRUE
 end
 
 on userEmailUnacceptable me 
   pEmailChecked = 0
-  if pOpenWindow = "reg_info_update.window" then
+  if (pOpenWindow = "reg_info_update.window") then
     removeWindow(pVerifyChangeWndID)
   end if
   executeMessage(#alert, [#Msg:"reg_verification_invalidEmail", #id:"emailnogood", #modal:1])
-  return(1)
+  return TRUE
 end
 
 on userPasswordResult me, tResult 
   if voidp(tResult) then
     return(error(me, "Invalid password result!", #userPasswordResult, #major))
   end if
-  if tResult = 0 then
+  if (tResult = 0) then
     pPasswordChecked = 1
     pPasswordErrors = ""
   else
-    if tResult = 1 then
+    if (tResult = 1) then
       pPasswordChecked = 0
       pPasswordErrors = getText("Alert_YourPasswordIsTooShort") & "\r"
     else
-      if tResult = 2 then
+      if (tResult = 2) then
         pPasswordChecked = 0
         pPasswordErrors = getText("alert_tooLongPW") & "\r"
       else
-        if tResult = 3 then
+        if (tResult = 3) then
           pPasswordChecked = 0
           tValidKeys = getVariable("permitted.password.chars")
           pPasswordErrors = getText("reg_use_allowed_chars") && tValidKeys & "\r"
         else
-          if tResult = 4 then
+          if (tResult = 4) then
             pPasswordChecked = 0
             pPasswordErrors = getText("reg_passwordContainsNoNumber") & "\r"
           else
-            if tResult = 5 then
+            if (tResult = 5) then
               pPasswordChecked = 0
               pPasswordErrors = getText("reg_nameAndPassTooSimilar") & "\r"
             end if
@@ -173,7 +173,7 @@ on userPasswordResult me, tResult
     end if
   end if
   if pUpdatingPassword then
-    if tResult = 0 then
+    if (tResult = 0) then
       tDay = pUpdatePropsToServer.getAt(#day)
       tMonth = pUpdatePropsToServer.getAt(#month)
       tYear = pUpdatePropsToServer.getAt(#year)
@@ -199,13 +199,13 @@ on userPasswordResult me, tResult
   else
     me.changePage(1)
   end if
-  return(1)
+  return TRUE
 end
 
 on parentEmailQueryStatus me, tFlag 
-  if pmode = "parent_email" or pmode = "parent_email_strong_coppa" then
+  if (pmode = "parent_email") or (pmode = "parent_email_strong_coppa") then
     if not tFlag then
-      if pOpenWindow = "reg_loading.window" then
+      if (pOpenWindow = "reg_loading.window") then
         me.changePage(1)
       end if
     else
@@ -213,27 +213,27 @@ on parentEmailQueryStatus me, tFlag
       me.changePage(1)
     end if
   else
-    if tFlag = 1 then
+    if (tFlag = 1) then
       me.parentEmailNotNeeded()
     end if
   end if
 end
 
 on parentEmailOk me 
-  if pRegProcess.ilk = #list then
-    if pmode = "parent_email" or pmode = "parent_email_strong_coppa" then
+  if (pRegProcess.ilk = #list) then
+    if (pmode = "parent_email") or (pmode = "parent_email_strong_coppa") then
       tPos = pRegProcess.findPos("reg_parent_email")
-      tNextPage = pRegProcess.getAt(tPos + 1)
+      tNextPage = pRegProcess.getAt((tPos + 1))
       me.changePage(tNextPage & ".window")
     else
-      if pRegProcessLocation = pRegProcess.count then
+      if (pRegProcessLocation = pRegProcess.count) then
         getObject(#session).set("user_figure", pPropsToServer.getAt("figure").duplicate())
         me.getComponent().sendFigureUpdateToServer(pPropsToServer)
         me.getComponent().updateState("start")
         return(me.closeFigureCreator())
       else
         tPos = pRegProcess.findPos("reg_parent_email")
-        tNextPage = pRegProcess.getAt(tPos + 1)
+        tNextPage = pRegProcess.getAt((tPos + 1))
         me.changePage(tNextPage & ".window")
       end if
     end if
@@ -245,7 +245,7 @@ on parentEmailIncorrect me
     me.changePage("reg_parent_email.window")
   end if
   executeMessage(#alert, [#Msg:"alert_reg_parent_email", #id:"parentemailincorrect", #modal:1])
-  return(0)
+  return FALSE
 end
 
 on openPasswordUpdate me, tForced, tMsg 
@@ -260,7 +260,7 @@ on openPwdEmailUpdate me, ttype, tForced, tMsg
   if tForced then
     pPwdEmailUpdateForced = 1
   end if
-  if ttype = #password then
+  if (ttype = #password) then
     tWindowTitleStr = getText("reg_changePassword")
     tWndType = "reg_update_password.window"
   else
@@ -268,7 +268,7 @@ on openPwdEmailUpdate me, ttype, tForced, tMsg
     tWndType = "reg_update_email.window"
   end if
   if not createWindow(pVerifyChangeWndID, void(), 0, 0, #modal) then
-    return(0)
+    return FALSE
   end if
   pTempPassword = [:]
   tWinObj = getWindow(pVerifyChangeWndID)
@@ -291,16 +291,16 @@ end
 
 on blinkLoading me 
   tWndObj = getWindow(pWindowTitle)
-  if tWndObj = 0 then
-    return(0)
+  if (tWndObj = 0) then
+    return FALSE
   end if
   tElem = tWndObj.getElement("reg_loading")
-  if tElem = 0 then
-    return(0)
+  if (tElem = 0) then
+    return FALSE
   end if
   tElem.setProperty(#visible, not tElem.getProperty(#visible))
   me.delay(500, #blinkLoading)
-  return(1)
+  return TRUE
 end
 
 on defineModes me, tMode 
@@ -311,7 +311,7 @@ on defineModes me, tMode
   pmode = tMode
   pRegProcess = getVariableValue(pmode & ".process")
   me.NewFigureInformation()
-  if pmode = "registration" or pmode = "parent_email" or pmode = "parent_email_strong_coppa" then
+  if (pmode = "registration") or (pmode = "parent_email") or (pmode = "parent_email_strong_coppa") then
     pNameChecked = 0
   else
     pNameChecked = 1
@@ -337,7 +337,7 @@ end
 
 on ChangeWindowView me, tWindowName 
   if not windowExists(pWindowTitle) then
-    if pmode = "forced" then
+    if (pmode = "forced") then
       createWindow(pWindowTitle, "habbo_simple.window", 0, 0, #modal)
     else
       createWindow(pWindowTitle, "habbo_basic.window", 381, 73)
@@ -355,7 +355,7 @@ on ChangeWindowView me, tWindowName
   if tWndObj.elementExists("close") then
     tWndObj.getElement("close").setProperty(#visible, 0)
   end if
-  if pmode = "forced" then
+  if (pmode = "forced") then
     tWndObj.center()
     tWndObj.moveBy(172, 0)
   end if
@@ -369,7 +369,7 @@ on getMyInformation me
     tProp = getAt(undefined, undefined)
     if getObject(#session).exists("user_" & tProp) then
       tdata = getObject(#session).GET("user_" & tProp)
-      if tdata.ilk = #list or tdata.ilk = #propList then
+      if (tdata.ilk = #list) or (tdata.ilk = #propList) then
         pPropsToServer.setAt(tProp, tdata.duplicate())
       else
         pPropsToServer.setAt(tProp, tdata)
@@ -381,7 +381,7 @@ on getMyInformation me
   pPropsToServer.getAt("figure").deleteProp("li")
   pPropsToServer.getAt("figure").deleteProp("ri")
   pOldFigure = pPropsToServer.getAt("figure").duplicate()
-  if pPropsToServer.getAt("sex").getProp(#char, 1) = "f" or pPropsToServer.getAt("sex").getProp(#char, 1) = "F" then
+  if (pPropsToServer.getAt("sex").getProp(#char, 1) = "f") or (pPropsToServer.getAt("sex").getProp(#char, 1) = "F") then
     pPropsToServer.setAt("sex", "F")
   else
     pPropsToServer.setAt("sex", "M")
@@ -392,8 +392,8 @@ end
 on setMyDataToFields me 
   tWndObj = getWindow(pWindowTitle)
   tTempProps = [:]
-  if pOpenWindow = "reg_welcome.window" then
-    if pmode = "forced" or pmode = "parent_email_forced" then
+  if (pOpenWindow = "reg_welcome.window") then
+    if (pmode = "forced") or (pmode = "parent_email_forced") then
       if tWndObj.elementExists("reg_exit_button") then
         tWndObj.getElement("reg_exit_button").hide()
       end if
@@ -402,7 +402,7 @@ on setMyDataToFields me
       tWndObj.getElement("reg_welcome_txt").setText(getText("reg_forcedupdate3"))
     end if
   else
-    if pOpenWindow = "reg_coppa_forced.window" then
+    if (pOpenWindow = "reg_coppa_forced.window") then
       if tWndObj.elementExists("reg_exit_button") then
         tWndObj.getElement("reg_exit_button").hide()
       end if
@@ -410,14 +410,14 @@ on setMyDataToFields me
       tWndObj.getElement("reg_welcome_header").setText(getText("reg_forcedupdate2"))
       tWndObj.getElement("reg_welcome_txt").setText(getText("reg_forcedupdate3"))
     else
-      if pOpenWindow = "reg_legal.window" then
-        if pPropsToServer.getAt("parentagree") = 0 then
+      if (pOpenWindow = "reg_legal.window") then
+        if (pPropsToServer.getAt("parentagree") = 0) then
           tWndObj.getElement("reg_legal_header").setText(getText("reg_legal_header2"))
           tWndObj.getElement("reg_agree_text").setText(getText("reg_agree2"))
         end if
       else
-        if pOpenWindow = "reg_namepage.window" then
-          if pmode = "registration" or pmode = "parent_email" or pmode = "parent_email_strong_coppa" then
+        if (pOpenWindow = "reg_namepage.window") then
+          if (pmode = "registration") or (pmode = "parent_email") or (pmode = "parent_email_strong_coppa") then
             tWndObj.getElement("char_name_field").setFocus(1)
           else
             tWndObj.getElement("char_name_field").setProperty(#blend, 30)
@@ -427,23 +427,23 @@ on setMyDataToFields me
           tTempProps = ["name":"char_name_field"]
           if variableExists("username_input.font.size") then
             tElem = tWndObj.getElement("char_name_field")
-            if tElem = 0 then
-              return(0)
+            if (tElem = 0) then
+              return FALSE
             end if
-            if tElem.pMember = void() then
-              return(0)
+            if (tElem.pMember = void()) then
+              return FALSE
             end if
-            if pMember.type <> #field then
-              return(0)
+            if tElem.pMember.type <> #field then
+              return FALSE
             end if
-            pMember.fontSize = getIntVariable("username_input.font.size")
+            tElem.pMember.fontSize = getIntVariable("username_input.font.size")
           end if
         else
-          if pOpenWindow = "reg_namepage_mission.window" then
+          if (pOpenWindow = "reg_namepage_mission.window") then
             tWndObj.getElement("char_mission_field").setFocus(1)
             tTempProps = ["name":"char_name_field", "customData":"char_mission_field"]
           else
-            if pOpenWindow = "reg_infopage.window" then
+            if (pOpenWindow = "reg_infopage.window") then
               tTempProps = ["email":"char_email_field"]
               pTempPassword = [:]
               tDelim = the itemDelimiter
@@ -457,10 +457,10 @@ on setMyDataToFields me
               the itemDelimiter = tDelim
               me.updateCheckButton("char_spam_checkbox", "directMail")
             else
-              if pOpenWindow = "reg_infopage_no_age.window" then
+              if (pOpenWindow = "reg_infopage_no_age.window") then
                 pTempPassword = [:]
               else
-                if pOpenWindow = "reg_confirm.window" then
+                if (pOpenWindow = "reg_confirm.window") then
                   if tWndObj.elementExists("reg_name") then
                     tText = getText("reg_check_name", "reg_check_name") && pPropsToServer.getAt("name")
                     tWndObj.getElement("reg_name").setText(tText)
@@ -493,21 +493,21 @@ on setMyDataToFields me
     if tWndObj.elementExists(tElem) then
       tWndObj.getElement(tElem).setText(pPropsToServer.getAt(tProp))
     end if
-    f = 1 + f
+    f = (1 + f)
   end repeat
-  if pRegProcess <> 0 and pRegProcessLocation.ilk = #integer then
+  if pRegProcess <> 0 and (pRegProcessLocation.ilk = #integer) then
     if tWndObj.elementExists("reg_page_number") then
       if pmode <> "update" then
         tText = pRegProcessLocation & "/" & pRegProcess.count
         tWndObj.getElement("reg_page_number").setText(tText)
       end if
     end if
-    if pmode = "update" and pRegProcessLocation = 1 then
+    if (pmode = "update") and (pRegProcessLocation = 1) then
       if tWndObj.elementExists("reg_prev_button") then
         tWndObj.getElement("reg_prev_button").hide()
       end if
     else
-      if pmode = "update" and pRegProcessLocation <> 1 then
+      if (pmode = "update") and pRegProcessLocation <> 1 then
         if tWndObj.elementExists("reg_cancel_button") then
           tWndObj.getElement("reg_cancel_button").hide()
         end if
@@ -522,13 +522,13 @@ on setMyDataToFields me
         end if
       end if
     end if
-    if pRegProcessLocation = pRegProcess.count then
+    if (pRegProcessLocation = pRegProcess.count) then
       if pmode <> "registration" and pmode <> " parent_email" then
         if tWndObj.elementExists("reg_done_button") and tWndObj.elementExists("reg_page_number") then
           tWndObj.getElement("reg_done_button").show()
           tWndObj.getElement("reg_next_button").hide()
-          tMoveX = tWndObj.getElement("reg_next_button").getProperty(#locH) - tWndObj.getElement("reg_done_button").getProperty(#locH)
-          tMoveX = tWndObj.getElement("reg_done_button").getProperty(#locH) + tMoveX
+          tMoveX = (tWndObj.getElement("reg_next_button").getProperty(#locH) - tWndObj.getElement("reg_done_button").getProperty(#locH))
+          tMoveX = (tWndObj.getElement("reg_done_button").getProperty(#locH) + tMoveX)
           tWndObj.getElement("reg_done_button").setProperty(#locH, tMoveX)
           tText = pRegProcessLocation & "/" & pRegProcess.count
           if tWndObj.elementExists("reg_page_number") then
@@ -543,19 +543,19 @@ end
 on getMyDataFromFields me 
   tWndObj = getWindow(pWindowTitle)
   tTempProps = [:]
-  if pOpenWindow = "reg_namepage.window" then
+  if (pOpenWindow = "reg_namepage.window") then
     tTempProps = ["name":"char_name_field"]
   else
-    if pOpenWindow = "reg_namepage_mission.window" then
+    if (pOpenWindow = "reg_namepage_mission.window") then
       tTempProps = ["customData":"char_mission_field"]
     else
-      if pOpenWindow = "reg_infopage.window" then
+      if (pOpenWindow = "reg_infopage.window") then
         tDay = integer(tWndObj.getElement("char_dd_field").getText())
         if not tWndObj.elementExists("monthDrop") then
           return(error(me, "No month drop!", #getMyDataFromFields, #major))
         end if
         tMonthSelection = tWndObj.getElement("monthDrop").getSelection()
-        tMonth = integer(chars(tMonthSelection, tMonthSelection.length - 1, tMonthSelection.length))
+        tMonth = integer(chars(tMonthSelection, (tMonthSelection.length - 1), tMonthSelection.length))
         tYear = integer(tWndObj.getElement("char_yyyy_field").getText())
         if tDay < 10 and not voidp(tDay) then
           tDay = "0" & tDay
@@ -566,7 +566,7 @@ on getMyDataFromFields me
         pPropsToServer.setAt("birthday", tDay & "." & tMonth & "." & tYear)
         tTempProps = ["email":"char_email_field"]
       else
-        if pOpenWindow = "reg_infopage_no_age.window" then
+        if (pOpenWindow = "reg_infopage_no_age.window") then
           tTempProps = ["email":"char_email_field"]
         end if
       end if
@@ -580,9 +580,9 @@ on getMyDataFromFields me
       tElemTxt = convertSpecialChars(tWndObj.getElement(tElem).getText(), 1)
       pPropsToServer.setAt(tProp, tElemTxt)
     end if
-    f = 1 + f
+    f = (1 + f)
   end repeat
-  return(1)
+  return TRUE
 end
 
 on updateSexRadioButtons me 
@@ -620,13 +620,13 @@ on updateCheckButton me, tElement, tProp, tChangeMode
     tChangeMode = 0
   end if
   if tChangeMode then
-    if pPropsToServer.getAt(tProp) = "1" then
+    if (pPropsToServer.getAt(tProp) = "1") then
       pPropsToServer.setAt(tProp, "0")
     else
       pPropsToServer.setAt(tProp, "1")
     end if
   end if
-  if pPropsToServer.getAt(tProp) = "1" then
+  if (pPropsToServer.getAt(tProp) = "1") then
     if tWndObj.elementExists(tElement) then
       tWndObj.getElement(tElement).feedImage(tOnImg)
     end if
@@ -642,7 +642,7 @@ on createDefaultFigure me, tRandom
     return(error(me, "Figure system object not found", #createDefaultFigure, #major))
   end if
   pPropsToServer.setAt("figure", [:])
-  if not voidp(pOldFigure) and pOldSex = pPropsToServer.getAt("sex") then
+  if not voidp(pOldFigure) and (pOldSex = pPropsToServer.getAt("sex")) then
     pPropsToServer.setAt("figure", pOldFigure)
     repeat while ["lh", "ls", "bd", "sh", "lg", "ch", "hd", "fc", "ey", "hr", "rh", "rs"] <= undefined
       tPart = getAt(undefined, tRandom)
@@ -667,7 +667,7 @@ on createDefaultFigure me, tRandom
       tNumber = 1
     end if
     tPartProps = getObject("Figure_System").getModelOfPartByOrderNum(tPart, tNumber, pPropsToServer.getAt("sex"))
-    if tPartProps.ilk = #propList then
+    if (tPartProps.ilk = #propList) then
       tColorList = tPartProps.getAt("firstcolor")
       tSetID = tPartProps.getAt("setid")
       tColorId = 1
@@ -678,10 +678,10 @@ on createDefaultFigure me, tRandom
       repeat while f <= tPartProps.getAt("changeparts").count
         tMultiPart = tPartProps.getAt("changeparts").getPropAt(f)
         tmodel = string(tPartProps.getAt("changeparts").getAt(tMultiPart))
-        if tmodel.count(#char) = 1 then
+        if (tmodel.count(#char) = 1) then
           tmodel = "00" & tmodel
         else
-          if tmodel.count(#char) = 2 then
+          if (tmodel.count(#char) = 2) then
             tmodel = "0" & tmodel
           end if
         end if
@@ -694,7 +694,7 @@ on createDefaultFigure me, tRandom
         me.setPartColor(tMultiPart, tColor)
         pPropsToServer.getAt("figure").setAt(tMultiPart, ["model":tmodel, "color":tColor, "setid":tSetID, "colorid":tColorId])
         me.setIndexNumOfPartOrColor("partcolor", tMultiPart, 0)
-        f = 1 + f
+        f = (1 + f)
       end repeat
     end if
   end repeat
@@ -704,7 +704,7 @@ end
 
 on createTemplateHuman me 
   if not voidp(pBodyPartObjects) then
-    return(0)
+    return FALSE
   end if
   tProps = pPropsToServer
   pPeopleSize = "h"
@@ -744,9 +744,9 @@ on updateFigurePreview me
       tWidth = tWndObj.getElement("human.preview.img").getProperty(#width)
       tHeight = tWndObj.getElement("human.preview.img").getProperty(#height)
       tPrewImg = image(tWidth, tHeight, 16)
-      tdestrect = tPrewImg.rect - (tHumanImg.rect * 2)
+      tdestrect = (tPrewImg.rect - (tHumanImg.rect * 2))
       tMargins = rect(-11, -6, -11, -6)
-      tdestrect = rect(tdestrect.bottom, (tHumanImg.width * 2), tPrewImg, rect.bottom) + tMargins
+      tdestrect = (rect(0, tdestrect.bottom, (tHumanImg.width * 2), tPrewImg.rect.bottom) + tMargins)
       tPrewImg.copyPixels(tHumanImg, tdestrect, tHumanImg.rect)
       if tWndObj.elementExists("human.preview.img") then
         tWndObj.getElement("human.preview.img").feedImage(tPrewImg)
@@ -762,11 +762,11 @@ on updateAllPrewIcons me
     me.setIndexNumOfPartOrColor("partmodel", tPart, 0)
     if not voidp(pPropsToServer.getAt("figure").getAt(tPart).getAt("color")) then
       me.updatePartColorPreview(tPart, pPropsToServer.getAt("figure").getAt(tPart).getAt("color"))
-      if ["hr", "hd", "ch", "lg", "sh"] = "hd" then
+      if (["hr", "hd", "ch", "lg", "sh"] = "hd") then
         tTemp = ["hd":pPropsToServer.getAt("figure").getAt("hd").getAt("model"), "ey":pPropsToServer.getAt("figure").getAt("ey").getAt("model"), "fc":pPropsToServer.getAt("figure").getAt("fc").getAt("model")]
         me.updatePartPreview(tPart, tTemp)
       else
-        if ["hr", "hd", "ch", "lg", "sh"] = "ch" then
+        if (["hr", "hd", "ch", "lg", "sh"] = "ch") then
           tTemp = ["ls":pPropsToServer.getAt("figure").getAt("ls").getAt("model"), "ch":pPropsToServer.getAt("figure").getAt("ch").getAt("model"), "rs":pPropsToServer.getAt("figure").getAt("rs").getAt("model")]
           me.updatePartPreview(tPart, tTemp)
         else
@@ -786,10 +786,10 @@ on updatePartPreview me, tPart, tChangingPartPropList
   if not voidp(pBodyPartObjects) and tElem <> 0 then
     tTempPartImg = image(64, 102, 16)
     tPartList = []
-    if tPart = "hd" then
+    if (tPart = "hd") then
       tTempChangingParts = ["hd", "ey", "fc"]
     else
-      if tPart = "ch" then
+      if (tPart = "ch") then
         tTempChangingParts = ["ls", "ch", "rs"]
       else
         tTempChangingParts = [tPart]
@@ -802,10 +802,10 @@ on updatePartPreview me, tPart, tChangingPartPropList
       if tTempChangeParts.getOne(tMultiPart) > 0 then
         tmodel = string(tChangingPartPropList.getAt(tMultiPart))
         tPartList.add(tMultiPart)
-        if length(tmodel) = 1 then
+        if (length(tmodel) = 1) then
           tmodel = "00" & tmodel
         else
-          if length(tmodel) = 2 then
+          if (length(tmodel) = 2) then
             tmodel = "0" & tmodel
           end if
         end if
@@ -817,10 +817,10 @@ on updatePartPreview me, tPart, tChangingPartPropList
     tWidth = tElem.getProperty(#width)
     tHeight = tElem.getProperty(#height)
     tPrewImg = image(tWidth, tHeight, 16)
-    tdestrect = tPrewImg.rect - tTempPartImg.rect
-    tMarginH = (tPrewImg.width / 2) - (tTempPartImg.width / 2)
-    tMarginV = (tPrewImg.height / 2) - (tTempPartImg.height / 2)
-    tdestrect = tTempPartImg.rect + rect(tMarginH, tMarginV, tMarginH, tMarginV)
+    tdestrect = (tPrewImg.rect - tTempPartImg.rect)
+    tMarginH = ((tPrewImg.width / 2) - (tTempPartImg.width / 2))
+    tMarginV = ((tPrewImg.height / 2) - (tTempPartImg.height / 2))
+    tdestrect = (tTempPartImg.rect + rect(tMarginH, tMarginV, tMarginH, tMarginV))
     tPrewImg.copyPixels(tTempPartImg, tdestrect, tTempPartImg.rect)
     tElem.feedImage(tPrewImg)
   end if
@@ -866,16 +866,16 @@ on setIndexNumOfPartOrColor me, tChange, tPart, tOrderNum, tMaxValue
   if voidp(pPartChangeButtons.getAt(tChange).getAt(tPart)) then
     pPartChangeButtons.getAt(tChange).setAt(tPart, [:])
   end if
-  if tOrderNum = 0 then
+  if (tOrderNum = 0) then
     pPartChangeButtons.getAt(tChange).setAt(tPart, 1)
   else
-    if pPartChangeButtons.getAt(tChange).getAt(tPart) + tOrderNum > tMaxValue then
+    if (pPartChangeButtons.getAt(tChange).getAt(tPart) + tOrderNum) > tMaxValue then
       pPartChangeButtons.getAt(tChange).setAt(tPart, 1)
     else
-      if pPartChangeButtons.getAt(tChange).getAt(tPart) + tOrderNum < 1 then
+      if (pPartChangeButtons.getAt(tChange).getAt(tPart) + tOrderNum) < 1 then
         pPartChangeButtons.getAt(tChange).setAt(tPart, tMaxValue)
       else
-        pPartChangeButtons.getAt(tChange).setAt(tPart, pPartChangeButtons.getAt(tChange).getAt(tPart) + tOrderNum)
+        pPartChangeButtons.getAt(tChange).setAt(tPart, (pPartChangeButtons.getAt(tChange).getAt(tPart) + tOrderNum))
       end if
     end if
   end if
@@ -887,13 +887,13 @@ on changePart me, tPart, tButtonDir
     return(error(me, "Figure system object not found", #changePart, #major))
   end if
   tSetID = me.getSetID(tPart)
-  if tSetID = 0 then
+  if (tSetID = 0) then
     return(error(me, "Incorrect part data", #changePart, #major))
   end if
   tMaxValue = getObject("Figure_System").getCountOfPart(tPart, pPropsToServer.getAt("sex"))
   tPartIndexNum = me.setIndexNumOfPartOrColor("partmodel", tPart, tButtonDir, tMaxValue)
   tPartProps = getObject("Figure_System").getModelOfPartByOrderNum(tPart, tPartIndexNum, pPropsToServer.getAt("sex"))
-  if tPartProps.ilk = #propList then
+  if (tPartProps.ilk = #propList) then
     tColorList = tPartProps.getAt("firstcolor")
     tSetID = tPartProps.getAt("setid")
     tColorId = 1
@@ -904,10 +904,10 @@ on changePart me, tPart, tButtonDir
     repeat while f <= tPartProps.getAt("changeparts").count
       tMultiPart = tPartProps.getAt("changeparts").getPropAt(f)
       tmodel = string(tPartProps.getAt("changeparts").getAt(tMultiPart))
-      if tmodel.count(#char) = 1 then
+      if (tmodel.count(#char) = 1) then
         tmodel = "00" & tmodel
       else
-        if tmodel.count(#char) = 2 then
+        if (tmodel.count(#char) = 2) then
           tmodel = "0" & tmodel
         end if
       end if
@@ -920,7 +920,7 @@ on changePart me, tPart, tButtonDir
       me.setPartColor(tMultiPart, tColor)
       pPropsToServer.getAt("figure").setAt(tMultiPart, ["model":tmodel, "color":tColor, "setid":tSetID, "colorid":tColorId])
       me.setIndexNumOfPartOrColor("partcolor", tMultiPart, 0)
-      f = 1 + f
+      f = (1 + f)
     end repeat
     if not voidp(pPropsToServer.getAt("figure").getAt(tPart)) then
       if not voidp(pPropsToServer.getAt("figure").getAt(tPart).getAt("color")) then
@@ -938,13 +938,13 @@ on changePartColor me, tPart, tButtonDir
     return(error(me, "Figure system object not found", #changePartColor, #major))
   end if
   tSetID = me.getSetID(tPart)
-  if tSetID = 0 then
+  if (tSetID = 0) then
     return(error(me, "Incorrect part data", #changePartColor, #major))
   end if
   tMaxValue = getObject("Figure_System").getCountOfPartColors(tPart, tSetID, pPropsToServer.getAt("sex"))
   tColorIndexNum = me.setIndexNumOfPartOrColor("partcolor", tPart, tButtonDir, tMaxValue)
   tPartProps = getObject("Figure_System").getColorOfPartByOrderNum(tPart, tColorIndexNum, tSetID, pPropsToServer.getAt("sex"))
-  if tPartProps.ilk = #propList then
+  if (tPartProps.ilk = #propList) then
     tColorList = tPartProps.getAt("color")
     if not listp(tColorList) then
       tColorList = list(tColorList)
@@ -960,7 +960,7 @@ on changePartColor me, tPart, tButtonDir
       me.setPartColor(tMultiPart, tColor)
       pPropsToServer.getAt("figure").getAt(tMultiPart).setAt("color", tColor)
       pPropsToServer.getAt("figure").getAt(tMultiPart).setAt("colorid", tColorIndexNum)
-      f = 1 + f
+      f = (1 + f)
     end repeat
     if not voidp(pPropsToServer.getAt("figure").getAt(tPart)) then
       if not voidp(pPropsToServer.getAt("figure").getAt(tPart).getAt("color")) then
@@ -978,25 +978,25 @@ on focusKeyboardToSprite me, tElemID
 end
 
 on checkName me 
-  if pmode = "registration" or pmode = "parent_email" or pmode = "parent_email_strong_coppa" then
+  if (pmode = "registration") or (pmode = "parent_email") or (pmode = "parent_email_strong_coppa") then
     tField = getWindow(pWindowTitle).getElement("char_name_field")
-    if tField = 0 then
+    if (tField = 0) then
       return(error(me, "Couldn't perform name check!", #checkName, #major))
     end if
     tName = tField.getText().getProp(#word, 1)
     tField.setText(tName)
-    if length(tName) = 0 then
+    if (length(tName) = 0) then
       executeMessage(#alert, [#Msg:"Alert_NoNameSet", #id:"nonameset", #modal:1])
-      return(0)
+      return FALSE
     else
       if length(tName) < getIntVariable("name.length.min", 3) then
         executeMessage(#alert, [#Msg:"Alert_YourNameIstooShort", #id:"name2short", #modal:1])
         me.focusKeyboardToSprite("char_name_field")
-        return(0)
+        return FALSE
       else
         if pLastNameCheck <> tName then
-          if me.getComponent().checkUserName(tName) = 0 then
-            return(0)
+          if (me.getComponent().checkUserName(tName) = 0) then
+            return FALSE
           end if
         end if
       end if
@@ -1004,24 +1004,24 @@ on checkName me
   end if
   getObject(#session).set(#userName, tName)
   pNameChecked = 1
-  return(1)
+  return TRUE
 end
 
 on checkPasswords me, tPwd1, tPwd2 
   if voidp(tPwd1) or voidp(tPwd2) then
     pErrorMsg = pErrorMsg & getText("Alert_WrongPassword") & "\r"
-    return(0)
+    return FALSE
   end if
   if tPwd1.length < 1 or tPwd2.length < 1 or tPwd1 <> tPwd2 then
     pErrorMsg = pErrorMsg & getText("Alert_WrongPassword") & "\r"
-    return(0)
+    return FALSE
   end if
-  return(1)
+  return TRUE
 end
 
 on validateBirthday me, tYear, tMonth, tDay 
   if the paramCount < 4 then
-    return(0)
+    return FALSE
   end if
   tBirthOK = 1
   if voidp(tDay) or tDay < 1 or tDay > 31 then
@@ -1033,7 +1033,7 @@ on validateBirthday me, tYear, tMonth, tDay
   if voidp(tYear) or tYear < 1900 or tYear > 2100 then
     tBirthOK = 0
   end if
-  if tBirthOK = 1 and getObject(#session).exists("server_date") then
+  if (tBirthOK = 1) and getObject(#session).exists("server_date") then
     tServerDate = getObject(#session).GET("server_date")
     tDelim = the itemDelimiter
     the itemDelimiter = "."
@@ -1043,10 +1043,10 @@ on validateBirthday me, tYear, tMonth, tDay
     if tYear > tServerYear then
       tBirthOK = 0
     else
-      if tMonth > tServerMonth and tYear = tServerYear then
+      if tMonth > tServerMonth and (tYear = tServerYear) then
         tBirthOK = 0
       else
-        if tDay > tServerDay and tMonth = tServerMonth and tYear = tServerYear then
+        if tDay > tServerDay and (tMonth = tServerMonth) and (tYear = tServerYear) then
           tBirthOK = 0
         end if
       end if
@@ -1059,15 +1059,15 @@ end
 on validateEmail me, tEmail 
   tEmailOK = 0
   if length(tEmail) > 6 and tEmail contains "@" then
-    f = offset("@", tEmail) + 1
+    f = (offset("@", tEmail) + 1)
     repeat while f <= length(tEmail)
-      if tEmail.getProp(#char, f) = "." then
+      if (tEmail.getProp(#char, f) = ".") then
         tEmailOK = 1
       end if
-      if tEmail.getProp(#char, f) = "@" then
+      if (tEmail.getProp(#char, f) = "@") then
         tEmailOK = 0
       else
-        f = 1 + f
+        f = (1 + f)
       end if
     end repeat
   end if
@@ -1075,30 +1075,30 @@ on validateEmail me, tEmail
 end
 
 on checkAgreeTerms me 
-  if getText("reg_terms") = "reg_terms" then
-    return(0)
+  if (getText("reg_terms") = "reg_terms") then
+    return FALSE
   end if
   tWndObj = getWindow(pWindowTitle)
   if tWndObj.elementExists("reg_termstxt") then
     tScroll = tWndObj.getElement("char_scrollbar").getScrollOffset()
-    tMaxH = tWndObj.getElement("reg_termstxt").getProperty(#image).height - tWndObj.getElement("reg_termstxt").getProperty(#height)
-    if tScroll + 2 < tMaxH then
+    tMaxH = (tWndObj.getElement("reg_termstxt").getProperty(#image).height - tWndObj.getElement("reg_termstxt").getProperty(#height))
+    if (tScroll + 2) < tMaxH then
       pErrorMsg = pErrorMsg & getText("reg_readterms_alert") & "\r"
-      return(0)
+      return FALSE
     end if
   else
-    return(0)
+    return FALSE
   end if
   if pPropsToServer.getAt("has_read_agreement") <> "1" then
     pErrorMsg = pErrorMsg & getText("reg_agree_alert") & "\r"
-    return(0)
+    return FALSE
   else
-    return(1)
+    return TRUE
   end if
 end
 
 on parentEmailNotNeeded me 
-  if pRegProcess.ilk = #list then
+  if (pRegProcess.ilk = #list) then
     tPos = pRegProcess.findPos("reg_parent_email")
     if tPos > 0 then
       pRegProcess.deleteAt(tPos)
@@ -1109,8 +1109,8 @@ end
 on clearUserNameField me 
   pNameChecked = 0
   tElem = getWindow(pWindowTitle).getElement("char_name_field")
-  if tElem = 0 then
-    return(0)
+  if (tElem = 0) then
+    return FALSE
   end if
   tElem.setText("")
   tElem.setFocus(1)
@@ -1129,7 +1129,7 @@ on registrationReady me
   getObject(#session).set(#userName, pPropsToServer.getAt("name"))
   getObject(#session).set(#password, pPropsToServer.getAt("password"))
   getObject(#session).set("user_figure", pPropsToServer.getAt("figure").duplicate())
-  if pmode = "registration" or pmode = "parent_email" or pmode = "parent_email_strong_coppa" then
+  if (pmode = "registration") or (pmode = "parent_email") or (pmode = "parent_email_strong_coppa") then
     if objectExists("Figure_Preview") then
       getObject("Figure_Preview").createTemplateHuman("h", 3, "remove")
     end if
@@ -1143,22 +1143,22 @@ on changePage me, tParm
   if voidp(tParm) then
     tParm = 1
   end if
-  if pRegProcess = 0 then
+  if (pRegProcess = 0) then
     return(error(me, "registration process not found", #changePage, #minor))
   end if
-  if tParm.ilk = #string then
+  if (tParm.ilk = #string) then
     me.getMyDataFromFields()
     me.enterPage(tParm)
   else
-    if tParm.ilk = #integer then
+    if (tParm.ilk = #integer) then
       if tParm > 0 then
-        if me.leavePage(pOpenWindow) = 0 then
-          return(0)
+        if (me.leavePage(pOpenWindow) = 0) then
+          return FALSE
         end if
       else
         me.getMyDataFromFields()
       end if
-      pRegProcessLocation = pRegProcessLocation + tParm
+      pRegProcessLocation = (pRegProcessLocation + tParm)
       if pRegProcessLocation < 1 then
         pRegProcessLocation = 1
       end if
@@ -1172,7 +1172,7 @@ on changePage me, tParm
 end
 
 on leavePage me, tCurrentWindow 
-  if tCurrentWindow = "reg_legal.window" then
+  if (tCurrentWindow = "reg_legal.window") then
     pErrorMsg = ""
     tProceed = 1
     tProceed = tProceed and me.checkAgreeTerms()
@@ -1180,24 +1180,24 @@ on leavePage me, tCurrentWindow
       me.getMyDataFromFields()
     else
       executeMessage(#alert, [#title:"alert_reg_t", #Msg:pErrorMsg, #id:"problems", #modal:1])
-      return(0)
+      return FALSE
     end if
   else
-    if tCurrentWindow = "reg_namepage.window" then
+    if (tCurrentWindow = "reg_namepage.window") then
       me.getMyDataFromFields()
-      if pNameChecked = 0 then
-        if me.checkName() = 1 then
+      if (pNameChecked = 0) then
+        if (me.checkName() = 1) then
           me.ChangeWindowView("reg_loading.window")
         end if
-        return(0)
+        return FALSE
       end if
     else
-      if tCurrentWindow = "reg_namepage_mission.window" then
+      if (tCurrentWindow = "reg_namepage_mission.window") then
         me.getMyDataFromFields()
       else
-        if tCurrentWindow = "reg_infopage.window" then
+        if (tCurrentWindow = "reg_infopage.window") then
           if not windowExists(pWindowTitle) then
-            return(0)
+            return FALSE
           end if
           tWndObj = getWindow(pWindowTitle)
           tDay = integer(tWndObj.getElement("char_dd_field").getText())
@@ -1205,7 +1205,7 @@ on leavePage me, tCurrentWindow
             return(error(me, "No month drop!", #leavePage, #major))
           end if
           tMonthSelection = tWndObj.getElement("monthDrop").getSelection()
-          tMonth = integer(chars(tMonthSelection, tMonthSelection.length - 1, tMonthSelection.length))
+          tMonth = integer(chars(tMonthSelection, (tMonthSelection.length - 1), tMonthSelection.length))
           tYear = integer(tWndObj.getElement("char_yyyy_field").getText())
           tEmail = tWndObj.getElement("char_email_field").getText()
           pErrorMsg = ""
@@ -1228,7 +1228,7 @@ on leavePage me, tCurrentWindow
           end if
           if not tProceed then
             executeMessage(#alert, [#title:"alert_reg_t", #Msg:pErrorMsg, #id:"problems", #modal:1])
-            return(0)
+            return FALSE
           end if
           pPropsToServer.setAt("password", pTempPassword.getAt("char_pw_field"))
           me.getMyDataFromFields()
@@ -1236,13 +1236,13 @@ on leavePage me, tCurrentWindow
             pPasswordErrors = ""
             pErrorMsg = ""
             me.getComponent().sendValidatePassword(pPropsToServer.getAt("password"))
-            return(0)
+            return FALSE
           end if
           if not pEmailChecked then
             me.getComponent().checkEmailAddress(tEmail)
-            return(0)
+            return FALSE
           end if
-          if pmode = "parent_email" or pmode = "parent_email_strong_coppa" then
+          if (pmode = "parent_email") or (pmode = "parent_email_strong_coppa") then
             if me.getComponent().getParentEmailNeededFlag() <> 1 then
               tItemD = the itemDelimiter
               the itemDelimiter = "."
@@ -1253,13 +1253,13 @@ on leavePage me, tCurrentWindow
               tHabboID = pPropsToServer.getAt("name")
               me.getComponent().parentEmailNeedQuery(tBirthday, tHabboID)
               me.ChangeWindowView("reg_loading.window")
-              return(0)
+              return FALSE
             end if
           end if
         else
-          if tCurrentWindow = "reg_infopage_no_age.window" then
+          if (tCurrentWindow = "reg_infopage_no_age.window") then
             if not windowExists(pWindowTitle) then
-              return(0)
+              return FALSE
             end if
             tWndObj = getWindow(pWindowTitle)
             tEmail = tWndObj.getElement("char_email_field").getText()
@@ -1278,7 +1278,7 @@ on leavePage me, tCurrentWindow
             end if
             if not tProceed then
               executeMessage(#alert, [#title:"alert_reg_t", #Msg:pErrorMsg, #id:"problems", #modal:1])
-              return(0)
+              return FALSE
             end if
             pPropsToServer.setAt("password", pTempPassword.getAt("char_pw_field"))
             me.getMyDataFromFields()
@@ -1286,13 +1286,13 @@ on leavePage me, tCurrentWindow
               pPasswordErrors = ""
               pErrorMsg = ""
               me.getComponent().sendValidatePassword(pPropsToServer.getAt("password"))
-              return(0)
+              return FALSE
             end if
             if not pEmailChecked then
               me.getComponent().checkEmailAddress(tEmail)
-              return(0)
+              return FALSE
             end if
-            if pmode = "parent_email" or pmode = "parent_email_strong_coppa" then
+            if (pmode = "parent_email") or (pmode = "parent_email_strong_coppa") then
               if me.getComponent().getParentEmailNeededFlag() <> 1 then
                 tItemD = the itemDelimiter
                 the itemDelimiter = "."
@@ -1301,11 +1301,11 @@ on leavePage me, tCurrentWindow
                 tHabboID = pPropsToServer.getAt("name")
                 me.getComponent().parentEmailNeedQuery(tBirthday, tHabboID)
                 me.ChangeWindowView("reg_loading.window")
-                return(0)
+                return FALSE
               end if
             end if
           else
-            if tCurrentWindow = "reg_confirm.window" then
+            if (tCurrentWindow = "reg_confirm.window") then
               if getObject(#session).GET("conf_coppa") then
                 tItemD = the itemDelimiter
                 the itemDelimiter = "."
@@ -1313,39 +1313,39 @@ on leavePage me, tCurrentWindow
                 the itemDelimiter = tItemD
                 me.getComponent().checkAge(tdata)
                 me.ChangeWindowView("reg_loading.window")
-                return(0)
+                return FALSE
               else
-                return(1)
+                return TRUE
               end if
             else
-              if tCurrentWindow = "reg_parent_email.window" then
+              if (tCurrentWindow = "reg_parent_email.window") then
                 tWndObj = getWindow(pWindowTitle)
                 tParentEmail = tWndObj.getElement("reg_parent_email_field").getText()
                 tEmailOK = me.validateEmail(tParentEmail)
                 if not tEmailOK then
                   executeMessage(#alert, [#Msg:"alert_reg_parent_email", #id:"parentemailincorrect", #modal:1])
-                  return(0)
+                  return FALSE
                 end if
                 tUserEmail = pPropsToServer.getAt("email")
-                if tParentEmail = "" then
+                if (tParentEmail = "") then
                   return(me.parentEmailIncorrect())
                 end if
                 me.getComponent().validateParentEmail(tUserEmail, tParentEmail)
                 me.ChangeWindowView("reg_loading.window")
-                return(0)
+                return FALSE
               else
-                if tCurrentWindow = "reg_age_check.window" then
+                if (tCurrentWindow = "reg_age_check.window") then
                   tWndObj = getWindow(pWindowTitle)
                   tDay = integer(tWndObj.getElement("char_dd_field").getText())
                   if not tWndObj.elementExists("monthDrop") then
                     return(error(me, "No month drop!", #leavePage, #major))
                   end if
                   tMonthSelection = tWndObj.getElement("monthDrop").getSelection()
-                  tMonth = integer(chars(tMonthSelection, tMonthSelection.length - 1, tMonthSelection.length))
+                  tMonth = integer(chars(tMonthSelection, (tMonthSelection.length - 1), tMonthSelection.length))
                   tYear = integer(tWndObj.getElement("char_yyyy_field").getText())
                   if voidp(tDay) or voidp(tMonth) or voidp(tYear) or tYear < 1900 or tMonth > 12 or tDay > 31 then
                     executeMessage(#alert, [#title:"alert_reg_t", #Msg:"Alert_CheckBirthday", #id:"problems", #modal:1])
-                    return(0)
+                    return FALSE
                   end if
                   if tDay < 10 then
                     tDay = "0" & tDay
@@ -1357,7 +1357,7 @@ on leavePage me, tCurrentWindow
                   pPropsToServer.setAt("birthday", tDay & "." & tMonth & "." & tYear)
                   me.getComponent().checkAge(tdata)
                   me.ChangeWindowView("reg_loading.window")
-                  return(0)
+                  return FALSE
                 end if
               end if
             end if
@@ -1366,23 +1366,23 @@ on leavePage me, tCurrentWindow
       end if
     end if
   end if
-  return(1)
+  return TRUE
 end
 
 on enterPage me, tWindow 
   me.ChangeWindowView(tWindow)
-  if tWindow = "reg_legal.window" then
+  if (tWindow = "reg_legal.window") then
     me.setMyDataToFields()
     me.updateCheckButton("char_terms_checkbox", "has_read_agreement")
   else
-    if tWindow = "reg_namepage.window" then
+    if (tWindow = "reg_namepage.window") then
       me.setMyDataToFields()
-      if pmode = "registration" or pmode = "parent_email" or pmode = "parent_email_strong_coppa" then
+      if (pmode = "registration") or (pmode = "parent_email") or (pmode = "parent_email_strong_coppa") then
         pNameChecked = 0
       else
         pNameChecked = 1
       end if
-      if pPropsToServer.getAt("figure").count = 0 then
+      if (pPropsToServer.getAt("figure").count = 0) then
         me.createDefaultFigure()
       end if
       me.createTemplateHuman()
@@ -1390,9 +1390,9 @@ on enterPage me, tWindow
       me.updateFigurePreview()
       me.updateAllPrewIcons()
     else
-      if tWindow = "reg_namepage_mission.window" then
+      if (tWindow = "reg_namepage_mission.window") then
         me.setMyDataToFields()
-        if pPropsToServer.getAt("figure").count = 0 then
+        if (pPropsToServer.getAt("figure").count = 0) then
           me.createDefaultFigure()
         end if
         me.createTemplateHuman()
@@ -1400,23 +1400,23 @@ on enterPage me, tWindow
         me.updateFigurePreview()
         me.updateAllPrewIcons()
       else
-        if tWindow = "reg_infopage.window" then
+        if (tWindow = "reg_infopage.window") then
           pPasswordChecked = 0
           me.setMyDataToFields()
           tWinObj = getWindow(pWindowTitle)
           if tWinObj.elementExists("monthDrop") then
             tWinObj.getElement("monthDrop").setOrdering(0)
           end if
-          if pmode = "update" then
+          if (pmode = "update") then
             executeMessage(#alert, [#title:"reg_note_title", #Msg:"reg_note_text", #id:"pwnote", #modal:1])
           end if
         else
-          if tWindow = "reg_infopage_no_age" then
+          if (tWindow = "reg_infopage_no_age") then
             pPasswordChecked = 0
             me.setMyDataToFields()
             me.updateCheckButton("char_spam_checkbox", "directMail")
           else
-            if tWindow = "reg_info_update.window" then
+            if (tWindow = "reg_info_update.window") then
               me.setMyDataToFields()
               me.updateCheckButton("char_spam_checkbox", "directMail")
               tWinObj = getWindow(pWindowTitle)
@@ -1427,11 +1427,11 @@ on enterPage me, tWindow
               tStr = tStr & " >>"
               tWinObj.getElement("update_change_pwd").setText(tStr)
             else
-              if tWindow = "reg_confirm.window" then
+              if (tWindow = "reg_confirm.window") then
                 me.updateCheckButton("char_spam_checkbox", "directMail")
                 me.setMyDataToFields()
               else
-                if tWindow = "reg_done.window" then
+                if (tWindow = "reg_done.window") then
                   me.registrationReady()
                   tWndObj = getWindow(pWindowTitle)
                   getObject(#session).set("user_figure", pPropsToServer.getAt("figure").duplicate())
@@ -1448,7 +1448,7 @@ on enterPage me, tWindow
                     end if
                   end if
                 else
-                  if tWindow = "reg_welcome.window" then
+                  if (tWindow = "reg_welcome.window") then
                     if variableExists("balloon.margin.offset.v") then
                       tWinObj = getWindow(pWindowTitle)
                       if tWinObj.elementExists("reg_welcome_balloon") then
@@ -1457,7 +1457,7 @@ on enterPage me, tWindow
                     end if
                     me.setMyDataToFields()
                   else
-                    if tWindow = "reg_age_check.window" then
+                    if (tWindow = "reg_age_check.window") then
                       tWinObj = getWindow(pWindowTitle)
                       if tWinObj.elementExists("monthDrop") then
                         tWinObj.getElement("monthDrop").setOrdering(0)
@@ -1491,10 +1491,10 @@ end
 on responseToAccountUpdate me, tStatus 
   tWndObj = getWindow(pVerifyChangeWndID)
   tWndObj.unmerge()
-  if tStatus = "0" then
+  if (tStatus = "0") then
     tWndObj.merge("reg_update_success.window")
   else
-    if tStatus = "1" then
+    if (tStatus = "1") then
       tWndObj.merge(pLastWindow)
       tWndObj.getElement("updateaccount_topic").setText(getText("reg_verification_incorrectPassword"))
       if tWndObj.elementExists("monthDrop") then
@@ -1502,7 +1502,7 @@ on responseToAccountUpdate me, tStatus
       end if
       me.highlightVerifyTopic()
     else
-      if tStatus = "2" then
+      if (tStatus = "2") then
         tWndObj.merge(pLastWindow)
         if tWndObj.elementExists("monthDrop") then
           tWndObj.getElement("monthDrop").setOrdering(0)
@@ -1521,14 +1521,14 @@ end
 
 on blinkChecking me 
   if not windowExists(pVerifyChangeWndID) then
-    return(0)
+    return FALSE
   end if
   if timeoutExists(#checking_blinker) then
-    return(0)
+    return FALSE
   end if
   tElem = getWindow(pVerifyChangeWndID).getElement("updating_text")
   if not tElem then
-    return(0)
+    return FALSE
   end if
   tElem.setProperty(#visible, not tElem.getProperty(#visible))
   return(createTimeout(#checking_blinker, 500, #blinkChecking, me.getID(), void(), 1))
@@ -1536,41 +1536,41 @@ end
 
 on updatePasswordAsterisks me, tParams 
   tWndObj = getWindow(tParams.getAt(1))
-  if tWndObj = 0 then
-    return(0)
+  if (tWndObj = 0) then
+    return FALSE
   end if
   tElementId = tParams.getAt(2)
   tPwdElement = tWndObj.getElement(tElementId)
-  if tPwdElement = 0 then
-    return(0)
+  if (tPwdElement = 0) then
+    return FALSE
   end if
   tPwdTxt = tPwdElement.getText()
   i = 1
   repeat while i <= tPwdTxt.length
     tChar = chars(tPwdTxt, i, i)
     if tChar <> "*" and tChar <> " " then
-      pTempPassword.setAt(tElementId, chars(pTempPassword.getAt(tElementId), 1, i - 1) & tChar & chars(pTempPassword.getAt(tElementId), i + 1, i + 1))
+      pTempPassword.setAt(tElementId, chars(pTempPassword.getAt(tElementId), 1, (i - 1)) & tChar & chars(pTempPassword.getAt(tElementId), (i + 1), (i + 1)))
     end if
-    i = 1 + i
+    i = (1 + i)
   end repeat
   tStars = ""
   i = 1
   repeat while i <= pTempPassword.getAt(tElementId).length
     tStars = tStars & "*"
-    i = 1 + i
+    i = (1 + i)
   end repeat
   tPwdElement.setText(tStars)
 end
 
 on eventProcFigurecreator me, tEvent, tSprID, tParm, tWndID 
   tRect = getWindow(tWndID).getElement(tSprID).getProperty(#rect)
-  if tEvent = #mouseUp then
+  if (tEvent = #mouseUp) then
     if tSprID <> "close" then
       if tSprID <> "reg_cancel_button" then
-        if tSprID = "reg_exit_button" then
-          if pmode = "registration" or pmode = "parent_email" or pmode = "parent_email_strong_coppa" then
-            if pRegProcess.ilk = #list then
-              if pRegProcessLocation = pRegProcess.count then
+        if (tSprID = "reg_exit_button") then
+          if (pmode = "registration") or (pmode = "parent_email") or (pmode = "parent_email_strong_coppa") then
+            if (pRegProcess.ilk = #list) then
+              if (pRegProcessLocation = pRegProcess.count) then
                 me.registrationReady()
               end if
             end if
@@ -1578,7 +1578,7 @@ on eventProcFigurecreator me, tEvent, tSprID, tParm, tWndID
           me.getComponent().closeFigureCreator()
           me.getComponent().updateState("start")
           if objectExists(#session) then
-            if getObject(#session).GET("userLoggedIn") = 0 then
+            if (getObject(#session).GET("userLoggedIn") = 0) then
               if threadExists(#login) then
                 getThread(#login).getInterface().showLogin()
               end if
@@ -1588,7 +1588,7 @@ on eventProcFigurecreator me, tEvent, tSprID, tParm, tWndID
             end if
           end if
         else
-          if tSprID = "reg_underage_button" then
+          if (tSprID = "reg_underage_button") then
             if getObject(#session).GET("conf_coppa") and pmode <> "forced" then
               me.getComponent().getRealtime()
             else
@@ -1596,27 +1596,27 @@ on eventProcFigurecreator me, tEvent, tSprID, tParm, tWndID
               me.changePage(1)
             end if
           else
-            if tSprID = "reg_olderage_button" then
+            if (tSprID = "reg_olderage_button") then
               pPropsToServer.setAt("parentagree", 0)
               me.changePage(1)
             else
-              if tSprID = "reg_next_button" then
+              if (tSprID = "reg_next_button") then
                 me.changePage(1)
               else
-                if tSprID = "reg_prev_button" then
+                if (tSprID = "reg_prev_button") then
                   me.changePage(-1)
                 else
-                  if tSprID = "reg_done_button" then
-                    if me.leavePage(pOpenWindow) = 1 then
+                  if (tSprID = "reg_done_button") then
+                    if (me.leavePage(pOpenWindow) = 1) then
                       getObject(#session).set("user_figure", pPropsToServer.getAt("figure").duplicate())
                       me.getComponent().sendFigureUpdateToServer(pPropsToServer)
                       me.getComponent().updateState("start")
                       return(me.closeFigureCreator())
                     else
-                      return(0)
+                      return FALSE
                     end if
                   else
-                    if tSprID = "reg_ready" then
+                    if (tSprID = "reg_ready") then
                       me.closeFigureCreator()
                       me.getComponent().updateState("start")
                       if objectExists("Figure_Preview") then
@@ -1624,71 +1624,71 @@ on eventProcFigurecreator me, tEvent, tSprID, tParm, tWndID
                       end if
                       me.getComponent().tryLoginAfterRegistration()
                     else
-                      if tSprID = "char_sex_m" then
+                      if (tSprID = "char_sex_m") then
                         pPropsToServer.setAt("sex", "M")
                         me.createDefaultFigure(1)
                         me.updateSexRadioButtons()
                       else
-                        if tSprID = "char_sex_f" then
+                        if (tSprID = "char_sex_f") then
                           pPropsToServer.setAt("sex", "F")
                           me.createDefaultFigure(1)
                           me.updateSexRadioButtons()
                         else
-                          if tSprID = "char_spam_checkbox" then
+                          if (tSprID = "char_spam_checkbox") then
                             me.updateCheckButton("char_spam_checkbox", "directMail", 1)
                           else
-                            if tSprID = "char_terms_checkbox" then
+                            if (tSprID = "char_terms_checkbox") then
                               me.updateCheckButton("char_terms_checkbox", "has_read_agreement", 1)
                             else
-                              if tSprID = "char_permission_checkbox" then
+                              if (tSprID = "char_permission_checkbox") then
                                 me.updateCheckButton("char_permission_checkbox", "parent_permission", 1)
                               else
-                                if tSprID = "char_name_field" then
-                                  if pNameChecked = 1 then
-                                    if pmode = "registration" or pmode = "parent_email" or pmode = "parent_email_strong_coppa" then
+                                if (tSprID = "char_name_field") then
+                                  if (pNameChecked = 1) then
+                                    if (pmode = "registration") or (pmode = "parent_email") or (pmode = "parent_email_strong_coppa") then
                                       pNameChecked = 0
                                     end if
                                   end if
                                 else
-                                  if tSprID = "char_email_field" then
+                                  if (tSprID = "char_email_field") then
                                     pEmailChecked = 0
                                   else
-                                    if tSprID = "char_continent_drop" then
+                                    if (tSprID = "char_continent_drop") then
                                       tCountryListImg = getObject("CountryMngr").getCountryListImg(tParm)
                                       getWindow(pWindowTitle).getElement("char_country_field").feedImage(tCountryListImg)
                                     else
-                                      if tSprID = "char_terms_linktext" then
+                                      if (tSprID = "char_terms_linktext") then
                                         openNetPage("url_helpterms")
                                       else
-                                        if tSprID = "char_pledge_linktext" then
+                                        if (tSprID = "char_pledge_linktext") then
                                           openNetPage("url_helppledge")
                                         else
-                                          if tSprID = "char_ppledge_linktext" then
+                                          if (tSprID = "char_ppledge_linktext") then
                                             openNetPage("url_privacypledge")
                                           else
-                                            if tSprID = "char_pglink" then
+                                            if (tSprID = "char_pglink") then
                                               openNetPage("url_helpparents")
                                             else
-                                              if tSprID = "reg_parentemail_link1" then
+                                              if (tSprID = "reg_parentemail_link1") then
                                                 openNetPage("reg_parentemail_link_url1")
                                               else
-                                                if tSprID = "reg_parentemail_link2" then
+                                                if (tSprID = "reg_parentemail_link2") then
                                                   openNetPage("reg_parentemail_link_url2")
                                                 else
-                                                  if tSprID = "update_change_pwd" then
+                                                  if (tSprID = "update_change_pwd") then
                                                     me.openPwdEmailUpdate(#password)
                                                   else
-                                                    if tSprID = "update_change_email" then
+                                                    if (tSprID = "update_change_email") then
                                                       me.openPwdEmailUpdate(#email)
                                                     else
-                                                      if tSprID = "reg_tutorial_link" then
+                                                      if (tSprID = "reg_tutorial_link") then
                                                         openNetPage("reg_tutorial_url")
                                                       else
                                                         if tSprID contains "change" and tSprID contains "button" then
                                                           tTempDelim = the itemDelimiter
                                                           the itemDelimiter = "."
                                                           tPart = tSprID.getProp(#item, 2)
-                                                          tButtonType = tSprID.getProp(#item, tSprID.count(#item) - 1)
+                                                          tButtonType = tSprID.getProp(#item, (tSprID.count(#item) - 1))
                                                           the itemDelimiter = tTempDelim
                                                           if tButtonType contains "left" then
                                                             tButtonType = -1
@@ -1725,101 +1725,101 @@ on eventProcFigurecreator me, tEvent, tSprID, tParm, tWndID
             end if
           end if
         end if
-        if tEvent = #keyDown then
-          if tSprID = "char_name_field" then
-            if charToNum(the key) = 0 then
-              return(0)
+        if (tEvent = #keyDown) then
+          if (tSprID = "char_name_field") then
+            if (charToNum(the key) = 0) then
+              return FALSE
             end if
             tValidKeys = getVariable("permitted.name.chars")
             tDeniedKeys = getVariable("denied.name.chars", "")
             if not tValidKeys contains the key then
-              if tSprID = 36 then
-                return(1)
+              if (tSprID = 36) then
+                return TRUE
               else
-                if tSprID = 48 then
+                if (tSprID = 48) then
                   me.checkName()
-                  return(0)
+                  return FALSE
                 else
-                  if tSprID = 49 then
+                  if (tSprID = 49) then
                     if tValidKeys.length > 0 then
                       executeMessage(#helptooltip, [#Msg:getText("reg_use_allowed_chars") && tValidKeys, #pos:tRect])
                     end if
-                    return(1)
+                    return TRUE
                   else
-                    if tSprID = 51 then
-                      return(0)
+                    if (tSprID = 51) then
+                      return FALSE
                     else
-                      if tSprID = 117 then
+                      if (tSprID = 117) then
                         getWindow(pWindowTitle).getElement(tSprID).setText("")
-                        return(0)
+                        return FALSE
                       else
                         if tSprID <> 123 then
                           if tSprID <> 124 then
                             if tSprID <> 125 then
-                              if tSprID = 126 then
-                                return(0)
+                              if (tSprID = 126) then
+                                return FALSE
                               else
                                 if tDeniedKeys contains the key then
                                   executeMessage(#helptooltip, [#Msg:getText("reg_use_allowed_chars") && tValidKeys, #pos:tRect])
-                                  return(1)
+                                  return TRUE
                                 end if
-                                if tValidKeys = "" then
-                                  return(0)
+                                if (tValidKeys = "") then
+                                  return FALSE
                                 else
                                   executeMessage(#helptooltip, [#Msg:getText("reg_use_allowed_chars") && tValidKeys, #pos:tRect])
-                                  return(1)
+                                  return TRUE
                                 end if
                               end if
-                              return(0)
+                              return FALSE
                               if tSprID <> "char_pw_field" then
-                                if tSprID = "char_pwagain_field" then
+                                if (tSprID = "char_pwagain_field") then
                                   tValidKeys = getVariable("permitted.password.chars")
-                                  if pNameChecked = 0 then
+                                  if (pNameChecked = 0) then
                                     if not me.checkName() then
-                                      return(1)
+                                      return TRUE
                                     end if
                                   end if
                                   if voidp(pTempPassword.getAt(tSprID)) then
                                     pTempPassword.setAt(tSprID, "")
                                   end if
-                                  if tSprID = 36 then
-                                    return(1)
+                                  if (tSprID = 36) then
+                                    return TRUE
                                   else
-                                    if tSprID = 48 then
-                                      return(0)
+                                    if (tSprID = 48) then
+                                      return FALSE
                                     else
-                                      if tSprID = 49 then
+                                      if (tSprID = 49) then
                                         if tValidKeys.length > 0 then
                                           executeMessage(#helptooltip, [#Msg:getText("reg_use_allowed_chars") && tValidKeys, #pos:tRect])
                                         end if
-                                        return(1)
+                                        return TRUE
                                       else
                                         if tSprID <> 123 then
                                           if tSprID <> 124 then
                                             if tSprID <> 125 then
-                                              if tSprID = 126 then
-                                                return(1)
+                                              if (tSprID = 126) then
+                                                return TRUE
                                               else
-                                                if tSprID = 51 then
+                                                if (tSprID = 51) then
                                                   if pTempPassword.getAt(tSprID).length > 0 then
                                                     tTempPass = pTempPassword.getAt(tSprID)
-                                                    pTempPassword.setAt(tSprID, chars(tTempPass, 1, tTempPass.length - 1))
+                                                    pTempPassword.setAt(tSprID, chars(tTempPass, 1, (tTempPass.length - 1)))
                                                   end if
                                                 else
-                                                  if tSprID = 117 then
+                                                  if (tSprID = 117) then
                                                     getWindow(tWndID).getElement(tSprID).setText("")
                                                     pTempPassword.setAt(tSprID, "")
                                                   else
                                                     tValidKeys = getVariable("permitted.password.chars")
                                                     tTheKey = the key
-                                                    if not tValidKeys = "" then
+                                                    if not (tValidKeys = "") then
                                                       if not tValidKeys contains tTheKey then
                                                         executeMessage(#helptooltip, [#Msg:getText("reg_use_allowed_chars") && tValidKeys, #pos:tRect])
-                                                        return(1)
+                                                        return TRUE
                                                       end if
                                                       if pTempPassword.getAt(tSprID).length > getIntVariable("pass.length.max", 16) then
                                                         executeMessage(#helptooltip, [#Msg:"alert_shortenPW", #pos:tRect])
-                                                        return(1)
+                                                        return TRUE
                                                       end if
                                                     end if
                                                   end if
@@ -1828,47 +1828,47 @@ on eventProcFigurecreator me, tEvent, tSprID, tParm, tWndID
                                               pPasswordChecked = 0
                                               tTimeoutHideName = "asteriskUpdate" & the milliSeconds
                                               createTimeout(tTimeoutHideName, 1, #updatePasswordAsterisks, me.getID(), [tWndID, tSprID], 1)
-                                              return(0)
-                                              if tSprID = "char_email_field" then
-                                                return(0)
+                                              return FALSE
+                                              if (tSprID = "char_email_field") then
+                                                return FALSE
                                               else
-                                                if tSprID = "char_dd_field" then
-                                                  if tSprID = 48 then
-                                                    return(0)
+                                                if (tSprID = "char_dd_field") then
+                                                  if (tSprID = 48) then
+                                                    return FALSE
                                                   else
-                                                    if tSprID = 51 then
-                                                      return(0)
+                                                    if (tSprID = 51) then
+                                                      return FALSE
                                                     else
-                                                      if tSprID = 117 then
-                                                        return(0)
+                                                      if (tSprID = 117) then
+                                                        return FALSE
                                                       else
                                                         if getWindow(tWndID).getElement(tSprID).getText().length >= 2 then
-                                                          return(1)
+                                                          return TRUE
                                                         end if
                                                         tASCII = charToNum(the key)
                                                         if tASCII < 48 or tASCII > 57 then
-                                                          return(1)
+                                                          return TRUE
                                                         end if
                                                       end if
                                                     end if
                                                   end if
                                                 else
-                                                  if tSprID = "char_yyyy_field" then
-                                                    if tSprID = 48 then
-                                                      return(0)
+                                                  if (tSprID = "char_yyyy_field") then
+                                                    if (tSprID = 48) then
+                                                      return FALSE
                                                     else
-                                                      if tSprID = 51 then
-                                                        return(0)
+                                                      if (tSprID = 51) then
+                                                        return FALSE
                                                       else
-                                                        if tSprID = 117 then
-                                                          return(0)
+                                                        if (tSprID = 117) then
+                                                          return FALSE
                                                         else
                                                           if getWindow(tWndID).getElement(tSprID).getText().length >= 4 then
-                                                            return(1)
+                                                            return TRUE
                                                           end if
                                                           tASCII = charToNum(the key)
                                                           if tASCII < 48 or tASCII > 57 then
-                                                            return(1)
+                                                            return TRUE
                                                           end if
                                                         end if
                                                       end if
@@ -1903,29 +1903,29 @@ end
 on eventProcVerifyWindow me, tEvent, tSprID, tParm, tWndID 
   tWndObj = getWindow(tWndID)
   if not tWndObj then
-    return(0)
+    return FALSE
   end if
   if voidp(pTempPassword.getAt(tSprID)) then
     pTempPassword.setAt(tSprID, "")
   end if
   tRect = getWindow(tWndID).getElement(tSprID).getProperty(#rect)
-  if tEvent = #keyDown then
-    if the keyCode = 36 then
-      return(1)
+  if (tEvent = #keyDown) then
+    if (the keyCode = 36) then
+      return TRUE
     else
-      if the keyCode = 48 then
-        return(0)
+      if (the keyCode = 48) then
+        return FALSE
       else
-        if the keyCode = 49 then
-          return(1)
+        if (the keyCode = 49) then
+          return TRUE
         else
-          if the keyCode = 51 then
+          if (the keyCode = 51) then
             if pTempPassword.getAt(tSprID).length > 0 then
               tTempPass = pTempPassword.getAt(tSprID)
-              pTempPassword.setAt(tSprID, chars(tTempPass, 1, tTempPass.length - 1))
+              pTempPassword.setAt(tSprID, chars(tTempPass, 1, (tTempPass.length - 1)))
             end if
           else
-            if the keyCode = 117 then
+            if (the keyCode = 117) then
               pTempPassword.setAt(tSprID, "")
             else
               tPasswordFields = list("char_currpwd_field", "char_newpwd1_field", "char_newpwd2_field")
@@ -1934,34 +1934,34 @@ on eventProcVerifyWindow me, tEvent, tSprID, tParm, tWndID
               tASCII = charToNum(tTheKey)
               if tPasswordFields.getPos(tSprID) > 0 then
                 if the keyCode > 122 and the keyCode < 127 then
-                  return(1)
+                  return TRUE
                 end if
                 tValidKeys = getVariable("permitted.password.chars")
                 tTheKey = the key
-                if not tValidKeys = "" then
+                if not (tValidKeys = "") then
                   if not tValidKeys contains tTheKey then
                     executeMessage(#helptooltip, [#Msg:getText("reg_use_allowed_chars") && tValidKeys, #pos:tRect])
-                    return(1)
+                    return TRUE
                   end if
                   if pTempPassword.getAt(tSprID).length > getIntVariable("pass.length.max", 16) then
                     executeMessage(#helptooltip, [#Msg:"alert_shortenPW", #pos:tRect])
-                    return(1)
+                    return TRUE
                   end if
                   pPasswordChecked = 0
                 end if
                 tTimeoutHideName = "asteriskUpdate" & the milliSeconds
                 createTimeout(tTimeoutHideName, 1, #updatePasswordAsterisks, me.getID(), [tWndID, tSprID], 1)
-                return(0)
+                return FALSE
               else
                 if tDOBFields.getPos(tSprID) > 0 then
                   if tASCII < 48 or tASCII > 57 then
-                    return(1)
+                    return TRUE
                   else
-                    if tSprID = "char_dd_field" and tWndObj.getElement("char_dd_field").getText().length >= 2 then
-                      return(1)
+                    if (tSprID = "char_dd_field") and tWndObj.getElement("char_dd_field").getText().length >= 2 then
+                      return TRUE
                     else
-                      if tSprID = "char_yyyy_field" and tWndObj.getElement("char_yyyy_field").getText().length >= 4 then
-                        return(1)
+                      if (tSprID = "char_yyyy_field") and tWndObj.getElement("char_yyyy_field").getText().length >= 4 then
+                        return TRUE
                       end if
                     end if
                   end if
@@ -1974,13 +1974,13 @@ on eventProcVerifyWindow me, tEvent, tSprID, tParm, tWndID
     end if
   else
     if the keyCode <> "update_cancel_button" then
-      if the keyCode = "updateok_ok_button" then
+      if (the keyCode = "updateok_ok_button") then
         pTempPassword = [:]
         removeWindow(tWndID)
         pPwdEmailUpdateForced = 0
         pUpdatingPassword = 0
       else
-        if the keyCode = "updatepw_ok_button" then
+        if (the keyCode = "updatepw_ok_button") then
           pPasswordChecked = 0
           pUpdatingPassword = 1
           pErrorMsg = ""
@@ -1990,19 +1990,19 @@ on eventProcVerifyWindow me, tEvent, tSprID, tParm, tWndID
           if voidp(tCurrPwd) or tCurrPwd.length < 1 then
             tWndObj.getElement("updateaccount_topic").setText(getText("Alert_ForgotSetPassword"))
             me.highlightVerifyTopic()
-            return(0)
+            return FALSE
           end if
           tDay = integer(tWndObj.getElement("char_dd_field").getText())
           if not tWndObj.elementExists("monthDrop") then
             return(error(me, "No month drop!", #eventProcVerifyWindow, #major))
           end if
           tMonthSelection = tWndObj.getElement("monthDrop").getSelection()
-          tMonth = integer(chars(tMonthSelection, tMonthSelection.length - 1, tMonthSelection.length))
+          tMonth = integer(chars(tMonthSelection, (tMonthSelection.length - 1), tMonthSelection.length))
           tYear = integer(tWndObj.getElement("char_yyyy_field").getText())
           if tDay < 1 or tMonth < 1 or tYear < 1 then
             tWndObj.getElement("updateaccount_topic").setText(getText("Alert_CheckBirthday"))
             me.highlightVerifyTopic()
-            return(0)
+            return FALSE
           end if
           pUpdatePropsToServer.setAt(#day, tDay)
           pUpdatePropsToServer.setAt(#month, tMonth)
@@ -2017,7 +2017,7 @@ on eventProcVerifyWindow me, tEvent, tSprID, tParm, tWndID
             me.highlightVerifyTopic()
             pTempPassword.setAt("char_newpwd1_field", "")
             pTempPassword.setAt("char_newpwd2_field", "")
-            return(0)
+            return FALSE
           end if
           tNewPwd = tPw1
           pUpdatePropsToServer.setAt(#newPwd, tNewPwd)
@@ -2029,9 +2029,9 @@ on eventProcVerifyWindow me, tEvent, tSprID, tParm, tWndID
           pPasswordErrors = ""
           pErrorMsg = ""
           me.getComponent().sendValidatePassword(tNewPwd)
-          return(0)
+          return FALSE
         else
-          if the keyCode = "updatemail_ok_button" then
+          if (the keyCode = "updatemail_ok_button") then
             tWndObj = getWindow(pVerifyChangeWndID)
             tEmail = tWndObj.getElement("char_newemail_field").getText()
             tYear = integer(tWndObj.getElement("char_yyyy_field").getText())
@@ -2039,30 +2039,30 @@ on eventProcVerifyWindow me, tEvent, tSprID, tParm, tWndID
               return(error(me, "No month drop!", #eventProcVerifyWindow, #major))
             end if
             tMonthSelection = tWndObj.getElement("monthDrop").getSelection()
-            tMonth = integer(chars(tMonthSelection, tMonthSelection.length - 1, tMonthSelection.length))
+            tMonth = integer(chars(tMonthSelection, (tMonthSelection.length - 1), tMonthSelection.length))
             tDay = integer(tWndObj.getElement("char_dd_field").getText())
             tCurrPwd = pTempPassword.getAt("char_currpwd_field")
             if voidp(tCurrPwd) or ilk(tCurrPwd) <> #string then
               tWndObj.getElement("updateaccount_topic").setText(getText("Alert_ForgotSetPassword"))
               me.highlightVerifyTopic()
-              return(0)
+              return FALSE
             end if
             if tDay < 1 or tMonth < 1 or tYear < 1 then
               tWndObj.getElement("updateaccount_topic").setText(getText("Alert_CheckBirthday"))
               me.highlightVerifyTopic()
-              return(0)
+              return FALSE
             end if
             tEmailOK = 0
             if length(tEmail) > 6 and tEmail contains "@" then
-              f = offset("@", tEmail) + 1
+              f = (offset("@", tEmail) + 1)
               repeat while f <= length(tEmail)
-                if tEmail.getProp(#char, f) = "." then
+                if (tEmail.getProp(#char, f) = ".") then
                   tEmailOK = 1
                 end if
-                if tEmail.getProp(#char, f) = "@" then
+                if (tEmail.getProp(#char, f) = "@") then
                   tEmailOK = 0
                 else
-                  f = 1 + f
+                  f = (1 + f)
                 end if
               end repeat
             end if

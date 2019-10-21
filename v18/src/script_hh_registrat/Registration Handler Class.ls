@@ -7,7 +7,7 @@ on deconstruct me
 end
 
 on handle_ok me, tMsg 
-  if me.getComponent().pState = "openFigureCreator" then
+  if (me.getComponent().pState = "openFigureCreator") then
     me.getComponent().updateState("openFigureCreator")
   end if
 end
@@ -21,7 +21,7 @@ on handle_login_ok me, tMsg
 end
 
 on handle_regok me, tMsg 
-  tUserID = tMsg.GetStrFrom()
+  tUserID = tMsg.connection.GetStrFrom()
   me.getComponent().pUserIDFromRegistration = tUserID
 end
 
@@ -30,36 +30,36 @@ on handle_updateok me, tMsg
 end
 
 on handle_approvenamereply me, tMsg 
-  if me.getComponent().pCheckingName = void() then
-    return(1)
+  if (me.getComponent().pCheckingName = void()) then
+    return TRUE
   end if
   me.getComponent().pCheckingName = void()
-  tParm = tMsg.GetIntFrom(tMsg)
-  if tParm = 0 then
+  tParm = tMsg.connection.GetIntFrom(tMsg)
+  if (tParm = 0) then
     me.getInterface().userNameOk()
   else
-    if tParm = 1 then
+    if (tParm = 1) then
       me.getInterface().userNameTooLong()
     else
-      if tParm = 2 then
+      if (tParm = 2) then
         me.getInterface().userNameUnacceptable()
       else
-        if tParm = 3 then
+        if (tParm = 3) then
           me.getInterface().userNameUnacceptable()
         else
-          if tParm = 4 then
+          if (tParm = 4) then
             me.getInterface().userNameAlreadyReserved()
           end if
         end if
       end if
     end if
   end if
-  return(1)
+  return TRUE
 end
 
 on handle_nameunacceptable me, tMsg 
-  tParm = tMsg.GetIntFrom(tMsg)
-  if tParm = 0 then
+  tParm = tMsg.connection.GetIntFrom(tMsg)
+  if (tParm = 0) then
     me.getInterface().userNameUnacceptable()
   end if
 end
@@ -86,13 +86,13 @@ on handle_reregistrationrequired me, tMsg
 end
 
 on handle_coppa_checktime me, tMsg 
-  tParm = tMsg.GetIntFrom(tMsg)
+  tParm = tMsg.connection.GetIntFrom(tMsg)
   if tParm then
     me.getComponent().resetBlockTime()
   else
     me.getComponent().continueBlocking()
   end if
-  return(1)
+  return TRUE
 end
 
 on handle_coppa_getrealtime me, tMsg 
@@ -100,53 +100,53 @@ on handle_coppa_getrealtime me, tMsg
   if not voidp(tdata) then
     me.getComponent().setBlockTime(tdata)
   end if
-  return(1)
+  return TRUE
 end
 
 on handle_parent_email_required me, tMsg 
-  tFlag = tMsg.GetIntFrom(tMsg)
+  tFlag = tMsg.connection.GetIntFrom(tMsg)
   me.getComponent().parentEmailNeedQueryResult(tFlag)
-  return(1)
+  return TRUE
 end
 
 on handle_parent_email_validated me, tMsg 
-  tFlag = tMsg.GetIntFrom(tMsg)
+  tFlag = tMsg.connection.GetIntFrom(tMsg)
   me.getComponent().parentEmailValidated(tFlag)
-  return(1)
+  return TRUE
 end
 
 on handle_update_account me, tMsg 
-  tParam = tMsg.GetIntFrom(tMsg)
+  tParam = tMsg.connection.GetIntFrom(tMsg)
   me.getInterface().responseToAccountUpdate(tParam)
-  return(1)
+  return TRUE
 end
 
 on handle_email_approved me, tMsg 
   me.getInterface().userEmailOk()
-  return(1)
+  return TRUE
 end
 
 on handle_email_rejected me, tMsg 
   me.getInterface().userEmailUnacceptable()
-  return(1)
+  return TRUE
 end
 
 on handle_update_request me, tMsg 
   tConn = tMsg.connection
   if voidp(tConn) then
-    return(0)
+    return FALSE
   end if
   tUpdateFlag = tConn.GetIntFrom()
   tForceFlag = tConn.GetIntFrom()
-  if tUpdateFlag = 0 then
+  if (tUpdateFlag = 0) then
     tMsg = getText("update_email_suggest", void())
     me.getInterface().openEmailUpdate(tForceFlag, tMsg)
   else
-    if tUpdateFlag = 1 then
+    if (tUpdateFlag = 1) then
       tMsg = getText("update_password_suggest", void())
       me.getInterface().openPasswordUpdate(tForceFlag, tMsg)
     else
-      return(0)
+      return FALSE
     end if
   end if
 end
@@ -154,11 +154,11 @@ end
 on handle_password_approved me, tMsg 
   tConn = tMsg.connection
   if voidp(tConn) then
-    return(0)
+    return FALSE
   end if
   tResult = tConn.GetIntFrom()
   me.getInterface().userPasswordResult(tResult)
-  return(1)
+  return TRUE
 end
 
 on regMsgList me, tBool 

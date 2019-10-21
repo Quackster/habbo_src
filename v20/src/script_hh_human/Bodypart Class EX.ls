@@ -10,7 +10,7 @@ on clearGraphics me
   repeat while i <= pLayerPropList.count
     tdata = pLayerPropList.getAt(i)
     pBody.pUpdateRect = union(pBody.pUpdateRect, tdata.getAt("cacheRect"))
-    i = 1 + i
+    i = (1 + i)
   end repeat
 end
 
@@ -19,7 +19,7 @@ on resetMemberCache me
   repeat while i <= pLayerPropList.count
     tdata = pLayerPropList.getAt(i)
     tdata.setAt("memString", "")
-    i = 1 + i
+    i = (1 + i)
   end repeat
 end
 
@@ -42,11 +42,11 @@ on define me, tPart, tmodel, tColor, tDirection, tAction, tBody, tFlipPart
   if not voidp(tFlipPart) then
     pFlipPart = tFlipPart
   end if
-  return(1)
+  return TRUE
 end
 
 on setAnimations me, tAnimData 
-  if ilk(tAnimData) = #propList then
+  if (ilk(tAnimData) = #propList) then
     pAnimList = tAnimData
   end if
 end
@@ -54,7 +54,7 @@ end
 on update me, tForcedUpdate, tRectMod 
   tAction = pAction
   tPart = pPart
-  tdir = pBody.getProp(#pFlipList, pDirection + 1)
+  tdir = pBody.getProp(#pFlipList, (pDirection + 1))
   pXFix = 0
   pYFix = 0
   if voidp(tRectMod) then
@@ -73,7 +73,7 @@ on update me, tForcedUpdate, tRectMod
     if pBody.pAnimating then
       tMemString = me.animate(i)
     else
-      if pDirection = tdir then
+      if (pDirection = tdir) then
         tdata.setAt("flipH", 0)
       else
         tdata.setAt("flipH", 1)
@@ -82,7 +82,7 @@ on update me, tForcedUpdate, tRectMod
       if not voidp(pAnimList.getAt(pAction)) then
         if pAnimList.getAt(pAction).count > 0 then
           tIndex = (pBody.pAnimCounter mod pAnimList.getAt(pAction).count)
-          tAnimCntr = pAnimList.getAt(pAction).getAt(tIndex + 1)
+          tAnimCntr = pAnimList.getAt(pAction).getAt((tIndex + 1))
         end if
       end if
       if pFlipPart <> "" then
@@ -102,8 +102,8 @@ on update me, tForcedUpdate, tRectMod
     if tFlipHOld <> tdata.getAt("flipH") then
       tForcedUpdate = 1
     end if
-    tLocFixChanged = pLastLocFix <> point(pXFix + tRectMod.getAt(1), pYFix + tRectMod.getAt(2))
-    pLastLocFix = point(pXFix + tRectMod.getAt(1), pYFix + tRectMod.getAt(2))
+    tLocFixChanged = pLastLocFix <> point((pXFix + tRectMod.getAt(1)), (pYFix + tRectMod.getAt(2)))
+    pLastLocFix = point((pXFix + tRectMod.getAt(1)), (pYFix + tRectMod.getAt(2)))
     if tdata.getAt("memString") <> tMemString or tLocFixChanged or tForcedUpdate then
       tdata.setAt("memString", tMemString)
       tMemNum = me.getMemNumFast(tMemString)
@@ -111,21 +111,21 @@ on update me, tForcedUpdate, tRectMod
         tmember = member(tMemNum)
         tRegPnt = tmember.regPoint
         tX = -tRegPnt.getAt(1)
-        tY = rect.height - tRegPnt.getAt(2) - 20
+        tY = ((pBody.pBuffer.rect.height - tRegPnt.getAt(2)) - 20)
         pBody.pUpdateRect = union(pBody.pUpdateRect, tdata.getAt("cacheRect"))
         tdata.setAt("cacheImage", tmember.image)
-        tLocFix = pLocFix.duplicate()
+        tLocFix = pBody.pLocFix.duplicate()
         if tdata.getAt("flipH") then
-          tX = pBuffer.width - tX + tmember.width
+          tX = (pBody.pBuffer.width - (tX + tmember.width))
           tLocFix.setAt(1, -tLocFix.getAt(1))
-          if pBody.pPeopleSize = "sh" then
-            tX = tX - 2
+          if (pBody.pPeopleSize = "sh") then
+            tX = (tX - 2)
           end if
           tRectMod.setAt(1, -tRectMod.getAt(1))
           tRectMod.setAt(3, -tRectMod.getAt(3))
         end if
-        tdata.setAt("cacheRect", rect(tX, tY, tX + tdata.getAt("cacheImage").width, tY + tdata.getAt("cacheImage").height))
-        tdata.setAt("cacheRect", tdata.getAt("cacheRect") + [pXFix, pYFix, pXFix, pYFix] + rect(tLocFix, tLocFix) + tRectMod)
+        tdata.setAt("cacheRect", rect(tX, tY, (tX + tdata.getAt("cacheImage").width), (tY + tdata.getAt("cacheImage").height)))
+        tdata.setAt("cacheRect", (((tdata.getAt("cacheRect") + [pXFix, pYFix, pXFix, pYFix]) + rect(tLocFix, tLocFix)) + tRectMod))
         tDrawProps.setAt(#maskImage, tdata.getAt("cacheImage").createMatte())
         pBody.pUpdateRect = union(pBody.pUpdateRect, tdata.getAt("cacheRect"))
       else
@@ -136,9 +136,9 @@ on update me, tForcedUpdate, tRectMod
     end if
     tDrawArea = me.getDrawArea(i)
     if tdata.getAt("cacheImage") <> 0 then
-      pBuffer.copyPixels(tdata.getAt("cacheImage"), tDrawArea, tdata.getAt("cacheImage").rect, tDrawProps)
+      pBody.pBuffer.copyPixels(tdata.getAt("cacheImage"), tDrawArea, tdata.getAt("cacheImage").rect, tDrawProps)
     end if
-    i = 1 + i
+    i = (1 + i)
   end repeat
 end
 
@@ -149,15 +149,15 @@ on render me
     if memberExists(tdata.getAt("memString")) then
       tDrawArea = me.getDrawArea(i)
       if tdata.getAt("cacheImage") <> 0 then
-        pBuffer.copyPixels(tdata.getAt("cacheImage"), tDrawArea, tdata.getAt("cacheImage").rect, tdata.getAt("drawProps"))
+        pBody.pBuffer.copyPixels(tdata.getAt("cacheImage"), tDrawArea, tdata.getAt("cacheImage").rect, tdata.getAt("drawProps"))
       end if
     end if
-    i = 1 + i
+    i = (1 + i)
   end repeat
 end
 
 on defineDir me, tdir, tPart 
-  if voidp(tPart) or tPart = pPart then
+  if voidp(tPart) or (tPart = pPart) then
     pDirection = tdir
   end if
 end
@@ -174,13 +174,13 @@ end
 
 on defineInk me, tInk 
   if voidp(tInk) then
-    if pPart = "ey" then
+    if (pPart = "ey") then
       tInk = 36
     else
-      if pPart = "ri" then
+      if (pPart = "ri") then
         tInk = 8
       else
-        if pPart = "li" then
+        if (pPart = "li") then
           tInk = 8
         else
           tInk = 41
@@ -192,9 +192,9 @@ on defineInk me, tInk
   repeat while i <= pLayerPropList.count
     tDrawProps = pLayerPropList.getAt(i).getAt("drawProps")
     tDrawProps.setAt(#ink, tInk)
-    i = 1 + i
+    i = (1 + i)
   end repeat
-  return(1)
+  return TRUE
 end
 
 on setModel me, tmodel 
@@ -213,17 +213,17 @@ on setModel me, tmodel
     tdata.setAt("drawProps", [#maskImage:0, #ink:0, #bgColor:0])
     tdata.setAt("memString", "")
     pLayerPropList.add(tdata)
-    i = 1 + i
+    i = (1 + i)
   end repeat
   me.defineInk()
 end
 
 on setColor me, tColorList 
   if voidp(tColorList) then
-    return(0)
+    return FALSE
   end if
-  if tColorList = "" then
-    return(0)
+  if (tColorList = "") then
+    return FALSE
   end if
   if ilk(tColorList) <> #list then
     tColorList = [tColorList]
@@ -236,14 +236,14 @@ on setColor me, tColorList
       tColor = tColorList.getAt(i)
     end if
     tDrawProps = pLayerPropList.getAt(i).getAt("drawProps")
-    if tColor.ilk = #color and tDrawProps.getAt(#ink) <> 36 then
+    if (tColor.ilk = #color) and tDrawProps.getAt(#ink) <> 36 then
       tDrawProps.setAt(#bgColor, tColor)
     else
       tDrawProps.setAt(#bgColor, rgb(255, 255, 255))
     end if
-    i = 1 + i
+    i = (1 + i)
   end repeat
-  return(1)
+  return TRUE
 end
 
 on checkPartNotCarrying me 
@@ -269,7 +269,7 @@ on getColor me
     if tDrawProps.getAt(#bgColor) <> rgb(255, 255, 255) then
       return(tDrawProps.getAt(#bgColor))
     end if
-    i = 1 + i
+    i = (1 + i)
   end repeat
   return(rgb(255, 255, 255))
 end
@@ -283,27 +283,27 @@ on getModel me
   i = 1
   repeat while i <= pLayerPropList.count
     tmodel.add(pLayerPropList.getAt(i).getAt("model"))
-    i = 1 + i
+    i = (1 + i)
   end repeat
   return(tmodel)
 end
 
 on getLocation me 
   if pLayerPropList.count < 1 then
-    return(0)
+    return FALSE
   end if
   tMemString = pLayerPropList.getAt(1).getAt("memString")
   if voidp(tMemString) then
-    return(0)
+    return FALSE
   end if
   if not memberExists(tMemString) then
-    return(0)
+    return FALSE
   end if
   tmember = member(getmemnum(tMemString))
   tImgRect = tmember.rect
   tCntrPoint = point((tImgRect.width / 2), (tImgRect.height / 2))
   tRegPoint = tmember.regPoint
-  return(-tRegPoint + tCntrPoint)
+  return((-tRegPoint + tCntrPoint))
 end
 
 on getPartID me 
@@ -322,20 +322,20 @@ on copyPicture me, tImg, tdir, tHumanSize, tAction, tAnimFrame
       tmember = member(tMemNum)
       tImage = tmember.image
       tRegPnt = tmember.regPoint
-      tY = rect.height - tRegPnt.getAt(2) - 10
+      tY = ((tImg.rect.height - tRegPnt.getAt(2)) - 10)
       tX = -tRegPnt.getAt(1)
-      tRect = rect(tX, tY, tX + tImage.width, tY + tImage.height)
+      tRect = rect(tX, tY, (tX + tImage.width), (tY + tImage.height))
       if tFlip then
-        tRect = rect(tImg.width - tX + tImage.width, tY, tImg.width - tX, tY + tImage.height)
+        tRect = rect((tImg.width - (tX + tImage.width)), tY, (tImg.width - tX), (tY + tImage.height))
         tQuad = [point(tRect.getAt(3), tRect.getAt(2)), point(tRect.getAt(1), tRect.getAt(2)), point(tRect.getAt(1), tRect.getAt(4)), point(tRect.getAt(3), tRect.getAt(4))]
         tRect = tQuad
       end if
       tMatte = tImage.createMatte()
       tImg.copyPixels(tImage, tRect, tImage.rect, [#maskImage:tMatte, #ink:tInk, #bgColor:tColor])
     end if
-    i = 1 + i
+    i = (1 + i)
   end repeat
-  return(1)
+  return TRUE
 end
 
 on reset me 
@@ -343,16 +343,16 @@ on reset me
 end
 
 on skipAnimationFrame me 
-  pAnimFrame = pAnimFrame + 1
+  pAnimFrame = (pAnimFrame + 1)
   if pAnimFrame > pTotalFrame then
     pAnimFrame = 1
   end if
-  return(1)
+  return TRUE
 end
 
 on changePartData me, tmodel, tColor 
   if voidp(tmodel) or voidp(tColor) then
-    return(0)
+    return FALSE
   end if
   me.setModel(tmodel)
   me.setColor(tColor)
@@ -362,7 +362,7 @@ on changePartData me, tmodel, tColor
     tMemNameList = explode(tMemString, "_")
     tMemNameList.setAt(4, tmodel)
     pLayerPropList.getAt(i).setAt("memString", implode(tMemNameList, "_"))
-    i = 1 + i
+    i = (1 + i)
   end repeat
   tForced = 1
   me.update(tForced)
@@ -395,18 +395,18 @@ on animate me, tLayerIndex
   end if
   tdata = pLayerPropList.getAt(tLayerIndex)
   tmodel = tdata.getAt("model")
-  tdir = pDirection + pAnimation.getAt(#OffD).getAt(pAnimFrame)
+  tdir = (pDirection + pAnimation.getAt(#OffD).getAt(pAnimFrame))
   if tdir > 7 then
-    tdir = min(tdir - 8, 7)
+    tdir = min((tdir - 8), 7)
   else
     if tdir < 0 then
-      tdir = max(7 + tdir + 1, 0)
+      tdir = max(((7 + tdir) + 1), 0)
     end if
   end if
   tPart = pPart
-  if tdir <> pBody.getProp(#pFlipList, tdir + 1) then
+  if tdir <> pBody.getProp(#pFlipList, (tdir + 1)) then
     tDirOrig = tdir
-    tdir = pBody.getProp(#pFlipList, tdir + 1)
+    tdir = pBody.getProp(#pFlipList, (tdir + 1))
     tdata.setAt("flipH", 1)
     if pFlipPart <> "" then
       tMemString = pBody.pPeopleSize & "_" & pAnimation.getAt(#act).getAt(pAnimFrame) & "_" & tPart & "_" & tmodel & "_" & tDirOrig & "_" & pAnimation.getAt(#frm).getAt(pAnimFrame)
@@ -423,31 +423,31 @@ on animate me, tLayerIndex
   end if
   pXFix = pAnimation.getAt(#OffX).getAt(pAnimFrame)
   pYFix = pAnimation.getAt(#OffY).getAt(pAnimFrame)
-  if pBody.pDirection = 0 then
-    pYFix = pYFix + (pXFix / 2)
+  if (pBody.pDirection = 0) then
+    pYFix = (pYFix + (pXFix / 2))
     pXFix = (pXFix / 2)
   else
-    if pBody.pDirection = 1 then
-      pYFix = pYFix + pXFix
+    if (pBody.pDirection = 1) then
+      pYFix = (pYFix + pXFix)
       pXFix = 0
     else
-      if pBody.pDirection = 2 then
-        pYFix = pYFix - (pXFix / 2)
+      if (pBody.pDirection = 2) then
+        pYFix = (pYFix - (pXFix / 2))
         pXFix = (pXFix / 2)
       else
-        if pBody.pDirection = 4 then
-          pYFix = pYFix + (pXFix / 2)
+        if (pBody.pDirection = 4) then
+          pYFix = (pYFix + (pXFix / 2))
           pXFix = (-pXFix / 2)
         else
-          if pBody.pDirection = 5 then
-            pYFix = pYFix - pXFix
+          if (pBody.pDirection = 5) then
+            pYFix = (pYFix - pXFix)
             pXFix = 0
           else
-            if pBody.pDirection = 6 then
-              pYFix = pYFix - (pXFix / 2)
+            if (pBody.pDirection = 6) then
+              pYFix = (pYFix - (pXFix / 2))
               pXFix = (-pXFix / 2)
             else
-              if pBody.pDirection = 7 then
+              if (pBody.pDirection = 7) then
                 pXFix = -pXFix
               end if
             end if
@@ -456,7 +456,7 @@ on animate me, tLayerIndex
       end if
     end if
   end if
-  if pBody.pPeopleSize = "sh" then
+  if (pBody.pPeopleSize = "sh") then
     tSizeMultiplier = 0.7
   else
     tSizeMultiplier = 1
@@ -464,7 +464,7 @@ on animate me, tLayerIndex
   pXFix = (pXFix * tSizeMultiplier)
   pYFix = (pYFix * tSizeMultiplier)
   tMemName = pBody.pPeopleSize & "_" & pAnimation.getAt(#act).getAt(pAnimFrame) & "_" & tPart & "_" & tmodel & "_" & tdir & "_" & pAnimation.getAt(#frm).getAt(pAnimFrame)
-  pAnimFrame = pAnimFrame + 1
+  pAnimFrame = (pAnimFrame + 1)
   if pAnimFrame > pTotalFrame then
     pAnimFrame = 1
   end if
@@ -482,8 +482,8 @@ on getMemberNumber me, tdir, tHumanSize, tAction, tAnimFrame, tLayerIndex, tmode
   tFlip = 0
   if not voidp(tdir) then
     if tdir > 0 and tdir < pBody.count(#pFlipList) then
-      if tdir <> pBody.getProp(#pFlipList, tdir + 1) then
-        tdir = pBody.getProp(#pFlipList, tdir + 1)
+      if tdir <> pBody.getProp(#pFlipList, (tdir + 1)) then
+        tdir = pBody.getProp(#pFlipList, (tdir + 1))
         tFlip = 1
       end if
     end if
@@ -514,7 +514,7 @@ on getMemberNumber me, tdir, tHumanSize, tAction, tAnimFrame, tLayerIndex, tmode
     end if
   end if
   tPart = pPart
-  if pFlipPart <> "" and tFlip = 1 then
+  if pFlipPart <> "" and (tFlip = 1) then
     tPart = pFlipPart
   end if
   tMemName = tHumanSize & "_" & tAction & "_" & tPart & "_" & tmodel & "_" & tdir & "_" & tAnimFrame

@@ -1,10 +1,10 @@
 on construct me 
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
   me.removeControllingAvatar()
-  return(1)
+  return TRUE
 end
 
 on removeControllingAvatar me 

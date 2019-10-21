@@ -4,12 +4,12 @@ on construct me
   pConvList = [:]
   pDigits = "0123456789ABCDEF"
   me.initConvList()
-  return(1)
+  return TRUE
 end
 
 on convertToPropList me, tStr, tDelim 
   tOldDelim = the itemDelimiter
-  if tDelim = void() then
+  if (tDelim = void()) then
     tDelim = ","
   end if
   the itemDelimiter = tDelim
@@ -17,10 +17,10 @@ on convertToPropList me, tStr, tDelim
   i = 1
   repeat while i <= tStr.count(#item)
     tPair = tStr.getPropRef(#item, i).getProp(#word, 1, tStr.getPropRef(#item, i).count(#word))
-    tProp = tPair.getProp(#char, 1, offset("=", tPair) - 1)
-    tValue = tPair.getProp(#char, offset("=", tPair) + 1, length(tStr))
+    tProp = tPair.getProp(#char, 1, (offset("=", tPair) - 1))
+    tValue = tPair.getProp(#char, (offset("=", tPair) + 1), length(tStr))
     tProps.setAt(tProp.getProp(#word, 1, tProp.count(#word)), tValue.getProp(#word, 1, tValue.count(#word)))
-    i = 1 + i
+    i = (1 + i)
   end repeat
   the itemDelimiter = tOldDelim
   return(tProps)
@@ -33,10 +33,10 @@ on convertToLowerCase me, tString
     tChar = tString.getProp(#char, i)
     tNum = charToNum(tChar)
     if tNum >= 65 and tNum <= 90 then
-      tChar = numToChar(tNum + 32)
+      tChar = numToChar((tNum + 32))
     end if
     tValueStr = tValueStr & tChar
-    i = 1 + i
+    i = (1 + i)
   end repeat
   return(tValueStr)
 end
@@ -48,10 +48,10 @@ on convertToHigherCase me, tString
     tChar = tString.getProp(#char, i)
     tNum = charToNum(tChar)
     if tNum >= 97 and tNum <= 122 then
-      tChar = numToChar(tNum - 32)
+      tChar = numToChar((tNum - 32))
     end if
     tValueStr = tValueStr & tChar
-    i = 1 + i
+    i = (1 + i)
   end repeat
   return(tValueStr)
 end
@@ -62,7 +62,7 @@ on convertSpecialChars me, tString, tDirection
   if voidp(tDirection) then
     tDirection = 0
   end if
-  if tDirection = 0 then
+  if (tDirection = 0) then
     pos = 1
     repeat while pos <= tLength
       tChar = tString.char[pos]
@@ -70,7 +70,7 @@ on convertSpecialChars me, tString, tDirection
       if not voidp(tConv) then
       else
       end if
-      pos = 1 + pos
+      pos = (1 + pos)
     end repeat
     exit repeat
   end if
@@ -81,7 +81,7 @@ on convertSpecialChars me, tString, tDirection
     if tPos > 0 then
     else
     end if
-    pos = 1 + pos
+    pos = (1 + pos)
   end repeat
   return(tRetString)
 end
@@ -93,10 +93,10 @@ on convertIntToHex me, tInt
     repeat while tInt > 0
       tD = (tInt mod 16)
       tInt = (tInt / 16)
-      tHexstr = pDigits.getProp(#char, tD + 1) & tHexstr
+      tHexstr = pDigits.getProp(#char, (tD + 1)) & tHexstr
     end repeat
   end if
-  if (length(tHexstr) mod 2) = 1 then
+  if ((length(tHexstr) mod 2) = 1) then
     tHexstr = "0" & tHexstr
   end if
   return(tHexstr)
@@ -107,8 +107,8 @@ on convertHexToInt me, tHex
   tValue = 0
   repeat while length(tHex) > 0
     tLc = the last char in tHex
-    tVl = offset(tLc, pDigits) - 1
-    tValue = tValue + (tBase * tVl)
+    tVl = (offset(tLc, pDigits) - 1)
+    tValue = (tValue + (tBase * tVl))
     tBase = (tBase * 16)
   end repeat
   return(tValue)
@@ -125,41 +125,41 @@ on explode me, tStr, tDelim, tLimit
   tDelimLength = length(tDelim)
   repeat while 1
     tPos = offset(tDelim, tStr)
-    if tPos = 0 then
+    if (tPos = 0) then
     else
-      tSubStr = tStr.getProp(#char, 1, tPos - 1)
+      tSubStr = tStr.getProp(#char, 1, (tPos - 1))
       tList.add(tSubStr)
-      if tList.count = tLimit - 1 then
+      if (tList.count = (tLimit - 1)) then
         tList.add(tStr)
         return(tList)
       end if
     end if
   end repeat
-  if tPos = 0 then
-    tPos = 1 - tDelimLength
+  if (tPos = 0) then
+    tPos = (1 - tDelimLength)
   end if
-  tList.add(tStr.getProp(#char, tPos + tDelimLength, length(tStr)))
+  tList.add(tStr.getProp(#char, (tPos + tDelimLength), length(tStr)))
   return(tList)
 end
 
 on implode me, tList, tDelim 
   if voidp(tDelim) then
-    return(0)
+    return FALSE
   end if
   if voidp(tList) then
-    return(0)
+    return FALSE
   end if
   tStr = ""
   repeat while tList <= tDelim
     tListItem = getAt(tDelim, tList)
     tStr = tStr & tListItem & tDelim
   end repeat
-  tStr = chars(tStr, 1, tStr.length - tDelim.length)
+  tStr = chars(tStr, 1, (tStr.length - tDelim.length))
   return(tStr)
 end
 
 on replaceChars me, tString, tCharA, tCharB 
-  if tCharA = tCharB then
+  if (tCharA = tCharB) then
     return(tString)
   end if
   repeat while offset(tCharA, tString) > 0
@@ -174,10 +174,10 @@ on replaceChunks me, tString, tChunkA, tChunkB
     return(tStr)
   end if
   repeat while tString contains tChunkA
-    tPos = offset(tChunkA, tString) - 1
+    tPos = (offset(tChunkA, tString) - 1)
     if tPos > 0 then
     end if
-    tPos + length(tChunkA).getPropRef().delete()
+    (tPos + length(tChunkA)).getPropRef().delete()
   end repeat
   return(tStr)
 end
@@ -190,11 +190,11 @@ on urlEncode me, tStr
     tChar = tStr.getProp(#char, i)
     if offset(tChar, tOkChars) then
     else
-      if tChar = space() then
+      if (tChar = space()) then
       else
       end if
     end if
-    i = 1 + i
+    i = (1 + i)
   end repeat
   return(tEncodedStr)
 end
@@ -206,12 +206,12 @@ on obfuscate me, tStr
     tNumber = charToNum(tStr.getProp(#char, i))
     tNewNumber1 = (bitAnd(tNumber, 15) * 2)
     tNewNumber2 = (bitAnd(tNumber, 240) / 8)
-    tRandom = random(6) + 1
-    tNewNumber1 = tNewNumber1 + (bitAnd(tRandom, 6) * 16) + bitAnd(tRandom, 1)
-    tRandom = random(6) + 1
-    tNewNumber2 = tNewNumber2 + (bitAnd(tRandom, 6) * 16) + bitAnd(tRandom, 1)
+    tRandom = (random(6) + 1)
+    tNewNumber1 = ((tNewNumber1 + (bitAnd(tRandom, 6) * 16)) + bitAnd(tRandom, 1))
+    tRandom = (random(6) + 1)
+    tNewNumber2 = ((tNewNumber2 + (bitAnd(tRandom, 6) * 16)) + bitAnd(tRandom, 1))
     tResult = tResult & numToChar(tNewNumber2) & numToChar(tNewNumber1)
-    i = 1 + i
+    i = (1 + i)
   end repeat
   return(tResult)
 end
@@ -222,12 +222,12 @@ on deobfuscate me, tStr
   repeat while i <= tStr.length
     if i >= tStr.length then
     else
-      tRawNumbers = [charToNum(tStr.getProp(#char, i + 1)), charToNum(tStr.getProp(#char, i))]
+      tRawNumbers = [charToNum(tStr.getProp(#char, (i + 1))), charToNum(tStr.getProp(#char, i))]
       tNumbers = [(bitAnd(tRawNumbers.getAt(1), 30) / 2), (bitAnd(tRawNumbers.getAt(2), 30) * 8)]
       tNumber = bitOr(tNumbers.getAt(1), tNumbers.getAt(2))
       tResult = tResult & numToChar(tNumber)
-      i = i + 1
-      i = 1 + i
+      i = (i + 1)
+      i = (1 + i)
     end if
   end repeat
   return(tResult)
@@ -265,7 +265,7 @@ on initConvList me
       tVal = numToChar(integer(tVal))
     end if
     pConvList.setAt(tKey, tVal)
-    i = 1 + i
+    i = (1 + i)
   end repeat
-  return(1)
+  return TRUE
 end

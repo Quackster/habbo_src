@@ -4,12 +4,12 @@ on construct me
   pBubbles = [:]
   pUpdateOwnUserHelp = 0
   pInvitationWindowID = #NUH_invite_window_ID
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
   me.removeAll()
-  return(1)
+  return TRUE
 end
 
 on removeAll me 
@@ -17,7 +17,7 @@ on removeAll me
   repeat while tItemNo <= pBubbles.count
     tBubble = pBubbles.getAt(tItemNo)
     tBubble.deconstruct()
-    tItemNo = 1 + tItemNo
+    tItemNo = (1 + tItemNo)
   end repeat
   pBubbles = [:]
   me.hideInvitationWindow()
@@ -27,16 +27,16 @@ on showOwnUserHelp me
   tRoomComponent = getThread("room").getComponent()
   tOwnRoomId = tRoomComponent.getUsersRoomId(getObject(#session).GET("user_name"))
   tHumanObj = tRoomComponent.getUserObject(tOwnRoomId)
-  if tHumanObj = 0 then
-    return(0)
+  if (tHumanObj = 0) then
+    return FALSE
   end if
   tRoomComponent = getThread("room").getComponent()
-  if tRoomComponent = 0 then
-    return(0)
+  if (tRoomComponent = 0) then
+    return FALSE
   end if
   tBubble = createObject(#random, getVariableValue("update.bubble.class"))
-  if tBubble = 0 then
-    return(0)
+  if (tBubble = 0) then
+    return FALSE
   end if
   tHelpId = "own_user"
   tPointer = 7
@@ -73,8 +73,8 @@ on showGenericHelp me, tHelpId, tTargetLoc, tPointerIndex
   end if
   tText = getText("NUH_" & tHelpId)
   tBubble = createObject(#random, getVariableValue("static.bubble.class"))
-  if tBubble = 0 then
-    return(0)
+  if (tBubble = 0) then
+    return FALSE
   end if
   tBubble.setProperty(#bubbleId, tHelpId)
   tBubble.setText(tText)
@@ -116,15 +116,15 @@ end
 
 on eventProcInvitation me, tEvent, tSprID 
   if tSprID <> "invitation_button_accept" then
-    if tSprID = "invitation_button_accept_text" then
+    if (tSprID = "invitation_button_accept_text") then
       me.getComponent().sendInvitations()
       me.hideInvitationWindow()
     else
       if tSprID <> "invitation_button_deny" then
-        if tSprID = "invitation_button_deny_text" then
+        if (tSprID = "invitation_button_deny_text") then
           me.hideInvitationWindow()
         else
-          if tSprID = "popup_button_close" then
+          if (tSprID = "popup_button_close") then
             me.hideInvitationWindow()
             me.getComponent().setHelpItemClosed("invite")
           end if

@@ -2,7 +2,7 @@ property pHubuWndID, pTimerStart, pTimerBarHeight, pTimerBarLocY
 
 on construct me 
   pHubuWndID = getText("hubu_win", "Hubu")
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
@@ -10,7 +10,7 @@ on deconstruct me
   if windowExists(pHubuWndID) then
     removeWindow(pHubuWndID)
   end if
-  return(1)
+  return TRUE
 end
 
 on showBusClosed me, tMsg 
@@ -29,7 +29,7 @@ on showBusClosed me, tMsg
   if not getText("hubu_info_url_2") starts "http://" then
     tWndObj.getElement("hubu_info_link2").setProperty(#visible, 0)
   end if
-  return(1)
+  return TRUE
 end
 
 on showVoteQuestion me, tQuestion, tChoiceList 
@@ -42,41 +42,41 @@ on showVoteQuestion me, tQuestion, tChoiceList
   tWndObj.getElement("kiila").setProperty(#visible, 0)
   tElement = tWndObj.getElement("hubu_time")
   tFont = tElement.getFont()
-  tFont.lineHeight = tFont.fontSize + 2
+  tFont.lineHeight = (tFont.fontSize + 2)
   tElement.setFont(tFont)
   i = 1
   repeat while i <= tChoiceList.count
     tWndObj.merge("hubu_poll_question_" & i & ".window")
     tWndObj.getElement("nothingbar" & i).setProperty(#visible, 0)
     tElement = tWndObj.getElement("hubu_a" & i)
-    tHeightNow = rect.height
+    tHeightNow = tElement.getProperty(#image).rect.height
     tFont = tElement.getFont()
-    tFont.lineHeight = tFont.fontSize + 2
+    tFont.lineHeight = (tFont.fontSize + 2)
     tElement.setFont(tFont)
     tElement.setText(tChoiceList.getAt(i))
-    tNewHeight = rect.height
+    tNewHeight = tElement.getProperty(#image).rect.height
     if tNewHeight > tHeightNow then
-      tWndObj.setProp(#pClientRect, 2, tWndObj.getProp(#pClientRect, 2) + tNewHeight - tHeightNow)
+      tWndObj.setProp(#pClientRect, 2, (tWndObj.getProp(#pClientRect, 2) + (tNewHeight - tHeightNow)))
       tElement.setProperty(#height, tNewHeight)
       tElement.setText(tChoiceList.getAt(i))
     end if
     tWndObj.getElement("button_" & i).setProperty(#blend, 100)
-    i = 1 + i
+    i = (1 + i)
   end repeat
-  tWndObj.moveTo(6, 480 - tWndObj.getProperty(#height))
+  tWndObj.moveTo(6, (480 - tWndObj.getProperty(#height)))
   tWndObj.registerClient(me.getID())
   tWndObj.registerProcedure(#eventProcHubu, me.getID(), #mouseUp)
   tWndObj.getElement("hubu_q").setText(tQuestion)
   tElement = tWndObj.getElement("hubu_statusbar")
   tFont = tElement.getFont()
-  tFont.lineHeight = tFont.fontSize + 2
+  tFont.lineHeight = (tFont.fontSize + 2)
   tElement.setFont(tFont)
   tElement.setText(getText("hubu_odotetaan"))
   pTimerStart = the milliSeconds
   pTimerBarHeight = tWndObj.getElement("time_bar").getProperty(#height)
   pTimerBarLocY = tWndObj.getElement("time_bar").getProperty(#locY)
   receiveUpdate(me.getID())
-  return(1)
+  return TRUE
 end
 
 on showVoteWait me 
@@ -86,9 +86,9 @@ on showVoteWait me
     if tWndObj.getElement("button_" & i) <> 0 then
       tWndObj.getElement("button_" & i).setProperty(#blend, 50)
     end if
-    i = 1 + i
+    i = (1 + i)
   end repeat
-  return(1)
+  return TRUE
 end
 
 on showVoteResults me, tTotalVotes, tVoteResults 
@@ -97,7 +97,7 @@ on showVoteResults me, tTotalVotes, tVoteResults
     return(error(me, "Vote window is closed!", #showVoteResults))
   end if
   tBarMultiplier = tTotalVotes
-  if tBarMultiplier = 0 then
+  if (tBarMultiplier = 0) then
     tBarMultiplier = 1
   end if
   tWndObj = getWindow(pHubuWndID)
@@ -112,48 +112,48 @@ on showVoteResults me, tTotalVotes, tVoteResults
     tW = tWndObj.getElement("hubu_answ_" & i).getProperty(#width)
     tWndObj.getElement("hubu_answ_" & i).setProperty(#width, ((tW / tBarMultiplier) * tVoteResults.getAt(i)))
     tWndObj.getElement("hubu_answ_" & i).setProperty(#blend, 100)
-    i = 1 + i
+    i = (1 + i)
   end repeat
-  return(1)
+  return TRUE
 end
 
 on update me 
   tWndObj = getWindow(pHubuWndID)
-  if tWndObj = 0 then
+  if (tWndObj = 0) then
     return(removeUpdate(me.getID()))
   end if
-  tTime = (float(the milliSeconds - pTimerStart) / 30000)
+  tTime = (float((the milliSeconds - pTimerStart)) / 30000)
   if tTime > 1 then
     tTime = 1
   end if
-  tSecsLeft = integer(30 - (float(the milliSeconds - pTimerStart) * 0.001))
+  tSecsLeft = integer((30 - (float((the milliSeconds - pTimerStart)) * 0.001)))
   if tSecsLeft < 0 then
     tSecsLeft = 0
   end if
-  tNewHeight = integer((1 - tTime * pTimerBarHeight))
+  tNewHeight = integer(((1 - tTime) * pTimerBarHeight))
   if tNewHeight < 0 then
     tNewHeight = 0
   end if
   tWndObj.getElement("hubu_time").setText(tSecsLeft && "s.")
   tWndObj.getElement("time_bar").setProperty(#height, tNewHeight)
-  tWndObj.getElement("time_bar").setProperty(#locY, pTimerBarLocY + pTimerBarHeight - tNewHeight)
+  tWndObj.getElement("time_bar").setProperty(#locY, ((pTimerBarLocY + pTimerBarHeight) - tNewHeight))
 end
 
 on eventProcHubu me, tEvent, tSprID, tParam 
   if tEvent <> #mouseUp then
-    return(0)
+    return FALSE
   end if
-  if tSprID = "close" then
+  if (tSprID = "close") then
     return(removeWindow(pHubuWndID))
   else
-    if tSprID = "hubu_info_link1" then
+    if (tSprID = "hubu_info_link1") then
       openNetPage(getText("hubu_info_url_1"))
     else
-      if tSprID = "hubu_info_link2" then
+      if (tSprID = "hubu_info_link2") then
         openNetPage(getText("hubu_info_url_2"))
       else
         if tSprID contains "button_" then
-          if getWindow(pHubuWndID).getElement(tSprID).getProperty(#blend) = 100 then
+          if (getWindow(pHubuWndID).getElement(tSprID).getProperty(#blend) = 100) then
             me.showVoteWait()
             getThread(#room).getComponent().getRoomConnection().send("VOTE", tSprID.getProp(#char, length(tSprID)))
           end if

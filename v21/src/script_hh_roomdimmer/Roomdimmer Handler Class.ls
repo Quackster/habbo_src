@@ -22,7 +22,7 @@ on handleDimmerPresets me, tMsg
     tPresetData.setaProp(#color, rgb(tColor))
     tPresetData.setaProp(#lightness, tLightness)
     tPresets.setaProp(tPresetID, tPresetData)
-    tPresetNum = 1 + tPresetNum
+    tPresetNum = (1 + tPresetNum)
   end repeat
   me.getComponent().setPresets(tPresets)
   return(tPresets)
@@ -42,5 +42,5 @@ on regMsgList me, tBool
     unregisterListener(getVariable("connection.info.id"), me.getID(), tMsgs)
     unregisterCommands(getVariable("connection.info.id"), me.getID(), tCmds)
   end if
-  return(1)
+  return TRUE
 end

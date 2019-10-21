@@ -1,7 +1,7 @@
 property pDirection, pSprite, pOffset, pTurnPnt
 
 on define me, tsprite, tCounter 
-  if (tCounter mod 2) = 1 then
+  if ((tCounter mod 2) = 1) then
     tDirection = #left
   else
     tDirection = #right
@@ -11,12 +11,12 @@ on define me, tsprite, tCounter
   pTurnPnt = 0
   pDirection = tDirection
   me.reset()
-  return(1)
+  return TRUE
 end
 
 on reset me 
   tmodel = ["car1", "sport1", "bus1", "car1"].getAt(random(4))
-  if pDirection = #left then
+  if (pDirection = #left) then
     pSprite.castNum = getmemnum(tmodel)
     pSprite.flipH = 0
     pSprite.loc = point(800, 497)
@@ -29,11 +29,11 @@ on reset me
     pOffset = [2, -1]
     pTurnPnt = 490
   end if
-  pSprite.width = member.width
-  pSprite.height = member.height
-  if tmodel = "car1" then
+  pSprite.width = pSprite.member.width
+  pSprite.height = pSprite.member.height
+  if (tmodel = "car1") then
     pSprite.ink = 41
-    pSprite.backColor = random(150) + 20
+    pSprite.backColor = (random(150) + 20)
   else
     pSprite.ink = 36
     pSprite.backColor = 0
@@ -42,13 +42,13 @@ on reset me
 end
 
 on update me 
-  pSprite.loc = pSprite.loc + pOffset
-  if pSprite.locH = pTurnPnt then
+  pSprite.loc = (pSprite.loc + pOffset)
+  if (pSprite.locH = pTurnPnt) then
     pOffset.setAt(2, -pOffset.getAt(2))
-    tMemName = member.name
+    tMemName = pSprite.member.name
     tDirNum = integer(tMemName.getProp(#char, length(tMemName)))
-    tDirNum = not tDirNum - 1 + 1
-    tMemName = tMemName.getProp(#char, 1, length(tMemName) - 1) & tDirNum
+    tDirNum = (not (tDirNum - 1) + 1)
+    tMemName = tMemName.getProp(#char, 1, (length(tMemName) - 1)) & tDirNum
     pSprite.castNum = getmemnum(tMemName)
   end if
   if pSprite.locV > 500 then

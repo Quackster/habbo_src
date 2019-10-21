@@ -9,7 +9,7 @@ on construct me
   registerMessage(#leaveRoom, me.getID(), #removePopups)
   registerMessage(#changeRoom, me.getID(), #removePopups)
   registerMessage(#enterRoom, me.getID(), #removePopups)
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
@@ -18,17 +18,17 @@ on deconstruct me
   unregisterMessage(#leaveRoom, me.getID())
   unregisterMessage(#changeRoom, me.getID())
   unregisterMessage(#enterRoom, me.getID())
-  return(1)
+  return TRUE
 end
 
 on handleEvent me, tEvent, tSprID, tParam 
   if tSprID <> "int_nav_image" then
-    return(0)
+    return FALSE
   end if
-  if tEvent = #mouseEnter then
+  if (tEvent = #mouseEnter) then
     me.timeoutShow(tSprID)
   else
-    if tEvent = #mouseLeave then
+    if (tEvent = #mouseLeave) then
       me.timeoutHide(tSprID)
     end if
   end if
@@ -36,7 +36,7 @@ end
 
 on timeoutShow me, tPopupID 
   if voidp(tPopupID) then
-    return(0)
+    return FALSE
   end if
   me.getPopup(tPopupID).Init(tPopupID)
   if timeoutExists(pHideTimeoutID) then
@@ -49,7 +49,7 @@ end
 
 on timeoutHide me, tPopupID 
   if voidp(tPopupID) then
-    return(0)
+    return FALSE
   end if
   if timeoutExists(pShowTimeOutID) then
     removeTimeout(pShowTimeOutID)

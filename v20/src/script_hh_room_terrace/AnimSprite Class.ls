@@ -2,7 +2,7 @@ property pID, pLoc, pVisible, pStartAnim, pAnimFrame, pMaxFrames, pMember
 
 on construct me 
   pAnimFrame = 0
-  return(1)
+  return TRUE
 end
 
 on setData me, tProps 
@@ -27,7 +27,7 @@ on setVisible me, tVisible
   pVisible = tVisible
   tVisual = getThread(#room).getInterface().getRoomVisualizer()
   if not tVisual then
-    return(0)
+    return FALSE
   end if
   tVisual.getSprById(pID).visible = tVisible
   pAnimFrame = pStartAnim
@@ -35,16 +35,16 @@ end
 
 on updateSplashs me 
   if pVisible <> 1 then
-    return(0)
+    return FALSE
   end if
   if pAnimFrame < pMaxFrames then
     tVisual = getThread(#room).getInterface().getRoomVisualizer()
     if not tVisual then
-      return(0)
+      return FALSE
     end if
     tmember = member(getmemnum(pMember & pAnimFrame))
     tVisual.getSprById(pID).setMember(tmember)
-    pAnimFrame = pAnimFrame + 1
+    pAnimFrame = (pAnimFrame + 1)
   else
     me.setVisible(0)
   end if

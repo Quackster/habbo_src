@@ -16,11 +16,11 @@ on construct me
   tPartList.add("bd")
   tPartList.add("sh")
   setVariable("snowwar.human.parts.sh", tPartList)
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
-  return(1)
+  return TRUE
 end
 
 on getGameSystem me 
@@ -32,69 +32,69 @@ on getUserName me
 end
 
 on isUserHost me 
-  if me.getGameSystem() = 0 then
-    return(0)
+  if (me.getGameSystem() = 0) then
+    return FALSE
   end if
   tdata = me.getGameSystem().getObservedInstance()
-  if tdata = 0 then
-    return(0)
+  if (tdata = 0) then
+    return FALSE
   end if
   tHostName = tdata.getAt(#host).getAt(#name)
-  return(tHostName = me.getUserName())
+  return((tHostName = me.getUserName()))
 end
 
 on gameCanStart me 
   tdata = me.getGameSystem().getObservedInstance()
-  if tdata = 0 then
-    return(0)
+  if (tdata = 0) then
+    return FALSE
   end if
-  tGameCanStart = tdata.getAt(#teams).count = 1 and tdata.getAt(#teams).getAt(1).getAt(#players).count > 1
+  tGameCanStart = (tdata.getAt(#teams).count = 1) and tdata.getAt(#teams).getAt(1).getAt(#players).count > 1
   if tGameCanStart then
-    return(1)
+    return TRUE
   end if
   tOneTeamOK = 0
   repeat while tdata.getAt(#teams) <= undefined
     tTeam = getAt(undefined, undefined)
     if tTeam.getAt(#players).count > 0 then
-      if tOneTeamOK = 1 then
-        return(1)
+      if (tOneTeamOK = 1) then
+        return TRUE
       end if
       tOneTeamOK = 1
     end if
   end repeat
-  return(0)
+  return FALSE
 end
 
 on observeInstance me, tIndexOnList 
-  if me.getGameSystem() = 0 then
-    return(0)
+  if (me.getGameSystem() = 0) then
+    return FALSE
   end if
   tList = me.getGameSystem().getInstanceList()
-  if tList = 0 then
-    return(0)
+  if (tList = 0) then
+    return FALSE
   end if
   if tIndexOnList > tList.count then
-    return(0)
+    return FALSE
   end if
   if not listp(tList.getAt(tIndexOnList)) then
-    return(0)
+    return FALSE
   end if
   tGameId = tList.getAt(tIndexOnList).getAt(#id)
-  if me.getGameSystem() = 0 then
-    return(0)
+  if (me.getGameSystem() = 0) then
+    return FALSE
   end if
   return(me.getGameSystem().observeInstance(tGameId))
 end
 
 on joinGame me, tTeamIndex 
-  if me.getGameSystem() = 0 then
-    return(0)
+  if (me.getGameSystem() = 0) then
+    return FALSE
   end if
   tParamList = me.getGameSystem().getJoinParameters()
-  if tTeamIndex = 0 then
+  if (tTeamIndex = 0) then
     tTeamIndex = pUserTeamIndex
   end if
-  if tTeamIndex = 0 then
+  if (tTeamIndex = 0) then
     tTeamIndex = me.getUserTeamIndex()
   end if
   tInstance = me.getGameSystem().getObservedInstance()
@@ -107,21 +107,21 @@ end
 
 on checkUserWasKicked me 
   if pUserTeamIndex <> 0 then
-    if me.getUserTeamIndex() = 0 then
-      return(1)
+    if (me.getUserTeamIndex() = 0) then
+      return TRUE
     end if
   end if
-  return(0)
+  return FALSE
 end
 
 on saveUserTeamIndex me 
   pUserTeamIndex = me.getUserTeamIndex()
-  return(1)
+  return TRUE
 end
 
 on resetUserTeamIndex me 
   pUserTeamIndex = 0
-  return(1)
+  return TRUE
 end
 
 on getUserTeamIndex me 
@@ -129,12 +129,12 @@ on getUserTeamIndex me
 end
 
 on getPlayerTeamIndex me, tSearchData 
-  if me.getGameSystem() = 0 then
-    return(0)
+  if (me.getGameSystem() = 0) then
+    return FALSE
   end if
   tdata = me.getGameSystem().getObservedInstance()
-  if tdata.getAt(#teams) = void() then
-    return(0)
+  if (tdata.getAt(#teams) = void()) then
+    return FALSE
   end if
   tTeamNum = 1
   repeat while tTeamNum <= tdata.getAt(#teams).count
@@ -144,14 +144,14 @@ on getPlayerTeamIndex me, tSearchData
     end if
     repeat while tTeam <= undefined
       tPlayer = getAt(undefined, tSearchData)
-      if tPlayer.getAt(#name) = tSearchData.getAt(#name) and tSearchData.getAt(#name) <> void() then
+      if (tPlayer.getAt(#name) = tSearchData.getAt(#name)) and tSearchData.getAt(#name) <> void() then
         return(tTeamNum)
       end if
-      if tPlayer.getAt(#id) = tSearchData.getAt(#id) and tSearchData.getAt(#id) <> void() then
+      if (tPlayer.getAt(#id) = tSearchData.getAt(#id)) and tSearchData.getAt(#id) <> void() then
         return(tTeamNum)
       end if
     end repeat
-    tTeamNum = 1 + tTeamNum
+    tTeamNum = (1 + tTeamNum)
   end repeat
-  return(0)
+  return FALSE
 end

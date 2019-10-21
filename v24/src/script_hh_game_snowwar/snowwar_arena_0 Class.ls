@@ -2,7 +2,7 @@ property pEngine
 
 on construct me 
   pEngine = createObject("Snowwar Engine", "Snowwar Arena Class")
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 

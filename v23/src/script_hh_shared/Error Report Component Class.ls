@@ -4,13 +4,13 @@ on construct me
   pErrorLists = []
   registerMessage(#showErrorMessage, me.getID(), #showErrorMessage)
   registerMessage("crossDomainDownload", me.getID(), #registerCrossDomainError)
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
   unregisterMessage(#showErrorMessage, me.getID())
   pErrorLists = []
-  return(1)
+  return TRUE
 end
 
 on registerCrossDomainError me, tURL 
@@ -52,6 +52,6 @@ on clearErrorLists me, tIndex
   i = 1
   repeat while i <= tIndex
     pErrorLists.deleteAt(1)
-    i = 1 + i
+    i = (1 + i)
   end repeat
 end

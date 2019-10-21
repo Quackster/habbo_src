@@ -24,7 +24,7 @@ on eventProcChessPlacer me, tEvent, tSprID, tParam
   tsprite = rollover()
   pSpr.visible = 1
   tID = call(#getID, sprite(tsprite).scriptInstanceList)
-  if tID = "close" then
+  if (tID = "close") then
     getThread(#games).getInterface().eventProcChess(tEvent, tID)
   end if
 end
@@ -37,7 +37,7 @@ on update me
     pSpr.blend = 40
   end if
   if the mouseDown and pSpr.intersects(pGameBoardSpr.spriteNum) then
-    tloc = point(abs(pGameBoardSpr.locH - pSpr.locH), abs(pGameBoardSpr.locV - pSpr.locV))
+    tloc = point(abs((pGameBoardSpr.locH - pSpr.locH)), abs((pGameBoardSpr.locV - pSpr.locV)))
     if getThread(#games).getInterface().makeMoveChess(tloc, pPieceData) then
       removeObject(me.getID())
     end if

@@ -8,12 +8,12 @@ on construct me
   pNodeInfo = [:]
   pBlend = 0
   registerMessage(#show_hide_navigator, me.getID(), #hide)
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
   unregisterMessage(#show_hide_navigator, me.getID())
-  return(1)
+  return TRUE
 end
 
 on Init me, tTargetElementID 
@@ -26,12 +26,12 @@ end
 
 on show me 
   if pVisible then
-    return(1)
+    return TRUE
   end if
   tNavInterface = getObject(#navigator_interface)
   if tNavInterface <> 0 then
     if tNavInterface.isOpen() then
-      return(0)
+      return FALSE
     end if
   end if
   createWindow(pPopupWindowID, "nav_popup_bg.window")
@@ -45,11 +45,11 @@ on show me
   tIconLocY = tNavIcon.getProperty(#locY)
   tIconWidth = tNavIcon.getProperty(#width)
   tMargin = 2
-  tLocX = tBarLocX + tIconLocX + (tIconWidth / 2) - (tWindow.getProperty(#width) / 2)
-  tLocY = tBarLocY + tIconLocY - tWindow.getProperty(#height)
-  tOffset = tWindow.getProperty(#width) + tLocX - undefined.width - tMargin
+  tLocX = (((tBarLocX + tIconLocX) + (tIconWidth / 2)) - (tWindow.getProperty(#width) / 2))
+  tLocY = ((tBarLocY + tIconLocY) - tWindow.getProperty(#height))
+  tOffset = (((tWindow.getProperty(#width) + tLocX) - the stage.rect.width) - tMargin)
   if tOffset > 0 then
-    tLocX = tLocX - tOffset
+    tLocX = (tLocX - tOffset)
     tPointerElem = tWindow.getElement("pointer")
     tPointerElem.moveBy(tOffset, 0)
   end if
@@ -88,7 +88,7 @@ on show me
       tImage = member(getmemnum(tmember)).image
       tElem = tWindow.getElement("nav_popup_link_occupancy" & i)
       tElem.feedImage(tImage)
-      i = 1 + i
+      i = (1 + i)
     end if
   end repeat
   tWindow.setBlend(0)
@@ -99,7 +99,7 @@ end
 
 on hide me 
   if not pVisible then
-    return(1)
+    return TRUE
   end if
   removeUpdate(me.getID())
   removeWindow(pPopupWindowID)
@@ -112,7 +112,7 @@ on fetchNodeInfo me
 end
 
 on update me 
-  pBlend = pBlend + 25
+  pBlend = (pBlend + 25)
   if pBlend >= 100 then
     pBlend = 100
     removeUpdate(me.getID())
@@ -131,7 +131,7 @@ end
 
 on eventProc me, tEvent, tSprID, tParam, tWndID 
   if tEvent <> #mouseUp then
-    return(0)
+    return FALSE
   end if
   if tSprID contains "nav_popup_link" then
     tLinkNum = value(tSprID.getProp(#char, tSprID.length))
@@ -141,7 +141,7 @@ on eventProc me, tEvent, tSprID, tParam, tWndID
       executeMessage(#roomForward, tRoomID, #private)
     end if
   end if
-  if tSprID = "nav_popup_nav_link" then
+  if (tSprID = "nav_popup_nav_link") then
     me.hide()
     executeMessage(#show_navigator)
   end if

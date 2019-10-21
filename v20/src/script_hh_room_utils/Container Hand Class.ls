@@ -14,7 +14,7 @@ on construct me
   pIconPlaceholderName = "icon_placeholder"
   registerMessage(#roomReady, me.getID(), #checkContainerOnRoomForward)
   registerMessage(#requestContainerOpen, me.getID(), #showContainerItems)
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
@@ -23,7 +23,7 @@ on deconstruct me
     if memberExists("handcontainer_" & i) then
       removeMember("handcontainer_" & i)
     end if
-    i = 1 + i
+    i = (1 + i)
   end repeat
   unregisterMessage(#roomReady, me.getID())
   unregisterMessage(#requestContainerOpen, me.getID())
@@ -34,16 +34,16 @@ on deconstruct me
   end if
   pItemList = [:]
   pTotalCount = 0
-  return(1)
+  return TRUE
 end
 
 on open me, tStripInfo 
   if tStripInfo then
     if visualizerExists(pHandVisID) then
-      return(0)
+      return FALSE
     end if
     if not createVisualizer(pHandVisID, "habbo_hand.visual") then
-      return(0)
+      return FALSE
     end if
     tHandVisualizer = getVisualizer(pHandVisID)
     tHandVisualizer.moveTo(694, -137)
@@ -62,17 +62,17 @@ on open me, tStripInfo
     end if
   end if
   executeMessage(#tutorial_hand_opened)
-  return(1)
+  return TRUE
 end
 
 on close me 
   if not visualizerExists(pHandVisID) then
-    return(0)
+    return FALSE
   end if
   pAnimMode = #close
   removeWindow(pHandButtonsWnd)
   receiveUpdate(me.getID())
-  return(1)
+  return TRUE
 end
 
 on openClose me 
@@ -86,7 +86,7 @@ end
 on checkContainerOnRoomForward me 
   tForwardVarId = "forward.open.hand"
   if variableExists(tForwardVarId) then
-    if getVariable(tForwardVarId) = 1 then
+    if (getVariable(tForwardVarId) = 1) then
       me.open()
       setVariable(tForwardVarId, 0)
     end if
@@ -96,7 +96,7 @@ end
 on Refresh me 
   me.hideContainerItems()
   me.showContainerItems()
-  return(1)
+  return TRUE
 end
 
 on updateStripItems me, tList 
@@ -109,11 +109,11 @@ on updateStripItems me, tList
     tItem = getAt(undefined, tList)
     me.createStripItem(tItem)
   end repeat
-  return(1)
+  return TRUE
 end
 
 on appendStripItem me, tdata 
-  if pItemList.count = 0 then
+  if (pItemList.count = 0) then
     pAppendFlag = 1
     tConnection = getThread(#room).getComponent().getRoomConnection()
     if tConnection <> 0 then
@@ -125,16 +125,16 @@ end
 
 on createStripItem me, tdata 
   tIconClassStr = ""
-  if tdata.getAt(#striptype) = "active" then
+  if (tdata.getAt(#striptype) = "active") then
     if offset("*", tdata.getAt(#class)) > 0 then
-      tIconClassStr = tdata.getAt(#class).getProp(#char, 1, offset("*", tdata.getAt(#class)) - 1)
+      tIconClassStr = tdata.getAt(#class).getProp(#char, 1, (offset("*", tdata.getAt(#class)) - 1))
     else
       tIconClassStr = tdata.getAt(#class)
     end if
   else
-    if tdata.getAt(#striptype) = "item" then
+    if (tdata.getAt(#striptype) = "item") then
       tIconClassStr = ""
-      if tdata.getAt(#class) = "poster" then
+      if (tdata.getAt(#class) = "poster") then
         tIconClassStr = "poster" && tdata.getAt(#props)
       else
         if tdata.getAt(#class) contains "post.it" then
@@ -147,10 +147,10 @@ on createStripItem me, tdata
           end if
           tdata.setAt(#member, tdata.getAt(#class) & "_" & tPostnums & "_small")
         else
-          if tdata.getAt(#class) = "wallpaper" then
+          if (tdata.getAt(#class) = "wallpaper") then
             tdata.setAt(#member, "wallpaper_small")
           else
-            if tdata.getAt(#class) = "floor" then
+            if (tdata.getAt(#class) = "floor") then
               tdata.setAt(#member, "floor_small")
             else
               if memberExists(tdata.getAt(#class) & "_small") then
@@ -181,7 +181,7 @@ on createStripItem me, tdata
         tdata.setAt(#downloadLocked, 1)
         tDownloadIdName = tIconClassStr
         tDynThread = getThread(#dynamicdownloader)
-        if tDynThread = 0 then
+        if (tDynThread = 0) then
           error(me, "Icon member not found and no dynamic download possibility: " & tdata.getAt(#member), #createStripItem, #major)
         else
           tDynComponent = tDynThread.getComponent()
@@ -189,7 +189,7 @@ on createStripItem me, tdata
           tRoomThread = getThread(#room)
           if tRoomThread <> 0 then
             tTileSize = tRoomThread.getInterface().getGeometry().getTileWidth()
-            if tTileSize = 32 then
+            if (tTileSize = 32) then
               tRoomSizePrefix = "s_"
             end if
           end if
@@ -200,23 +200,23 @@ on createStripItem me, tdata
     end if
   end if
   pItemList.setAt(tdata.getAt(#stripId), tdata)
-  return(1)
+  return TRUE
 end
 
 on stripItemDownloadCallback me, tDownloadedClass 
   tIconSuffix = "_small"
   tSmallScalePrefix = "s_"
-  if chars(tDownloadedClass, 1, tSmallScalePrefix.length) = tSmallScalePrefix then
-    tDownloadedClass = chars(tDownloadedClass, tSmallScalePrefix.length + 1, tDownloadedClass.length)
+  if (chars(tDownloadedClass, 1, tSmallScalePrefix.length) = tSmallScalePrefix) then
+    tDownloadedClass = chars(tDownloadedClass, (tSmallScalePrefix.length + 1), tDownloadedClass.length)
   end if
   repeat while pItemList <= undefined
     tItem = getAt(undefined, tDownloadedClass)
     tTrueMem = tItem.getAt(#truemember)
     if not voidp(tTrueMem) then
-      if chars(tTrueMem, tTrueMem.length - tIconSuffix.length + 1, tTrueMem.length) = tIconSuffix then
-        tTrueMem = chars(tTrueMem, 1, tTrueMem.length - tIconSuffix.length)
+      if (chars(tTrueMem, ((tTrueMem.length - tIconSuffix.length) + 1), tTrueMem.length) = tIconSuffix) then
+        tTrueMem = chars(tTrueMem, 1, (tTrueMem.length - tIconSuffix.length))
       end if
-      if tTrueMem = tDownloadedClass then
+      if (tTrueMem = tDownloadedClass) then
         tItem.setAt(#member, tItem.getAt(#truemember))
         tItem.setAt(#downloadLocked, 0)
       end if
@@ -233,11 +233,11 @@ on getStripItem me, tID
   if voidp(tID) then
     tID = ""
   end if
-  if tID = #list then
+  if (tID = #list) then
     return(pItemList)
   end if
   if voidp(pItemList.getAt(tID)) then
-    return(0)
+    return FALSE
   end if
   return(pItemList.getAt(tID))
 end
@@ -255,12 +255,12 @@ on setStripItemCount me, tCount
       me.setHandButtonsVisible()
     end if
   end if
-  return(1)
+  return TRUE
 end
 
 on placeItemToRoom me, tID 
   if getThread(#room).getComponent().getRoomID() <> "private" then
-    return(0)
+    return FALSE
   end if
   if not me.stripItemExists(tID) then
     return(error(me, "Attempted to access unexisting stripitem:" && tID, #placeItemToRoom, #major))
@@ -272,56 +272,56 @@ on placeItemToRoom me, tID
   if not voidp(tdata.getAt(#props)) then
     tdata.setAt(#type, tdata.getAt(#props))
   end if
-  if tdata.getAt(#striptype) = "active" then
+  if (tdata.getAt(#striptype) = "active") then
     tdata.setAt(#props, [:])
     tdata.setAt(#direction, [0, 0, 0])
     tdata.setAt(#altitude, 100)
     getThread(#room).getComponent().createActiveObject(tdata)
-    if getThread(#room).getComponent().getActiveObject(tdata.getAt(#id)) = 0 then
-      return(0)
+    if (getThread(#room).getComponent().getActiveObject(tdata.getAt(#id)) = 0) then
+      return FALSE
     end if
     getThread(#room).getComponent().getActiveObject(tdata.getAt(#id)).setaProp(#stripId, tdata.getAt(#stripId))
     removeStripItem(me, tID)
-    return(1)
+    return TRUE
   else
-    if tdata.getAt(#striptype) = "item" then
+    if (tdata.getAt(#striptype) = "item") then
       if tdata.getAt(#class) <> "poster" then
         if tdata.getAt(#class) <> "post.it" then
           if tdata.getAt(#class) <> "post.it.vd" then
-            if tdata.getAt(#class) = "photo" then
-              if tdata.getAt(#class) = "post.it" then
+            if (tdata.getAt(#class) = "photo") then
+              if (tdata.getAt(#class) = "post.it") then
                 tdata.setAt(#type, "#ffff33")
               end if
               tdata.setAt(#direction, "leftwall")
               if not getThread(#room).getComponent().createItemObject(tdata) then
-                return(0)
+                return FALSE
               end if
               getThread(#room).getComponent().getItemObject(tdata.getAt(#id)).setaProp(#stripId, tdata.getAt(#stripId))
               if not tdata.getAt(#class) contains "post.it" then
                 me.removeStripItem(tID)
               end if
-              return(1)
+              return TRUE
             else
               if tdata.getAt(#class) <> "floor" then
-                if tdata.getAt(#class) = "wallpaper" then
+                if (tdata.getAt(#class) = "wallpaper") then
                   getThread(#room).getComponent().getRoomConnection().send("FLATPROPBYITEM", tdata.getAt(#class) & "/" & tdata.getAt(#stripId))
                   removeStripItem(me, tID)
-                  return(0)
+                  return FALSE
                 else
-                  if tdata.getAt(#class) = "Chess" then
+                  if (tdata.getAt(#class) = "Chess") then
                     tdata.setAt(#direction, [0, 0, 0])
                     getThread(#room).getComponent().createItemObject(tdata)
                     getThread(#room).getComponent().getItemObject(tdata.getAt(#id)).setaProp(#stripId, tdata.getAt(#stripId))
                     removeStripItem(me, tID)
-                    return(1)
+                    return TRUE
                   else
                     tdata.setAt(#direction, "leftwall")
                     if not getThread(#room).getComponent().createItemObject(tdata) then
-                      return(0)
+                      return FALSE
                     end if
                     getThread(#room).getComponent().getItemObject(tdata.getAt(#id)).setaProp(#stripId, tdata.getAt(#stripId))
                     me.removeStripItem(tID)
-                    return(1)
+                    return TRUE
                   end if
                 end if
               end if
@@ -346,15 +346,15 @@ end
 
 on setHandButton me, tButtonID, tActive 
   if voidp(tButtonID) then
-    return(0)
+    return FALSE
   end if
-  if tButtonID = "next" then
+  if (tButtonID = "next") then
     pNextActive = tActive
   else
-    if tButtonID = "prev" then
+    if (tButtonID = "prev") then
       pPrevActive = tActive
     else
-      return(0)
+      return FALSE
     end if
   end if
 end
@@ -366,45 +366,45 @@ on update me
   tHand = getVisualizer(pHandVisID)
   tLocModX = pAnimLocs.getAt(pAnimFrm).getAt(1)
   tLocModY = pAnimLocs.getAt(pAnimFrm).getAt(2)
-  if pAnimMode = #open then
-    pAnimFrm = pAnimFrm + 1
+  if (pAnimMode = #open) then
+    pAnimFrm = (pAnimFrm + 1)
     tHand.moveBy(tLocModX, tLocModY)
     if pAnimFrm > pAnimLocs.count then
       pAnimFrm = pAnimLocs.count
     end if
-    if pAnimFrm = 4 then
+    if (pAnimFrm = 4) then
       tHand.getSprById("room_hand").setMember(member(getmemnum("room_hand_2")))
       tHand.getSprById("room_hand_mask").blend = 100
     else
-      if pAnimFrm = 6 then
+      if (pAnimFrm = 6) then
         me.showContainerItems()
         tHand.getSprById("room_hand").setMember(member(getmemnum("room_hand_3")))
         tHand.getSprById("room_hand_mask").visible = 0
       end if
     end if
-    if pAnimFrm = pAnimLocs.count then
+    if (pAnimFrm = pAnimLocs.count) then
       if pTotalCount > pItemList.count then
         me.setHandButtonsVisible()
       end if
       removeUpdate(me.getID())
     end if
   else
-    pAnimFrm = pAnimFrm - 1
+    pAnimFrm = (pAnimFrm - 1)
     if pAnimFrm < 1 then
       pAnimFrm = 1
     end if
     tHand.moveBy(-tLocModX, -tLocModY)
-    if pAnimFrm = 4 then
+    if (pAnimFrm = 4) then
       tHand.getSprById("room_hand").setMember(member(getmemnum("room_hand_1")))
       tHand.getSprById("room_hand_mask").visible = 0
       me.hideContainerItems()
     else
-      if pAnimFrm = 6 then
+      if (pAnimFrm = 6) then
         tHand.getSprById("room_hand").setMember(member(getmemnum("room_hand_2")))
         tHand.getSprById("room_hand_mask").visible = 1
       end if
     end if
-    if pAnimFrm = 1 then
+    if (pAnimFrm = 1) then
       removeVisualizer(pHandVisID)
       removeUpdate(me.getID())
     end if
@@ -412,18 +412,18 @@ on update me
 end
 
 on showContainerItems me 
-  if pAnimMode = #close then
-    return(0)
+  if (pAnimMode = #close) then
+    return FALSE
   end if
   if not visualizerExists(pHandVisID) then
-    return(0)
+    return FALSE
   end if
   tHand = getVisualizer(pHandVisID)
   tList = me.getStripItem(#list)
   tCount = tList.count
   tAddRecyclerTags = 0
   tRecyclerThread = getThread(#recycler)
-  if not tRecyclerThread = 0 and memberExists("recycler_icon_tag") then
+  if not (tRecyclerThread = 0) and memberExists("recycler_icon_tag") then
     if tRecyclerThread.getComponent().isRecyclerOpenAndVisible() then
       tAddRecyclerTags = 1
     end if
@@ -442,9 +442,9 @@ on showContainerItems me
       tTempImage.copyPixels(tPreviewImage, tPreviewImage.rect, tPreviewImage.rect)
       if voidp(tPreviewImage) then
         error(me, "Preview image was void!", #showContainerItems, #major)
-        return(0)
+        return FALSE
       end if
-      if tAddRecyclerTags and integer(tItem.getAt(#isRecyclable)) = 1 then
+      if tAddRecyclerTags and (integer(tItem.getAt(#isRecyclable)) = 1) then
         tRecyclableTagImg = getMember("recycler_icon_tag").image
         tRect = tRecyclableTagImg.rect
         tTempImage.copyPixels(tRecyclableTagImg, tRect, tRect, [#ink:36])
@@ -455,7 +455,7 @@ on showContainerItems me
       tVisible = not tInTrade or tInRecycler
       if tVisible then
         if not tItem.getAt(#class) contains "post.it" then
-          tVisible = not getThread(#room).getInterface().getObjectMover().pClientID = pItemList.getPropAt(i)
+          tVisible = not (getThread(#room).getInterface().getObjectMover().pClientID = pItemList.getPropAt(i))
         end if
       end if
     else
@@ -469,15 +469,15 @@ on showContainerItems me
       tSpr.visible = tVisible
       tSpr.ink = 8
     end if
-    i = 1 + i
+    i = (1 + i)
   end repeat
   me.setHandButtonsVisible()
-  return(1)
+  return TRUE
 end
 
 on hideContainerItems me 
   if not visualizerExists(pHandVisID) then
-    return(0)
+    return FALSE
   end if
   tHand = getVisualizer(pHandVisID)
   i = 1
@@ -487,24 +487,24 @@ on hideContainerItems me
       tSpr.setMember(member(getmemnum("room_object_placeholder_sd")))
       tSpr.visible = 0
     end if
-    i = 1 + i
+    i = (1 + i)
   end repeat
-  return(1)
+  return TRUE
 end
 
 on eventProcContainer me, tEvent, tSprID, tParam 
   if tEvent <> #mouseUp then
-    return(0)
+    return FALSE
   end if
   if getThread(#room).getInterface().getProperty(#clickAction) <> "placeActive" then
-    if getThread(#room).getInterface().getProperty(#clickAction) = "placeItem" then
+    if (getThread(#room).getInterface().getProperty(#clickAction) = "placeItem") then
       getThread(#room).getInterface().stopObjectMover()
       return(getThread(#room).getComponent().getRoomConnection().send("GETSTRIP", "update"))
     else
       if getThread(#room).getInterface().getProperty(#clickAction) <> "moveActive" then
-        if getThread(#room).getInterface().getProperty(#clickAction) = "moveItem" then
+        if (getThread(#room).getInterface().getProperty(#clickAction) = "moveItem") then
           if not getObject(#session).GET("room_owner") then
-            return(0)
+            return FALSE
           end if
           ttype = ["active":"stuff", "item":"item"].getAt(getThread(#room).getInterface().pSelectedType)
           tObj = getThread(#room).getInterface().pSelectedObj
@@ -520,10 +520,10 @@ on eventProcContainer me, tEvent, tSprID, tParam
           tdata = tStripList.getAt(tItemNum)
           tItemID = tdata.getAt(#stripId)
           if tdata.getAt(#downloadLocked) then
-            return(0)
+            return FALSE
           end if
           if getThread(#room).getInterface().getSafeTrader().isUnderTrade(tItemID) then
-            return(0)
+            return FALSE
           end if
           if variableExists("handitem." & tdata.getAt(#class) & ".select_handler") then
             tSpecialHandler = symbol(getVariable("handitem." & tdata.getAt(#class) & ".select_handler"))
@@ -557,11 +557,11 @@ on setItemPlacingMode me, tdata
   tRoomInterface = getThread(#room).getInterface()
   tRoomInterface.pSelectedObj = tdata.getAt(#id)
   tRoomInterface.pSelectedType = tdata.getAt(#striptype)
-  if tdata.getAt(#striptype) = "active" then
+  if (tdata.getAt(#striptype) = "active") then
     tRoomInterface.startObjectMover(tdata.getAt(#id), tdata.getAt(#stripId), tdata)
     tRoomInterface.setProperty(#clickAction, "placeActive")
   else
-    if tdata.getAt(#striptype) = "item" then
+    if (tdata.getAt(#striptype) = "item") then
       tRoomInterface.startObjectMover(tdata.getAt(#id), tdata.getAt(#stripId), tdata)
       tRoomInterface.setProperty(#clickAction, "placeItem")
     end if
@@ -574,18 +574,18 @@ on setHandButtonsVisible me, tVisible
   end if
   if not windowExists(pHandButtonsWnd) then
     if not createWindow(pHandButtonsWnd, "habbo_hand_buttons.window") then
-      return(0)
+      return FALSE
     end if
   end if
   tWndObj = getWindow(pHandButtonsWnd)
   if not tWndObj.elementExists("habbo_hand_next") or not tWndObj.elementExists("habbo_hand_next") then
-    return(0)
+    return FALSE
   end if
   if tVisible then
     tWndObj.setProperty(#visible, 1)
-    tStageRight = the stageRight - the stageLeft
+    tStageRight = (the stageRight - the stageLeft)
     tTopOffset = 5
-    tWndObj.moveTo(tStageRight - tWndObj.getProperty(#width) - 5, tTopOffset)
+    tWndObj.moveTo(((tStageRight - tWndObj.getProperty(#width)) - 5), tTopOffset)
     if pNextActive then
       tWndObj.getElement("habbo_hand_next").Activate()
     else
@@ -604,18 +604,18 @@ end
 
 on eventProcHandButtons me, tEvent, tSprID, tParam 
   if tEvent <> #mouseUp then
-    return(0)
+    return FALSE
   end if
-  if tSprID = "habbo_hand_next" then
+  if (tSprID = "habbo_hand_next") then
     getThread(#room).getComponent().getRoomConnection().send("GETSTRIP", "next")
   else
-    if tSprID = "habbo_hand_prev" then
+    if (tSprID = "habbo_hand_prev") then
       getThread(#room).getComponent().getRoomConnection().send("GETSTRIP", "prev")
     else
-      if tSprID = "habbo_hand_close" then
+      if (tSprID = "habbo_hand_close") then
         me.close()
       else
-        return(0)
+        return FALSE
       end if
     end if
   end if
