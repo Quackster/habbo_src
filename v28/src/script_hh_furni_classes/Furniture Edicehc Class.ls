@@ -1,6 +1,4 @@
-property pValue, pActive, pChanges
-
-on prepare me, tdata 
+on prepare(me, tdata)
   pChanges = 1
   pAnimStart = 0
   pValue = integer(tdata.getAt(#stuffdata))
@@ -12,9 +10,10 @@ on prepare me, tdata
   end if
   me.update()
   return(1)
+  exit
 end
 
-on select me 
+on select(me)
   if me.count(#pSprList) < 2 then
     return(0)
   end if
@@ -52,9 +51,10 @@ on select me
     end if
   end if
   return(1)
+  exit
 end
 
-on diceThrown me, tValue 
+on diceThrown(me, tValue)
   pChanges = 1
   pValue = tValue
   if pValue < 0 then
@@ -62,9 +62,10 @@ on diceThrown me, tValue
     pActive = 1
   end if
   return(1)
+  exit
 end
 
-on update me 
+on update(me)
   if me.count(#pSprList) < 3 then
     return()
   end if
@@ -110,4 +111,5 @@ on update me
   tSprite2.width = tMember2.width
   tSprite2.height = tMember2.height
   return(1)
+  exit
 end

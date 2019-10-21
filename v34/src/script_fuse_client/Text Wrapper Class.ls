@@ -1,6 +1,4 @@
-property pFontData, pDontProfile, pTextMem, pUnderliningDisabled, pTextRenderMode, pNeedFill
-
-on prepare me 
+on prepare(me)
   me.pOffX = 0
   me.pOffY = 0
   me.pOwnW = me.getProp(#pProps, #width)
@@ -13,7 +11,7 @@ on prepare me
     me.pOwnX = me.getProp(#pProps, #locH)
     me.pOwnY = me.getProp(#pProps, #locV)
   end if
-  pFontData = [:]
+  pFontData = []
   pFontData.setAt(#color, me.getProp(#pProps, #txtColor))
   pFontData.setAt(#bgColor, me.getProp(#pProps, #txtBgColor))
   pFontData.setAt(#key, me.getProp(#pProps, #key))
@@ -51,9 +49,10 @@ on prepare me
   me.initResources(pFontData)
   me.setProfiling()
   return(me.createImgFromTxt())
+  exit
 end
 
-on setProfiling  
+on setProfiling()
   if voidp(pDontProfile) then
     pDontProfile = 1
     if getObjectManager().managerExists(#variable_manager) then
@@ -62,9 +61,10 @@ on setProfiling
       end if
     end if
   end if
+  exit
 end
 
-on setText me, tText 
+on setText(me, tText)
   tText = string(tText)
   pFontData.setAt(#text, tText)
   tRect = rect(me.pOwnX, me.pOwnY, me.pOwnX + me.pOwnW, me.pOwnY + me.pOwnH)
@@ -73,13 +73,15 @@ on setText me, tText
   me.render()
   me.registerScroll()
   return(1)
+  exit
 end
 
-on getText me 
+on getText(me)
   return(pFontData.getAt(#text))
+  exit
 end
 
-on setFont me, tStruct 
+on setFont(me, tStruct)
   pFontData.font = tStruct.getaProp(#font)
   pFontData.fontStyle = tStruct.getaProp(#fontStyle)
   pFontData.fontSize = tStruct.getaProp(#fontSize)
@@ -91,9 +93,10 @@ on setFont me, tStruct
   me.render()
   me.registerScroll()
   return(1)
+  exit
 end
 
-on getFont me 
+on getFont(me)
   tStruct = getStructVariable("struct.font.empty")
   tStruct.setaProp(#font, pFontData.font)
   tStruct.setaProp(#fontStyle, pFontData.fontStyle)
@@ -101,9 +104,10 @@ on getFont me
   tStruct.setaProp(#color, pFontData.color)
   tStruct.setaProp(#lineHeight, pFontData.fixedLineSpace)
   return(tStruct)
+  exit
 end
 
-on registerScroll me, tID 
+on registerScroll(me, tID)
   if voidp(me.pScrolls) then
     me.prepare()
   end if
@@ -119,15 +123,16 @@ on registerScroll me, tID
   tSourceRect = rect(me.pOffX, me.pOffY, me.pOffX + me.pOwnW, me.pOffY + me.pOwnH)
   tScrollList = []
   tWndObj = getWindowManager().GET(me.pMotherId)
-  repeat while me.pScrolls <= undefined
+  repeat while me <= undefined
     tScrollId = getAt(undefined, tID)
     tScrollList.add(tWndObj.getElement(tScrollId))
   end repeat
   me.createImgFromTxt()
   call(#updateData, tScrollList, tSourceRect, me.rect)
+  exit
 end
 
-on initResources me, tFontProps 
+on initResources(me, tFontProps)
   tMemNum = getResourceManager().getmemnum("visual window text")
   if tMemNum = 0 then
     tMemNum = getResourceManager().createMember("visual window text", #text)
@@ -138,9 +143,10 @@ on initResources me, tFontProps
   end if
   executeMessage(#invalidateCrapFixRegion)
   return(1)
+  exit
 end
 
-on createImgFromTxt me 
+on createImgFromTxt(me)
   if not pDontProfile then
     startProfilingTask("Text Wrapper::createImgFromTxt")
   end if
@@ -209,11 +215,11 @@ on createImgFromTxt me
   if me.pScaleH = #center then
     tWidth = pTextMem.charPosToLoc(pTextMem.count(#char)).locH + 16
     if me.getProp(#pProps, #style) = #unique then
-      me.pLocX = me.pLocX + (me.pwidth - tWidth / 2)
+      me.pLocX = me.pLocX + me.pwidth - tWidth / 2
       me.pwidth = tWidth
       me.pOwnW = tWidth
     else
-      me.pOwnX = me.pOwnX + (me.pOwnW - tWidth / 2)
+      me.pOwnX = me.pOwnX + me.pOwnW - tWidth / 2
       me.pOwnW = tWidth
     end if
     pTextMem.rect = rect(0, 0, tWidth, pTextMem.height)
@@ -275,8 +281,10 @@ on createImgFromTxt me
     finishProfilingTask("Text Wrapper::createImgFromTxt")
   end if
   return(1)
+  exit
 end
 
-on handlers  
+on handlers()
   return([])
+  exit
 end

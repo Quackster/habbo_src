@@ -1,14 +1,13 @@
-property pTokenList
-
-on prepare me 
+on prepare(me)
   pTokenList = value(getVariable("obj_" & me.pClass, "carrot"))
   if not listp(pTokenList) then
     pTokenList = [7]
   end if
-  return TRUE
+  return(1)
+  exit
 end
 
-on select me 
+on select(me)
   if not threadExists(#room) then
     return(error(me, "Room thread not found!!!", #select))
   end if
@@ -16,13 +15,15 @@ on select me
   if not tUserObj then
     return(error(me, "User object not found:" && getObject(#session).get("user_name"), #select))
   end if
-  if abs((me.pLocX - tUserObj.pLocX)) < 2 and abs((me.pLocY - tUserObj.pLocY)) < 2 then
+  if abs(me.pLocX - tUserObj.pLocX) < 2 and abs(me.pLocY - tUserObj.pLocY) < 2 then
     me.giveItem()
   end if
-  return TRUE
+  return(1)
+  exit
 end
 
-on giveItem me 
+on giveItem(me)
   getThread(#room).getComponent().getRoomConnection().send("LOOKTO", me.pLocX && me.pLocY)
   getThread(#room).getComponent().getRoomConnection().send("CARRYDRINK", pTokenList.getAt(random(pTokenList.count)))
+  exit
 end

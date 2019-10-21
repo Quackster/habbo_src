@@ -1,26 +1,26 @@
-property pRoomGeometry, pMouseClickTime
-
-on construct me 
+on construct(me)
   me.registerEventProc(1)
   return(1)
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   me.registerEventProc(0)
   if managerExists(#sound_manager) then
     stopAllSounds()
   end if
   return(1)
+  exit
 end
 
-on Refresh me, tTopic, tdata 
-  if tTopic = #objects_ready then
+on Refresh(me, tTopic, tdata)
+  if me = #objects_ready then
     me.processRoomReady()
   else
-    if tTopic = #snowwar_event_11 then
+    if me = #snowwar_event_11 then
       me.getGameSystem().executeGameObjectEvent(string(tdata.getAt(#int_machine_id)), #add_snowball)
     else
-      if tTopic = #snowwar_event_12 then
+      if me = #snowwar_event_12 then
         return(me.moveBallsToUser(string(tdata.getAt(#int_machine_id)), string(tdata.getAt(#int_player_id))))
       else
         return(error(me, "Undefined event!" && tTopic && "for" && me.pID, #Refresh))
@@ -28,16 +28,17 @@ on Refresh me, tTopic, tdata
     end if
   end if
   return(1)
+  exit
 end
 
-on processRoomReady me 
+on processRoomReady(me)
   tList = getObject(#room_component).pPassiveObjList
   tTargetID = getThread(#room).getInterface().getID()
   tVisObj = getObject("Room_visualizer")
   tBaseLocZ = tVisObj.getProperty(#locZ)
   tBaseLocZ = tVisObj.getSprById("floor").locZ
   tHiliterLocZ = tVisObj.getSprById("hiliter").locZ
-  repeat while tList <= undefined
+  repeat while me <= undefined
     tObject = getAt(undefined, undefined)
     tSprites = tObject.getSprites()
     if tSprites.count > 0 then
@@ -53,9 +54,10 @@ on processRoomReady me
       end if
     end if
   end repeat
+  exit
 end
 
-on registerEventProc me, tBoolean 
+on registerEventProc(me, tBoolean)
   tRoomThread = getThread(#room)
   if tRoomThread = 0 then
     return(0)
@@ -84,9 +86,10 @@ on registerEventProc me, tBoolean
       call(#removeProcedure, tSprList, #mouseUp)
     end if
   end if
+  exit
 end
 
-on eventProcRoom me, tEvent, tSprID, tParam 
+on eventProcRoom(me, tEvent, tSprID, tParam)
   tloc = pRoomGeometry.getWorldCoordinate(the mouseH, the mouseV)
   if not listp(tloc) then
     return(1)
@@ -99,7 +102,7 @@ on eventProcRoom me, tEvent, tSprID, tParam
     return(1)
   end if
   if tEvent = #mouseUp then
-    tMouseDownTime = (the milliSeconds - pMouseClickTime / 1000)
+    tMouseDownTime = the milliSeconds - pMouseClickTime / 1000
     if the optionDown then
       pMouseClickTime = -1
       return(me.sendThrowBall(tloc, 2))
@@ -124,9 +127,10 @@ on eventProcRoom me, tEvent, tSprID, tParam
     end if
     return(1)
   end if
+  exit
 end
 
-on sendThrowBall me, tloc, tTrajectory 
+on sendThrowBall(me, tloc, tTrajectory)
   tFramework = me.getGameSystem()
   if tFramework = 0 then
     return(0)
@@ -141,9 +145,10 @@ on sendThrowBall me, tloc, tTrajectory
     tFramework.executeGameObjectEvent(tMyId, #send_throw_at_loc, [#targetloc:tWorldLoc, #trajectory:tTrajectory])
     return(1)
   end if
+  exit
 end
 
-on sendMoveGoal me, tloc 
+on sendMoveGoal(me, tloc)
   tFramework = me.getGameSystem()
   if tFramework = 0 then
     return(0)
@@ -158,9 +163,10 @@ on sendMoveGoal me, tloc
   else
     return(tFramework.sendHabboRoomMove(tloc.getAt(1), tloc.getAt(2)))
   end if
+  exit
 end
 
-on moveBallsToUser me, tMachineID, tUserID 
+on moveBallsToUser(me, tMachineID, tUserID)
   tMachineObject = me.getGameSystem().getGameObject(tMachineID)
   if tMachineObject = 0 then
     return(0)
@@ -177,4 +183,5 @@ on moveBallsToUser me, tMachineID, tUserID
     me.getGameSystem().executeGameObjectEvent(tMachineID, #remove_snowball)
   end if
   return(1)
+  exit
 end

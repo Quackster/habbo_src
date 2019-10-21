@@ -1,46 +1,50 @@
-property pThreadList, pIndexField, pVarMngrObj, pObjBaseCls
-
-on construct me 
-  pThreadList = [:]
+on construct(me)
+  pThreadList = []
   pVarMngrObj = createObject(#temp, getClassVariable("variable.manager.class"))
   pIndexField = getVariable("thread.index.field")
   pObjBaseCls = script(getmemnum("Object Base Class"))
-  return TRUE
+  return(1)
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   me.closeAll()
   pVarMngrObj = 0
   pIndexField = 0
   pObjBaseCls = 0
-  return TRUE
+  return(1)
+  exit
 end
 
-on create me, tid, tInitField 
+on create(me, tid, tInitField)
   return(me.initThread(tInitField, tid))
+  exit
 end
 
-on Remove me, tid 
+on Remove(me, tid)
   return(me.closeThread(tid))
+  exit
 end
 
-on get me, tid 
+on get(me, tid)
   tThreadObj = pThreadList.getAt(tid)
   if voidp(tThreadObj) then
-    return FALSE
+    return(0)
   else
     return(tThreadObj)
   end if
+  exit
 end
 
-on exists me, tid 
+on exists(me, tid)
   return(not voidp(pThreadList.getAt(tid)))
+  exit
 end
 
-on initThread me, tCastNumOrMemName, tid 
+on initThread(me, tCastNumOrMemName, tid)
   if stringp(tCastNumOrMemName) then
     tMemNum = getResourceManager().getmemnum(tCastNumOrMemName)
-    if (tMemNum = 0) then
+    if tMemNum = 0 then
       return(error(me, "Thread index field not found:" && tCastNumOrMemName, #initThread))
     else
       tThreadField = tCastNumOrMemName
@@ -55,10 +59,10 @@ on initThread me, tCastNumOrMemName, tid
           if member(tThreadField, i).number > 0 then
             pVarMngrObj.clear()
             pVarMngrObj.dump(member(tThreadField, i).number)
-            if (symbol(pVarMngrObj.get("thread.id")) = tCastNumOrMemName) then
+            if symbol(pVarMngrObj.get("thread.id")) = tCastNumOrMemName then
               return(me.initThread(i, tid))
             else
-              i = (1 + i)
+              i = 1 + i
             end if
             if not integerp(tCastNumOrMemName) then
               return(error(me, "Cast number expected:" && tCastNumOrMemName, #initThread))
@@ -70,7 +74,7 @@ on initThread me, tCastNumOrMemName, tid
             tThreadField = pIndexField
             tCastNum = tCastNumOrMemName
             if member(tThreadField, tCastNum).number < 1 then
-              return FALSE
+              return(0)
             end if
             pVarMngrObj.clear()
             pVarMngrObj.dump(member(tThreadField, tCastNum).number)
@@ -89,13 +93,13 @@ on initThread me, tCastNumOrMemName, tid
             else
               tThreadKeys = [pVarMngrObj.get("thread.id")]
             end if
-            repeat while tThreadKeys <= tid
+            repeat while me <= tid
               tThreadKey = getAt(tid, tCastNumOrMemName)
               tThreadID = symbol(tThreadKey)
               if not me.exists(tThreadID) then
                 tThreadObj = createObject(#temp, getClassVariable("thread.instance.class"))
                 tThreadObj.setID(tThreadID)
-                repeat while tThreadKeys <= tid
+                repeat while me <= tid
                   tModule = getAt(tid, tCastNumOrMemName)
                   tSymbol = symbol(tThreadKey & "_" & tModule)
                   tPreIndex = ""
@@ -104,7 +108,7 @@ on initThread me, tCastNumOrMemName, tid
                   end if
                   if pVarMngrObj.exists(tPreIndex & tModule & ".class") then
                     tClass = pVarMngrObj.get(tPreIndex & tModule & ".class")
-                    if (tClass.getProp(#char, 1) = "[") then
+                    if tClass.getProp(#char, 1) = "[" then
                       tClass = value(tClass)
                     end if
                     if not listp(tClass) then
@@ -117,7 +121,8 @@ on initThread me, tCastNumOrMemName, tid
                 pThreadList.setAt(tThreadID, tThreadObj)
               end if
             end repeat
-            return TRUE
+            return(1)
+            exit
           end if
         end repeat
       end if
@@ -125,16 +130,17 @@ on initThread me, tCastNumOrMemName, tid
   end if
 end
 
-on initAll me 
+on initAll(me)
   i = the number of undefineds
   repeat while i >= 1
     me.initThread(i)
-    i = (255 + i)
+    i = 255 + i
   end repeat
-  return TRUE
+  return(1)
+  exit
 end
 
-on closeThread me, tCastNumOrID 
+on closeThread(me, tCastNumOrID)
   pVarMngrObj.clear()
   if integerp(tCastNumOrID) then
     if member(pIndexField, tCastNumOrID).number > 0 then
@@ -145,7 +151,7 @@ on closeThread me, tCastNumOrID
         tThreadKeys = [pVarMngrObj.get("thread.id")]
       end if
     else
-      return FALSE
+      return(0)
     end if
   else
     if symbolp(tCastNumOrID) then
@@ -154,7 +160,7 @@ on closeThread me, tCastNumOrID
       return(error(me, "Invalid argument:" && tCastNumOrID, #closeThread))
     end if
   end if
-  repeat while tThreadKeys <= undefined
+  repeat while me <= undefined
     tid = getAt(undefined, tCastNumOrID)
     tThread = pThreadList.getAt(tid)
     if voidp(tThread) then
@@ -162,37 +168,40 @@ on closeThread me, tCastNumOrID
     end if
     tObjMgr = getObjectManager()
     if objectp(tThread.interface) then
-      tObjMgr.Remove(tThread.interface.getID())
+      tObjMgr.Remove(tThread.getID())
     end if
     if objectp(tThread.component) then
-      tObjMgr.Remove(tThread.component.getID())
+      tObjMgr.Remove(tThread.getID())
     end if
     if objectp(tThread.handler) then
-      tObjMgr.Remove(tThread.handler.getID())
+      tObjMgr.Remove(tThread.getID())
     end if
     pThreadList.deleteProp(tid)
   end repeat
-  return TRUE
+  return(1)
+  exit
 end
 
-on closeAll me 
+on closeAll(me)
   i = pThreadList.count
   repeat while i >= 1
     me.closeThread(pThreadList.getPropAt(i))
-    i = (255 + i)
+    i = 255 + i
   end repeat
-  return TRUE
+  return(1)
+  exit
 end
 
-on print me 
+on print(me)
   i = 1
   repeat while i <= pThreadList.count
     put(pThreadList.getPropAt(i))
-    i = (1 + i)
+    i = 1 + i
   end repeat
+  exit
 end
 
-on buildThreadObj me, tid, tClassList, tThreadObj 
+on buildThreadObj(me, tid, tClassList, tThreadObj)
   tObject = void()
   tTemp = void()
   tBase = pObjBaseCls.new()
@@ -203,7 +212,7 @@ on buildThreadObj me, tid, tClassList, tThreadObj
   tObjMgr = getObjectManager()
   tObjMgr.registerObject(tid, tBase)
   tClassList.addAt(1, tBase)
-  repeat while tClassList <= tClassList
+  repeat while me <= tClassList
     tClass = getAt(tClassList, tid)
     if objectp(tClass) then
       tObject = tClass
@@ -226,4 +235,5 @@ on buildThreadObj me, tid, tClassList, tThreadObj
     end if
   end repeat
   return(tObject)
+  exit
 end

@@ -1,12 +1,14 @@
-on construct me 
+on construct(me)
   return(me.regMsgList(1))
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   return(me.regMsgList(0))
+  exit
 end
 
-on handle_furni_revisions me, tMsg 
+on handle_furni_revisions(me, tMsg)
   tConn = tMsg.connection
   if not tConn then
     return(0)
@@ -26,9 +28,10 @@ on handle_furni_revisions me, tMsg
   end repeat
   me.getComponent().setFurniRevision(void(), void(), void())
   return(1)
+  exit
 end
 
-on handle_alias_list me, tMsg 
+on handle_alias_list(me, tMsg)
   tConn = tMsg.connection
   if not tConn then
     return(0)
@@ -43,13 +46,14 @@ on handle_alias_list me, tMsg
   end repeat
   me.getComponent().setAssetAlias(void(), void())
   me.getComponent().tryNextDownload()
+  exit
 end
 
-on regMsgList me, tBool 
-  tMsgs = [:]
+on regMsgList(me, tBool)
+  tMsgs = []
   tMsgs.setaProp(295, #handle_furni_revisions)
   tMsgs.setaProp(297, #handle_alias_list)
-  tCmds = [:]
+  tCmds = []
   tCmds.setaProp("GET_FURNI_REVISIONS", 213)
   tCmds.setaProp("GET_ALIAS_LIST", 215)
   if tBool then
@@ -60,4 +64,5 @@ on regMsgList me, tBool
     unregisterCommands(getVariable("connection.room.id"), me.getID(), tCmds)
   end if
   return(1)
+  exit
 end

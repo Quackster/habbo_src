@@ -1,10 +1,8 @@
-property pwidth, pTurnPoint, pREquiresUpdate, pRenderQueue, pimage, pScalePrefix, pGradientType, pheight, pWallDef, pWideScreenOffset, pWallHeight, pLandscapeType, pLandscapeDef, pRandObj, pRoomId
-
-on construct me 
+on construct(me)
   pimage = image(1, 1, 32)
   pwidth = 720
   pheight = 400
-  pTurnPoint = (pwidth / 2)
+  pTurnPoint = pwidth / 2
   pREquiresUpdate = 1
   if threadExists(#room) then
     pWideScreenOffset = getThread(#room).getInterface().getProperty(#widescreenoffset)
@@ -12,16 +10,18 @@ on construct me
   pRandObj = me.getRandomizer()
   pRenderQueue = []
   return(1)
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   pRandObj = void()
   removeUpdate(me.getID())
   pRenderQueue = []
   return(1)
+  exit
 end
 
-on define me, tdata, tWallDef, tLandscapeDef 
+on define(me, tdata, tWallDef, tLandscapeDef)
   pRandObj = me.getRandomizer()
   pwidth = tdata.getAt(#width)
   pheight = tdata.getAt(#height)
@@ -55,22 +55,25 @@ on define me, tdata, tWallDef, tLandscapeDef
   if not me.renderLandscape() then
     me.renderDefaultLandscape()
   end if
+  exit
 end
 
-on requiresUpdate me 
+on requiresUpdate(me)
   return(pREquiresUpdate)
+  exit
 end
 
-on getImage me 
+on getImage(me)
   if me.requiresUpdate() then
     if pRenderQueue.count = 0 then
       pREquiresUpdate = 0
     end if
   end if
   return(pimage.duplicate())
+  exit
 end
 
-on update me 
+on update(me)
   if pRenderQueue.count = 0 then
     removeUpdate(me.getID())
     return(1)
@@ -78,15 +81,17 @@ on update me
   tItem = pRenderQueue.getAt(1)
   pRenderQueue.deleteAt(1)
   me.renderPiece(tItem)
+  exit
 end
 
-on renderPiece me, tItem 
+on renderPiece(me, tItem)
   pimage.copyPixels(tItem.getAt(1), tItem.getAt(2), tItem.getAt(3), tItem.getAt(4))
   me.renderWallRandomProps(tItem.getAt(5), tItem.getAt(6), tItem.getAt(7), tItem.getAt(8), tItem.getAt(9))
   pREquiresUpdate = 1
+  exit
 end
 
-on renderLandscape me 
+on renderLandscape(me)
   tMemNum = getmemnum(pScalePrefix & "lsd_bg_" & pGradientType)
   if tMemNum = 0 then
     return(0)
@@ -102,7 +107,7 @@ on renderLandscape me
   if tImageCount = 0 then
     return(0)
   end if
-  tPieceCount = (pwidth / tImageList.getAt(1).width) + 1
+  tPieceCount = pwidth / tImageList.getAt(1).width + 1
   tImageSpots = me.getRandomImageOffsets(tImageCount, tPieceCount)
   tImageSpotCounter = 1
   tPalette = member(tMemNum).paletteRef
@@ -141,7 +146,7 @@ on renderLandscape me
           end if
           tFirstBottom = tLocV + pWallHeight
           if tside = #right then
-            tRightWallElemBottomOffset = -(tItem.getaProp(#width) / 2)
+            tRightWallElemBottomOffset = -tItem.getaProp(#width) / 2
           end if
         end if
         tPieceRight = tLocH + tItem.getaProp(#width)
@@ -162,15 +167,15 @@ on renderLandscape me
           end if
           tPieceHeight = tHeightA
           if tside = #right then
-            tY = tBottomY - tHeightA + tRightWallElemBottomOffset + (tWidthA / 2)
+            tY = tBottomY - tHeightA + tRightWallElemBottomOffset + tWidthA / 2
             tQuad = [point(tX + tPieceWidth, tY), point(tX, tY), point(tX, tY + tPieceHeight), point(tX + tPieceWidth, tY + tPieceHeight)]
             tSourceRect = rect(tWidthA - tPieceWidth, 0, tWidthA, tHeightA)
-            tBottomY = tBottomY + (tPieceWidth / 2)
+            tBottomY = tBottomY + tPieceWidth / 2
           else
             tY = tBottomY - tHeightA
             tQuad = [point(tX, tY), point(tX + tPieceWidth, tY), point(tX + tPieceWidth, tY + tPieceHeight), point(tX, tY + tPieceHeight)]
             tSourceRect = rect(0, 0, tPieceWidth, tHeightA)
-            tBottomY = tBottomY - (tPieceWidth / 2)
+            tBottomY = tBottomY - tPieceWidth / 2
           end if
           pimage.copyPixels(tImageA, tQuad, tSourceRect, [#palette:tPalette])
           tX = tX + tPieceWidth
@@ -192,15 +197,15 @@ on renderLandscape me
           end if
           tPieceHeight = tImageHeight
           if tside = #right then
-            tY = tBottomY - tImageHeight + tRightWallElemBottomOffset + (tImageWidth / 2)
+            tY = tBottomY - tImageHeight + tRightWallElemBottomOffset + tImageWidth / 2
             tQuad = [point(tX + tPieceWidth, tY), point(tX, tY), point(tX, tY + tPieceHeight), point(tX + tPieceWidth, tY + tPieceHeight)]
             tSourceRect = rect(tImageWidth - tPieceWidth, 0, tImageWidth - 0, tImageHeight)
-            tBottomY = tBottomY + (tPieceWidth / 2)
+            tBottomY = tBottomY + tPieceWidth / 2
           else
             tY = tBottomY - tImageHeight
             tQuad = [point(tX, tY), point(tX + tPieceWidth, tY), point(tX + tPieceWidth, tY + tPieceHeight), point(tX, tY + tPieceHeight)]
             tSourceRect = rect(0, 0, tPieceWidth, tImageHeight)
-            tBottomY = tBottomY - (tPieceWidth / 2)
+            tBottomY = tBottomY - tPieceWidth / 2
           end if
           tWallRandomPropList = me.getRandomPropList(tImageSpots.getAt(tImageSpotCounter))
           tQueueItem = [tImage, tQuad, tSourceRect, [#ink:36], tside, tX, tY, tX + tPieceWidth, tWallRandomPropList]
@@ -218,9 +223,10 @@ on renderLandscape me
     receiveUpdate(me.getID())
   end if
   return(pimage.duplicate())
+  exit
 end
 
-on renderWallRandomProps me, tside, tOrigX, tOrigY, tSideRight, tWallRandomPropList 
+on renderWallRandomProps(me, tside, tOrigX, tOrigY, tSideRight, tWallRandomPropList)
   i = 1
   repeat while i <= tWallRandomPropList.count
     tImage = tWallRandomPropList.getAt(i)
@@ -252,16 +258,18 @@ on renderWallRandomProps me, tside, tOrigX, tOrigY, tSideRight, tWallRandomPropL
     end if
     i = 1 + i
   end repeat
+  exit
 end
 
-on renderDefaultLandscape me 
+on renderDefaultLandscape(me)
   pimage = image(pwidth, pheight, 32)
   pimage.fill(0, 0, pTurnPoint, pheight, color(110, 173, 200))
   pimage.fill(pTurnPoint, 0, pwidth, pheight, color(132, 206, 239))
   return(pimage.duplicate())
+  exit
 end
 
-on getImageListForTheme me 
+on getImageListForTheme(me)
   tImageList = []
   tMemNum = getmemnum(pScalePrefix & "lsd_" & pLandscapeType & "_1")
   if tMemNum = 0 then
@@ -274,10 +282,11 @@ on getImageListForTheme me
     tMemNum = getmemnum(pScalePrefix & "lsd_" & pLandscapeType & "_" & tNum)
   end repeat
   return(tImageList)
+  exit
 end
 
-on getRandomImageOffsets me, tImageCount, tResultCount 
-  tMaxList = [:]
+on getRandomImageOffsets(me, tImageCount, tResultCount)
+  tMaxList = []
   i = 1
   repeat while i <= tImageCount
     tDef = pLandscapeDef.getaProp(string(i))
@@ -298,9 +307,10 @@ on getRandomImageOffsets me, tImageCount, tResultCount
     tImageSpots = tRandObj.getArray(tResultCount, 1, 1)
   end if
   return(tImageSpots)
+  exit
 end
 
-on getPropListForTheme me 
+on getPropListForTheme(me)
   tImageList = []
   tMemNum = getmemnum(pScalePrefix & "lsd_" & pLandscapeType & "_item_1")
   tNum = 1
@@ -310,12 +320,13 @@ on getPropListForTheme me
     tMemNum = getmemnum(pScalePrefix & "lsd_" & pLandscapeType & "_item_" & tNum)
   end repeat
   return(tImageList)
+  exit
 end
 
-on getRandomPropList me, tMemberId 
+on getRandomPropList(me, tMemberId)
   tPropList = pLandscapeDef.getaProp(tMemberId)
   if tPropList = 0 then
-    return([:])
+    return([])
   end if
   tImageList = me.getPropListForTheme()
   tMaxCount = tPropList.getaProp(#max_props)
@@ -329,7 +340,7 @@ on getRandomPropList me, tMemberId
   end if
   tImageTypes = pRandObj.getArray(tMaxCount, 0, tImageList.count)
   tImageSpots = pRandObj.getArray(tMaxCount, 1, tOffsetList.count)
-  tResult = [:]
+  tResult = []
   i = 1
   repeat while i <= tImageTypes.count
     if tImageTypes.getAt(i) > 0 then
@@ -338,13 +349,15 @@ on getRandomPropList me, tMemberId
     i = 1 + i
   end repeat
   return(tResult)
+  exit
 end
 
-on getRandomizer me 
+on getRandomizer(me)
   tRandObj = createObject(#temp, "Pseudorandom Number Generator Class")
   if tRandObj = 0 then
     return(0)
   end if
   tRandObj.setSeed(integer(pRoomId))
   return(tRandObj)
+  exit
 end

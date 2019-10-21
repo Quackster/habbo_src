@@ -1,4 +1,4 @@
-on GET me, tKey, tDefault 
+on GET(me, tKey, tDefault)
   tText = me.getProp(#pItemList, tKey)
   if voidp(tText) then
     tError = "Text not found:" && tKey
@@ -12,9 +12,10 @@ on GET me, tKey, tDefault
   end if
   tText = getStringServices().convertSpecialChars(tText)
   return(tText)
+  exit
 end
 
-on dump me, tField, tDelimiter 
+on dump(me, tField, tDelimiter)
   if not memberExists(tField) then
     return(error(me, "Field member expected:" && tField, #dump, #major))
   end if
@@ -24,18 +25,18 @@ on dump me, tField, tDelimiter
   tSpecialChunks = ["\\r":"\r", "\\t":"\t", "\\s":space(), "<BR>":"\r"]
   tLineChunks = []
   tMaxLinesPerChunk = 100
-  tTotalChunkCount = ((tRawStr.count(#line) / tMaxLinesPerChunk) + 1)
+  tTotalChunkCount = tRawStr.count(#line) / tMaxLinesPerChunk + 1
   tChunk = 1
   repeat while tChunk <= tTotalChunkCount
-    tStartChunkIndex = (((tChunk - 1) * tMaxLinesPerChunk) + 1)
-    tEndChunkIndex = ((tStartChunkIndex + tMaxLinesPerChunk) - 1)
+    tStartChunkIndex = tChunk - 1 * tMaxLinesPerChunk + 1
+    tEndChunkIndex = tStartChunkIndex + tMaxLinesPerChunk - 1
     tLines = tRawStr.getProp(#line, tStartChunkIndex, tEndChunkIndex)
     tLineChunks.setAt(tChunk, tLines)
-    tChunk = (1 + tChunk)
+    tChunk = 1 + tChunk
   end repeat
   tDelim = the itemDelimiter
   the itemDelimiter = "="
-  repeat while tField <= tDelimiter
+  repeat while me <= tDelimiter
     tStr = getAt(tDelimiter, tField)
     tLineCount = tStr.count(#line)
     tLineNo = 1
@@ -50,13 +51,14 @@ on dump me, tField, tDelimiter
           if tValue contains tMark then
             tValue = tStrServices.replaceChunks(tValue, tMark, tSpecialChunks.getAt(k))
           end if
-          k = (1 + k)
+          k = 1 + k
         end repeat
         me.setProp(#pItemList, tProp, tValue)
       end if
-      tLineNo = (1 + tLineNo)
+      tLineNo = 1 + tLineNo
     end repeat
   end repeat
   the itemDelimiter = tDelim
-  return TRUE
+  return(1)
+  exit
 end

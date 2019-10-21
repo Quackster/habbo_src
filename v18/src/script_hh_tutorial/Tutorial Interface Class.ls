@@ -1,76 +1,81 @@
-property pBubbles
-
-on construct me 
+on construct(me)
   me.pMenuID = #tutorial_menu
   me.pWriterPlain = "tutorial_writer_plain"
   me.pTutor = createObject(getUniqueID(), "Tutor Character Class")
   me.pBubbles = []
   me.createExitMenu()
   receivePrepare(me.getID())
-  return TRUE
+  return(1)
+  exit
 end
 
-on deconstruct me 
-  return TRUE
+on deconstruct(me)
+  return(1)
+  exit
 end
 
-on createExitMenu me 
+on createExitMenu(me)
   tID = "Tutorial_buttons"
   createWindow(tID, "habbo_simple.window")
   me.pExitMenuWindow = getWindow(tID)
-  me.pExitMenuWindow.merge("tutorial_exit_menu_bg.window")
-  me.pExitMenuWindow.merge("tutorial_exit_menu.window")
-  me.pExitMenuWindow.hide()
-  me.pExitMenuWindow.moveTo(3, 3)
-  me.pExitMenuWindow.registerProcedure(#eventHandlerTutorialExitMenu, me.getID(), #mouseUp)
+  pExitMenuWindow.merge("tutorial_exit_menu_bg.window")
+  pExitMenuWindow.merge("tutorial_exit_menu.window")
+  pExitMenuWindow.hide()
+  pExitMenuWindow.moveTo(3, 3)
+  pExitMenuWindow.registerProcedure(#eventHandlerTutorialExitMenu, me.getID(), #mouseUp)
+  exit
 end
 
-on setBubbles me, tBubbleList 
+on setBubbles(me, tBubbleList)
   i = pBubbles.count
   repeat while i >= 1
     removeObject(pBubbles.getAt(i).getID())
-    i = (255 + i)
+    i = 255 + i
   end repeat
   me.pBubbles = []
   if voidp(tBubbleList) then
-    return TRUE
+    return(1)
   end if
   i = 1
   repeat while i <= tBubbleList.count
     tBubble = createObject(getUniqueID(), "Bubble Class")
     tBubble.setProperty(tBubbleList.getAt(i))
-    me.pBubbles.add(tBubble)
-    i = (1 + i)
+    pBubbles.add(tBubble)
+    i = 1 + i
   end repeat
+  exit
 end
 
-on setTutor me, tTutorList 
-  me.pTutor.setProperties(tTutorList)
+on setTutor(me, tTutorList)
+  pTutor.setProperties(tTutorList)
+  exit
 end
 
-on hide me 
-  me.pTutor.hide()
-  repeat while me.pBubbles <= undefined
+on hide(me)
+  pTutor.hide()
+  repeat while me <= undefined
     tBubble = getAt(undefined, undefined)
     tBubble.hide()
   end repeat
-  me.pExitMenuWindow.hide()
+  pExitMenuWindow.hide()
   removePrepare(me.getID())
+  exit
 end
 
-on show me 
+on show(me)
   receivePrepare(me.getID())
-  me.pTutor.show()
-  repeat while me.pBubbles <= undefined
+  pTutor.show()
+  repeat while me <= undefined
     tBubble = getAt(undefined, undefined)
     tBubble.show()
   end repeat
-  me.pExitMenuWindow.show()
+  pExitMenuWindow.show()
+  exit
 end
 
-on prepare me 
+on prepare(me)
   tWindowList = getWindowIDList()
-  tExitMenuID = me.pExitMenuWindow.getProperty(#id)
+  tExitMenuID = pExitMenuWindow.getProperty(#id)
   tPosExitMenu = tWindowList.getPos(tExitMenuID)
   if tPosExitMenu > 0 then
     tWindowList.deleteAt(tPosExitMenu)
@@ -78,22 +83,23 @@ on prepare me
   tWindowList.add(tExitMenuID)
   getWindowManager().reorder(tWindowList)
   me.updateBubbles()
-  me.pTutor.update()
-  return TRUE
+  pTutor.update()
+  return(1)
+  exit
 end
 
-on updateBubbles me 
+on updateBubbles(me)
   if voidp(me.pBubbles) then
-    return TRUE
+    return(1)
   end if
   tWindowList = getWindowIDList()
-  tAttachedWindows = [:]
-  repeat while me.pBubbles <= undefined
+  tAttachedWindows = []
+  repeat while me <= undefined
     tBubble = getAt(undefined, undefined)
     tBubble.update()
     tBubbleWindowID = tBubble.getProperty(#windowId)
     tPos = tWindowList.getPos(tBubbleWindowID)
-    if (tPos = 0) then
+    if tPos = 0 then
     else
       tTargetWindowID = tBubble.getProperty(#targetWindowID)
       if voidp(tTargetWindowID) then
@@ -115,35 +121,36 @@ on updateBubbles me
     tWindowList.addAt(tPosRoombar, "Room_interface")
   end if
   tOrderList = []
-  repeat while me.pBubbles <= undefined
+  repeat while me <= undefined
     tID = getAt(undefined, undefined)
     tOrderList.add(tID)
     if not voidp(tAttachedWindows.getaProp(tID)) then
-      repeat while me.pBubbles <= undefined
+      repeat while me <= undefined
         tAttached = getAt(undefined, undefined)
         tOrderList.add(tAttached)
       end repeat
     end if
   end repeat
   getWindowManager().reorder(tOrderList)
-  return TRUE
+  return(1)
+  exit
 end
 
-on showMenu me, tstate 
+on showMenu(me, tstate)
   me.setBubbles(void())
-  if (tstate = #welcome) then
-    tTextKey = "tutorial_welcome_" & me.pTutor.getProperty(#sex)
+  if me = #welcome then
+    tTextKey = me & pTutor.getProperty(#sex)
     tPose = 2
   else
-    if (tstate = #offtopic) then
+    if me = #offtopic then
       tTextKey = "tutorial_offtopic"
       tPose = 3
     else
-      tTextKey = "tutorial_topic_list_" & me.pTutor.getProperty(#sex)
+      tTextKey = me & pTutor.getProperty(#sex)
       tPose = 1
     end if
   end if
-  tTutor = [:]
+  tTutor = []
   tTutor.setaProp(#offsetx, void())
   tTutor.setaProp(#offsety, void())
   tTutor.setaProp(#textKey, tTextKey)
@@ -151,25 +158,28 @@ on showMenu me, tstate
   tTutor.setaProp(#links, me.getComponent().getProperty(#topics))
   tTutor.setaProp(#statuses, me.getComponent().getProperty(#statuses))
   me.setTutor(tTutor)
+  exit
 end
 
-on setUserSex me, tUserSex 
-  if (tUserSex = "M") then
+on setUserSex(me, tUserSex)
+  if me = "M" then
     tTutorSex = "F"
   else
-    if (tUserSex = "F") then
+    if me = "F" then
       tTutorSex = "M"
     end if
   end if
-  me.pTutor.setProperty(#sex, tTutorSex)
+  pTutor.setProperty(#sex, tTutorSex)
+  exit
 end
 
-on eventHandlerTutorialExitMenu me, tEvent, tSpriteID, tParam 
-  if (tSpriteID = "tutorial_button_quit") then
+on eventHandlerTutorialExitMenu(me, tEvent, tSpriteID, tParam)
+  if me = "tutorial_button_quit" then
     me.getComponent().tryExit()
   else
-    if (tSpriteID = "tutorial_button_menu") then
+    if me = "tutorial_button_menu" then
       me.getComponent().showMenu()
     end if
   end if
+  exit
 end

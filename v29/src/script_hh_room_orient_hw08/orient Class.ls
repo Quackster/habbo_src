@@ -1,6 +1,4 @@
-property pDiscoStyle, pDiscoStyleCount, pFountainSkippedFrames, pAnimThisUpdate, pSin, pSpriteList, pOrigLocs, pLightSwitchTimer, pFountainFrame
-
-on construct me 
+on construct(me)
   pSin = 0
   pAnimTimer = the timer
   pSpriteList = []
@@ -12,25 +10,29 @@ on construct me
   pFountainFrame = 1
   pFountainSkippedFrames = 0
   return(1)
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   return(removeUpdate(me.getID()))
+  exit
 end
 
-on prepare me 
+on prepare(me)
   return(receiveUpdate(me.getID()))
+  exit
 end
 
-on showprogram me, tMsg 
+on showprogram(me, tMsg)
   if voidp(tMsg) then
     return(0)
   end if
   tNum = tMsg.getAt(#show_command)
   return(me.changeDiscoStyle(tNum))
+  exit
 end
 
-on changeDiscoStyle me, tNr 
+on changeDiscoStyle(me, tNr)
   if tNr = void() then
     pDiscoStyle = pDiscoStyle + 1
   else
@@ -40,9 +42,10 @@ on changeDiscoStyle me, tNr
     pDiscoStyle = 1
   end if
   return(1)
+  exit
 end
 
-on update me 
+on update(me)
   if pFountainSkippedFrames < 5 then
     pFountainSkippedFrames = pFountainSkippedFrames + 1
   else
@@ -57,42 +60,42 @@ on update me
   if pSpriteList = [] then
     return(me.getSpriteList())
   end if
-  if pDiscoStyle = 1 then
+  if me = 1 then
     me.fullRotation(15, 15, 15, 15, 15, 15, void(), void())
   else
-    if pDiscoStyle = 2 then
+    if me = 2 then
       me.fullRotation(15, 15, 15, 15, 15, 15, void(), void(), point(100, -15))
       me.switchLights(#show1, 1)
     else
-      if pDiscoStyle = 3 then
+      if me = 3 then
         me.fullRotation(15, 15, 15, 15, 15, 15, void(), void(), point(100, -15))
         me.switchLights(#showAll, 0.7)
       else
-        if pDiscoStyle = 4 then
+        if me = 4 then
           me.fullRotation(0, 15, 15, 0, 15, 0, point(90, -10), point(80, -10), point(70, -10))
         else
-          if pDiscoStyle = 5 then
+          if me = 5 then
             me.fullRotation(15, 0, 0, 15, 0, 15, point(90, -10), point(80, -10), point(70, -10))
           else
-            if pDiscoStyle = 6 then
+            if me = 6 then
               me.fullRotation(15, 15, 15, 15, 15, 15, void(), point(60, -10), point(120, -10))
               me.switchLights(#show1, 2)
             else
-              if pDiscoStyle = 7 then
+              if me = 7 then
                 me.fullRotation(25, 25, 25, 25, 25, 25, point(100, -20), point(80, -20), point(60, -20))
                 me.switchLights(#show1, 3)
               else
-                if pDiscoStyle = 8 then
+                if me = 8 then
                   me.switchLights(#show1, 3)
                 else
-                  if pDiscoStyle = 9 then
+                  if me = 9 then
                     me.fullRotation(15, 15, 15, 15, 15, 15, void(), void(), point(100, -25))
                     me.switchLights(#blink, 1)
                   else
-                    if pDiscoStyle = 10 then
+                    if me = 10 then
                       me.switchLights(#showAll, 0.7)
                     else
-                      if pDiscoStyle = 11 then
+                      if me = 11 then
                         me.switchLights(#show1, 2)
                       end if
                     end if
@@ -105,9 +108,10 @@ on update me
       end if
     end if
   end if
+  exit
 end
 
-on fullRotation me, tGx, tGy, tYx, tYy, tRx, try, tGoffset, tYOffset, tRoffset 
+on fullRotation(me, tGx, tGy, tYx, tYy, tRx, try, tGoffset, tYOffset, tRoffset)
   if tGoffset = void() then
     tGoffset = point(0, 0)
   end if
@@ -117,22 +121,23 @@ on fullRotation me, tGx, tGy, tYx, tYy, tRx, try, tGoffset, tYOffset, tRoffset
   if tRoffset = void() then
     tRoffset = point(0, 0)
   end if
-  pSpriteList.getAt(3).loc = pOrigLocs.getAt(1) + tGoffset + point((sin(pSin) * tGx), (cos(pSin) * tGy))
-  pSpriteList.getAt(6).loc = pOrigLocs.getAt(2) + tYOffset + point((cos(pSin) * tYx), (sin(pSin) * tYy))
-  pSpriteList.getAt(9).loc = pOrigLocs.getAt(3) + tRoffset + point((sin(pSin) * tRx), (cos(pSin) * try))
-  tLocs = [pSpriteList.getAt(3).loc + point((pSpriteList.getAt(3).width / 2), 0), pSpriteList.getAt(6).loc + point((pSpriteList.getAt(6).width / 2), 0), pSpriteList.getAt(9).loc + point((pSpriteList.getAt(9).width / 2), 0)]
+  pSpriteList.getAt(3).loc = pOrigLocs.getAt(1) + tGoffset + point(sin(pSin) * tGx, cos(pSin) * tGy)
+  pSpriteList.getAt(6).loc = pOrigLocs.getAt(2) + tYOffset + point(cos(pSin) * tYx, sin(pSin) * tYy)
+  pSpriteList.getAt(9).loc = pOrigLocs.getAt(3) + tRoffset + point(sin(pSin) * tRx, cos(pSin) * try)
+  tLocs = [pSpriteList.getAt(3).loc + point(pSpriteList.getAt(3).width / 2, 0), pSpriteList.getAt(6).loc + point(pSpriteList.getAt(6).width / 2, 0), pSpriteList.getAt(9).loc + point(pSpriteList.getAt(9).width / 2, 0)]
   pSpriteList.getAt(2).rect = rect(pSpriteList.getAt(2).getProp(#rect, 1), pSpriteList.getAt(2).getProp(#rect, 2), tLocs.getAt(1).getAt(1), tLocs.getAt(1).getAt(2))
   pSpriteList.getAt(5).rect = rect(pSpriteList.getAt(5).getProp(#rect, 1), pSpriteList.getAt(5).getProp(#rect, 2), tLocs.getAt(2).getAt(1), tLocs.getAt(2).getAt(2))
   pSpriteList.getAt(8).rect = rect(pSpriteList.getAt(8).getProp(#rect, 1), pSpriteList.getAt(8).getProp(#rect, 2), tLocs.getAt(3).getAt(1), tLocs.getAt(3).getAt(2))
+  exit
 end
 
-on switchLights me, tStyle, tTime 
-  if the timer < pLightSwitchTimer + (tTime * 60) then
+on switchLights(me, tStyle, tTime)
+  if the timer < pLightSwitchTimer + tTime * 60 then
     return(1)
   end if
   pLightSwitchTimer = the timer
   tVisibleList = [pSpriteList.getAt(1).visible, pSpriteList.getAt(4).visible, pSpriteList.getAt(7).visible]
-  if tStyle = #show1 then
+  if me = #show1 then
     i = 1
     repeat while i <= tVisibleList.count
       if tVisibleList.getAt(i) then
@@ -140,7 +145,7 @@ on switchLights me, tStyle, tTime
         if tLightStart > 2 then
           tLightStart = 0
         end if
-        tLightStart = (tLightStart * 3)
+        tLightStart = tLightStart * 3
         j = 1
         repeat while j <= 9
           if j = tLightStart + 1 or j = tLightStart + 2 or j = tLightStart + 3 then
@@ -155,7 +160,7 @@ on switchLights me, tStyle, tTime
     end repeat
     exit repeat
   end if
-  if tStyle = #blink then
+  if me = #blink then
     tShow = not tVisibleList.getAt(1)
     j = 1
     repeat while j <= 9
@@ -164,16 +169,17 @@ on switchLights me, tStyle, tTime
     end repeat
     exit repeat
   end if
-  if tStyle = #showAll then
+  if me = #showAll then
     j = 1
     repeat while j <= 9
       pSpriteList.getAt(j).visible = 1
       j = 1 + j
     end repeat
   end if
+  exit
 end
 
-on getSpriteList me 
+on getSpriteList(me)
   pSpriteList = []
   tObj = getThread(#room).getInterface().getRoomVisualizer()
   if tObj = 0 then
@@ -208,9 +214,10 @@ on getSpriteList me
     i = 1 + i
   end repeat
   return(1)
+  exit
 end
 
-on updateFountain me 
+on updateFountain(me)
   if pSpriteList = [] then
     return(0)
   end if
@@ -228,4 +235,5 @@ on updateFountain me
   tBubbleSprite1.loc = pOrigLocs.getAt(4) + point(2 - random(3), 2 - random(3))
   tBubbleSprite2.loc = pOrigLocs.getAt(5) + point(2 - random(3), 2 - random(3))
   return(1)
+  exit
 end

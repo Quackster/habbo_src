@@ -1,6 +1,4 @@
-property pTextTemplate, pSongAuthor, pBurnDay, pBurnMonth, pBurnYear, pSongLength, pSongName
-
-on construct me 
+on construct(me)
   pSongID = 0
   pSongName = ""
   pSongLength = 0
@@ -10,15 +8,17 @@ on construct me
   pSongAuthor = ""
   pTextTemplate = getText("song_disk_text_template")
   callAncestor(#construct, [me])
-  return TRUE
+  return(1)
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   callAncestor(#deconstruct, [me])
-  return TRUE
+  return(1)
+  exit
 end
 
-on define me, tProps 
+on define(me, tProps)
   callAncestor(#define, [me], tProps)
   if not voidp(tProps.getAt(#props)) then
     tdata = tProps.getAt(#props)
@@ -44,13 +44,14 @@ on define me, tProps
       end if
     end if
   end if
-  return TRUE
+  return(1)
+  exit
 end
 
-on getInfo me 
+on getInfo(me)
   tInfo = callAncestor(#getInfo, [me])
   if ilk(tInfo) <> #propList then
-    tInfo = [:]
+    tInfo = []
   end if
   tCustom = pTextTemplate
   tTagList = ["%author%", "%day%", "%month%", "%year%", "%length%", "%name%"]
@@ -58,17 +59,20 @@ on getInfo me
   i = min(tTagList.count, tTextList.count)
   repeat while i >= 1
     tCustom = replaceChunks(tCustom, tTagList.getAt(i), tTextList.getAt(i))
-    i = (255 + i)
+    i = 255 + i
   end repeat
   tInfo.setAt(#custom, tCustom)
   return(tInfo)
+  exit
 end
 
-on select me 
+on select(me)
   return(callAncestor(#select, [me]))
-  return TRUE
+  return(1)
+  exit
 end
 
-on setState me, tNewState 
+on setState(me, tNewState)
   callAncestor(#setState, [me], tNewState)
+  exit
 end

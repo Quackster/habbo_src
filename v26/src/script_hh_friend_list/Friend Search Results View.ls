@@ -1,6 +1,4 @@
-property pContentList, pWriterIdPlain, pWriterIdBold, pItemWidth, pItemHeight
-
-on construct me 
+on construct(me)
   pSelectedFriendID = void()
   pContentList = [#friends:[], #habbos:[]]
   pContentList.sort()
@@ -16,21 +14,24 @@ on construct me
   pItemWidth = integer(getVariable("fr.list.panel.width"))
   me.renderListImage()
   pEmptyListText = ""
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   pListImg = void()
   removeWriter(pWriterIdPlain)
+  exit
 end
 
-on setListData me, tdata 
+on setListData(me, tdata)
   if ilk(tdata) = #propList then
     pContentList = tdata.duplicate()
     me.renderListImage()
   end if
+  exit
 end
 
-on renderFriendItem me, tFriendData 
+on renderFriendItem(me, tFriendData)
   pItemHeight = integer(getVariable("fr.search.item.height"))
   pItemWidth = integer(getVariable("fr.list.panel.width"))
   tNameWriter = getWriter(pWriterIdBold)
@@ -39,13 +40,14 @@ on renderFriendItem me, tFriendData
   tNameImg = tNameWriter.render(tName)
   tSourceRect = tNameImg.rect
   tNamePosH = integer(getVariable("fr.offline.name.offset.h"))
-  tNamePosV = (pItemHeight - tNameImg.height / 2)
+  tNamePosV = pItemHeight - tNameImg.height / 2
   tdestrect = tSourceRect + rect(tNamePosH, tNamePosV, tNamePosH, tNamePosV)
   tItemImg.copyPixels(tNameImg, tdestrect, tNameImg.rect)
   return(tItemImg.duplicate())
+  exit
 end
 
-on renderListImageFriends me, tContentList 
+on renderListImageFriends(me, tContentList)
   if not listp(tContentList) then
     return(image(1, 1, 32))
   end if
@@ -62,30 +64,30 @@ on renderListImageFriends me, tContentList
   tImIconImg = getMember("friends_im_icon").image
   tImIconRect = tImIconImg.rect
   tImIconPosH = integer(getVariable("fr.search.im.offset.h"))
-  tImIconPosV = (pItemHeight - tImIconImg.height / 2)
+  tImIconPosV = pItemHeight - tImIconImg.height / 2
   tMailIconImg = getMember("friends_mail_list_icon").image
   tMailIconRect = tMailIconImg.rect
   tMailIconPosH = integer(getVariable("fr.search.mail.offset.h"))
-  tMailIconPosV = (pItemHeight - tMailIconImg.height / 2)
+  tMailIconPosV = pItemHeight - tMailIconImg.height / 2
   tFollowIconImg = getMember("friends_follow_icon").image
   tFollowIconRect = tFollowIconImg.rect
   tFollowIconPosH = integer(getVariable("fr.search.follow.offset.h"))
-  tFollowIconPosV = (pItemHeight - tFollowIconImg.height / 2)
-  tImage = image(pItemWidth, (pItemHeight * tContentList.count), 32)
+  tFollowIconPosV = pItemHeight - tFollowIconImg.height / 2
+  tImage = image(pItemWidth, pItemHeight * tContentList.count, 32)
   tCurrentPosV = 0
   tNameWriter = getWriter(pWriterIdPlain)
-  repeat while tContentList <= undefined
+  repeat while me <= undefined
     tFriend = getAt(undefined, tContentList)
     tName = tFriend.getAt(#name)
     tParsedFigure = tFigureParser.parseFigure(tFriend.getAt(#figure), tFriend.getAt(#sex), "user")
     tHeadImage = tPreviewObj.getHumanPartImg(tPartList, tParsedFigure, 2, "sh")
     tSourceRect = tHeadImage.rect
-    tFacePosV = tCurrentPosV + (pItemHeight - tHeadImage.height / 2)
+    tFacePosV = tCurrentPosV + pItemHeight - tHeadImage.height / 2
     tdestrect = tSourceRect + rect(tFacePosH, tFacePosV, tFacePosH, tFacePosV)
     tImage.copyPixels(tHeadImage, tdestrect, tSourceRect, [#ink:36])
     tNameImage = tNameWriter.render(tName)
     tSourceRect = tNameImage.rect
-    tNamePosV = tCurrentPosV + (pItemHeight - tNameImage.height / 2)
+    tNamePosV = tCurrentPosV + pItemHeight - tNameImage.height / 2
     tdestrect = tSourceRect + rect(tNamePosH, tNamePosV, tNamePosH, tNamePosV)
     tImage.copyPixels(tNameImage, tdestrect, tNameImage.rect)
     if tFriend.getAt(#online) then
@@ -102,9 +104,10 @@ on renderListImageFriends me, tContentList
     tCurrentPosV = tCurrentPosV + pItemHeight
   end repeat
   return(tImage)
+  exit
 end
 
-on renderListImageUsers me, tContentList 
+on renderListImageUsers(me, tContentList)
   if not listp(tContentList) then
     return(image(1, 1, 32))
   end if
@@ -120,17 +123,17 @@ on renderListImageUsers me, tContentList
   tAddFriendIconImg = getMember("friends_addfriend_icon").image
   tAddFriendIconRect = tAddFriendIconImg.rect
   tAddFriendIconPosH = integer(getVariable("fr.search.addfriend.offset.h"))
-  tAddFriendIconPosV = (pItemHeight - tAddFriendIconImg.height / 2)
-  tImage = image(pItemWidth, (pItemHeight * tContentList.count), 32)
+  tAddFriendIconPosV = pItemHeight - tAddFriendIconImg.height / 2
+  tImage = image(pItemWidth, pItemHeight * tContentList.count, 32)
   tCurrentPosV = 0
   tNameWriter = getWriter(pWriterIdPlain)
   tOwnName = getObject(#session).GET(#userName)
-  repeat while tContentList <= undefined
+  repeat while me <= undefined
     tFriend = getAt(undefined, tContentList)
     tName = tFriend.getAt(#name)
     tNameImage = tNameWriter.render(tName)
     tSourceRect = tNameImage.rect
-    tNamePosV = tCurrentPosV + (pItemHeight - tNameImage.height / 2)
+    tNamePosV = tCurrentPosV + pItemHeight - tNameImage.height / 2
     tdestrect = tSourceRect + rect(tNamePosH, tNamePosV, tNamePosH, tNamePosV)
     tImage.copyPixels(tNameImage, tdestrect, tNameImage.rect)
     if not tFriend.getaProp(#fr_pending) then
@@ -142,9 +145,10 @@ on renderListImageUsers me, tContentList
     tCurrentPosV = tCurrentPosV + pItemHeight
   end repeat
   return(tImage)
+  exit
 end
 
-on renderListImage me 
+on renderListImage(me)
   tImage1 = me.renderListImageFriends(pContentList.getAt(#friends))
   tImage2 = me.renderListImageUsers(pContentList.getAt(#habbos))
   if pContentList.getAt(#friends).count = 0 then
@@ -161,9 +165,10 @@ on renderListImage me
   tHabbosResultLine = me.renderFriendItem([#name:tText])
   tImage = me.concatenateImages([tFriendsResultLine, tImage1, tHabbosResultLine, tImage2])
   pListImg = tImage.duplicate()
+  exit
 end
 
-on renderBackgroundImage me 
+on renderBackgroundImage(me)
   if ilk(pContentList) <> #propList then
     return(image(1, 1, 32))
   end if
@@ -174,29 +179,31 @@ on renderBackgroundImage me
   tDarkBg = rgb(string(getVariable("fr.offline.bg.dark")))
   pItemHeight = integer(getVariable("fr.offline.item.height"))
   pItemWidth = integer(getVariable("fr.list.panel.width"))
-  tImage = image(pItemWidth, (tCount * pItemHeight), 32)
+  tImage = image(pItemWidth, tCount * pItemHeight, 32)
   tCurrentPosV = 0
   tIndex = 1
-  repeat while tIndex <= (tCount / 2) + 1
+  repeat while tIndex <= tCount / 2 + 1
     tImage.fill(0, tCurrentPosV, pItemWidth, tCurrentPosV + pItemHeight, tDarkBg)
-    tCurrentPosV = tCurrentPosV + (pItemHeight * 2)
+    tCurrentPosV = tCurrentPosV + pItemHeight * 2
     tIndex = 1 + tIndex
   end repeat
   return(tImage)
+  exit
 end
 
-on hideAddFriendLink me, tIndex, tCurrentPosV 
+on hideAddFriendLink(me, tIndex, tCurrentPosV)
   tAddFriendIconImg = getMember("friends_addfriend_icon").image
   tAddFriendIconRect = tAddFriendIconImg.rect
   tAddFriendIconPosH = integer(getVariable("fr.search.addfriend.offset.h"))
-  tAddFriendIconPosV = (pItemHeight - tAddFriendIconImg.height / 2)
+  tAddFriendIconPosV = pItemHeight - tAddFriendIconImg.height / 2
   tdestrect = tAddFriendIconRect + rect(tAddFriendIconPosH, tCurrentPosV + tAddFriendIconPosV, tAddFriendIconPosH, tCurrentPosV + tAddFriendIconPosV)
   me.fill(tdestrect, rgb(255, 255, 255))
+  exit
 end
 
-on relayEvent me, tEvent, tLocX, tLocY 
-  tListIndex = (tLocY / me.pItemHeight) + 1
-  tEventResult = [:]
+on relayEvent(me, tEvent, tLocX, tLocY)
+  tListIndex = tLocY / me.pItemHeight + 1
+  tEventResult = []
   tEventResult.setAt(#Event, tEvent)
   if pContentList.count = 0 then
     tEventResult.setAt(#cursor, "cursor.arrow")
@@ -222,7 +229,7 @@ on relayEvent me, tEvent, tLocX, tLocY
           tEventResult.setAt(#cursor, "cursor.finger")
         end if
       end if
-      tEventResult.setAt(#item_y, (tListIndex - 1 * me.pItemHeight))
+      tEventResult.setAt(#item_y, tListIndex - 1 * me.pItemHeight)
       tEventResult.setAt(#item_height, me.pItemHeight)
       return(tEventResult)
     end if
@@ -259,10 +266,10 @@ on relayEvent me, tEvent, tLocX, tLocY
           end if
           tEventResult.setAt(#element, #addFriend)
           tEventResult.setAt(#cursor, "cursor.finger")
-          tEventResult.setAt(#item_y, (tListIndex - 1 * me.pItemHeight))
+          tEventResult.setAt(#item_y, tListIndex - 1 * me.pItemHeight)
           tEventResult.setAt(#item_height, me.pItemHeight)
         end if
-        tEventResult.setAt(#item_y, (tListIndex - 1 * me.pItemHeight))
+        tEventResult.setAt(#item_y, tListIndex - 1 * me.pItemHeight)
         tEventResult.setAt(#item_height, me.pItemHeight)
         return(tEventResult)
       end if
@@ -272,26 +279,28 @@ on relayEvent me, tEvent, tLocX, tLocY
       if tLocX > integer(getVariable("fr.search.addfriend.offset.h")) then
         tEventResult.setAt(#element, #addFriend)
         tEventResult.setAt(#cursor, "cursor.finger")
-        me.hideAddFriendLink(tListIndex, (tListIndex - 1 * me.pItemHeight))
+        me.hideAddFriendLink(tListIndex, tListIndex - 1 * me.pItemHeight)
         tEventResult.setAt(#update, 1)
       end if
     end if
   end if
   return(tEventResult)
+  exit
 end
 
-on concatenateImages me, tImageList 
+on concatenateImages(me, tImageList)
   tHeight = 0
-  repeat while tImageList <= undefined
+  repeat while me <= undefined
     tImage = getAt(undefined, tImageList)
     tHeight = tHeight + tImage.height
   end repeat
   tImageOut = image(pItemWidth, tHeight, 32)
   tOffRect = rect(0, 0, 0, 0)
-  repeat while tImageList <= undefined
+  repeat while me <= undefined
     tImage = getAt(undefined, tImageList)
     tImageOut.copyPixels(tImage, tImage.rect + tOffRect, tImage.rect)
     tOffRect = tOffRect + rect(0, tImage.height, 0, tImage.height)
   end repeat
   return(tImageOut)
+  exit
 end

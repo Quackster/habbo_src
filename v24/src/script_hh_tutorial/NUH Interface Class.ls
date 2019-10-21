@@ -1,7 +1,5 @@
-property pBubbles, pInvitationWindowID, pInvitationStatusWindowID, pInvitationStatusTimeoutID, pSearchAnimFrame
-
-on construct me 
-  pBubbles = [:]
+on construct(me)
+  pBubbles = []
   pUpdateOwnUserHelp = 0
   pInvitationWindowID = #NUH_invite_window_ID
   pInvitationStatusWindowID = #NUH_invite_status_window_ID
@@ -9,27 +7,30 @@ on construct me
   pSearchAnimFrame = 1
   registerMessage(#gamesystem_constructed, me.getID(), #hideInvitationStatusWindow)
   return(1)
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   me.removeAll()
   me.hideInvitationStatusWindow()
   unregisterMessage(#gamesystem_constructed, me.getID())
   return(1)
+  exit
 end
 
-on removeAll me 
+on removeAll(me)
   tItemNo = 1
   repeat while tItemNo <= pBubbles.count
     tBubble = pBubbles.getAt(tItemNo)
     tBubble.deconstruct()
     tItemNo = 1 + tItemNo
   end repeat
-  pBubbles = [:]
+  pBubbles = []
   me.hideInvitationWindow()
+  exit
 end
 
-on showOwnUserHelp me 
+on showOwnUserHelp(me)
   tRoomComponent = getThread("room").getComponent()
   tOwnRoomId = tRoomComponent.getUsersRoomId(getObject(#session).GET("user_name"))
   tHumanObj = tRoomComponent.getUserObject(tOwnRoomId)
@@ -56,9 +57,10 @@ on showOwnUserHelp me
     tPreviousBubble.deconstruct()
   end if
   pBubbles.setAt(tHelpId, tBubble)
+  exit
 end
 
-on showGenericHelp me, tHelpId, tTargetLoc, tPointerIndex 
+on showGenericHelp(me, tHelpId, tTargetLoc, tPointerIndex)
   tRoomID = getThread(#room).getComponent().getRoomID()
   if tRoomID = "" or tRoomID = #game or tRoomID = "game" then
     return(0)
@@ -98,16 +100,18 @@ on showGenericHelp me, tHelpId, tTargetLoc, tPointerIndex
     tPreviousBubble.deconstruct()
   end if
   pBubbles.setAt(tHelpId, tBubble)
+  exit
 end
 
-on removeHelpBubble me, tHelpItemName 
+on removeHelpBubble(me, tHelpItemName)
   tBubble = pBubbles.getaProp(tHelpItemName)
   if objectp(tBubble) then
     tBubble.deconstruct()
   end if
+  exit
 end
 
-on showInviteWindow me 
+on showInviteWindow(me)
   me.hideInvitationWindow()
   createWindow(pInvitationWindowID, "nuh_invitation.window")
   tWindow = getWindow(pInvitationWindowID)
@@ -119,26 +123,28 @@ on showInviteWindow me
   tWindow.getElement("nuh_invitation_text").setText(tText)
   tWindow.moveTo(tLocX, tLocY)
   tWindow.registerProcedure(#eventProcInvitation, me.getID(), #mouseUp)
+  exit
 end
 
-on hideInvitationWindow me 
+on hideInvitationWindow(me)
   if windowExists(pInvitationWindowID) then
     removeWindow(pInvitationWindowID)
   end if
+  exit
 end
 
-on showInvitationStatusWindow me, tstate 
+on showInvitationStatusWindow(me, tstate)
   me.hideInvitationStatusWindow()
-  if tstate = #Search then
+  if me = #Search then
     tLayout = "nuh_invitation_status.window"
   else
-    if tstate = #room_left then
+    if me = #room_left then
       tLayout = "nuh_room_left.window"
     else
-      if tstate = #success then
+      if me = #success then
         tLayout = "nuh_invitation_success.window"
       else
-        if tstate = #failure then
+        if me = #failure then
           tLayout = "nuh_invitation_failure.window"
         else
           return(0)
@@ -153,25 +159,27 @@ on showInvitationStatusWindow me, tstate
   if timeoutExists(pInvitationStatusTimeoutID) then
     removeTimeout(pInvitationStatusTimeoutID)
   end if
-  if tstate = #Search then
+  if me = #Search then
     createTimeout(pInvitationStatusTimeoutID, 250, #updateInvitationStatusWindow, me.getID(), void(), 0)
   else
-    if tstate = #success then
+    if me = #success then
       createTimeout(pInvitationStatusTimeoutID, 3000, #hideInvitationStatusWindow, me.getID(), void(), 1)
     end if
   end if
+  exit
 end
 
-on hideInvitationStatusWindow me 
+on hideInvitationStatusWindow(me)
   if windowExists(pInvitationStatusWindowID) then
     removeWindow(pInvitationStatusWindowID)
   end if
   if timeoutExists(pInvitationStatusTimeoutID) then
     removeTimeout(pInvitationStatusTimeoutID)
   end if
+  exit
 end
 
-on updateInvitationStatusWindow me 
+on updateInvitationStatusWindow(me)
   if not windowExists(pInvitationStatusWindowID) then
     return(0)
   end if
@@ -193,23 +201,25 @@ on updateInvitationStatusWindow me
     tElem = tWindow.getElement("nuh_invitation_status_counter")
     tElem.setText(tText)
   end if
+  exit
 end
 
-on eventProcInvitation me, tEvent, tSprID 
-  if tSprID = "nuh_invitation_yes" then
+on eventProcInvitation(me, tEvent, tSprID)
+  if me = "nuh_invitation_yes" then
     me.getComponent().closeInvitation(#yes)
   else
-    if tSprID = "nuh_invitation_no" then
+    if me = "nuh_invitation_no" then
       me.getComponent().closeInvitation(#no)
     else
-      if tSprID = "nuh_invitation_never" then
+      if me = "nuh_invitation_never" then
         me.getComponent().closeInvitation(#never)
       end if
     end if
   end if
+  exit
 end
 
-on eventProcInvitationStatus me, tEvent, tSprID 
+on eventProcInvitationStatus(me, tEvent, tSprID)
   if tSprID contains "nuh_invitation_option" then
     tOption = tSprID.getProp(#char, tSprID.length)
     tVarName = "NUH.invitation.option." & tOption
@@ -220,18 +230,19 @@ on eventProcInvitationStatus me, tEvent, tSprID
     end if
     return(1)
   end if
-  if tSprID <> "nuh_invitation_status_cancel" then
-    if tSprID = "nuh_invitation_status_close" then
+  if me <> "nuh_invitation_status_cancel" then
+    if me = "nuh_invitation_status_close" then
       me.getComponent().cancelInvitations()
       me.hideInvitationStatusWindow()
     else
-      if tSprID = "nuh_room_left_back" then
+      if me = "nuh_room_left_back" then
         me.getComponent().goToInvitationRoom()
       else
-        if tSprID = "close_button" then
+        if me = "close_button" then
           me.hideInvitationStatusWindow()
         end if
       end if
     end if
+    exit
   end if
 end

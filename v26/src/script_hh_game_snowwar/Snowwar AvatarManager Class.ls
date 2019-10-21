@@ -1,38 +1,38 @@
-property pRoomComponentObj, pNumTeams, pHiliterObj
-
-on construct me 
+on construct(me)
   pRoomComponentObj = getObject(#room_component)
   if pRoomComponentObj = 0 then
     return(error(me, "Avatar manager failed to initialize", #construct))
   end if
   registerMessage(#create_user, me.getID(), #setAvatarEventListener)
   return(1)
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   me.displayAvatarInfo(0)
   unregisterMessage(#create_user, me.getID())
   getObject(#session).Remove("game_number_of_teams")
   return(1)
+  exit
 end
 
-on Refresh me, tTopic, tdata 
-  if tTopic = #set_number_of_teams then
+on Refresh(me, tTopic, tdata)
+  if me = #set_number_of_teams then
     pNumTeams = tdata
     getObject(#session).set("game_number_of_teams", tdata)
   else
-    if tTopic = #snowwar_event_2 then
+    if me = #snowwar_event_2 then
       me.getGameSystem().executeGameObjectEvent(tdata.getAt(#id), #set_target, tdata)
     else
-      if tTopic = #snowwar_event_3 then
+      if me = #snowwar_event_3 then
         me.getGameSystem().executeGameObjectEvent(tdata.getAt(#id), #start_throw_snowball, tdata)
         me.getGameSystem().executeGameObjectEvent(tdata.getAt(#id), #substract_ball_count)
       else
-        if tTopic = #snowwar_event_4 then
+        if me = #snowwar_event_4 then
           me.getGameSystem().executeGameObjectEvent(tdata.getAt(#id), #start_throw_snowball, tdata)
           me.getGameSystem().executeGameObjectEvent(tdata.getAt(#id), #substract_ball_count)
         else
-          if tTopic = #snowwar_event_5 then
+          if me = #snowwar_event_5 then
             playSound("LS-hit-" & random(2))
             tGameSystem = me.getGameSystem()
             tGameSystem.executeGameObjectEvent(tdata.getAt(#id), #substract_hit_points)
@@ -49,10 +49,10 @@ on Refresh me, tTopic, tdata
               tGameSystem.executeGameObjectEvent(string(tdata.getAt(#int_thrower_id)), #award_hit_score)
             end if
           else
-            if tTopic = #snowwar_event_7 then
+            if me = #snowwar_event_7 then
               me.getGameSystem().executeGameObjectEvent(tdata.getAt(#id), #start_create_snowball)
             else
-              if tTopic = #snowwar_event_9 then
+              if me = #snowwar_event_9 then
                 tGameSystem = me.getGameSystem()
                 tHitDirection8 = tGameSystem.getGeometry().direction360to8(tdata.getAt(#hit_direction))
                 playSound("LS-hit-3")
@@ -80,9 +80,10 @@ on Refresh me, tTopic, tdata
     end if
   end if
   return(1)
+  exit
 end
 
-on setAvatarEventListener me, tName, tID 
+on setAvatarEventListener(me, tName, tID)
   tRoom = getObject(#room_component)
   if tRoom = 0 then
     return(0)
@@ -93,9 +94,10 @@ on setAvatarEventListener me, tName, tID
   end if
   call(#setAvatarEventListener, tObject, me.getID())
   return(1)
+  exit
 end
 
-on eventProcSnowwarUserRollOver me, tEvent, tID, tProp 
+on eventProcSnowwarUserRollOver(me, tEvent, tID, tProp)
   tRoom = getObject(#room_component)
   if tRoom = 0 then
     return(0)
@@ -130,9 +132,10 @@ on eventProcSnowwarUserRollOver me, tEvent, tID, tProp
     setcursor(0)
     return(me.displayAvatarInfo(0))
   end if
+  exit
 end
 
-on displayAvatarInfo me, tName, tScore, tTeamId, tloc, tOwnPlayer 
+on displayAvatarInfo(me, tName, tScore, tTeamId, tloc, tOwnPlayer)
   if stringp(tName) then
     if pHiliterObj <> void() then
       return(1)
@@ -149,4 +152,5 @@ on displayAvatarInfo me, tName, tScore, tTeamId, tloc, tOwnPlayer
     pHiliterObj = void()
   end if
   return(1)
+  exit
 end

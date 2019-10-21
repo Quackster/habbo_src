@@ -1,8 +1,6 @@
-property pDirection, pSprite, pWaitTime, pOffset, pTurnPnt, pType, pAnimFrame
-
-on define me, tsprite, tCount 
+on define(me, tsprite, tCount)
   tDirection = #left
-  if (tCount mod 2) = 1 then
+  if tCount mod 2 = 1 then
     tDirection = #right
   end if
   pSprite = tsprite
@@ -13,9 +11,10 @@ on define me, tsprite, tCount
   pAnimFrame = 1
   me.reset()
   return(1)
+  exit
 end
 
-on reset me 
+on reset(me)
   if pDirection = #left then
     if random(2) = 1 then
       tmodel = "car2"
@@ -47,9 +46,10 @@ on reset me
     pSprite.backColor = 0
   end if
   pWaitTime = random(150)
+  exit
 end
 
-on update me 
+on update(me)
   if pWaitTime > 0 then
     pWaitTime = pWaitTime - 1
     return(0)
@@ -65,7 +65,7 @@ on update me
     if pAnimFrame > 9 then
       pAnimFrame = 2
     end if
-    tFrameNum = (pAnimFrame / 2)
+    tFrameNum = pAnimFrame / 2
     pSprite.castNum = getmemnum("crt" & tFrameNum)
     pSprite.width = member.width
     pSprite.height = member.height
@@ -73,4 +73,5 @@ on update me
   if pSprite.locV < 283 or pSprite.locV < 300 and pOffset.getAt(2) < 0 or pSprite.locV > 499 then
     return(me.reset())
   end if
+  exit
 end

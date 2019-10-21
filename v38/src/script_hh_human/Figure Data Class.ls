@@ -1,23 +1,24 @@
-property pColorList, pPaletteList, pSetList, pSetTypeList
-
-on construct me 
+on construct(me)
   me.reset()
   return(1)
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   me.reset()
   return(1)
+  exit
 end
 
-on reset me 
-  pPaletteList = [:]
-  pColorList = [:]
-  pSetList = [:]
-  pSetTypeList = [:]
+on reset(me)
+  pPaletteList = []
+  pColorList = []
+  pSetList = []
+  pSetTypeList = []
+  exit
 end
 
-on parseData me, tXMLData 
+on parseData(me, tXMLData)
   me.reset()
   tParserObject = new(xtra("xmlparser"))
   errCode = tParserObject.parseString(tXMLData)
@@ -53,17 +54,19 @@ on parseData me, tXMLData
   end if
   return(0)
   return(1)
+  exit
 end
 
-on getColor me, tColorId 
+on getColor(me, tColorId)
   tColor = pColorList.getAt(string(tColorId))
   if voidp(tColor) then
     return(0)
   end if
   return(tColor)
+  exit
 end
 
-on getPaletteColor me, tPaletteID, tColorIndex 
+on getPaletteColor(me, tPaletteID, tColorIndex)
   tPalette = pPaletteList.getAt(string(tPaletteID))
   if voidp(tPalette) then
     return(0)
@@ -77,9 +80,10 @@ on getPaletteColor me, tPaletteID, tColorIndex
     return(0)
   end if
   return(tColor)
+  exit
 end
 
-on getPaletteColorID me, tPaletteID, tColorIndex 
+on getPaletteColorID(me, tPaletteID, tColorIndex)
   tPalette = pPaletteList.getAt(string(tPaletteID))
   if voidp(tPalette) then
     return(0)
@@ -89,9 +93,10 @@ on getPaletteColorID me, tPaletteID, tColorIndex
     return(0)
   end if
   return(tPalette.getPropAt(tColorIndex))
+  exit
 end
 
-on getSetColor me, tSetID, tColorIndex 
+on getSetColor(me, tSetID, tColorIndex)
   tSetType = me.getSetType(tSetID)
   if tSetType = 0 then
     return(0)
@@ -102,9 +107,10 @@ on getSetColor me, tSetID, tColorIndex
   end if
   tColor = me.getPaletteColor(tPaletteID, tColorIndex)
   return(tColor)
+  exit
 end
 
-on getSetColorID me, tSetID, tColorIndex 
+on getSetColorID(me, tSetID, tColorIndex)
   tSetType = me.getSetType(tSetID)
   if tSetType = 0 then
     return(0)
@@ -114,9 +120,10 @@ on getSetColorID me, tSetID, tColorIndex
     return(0)
   end if
   return(me.getPaletteColorID(tPaletteID, tColorIndex))
+  exit
 end
 
-on getSetType me, tSetID 
+on getSetType(me, tSetID)
   tSet = me.getSet(tSetID)
   if tSet = 0 then
     return(0)
@@ -125,17 +132,19 @@ on getSetType me, tSetID
     return(0)
   end if
   return(tSet.getAt("settype"))
+  exit
 end
 
-on getSetPartCount me, tSetID 
+on getSetPartCount(me, tSetID)
   tParts = me.getSetParts(tSetID)
   if tParts = 0 then
     return(0)
   end if
   return(tParts.count)
+  exit
 end
 
-on getSetPartData me, tSetID, tPartIndex 
+on getSetPartData(me, tSetID, tPartIndex)
   tParts = me.getSetParts(tSetID)
   if tParts = 0 then
     return(0)
@@ -144,14 +153,15 @@ on getSetPartData me, tSetID, tPartIndex
     return(0)
   end if
   tPartData = tParts.getAt(tPartIndex)
-  tdata = [:]
+  tdata = []
   tdata.setAt("id", tPartData.getAt("id"))
   tdata.setAt("type", tPartData.getAt("type"))
   tdata.setAt("colorable", tPartData.getAt("colorable"))
   return(tdata)
+  exit
 end
 
-on getSetHiddenLayers me, tSetID 
+on getSetHiddenLayers(me, tSetID)
   tSet = me.getSet(tSetID)
   if tSet = 0 then
     return(0)
@@ -160,25 +170,28 @@ on getSetHiddenLayers me, tSetID
     return(0)
   end if
   return(tSet.getAt("hiddenlayers").duplicate())
+  exit
 end
 
-on getSet me, tSetID 
+on getSet(me, tSetID)
   tSet = pSetList.getAt(string(tSetID))
   if ilk(tSet) <> #propList then
     return(0)
   end if
   return(tSet)
+  exit
 end
 
-on addSet me, tSetID, tSetData 
+on addSet(me, tSetID, tSetData)
   if pSetList.findPos(tSetID) then
     return(error(me, "multiple set elements with id" && tSetID && "in figure XML!", #addSet, #major))
   end if
   pSetList.setAt(tSetID, tSetData)
   return(1)
+  exit
 end
 
-on getSetTypePaletteID me, tSetType 
+on getSetTypePaletteID(me, tSetType)
   tSetType = pSetTypeList.getAt(string(tSetType))
   if ilk(tSetType) <> #propList then
     return(0)
@@ -187,9 +200,10 @@ on getSetTypePaletteID me, tSetType
     return(0)
   end if
   return(tSetType.getAt("paletteid"))
+  exit
 end
 
-on getSetParts me, tSetID 
+on getSetParts(me, tSetID)
   tSet = me.getSet(tSetID)
   if tSet = 0 then
     return(0)
@@ -198,9 +212,10 @@ on getSetParts me, tSetID
     return(0)
   end if
   return(tSet.getAt("parts"))
+  exit
 end
 
-on parseColors me, tElementColors 
+on parseColors(me, tElementColors)
   i = 1
   repeat while i <= tElementColors.count(#child)
     tElement = tElementColors.getProp(#child, i)
@@ -216,7 +231,7 @@ on parseColors me, tElementColors
       if voidp(tID) then
         return(error(me, "missing id attribute for palette element in figure XML!", #parseColors, #major))
       end if
-      tColorList = [:]
+      tColorList = []
       j = 1
       repeat while j <= tElement.count(#child)
         tElementColor = tElement.getProp(#child, j)
@@ -257,9 +272,10 @@ on parseColors me, tElementColors
     i = 1 + i
   end repeat
   return(1)
+  exit
 end
 
-on parseSets me, tElementSets 
+on parseSets(me, tElementSets)
   i = 1
   repeat while i <= tElementSets.count(#child)
     tElement = tElementSets.getProp(#child, i)
@@ -297,9 +313,10 @@ on parseSets me, tElementSets
     i = 1 + i
   end repeat
   return(1)
+  exit
 end
 
-on parseSet me, tElementSet, tSetType 
+on parseSet(me, tElementSet, tSetType)
   tAttributes = ["id":void(), "colorable":void()]
   j = 1
   repeat while j <= tElementSet.count(#attributeName)
@@ -368,4 +385,5 @@ on parseSet me, tElementSet, tSetType
   tSetData = ["settype":tSetType, "parts":tPartData, "hiddenlayers":tHiddenLayers]
   return(me.addSet(tAttributes.getAt("id"), tSetData))
   return(1)
+  exit
 end

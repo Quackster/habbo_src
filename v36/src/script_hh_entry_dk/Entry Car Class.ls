@@ -1,7 +1,5 @@
-property pSprite, pmodel, pDirection, pDelayCounter, pOffset, pTurnPnt
-
-on define me, tsprite, tCounter 
-  if (tCounter mod 2) = 1 then
+on define(me, tsprite, tCounter)
+  if tCounter mod 2 = 1 then
     tDirection = #left
   else
     tDirection = #right
@@ -11,9 +9,10 @@ on define me, tsprite, tCounter
   pDirection = tDirection
   me.reset()
   return(1)
+  exit
 end
 
-on reset me 
+on reset(me)
   pDelayCounter = random(200)
   pmodel = ["car1", "car2", "bus1"].getAt(random(3))
   pSprite.castNum = getmemnum(pmodel & "_1")
@@ -31,9 +30,10 @@ on reset me
   pSprite.height = member.height
   pSprite.ink = 41
   pSprite.backColor = random(150) + 20
+  exit
 end
 
-on update me 
+on update(me)
   if pDelayCounter > 0 then
     pDelayCounter = pDelayCounter - 1
     return(1)
@@ -46,4 +46,5 @@ on update me
   if pSprite.locV > 510 then
     return(me.reset())
   end if
+  exit
 end

@@ -1,6 +1,4 @@
-property pSprite, pCurCount, pAnimFrm, pLocation, pTime
-
-on construct me 
+on construct(me)
   pCurCount = 3
   pAnimFrm = 1
   tlocation = getVariableValue("paalu.counter.loc", [370, 320])
@@ -10,19 +8,21 @@ on construct me
   pSprite.ink = 8
   pSprite.visible = 0
   pTime = 0
-  return TRUE
+  return(1)
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   removeUpdate(me.getID())
   if not voidp(pSprite) then
     releaseSprite(pSprite.spriteNum)
   end if
   pSprite = void()
-  return TRUE
+  return(1)
+  exit
 end
 
-on start me 
+on start(me)
   pCurCount = 3
   pAnimFrm = 1
   pSprite.member = member(getmemnum("startcount" && pCurCount && pAnimFrm))
@@ -31,13 +31,14 @@ on start me
   pSprite.visible = 1
   pTime = the milliSeconds
   receiveUpdate(me.getID())
+  exit
 end
 
-on update me 
-  if (the milliSeconds - pTime) >= 1000 then
-    pCurCount = (pCurCount - 1)
+on update(me)
+  if the milliSeconds - pTime >= 1000 then
+    pCurCount = pCurCount - 1
     pAnimFrm = 1
-    if (pCurCount = 0) then
+    if pCurCount = 0 then
       removeUpdate(me.getID())
       pSprite.visible = 0
       pCurCount = 3
@@ -53,5 +54,6 @@ on update me
       pSprite.member = member(getmemnum("startcount" && pCurCount && pAnimFrm))
     end if
   end if
-  pAnimFrm = (pAnimFrm + 1)
+  pAnimFrm = pAnimFrm + 1
+  exit
 end

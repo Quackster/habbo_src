@@ -1,6 +1,4 @@
-property pMaxFrames, pDelay, pFrame, pItem, pData
-
-on prepare me, tdata 
+on prepare(me, tdata)
   if me.count(#pSprList) < 1 then
     return(0)
   end if
@@ -17,18 +15,20 @@ on prepare me, tdata
   me.setAnimMembersToFrame()
   pTimer = 1
   return(1)
+  exit
 end
 
-on update me 
+on update(me)
   pDelay = pDelay + 1
   if pDelay > 4 then
-    pFrame = (pFrame + 1 mod pMaxFrames)
+    pFrame = pFrame + 1 mod pMaxFrames
     me.setAnimMembersToFrame(pFrame)
     pDelay = 0
   end if
+  exit
 end
 
-on setAnimMembersToFrame me, tFrame 
+on setAnimMembersToFrame(me, tFrame)
   if me.count(#pSprList) < 1 then
     return(0)
   end if
@@ -40,4 +40,5 @@ on setAnimMembersToFrame me, tFrame
     me.getPropRef(#pSprList, 1).width = tmember.width
     me.getPropRef(#pSprList, 1).height = tmember.height
   end if
+  exit
 end

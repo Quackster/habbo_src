@@ -1,18 +1,18 @@
-property pSprite, pWaitTrainTimer, pOffset
-
-on define me, tsprite 
+on define(me, tsprite)
   pSprite = tsprite
   me.reset()
+  exit
 end
 
-on reset me 
+on reset(me)
   tTrainSpeed = random(30) + 15
   pSprite.loc = point(743, 443)
-  pOffset = ([-2, -1] * random(2))
+  pOffset = [-2, -1] * random(2)
   pWaitTrainTimer = random(250)
+  exit
 end
 
-on update me 
+on update(me)
   if pWaitTrainTimer > 0 then
     pWaitTrainTimer = pWaitTrainTimer - 1
     return(0)
@@ -22,4 +22,5 @@ on update me
   else
     me.reset()
   end if
+  exit
 end

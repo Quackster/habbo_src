@@ -1,12 +1,11 @@
-property pUnicodeValues, plocalevalues, plocaleformat
-
-on construct me 
-  pUnicodeValues = [:]
-  plocalevalues = [:]
+on construct(me)
+  pUnicodeValues = []
+  plocalevalues = []
   plocaleformat = ""
+  exit
 end
 
-on defineLocale me, tlocaleformat 
+on defineLocale(me, tlocaleformat)
   if tlocaleformat <> "sjis" and tlocaleformat <> "windows-1251" then
     return(error(me, "Invalid locale format:" && tlocaleformat, #defineLocale, #major))
   end if
@@ -14,9 +13,10 @@ on defineLocale me, tlocaleformat
   tResult = me.createcharacterconversionarrays(tlocaleformat)
   pUnicodeValues = tResult.getAt("unicode_values")
   plocalevalues = tResult.getAt("locale_values")
+  exit
 end
 
-on convertToUnicode me, tStr 
+on convertToUnicode(me, tStr)
   if pUnicodeValues.count = 0 or plocalevalues.count = 0 then
     return(0)
   end if
@@ -41,9 +41,10 @@ on convertToUnicode me, tStr
     i = 1 + i
   end repeat
   return(tUnicodeData)
+  exit
 end
 
-on convertFromUnicode me, tUnicodeData 
+on convertFromUnicode(me, tUnicodeData)
   if pUnicodeValues.count = 0 or plocalevalues.count = 0 then
     return(0)
   end if
@@ -67,9 +68,10 @@ on convertFromUnicode me, tUnicodeData
     i = 1 + i
   end repeat
   return(tResult)
+  exit
 end
 
-on generateStringFromUTF8 me, tUTF8Data 
+on generateStringFromUTF8(me, tUTF8Data)
   if plocaleformat = "windows-1251" then
     return(void())
   end if
@@ -80,7 +82,7 @@ on generateStringFromUTF8 me, tUTF8Data
     i = i + 1
     if tValue >= 129 and tValue <= 159 or tValue >= 224 and tValue <= 239 then
       if i <= tUTF8Data.count then
-        tValue = (tValue * 256) + tUTF8Data.getAt(i)
+        tValue = tValue * 256 + tUTF8Data.getAt(i)
         i = i + 1
       else
       end if
@@ -88,29 +90,30 @@ on generateStringFromUTF8 me, tUTF8Data
     tResult = tResult & numToChar(tValue)
   end repeat
   return(tResult)
+  exit
 end
 
-on createcharacterconversionarrays me, tencodingformat 
+on createcharacterconversionarrays(me, tencodingformat)
   tUnicodeValues = []
   tlocalevalues = []
   tText = ""
-  if tencodingformat = "sjis" then
+  if me = "sjis" then
     tText = member("Shift JIS to Unicode map").text
   else
-    if tencodingformat = "windows-1251" then
+    if me = "windows-1251" then
       tText = member("Windows-1251 to Unicode map").text
     end if
   end if
   if ilk(tText) = #string then
     tLineCount = the number of line in tText
     tChunkSize = 100
-    tChunkCount = (tLineCount / tChunkSize)
-    if (tLineCount mod tChunkSize) <> 0 then
+    tChunkCount = tLineCount / tChunkSize
+    if tLineCount mod tChunkSize <> 0 then
       tChunkCount = tChunkCount + 1
     end if
     j = 1
     repeat while j <= tChunkCount
-      tFirstLineIndex = 1 + (j - 1 * tChunkSize)
+      tFirstLineIndex = 1 + j - 1 * tChunkSize
       tLastLineIndex = tFirstLineIndex + tChunkSize - 1
       tSubText = tText.getProp(#line, tFirstLineIndex, tLastLineIndex)
       tSubLineCount = the number of line in tSubText
@@ -135,13 +138,14 @@ on createcharacterconversionarrays me, tencodingformat
     end repeat
   end if
   return(["unicode_values":tUnicodeValues, "locale_values":tlocalevalues])
+  exit
 end
 
-on hextoint me, tStr 
+on hextoint(me, tStr)
   tValue = 0
   i = 1
   repeat while i <= tStr.length
-    tValue = (tValue * 16)
+    tValue = tValue * 16
     tChar = tStr.getProp(#char, i)
     tVal = value(tChar)
     if voidp(tVal) then
@@ -173,4 +177,5 @@ on hextoint me, tStr
     i = 1 + i
   end repeat
   return(tValue)
+  exit
 end

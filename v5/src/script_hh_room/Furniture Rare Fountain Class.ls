@@ -1,7 +1,5 @@
-property pChanges, pActive, pTimer, pNextChange
-
-on prepare me, tdata 
-  if (tdata.getAt("CHANNEL") = "ON") then
+on prepare(me, tdata)
+  if tdata.getAt("CHANNEL") = "ON" then
     pActive = 1
   else
     pActive = 0
@@ -9,28 +7,30 @@ on prepare me, tdata
   pChanges = 1
   pTimer = 0
   pNextChange = 6
-  return TRUE
+  return(1)
+  exit
 end
 
-on updateStuffdata me, tProp, tValue 
-  if (tValue = "OFF") then
+on updateStuffdata(me, tProp, tValue)
+  if tValue = "OFF" then
     pActive = 0
   else
     pActive = 1
   end if
   me.getPropRef(#pSprList, 2).castNum = 0
   pChanges = 1
+  exit
 end
 
-on update me 
-  if (me.count(#pSprList) = 0) then
+on update(me)
+  if me.count(#pSprList) = 0 then
     return()
   end if
   if not pChanges then
     return()
   end if
   if pActive then
-    pTimer = (pTimer + 1)
+    pTimer = pTimer + 1
     if pTimer < pNextChange then
       return()
     end if
@@ -39,25 +39,28 @@ on update me
     tNewName = "rare_fountain_b_0_1_1_0_" & random(3)
     if memberExists(tNewName) then
       me.getPropRef(#pSprList, 2).castNum = getmemnum(tNewName)
-      me.getPropRef(#pSprList, 2).width = me.getPropRef(#pSprList, 2).member.width
-      me.getPropRef(#pSprList, 2).height = me.getPropRef(#pSprList, 2).member.height
-      me.getPropRef(#pSprList, 2).locZ = (me.getPropRef(#pSprList, 1).locZ + 2)
+      me.getPropRef(#pSprList, 2).width = member.width
+      me.getPropRef(#pSprList, 2).height = member.height
+      me.getPropRef(#pSprList, 2).locZ = me.getPropRef(#pSprList, 1).locZ + 2
     end if
   else
     me.getPropRef(#pSprList, 2).castNum = 0
     pChanges = 0
   end if
+  exit
 end
 
-on setOn me 
+on setOn(me)
   getThread(#room).getComponent().getRoomConnection().send(#room, "SETSTUFFDATA /" & me.getID() & "/" & "FIREON" & "/" & "ON")
+  exit
 end
 
-on setOff me 
+on setOff(me)
   getThread(#room).getComponent().getRoomConnection().send(#room, "SETSTUFFDATA /" & me.getID() & "/" & "FIREON" & "/" & "OFF")
+  exit
 end
 
-on select me 
+on select(me)
   if the doubleClick then
     if pActive then
       me.setOff()
@@ -65,5 +68,6 @@ on select me
       me.setOn()
     end if
   end if
-  return TRUE
+  return(1)
+  exit
 end

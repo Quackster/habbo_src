@@ -1,11 +1,12 @@
-on prepare me, tdata 
+on prepare(me, tdata)
   if tdata.count = 0 then
     tdata = [#extra:"0"]
   end if
   return(me.updateStuffdata(tdata.getAt(#extra)))
+  exit
 end
 
-on updateStuffdata me, tValue 
+on updateStuffdata(me, tValue)
   tCount = integer(tValue)
   if ilk(tCount) <> #integer then
     tCount = 0
@@ -19,4 +20,5 @@ on updateStuffdata me, tValue
     i = 1 + i
   end repeat
   return(1)
+  exit
 end

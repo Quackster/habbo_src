@@ -1,33 +1,34 @@
-property pWindowID, pData, pParentWindowID, pParentElementID, pParentObjId
-
-on construct me 
+on construct(me)
   pWindowID = "Instant Friend Request Window"
-  return TRUE
+  return(1)
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   if windowExists(pWindowID) then
     removeWindow(pWindowID)
   end if
-  return TRUE
+  return(1)
+  exit
 end
 
-on define me, tParentWindowID, tParentElementID, tdata, tParentObjId 
+on define(me, tParentWindowID, tParentElementID, tdata, tParentObjId)
   pParentWindowID = tParentWindowID
   pParentElementID = tParentElementID
   pData = tdata
   pParentObjId = tParentObjId
+  exit
 end
 
-on show me 
+on show(me)
   if pData.ilk <> #propList then
-    return FALSE
+    return(0)
   end if
   if voidp(pData.findPos(#name)) then
-    return FALSE
+    return(0)
   end if
   if not windowExists(pParentWindowID) then
-    return FALSE
+    return(0)
   end if
   if not windowExists(pWindowID) then
     createWindow(pWindowID, "instant_friend_request.window")
@@ -50,25 +51,26 @@ on show me
   end if
   tWindow.getElement("user_name").setText(pData.getAt(#name))
   if not me.align() then
-    return FALSE
+    return(0)
   end if
+  exit
 end
 
-on align me 
+on align(me)
   if not windowExists(pParentWindowID) then
-    return FALSE
+    return(0)
   end if
   if not windowExists(pWindowID) then
-    return FALSE
+    return(0)
   end if
   tTargetWindow = getWindow(pParentWindowID)
   tRequestWindow = getWindow(pWindowID)
   if not tTargetWindow.elementExists(pParentElementID) then
-    return FALSE
+    return(0)
   end if
   tElem = tTargetWindow.getElement(pParentElementID)
   if not tElem.getProperty(#visible) then
-    return FALSE
+    return(0)
   end if
   tWinLocX = tTargetWindow.getProperty(#locX)
   tWinLocY = tTargetWindow.getProperty(#locY)
@@ -77,34 +79,35 @@ on align me
   tElemWidth = tElem.getProperty(#width)
   tOwnWidth = tRequestWindow.getProperty(#width)
   tOwnHeight = tRequestWindow.getProperty(#height)
-  tLocX = (((tWinLocX + tElemLocX) + (tElemWidth / 2)) - (tOwnWidth / 2))
-  tLocY = ((tWinLocY + tElemLocY) - tOwnHeight)
-  tOffset = ((tLocX + tOwnWidth) - the stage.rect.width)
+  tLocX = tWinLocX + tElemLocX + tElemWidth / 2 - tOwnWidth / 2
+  tLocY = tWinLocY + tElemLocY - tOwnHeight
+  tOffset = the stage - rect.width
   if tOffset > 0 then
-    tLocX = (tLocX - tOffset)
+    tLocX = tLocX - tOffset
     tPointerElem = tRequestWindow.getElement("pointer")
     tPointerElem.moveBy(tOffset, 0)
   end if
   tRequestWindow.moveTo(tLocX, tLocY)
-  return TRUE
+  return(1)
+  exit
 end
 
-on eventProcRequest me, tEvent, tSprID 
-  if (tSprID = "button_accept") then
+on eventProcRequest(me, tEvent, tSprID)
+  if me = "button_accept" then
     if objectExists(pParentObjId) then
       tParent = getObject(pParentObjId)
       tParent.confirmFriendRequest(1, pData.getAt(#id))
       createTimeout(#room_bar_extension_next_update, 1000, #viewNextItemInStack, pParentObjId, void(), 1)
     end if
   else
-    if (tSprID = "button_deny") then
+    if me = "button_deny" then
       if objectExists(pParentObjId) then
         tParent = getObject(pParentObjId)
         tParent.confirmFriendRequest(0, pData.getAt(#id))
         createTimeout(#room_bar_extension_next_update, 1000, #viewNextItemInStack, pParentObjId, void(), 1)
       end if
     else
-      if (tSprID = "user_head") then
+      if me = "user_head" then
         if listp(pData) then
           tRoomComp = getThread(#room).getComponent()
           tRoomInterface = getThread(#room).getInterface()
@@ -114,7 +117,7 @@ on eventProcRequest me, tEvent, tSprID
           end if
         end if
       else
-        if (tSprID = "popup_button_close") then
+        if me = "popup_button_close" then
           if objectExists(pParentObjId) then
             tParent = getObject(pParentObjId)
             tParent.ignoreInstantFriendRequests()
@@ -124,4 +127,5 @@ on eventProcRequest me, tEvent, tSprID
       end if
     end if
   end if
+  exit
 end

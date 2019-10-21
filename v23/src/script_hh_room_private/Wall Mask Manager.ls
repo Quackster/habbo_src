@@ -1,6 +1,4 @@
-property pREquiresUpdate, pMaskImage, pMaskList, pRenderNeeded, pMember
-
-on construct me 
+on construct(me)
   tMemberName = "landscape_mask_test"
   if memberExists(tMemberName) then
     pMember = getMember(tMemberName)
@@ -8,28 +6,32 @@ on construct me
     createMember(tMemberName, #bitmap)
     pMember = getMember(tMemberName)
   end if
-  pMaskList = [:]
+  pMaskList = []
   me.initMask()
   receiveUpdate(me.getID())
-  return TRUE
+  return(1)
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   removeUpdate(me.getID())
-  return TRUE
+  return(1)
+  exit
 end
 
-on requiresUpdate me 
+on requiresUpdate(me)
   return(pREquiresUpdate)
+  exit
 end
 
-on getMask me 
+on getMask(me)
   pREquiresUpdate = 0
   return(pMaskImage.createMask())
+  exit
 end
 
-on insertWallMaskItem me, tID, tClassID, tloc, tdir, tSize 
-  tMaskProps = [:]
+on insertWallMaskItem(me, tID, tClassID, tloc, tdir, tSize)
+  tMaskProps = []
   tMaskProps.setaProp(#id, tID)
   tMaskProps.setaProp(#class, tClassID)
   tMaskProps.setaProp(#loc, tloc)
@@ -37,35 +39,40 @@ on insertWallMaskItem me, tID, tClassID, tloc, tdir, tSize
   tMaskProps.setaProp(#size, tSize)
   pMaskList.setaProp(tID, tMaskProps)
   pRenderNeeded = 1
+  exit
 end
 
-on removeWallMaskItem me, tID 
+on removeWallMaskItem(me, tID)
   pMaskList.deleteProp(tID)
   pRenderNeeded = 1
+  exit
 end
 
-on getItemCount me 
+on getItemCount(me)
   return(pMaskList.count)
+  exit
 end
 
-on initMask me 
-  tWidth = the stage.rect.width
-  tHeight = the stage.rect.height
+on initMask(me)
+  tWidth = rect.width
+  tHeight = rect.height
   pMaskImage = image(tWidth, tHeight, 8)
   pMaskImage.fill(pMaskImage.rect, rgb("FFFFFF"))
   pIsChanged = 1
+  exit
 end
 
-on update me 
+on update(me)
   if not pRenderNeeded then
-    return TRUE
+    return(1)
   end if
   me.renderMask()
+  exit
 end
 
-on renderMask me 
+on renderMask(me)
   pMaskImage.fill(pMaskImage.rect, rgb("FFFFFF"))
-  repeat while pMaskList <= undefined
+  repeat while me <= undefined
     tMask = getAt(undefined, undefined)
     tloc = tMask.getAt(#loc)
     tClass = tMask.getAt(#class)
@@ -74,7 +81,7 @@ on renderMask me
     tNameTemplate = getVariable("mask.membername.template")
     tMemberName = replaceChunks(tNameTemplate, "%class%", tClass)
     tMemberName = replaceChunks(tMemberName, "%dir%", tdir)
-    if (tSize = 32) then
+    if tSize = 32 then
       tMemberName = "s_" & tMemberName
     end if
     if not memberExists(tMemberName) then
@@ -83,11 +90,11 @@ on renderMask me
       tmember = member(abs(tMemNum))
       tMaskImage = tmember.image
       tRegPoint = tmember.regPoint
-      if (tdir = "rightwall") then
-        tRegPoint = point((tMaskImage.width - tRegPoint.getAt(1)), tRegPoint.getAt(2))
+      if tdir = "rightwall" then
+        tRegPoint = point(tMaskImage.width - tRegPoint.getAt(1), tRegPoint.getAt(2))
       end if
-      tloc = (tloc - tRegPoint)
-      tBottomRight = (tloc + point(tMaskImage.width, tMaskImage.height))
+      tloc = tloc - tRegPoint
+      tBottomRight = tloc + point(tMaskImage.width, tMaskImage.height)
       if tMemNum > 0 then
         tQuad = [tloc, point(tBottomRight.getAt(1), tloc.getAt(2)), tBottomRight, point(tloc.getAt(1), tBottomRight.getAt(2))]
       else
@@ -99,4 +106,5 @@ on renderMask me
   pMember.image = pMaskImage
   pREquiresUpdate = 1
   pRenderNeeded = 0
+  exit
 end

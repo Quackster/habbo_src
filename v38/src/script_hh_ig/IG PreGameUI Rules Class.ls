@@ -1,4 +1,4 @@
-on addWindows me 
+on addWindows(me)
   me.pWindowID = "ru"
   tService = me.getIGComponent("PreGame")
   if tService = 0 then
@@ -35,4 +35,5 @@ on addWindows me
     i = 1 + i
   end repeat
   return(1)
+  exit
 end

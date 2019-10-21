@@ -1,10 +1,8 @@
-property pIconImg
-
-on prepare me 
+on prepare(me)
   tField = me.pType & me.getProp(#pProps, #model) & ".element"
   me.pProp = getObject(#layout_parser).parse(tField)
-  if (me.pProp = 0) then
-    return FALSE
+  if me.pProp = 0 then
+    return(0)
   end if
   me.pOrigWidth = me.getProp(#pProps, #width)
   me.pMaxWidth = me.getProp(#pProps, #maxwidth)
@@ -12,11 +10,11 @@ on prepare me
   me.pAlignment = me.getProp(#pProps, #alignment)
   me.pButtonText = getText(me.getProp(#pProps, #key))
   me.pBlend = me.getProp(#pProps, #blend)
-  me.pCachedImgs = [:]
+  me.pCachedImgs = []
   if not voidp(me.getProp(#pProps, #icon)) then
     tMemNum = getmemnum(me.getProp(#pProps, #icon))
     if tMemNum > 0 then
-      pIconImg = member(tMemNum).image.duplicate()
+      pIconImg = undefined.duplicate()
     end if
   end if
   if not integerp(me.pMaxWidth) then
@@ -27,24 +25,25 @@ on prepare me
   end if
   me.UpdateImageObjects(void(), #up)
   me.pimage = me.createButtonImg(me.pButtonText, #up)
-  tTempOffset = me.pSprite.member.regPoint
-  me.pBuffer.image = me.pimage
-  me.pBuffer.regPoint = tTempOffset
-  me.pwidth = me.pimage.width
-  me.pheight = me.pimage.height
-  me.pLocX = me.pSprite.locH
-  me.pLocY = me.pSprite.locV
-  me.pSprite.width = me.pwidth
-  me.pSprite.height = me.pheight
-  return TRUE
+  tTempOffset = member.regPoint
+  me.image = me.pimage
+  me.regPoint = tTempOffset
+  me.pwidth = me.width
+  me.pheight = me.height
+  me.pLocX = pSprite.locH
+  me.pLocY = pSprite.locV
+  pSprite.width = me.pwidth
+  pSprite.height = me.pheight
+  return(1)
+  exit
 end
 
-on createButtonImg me, tText, tstate 
+on createButtonImg(me, tText, tstate)
   if not voidp(me.getProp(#pCachedImgs, tstate)) then
     return(me.getProp(#pCachedImgs, tstate))
   end if
   tMemNum = getmemnum("icon.button.text")
-  if (tMemNum = 0) then
+  if tMemNum = 0 then
     tMemNum = createMember("icon.button.text", #text)
   end if
   tTextMem = member(tMemNum)
@@ -55,10 +54,10 @@ on createButtonImg me, tText, tstate
   tColor = rgb(tFontDesc.getAt(#color))
   tBgColor = rgb(tFontDesc.getAt(#bgColor))
   tBoxType = tFontDesc.getAt(#boxType)
-  tSpace = (tFontDesc.getAt(#fontSize) + 2)
+  tSpace = tFontDesc.getAt(#fontSize) + 2
   tMarginH = tFontDesc.getAt(#marginH)
   tMarginV = tFontDesc.getAt(#marginV)
-  if (tTextMem.wordWrap = 1) then
+  if tTextMem.wordWrap = 1 then
     tTextMem.wordWrap = 0
   end if
   if tTextMem.font <> tFont then
@@ -89,58 +88,58 @@ on createButtonImg me, tText, tstate
   if not voidp(me.getProp(#pProp, #icon)) and not voidp(pIconImg) then
     tAlignment = me.getPropRef(#pProp, #icon).getAt(#props).getPropAt(1)
     tOptImgMargH = me.getPropRef(#pProp, #icon).getAt(#props).getAt(tAlignment).getAt(#marginH)
-    tOptImgWidth = (pIconImg.width + tOptImgMargH)
+    tOptImgWidth = pIconImg.width + tOptImgMargH
   end if
-  if (me.pFixedSize = 1) then
-    tCharPosH = tTextMem.locToCharPos(point((me.pOrigWidth - (tMarginH * 2)), 5))
+  if me.pFixedSize = 1 then
+    tCharPosH = tTextMem.locToCharPos(point(me.pOrigWidth - tMarginH * 2, 5))
     tTextWidth = me.getTextWidth(tTextMem)
     tTextMem.rect = rect(0, 0, tTextWidth, tTextMem.height)
     tTextImg = tTextMem.image
     tWidth = me.pOrigWidth
   else
     tTextWidth = me.getTextWidth(tTextMem)
-    if (tTextWidth + (tMarginH * 2)) > me.pMaxWidth then
-      tTextWidth = ((me.pMaxWidth - (tMarginH * 2)) + tOptImgWidth)
+    if tTextWidth + tMarginH * 2 > me.pMaxWidth then
+      tTextWidth = me.pMaxWidth - tMarginH * 2 + tOptImgWidth
     end if
     tTextMem.rect = rect(0, 0, tTextWidth, tTextMem.height)
     tTextImg = tTextMem.image
-    tWidth = ((tTextWidth + (tMarginH * 2)) + tOptImgWidth)
+    tWidth = tTextWidth + tMarginH * 2 + tOptImgWidth
   end if
   tNewImg = image(tWidth, me.getPropRef(#pButtonImg, #left).height, 8, member(me.pPalette))
   tStartPointY = 0
   tEndPointY = tNewImg.height
   tStartPointX = 0
   tEndPointX = 0
-  repeat while [#left, #middle, #right] <= tstate
+  repeat while me <= tstate
     i = getAt(tstate, tText)
     tStartPointX = tEndPointX
-    if ([#left, #middle, #right] = #left) then
-      tEndPointX = (tEndPointX + me.pButtonImg.getProp(i).width)
+    if me = #left then
+      tEndPointX = tEndPointX + me.getProp(i).width
     else
-      if ([#left, #middle, #right] = #middle) then
-        tEndPointX = (((tEndPointX + tWidth) - me.pButtonImg.getProp(#left).width) - me.pButtonImg.getProp(#right).width)
+      if me = #middle then
+        tEndPointX = tEndPointX + tWidth - me.getProp(#left).width - me.getProp(#right).width
       else
-        if ([#left, #middle, #right] = #right) then
-          tEndPointX = (tEndPointX + me.pButtonImg.getProp(i).width)
+        if me = #right then
+          tEndPointX = tEndPointX + me.getProp(i).width
         end if
       end if
     end if
     tDstRect = rect(tStartPointX, tStartPointY, tEndPointX, tEndPointY)
-    tNewImg.copyPixels(me.pButtonImg.getProp(i), tDstRect, me.pButtonImg.getProp(i).rect)
+    tNewImg.copyPixels(me.getProp(i), tDstRect, me.getProp(i).rect)
   end repeat
   if not voidp(me.getProp(#pProp, #icon)) and not voidp(pIconImg) then
     tAlignment = me.getPropRef(#pProp, #icon).getAt(#props).getPropAt(1)
     tOptImgRect = pIconImg.rect
     tOptImgMargH = me.getPropRef(#pProp, #icon).getAt(#props).getAt(tAlignment).getAt(#marginH)
-    tOptImgMargV = ((tNewImg.height / 2) - (tOptImgRect.height / 2))
-    if ([#left, #middle, #right] = #right) then
-      tDstRect = (tOptImgRect + rect(((me.pwidth - tOptImgMargH) - tOptImgRect.width), tOptImgMargV, ((me.pwidth - tOptImgMargH) - tOptImgRect.width), tOptImgMargV))
+    tOptImgMargV = tNewImg.height / 2 - tOptImgRect.height / 2
+    if me = #right then
+      tDstRect = tOptImgRect + rect(me.pwidth - tOptImgMargH - tOptImgRect.width, tOptImgMargV, me.pwidth - tOptImgMargH - tOptImgRect.width, tOptImgMargV)
     else
-      if ([#left, #middle, #right] = #left) then
-        tDstRect = (tOptImgRect + rect(tOptImgMargH, tOptImgMargV, tOptImgMargH, tOptImgMargV))
+      if me = #left then
+        tDstRect = tOptImgRect + rect(tOptImgMargH, tOptImgMargV, tOptImgMargH, tOptImgMargV)
       else
-        if ([#left, #middle, #right] = #center) then
-          tDstRect = ((tOptImgRect + rect((tNewImg.width / 2), 0, (tNewImg.width / 2), 0)) - rect((pIconImg / 2), 0, (pIconImg / 2), 0))
+        if me = #center then
+          tDstRect = tOptImgRect + rect(tNewImg.width / 2, 0, tNewImg.width / 2, 0) - rect(pIconImg / 2, 0, pIconImg / 2, 0)
         end if
       end if
     end if
@@ -150,19 +149,20 @@ on createButtonImg me, tText, tstate
     end if
     tNewImg.copyPixels(pIconImg, tDstRect, tOptImgRect, [#ink:tInk])
   end if
-  tDstRect = (tTextImg.rect + rect(1, tMarginV, 1, tMarginV))
-  if ([#left, #middle, #right] = #left) then
-    tDstRect = (tDstRect + rect(me.pButtonImg.getProp(#left).width, 0, me.pButtonImg.getProp(#left).width, 0))
+  tDstRect = tTextImg.rect + rect(1, tMarginV, 1, tMarginV)
+  if me = #left then
+    tDstRect = tDstRect + rect(me.getProp(#left).width, 0, me.getProp(#left).width, 0)
   else
-    if ([#left, #middle, #right] = #center) then
-      tDstRect = ((tDstRect + rect((tNewImg.width / 2), 0, (tNewImg.width / 2), 0)) - rect((tTextWidth / 2), 0, (tTextWidth / 2), 0))
+    if me = #center then
+      tDstRect = tDstRect + rect(tNewImg.width / 2, 0, tNewImg.width / 2, 0) - rect(tTextWidth / 2, 0, tTextWidth / 2, 0)
     else
-      if ([#left, #middle, #right] = #right) then
-        tDstRect = ((tDstRect + rect(tNewImg.width, 0, tNewImg.width, 0)) - rect((tTextWidth + me.pButtonImg.getProp(#right).width), 0, (tTextWidth + me.pButtonImg.getProp(#right).width), 0))
+      if me = #right then
+        tDstRect = tDstRect + rect(tNewImg.width, 0, tNewImg.width, 0) - rect(tTextWidth + me.getProp(#right).width, 0, tTextWidth + me.getProp(#right).width, 0)
       end if
     end if
   end if
   tNewImg.copyPixels(tTextImg, tDstRect, tTextImg.rect)
   me.setProp(#pCachedImgs, tstate, tNewImg)
   return(tNewImg)
+  exit
 end

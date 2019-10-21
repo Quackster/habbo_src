@@ -1,33 +1,35 @@
-on prepare me 
+on prepare(me)
   me.pBlend = me.getProp(#pProps, #blend)
-  me.pButtonImg = [:]
+  me.pButtonImg = []
   if voidp(me.pFixedSize) then
     me.pFixedSize = 0
   end if
   tTemp = the itemDelimiter
   the itemDelimiter = "."
   tMemName = me.getProp(#pProps, #member)
-  tMemName = tMemName.getProp(#item, 1, (tMemName.count(#item) - 1))
+  tMemName = tMemName.getProp(#item, 1, tMemName.count(#item) - 1)
   the itemDelimiter = tTemp
   me.UpdateImageObjects(void(), #up, tMemName)
   me.UpdateImageObjects(void(), #down, tMemName)
   me.pimage = me.createButtonImg(#up)
-  tTempOffset = me.pSprite.member.regPoint
-  me.pBuffer.image = me.pimage
-  me.pBuffer.regPoint = tTempOffset
-  me.pwidth = me.pimage.width
-  me.pheight = me.pimage.height
-  me.pSprite.width = me.pwidth
-  me.pSprite.height = me.pheight
-  return TRUE
+  tTempOffset = member.regPoint
+  me.image = me.pimage
+  me.regPoint = tTempOffset
+  me.pwidth = me.width
+  me.pheight = me.height
+  pSprite.width = me.pwidth
+  pSprite.height = me.pheight
+  return(1)
+  exit
 end
 
-on changeState me, tstate 
+on changeState(me, tstate)
   me.pimage = me.createButtonImg(tstate)
   me.render()
+  exit
 end
 
-on UpdateImageObjects me, tPalette, tstate, tMemName 
+on UpdateImageObjects(me, tPalette, tstate, tMemName)
   if voidp(tPalette) then
     tPalette = me.pPalette
   else
@@ -35,25 +37,27 @@ on UpdateImageObjects me, tPalette, tstate, tMemName
       tPalette = member(getmemnum(tPalette))
     end if
   end if
-  if (tstate = #up) then
+  if tstate = #up then
     tMemName = tMemName & ".active"
   else
-    if (tstate = #down) then
+    if tstate = #down then
       tMemName = tMemName & ".pressed"
     end if
   end if
   tMemNum = getmemnum(tMemName)
-  if (tMemNum = 0) then
+  if tMemNum = 0 then
     return(error(me, "Member not found:" && tMemName, #UpdateImageObjects))
   end if
   tmember = member(tMemNum)
-  tImage = tmember.image.duplicate()
+  tImage = tmember.duplicate()
   if tImage.paletteRef <> tPalette then
     tImage.paletteRef = tPalette
   end if
-  me.pButtonImg.addProp(symbol(tstate), tImage)
+  me.addProp(symbol(tstate), tImage)
+  exit
 end
 
-on createButtonImg me, tstate 
-  return(me.pButtonImg.getProp(tstate))
+on createButtonImg(me, tstate)
+  return(me.getProp(tstate))
+  exit
 end

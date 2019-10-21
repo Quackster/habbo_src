@@ -1,8 +1,6 @@
-property pSprite, pDirection, pInitDelay, pOffset, pTurnPnt
-
-on define me, tsprite, tCount 
+on define(me, tsprite, tCount)
   pDirection = #left
-  if (tCount mod 2) = 1 then
+  if tCount mod 2 = 1 then
     pDirection = #right
   end if
   pSprite = tsprite
@@ -10,9 +8,10 @@ on define me, tsprite, tCount
   pTurnPnt = 0
   me.reset()
   return(1)
+  exit
 end
 
-on reset me 
+on reset(me)
   tmodel = ["car2", "car_b2", "car_c2"].getAt(random(3))
   pSprite.castNum = getmemnum(tmodel)
   if pDirection = #left then
@@ -37,9 +36,10 @@ on reset me
     pSprite.backColor = 0
   end if
   pInitDelay = random(220)
+  exit
 end
 
-on update me 
+on update(me)
   pInitDelay = pInitDelay - 1
   if pInitDelay > 0 then
     return(0)
@@ -58,4 +58,5 @@ on update me
   if pDirection = #left and pSprite.locV > 510 or pDirection = #right and pSprite.locH > 740 then
     me.reset()
   end if
+  exit
 end

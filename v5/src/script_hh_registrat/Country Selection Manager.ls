@@ -1,8 +1,6 @@
-property pContinentList, pCountryList, pWriterObjID, pWriterObjUnderLineID, pWriterObj, pWriterObjUnderLine, pSelection, pImgBuffer, pLineHeight
-
-on construct me 
-  pContinentList = [:]
-  pCountryList = [:]
+on construct(me)
+  pContinentList = []
+  pCountryList = []
   pLineHeight = getStructVariable("struct.font.plain").getaProp(#lineHeight)
   pSelection = [#number:0, #name:void(), #continent:void()]
   pImgBuffer = void()
@@ -18,7 +16,7 @@ on construct me
           pContinentList.addProp(tLine.getProp(#item, 2), [#number:integer(tLine.getProp(#item, 1)), #type:symbol(tLine.getProp(#item, 3))])
         end if
       end if
-      i = (1 + i)
+      i = 1 + i
     end repeat
     exit repeat
   end if
@@ -41,7 +39,7 @@ on construct me
           tStruct.add([#number:tNumber, #name:tName])
         end if
       end if
-      i = (1 + i)
+      i = 1 + i
     end repeat
     exit repeat
   end if
@@ -50,7 +48,7 @@ on construct me
   i = 1
   repeat while i <= pContinentList.count
     createText("char_cont_" & i, pContinentList.getPropAt(i))
-    i = (1 + i)
+    i = 1 + i
   end repeat
   pWriterObjID = me.getID() && the milliSeconds
   tMetrics = getStructVariable("struct.font.plain")
@@ -60,12 +58,13 @@ on construct me
   tMetrics = getStructVariable("struct.font.link")
   createWriter(pWriterObjUnderLineID, tMetrics)
   pWriterObjUnderLine = getWriter(pWriterObjUnderLineID)
-  return TRUE
+  return(1)
+  exit
 end
 
-on deconstruct me 
-  pContinentList = [:]
-  pCountryList = [:]
+on deconstruct(me)
+  pContinentList = []
+  pCountryList = []
   if objectp(pWriterObj) then
     removeWriter(pWriterObjID)
     pWriterObj = void()
@@ -74,18 +73,21 @@ on deconstruct me
     removeWriter(pWriterObjUnderLineID)
     pWriterObjUnderLine = void()
   end if
-  return TRUE
+  return(1)
+  exit
 end
 
-on getContinentData me, tContinent 
+on getContinentData(me, tContinent)
   return(pContinentList.getAt(tContinent))
+  exit
 end
 
-on getSelectedCountryID me 
+on getSelectedCountryID(me)
   return(pSelection.getAt(#number))
+  exit
 end
 
-on getCountryList me, tContinentKey 
+on getCountryList(me, tContinentKey)
   tContinent = getText(tContinentKey)
   if stringp(tContinent) then
     if voidp(pContinentList.getAt(tContinent)) then
@@ -101,13 +103,14 @@ on getCountryList me, tContinentKey
   tStr = ""
   tList = pCountryList.getaProp(tContNum)
   if voidp(tList) then
-    return([:])
+    return([])
   else
     return(tList)
   end if
+  exit
 end
 
-on getCountryListStr me, tContinentKey 
+on getCountryListStr(me, tContinentKey)
   tContinent = getText(tContinentKey)
   if stringp(tContinent) then
     if voidp(pContinentList.getAt(tContinent)) then
@@ -125,7 +128,7 @@ on getCountryListStr me, tContinentKey
   if voidp(tList) then
     return("")
   end if
-  repeat while tList <= undefined
+  repeat while me <= undefined
     tItem = getAt(undefined, tContinentKey)
     if length(tStr) > 0 then
       tStr = tStr & "\r"
@@ -133,18 +136,20 @@ on getCountryListStr me, tContinentKey
     tStr = tStr & tItem.name
   end repeat
   return(tStr)
+  exit
 end
 
-on getCountryListImg me, tContinentKey 
+on getCountryListImg(me, tContinentKey)
   tContinent = getText(tContinentKey)
   if pSelection.getAt(#continent) <> tContinent or voidp(pImgBuffer) then
     pImgBuffer = pWriterObj.render(me.getCountryListStr(tContinentKey)).duplicate()
     pSelection = [#number:0, #name:void(), #continent:void()]
   end if
   return(pImgBuffer)
+  exit
 end
 
-on getNthCountryNum me, tNth, tContinentKey 
+on getNthCountryNum(me, tNth, tContinentKey)
   tContinent = getText(tContinentKey)
   if stringp(tContinent) then
     tContNum = pContinentList.getAt(tContinent).number
@@ -152,15 +157,16 @@ on getNthCountryNum me, tNth, tContinentKey
     tContNum = tContinent
   end if
   if tNth > pCountryList.getaProp(tContNum).count then
-    return FALSE
+    return(0)
   end if
   return(pCountryList.getaProp(tContNum).getAt(tNth).number)
+  exit
 end
 
-on getNthCountryName me, tNth, tContinentKey 
+on getNthCountryName(me, tNth, tContinentKey)
   tContinent = getText(tContinentKey)
   if voidp(pContinentList.getAt(tContinent)) then
-    return FALSE
+    return(0)
   end if
   if stringp(tContinent) then
     tContNum = pContinentList.getAt(tContinent).number
@@ -168,15 +174,16 @@ on getNthCountryName me, tNth, tContinentKey
     tContNum = tContinent
   end if
   if tNth > pCountryList.getaProp(tContNum).count then
-    return FALSE
+    return(0)
   end if
   return(pCountryList.getaProp(tContNum).getAt(tNth).name)
+  exit
 end
 
-on getCountryOrderNum me, tCountry, tContinentKey 
+on getCountryOrderNum(me, tCountry, tContinentKey)
   tContinent = getText(tContinentKey)
   if voidp(pContinentList.getAt(tContinent)) then
-    return FALSE
+    return(0)
   end if
   if stringp(tContinent) then
     tContNum = pContinentList.getAt(tContinent).number
@@ -187,26 +194,28 @@ on getCountryOrderNum me, tCountry, tContinentKey
   if listp(tCountryList) then
     i = 1
     repeat while i <= tCountryList.count
-      if (tCountryList.getAt(i).name = tCountry) then
+      if tCountryList.getAt(i).name = tCountry then
         return(i)
       end if
-      i = (1 + i)
+      i = 1 + i
     end repeat
   end if
+  exit
 end
 
-on getClickedLineNum me, tpoint 
-  tLine = (tpoint.locV / pLineHeight)
-  if (tpoint.locV mod pLineHeight) > 0 then
-    tLine = (tLine + 1)
+on getClickedLineNum(me, tpoint)
+  tLine = tpoint.locV / pLineHeight
+  if tpoint.locV mod pLineHeight > 0 then
+    tLine = tLine + 1
   end if
   if tLine < 1 then
     tLine = 1
   end if
   return(tLine)
+  exit
 end
 
-on selectCountry me, tCountryName, tContinentKey 
+on selectCountry(me, tCountryName, tContinentKey)
   tContinent = getText(tContinentKey)
   if not voidp(pSelection.getAt(#name)) then
     me.unselectCountry(pSelection.getAt(#name), tContinentKey)
@@ -214,21 +223,23 @@ on selectCountry me, tCountryName, tContinentKey
   tImg = pWriterObjUnderLine.render(tCountryName)
   tPos = me.getCountryOrderNum(tCountryName, tContinentKey)
   pSelection = [#number:me.getNthCountryNum(tPos, tContinentKey), #name:tCountryName, #continent:tContinent]
-  tY = ((tPos * pLineHeight) - pLineHeight)
-  pImgBuffer.copyPixels(tImg, rect(0, tY, tImg.width, (tY + tImg.height)), tImg.rect)
-  return TRUE
+  tY = tPos * pLineHeight - pLineHeight
+  pImgBuffer.copyPixels(tImg, rect(0, tY, tImg.width, tY + tImg.height), tImg.rect)
+  return(1)
+  exit
 end
 
-on unselectCountry me, tCountryName, tContinentKey 
+on unselectCountry(me, tCountryName, tContinentKey)
   tContinent = getText(tContinentKey)
   if tContinent <> pSelection.getAt(#continent) then
-    return FALSE
+    return(0)
   end if
   tImg = pWriterObj.render(tCountryName)
   tPos = me.getCountryOrderNum(tCountryName, tContinentKey)
   pSelection.setAt(#name, void())
   pSelection.setAt(#number, void())
-  tY = ((tPos * pLineHeight) - pLineHeight)
-  pImgBuffer.copyPixels(tImg, rect(0, tY, tImg.width, (tY + tImg.height)), tImg.rect)
-  return TRUE
+  tY = tPos * pLineHeight - pLineHeight
+  pImgBuffer.copyPixels(tImg, rect(0, tY, tImg.width, tY + tImg.height), tImg.rect)
+  return(1)
+  exit
 end

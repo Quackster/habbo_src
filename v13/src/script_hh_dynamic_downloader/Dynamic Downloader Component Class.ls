@@ -1,6 +1,4 @@
-property pBypassList, pCurrentDownLoads, pDownloadedAssets, pDownloadQueue, pPriorityDownloadQueue, pAliasListReceived, pAliasListLoading, pRevisionsReceived, pRevisionsLoading, pAliasList, pDynDownloadURL, pFurniCastNameTemplate, pSoundDownloadUrl, pFurniRevisionList, pBinCastName
-
-on construct me 
+on construct(me)
   if variableExists("dynamic.download.url") then
     pDynDownloadURL = getVariable("dynamic.download.url")
   else
@@ -16,71 +14,74 @@ on construct me
   else
     pSoundDownloadUrl = "sound/%typeid%.cct"
   end if
-  pDownloadQueue = [:]
-  pPriorityDownloadQueue = [:]
-  pCurrentDownLoads = [:]
-  pDownloadedAssets = [:]
-  pFurniRevisionList = [:]
+  pDownloadQueue = []
+  pPriorityDownloadQueue = []
+  pCurrentDownLoads = []
+  pDownloadedAssets = []
+  pFurniRevisionList = []
   pRevisionsReceived = 0
   pRevisionsLoading = 0
-  pAliasList = [:]
+  pAliasList = []
   pAliasListReceived = 0
   pAliasListLoading = 0
   pBinCastName = "bin"
   pBypassList = value(getVariable("dyn.download.bypass.list", []))
+  exit
 end
 
-on isAssetDownloaded me, tAssetId 
-  repeat while pBypassList <= undefined
+on isAssetDownloaded(me, tAssetId)
+  repeat while me <= undefined
     tBypassItem = getAt(undefined, tAssetId)
     tBypassWildLength = tBypassItem.length
     tBypassItem = replaceChunks(tBypassItem, "?", "")
-    if (tAssetId = tBypassItem) then
-      return TRUE
+    if tAssetId = tBypassItem then
+      return(1)
     end if
-    if tAssetId starts tBypassItem and (tAssetId.length = tBypassWildLength) then
-      return TRUE
+    if tAssetId starts tBypassItem and tAssetId.length = tBypassWildLength then
+      return(1)
     end if
   end repeat
   tStatus = me.checkDownloadStatus(tAssetId)
-  if pBypassList <> #downloaded then
-    if (pBypassList = #failed) then
-      return TRUE
+  if me <> #downloaded then
+    if me = #failed then
+      return(1)
     else
-      return FALSE
+      return(0)
     end if
+    exit
   end if
 end
 
-on downloadCastDynamically me, tAssetId, tAssetType, tCallbackObjectID, tCallBackHandler, tPriorityDownload, tCallbackParams 
-  if (tAssetId = "") or voidp(tAssetId) then
+on downloadCastDynamically(me, tAssetId, tAssetType, tCallbackObjectID, tCallBackHandler, tPriorityDownload, tCallbackParams)
+  if tAssetId = "" or voidp(tAssetId) then
     error(me, "tAssetId was empty, returning with true just to prevent download sequence!", #downloadCastDynamically)
-    return TRUE
+    return(1)
   end if
   tStatus = me.checkDownloadStatus(tAssetId)
-  if tStatus <> #nodata then
-    if tStatus <> #downloading then
-      if (tStatus = #inqueue) then
+  if me <> #nodata then
+    if me <> #downloading then
+      if me = #inqueue then
         me.addToDownloadQueue(tAssetId, tCallbackObjectID, tCallBackHandler, tPriorityDownload, 0, tCallbackParams, tAssetType)
         me.tryNextDownload()
-        return TRUE
+        return(1)
       else
-        if tStatus <> #downloaded then
-          if (tStatus = #failed) then
-            return FALSE
+        if me <> #downloaded then
+          if me = #failed then
+            return(0)
           end if
           return(error(me, "Invalid status type found:" && tStatus, #downloadCastDynamically))
+          exit
         end if
       end if
     end if
   end if
 end
 
-on handleCompletedCastDownload me, tAssetId 
+on handleCompletedCastDownload(me, tAssetId)
   tDownloadObj = pCurrentDownLoads.getAt(tAssetId)
   tCastName = tDownloadObj.getDownloadName()
   tCastNum = FindCastNumber(tCastName)
-  if (tCastNum = 0) then
+  if tCastNum = 0 then
     tDownloadObj.purgeCallbacks(0)
     pDownloadedAssets.setAt(tAssetId, #failed)
     pCurrentDownLoads.deleteProp(tAssetId)
@@ -96,9 +97,10 @@ on handleCompletedCastDownload me, tAssetId
   pDownloadedAssets.setAt(tAssetId, #downloaded)
   tDownloadObj.purgeCallbacks(1)
   me.tryNextDownload()
+  exit
 end
 
-on checkDownloadStatus me, tAssetId 
+on checkDownloadStatus(me, tAssetId)
   tDownloadStatus = pDownloadedAssets.getaProp(tAssetId)
   if tDownloadStatus <> void() then
     return(tDownloadStatus)
@@ -116,9 +118,10 @@ on checkDownloadStatus me, tAssetId
     end if
   end if
   return(#nodata)
+  exit
 end
 
-on addToDownloadQueue me, tAssetId, tCallbackObjectID, tCallBackHandler, tPriorityDownload, tAllowIndexing, tCallbackParams, tAssetType 
+on addToDownloadQueue(me, tAssetId, tCallbackObjectID, tCallBackHandler, tPriorityDownload, tAllowIndexing, tCallbackParams, tAssetType)
   if voidp(tAllowIndexing) then
     tAllowIndexing = 0
   end if
@@ -135,7 +138,7 @@ on addToDownloadQueue me, tAssetId, tCallbackObjectID, tCallBackHandler, tPriori
         tDownloadObj = createObject("dyndownload-" & tAssetId, getClassVariable("dyn.download.instance"))
         if not tDownloadObj then
           error(me, "Could not create download object. Could it be a duplicate:" && tAssetId, #addToDownloadQueue)
-          return FALSE
+          return(0)
         end if
         tDownloadObj.setAssetId(tAssetId)
         tDownloadObj.setAssetType(tAssetType)
@@ -149,30 +152,31 @@ on addToDownloadQueue me, tAssetId, tCallbackObjectID, tCallBackHandler, tPriori
     end if
   end if
   tDownloadObj.addCallbackListener(tCallbackObjectID, tCallBackHandler, tCallbackParams)
+  exit
 end
 
-on tryNextDownload me 
+on tryNextDownload(me)
   if not pAliasListReceived then
     if not pAliasListLoading then
-      pAliasList = [:]
+      pAliasList = []
       pAliasListLoading = 1
       tConn = getConnection(getVariableValue("connection.info.id"))
       tConn.send("GET_ALIAS_LIST")
     end if
-    return FALSE
+    return(0)
   end if
   if not pRevisionsReceived then
     if not pRevisionsLoading then
-      pFurniRevisionList = [:]
+      pFurniRevisionList = []
       pRevisionsLoading = 1
       getConnection(getVariableValue("connection.room.id")).send("GET_FURNI_REVISIONS")
     end if
-    return FALSE
+    return(0)
   end if
   tMaxItemsInProcess = 1
   tDownloadObj = void()
   if pCurrentDownLoads.count >= tMaxItemsInProcess then
-    return FALSE
+    return(0)
   end if
   if pPriorityDownloadQueue.count > 0 then
     tDownloadObj = getAt(pPriorityDownloadQueue, 1)
@@ -184,10 +188,10 @@ on tryNextDownload me
       tAssetId = tDownloadObj.getAssetId()
       pDownloadQueue.deleteProp(tAssetId)
     else
-      return FALSE
+      return(0)
     end if
   end if
-  if (me.checkDownloadStatus(tAssetId) = #downloaded) then
+  if me.checkDownloadStatus(tAssetId) = #downloaded then
     tDownloadObj.purgeCallbacks(1)
     return(me.tryNextDownload())
   end if
@@ -197,13 +201,13 @@ on tryNextDownload me
     tAliasedAssetId = pAliasList.getAt(tAssetId)
   end if
   tDownloadURL = pDynDownloadURL & pFurniCastNameTemplate
-  if (tDownloadObj.getAssetType() = #sound) then
+  if tDownloadObj.getAssetType() = #sound then
     tDownloadURL = pSoundDownloadUrl
   end if
   tFixedAssetId = replaceChunks(tAliasedAssetId, " ", "_")
   tDownloadURL = replaceChunks(tDownloadURL, "%typeid%", tFixedAssetId)
   tRawAssetId = tAssetId
-  if (chars(tAssetId, 1, 2) = "s_") then
+  if chars(tAssetId, 1, 2) = "s_" then
     tRawAssetId = chars(tAssetId, 3, tAssetId.length)
   end if
   if not voidp(pFurniRevisionList.findPos(tRawAssetId)) then
@@ -224,26 +228,28 @@ on tryNextDownload me
   else
     me.executeDownloadRequest([tAssetId, tDownloadURL, tAllowIndexing])
   end if
+  exit
 end
 
-on executeDownloadRequest me, tParams 
+on executeDownloadRequest(me, tParams)
   tAssetId = tParams.getAt(1)
   tDownloadURL = tParams.getAt(2)
   tAllowIndexing = tParams.getAt(3)
   tDownloadRefId = startCastLoad(tDownloadURL, 1, 1, tAllowIndexing)
   registerCastloadCallback(tDownloadRefId, #handleCompletedCastDownload, me.getID(), tAssetId)
+  exit
 end
 
-on acquireAssetsFromCast me, tCastNum, tAssetId 
+on acquireAssetsFromCast(me, tCastNum, tAssetId)
   if voidp(tAssetId) then
     tAssetId = ""
   end if
   tCast = castLib(tCastNum)
   if ilk(tCast) <> #castLib then
     error(me, "Download seems invalid, item is not a cast!", #acquireAssetsFromCast)
-    return FALSE
+    return(0)
   end if
-  tSavedPaletteRefs = [:]
+  tSavedPaletteRefs = []
   tFirst = 1
   tLast = the number of castMembers
   tDone = 0
@@ -255,27 +261,27 @@ on acquireAssetsFromCast me, tCastNum, tAssetId
       tmember = member(tMemNo, tCast.number)
       tMemType = tmember.type
       tMemName = tmember.name
-      if (tCast.number = #bitmap) then
+      if me = #bitmap then
         if member(tMemName, pBinCastName).name <> tMemName then
           if ilk(tmember.paletteRef) <> #symbol then
             tSourceMemName = tmember.name
             tAliasedMemName = me.doAliasReplacing(tSourceMemName, tAssetId)
-            tSavedPaletteRefs.setAt(tAliasedMemName, tmember.paletteRef.name)
+            tAliasedMemName.setAt(tmember, paletteRef.name)
             tmember.paletteRef = #systemMac
           end if
           me.copyMemberToBin(tmember, tAssetId)
         end if
       else
-        if (tCast.number = #palette) then
+        if me = #palette then
           if member(tMemName, pBinCastName).name <> tMemName then
             me.copyMemberToBin(tmember, void())
           end if
         else
-          if (tCast.number = #field) then
+          if me = #field then
             tSourceText = tmember.text
             tAliasedText = me.doAliasReplacing(tSourceText, tAssetId)
             tmember.text = tAliasedText
-            if (tMemName = "asset.index") then
+            if tMemName = "asset.index" then
               tClassesContainer = getObject(getVariable("room.classes.container"))
               i = 1
               repeat while i <= tmember.lineCount
@@ -285,19 +291,19 @@ on acquireAssetsFromCast me, tCastNum, tAssetId
                     tLineData = value(tLine)
                     tAssetId = tLineData.getAt(#id)
                     pDownloadedAssets.setAt(tAssetId, #downloaded)
-                    if (offset("s_", tAssetId) = 1) then
+                    if offset("s_", tAssetId) = 1 then
                       tAssetId = tAssetId.getProp(#char, 3, tAssetId.length)
                     end if
                     tAssetClasses = tLineData.getAt(#classes)
                     tClassesContainer.set(tAssetId, tAssetClasses)
                   end if
                 end if
-                i = (1 + i)
+                i = 1 + i
               end repeat
               exit repeat
             end if
-            if (tMemName = "memberalias.index") then
-              if (tMemNo = tLast) then
+            if tMemName = "memberalias.index" then
+              if tMemNo = tLast then
                 getResourceManager().readAliasIndexesFromField(tMemName, tCastNum)
               else
                 tDone = 0
@@ -310,17 +316,17 @@ on acquireAssetsFromCast me, tCastNum, tAssetId
               end if
             end if
           else
-            if (tCast.number = #script) then
+            if me = #script then
               me.copyMemberToBin(tmember)
             else
-              if (tCast.number = #sound) then
+              if me = #sound then
                 me.copyMemberToBin(tmember)
               end if
             end if
           end if
         end if
       end if
-      tMemNo = (1 + tMemNo)
+      tMemNo = 1 + tMemNo
     end repeat
   end repeat
   i = 1
@@ -328,44 +334,46 @@ on acquireAssetsFromCast me, tCastNum, tAssetId
     tMemberName = tSavedPaletteRefs.getPropAt(i)
     tPaletteName = tSavedPaletteRefs.getAt(tMemberName)
     member(getmemnum(tMemberName)).paletteRef = member(getmemnum(tPaletteName))
-    i = (1 + i)
+    i = 1 + i
   end repeat
+  exit
 end
 
-on copyMemberToBin me, tSourceMember, tTargetAssetClass 
+on copyMemberToBin(me, tSourceMember, tTargetAssetClass)
   if voidp(tTargetAssetClass) then
     tTargetAssetClass = ""
   end if
   tAllowCopy = 1
-  if (tSourceMember.type = #empty) then
+  if tSourceMember.type = #empty then
     tAllowCopy = 0
   else
-    if (tSourceMember.type = #script) then
-      if (tSourceMember.scriptType = #movie) then
+    if tSourceMember.type = #script then
+      if tSourceMember.scriptType = #movie then
         tAllowCopy = 0
       end if
     end if
   end if
   if tAllowCopy then
-    if (getmemnum(tSourceMember.name) = 0) then
+    if getmemnum(tSourceMember.name) = 0 then
       tSourceMemName = tSourceMember.name
       tTargetMemName = me.doAliasReplacing(tSourceMemName, tTargetAssetClass)
       tTargetMemberNum = createMember(tTargetMemName, tSourceMember.type, 0)
-      if (tTargetMemberNum = 0) then
+      if tTargetMemberNum = 0 then
         return(error(me, "Could not create a new member for copying: " & tTargetMemName, #copyMemberToBin))
       end if
       tTargetMember = member(tTargetMemberNum)
       tTargetMember.media = tSourceMember.media
-      if (tSourceMember.type = #bitmap) then
-        if (tSourceMember.image.width = 0) then
+      if tSourceMember.type = #bitmap then
+        if image.width = 0 then
           tTargetMember.image = tSourceMember.image
         end if
       end if
     end if
   end if
+  exit
 end
 
-on doAliasReplacing me, tSourceString, tTargetAssetClass 
+on doAliasReplacing(me, tSourceString, tTargetAssetClass)
   tAliasedSTring = tSourceString
   if not voidp(pAliasList.getAt(tTargetAssetClass)) then
     tSourceAssetClass = pAliasList.getaProp(tTargetAssetClass)
@@ -374,33 +382,36 @@ on doAliasReplacing me, tSourceString, tTargetAssetClass
     end if
   end if
   return(tAliasedSTring)
+  exit
 end
 
-on setAssetAlias me, tOriginalClass, tAliasClass 
+on setAssetAlias(me, tOriginalClass, tAliasClass)
   if voidp(tOriginalClass) and voidp(tAliasClass) then
     pAliasListLoading = 0
     pAliasListReceived = 1
-    return TRUE
+    return(1)
   end if
   pAliasList.setAt(tOriginalClass, tAliasClass)
   pAliasList.setAt("s_" & tOriginalClass, "s_" & tAliasClass)
+  exit
 end
 
-on setFurniRevision me, tClass, tRevision, tIsFurni 
+on setFurniRevision(me, tClass, tRevision, tIsFurni)
   if voidp(tClass) then
     pRevisionsReceived = 1
     pRevisionsLoading = 0
     me.tryNextDownload()
-    return TRUE
+    return(1)
   end if
   tOffset = offset("*", tClass)
   if tOffset then
-    tClass = tClass.getProp(#char, 1, (tOffset - 1))
+    tClass = tClass.getProp(#char, 1, tOffset - 1)
   end if
   if not voidp(pFurniRevisionList.getAt(tClass)) then
     pFurniRevisionList.setAt(tClass, max(pFurniRevisionList.getAt(tClass), tRevision))
   else
     pFurniRevisionList.setAt(tClass, tRevision)
   end if
-  return TRUE
+  return(1)
+  exit
 end

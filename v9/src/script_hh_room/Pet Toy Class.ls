@@ -1,19 +1,19 @@
-property pActive, pUpdateFrame, pLastFrm, pTimer
-
-on prepare me, tdata 
-  if (tdata.count = 0) then
+on prepare(me, tdata)
+  if tdata.count = 0 then
     tdata = [#runtimedata:"0"]
   end if
   me.updateRuntimeData(tdata.getAt(#runtimedata))
-  return TRUE
+  return(1)
+  exit
 end
 
-on updateStuffdata me, tValue 
-  return TRUE
+on updateStuffdata(me, tValue)
+  return(1)
+  exit
 end
 
-on updateRuntimeData me, tValue 
-  if (tValue = "1") then
+on updateRuntimeData(me, tValue)
+  if tValue = "1" then
     pUpdateFrame = 0
     pActive = 1
     pTimer = the milliSeconds
@@ -25,36 +25,38 @@ on updateRuntimeData me, tValue
     if me.count(#pSprList) > 3 then
       i = 1
       repeat while i <= 4
-        tMemName = me.getPropRef(#pSprList, i).member.name
-        tMemName = tMemName.getProp(#char, 1, (length(tMemName) - 1)) & 0
+        tMemName = undefined.name
+        tMemName = tMemName.getProp(#char, 1, length(tMemName) - 1) & 0
         tmember = member(getmemnum(tMemName))
         me.getPropRef(#pSprList, i).castNum = tmember.number
         me.getPropRef(#pSprList, i).width = tmember.width
         me.getPropRef(#pSprList, i).height = tmember.height
-        i = (1 + i)
+        i = 1 + i
       end repeat
     end if
   end if
+  exit
 end
 
-on update me 
+on update(me)
   if pActive then
     pUpdateFrame = not pUpdateFrame
     if pUpdateFrame then
-      pLastFrm = ((pLastFrm + 1) mod 6)
+      pLastFrm = pLastFrm + 1 mod 6
       i = 1
       repeat while i <= 4
-        tMemName = me.getPropRef(#pSprList, i).member.name
-        tMemName = tMemName.getProp(#char, 1, (length(tMemName) - 1)) & pLastFrm
+        tMemName = undefined.name
+        tMemName = tMemName.getProp(#char, 1, length(tMemName) - 1) & pLastFrm
         tmember = member(getmemnum(tMemName))
         me.getPropRef(#pSprList, i).castNum = tmember.number
         me.getPropRef(#pSprList, i).width = tmember.width
         me.getPropRef(#pSprList, i).height = tmember.height
-        i = (1 + i)
+        i = 1 + i
       end repeat
-      if (the milliSeconds - pTimer) > 20000 then
+      if the milliSeconds - pTimer > 20000 then
         getConnection(#info).send("SETSTUFFDATA", [#string:me.getID(), #string:"0"])
       end if
     end if
   end if
+  exit
 end

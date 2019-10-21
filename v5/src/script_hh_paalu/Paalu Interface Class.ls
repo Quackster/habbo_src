@@ -1,18 +1,17 @@
-property pWndID, pArrowSpr, pCurrTime, pCurrAct, pKeyList, pCycleTime, pOwnPlayer, pCurrBal, pActive
-
-on construct me 
+on construct(me)
   pWndID = "PaaluWindow"
   pActive = 0
-  pKeyList = getVariableValue("paalu.key.list", [:])
+  pKeyList = getVariableValue("paalu.key.list", [])
   pCycleTime = getIntVariable("paalu.cycle.time", 100)
   pCurrAct = "-"
   pArrowSpr = void()
   pOwnPlayer = void()
   pCurrBal = 0
-  return TRUE
+  return(1)
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   pActive = 0
   pArrowSpr = void()
   pOwnPlayer = void()
@@ -20,12 +19,13 @@ on deconstruct me
     removeWindow(pWndID)
   end if
   removeUpdate(me.getID())
-  return TRUE
+  return(1)
+  exit
 end
 
-on prepare me, tOwnPlayerObj 
+on prepare(me, tOwnPlayerObj)
   if windowExists(pWndID) then
-    return FALSE
+    return(0)
   end if
   createWindow(pWndID, "paaluUI.window", 10, 10, #modal)
   tWndObj = getWindow(pWndID)
@@ -38,41 +38,44 @@ on prepare me, tOwnPlayerObj
     error(me, "Where's the modal window?", #prepare)
   end if
   pArrowSpr = tWndObj.getElement("needle").getProperty(#sprite)
-  pArrowSpr.member.regPoint = point((pArrowSpr.member.width / 2), (pArrowSpr.member.height - 3))
+  member.width / 2.regPoint = point(pArrowSpr, member.height - 3)
   tBallSpr = tWndObj.getElement("needle_ball").getProperty(#sprite)
-  tBallSpr.member.regPoint = point((tBallSpr.member.width / 2), (tBallSpr.member.height / 2))
+  member.width / 2.regPoint = point(tBallSpr, member.height / 2)
   pOwnPlayer = tOwnPlayerObj
   pCurrAct = "-"
   pCurrTime = the milliSeconds
   pCurrBal = 0
   pActive = 0
-  return TRUE
+  return(1)
+  exit
 end
 
-on start me 
+on start(me)
   pActive = 1
   the keyboardFocusSprite = 0
   receiveUpdate(me.getID())
   startTimer()
-  return TRUE
+  return(1)
+  exit
 end
 
-on stop me 
+on stop(me)
   pActive = 0
   pArrowSpr = void()
   pOwnPlayer = void()
   removeWindow(pWndID)
   removeUpdate(me.getID())
   the keyboardFocusSprite = -1
-  return TRUE
+  return(1)
+  exit
 end
 
-on update me 
+on update(me)
   the keyboardFocusSprite = 0
-  tTime = (the milliSeconds - pCurrTime)
+  tTime = the milliSeconds - pCurrTime
   tKey = the key
   if the lastKey < the timer then
-    if (tKey = space()) then
+    if tKey = space() then
       tKey = "SPACE"
     end if
     if tKey <> pCurrAct then
@@ -86,8 +89,8 @@ on update me
     end if
     startTimer()
   end if
-  tTimerOff = (tTime / 100)
-  if (tTimerOff = 9) then
+  tTimerOff = tTime / 100
+  if tTimerOff = 9 then
     if pCurrAct <> "-" then
       me.highLightKey(pCurrAct)
     end if
@@ -96,12 +99,13 @@ on update me
     pCurrTime = the milliSeconds
   end if
   tBalance = pOwnPlayer.getBalance()
-  tBalOff = (tBalance - pCurrBal)
-  pCurrBal = (pCurrBal + (tBalOff / 4))
+  tBalOff = tBalance - pCurrBal
+  pCurrBal = pCurrBal + tBalOff / 0
   pArrowSpr.rotation = pCurrBal
+  exit
 end
 
-on resetDialog me 
+on resetDialog(me)
   tWndObj = getWindow(pWndID)
   if not tWndObj then
     return()
@@ -113,32 +117,36 @@ on resetDialog me
     if tmember.number > 0 then
       tWndObj.getElement("button" && tKey).getProperty(#sprite).member = tmember
     end if
-    i = (1 + i)
+    i = 1 + i
   end repeat
+  exit
 end
 
-on sendAction me 
+on sendAction(me)
   if pActive then
     getThread(#room).getComponent().getRoomConnection().send(#room, "PTM" && pKeyList.getAt(pCurrAct))
   end if
+  exit
 end
 
-on selectKey me, tAction 
+on selectKey(me, tAction)
   tmember = member(getmemnum("paaluUI_butt_" & tAction & "_1"))
   if tmember.number > 0 then
     getWindow(pWndID).getElement("button" && tAction).getProperty(#sprite).member = tmember
   end if
+  exit
 end
 
-on highLightKey me, tAction 
+on highLightKey(me, tAction)
   tmember = member(getmemnum("paaluUI_butt_" & tAction & "_2"))
   if tmember.number > 0 then
     getWindow(pWndID).getElement("button" && tAction).getProperty(#sprite).member = tmember
   end if
+  exit
 end
 
-on eventProcPaalu me, tEvent, tSprID, tParam 
-  if (tSprID.getProp(#word, 1) = "button") then
+on eventProcPaalu(me, tEvent, tSprID, tParam)
+  if tSprID.getProp(#word, 1) = "button" then
     tAction = tSprID.getProp(#word, 2)
     if pCurrAct <> tAction then
       pCurrAct = tAction
@@ -148,4 +156,5 @@ on eventProcPaalu me, tEvent, tSprID, tParam
       pCurrAct = "-"
     end if
   end if
+  exit
 end

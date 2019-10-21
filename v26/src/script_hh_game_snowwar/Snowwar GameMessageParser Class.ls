@@ -1,31 +1,34 @@
-on construct me 
+on construct(me)
   return(1)
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   return(1)
+  exit
 end
 
-on Refresh me, tTopic, tdata 
+on Refresh(me, tTopic, tdata)
   call(symbol("handle_" & tTopic), me, tdata)
   return(1)
+  exit
 end
 
-on handle_msgstruct_objects me, tdata 
+on handle_msgstruct_objects(me, tdata)
   tList = []
   tCount = tdata.count(#line)
   i = 1
   repeat while i <= tCount
     tLine = tdata.getProp(#line, i)
     if length(tLine) > 5 then
-      tObj = [:]
+      tObj = []
       tObj.setAt(#id, tLine.getProp(#word, 1))
       tObj.setAt(#class, tLine.getProp(#word, 2))
       tObj.setAt(#x, integer(tLine.getProp(#word, 3)))
       tObj.setAt(#y, integer(tLine.getProp(#word, 4)))
       tObj.setAt(#h, integer(tLine.getProp(#word, 5)))
       if tLine.count(#word) = 6 then
-        tdir = (integer(tLine.getProp(#word, 6)) mod 8)
+        tdir = integer(tLine.getProp(#word, 6)) mod 8
         tObj.setAt(#direction, [tdir, tdir, tdir])
         tObj.setAt(#dimensions, 0)
       else
@@ -48,11 +51,12 @@ on handle_msgstruct_objects me, tdata
     i = 1 + i
   end repeat
   return(me.getGameSystem().getWorld().storeObjects(tList))
+  exit
 end
 
-on handle_msgstruct_instancelist me, tMsg 
+on handle_msgstruct_instancelist(me, tMsg)
   tConn = tMsg.connection
-  tResult = [:]
+  tResult = []
   tCreatedCount = tConn.GetIntFrom()
   i = 1
   repeat while i <= tCreatedCount
@@ -76,13 +80,14 @@ on handle_msgstruct_instancelist me, tMsg
   end repeat
   return(me.getGameSystem().sendGameSystemEvent(#instancelist, tResult))
   return(tResult)
+  exit
 end
 
-on handle_msgstruct_gameinstance me, tMsg 
+on handle_msgstruct_gameinstance(me, tMsg)
   tConn = tMsg.connection
   tStateInt = tConn.GetIntFrom()
   tstate = [#created, #started, #finished].getAt(tStateInt + 1)
-  if tstate = #created then
+  if me = #created then
     tResult = me.parse_created_instance(tConn)
     tResult.addProp(#numSpectators, tConn.GetIntFrom())
     tNumTeams = tConn.GetIntFrom()
@@ -102,7 +107,7 @@ on handle_msgstruct_gameinstance me, tMsg
     tResult.addProp(#numTeams, tNumTeams)
     tResult.addProp(#teams, tTeams)
   else
-    if tstate = #started then
+    if me = #started then
       tResult = me.parse_started_instance(tConn)
       tNumTeams = tConn.GetIntFrom()
       tTeams = []
@@ -121,7 +126,7 @@ on handle_msgstruct_gameinstance me, tMsg
       tResult.addProp(#numTeams, tNumTeams)
       tResult.addProp(#teams, tTeams)
     else
-      if tstate = #finished then
+      if me = #finished then
         tResult = me.parse_finished_instance(tConn)
         tNumTeams = tConn.GetIntFrom()
         tTeamsUnsorted = []
@@ -131,7 +136,7 @@ on handle_msgstruct_gameinstance me, tMsg
           tNumPlayers = tConn.GetIntFrom()
           j = 1
           repeat while j <= tNumPlayers
-            tPlayer = [:]
+            tPlayer = []
             tPlayer.addProp(#name, tConn.GetStrFrom())
             tPlayer.addProp(#score, tConn.GetIntFrom())
             tList.getAt(#players).add(tPlayer)
@@ -149,7 +154,7 @@ on handle_msgstruct_gameinstance me, tMsg
           tTeamPlayers = tTeamsUnsorted.getAt(tTeamId).getAt(#players)
           j = 1
           repeat while j <= tTeamPlayers.count
-            tPlayer = [:]
+            tPlayer = []
             tPlayer.addProp(#name, tTeamPlayers.getAt(j).getAt(#name))
             tPlayer.addProp(#score, tTeamPlayers.getAt(j).getAt(#score))
             tPlayerPos = 1
@@ -174,15 +179,16 @@ on handle_msgstruct_gameinstance me, tMsg
   end if
   tResult.addProp(#state, tstate)
   return(me.getGameSystem().sendGameSystemEvent(#gameinstance, tResult))
+  exit
 end
 
-on handle_msgstruct_fullgamestatus me, tMsg 
+on handle_msgstruct_fullgamestatus(me, tMsg)
   tGameSystem = me.getGameSystem()
   if tGameSystem = 0 then
     return(0)
   end if
   tConn = tMsg.connection
-  tdata = [:]
+  tdata = []
   tStateInt = tConn.GetIntFrom()
   tstate = [#created, #started, #finished].getAt(tStateInt)
   tdata.addProp(#state, tstate)
@@ -205,7 +211,7 @@ on handle_msgstruct_fullgamestatus me, tMsg
   tGameSystem.sendGameSystemEvent(#fullgamestatus_time, tdata.getAt(#time))
   tGameSystem.clearTurnBuffer()
   tGameSystem.sendGameSystemEvent(#verify_game_object_id_list, tObjectIdList)
-  repeat while tdata.getAt(#game_objects) <= undefined
+  repeat while me <= undefined
     tGameObject = getAt(undefined, tMsg)
     if tGameSystem.getGameObject(tGameObject.getAt(#id)) = 0 then
       tGameSystem.sendGameSystemEvent(#create_game_object, tGameObject)
@@ -216,25 +222,27 @@ on handle_msgstruct_fullgamestatus me, tMsg
   tGameSystem.sendGameSystemEvent(#update_game_visuals)
   tGameSystem.startTurnManager()
   return(me.parse_gamestatus(tConn))
+  exit
 end
 
-on handle_msgstruct_gamestart me, tMsg 
+on handle_msgstruct_gamestart(me, tMsg)
   tConn = tMsg.connection
-  tdata = [:]
+  tdata = []
   tdata.addProp(#time_until_game_end, tConn.GetIntFrom())
   return(me.getGameSystem().sendGameSystemEvent(#gamestart, tdata))
+  exit
 end
 
-on handle_msgstruct_gameend me, tMsg 
+on handle_msgstruct_gameend(me, tMsg)
   tConn = tMsg.connection
-  tdata = [:]
+  tdata = []
   tdata.addProp(#time_until_game_reset, tConn.GetIntFrom())
   tNumTeams = tConn.GetIntFrom()
   tTeamScores = []
   tTeamNum = 1
   repeat while tTeamNum <= tNumTeams
     tNumPlayers = tConn.GetIntFrom()
-    tPlayers = [:]
+    tPlayers = []
     tPlayer = 1
     repeat while tPlayer <= tNumPlayers
       tPlayerId = tConn.GetIntFrom()
@@ -253,11 +261,12 @@ on handle_msgstruct_gameend me, tMsg
   end repeat
   tdata.addProp(#gameend_scores, tTeamScores)
   return(me.getGameSystem().sendGameSystemEvent(#gameend, tdata))
+  exit
 end
 
-on handle_msgstruct_gamereset me, tMsg 
+on handle_msgstruct_gamereset(me, tMsg)
   tConn = tMsg.connection
-  tdata = [:]
+  tdata = []
   tdata.addProp(#time_until_game_start, tConn.GetIntFrom())
   tNumObjects = tConn.GetIntFrom()
   tGameObjects = []
@@ -275,7 +284,7 @@ on handle_msgstruct_gamereset me, tMsg
   tGameSystem = me.getGameSystem()
   tGameSystem.clearTurnBuffer()
   tGameSystem.sendGameSystemEvent(#verify_game_object_id_list, tObjectIdList)
-  repeat while tdata.getAt(#game_objects) <= undefined
+  repeat while me <= undefined
     tGameObject = getAt(undefined, tMsg)
     if tGameSystem.getGameObject(tGameObject.getAt(#id)) = 0 then
       tGameSystem.sendGameSystemEvent(#create_game_object, tGameObject)
@@ -285,11 +294,12 @@ on handle_msgstruct_gamereset me, tMsg
   end repeat
   tGameSystem.sendGameSystemEvent(#update_game_visuals)
   return(tGameSystem.sendGameSystemEvent(#gamereset, tdata))
+  exit
 end
 
-on handle_msgstruct_gameplayerinfo me, tMsg 
+on handle_msgstruct_gameplayerinfo(me, tMsg)
   tConn = tMsg.connection
-  tdata = [:]
+  tdata = []
   tNumPlayers = tConn.GetIntFrom()
   i = 1
   repeat while i <= tNumPlayers
@@ -300,14 +310,16 @@ on handle_msgstruct_gameplayerinfo me, tMsg
     i = 1 + i
   end repeat
   return(me.getGameSystem().sendGameSystemEvent(#gameplayerinfo, tdata))
+  exit
 end
 
-on handle_msgstruct_gamestatus me, tMsg 
+on handle_msgstruct_gamestatus(me, tMsg)
   tConn = tMsg.connection
   return(me.parse_gamestatus(tConn))
+  exit
 end
 
-on parse_gamestatus me, tConn 
+on parse_gamestatus(me, tConn)
   tGameSystem = me.getGameSystem()
   if tGameSystem = 0 then
     return(0)
@@ -341,38 +353,39 @@ on parse_gamestatus me, tConn
     tSubTurnNum = 1 + tSubTurnNum
   end repeat
   return(tGameSystem.sendGameSystemEvent(#gamestatus_turn, tTurn))
+  exit
 end
 
-on parse_snowwar_gameobject me, tConn 
-  tdata = [:]
+on parse_snowwar_gameobject(me, tConn)
+  tdata = []
   tdata.addProp(#type, tConn.GetIntFrom())
   tID = tConn.GetIntFrom()
   tdata.addProp(#int_id, tID)
   tdata.addProp(#id, string(tID))
-  if tdata.getAt(#type) = 0 then
+  if me = 0 then
     tObjectData = me.parse_snowwar_player_gameobjectvariables(tdata.duplicate(), tConn)
     tdata.addProp(#objectDataStruct, tObjectData)
     tdata.addProp(#str_type, "player")
   else
-    if tdata.getAt(#type) = 1 then
+    if me = 1 then
       tObjectData = me.parse_snowwar_snowball_gameobjectvariables(tdata.duplicate(), tConn)
       tdata.addProp(#objectDataStruct, tObjectData)
       tdata.addProp(#str_type, "snowball")
     else
-      if tdata.getAt(#type) = 2 then
+      if me = 2 then
         return(0)
       else
-        if tdata.getAt(#type) = 3 then
+        if me = 3 then
           tObjectData = me.parse_snowwar_large_snowball_gameobjectvariables(tdata.duplicate(), tConn)
           tdata.addProp(#objectDataStruct, tObjectData)
           tdata.addProp(#str_type, "large_snowball")
         else
-          if tdata.getAt(#type) = 4 then
+          if me = 4 then
             tObjectData = me.parse_snowwar_snowball_machine_gameobjectvariables(tdata.duplicate(), tConn)
             tdata.addProp(#objectDataStruct, tObjectData)
             tdata.addProp(#str_type, "snowball_machine")
           else
-            if tdata.getAt(#type) = 5 then
+            if me = 5 then
               tObjectData = me.parse_snowwar_avatar_gameobjectvariables(tdata.duplicate(), tConn)
               tdata.addProp(#objectDataStruct, tObjectData)
               i = 1
@@ -396,16 +409,17 @@ on parse_snowwar_gameobject me, tConn
     end if
   end if
   tExtraProps = ["collisionshape_type", "height", "collisionshape_radius"]
-  repeat while tdata.getAt(#type) <= undefined
+  repeat while me <= undefined
     tProp = getAt(undefined, tConn)
     if variableExists("snowwar.object_" & tdata.getAt(#str_type) & "." & tProp) then
       tdata.addProp(symbol("gameobject_" & tProp), getVariable("snowwar.object_" & tdata.getAt(#str_type) & "." & tProp))
     end if
   end repeat
   return(tdata)
+  exit
 end
 
-on parse_snowwar_snowball_gameobjectvariables me, tdata, tConn 
+on parse_snowwar_snowball_gameobjectvariables(me, tdata, tConn)
   tdata.addProp(#x, tConn.GetIntFrom())
   tdata.addProp(#y, tConn.GetIntFrom())
   tdata.addProp(#z, tConn.GetIntFrom())
@@ -415,15 +429,17 @@ on parse_snowwar_snowball_gameobjectvariables me, tdata, tConn
   tdata.addProp(#int_thrower_id, tConn.GetIntFrom())
   tdata.addProp(#parabola_offset, tConn.GetIntFrom())
   return(tdata)
+  exit
 end
 
-on parse_snowwar_player_gameobjectvariables me, tdata, tConn 
+on parse_snowwar_player_gameobjectvariables(me, tdata, tConn)
   tdata.addProp(#room_index, tConn.GetIntFrom())
   tdata.addProp(#human_id, tConn.GetIntFrom())
   return(tdata)
+  exit
 end
 
-on parse_snowwar_avatar_gameobjectvariables me, tdata, tConn 
+on parse_snowwar_avatar_gameobjectvariables(me, tdata, tConn)
   tdata.addProp(#x, tConn.GetIntFrom())
   tdata.addProp(#y, tConn.GetIntFrom())
   tdata.addProp(#body_direction, tConn.GetIntFrom())
@@ -441,61 +457,64 @@ on parse_snowwar_avatar_gameobjectvariables me, tdata, tConn
   tdata.addProp(#team_id, tConn.GetIntFrom())
   tdata.addProp(#room_index, tConn.GetIntFrom())
   return(tdata)
+  exit
 end
 
-on parse_snowwar_large_snowball_gameobjectvariables me, tdata, tConn 
+on parse_snowwar_large_snowball_gameobjectvariables(me, tdata, tConn)
   tdata.addProp(#x, tConn.GetIntFrom())
   tdata.addProp(#y, tConn.GetIntFrom())
   return(tdata)
+  exit
 end
 
-on parse_snowwar_snowball_machine_gameobjectvariables me, tdata, tConn 
+on parse_snowwar_snowball_machine_gameobjectvariables(me, tdata, tConn)
   tdata.addProp(#x, tConn.GetIntFrom())
   tdata.addProp(#y, tConn.GetIntFrom())
   tdata.addProp(#snowball_count, tConn.GetIntFrom())
   return(tdata)
+  exit
 end
 
-on parse_event me, tConn 
+on parse_event(me, tConn)
   tEventType = tConn.GetIntFrom()
-  if tEventType = 0 then
+  if me = 0 then
     tEvent = me.parse_snowwar_gameobject(tConn)
     tEvent.addProp(#event_type, 0)
   else
-    if tEventType = 1 then
+    if me = 1 then
       tIntKeyList = [#int_id]
     else
-      if tEventType = 2 then
+      if me = 2 then
         tIntKeyList = [#int_id, #x, #y]
       else
-        if tEventType = 3 then
+        if me = 3 then
           tIntKeyList = [#int_id, #int_target_id, #throw_height]
         else
-          if tEventType = 4 then
+          if me = 4 then
             tIntKeyList = [#int_id, #targetX, #targetY, #throw_height]
           else
-            if tEventType = 5 then
+            if me = 5 then
               tIntKeyList = [#int_thrower_id, #int_id, #hit_direction]
             else
-              if tEventType = 6 then
+              if me = 6 then
                 tIntKeyList = [#x, #y]
               else
-                if tEventType = 7 then
+                if me = 7 then
                   tIntKeyList = [#int_id]
                 else
-                  if tEventType = 8 then
+                  if me = 8 then
                     tIntKeyList = [#int_id, #int_thrower_id, #targetX, #targetY, #trajectory]
                   else
-                    if tEventType = 9 then
+                    if me = 9 then
                       tIntKeyList = [#int_id, #int_thrower_id, #hit_direction]
                     else
-                      if tEventType = 10 then
+                      if me = 10 then
                         tIntKeyList = []
                       else
-                        if tEventType = 11 then
+                        if me = 11 then
                           tIntKeyList = [#int_machine_id]
                         else
-                          if tEventType = 12 then
+                          if me = 12 then
                             tIntKeyList = [#int_player_id, #int_machine_id]
                           else
                             return(error(me, "Undefined event sent by server, parsing cannot continue!", #handle_gamestatus))
@@ -514,7 +533,7 @@ on parse_event me, tConn
   end if
   if listp(tIntKeyList) then
     tEvent = [#event_type:tEventType]
-    repeat while tEventType <= undefined
+    repeat while me <= undefined
       tKey = getAt(undefined, tConn)
       tEvent.addProp(tKey, tConn.GetIntFrom())
     end repeat
@@ -523,10 +542,11 @@ on parse_event me, tConn
     end if
   end if
   return(tEvent)
+  exit
 end
 
-on parse_created_instance me, tConn 
-  tResult = [:]
+on parse_created_instance(me, tConn)
+  tResult = []
   tResult.addProp(#id, tConn.GetIntFrom())
   tResult.addProp(#name, tConn.GetStrFrom())
   tResult.addProp(#host, me.parse_team_player(tConn))
@@ -534,10 +554,11 @@ on parse_created_instance me, tConn
   tResult.addProp(#gameLength, tConn.GetIntFrom())
   tResult.addProp(#fieldType, tConn.GetIntFrom())
   return(tResult)
+  exit
 end
 
-on parse_started_instance me, tConn 
-  tResult = [:]
+on parse_started_instance(me, tConn)
+  tResult = []
   tResult.addProp(#id, tConn.GetIntFrom())
   tResult.addProp(#name, tConn.GetStrFrom())
   tResult.addProp(#host, [#name:tConn.GetStrFrom()])
@@ -545,10 +566,11 @@ on parse_started_instance me, tConn
   tResult.addProp(#gameLength, tConn.GetIntFrom())
   tResult.addProp(#fieldType, tConn.GetIntFrom())
   return(tResult)
+  exit
 end
 
-on parse_finished_instance me, tConn 
-  tResult = [:]
+on parse_finished_instance(me, tConn)
+  tResult = []
   tResult.addProp(#id, tConn.GetIntFrom())
   tResult.addProp(#name, tConn.GetStrFrom())
   tResult.addProp(#host, [#name:tConn.GetStrFrom()])
@@ -556,20 +578,23 @@ on parse_finished_instance me, tConn
   tResult.addProp(#gameLength, tConn.GetIntFrom())
   tResult.addProp(#fieldType, tConn.GetIntFrom())
   return(tResult)
+  exit
 end
 
-on parse_team_player me, tConn 
-  tResult = [:]
+on parse_team_player(me, tConn)
+  tResult = []
   tResult.addProp(#id, tConn.GetIntFrom())
   tResult.addProp(#name, tConn.GetStrFrom())
   return(tResult)
+  exit
 end
 
-on parse_gamestatus_player me, tConn 
-  tdata = [:]
+on parse_gamestatus_player(me, tConn)
+  tdata = []
   tdata.addProp(#id, tConn.GetIntFrom())
   tdata.addProp(#locX, tConn.GetIntFrom())
   tdata.addProp(#locY, tConn.GetIntFrom())
   tdata.addProp(#dirBody, tConn.GetIntFrom())
   return(tdata)
+  exit
 end

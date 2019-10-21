@@ -1,40 +1,45 @@
-on construct me 
+on construct(me)
   return(me.regMsgList(1))
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   return(me.regMsgList(0))
+  exit
 end
 
-on handle_ok me, tMsg 
+on handle_ok(me, tMsg)
   tMsg.getaProp(#connection).send("SCR_GET_USER_INFO", [#string:"club_habbo"])
+  exit
 end
 
-on handle_scr_sinfo me, tMsg 
-  tProdName = tMsg.connection.GetStrFrom()
-  tDaysLeft = tMsg.connection.GetIntFrom()
-  tElapsedPeriods = tMsg.connection.GetIntFrom()
-  tPrepaidPeriods = tMsg.connection.GetIntFrom()
-  tResponseFlag = tMsg.connection.GetIntFrom()
-  tList = [:]
+on handle_scr_sinfo(me, tMsg)
+  tProdName = connection.GetStrFrom()
+  tDaysLeft = connection.GetIntFrom()
+  tElapsedPeriods = connection.GetIntFrom()
+  tPrepaidPeriods = connection.GetIntFrom()
+  tResponseFlag = connection.GetIntFrom()
+  tList = []
   tList.setAt(#productName, tProdName)
   tList.setAt(#daysLeft, tDaysLeft)
   tList.setAt(#ElapsedPeriods, tElapsedPeriods)
   tList.setAt(#PrepaidPeriods, tPrepaidPeriods)
   me.getComponent().setStatus(tList, tResponseFlag)
+  exit
 end
 
-on handle_gift me, tMsg 
-  tGiftCount = tMsg.connection.GetIntFrom()
+on handle_gift(me, tMsg)
+  tGiftCount = connection.GetIntFrom()
   me.getComponent().showGifts(tGiftCount)
+  exit
 end
 
-on regMsgList me, tBool 
-  tMsgs = [:]
+on regMsgList(me, tBool)
+  tMsgs = []
   tMsgs.setaProp(3, #handle_ok)
   tMsgs.setaProp(7, #handle_scr_sinfo)
   tMsgs.setaProp(280, #handle_gift)
-  tCmds = [:]
+  tCmds = []
   tCmds.setaProp("SCR_GET_USER_INFO", 26)
   tCmds.setaProp("SCR_BUY", 190)
   tCmds.setaProp("SCR_GIFT_APPROVAL", 210)
@@ -45,5 +50,6 @@ on regMsgList me, tBool
     unregisterListener(getVariable("connection.info.id"), me.getID(), tMsgs)
     unregisterCommands(getVariable("connection.info.id"), me.getID(), tCmds)
   end if
-  return TRUE
+  return(1)
+  exit
 end

@@ -1,15 +1,13 @@
-property pRegMsgStruct, pState, pFigurePartListLoadedFlag, pAvailableSetListLoadedFlag, pParentEmailAddress, pAgeCheckFlag, pParentEmailNeededFlag, pUserIDFromRegistration
-
-on construct me 
-  pValidPartProps = [:]
-  pValidPartGroups = [:]
+on construct(me)
+  pValidPartProps = []
+  pValidPartGroups = []
   pFigurePartListLoadedFlag = 0
   pAvailableSetListLoadedFlag = 0
   pState = 0
   pAgeCheckFlag = void()
   pParentEmailNeededFlag = void()
   pParentEmailAddress = ""
-  pRegMsgStruct = [:]
+  pRegMsgStruct = []
   pRegMsgStruct.setAt("parentagree", [#id:1, "type":#boolean])
   pRegMsgStruct.setAt("name", [#id:2, "type":#string])
   pRegMsgStruct.setAt("password", [#id:3, "type":#string])
@@ -29,9 +27,10 @@ on construct me
   registerMessage(#show_registration, me.getID(), #openFigureCreator)
   registerMessage(#hide_registration, me.getID(), #closeFigureCreator)
   registerMessage(#figure_ready, me.getID(), #figureSystemReady)
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   unregisterMessage(#enterRoom, me.getID())
   unregisterMessage(#changeRoom, me.getID())
   unregisterMessage(#leaveRoom, me.getID())
@@ -39,72 +38,84 @@ on deconstruct me
   unregisterMessage(#hide_registration, me.getID())
   unregisterMessage(#figure_ready, me.getID())
   return(me.updateState("reset"))
+  exit
 end
 
-on setBlockTime me, tdata 
+on setBlockTime(me, tdata)
   setPref("blocktime", tdata)
   me.closeFigureCreator()
   executeMessage(#alert, [#title:"alert_win_coppa", #Msg:"alert_reg_age", #id:"underage", #modal:1])
   return(removeConnection(getVariable("connection.info.id")))
+  exit
 end
 
-on continueBlocking me 
+on continueBlocking(me)
   me.closeFigureCreator()
   executeMessage(#alert, [#title:"alert_win_coppa", #Msg:"alert_reg_blocked", #id:"underage", #modal:1])
   return(removeConnection(getVariable("connection.info.id")))
+  exit
 end
 
-on getRealtime me 
+on getRealtime(me)
   getConnection(getVariable("connection.info.id")).send("COPPA_REG_GETREALTIME")
+  exit
 end
 
-on checkBlockTime me 
+on checkBlockTime(me)
   tdata = getPref("Blocktime")
   getConnection(getVariable("connection.info.id")).send("COPPA_REG_CHECKTIME", [#string:tdata])
+  exit
 end
 
-on resetBlockTime me 
+on resetBlockTime(me)
   setPref("blocktime", "0")
   return(me.updateState("openFigureCreator"))
+  exit
 end
 
-on openFigureCreator me 
+on openFigureCreator(me)
   return(me.updateState("openFigureCreator"))
+  exit
 end
 
-on openFigureUpdate me 
+on openFigureUpdate(me)
   return(me.updateState("openFigureUpdate"))
+  exit
 end
 
-on closeFigureCreator me 
+on closeFigureCreator(me)
   return(me.getInterface().closeFigureCreator())
+  exit
 end
 
-on reRegistrationRequired me 
+on reRegistrationRequired(me)
   return(me.updateState("openForcedUpdate"))
+  exit
 end
 
-on figureSystemReady me 
+on figureSystemReady(me)
   return(me.updateState(pState))
+  exit
 end
 
-on checkUserName me, tNameStr 
+on checkUserName(me, tNameStr)
   if objectExists(#string_validator) then
     if not getObject(#string_validator).validateString(tNameStr) then
       tFailed = getObject(#string_validator).getFailedChar()
       setText("alert_InvalidChar", replaceChunks(getText("alert_InvalidUserName"), "\\x", tFailed))
       executeMessage(#alert, [#Msg:"alert_InvalidChar", #id:"nameinvalid"])
-      return FALSE
+      return(0)
     end if
   end if
   pCheckingName = tNameStr
   if connectionExists(getVariable("connection.info.id", #info)) then
     getConnection(getVariable("connection.info.id", #info)).send("APPROVENAME", [#string:tNameStr, #integer:0])
   end if
-  return TRUE
+  return(1)
+  exit
 end
 
-on sendNewFigureDataToServer me, tPropList 
+on sendNewFigureDataToServer(me, tPropList)
   tPropList = tPropList.duplicate()
   if not objectExists("Figure_System") then
     return(error(me, "Figure system object not found", #sendNewFigureDataToServer))
@@ -123,7 +134,7 @@ on sendNewFigureDataToServer me, tPropList
       tPropList.setAt("partnersite", getVariable("user_partnersite"))
     end if
   end if
-  tMsg = [:]
+  tMsg = []
   f = 1
   repeat while f <= tPropList.count
     tProp = tPropList.getPropAt(f)
@@ -133,27 +144,28 @@ on sendNewFigureDataToServer me, tPropList
     tValue = tPropList.getAt(tProp)
     if not voidp(pRegMsgStruct.getAt(tProp)) then
       tMsg.addProp(#short, pRegMsgStruct.getAt(tProp).id)
-      if (pRegMsgStruct.getAt(tProp).type = #boolean) then
+      if pRegMsgStruct.getAt(tProp).type = #boolean then
         tValue = integer(tValue)
       end if
-      if (pRegMsgStruct.getAt(tProp).type = #string) and tValue.ilk <> #string then
+      if pRegMsgStruct.getAt(tProp).type = #string and tValue.ilk <> #string then
         tValue = string(tValue)
       end if
-      if (pRegMsgStruct.getAt(tProp).type = #short) and tValue.ilk <> #integer then
+      if pRegMsgStruct.getAt(tProp).type = #short and tValue.ilk <> #integer then
         tValue = integer(tValue)
       end if
       tMsg.addProp(pRegMsgStruct.getAt(tProp).type, tValue)
     end if
-    f = (1 + f)
+    f = 1 + f
   end repeat
   if connectionExists(getVariable("connection.info.id")) then
     return(getConnection(getVariable("connection.info.id")).send("REGISTER", tMsg))
   else
     return(error(me, "Connection not found:" && getVariable("connection.info.id"), #sendNewFigureDataToServer))
   end if
+  exit
 end
 
-on sendFigureUpdateToServer me, tPropList 
+on sendFigureUpdateToServer(me, tPropList)
   tPropList = tPropList.duplicate()
   if not objectExists("Figure_System") then
     return(error(me, "Figure system object not found", #sendFigureUpdateToServer))
@@ -163,12 +175,12 @@ on sendFigureUpdateToServer me, tPropList
     tPropList.setAt("figure", tFigure.getAt("figuretoServer"))
   end if
   if not voidp(tPropList.getAt("password")) then
-    if tPropList.getAt("password") <> "" then
-      if (tPropList.getAt("password") = void()) then
+    if me <> "" then
+      if me = void() then
         return(error(me, "Password was reseted, abort update!", #sendFigureUpdateToServer))
       end if
-      tMsg = [:]
-      repeat while tPropList.getAt("password") <= undefined
+      tMsg = []
+      repeat while me <= undefined
         tProp = getAt(undefined, tPropList)
         tValue = tPropList.getAt(tProp)
         if getObject(#session).exists("user_" & tProp) then
@@ -177,13 +189,13 @@ on sendFigureUpdateToServer me, tPropList
         if not [tValue].getPos(tStoredValue) and not voidp(tValue) then
           if not voidp(pRegMsgStruct.getAt(tProp)) then
             tMsg.addProp(#short, pRegMsgStruct.getAt(tProp).id)
-            if (pRegMsgStruct.getAt(tProp).type = #boolean) then
+            if pRegMsgStruct.getAt(tProp).type = #boolean then
               tValue = integer(tValue)
             end if
-            if (pRegMsgStruct.getAt(tProp).type = #string) and tValue.ilk <> #string then
+            if pRegMsgStruct.getAt(tProp).type = #string and tValue.ilk <> #string then
               tValue = string(tValue)
             end if
-            if (pRegMsgStruct.getAt(tProp).type = #short) and tValue.ilk <> #integer then
+            if pRegMsgStruct.getAt(tProp).type = #short and tValue.ilk <> #integer then
               tValue = integer(tValue)
             end if
             tMsg.addProp(pRegMsgStruct.getAt(tProp).type, tValue)
@@ -195,17 +207,19 @@ on sendFigureUpdateToServer me, tPropList
       else
         return(error(me, "Connection not found:" && getVariable("connection.info.id"), #sendFigureUpdateToServer))
       end if
+      exit
     end if
   end if
 end
 
-on newFigureReady me 
+on newFigureReady(me)
   me.closeFigureCreator()
   me.updateState("start")
-  return TRUE
+  return(1)
+  exit
 end
 
-on figureUpdateReady me 
+on figureUpdateReady(me)
   if connectionExists(getVariable("connection.info.id")) then
     getConnection(getVariable("connection.info.id")).send("INFORETRIEVE")
   else
@@ -218,97 +232,110 @@ on figureUpdateReady me
   end if
   me.closeFigureCreator()
   return(me.updateState("start"))
+  exit
 end
 
-on setAvailableSetList me, tList 
+on setAvailableSetList(me, tList)
   if pFigurePartListLoadedFlag and not voidp(tList) then
     me.initializeSelectablePartList(tList)
     pAvailableSetListLoadedFlag = 1
-    if (pState = "openFigureCreator") then
+    if me = "openFigureCreator" then
       return(me.updateState("openFigureCreator"))
     else
-      if (pState = "openFigureUpdate") then
+      if me = "openFigureUpdate" then
         return(me.updateState("openFigureUpdate"))
       end if
     end if
   end if
+  exit
 end
 
-on getAvailableSetList me 
-  if (pFigurePartListLoadedFlag = 1) and (pAvailableSetListLoadedFlag = 0) then
+on getAvailableSetList(me)
+  if pFigurePartListLoadedFlag = 1 and pAvailableSetListLoadedFlag = 0 then
     if connectionExists(getVariable("connection.info.id")) then
       getConnection(getVariable("connection.info.id")).send("GETAVAILABLESETS")
     end if
   end if
+  exit
 end
 
-on checkAge me, tAge 
+on checkAge(me, tAge)
   if connectionExists(getVariable("connection.info.id")) then
     getConnection(getVariable("connection.info.id")).send("AC", tAge)
   end if
-  return TRUE
+  return(1)
+  exit
 end
 
-on checkEmailAddress me, tEmail 
+on checkEmailAddress(me, tEmail)
   if connectionExists(getVariable("connection.info.id")) then
     getConnection(getVariable("connection.info.id")).send("APPROVEEMAIL", [#string:tEmail])
   end if
-  return TRUE
+  return(1)
+  exit
 end
 
-on parentEmailNeedQuery me, tBirthday, tHabboID 
+on parentEmailNeedQuery(me, tBirthday, tHabboID)
   if connectionExists(getVariable("connection.info.id")) then
     getConnection(getVariable("connection.info.id")).send("PARENT_EMAIL_REQUIRED", [#string:tBirthday, #string:tHabboID])
   end if
-  return TRUE
+  return(1)
+  exit
 end
 
-on sendParentEmail me 
+on sendParentEmail(me)
   if pParentEmailAddress <> "" then
     tParentEmail = pParentEmailAddress
     if connectionExists(getVariable("connection.info.id")) then
       getConnection(getVariable("connection.info.id")).send("SEND_PARENT_EMAIL", [#string:tParentEmail])
     end if
   end if
-  return TRUE
+  return(1)
+  exit
 end
 
-on validateParentEmail me, tUserEmail, tParentEmail 
+on validateParentEmail(me, tUserEmail, tParentEmail)
   if connectionExists(getVariable("connection.info.id")) then
     getConnection(getVariable("connection.info.id")).send("VALIDATE_PARENT_EMAIL", [#string:tParentEmail])
   end if
   pParentEmailAddress = tParentEmail
-  return TRUE
+  return(1)
+  exit
 end
 
-on setAgeCheckResult me, tFlag 
+on setAgeCheckResult(me, tFlag)
   pAgeCheckFlag = tFlag
   return(me.getInterface().finishRegistration(tFlag))
+  exit
 end
 
-on getAgeCheckResult me 
+on getAgeCheckResult(me)
   return(pAgeCheckFlag)
+  exit
 end
 
-on parentEmailNeedQueryResult me, tFlag 
+on parentEmailNeedQueryResult(me, tFlag)
   pParentEmailNeededFlag = tFlag
   return(me.getInterface().parentEmailQueryStatus(tFlag))
+  exit
 end
 
-on parentEmailValidated me, tFlag 
+on parentEmailValidated(me, tFlag)
   if tFlag then
     me.getInterface().parentEmailOk()
   else
     pParentEmailAddress = ""
     me.getInterface().parentEmailIncorrect()
   end if
+  exit
 end
 
-on getParentEmailNeededFlag me 
+on getParentEmailNeededFlag(me)
   return(pParentEmailNeededFlag)
+  exit
 end
 
-on sendUpdateAccountMsg me, tPropList 
+on sendUpdateAccountMsg(me, tPropList)
   if not ilk(tPropList, #propList) then
     return(error(me, "tPropList was not propertylist:" && tPropList, #sendUpdateMsg))
   else
@@ -324,7 +351,7 @@ on sendUpdateAccountMsg me, tPropList
       end if
     end if
   end if
-  tMsg = [:]
+  tMsg = []
   f = 1
   repeat while f <= tPropList.count
     tProp = tPropList.getPropAt(f)
@@ -334,27 +361,28 @@ on sendUpdateAccountMsg me, tPropList
     tValue = tPropList.getAt(tProp)
     if not voidp(pRegMsgStruct.getAt(tProp)) then
       tMsg.addProp(#short, pRegMsgStruct.getAt(tProp).id)
-      if (pRegMsgStruct.getAt(tProp).type = #boolean) then
+      if pRegMsgStruct.getAt(tProp).type = #boolean then
         tValue = integer(tValue)
       end if
-      if (pRegMsgStruct.getAt(tProp).type = #string) and tValue.ilk <> #string then
+      if pRegMsgStruct.getAt(tProp).type = #string and tValue.ilk <> #string then
         tValue = string(tValue)
       end if
-      if (pRegMsgStruct.getAt(tProp).type = #short) and tValue.ilk <> #integer then
+      if pRegMsgStruct.getAt(tProp).type = #short and tValue.ilk <> #integer then
         tValue = integer(tValue)
       end if
       tMsg.addProp(pRegMsgStruct.getAt(tProp).type, tValue)
     else
       return(error(me, "Data property not found from structs!" && tProp, #sendUpdateMsg))
     end if
-    f = (1 + f)
+    f = 1 + f
   end repeat
   if connectionExists(getVariable("connection.info.id")) then
     getConnection(getVariable("connection.info.id")).send("UPDATE_ACCOUNT", tMsg)
   end if
+  exit
 end
 
-on sendValidatePassword me, tPassword 
+on sendValidatePassword(me, tPassword)
   if voidp(tPassword) or ilk(tPassword) <> #string then
     tPassword = ""
   end if
@@ -362,26 +390,28 @@ on sendValidatePassword me, tPassword
   if connectionExists(getVariable("connection.info.id")) then
     getConnection(getVariable("connection.info.id")).send("APPROVE_PASSWORD", [#string:tUserName, #string:tPassword])
   end if
-  return TRUE
+  return(1)
+  exit
 end
 
-on getState me 
+on getState(me)
   return(pState)
+  exit
 end
 
-on updateState me, tstate, tProps 
-  if (tstate = "reset") then
+on updateState(me, tstate, tProps)
+  if me = "reset" then
     pState = tstate
     me.construct()
-    return FALSE
+    return(0)
   else
-    if (tstate = "loadFigurePartList") then
+    if me = "loadFigurePartList" then
       return()
     else
-      if (tstate = "initialize") then
+      if me = "initialize" then
         pState = tstate
         tMemName = getVariable("external.figurepartlist.txt")
-        if (tMemName = 0) then
+        if tMemName = 0 then
           tMemName = ""
         end if
         if not memberExists(tMemName) then
@@ -402,11 +432,11 @@ on updateState me, tstate, tProps
         end if
         return(me.updateState("start"))
       else
-        if (tstate = "start") then
+        if me = "start" then
           pState = tstate
-          return TRUE
+          return(1)
         else
-          if (tstate = "openFigureCreator") then
+          if me = "openFigureCreator" then
             pState = tstate
             if not objectExists("Figure_System") then
               return(error(me, "Figure system object not found", #updateState))
@@ -439,14 +469,14 @@ on updateState me, tstate, tProps
               end if
               if not getObject("Figure_System").isFigureSystemReady() then
                 me.getInterface().showLoadingWindow()
-                return FALSE
+                return(0)
               else
                 me.getInterface().openFigureCreator(tRegistrationProcessMode)
               end if
             end if
-            return TRUE
+            return(1)
           else
-            if (tstate = "openFigureUpdate") then
+            if me = "openFigureUpdate" then
               pState = tstate
               if not objectExists("Figure_System") then
                 return(error(me, "Figure system object not found", #updateState))
@@ -458,9 +488,9 @@ on updateState me, tstate, tProps
               tFigure = getObject("Figure_System").validateFigure(getObject(#session).get("user_figure"), getObject(#session).get("user_sex"))
               getObject(#session).set("user_figure", tFigure)
               me.getInterface().showHideFigureCreator("update")
-              return TRUE
+              return(1)
             else
-              if (tstate = "openForcedUpdate") then
+              if me = "openForcedUpdate" then
                 pState = tstate
                 if not objectExists("Figure_System") then
                   return(error(me, "Figure system object not found", #updateState))
@@ -473,13 +503,13 @@ on updateState me, tstate, tProps
                 getObject(#session).set("user_figure", tFigure)
                 tCoppaFlag = getObject(#session).get("conf_coppa")
                 tParentEmailFlag = getObject(#session).get("conf_parent_email_request_reregistration")
-                if (tCoppaFlag = 1) and (tParentEmailFlag = 0) then
+                if tCoppaFlag = 1 and tParentEmailFlag = 0 then
                   me.getInterface().showHideFigureCreator("coppa_forced", 1)
                 else
-                  if (tCoppaFlag = 1) and (tParentEmailFlag = 1) then
+                  if tCoppaFlag = 1 and tParentEmailFlag = 1 then
                     me.getInterface().showHideFigureCreator("parent_email_coppa_forced", 1)
                   else
-                    if (tCoppaFlag = 0) and (tParentEmailFlag = 1) then
+                    if tCoppaFlag = 0 and tParentEmailFlag = 1 then
                       me.getInterface().showHideFigureCreator("parent_email_forced", 1)
                     else
                       me.getInterface().showHideFigureCreator("forced", 1)
@@ -492,7 +522,7 @@ on updateState me, tstate, tProps
                   if stringp(tTempBirthday) then
                     tDelim = the itemDelimiter
                     the itemDelimiter = "."
-                    if (tTempBirthday.count(#item) = 3) then
+                    if tTempBirthday.count(#item) = 3 then
                       tBirthday = tTempBirthday.getProp(#item, 3) & "." & tTempBirthday.getProp(#item, 2) & "." & tTempBirthday.getProp(#item, 1)
                     end if
                     the itemDelimiter = tDelim
@@ -500,7 +530,7 @@ on updateState me, tstate, tProps
                   tHabboID = getObject(#session).get("user_name")
                   me.parentEmailNeedQuery(tBirthday, tHabboID)
                 end if
-                return TRUE
+                return(1)
               else
                 return(error(me, "Unknown state:" && tstate, #updateState))
               end if
@@ -510,17 +540,18 @@ on updateState me, tstate, tProps
       end if
     end if
   end if
+  exit
 end
 
-on tryLoginAfterRegistration me 
+on tryLoginAfterRegistration(me)
   tLoginThread = getThread(#login)
-  if (tLoginThread = 0) then
+  if tLoginThread = 0 then
     error(me, "Login thread not found!", #tryLoginAfterRegistration)
-    return FALSE
+    return(0)
   end if
   tLoginComponent = tLoginThread.getComponent()
   tLoginComponent.pOkToLogin = 1
-  tTmp = [:]
+  tTmp = []
   executeMessage(#partnerRegistrationRequired, tTmp)
   if tTmp.getAt("retval") then
     tUserID = pUserIDFromRegistration
@@ -528,4 +559,5 @@ on tryLoginAfterRegistration me
   else
     executeMessage(#performLogin)
   end if
+  exit
 end

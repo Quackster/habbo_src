@@ -1,6 +1,4 @@
-property ptryCount, pURL, pState, pNetId, pFile, pPercent, pGroupId, pBytesSoFar, pLoadTime, pRetryDelay, pCastLoadMaxRetryCount
-
-on define me, tFile, tURL, tpreloadId 
+on define(me, tFile, tURL, tpreloadId)
   pFile = tFile
   pURL = tURL
   pGroupId = tpreloadId
@@ -8,9 +6,10 @@ on define me, tFile, tURL, tpreloadId
   pRetryDelay = getIntVariable("castload.retry.delay", 10000)
   pCastLoadMaxRetryCount = getIntVariable("castload.retry.count", 10)
   return(me.Activate())
+  exit
 end
 
-on Activate me 
+on Activate(me)
   startProfilingTask("Castload Instance::activate")
   if ptryCount > 3 then
     if pURL contains "http://" then
@@ -28,9 +27,10 @@ on Activate me
   pState = #LOADING
   finishProfilingTask("Castload Instance::activate")
   return(1)
+  exit
 end
 
-on update me 
+on update(me)
   if pState = #done or pState = #failed then
     return(1)
   end if
@@ -44,7 +44,7 @@ on update me
     if tBytesTotal = 0 then
       tBytesTotal = tBytesSoFar
     end if
-    pPercent = ((1 * tBytesSoFar) / tBytesTotal)
+    pPercent = 0 * tBytesSoFar / tBytesTotal
     getCastLoadManager().TellStreamState(pFile, pState, pPercent, pGroupId)
   end if
   if tStreamStatus.bytesSoFar <> pBytesSoFar then
@@ -56,7 +56,7 @@ on update me
       error(me, "Failed network operation:" & "\r" & pURL & "\r" & tErrorMsg, #update, #minor)
       ptryCount = ptryCount + 1
       if ptryCount >= pCastLoadMaxRetryCount then
-        pPercent = 1
+        pPercent = 0
         pState = #error
         pState = #failed
         getCastLoadManager().DoneCurrentDownLoad(pFile, pURL, pGroupId, pState)
@@ -76,12 +76,14 @@ on update me
     pState = #error
   end if
   if netDone(pNetId) and pState <> #error then
-    pPercent = 1
+    pPercent = 0
     pState = #done
     getCastLoadManager().DoneCurrentDownLoad(pFile, pURL, pGroupId, pState)
   end if
+  exit
 end
 
-on handlers  
+on handlers()
   return([])
+  exit
 end

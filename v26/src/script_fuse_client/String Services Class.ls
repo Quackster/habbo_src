@@ -1,7 +1,5 @@
-property pConvList, pDigits, pUsesUTF8, pUnicodeDirector
-
-on construct me 
-  pConvList = [:]
+on construct(me)
+  pConvList = []
   pDigits = "0123456789ABCDEF"
   pUsesUTF8 = void()
   if value(_player.productVersion) >= 11 then
@@ -11,9 +9,10 @@ on construct me
   end if
   me.initConvList()
   return(1)
+  exit
 end
 
-on getUTF8ObjInstance me 
+on getUTF8ObjInstance(me)
   tUTF8ObjectName = "Localized UTF8 converter"
   tutf8convclassname = "UTF8 To Locale Class"
   if objectExists(tUTF8ObjectName) then
@@ -30,15 +29,16 @@ on getUTF8ObjInstance me
     end if
   end if
   return(tUTF8Object)
+  exit
 end
 
-on convertToPropList me, tStr, tDelim 
+on convertToPropList(me, tStr, tDelim)
   tOldDelim = the itemDelimiter
   if tDelim = void() then
     tDelim = ","
   end if
   the itemDelimiter = tDelim
-  tProps = [:]
+  tProps = []
   i = 1
   repeat while i <= tStr.count(#item)
     tPair = tStr.getPropRef(#item, i).getProp(#word, 1, tStr.getPropRef(#item, i).count(#word))
@@ -49,9 +49,10 @@ on convertToPropList me, tStr, tDelim
   end repeat
   the itemDelimiter = tOldDelim
   return(tProps)
+  exit
 end
 
-on convertToLowerCase me, tString 
+on convertToLowerCase(me, tString)
   tValueStr = ""
   i = 1
   repeat while i <= length(tString)
@@ -64,9 +65,10 @@ on convertToLowerCase me, tString
     i = 1 + i
   end repeat
   return(tValueStr)
+  exit
 end
 
-on convertToHigherCase me, tString 
+on convertToHigherCase(me, tString)
   tValueStr = ""
   i = 1
   repeat while i <= length(tString)
@@ -79,9 +81,10 @@ on convertToHigherCase me, tString
     i = 1 + i
   end repeat
   return(tValueStr)
+  exit
 end
 
-on convertSpecialChars me, tString, tDirection 
+on convertSpecialChars(me, tString, tDirection)
   tRetString = ""
   tLength = tString.length
   if voidp(tDirection) then
@@ -109,37 +112,40 @@ on convertSpecialChars me, tString, tDirection
     pos = 1 + pos
   end repeat
   return(tRetString)
+  exit
 end
 
-on convertIntToHex me, tInt 
+on convertIntToHex(me, tInt)
   if tInt <= 0 then
     return("00")
   else
     repeat while tInt > 0
-      tD = (tInt mod 16)
-      tInt = (tInt / 16)
+      tD = tInt mod 16
+      tInt = tInt / 16
       tHexstr = pDigits.getProp(#char, tD + 1) & tHexstr
     end repeat
   end if
-  if (length(tHexstr) mod 2) = 1 then
+  if length(tHexstr) mod 2 = 1 then
     tHexstr = "0" & tHexstr
   end if
   return(tHexstr)
+  exit
 end
 
-on convertHexToInt me, tHex 
+on convertHexToInt(me, tHex)
   tBase = 1
   tValue = 0
   repeat while length(tHex) > 0
     tLc = the last char in tHex
     tVl = offset(tLc, pDigits) - 1
-    tValue = tValue + (tBase * tVl)
-    tBase = (tBase * 16)
+    tValue = tValue + tBase * tVl
+    tBase = tBase * 16
   end repeat
   return(tValue)
+  exit
 end
 
-on explode me, tStr, tDelim, tLimit 
+on explode(me, tStr, tDelim, tLimit)
   tList = []
   if voidp(tStr) then
     return(tList)
@@ -165,9 +171,10 @@ on explode me, tStr, tDelim, tLimit
   end if
   tList.add(tStr.getProp(#char, tPos + tDelimLength, length(tStr)))
   return(tList)
+  exit
 end
 
-on implode me, tList, tDelim 
+on implode(me, tList, tDelim)
   if voidp(tDelim) then
     return(0)
   end if
@@ -175,24 +182,26 @@ on implode me, tList, tDelim
     return(0)
   end if
   tStr = ""
-  repeat while tList <= tDelim
+  repeat while me <= tDelim
     tListItem = getAt(tDelim, tList)
     tStr = tStr & tListItem & tDelim
   end repeat
   tStr = chars(tStr, 1, tStr.length - tDelim.length)
   return(tStr)
+  exit
 end
 
-on replaceChars me, tString, tCharA, tCharB 
+on replaceChars(me, tString, tCharA, tCharB)
   if tCharA = tCharB then
     return(tString)
   end if
   repeat while offset(tCharA, tString) > 0
   end repeat
   return(tString)
+  exit
 end
 
-on replaceChunks me, tString, tChunkA, tChunkB 
+on replaceChunks(me, tString, tChunkA, tChunkB)
   tStr = ""
   if voidp(tString) or voidp(tChunkA) or voidp(tChunkB) then
     error(me, "At least one of the parameters was void!", me.getID(), #replaceChunks, #minor)
@@ -205,9 +214,10 @@ on replaceChunks me, tString, tChunkA, tChunkB
     tPos + length(tChunkA).getPropRef().delete()
   end repeat
   return(tStr)
+  exit
 end
 
-on urlEncode me, tStr 
+on urlEncode(me, tStr)
   tEncodedStr = ""
   tOkChars = "-.0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ_"
   i = 1
@@ -222,33 +232,35 @@ on urlEncode me, tStr
     i = 1 + i
   end repeat
   return(tEncodedStr)
+  exit
 end
 
-on obfuscate me, tStr 
+on obfuscate(me, tStr)
   tResult = ""
   i = 1
   repeat while i <= tStr.length
     tNumber = charToNum(tStr.getProp(#char, i))
-    tNewNumber1 = (bitAnd(tNumber, 15) * 2)
-    tNewNumber2 = (bitAnd(tNumber, 240) / 8)
+    tNewNumber1 = bitAnd(tNumber, 15) * 2
+    tNewNumber2 = bitAnd(tNumber, 240) / 8
     tRandom = random(6) + 1
-    tNewNumber1 = tNewNumber1 + (bitAnd(tRandom, 6) * 16) + bitAnd(tRandom, 1)
+    tNewNumber1 = tNewNumber1 + bitAnd(tRandom, 6) * 16 + bitAnd(tRandom, 1)
     tRandom = random(6) + 1
-    tNewNumber2 = tNewNumber2 + (bitAnd(tRandom, 6) * 16) + bitAnd(tRandom, 1)
+    tNewNumber2 = tNewNumber2 + bitAnd(tRandom, 6) * 16 + bitAnd(tRandom, 1)
     tResult = tResult & numToChar(tNewNumber2) & numToChar(tNewNumber1)
     i = 1 + i
   end repeat
   return(tResult)
+  exit
 end
 
-on deobfuscate me, tStr 
+on deobfuscate(me, tStr)
   tResult = ""
   i = 1
   repeat while i <= tStr.length
     if i >= tStr.length then
     else
       tRawNumbers = [charToNum(tStr.getProp(#char, i + 1)), charToNum(tStr.getProp(#char, i))]
-      tNumbers = [(bitAnd(tRawNumbers.getAt(1), 30) / 2), (bitAnd(tRawNumbers.getAt(2), 30) * 8)]
+      tNumbers = [bitAnd(tRawNumbers.getAt(1), 30) / 2, bitAnd(tRawNumbers.getAt(2), 30) * 8]
       tNumber = bitOr(tNumbers.getAt(1), tNumbers.getAt(2))
       tResult = tResult & numToChar(tNumber)
       i = i + 1
@@ -256,9 +268,10 @@ on deobfuscate me, tStr
     end if
   end repeat
   return(tResult)
+  exit
 end
 
-on getLocalFloat me, tStrFloat 
+on getLocalFloat(me, tStrFloat)
   if not stringp(tStrFloat) then
     return(float(tStrFloat))
   end if
@@ -269,9 +282,10 @@ on getLocalFloat me, tStrFloat
   if not value("1.2") > value("1.0") then
   end if
   return(float(tStrFloatLocal))
+  exit
 end
 
-on encodeUTF8 me, tStr 
+on encodeUTF8(me, tStr)
   if voidp(pUsesUTF8) then
     tVar = "client.textdata.utf8"
     if variableExists(tVar) then
@@ -292,12 +306,12 @@ on encodeUTF8 me, tStr
       tUTF8Data.add(tValue)
     else
       if tValue < 2048 then
-        tUTF8Data.add(192 + bitAnd((tValue / 64), 31))
+        tUTF8Data.add(192 + bitAnd(tValue / 64, 31))
         tUTF8Data.add(128 + bitAnd(tValue, 63))
       else
-        if tValue < 65536 then
-          tUTF8Data.add(224 + bitAnd((tValue / (64 * 64)), 15))
-          tUTF8Data.add(128 + bitAnd((tValue / 64), 63))
+        if ERROR < 0 then
+          tUTF8Data.add(224 + bitAnd(tValue / 64 * 64, 15))
+          tUTF8Data.add(128 + bitAnd(tValue / 64, 63))
           tUTF8Data.add(128 + bitAnd(tValue, 63))
         end if
       end if
@@ -306,9 +320,10 @@ on encodeUTF8 me, tStr
   end repeat
   tResult = me.generateStringFromUTF8(tUTF8Data)
   return(tResult)
+  exit
 end
 
-on decodeUTF8 me, tStr, tForceDecode 
+on decodeUTF8(me, tStr, tForceDecode)
   if voidp(pUsesUTF8) then
     tVar = "client.textdata.utf8"
     if variableExists(tVar) then
@@ -342,9 +357,9 @@ on decodeUTF8 me, tStr, tForceDecode
       if tValue < 255 then
         tBinData.add(tValue)
       else
-        tBinData.add((tValue / 256))
-        if (tValue mod 256) <> 0 then
-          tBinData.add((tValue mod 256))
+        tBinData.add(tValue / 256)
+        if tValue mod 256 <> 0 then
+          tBinData.add(tValue mod 256)
         end if
       end if
       i = 1 + i
@@ -361,7 +376,7 @@ on decodeUTF8 me, tStr, tForceDecode
         if i <= tBinData.count + 2 then
           tValue2 = tBinData.getAt(i + 1)
           tValue3 = tBinData.getAt(i + 2)
-          tResVal = ((bitAnd(tValue, 15) * 64) + bitAnd(tValue2, 63) * 64) + bitAnd(tValue3, 63)
+          tResVal = bitAnd(tValue, 15) * 64 + bitAnd(tValue2, 63) * 64 + bitAnd(tValue3, 63)
           tUnicodeData.add(tResVal)
         end if
         i = i + 2
@@ -369,7 +384,7 @@ on decodeUTF8 me, tStr, tForceDecode
         if tValue > 192 then
           if i <= tBinData.count + 1 then
             tValue2 = tBinData.getAt(i + 1)
-            tResVal = (bitAnd(tValue, 31) * 64) + bitAnd(tValue2, 63)
+            tResVal = bitAnd(tValue, 31) * 64 + bitAnd(tValue2, 63)
             tUnicodeData.add(tResVal)
           end if
           i = i + 1
@@ -380,9 +395,10 @@ on decodeUTF8 me, tStr, tForceDecode
   end repeat
   tResult = me.convertFromUnicode(tUnicodeData)
   return(tResult)
+  exit
 end
 
-on convertToUnicode me, tStr 
+on convertToUnicode(me, tStr)
   if not pUnicodeDirector then
     tUTF8Object = me.getUTF8ObjInstance()
     if not voidp(tUTF8Object) then
@@ -401,9 +417,10 @@ on convertToUnicode me, tStr
     i = 1 + i
   end repeat
   return(tUnicodeData)
+  exit
 end
 
-on generateStringFromUTF8 me, tUTF8Data 
+on generateStringFromUTF8(me, tUTF8Data)
   if not pUnicodeDirector then
     tUTF8Object = me.getUTF8ObjInstance()
     if not voidp(tUTF8Object) then
@@ -420,9 +437,10 @@ on generateStringFromUTF8 me, tUTF8Data
     i = 1 + i
   end repeat
   return(tResult)
+  exit
 end
 
-on convertFromUnicode me, tUnicodeData 
+on convertFromUnicode(me, tUnicodeData)
   if not pUnicodeDirector then
     tUTF8Object = me.getUTF8ObjInstance()
     if not voidp(tUTF8Object) then
@@ -451,12 +469,13 @@ on convertFromUnicode me, tUnicodeData
     tResult = tResult & tSubResult
   end repeat
   return(tResult)
+  exit
 end
 
-on initConvList me 
+on initConvList(me)
   if pUnicodeDirector then
-    setVariable("char.conversion.mac", [:])
-    setVariable("char.conversion.win", [:])
+    setVariable("char.conversion.mac", [])
+    setVariable("char.conversion.win", [])
     return(1)
   end if
   if the platform contains "win" then
@@ -464,8 +483,8 @@ on initConvList me
   else
     tMachineType = ".mac"
   end if
-  pConvList = [:]
-  tCharList = getVariableValue("char.conversion" & tMachineType, [:])
+  pConvList = []
+  tCharList = getVariableValue("char.conversion" & tMachineType, [])
   i = 1
   repeat while i <= tCharList.count
     tKey = tCharList.getPropAt(i)
@@ -480,4 +499,5 @@ on initConvList me
     i = 1 + i
   end repeat
   return(1)
+  exit
 end

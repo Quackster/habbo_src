@@ -1,7 +1,7 @@
-on parse_window me, tFieldName 
+on parse_window(me, tFieldName)
   tdata = member(getResourceManager().getmemnum(tFieldName)).text
   tSupportedTags = [#elements:[#open:"<elements>", #close:"</elements>"], #rect:[#open:"<rect>", #close:"</rect>"], #border:[#open:"<border>", #close:"</border>"], #clientrect:[#open:"<clientrect>", #close:"</clientrect>"]]
-  tLayDefinition = [:]
+  tLayDefinition = []
   tOpenTagFlag = 0
   tTag = ""
   x = 1
@@ -28,8 +28,8 @@ on parse_window me, tFieldName
     tLayDefinition.setAt(tTag, tList)
     x = 1 + x
   end repeat
-  tElements = [:]
-  repeat while tLayDefinition.getAt(#elements) <= undefined
+  tElements = []
+  repeat while me <= undefined
     tElem = getAt(undefined, tFieldName)
     if voidp(tElem.getAt(#id)) then
       tSymbol = "null"
@@ -42,7 +42,7 @@ on parse_window me, tFieldName
     tElements.getAt(tSymbol).add(tElem)
   end repeat
   tResMgr = getResourceManager()
-  repeat while tLayDefinition.getAt(#elements) <= undefined
+  repeat while me <= undefined
     tElem = getAt(undefined, tFieldName)
     if stringp(tElem.getAt(#txtColor)) then
       tElem.setAt(#txtColor, rgb(tElem.getAt(#txtColor)))
@@ -109,12 +109,12 @@ on parse_window me, tFieldName
       else
         tElem.setAt(#fixedLineSpace, getVariable("mac.fixedLineSpace"))
       end if
-      tSizeMultiplier = (tElem.getAt(#fontSize) / 9)
-      if tLayDefinition.getAt(#elements) = #text then
+      tSizeMultiplier = tElem.getAt(#fontSize) / 9
+      if me = #text then
         tUnderl = tElem.getAt(#fontStyle).getOne(#underline) > 0
         tItalic = tElem.getAt(#fontStyle).getOne(#italic) > 0
       else
-        if tLayDefinition.getAt(#elements) = #field then
+        if me = #field then
           tUnderl = tElem.getAt(#fontStyle) contains "underline"
           tItalic = tElem.getAt(#fontStyle) contains "italic"
         else
@@ -124,12 +124,12 @@ on parse_window me, tFieldName
       end if
       if tElem.getAt(#font) = "vb" or tElem.getAt(#font) = "VB" or tElem.getAt(#fontStyle) = [#bold] then
         tElem.setAt(#font, tStructBold.getaProp(#font))
-        tElem.setAt(#fontSize, (tStructBold.getaProp(#fontSize) * tSizeMultiplier))
+        tElem.setAt(#fontSize, tStructBold.getaProp(#fontSize) * tSizeMultiplier)
         tElem.setAt(#lineHeight, tStructBold.getaProp(#lineHeight))
         tElem.setAt(#fontStyle, tStructBold.getaProp(#fontStyle))
       else
         tElem.setAt(#font, tStructPlain.getaProp(#font))
-        tElem.setAt(#fontSize, (tStructPlain.getaProp(#fontSize) * tSizeMultiplier))
+        tElem.setAt(#fontSize, tStructPlain.getaProp(#fontSize) * tSizeMultiplier)
         tElem.setAt(#lineHeight, tStructPlain.getaProp(#lineHeight))
         tElem.setAt(#fontStyle, tStructPlain.getaProp(#fontStyle))
       end if
@@ -144,7 +144,7 @@ on parse_window me, tFieldName
       if tElem.getAt(#model) = #edit then
         if listp(tElem.getAt(#fontStyle)) then
           tStr = ""
-          repeat while tLayDefinition.getAt(#elements) <= undefined
+          repeat while me <= undefined
             tStyle = getAt(undefined, tFieldName)
             tStr = tStr & tStyle & ","
           end repeat
@@ -159,49 +159,49 @@ on parse_window me, tFieldName
     if not voidp(tElem.getAt(#strech)) then
       tElem.setAt(#scaleH, #fixed)
       tElem.setAt(#scaleV, #fixed)
-      if tLayDefinition.getAt(#elements) = #moveH then
+      if me = #moveH then
         tElem.setAt(#scaleH, #move)
       else
-        if tLayDefinition.getAt(#elements) = #moveV then
+        if me = #moveV then
           tElem.setAt(#scaleV, #move)
         else
-          if tLayDefinition.getAt(#elements) = #strechH then
+          if me = #strechH then
             tElem.setAt(#scaleH, #scale)
           else
-            if tLayDefinition.getAt(#elements) = #strechV then
+            if me = #strechV then
               tElem.setAt(#scaleV, #scale)
             else
-              if tLayDefinition.getAt(#elements) = #centerH then
+              if me = #centerH then
                 tElem.setAt(#scaleH, #center)
               else
-                if tLayDefinition.getAt(#elements) = #centerV then
+                if me = #centerV then
                   tElem.setAt(#scaleV, #center)
                 else
-                  if tLayDefinition.getAt(#elements) = #moveHV then
+                  if me = #moveHV then
                     tElem.setAt(#scaleH, #move)
                     tElem.setAt(#scaleV, #move)
                   else
-                    if tLayDefinition.getAt(#elements) = #strechHV then
+                    if me = #strechHV then
                       tElem.setAt(#scaleH, #scale)
                       tElem.setAt(#scaleV, #scale)
                     else
-                      if tLayDefinition.getAt(#elements) = #centerHV then
+                      if me = #centerHV then
                         tElem.setAt(#scaleH, #center)
                         tElem.setAt(#scaleV, #center)
                       else
-                        if tLayDefinition.getAt(#elements) = #moveHstrechV then
+                        if me = #moveHstrechV then
                           tElem.setAt(#scaleH, #move)
                           tElem.setAt(#scaleV, #scale)
                         else
-                          if tLayDefinition.getAt(#elements) = #moveVstrechH then
+                          if me = #moveVstrechH then
                             tElem.setAt(#scaleH, #scale)
                             tElem.setAt(#scaleV, #move)
                           else
-                            if tLayDefinition.getAt(#elements) = #moveHcenterV then
+                            if me = #moveHcenterV then
                               tElem.setAt(#scaleH, #move)
                               tElem.setAt(#scaleV, #center)
                             else
-                              if tLayDefinition.getAt(#elements) = #moveVcenterH then
+                              if me = #moveVcenterH then
                                 tElem.setAt(#scaleH, #center)
                                 tElem.setAt(#scaleV, #move)
                               end if
@@ -222,9 +222,9 @@ on parse_window me, tFieldName
   end repeat
   if tLayDefinition.getAt(#rect).count = 0 then
     tRect = rect(10000, 10000, -10000, -10000)
-    repeat while tLayDefinition.getAt(#elements) <= undefined
+    repeat while me <= undefined
       tElement = getAt(undefined, tFieldName)
-      repeat while tLayDefinition.getAt(#elements) <= undefined
+      repeat while me <= undefined
         tItem = getAt(undefined, tFieldName)
         if tItem.locH < tRect.getAt(1) then
           tRect.setAt(1, tItem.locH)
@@ -241,9 +241,9 @@ on parse_window me, tFieldName
       end repeat
     end repeat
     tLayDefinition.getAt(#rect).add(tRect)
-    repeat while tLayDefinition.getAt(#elements) <= undefined
+    repeat while me <= undefined
       tElement = getAt(undefined, tFieldName)
-      repeat while tLayDefinition.getAt(#elements) <= undefined
+      repeat while me <= undefined
         tItem = getAt(undefined, tFieldName)
         tItem.locH = tItem.locH - tRect.getAt(1)
         tItem.locV = tItem.locV - tRect.getAt(2)
@@ -269,10 +269,11 @@ on parse_window me, tFieldName
   end if
   tLayDefinition.setAt(#elements, tElements)
   return(tLayDefinition)
+  exit
 end
 
-on parse_element me, tFieldName 
-  tProps = [:]
+on parse_element(me, tFieldName)
+  tProps = []
   tdata = member(getmemnum(tFieldName)).text
   f = 1
   repeat while f <= tdata.count(#line)
@@ -287,7 +288,7 @@ on parse_element me, tFieldName
   end repeat
   tStructPlain = getStructVariable("struct.font.plain")
   tStructBold = getStructVariable("struct.font.bold")
-  repeat while tProps <= undefined
+  repeat while me <= undefined
     tstate = getAt(undefined, tFieldName)
     if listp(tstate.getAt(#text)) then
       if tstate.getAt(#text).getAt(#font) = "vb" or tstate.getAt(#text).getAt(#font) = "VB" or tstate.getAt(#text).getAt(#fontStyle) = [#bold] then
@@ -301,7 +302,7 @@ on parse_element me, tFieldName
       end if
       if listp(tstate.getAt(#text).getAt(#fontStyle)) then
         tStr = ""
-        repeat while tProps <= undefined
+        repeat while me <= undefined
           tStyle = getAt(undefined, tFieldName)
           tStr = tStr & tStyle & ","
         end repeat
@@ -310,12 +311,13 @@ on parse_element me, tFieldName
     end if
   end repeat
   return(tProps)
+  exit
 end
 
-on parse_visual me, tFieldName 
+on parse_visual(me, tFieldName)
   tdata = member(getResourceManager().getmemnum(tFieldName)).text
   tSupportedTags = [#roomdata:[#open:"<roomdata>", #close:"</roomdata>"], #rect:[#open:"<rect>", #close:"</rect>"], #version:[#open:"<version>", #close:"</version>"], #elements:[#open:"<elements>", #close:"</elements>"]]
-  tLayDefinition = [:]
+  tLayDefinition = []
   tOpenTagFlag = 0
   tTag = ""
   x = 1
@@ -347,17 +349,17 @@ on parse_visual me, tFieldName
   end repeat
   tStructPlain = getStructVariable("struct.font.plain")
   tStructBold = getStructVariable("struct.font.bold")
-  repeat while tLayDefinition.getAt(#elements) <= undefined
+  repeat while me <= undefined
     tElem = getAt(undefined, tFieldName)
     if tElem.getAt(#media) = #field or tElem.getAt(#media) = #text then
-      tSizeMultiplier = (tElem.getAt(#fontSize) / 9)
+      tSizeMultiplier = tElem.getAt(#fontSize) / 9
       if tElem.getAt(#font) = "vb" or tElem.getAt(#font) = "VB" or tElem.getAt(#fontStyle) = [#bold] then
         tElem.setAt(#font, tStructBold.getaProp(#font))
-        tElem.setAt(#fontSize, (tStructBold.getaProp(#fontSize) * tSizeMultiplier))
+        tElem.setAt(#fontSize, tStructBold.getaProp(#fontSize) * tSizeMultiplier)
         tElem.setAt(#fontStyle, tStructBold.getaProp(#fontStyle))
       else
         tElem.setAt(#font, tStructPlain.getaProp(#font))
-        tElem.setAt(#fontSize, (tStructPlain.getaProp(#fontSize) * tSizeMultiplier))
+        tElem.setAt(#fontSize, tStructPlain.getaProp(#fontSize) * tSizeMultiplier)
         tElem.setAt(#fontStyle, tStructPlain.getaProp(#fontStyle))
       end if
       if tElem.getAt(#media) = #field then
@@ -365,7 +367,7 @@ on parse_visual me, tFieldName
       end if
     end if
   end repeat
-  repeat while tLayDefinition.getAt(#elements) <= undefined
+  repeat while me <= undefined
     tElem = getAt(undefined, tFieldName)
     if voidp(tElem.getAt(#color)) then
       tElem.setAt(#color, "#000000")
@@ -378,4 +380,5 @@ on parse_visual me, tFieldName
     end if
   end repeat
   return([#name:tLayDefinition.getAt(#name), #roomdata:tLayDefinition.getAt(#roomdata), #rect:tLayDefinition.getAt(#rect), #elements:tLayDefinition.getAt(#elements)])
+  exit
 end

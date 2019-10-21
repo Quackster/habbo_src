@@ -1,14 +1,12 @@
-property pFloorPreviewIdList, pWallPreviewIdList, pWallPattern, pWallPatterns, pWallModel, pWallProps, pFloorPattern, pFloorPatterns, pFloorModel, pFloorProps
-
-on construct me 
+on construct(me)
   pWallPatterns = field(0)
   pWallPattern = 0
   pWallModel = 0
   pFloorPatterns = field(0)
   pFloorPattern = 0
   pFloorModel = 0
-  pWallProps = [:]
-  pFloorProps = [:]
+  pWallProps = []
+  pFloorProps = []
   pFloorPreviewIdList = []
   pFloorPreviewIdList.add("catalog_thumb_floor_pattern")
   pFloorPreviewIdList.add("catalog_floor_preview_example")
@@ -18,10 +16,11 @@ on construct me
   pWallPreviewIdList.add("catalog_wall_preview_b_right")
   me.setWallPaper("pattern", 1)
   me.setFloorPattern("pattern", 1)
-  return TRUE
+  return(1)
+  exit
 end
 
-on define me, tPageProps 
+on define(me, tPageProps)
   if tPageProps.ilk <> #propList then
     return(error(me, "Incorrect Catalogue page data", #define))
   end if
@@ -37,7 +36,7 @@ on define me, tPageProps
       if tWndObj.elementExists("ctlg_buy_floor") then
         tWndObj.getElement("ctlg_buy_floor").setProperty(#visible, 0)
       end if
-      return FALSE
+      return(0)
     end if
     pWallProps = tPageProps.getAt("productList").getAt(1)
     pFloorProps = tPageProps.getAt("productList").getAt(2)
@@ -53,11 +52,12 @@ on define me, tPageProps
       end if
     end if
   end if
+  exit
 end
 
-on setWallPaper me, ttype, tChange 
-  if (ttype = "pattern") then
-    pWallPattern = (pWallPattern + tChange)
+on setWallPaper(me, ttype, tChange)
+  if ttype = "pattern" then
+    pWallPattern = pWallPattern + tChange
     if pWallPattern > pWallPatterns.count(#line) then
       pWallPattern = 1
     else
@@ -67,8 +67,8 @@ on setWallPaper me, ttype, tChange
     end if
     pWallModel = 1
   else
-    if (ttype = "model") then
-      pWallModel = (pWallModel + tChange)
+    if ttype = "model" then
+      pWallModel = pWallModel + tChange
       if pWallPatterns.getProp(#line, pWallPattern) > field(0).count(#line) then
         pWallModel = 1
       else
@@ -88,14 +88,14 @@ on setWallPaper me, ttype, tChange
   tG = integer(tPattern.getProp(#item, 4))
   tB = integer(tPattern.getProp(#item, 5))
   tColor = rgb(tR, tG, tB)
-  tColors = ["left":(tColor - rgb(16, 16, 16)), "right":tColor, "a":(tColor - rgb(16, 16, 16)), "b":tColor, "pattern":tColor]
+  tColors = ["left":tColor - rgb(16, 16, 16), "right":tColor, "a":tColor - rgb(16, 16, 16), "b":tColor, "pattern":tColor]
   pWallProps.setAt("extra_parm", tPattern.getProp(#item, 6))
   the itemDelimiter = "_"
   tWndObj = getThread(#catalogue).getInterface().getCatalogWindow()
   if not tWndObj then
     return(error(me, "Couldn't access catalogue window!", #setWallPaper))
   end if
-  repeat while pWallModel <= tChange
+  repeat while me <= tChange
     tid = getAt(tChange, ttype)
     tPiece = tid.getProp(#item, tid.count(#item))
     tMem = "catalog_spaces_wall" & ttype & "_" & tPiece
@@ -116,12 +116,13 @@ on setWallPaper me, ttype, tChange
     end if
   end repeat
   the itemDelimiter = tDelim
-  return TRUE
+  return(1)
+  exit
 end
 
-on setFloorPattern me, ttype, tChange 
-  if (ttype = "pattern") then
-    pFloorPattern = (pFloorPattern + tChange)
+on setFloorPattern(me, ttype, tChange)
+  if ttype = "pattern" then
+    pFloorPattern = pFloorPattern + tChange
     if pFloorPattern > pFloorPatterns.count(#line) then
       pFloorPattern = 1
     else
@@ -131,8 +132,8 @@ on setFloorPattern me, ttype, tChange
     end if
     pFloorModel = 1
   else
-    if (ttype = "model") then
-      pFloorModel = (pFloorModel + tChange)
+    if ttype = "model" then
+      pFloorModel = pFloorModel + tChange
       if pFloorPatterns.getProp(#line, pFloorPattern) > field(0).count(#line) then
         pFloorModel = 1
       else
@@ -158,7 +159,7 @@ on setFloorPattern me, ttype, tChange
   if not tWndObj then
     return(error(me, "Couldn't access catalogue window!", #setFloorPattern))
   end if
-  repeat while pFloorModel <= tChange
+  repeat while me <= tChange
     tid = getAt(tChange, ttype)
     tPiece = tid.getProp(#item, tid.count(#item))
     tMem = "catalog_spaces_floor" & ttype & "_" & tPiece
@@ -179,42 +180,43 @@ on setFloorPattern me, ttype, tChange
     end if
   end repeat
   the itemDelimiter = tDelim
-  return TRUE
+  return(1)
+  exit
 end
 
-on eventProc me, tEvent, tSprID, tProp 
-  if (tEvent = #mouseDown) then
-    if (tSprID = "ctlg_wall_pattern_prev") then
+on eventProc(me, tEvent, tSprID, tProp)
+  if tEvent = #mouseDown then
+    if me = "ctlg_wall_pattern_prev" then
       me.setWallPaper("pattern", -1)
     else
-      if (tSprID = "ctlg_wall_pattern_next") then
+      if me = "ctlg_wall_pattern_next" then
         me.setWallPaper("pattern", 1)
       else
-        if (tSprID = "ctlg_wall_color_prev") then
+        if me = "ctlg_wall_color_prev" then
           me.setWallPaper("model", -1)
         else
-          if (tSprID = "ctlg_wall_color_next") then
+          if me = "ctlg_wall_color_next" then
             me.setWallPaper("model", 1)
           else
-            if (tSprID = "ctlg_floor_pattern_prev") then
+            if me = "ctlg_floor_pattern_prev" then
               me.setFloorPattern("pattern", -1)
             else
-              if (tSprID = "ctlg_floor_pattern_next") then
+              if me = "ctlg_floor_pattern_next" then
                 me.setFloorPattern("pattern", 1)
               else
-                if (tSprID = "ctlg_floor_color_prev") then
+                if me = "ctlg_floor_color_prev" then
                   me.setFloorPattern("model", -1)
                 else
-                  if (tSprID = "ctlg_floor_color_next") then
+                  if me = "ctlg_floor_color_next" then
                     me.setFloorPattern("model", 1)
                   else
-                    if (tSprID = "ctlg_buy_wall") then
+                    if me = "ctlg_buy_wall" then
                       getThread(#catalogue).getComponent().checkProductOrder(pWallProps)
                     else
-                      if (tSprID = "ctlg_buy_floor") then
+                      if me = "ctlg_buy_floor" then
                         getThread(#catalogue).getComponent().checkProductOrder(pFloorProps)
                       else
-                        return FALSE
+                        return(0)
                       end if
                     end if
                   end if
@@ -226,5 +228,6 @@ on eventProc me, tEvent, tSprID, tProp
       end if
     end if
   end if
-  return TRUE
+  return(1)
+  exit
 end

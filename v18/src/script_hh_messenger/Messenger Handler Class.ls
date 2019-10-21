@@ -1,19 +1,22 @@
-on construct me 
+on construct(me)
   return(me.regMsgList(1))
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   return(me.regMsgList(0))
+  exit
 end
 
-on handle_ok me, tMsg 
-  return(tMsg.connection.send("MESSENGERINIT"))
+on handle_ok(me, tMsg)
+  return(tMsg.send("MESSENGERINIT"))
+  exit
 end
 
-on handle_messenger_init me, tMsg 
+on handle_messenger_init(me, tMsg)
   tConn = tMsg.connection
-  if (tConn = 0) then
-    return FALSE
+  if tConn = 0 then
+    return(0)
   end if
   tPersistentMsg = tConn.GetStrFrom()
   me.getComponent().receive_PersistentMsg(tPersistentMsg)
@@ -23,27 +26,28 @@ on handle_messenger_init me, tMsg
   me.getInterface().setBuddyListLimits(tUserLimit, tNormalLimit, tExtendedLimit)
   tConsoleInfo = me.get_console_info(tMsg)
   me.getComponent().receive_BuddyList(#new, tConsoleInfo.getAt(#buddies))
-  repeat while tConsoleInfo.getAt(#console_messages) <= undefined
+  repeat while me <= undefined
     tItem = getAt(undefined, tMsg)
     me.getComponent().receive_Message(tItem)
   end repeat
-  repeat while tConsoleInfo.getAt(#console_messages) <= undefined
+  repeat while me <= undefined
     tItem = getAt(undefined, tMsg)
     me.getComponent().receive_CampaignMsg(tItem)
   end repeat
-  repeat while tConsoleInfo.getAt(#console_messages) <= undefined
+  repeat while me <= undefined
     tItem = getAt(undefined, tMsg)
     me.getComponent().receive_BuddyRequest(tItem)
   end repeat
   return(me.getComponent().receive_MessengerReady("MESSENGERREADY"))
+  exit
 end
 
-on handle_buddylist me, tMsg 
+on handle_buddylist(me, tMsg)
   tConn = tMsg.connection
-  if (tConn = 0) then
-    return FALSE
+  if tConn = 0 then
+    return(0)
   end if
-  tBuddyData = [:]
+  tBuddyData = []
   tLoopCount = tConn.GetIntFrom()
   i = 1
   repeat while i <= tLoopCount
@@ -51,18 +55,19 @@ on handle_buddylist me, tMsg
     if tdata <> 0 then
       tBuddyData.addProp(string(tdata.getAt(#id)), tdata)
     end if
-    i = (1 + i)
+    i = 1 + i
   end repeat
   tBuddyList = me.get_sorted_buddy_list(tBuddyData)
   tBuddyList.setAt(#buddies, tBuddyData)
   me.getComponent().receive_BuddyList(#new, tBuddyList)
-  return TRUE
+  return(1)
+  exit
 end
 
-on handle_console_update me, tMsg 
+on handle_console_update(me, tMsg)
   tConn = tMsg.connection
-  if (tConn = 0) then
-    return FALSE
+  if tConn = 0 then
+    return(0)
   end if
   tBuddyList = []
   tLoopCount = tConn.GetIntFrom()
@@ -72,41 +77,43 @@ on handle_console_update me, tMsg
     if tdata <> 0 then
       tBuddyList.add(tdata)
     end if
-    i = (1 + i)
+    i = 1 + i
   end repeat
   me.getComponent().receive_BuddyList(#update, [#buddies:tBuddyList])
-  return TRUE
+  return(1)
+  exit
 end
 
-on handle_console_info me, tMsg 
+on handle_console_info(me, tMsg)
   tConsoleInfo = me.get_console_info(tMsg)
   me.getComponent().receive_BuddyList(#new, tConsoleInfo.getAt(#buddies))
-  repeat while tConsoleInfo.getAt(#console_messages) <= undefined
+  repeat while me <= undefined
     tItem = getAt(undefined, tMsg)
     me.getComponent().receive_Message(tItem)
   end repeat
-  repeat while tConsoleInfo.getAt(#console_messages) <= undefined
+  repeat while me <= undefined
     tItem = getAt(undefined, tMsg)
     me.getComponent().receive_CampaignMsg(tItem)
   end repeat
-  repeat while tConsoleInfo.getAt(#console_messages) <= undefined
+  repeat while me <= undefined
     tItem = getAt(undefined, tMsg)
     me.getComponent().receive_BuddyRequest(tItem)
   end repeat
-  return TRUE
+  return(1)
+  exit
 end
 
-on handle_memberinfo me, tMsg 
+on handle_memberinfo(me, tMsg)
   tConn = tMsg.connection
-  if (tConn = 0) then
-    return FALSE
+  if tConn = 0 then
+    return(0)
   end if
   tSearchId = tConn.GetStrFrom()
   if tSearchId <> "MESSENGER" then
-    return FALSE
+    return(0)
   end if
   tdata = me.get_user_info(tMsg)
-  if (tdata = 0) then
+  if tdata = 0 then
     return(me.getComponent().receive_UserNotFound())
   end if
   tdata.setAt(#searchId, tSearchId)
@@ -114,65 +121,72 @@ on handle_memberinfo me, tMsg
     tdata.setAt(#FigureData, getObject("Figure_System").parseFigure(tdata.getAt(#FigureData), tdata.getAt(#sex), "user"))
   end if
   return(me.getComponent().receive_UserFound(tdata))
+  exit
 end
 
-on handle_buddy_request me, tMsg 
+on handle_buddy_request(me, tMsg)
   tdata = me.get_buddy_request(tMsg)
   return(me.getComponent().receive_BuddyRequest(tdata))
+  exit
 end
 
-on handle_campaign_message me, tMsg 
+on handle_campaign_message(me, tMsg)
   tdata = me.get_campaign_message(tMsg)
   return(me.getComponent().receive_CampaignMsg(tdata))
+  exit
 end
 
-on handle_messenger_messages me, tMsg 
-  tLoopCount = tMsg.connection.GetIntFrom()
+on handle_messenger_messages(me, tMsg)
+  tLoopCount = tMsg.GetIntFrom()
   i = 1
   repeat while i <= tLoopCount
     tdata = me.get_console_message(tMsg)
     if tdata <> 0 then
       me.getComponent().receive_Message(tdata)
     end if
-    i = (1 + i)
+    i = 1 + i
   end repeat
-  return TRUE
+  return(1)
+  exit
 end
 
-on handle_add_buddy me, tMsg 
+on handle_add_buddy(me, tMsg)
   tBuddyData = me.get_user_info(tMsg)
   tPendAcc = me.getComponent().getProp(#pItemList, #pendingBuddyAccept)
-  if (ilk(tPendAcc) = #propList) then
-    if (tPendAcc.getAt(#name) = tBuddyData.getAt(#name)) then
+  if ilk(tPendAcc) = #propList then
+    if tPendAcc.getAt(#name) = tBuddyData.getAt(#name) then
       me.getComponent().setProp(#pItemList, #pendingBuddyAccept, "")
     end if
   end if
   return(me.getComponent().receive_AppendBuddy([#buddies:tBuddyData]))
+  exit
 end
 
-on handle_remove_buddy me, tMsg 
+on handle_remove_buddy(me, tMsg)
   tdata = me.get_user_list(tMsg)
   return(me.getComponent().receive_RemoveBuddies(tdata))
+  exit
 end
 
-on handle_mypersistentmessage me, tMsg 
+on handle_mypersistentmessage(me, tMsg)
   tConnection = tMsg.connection
   tText = tConnection.GetStrFrom()
   return(me.getComponent().receive_PersistentMsg(tText))
+  exit
 end
 
-on handle_messenger_error me, tMsg 
+on handle_messenger_error(me, tMsg)
   tConn = tMsg.connection
-  if (tConn = 0) then
-    return FALSE
+  if tConn = 0 then
+    return(0)
   end if
   tErrorCode = tConn.GetIntFrom()
-  if (tErrorCode = 0) then
+  if me = 0 then
     return(error(me, "Undefined messenger error!", #handle_messenger_error))
   else
-    if (tErrorCode = 37) then
+    if me = 37 then
       tReason = tConn.GetIntFrom()
-      if (tReason = 1) then
+      if tReason = 1 then
         tItems = me.getComponent().pItemList
         tItems.getAt(#newBuddyRequest).addAt(1, tItems.getAt(#pendingBuddyAccept))
         tItems.setAt(#pendingBuddyAccept, "")
@@ -180,21 +194,21 @@ on handle_messenger_error me, tMsg
         me.getInterface().updateFrontPage()
         return(me.getInterface().openBuddyMassremoveWindow())
       else
-        if (tReason = 2) then
+        if tReason = 2 then
           executeMessage(#alert, [#Msg:"console_buddylimit_requester", #modal:1])
         else
-          if (tReason = 42) then
+          if tReason = 42 then
             return(me.getComponent().handleFriendlistConcurrency())
           end if
         end if
       end if
     else
-      if (tErrorCode = 39) then
+      if me = 39 then
         return(me.getInterface().openBuddyMassremoveWindow())
       else
-        if (tErrorCode = 40) then
+        if me = 40 then
           tReason = tConn.GetIntFrom()
-          if (tReason = 42) then
+          if tReason = 42 then
             return(me.getComponent().handleFriendlistConcurrency())
           end if
         else
@@ -203,16 +217,17 @@ on handle_messenger_error me, tMsg
       end if
     end if
   end if
-  return TRUE
+  return(1)
+  exit
 end
 
-on get_console_info me, tMsg 
+on get_console_info(me, tMsg)
   tConn = tMsg.connection
-  if (tConn = 0) then
-    return FALSE
+  if tConn = 0 then
+    return(0)
   end if
-  tResult = [:]
-  tBuddyData = [:]
+  tResult = []
+  tBuddyData = []
   tLoopCount = tConn.GetIntFrom()
   i = 1
   repeat while i <= tLoopCount
@@ -220,7 +235,7 @@ on get_console_info me, tMsg
     if tdata <> 0 then
       tBuddyData.addProp(string(tdata.getAt(#id)), tdata)
     end if
-    i = (1 + i)
+    i = 1 + i
   end repeat
   tBuddyList = me.get_sorted_buddy_list(tBuddyData)
   tBuddyList.setAt(#buddies, tBuddyData)
@@ -233,7 +248,7 @@ on get_console_info me, tMsg
     if tdata <> 0 then
       tList.add(tdata)
     end if
-    i = (1 + i)
+    i = 1 + i
   end repeat
   tResult.addProp(#console_messages, tList)
   tList = []
@@ -244,7 +259,7 @@ on get_console_info me, tMsg
     if tdata <> 0 then
       tList.add(tdata)
     end if
-    i = (1 + i)
+    i = 1 + i
   end repeat
   tResult.addProp(#campaign_messages, tList)
   tList = []
@@ -255,13 +270,14 @@ on get_console_info me, tMsg
     if tdata <> 0 then
       tList.add(tdata)
     end if
-    i = (1 + i)
+    i = 1 + i
   end repeat
   tResult.addProp(#buddy_requests, tList)
   return(tResult)
+  exit
 end
 
-on get_sorted_buddy_list me, tBuddyData 
+on get_sorted_buddy_list(me, tBuddyData)
   tSortedList = [#online:[], #offline:[], #render:[]]
   i = 1
   repeat while i <= tBuddyData.count
@@ -270,29 +286,30 @@ on get_sorted_buddy_list me, tBuddyData
     else
       tSortedList.getAt(#offline).add(tBuddyData.getAt(i).getAt(#name))
     end if
-    i = (1 + i)
+    i = 1 + i
   end repeat
   tSortedList.getAt(#online).sort()
   tSortedList.getAt(#offline).sort()
   i = 1
   repeat while i <= tSortedList.getAt(#online).count
     tSortedList.getAt(#render).add(tSortedList.getAt(#online).getAt(i))
-    i = (1 + i)
+    i = 1 + i
   end repeat
   i = 1
   repeat while i <= tSortedList.getAt(#offline).count
     tSortedList.getAt(#render).add(tSortedList.getAt(#offline).getAt(i))
-    i = (1 + i)
+    i = 1 + i
   end repeat
   return(tSortedList)
+  exit
 end
 
-on get_buddy_info me, tMsg 
+on get_buddy_info(me, tMsg)
   tConn = tMsg.connection
-  if (tConn = 0) then
-    return FALSE
+  if tConn = 0 then
+    return(0)
   end if
-  tdata = [:]
+  tdata = []
   tdata.setAt(#id, string(tConn.GetIntFrom()))
   tdata.setAt(#customText, tConn.GetStrFrom())
   tdata.setAt(#online, tConn.GetIntFrom())
@@ -304,20 +321,21 @@ on get_buddy_info me, tMsg
     tdata.setAt(#lastAccess, tConn.GetStrFrom())
   end if
   return(tdata)
+  exit
 end
 
-on get_user_info me, tMsg 
+on get_user_info(me, tMsg)
   tConn = tMsg.connection
-  if (tConn = 0) then
-    return FALSE
+  if tConn = 0 then
+    return(0)
   end if
-  tdata = [:]
+  tdata = []
   tdata.setAt(#id, string(tConn.GetIntFrom()))
-  if (tdata.getAt(#id) = "0") then
-    return FALSE
+  if tdata.getAt(#id) = "0" then
+    return(0)
   end if
   tdata.setAt(#name, tConn.GetStrFrom())
-  if (tConn.GetIntFrom() = 0) then
+  if tConn.GetIntFrom() = 0 then
     tdata.setAt(#sex, "F")
   else
     tdata.setAt(#sex, "M")
@@ -330,25 +348,27 @@ on get_user_info me, tMsg
   tdata.setAt(#msgs, 0)
   tdata.setAt(#update, 1)
   return(tdata)
+  exit
 end
 
-on get_console_message me, tMsg 
+on get_console_message(me, tMsg)
   tConn = tMsg.connection
-  if (tConn = 0) then
-    return FALSE
+  if tConn = 0 then
+    return(0)
   end if
-  tdata = [:]
+  tdata = []
   tdata.setAt(#id, string(tConn.GetIntFrom()))
   tdata.setAt(#senderID, string(tConn.GetIntFrom()))
   tdata.setAt(#time, tConn.GetStrFrom())
   tdata.setAt(#message, tConn.GetStrFrom())
   return(tdata)
+  exit
 end
 
-on get_campaign_message me, tMsg 
+on get_campaign_message(me, tMsg)
   tConn = tMsg.connection
-  if (tConn = 0) then
-    return FALSE
+  if tConn = 0 then
+    return(0)
   end if
   tdata = [#campaign:1]
   tdata.setAt(#id, string(tConn.GetIntFrom()))
@@ -356,36 +376,39 @@ on get_campaign_message me, tMsg
   tdata.setAt(#link, tConn.GetStrFrom())
   tdata.setAt(#message, tConn.GetStrFrom())
   return(tdata)
+  exit
 end
 
-on get_buddy_request me, tMsg 
+on get_buddy_request(me, tMsg)
   tConn = tMsg.connection
-  if (tConn = 0) then
-    return FALSE
+  if tConn = 0 then
+    return(0)
   end if
-  tdata = [:]
+  tdata = []
   tdata.setAt(#id, string(tConn.GetIntFrom()))
   tdata.setAt(#name, tConn.GetStrFrom())
   return(tdata)
+  exit
 end
 
-on get_user_list me, tMsg 
+on get_user_list(me, tMsg)
   tConn = tMsg.connection
-  if (tConn = 0) then
-    return FALSE
+  if tConn = 0 then
+    return(0)
   end if
   tdata = []
   tLoopCount = tConn.GetIntFrom()
   i = 1
   repeat while i <= tLoopCount
     tdata.add(string(tConn.GetIntFrom()))
-    i = (1 + i)
+    i = 1 + i
   end repeat
   return(tdata)
+  exit
 end
 
-on regMsgList me, tBool 
-  tMsgs = [:]
+on regMsgList(me, tBool)
+  tMsgs = []
   tMsgs.setaProp(3, #handle_ok)
   tMsgs.setaProp(12, #handle_messenger_init)
   tMsgs.setaProp(13, #handle_console_update)
@@ -398,7 +421,7 @@ on regMsgList me, tBool
   tMsgs.setaProp(147, #handle_mypersistentmessage)
   tMsgs.setaProp(260, #handle_messenger_error)
   tMsgs.setaProp(263, #handle_buddylist)
-  tCmds = [:]
+  tCmds = []
   tCmds.setaProp("MESSENGERINIT", 12)
   tCmds.setaProp("MESSENGER_UPDATE", 15)
   tCmds.setaProp("MESSENGER_C_CLICK", 30)
@@ -420,5 +443,6 @@ on regMsgList me, tBool
     unregisterListener(getVariable("connection.info.id"), me.getID(), tMsgs)
     unregisterCommands(getVariable("connection.info.id"), me.getID(), tCmds)
   end if
-  return TRUE
+  return(1)
+  exit
 end

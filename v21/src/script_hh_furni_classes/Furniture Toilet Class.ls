@@ -1,49 +1,49 @@
-property pChanges, pActive
-
-on prepare me, tdata 
-  if (tdata.getAt(#stuffdata) = "ON") then
+on prepare(me, tdata)
+  if tdata.getAt(#stuffdata) = "ON" then
     me.setOn()
     pChanges = 1
   else
     me.setOff()
     pChanges = 0
   end if
-  return TRUE
+  return(1)
+  exit
 end
 
-on updateStuffdata me, tValue 
-  if (tValue = "ON") then
+on updateStuffdata(me, tValue)
+  if tValue = "ON" then
     me.setOn()
   else
     me.setOff()
   end if
   pChanges = 1
+  exit
 end
 
-on update me 
+on update(me)
   if not pChanges then
     return()
   end if
   if me.count(#pSprList) < 2 then
     return()
   end if
-  tCurName = me.getPropRef(#pSprList, 2).member.name
-  tNewName = tCurName.getProp(#char, 1, (length(tCurName) - 1)) & pActive
+  tCurName = member.name
+  tNewName = tCurName.getProp(#char, 1, length(tCurName) - 1) & pActive
   tMemNum = getmemnum(tNewName)
   if pActive then
     tDelim = the itemDelimiter
     the itemDelimiter = "_"
     tItemCount = tNewName.count(#item)
-    if (tNewName.getProp(#item, (tItemCount - 1)) = "0") or (tNewName.getProp(#item, (tItemCount - 1)) = "6") then
-      me.getPropRef(#pSprList, 2).locZ = (me.getPropRef(#pSprList, 1).locZ + 502)
+    if tNewName.getProp(#item, tItemCount - 1) = "0" or tNewName.getProp(#item, tItemCount - 1) = "6" then
+      me.getPropRef(#pSprList, 2).locZ = me.getPropRef(#pSprList, 1).locZ + 502
     else
-      if tNewName.getProp(#item, (tItemCount - 1)) <> "0" and tNewName.getProp(#item, (tItemCount - 1)) <> "6" then
-        me.getPropRef(#pSprList, 2).locZ = (me.getPropRef(#pSprList, 1).locZ + 2)
+      if tNewName.getProp(#item, tItemCount - 1) <> "0" and tNewName.getProp(#item, tItemCount - 1) <> "6" then
+        me.getPropRef(#pSprList, 2).locZ = me.getPropRef(#pSprList, 1).locZ + 2
       end if
     end if
     the itemDelimiter = tDelim
   else
-    me.getPropRef(#pSprList, 2).locZ = (me.getPropRef(#pSprList, 1).locZ + 1)
+    me.getPropRef(#pSprList, 2).locZ = me.getPropRef(#pSprList, 1).locZ + 1
   end if
   if tMemNum > 0 then
     tmember = member(tMemNum)
@@ -52,25 +52,28 @@ on update me
     me.getPropRef(#pSprList, 2).height = tmember.height
   end if
   pChanges = 0
+  exit
 end
 
-on setOn me 
+on setOn(me)
   pActive = 1
   if me.count(#pLoczList) < 2 then
-    return FALSE
+    return(0)
   end if
   me.setProp(#pLoczList, 2, [200, 200, 0, 0, 0, 0, 200, 200])
+  exit
 end
 
-on setOff me 
+on setOff(me)
   pActive = 0
   if me.count(#pLoczList) < 2 then
-    return FALSE
+    return(0)
   end if
   me.setProp(#pLoczList, 2, [0, 0, 0, 0, 0, 0, 0, 0])
+  exit
 end
 
-on select me 
+on select(me)
   if the doubleClick then
     if pActive then
       tStr = "OFF"
@@ -81,5 +84,6 @@ on select me
   else
     getThread(#room).getComponent().getRoomConnection().send("MOVE", [#short:me.pLocX, #short:me.pLocY])
   end if
-  return TRUE
+  return(1)
+  exit
 end

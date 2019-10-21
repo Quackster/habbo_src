@@ -1,7 +1,5 @@
-property pFloorPreviewIdList, pWallPreviewIdList, pLandscapePreviewIdList, pLandscapePatterns, pLandscapeGradients, pLandscapeBlockedCombos, pWallPatterns, pLandscapeProducts, pWallPattern, pWallModel, pFloorPattern, pFloorPatterns, pFloorModel, pFloorProps, pLandscapePattern, pLandscapeGradient, pLandscapeProps, pLandscapeElement, pWallProps
-
-on construct me 
-  pWallPatterns = [:]
+on construct(me)
+  pWallPatterns = []
   pWallPattern = 0
   pWallModel = 0
   pFloorPatterns = field(0)
@@ -9,10 +7,10 @@ on construct me
   pFloorModel = 0
   pLandscapePattern = 1
   pLandscapeGradient = 1
-  pWallProps = [:]
-  pFloorProps = [:]
-  pLandscapeProps = [:]
-  pLandscapeProducts = [:]
+  pWallProps = []
+  pFloorProps = []
+  pLandscapeProps = []
+  pLandscapeProducts = []
   pFloorPreviewIdList = []
   pFloorPreviewIdList.add("catalog_floor_preview_example")
   pWallPreviewIdList = []
@@ -50,9 +48,10 @@ on construct me
     the itemDelimiter = tDelim
   end if
   return(1)
+  exit
 end
 
-on define me, tPageProps 
+on define(me, tPageProps)
   if tPageProps.ilk <> #propList then
     return(error(me, "Incorrect Catalogue page data", #define, #major))
   end if
@@ -86,7 +85,7 @@ on define me, tPageProps
         tPatternMemName = tWallPatterns.getProp(#line, integer(tPatternNo))
         tModelsRawData = member(tPatternMemName).text
         if ilk(pWallPatterns.getAt(tPatternNo)) <> #propList then
-          pWallPatterns.setAt(tPatternNo, [:])
+          pWallPatterns.setAt(tPatternNo, [])
         end if
         tmodellist = pWallPatterns.getAt(tPatternNo).duplicate()
         tDelim = the itemDelimiter
@@ -144,9 +143,10 @@ on define me, tPageProps
   me.setWallPaper("pattern", 6)
   me.setFloorPattern("pattern", 3)
   me.setLandscapePreview("pattern", 0)
+  exit
 end
 
-on setWallPaper me, ttype, tChange 
+on setWallPaper(me, ttype, tChange)
   tWndObj = getThread(#catalogue).getInterface().getCatalogWindow()
   if not tWndObj then
     return(error(me, "Couldn't access catalogue window!", #setWallPaper, #major))
@@ -190,7 +190,7 @@ on setWallPaper me, ttype, tChange
   pWallProps = tWallData
   tDelim = the itemDelimiter
   the itemDelimiter = "_"
-  repeat while pWallPreviewIdList <= tChange
+  repeat while me <= tChange
     tID = getAt(tChange, ttype)
     tPiece = tID.getProp(#item, tID.count(#item))
     tMem = "catalog_spaces_wall" & ttype & "_" & tPiece
@@ -222,9 +222,10 @@ on setWallPaper me, ttype, tChange
     end if
   end if
   return(1)
+  exit
 end
 
-on setFloorPattern me, ttype, tChange 
+on setFloorPattern(me, ttype, tChange)
   if ttype = "pattern" then
     pFloorPattern = pFloorPattern + tChange
     if pFloorPattern > pFloorPatterns.count(#line) then
@@ -263,7 +264,7 @@ on setFloorPattern me, ttype, tChange
   if not tWndObj then
     return(error(me, "Couldn't access catalogue window!", #setFloorPattern, #major))
   end if
-  repeat while pFloorModel <= tChange
+  repeat while me <= tChange
     tID = getAt(tChange, ttype)
     tPiece = tID.getProp(#item, tID.count(#item))
     tMem = "catalog_spaces_floor" & ttype & "_" & tPiece
@@ -295,9 +296,10 @@ on setFloorPattern me, ttype, tChange
     end if
   end if
   return(1)
+  exit
 end
 
-on GetLsProductOffset me, tNumber 
+on GetLsProductOffset(me, tNumber)
   i = 1
   repeat while i <= pLandscapeProducts.count
     if string(tNumber) = pLandscapeProducts.getPropAt(i) then
@@ -306,30 +308,33 @@ on GetLsProductOffset me, tNumber
     i = 1 + i
   end repeat
   return(void())
+  exit
 end
 
-on ComboIsBlocked me, tLandscape, tGradient 
-  repeat while pLandscapeBlockedCombos <= tGradient
+on ComboIsBlocked(me, tLandscape, tGradient)
+  repeat while me <= tGradient
     tCombo = getAt(tGradient, tLandscape)
     if tLandscape = tCombo.getAt(1) and tGradient = tCombo.getAt(2) then
       return(1)
     end if
   end repeat
   return(0)
+  exit
 end
 
-on availableGradientsCount me, tLandscape 
+on availableGradientsCount(me, tLandscape)
   tGradientsCount = pLandscapeGradients.count
-  repeat while pLandscapeBlockedCombos <= undefined
+  repeat while me <= undefined
     tCombo = getAt(undefined, tLandscape)
     if tLandscape = tCombo.getAt(1) then
       tGradientsCount = tGradientsCount - 1
     end if
   end repeat
   return(tGradientsCount)
+  exit
 end
 
-on setLandscapePreview me, ttype, tChange 
+on setLandscapePreview(me, ttype, tChange)
   tCurrent = me.GetLsProductOffset(pLandscapePattern)
   if voidp(tCurrent) then
     tCurrent = 1 - tChange
@@ -445,58 +450,59 @@ on setLandscapePreview me, ttype, tChange
   member.image = tBuffer
   member.useAlpha = 1
   member.regPoint = point(0, 0)
+  exit
 end
 
-on eventProc me, tEvent, tSprID, tProp 
+on eventProc(me, tEvent, tSprID, tProp)
   if tEvent = #mouseUp then
     if tSprID = "close" then
       return(0)
     end if
   end if
   if tEvent = #mouseDown then
-    if tSprID = "ctlg_wall_pattern_prev" then
+    if me = "ctlg_wall_pattern_prev" then
       me.setWallPaper("pattern", -1)
     else
-      if tSprID = "ctlg_wall_pattern_next" then
+      if me = "ctlg_wall_pattern_next" then
         me.setWallPaper("pattern", 1)
       else
-        if tSprID = "ctlg_wall_color_prev" then
+        if me = "ctlg_wall_color_prev" then
           me.setWallPaper("model", -1)
         else
-          if tSprID = "ctlg_wall_color_next" then
+          if me = "ctlg_wall_color_next" then
             me.setWallPaper("model", 1)
           else
-            if tSprID = "ctlg_floor_pattern_prev" then
+            if me = "ctlg_floor_pattern_prev" then
               me.setFloorPattern("pattern", -1)
             else
-              if tSprID = "ctlg_floor_pattern_next" then
+              if me = "ctlg_floor_pattern_next" then
                 me.setFloorPattern("pattern", 1)
               else
-                if tSprID = "ctlg_floor_color_prev" then
+                if me = "ctlg_floor_color_prev" then
                   me.setFloorPattern("model", -1)
                 else
-                  if tSprID = "ctlg_floor_color_next" then
+                  if me = "ctlg_floor_color_next" then
                     me.setFloorPattern("model", 1)
                   else
-                    if tSprID = "ctlg_landscape_pattern_prev" then
+                    if me = "ctlg_landscape_pattern_prev" then
                       me.setLandscapePreview("pattern", -1)
                     else
-                      if tSprID = "ctlg_landscape_pattern_next" then
+                      if me = "ctlg_landscape_pattern_next" then
                         me.setLandscapePreview("pattern", 1)
                       else
-                        if tSprID = "ctlg_landscape_color_prev" then
+                        if me = "ctlg_landscape_color_prev" then
                           me.setLandscapePreview("gradient", -1)
                         else
-                          if tSprID = "ctlg_landscape_color_next" then
+                          if me = "ctlg_landscape_color_next" then
                             me.setLandscapePreview("gradient", 1)
                           else
-                            if tSprID = "ctlg_buy_wall" then
+                            if me = "ctlg_buy_wall" then
                               getThread(#catalogue).getComponent().checkProductOrder(pWallProps)
                             else
-                              if tSprID = "ctlg_buy_floor" then
+                              if me = "ctlg_buy_floor" then
                                 getThread(#catalogue).getComponent().checkProductOrder(pFloorProps)
                               else
-                                if tSprID = "ctlg_buy_landscape" then
+                                if me = "ctlg_buy_landscape" then
                                   getThread(#catalogue).getComponent().checkProductOrder(pLandscapeProps)
                                 else
                                   return(0)
@@ -517,4 +523,5 @@ on eventProc me, tEvent, tSprID, tProp
     end if
   end if
   return(1)
+  exit
 end

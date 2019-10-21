@@ -1,51 +1,54 @@
-property pState, pBlinkCounter
-
-on prepare me, tdata 
+on prepare(me, tdata)
   me.setState(tdata.getAt(#stuffdata))
-  return TRUE
+  return(1)
+  exit
 end
 
-on updateStuffdata me, tValue 
+on updateStuffdata(me, tValue)
   me.setState(tValue)
+  exit
 end
 
-on setState me, tValue 
+on setState(me, tValue)
   if me.count(#pSprList) < 5 then
-    return FALSE
+    return(0)
   end if
   pBlinkCounter = 0
   pState = tValue
-  me.getPropRef(#pSprList, 5).visible = (pState = "1")
-  return TRUE
+  me.getPropRef(#pSprList, 5).visible = pState = "1"
+  return(1)
+  exit
 end
 
-on update me 
+on update(me)
   if pState <> "1" then
-    return TRUE
+    return(1)
   end if
   if me.count(#pSprList) < 5 then
-    return FALSE
+    return(0)
   end if
-  if (pBlinkCounter = 0) then
+  if pBlinkCounter = 0 then
     me.getPropRef(#pSprList, 5).visible = 1
   end if
-  if (pBlinkCounter = 20) then
+  if pBlinkCounter = 20 then
     me.getPropRef(#pSprList, 5).visible = 0
   end if
-  pBlinkCounter = (pBlinkCounter + 1)
+  pBlinkCounter = pBlinkCounter + 1
   if pBlinkCounter > 45 then
     pBlinkCounter = 0
   end if
+  exit
 end
 
-on select me 
+on select(me)
   if the doubleClick then
-    if (pState = "1") then
+    if me = "1" then
       pState = "0"
     else
       pState = "1"
     end if
     getThread(#room).getComponent().getRoomConnection().send("SETSTUFFDATA", [#string:string(me.getID()), #string:pState])
   end if
-  return TRUE
+  return(1)
+  exit
 end

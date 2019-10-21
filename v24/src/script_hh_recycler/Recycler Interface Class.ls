@@ -1,6 +1,4 @@
-property pProgressAnimation, pStatusIcon, pWindowObj, pTimeLeftTimeoutID, pHeaderImageNum, pLastPageIndex, pCurrentPageIndex, pAcceptBtnActive, pFurnisPerPage
-
-on construct me 
+on construct(me)
   pWindowObj = void()
   pCurrentPageIndex = 1
   pLastPageIndex = 1
@@ -11,39 +9,43 @@ on construct me
   pStatusIcon = createObject("rec_status_icon", getClassVariable("recycler.status.icon.class"))
   registerMessage(#gamesystem_constructed, me.getID(), #hideRecyclerStatusButton)
   registerMessage(#gamesystem_deconstructed, me.getID(), #showRecyclerStatusButton)
-  return TRUE
+  return(1)
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   unregisterMessage(#gamesystem_constructed, me.getID())
   unregisterMessage(#gamesystem_deconstructed, me.getID())
   removeObject(pProgressAnimation)
   removeObject(pStatusIcon)
-  return TRUE
+  return(1)
+  exit
 end
 
-on setHostWindowObject me, tHostWindowObj 
+on setHostWindowObject(me, tHostWindowObj)
   pWindowObj = tHostWindowObj
+  exit
 end
 
-on setHeaderImage me, tMemberNo 
+on setHeaderImage(me, tMemberNo)
   pHeaderImageNum = tMemberNo
+  exit
 end
 
-on setViewToState me, tstate 
-  if tstate <> "open" then
-    if (tstate = "disabled") then
+on setViewToState(me, tstate)
+  if me <> "open" then
+    if me = "disabled" then
       me.hideRecyclerStatusButton()
     else
-      if tstate <> "progress" then
-        if tstate <> "ready" then
-          if (tstate = "timeout") then
+      if me <> "progress" then
+        if me <> "ready" then
+          if me = "timeout" then
             me.showRecyclerStatusButton()
           end if
           if voidp(pWindowObj) then
-            return FALSE
+            return(0)
           end if
-          if (tstate = "open") then
+          if me = "open" then
             pCurrentPageIndex = 1
             pWindowObj.unmerge()
             pWindowObj.merge("ctlg_recycler_open.window")
@@ -57,7 +59,7 @@ on setViewToState me, tstate
             end if
             pProgressAnimation.stopAnimation()
           else
-            if (tstate = "progress") then
+            if me = "progress" then
               pWindowObj.unmerge()
               pWindowObj.merge("ctlg_recycler_progress.window")
               tHeaderText = getText("recycler_info_progress")
@@ -66,10 +68,11 @@ on setViewToState me, tstate
               pProgressAnimation.startAnimation(pWindowObj)
               me.updateInProgressText()
               if not timeoutExists(pTimeLeftTimeoutID) then
-                createTimeout(pTimeLeftTimeoutID, 60000, #updateInProgressText, me.getID(), void(), 0)
+                the executeMessage = pTimeLeftTimeoutID.tTargetRect
+                createTimeout(0)
               end if
             else
-              if (tstate = "ready") then
+              if me = "ready" then
                 pWindowObj.unmerge()
                 pWindowObj.merge("ctlg_recycler_ready.window")
                 tHeaderText = getText("recycler_info_ready")
@@ -85,17 +88,17 @@ on setViewToState me, tstate
                 end if
                 pProgressAnimation.stopAnimation()
               else
-                if (tstate = "timeout") then
+                if me = "timeout" then
                   pWindowObj.unmerge()
                   pWindowObj.merge("ctlg_recycler_progress.window")
                   tHeaderText = getText("recycler_info_timeout")
                 else
-                  if (tstate = "disabled") then
+                  if me = "disabled" then
                     pWindowObj.unmerge()
                     pWindowObj.merge("ctlg_recycler_progress.window")
                     tHeaderText = getText("recycler_info_closed")
                   else
-                    return FALSE
+                    return(0)
                   end if
                 end if
               end if
@@ -112,28 +115,29 @@ on setViewToState me, tstate
           if not voidp(tHeaderTextElement) then
             tHeaderTextElement.setText(tHeaderText)
           end if
+          exit
         end if
       end if
     end if
   end if
 end
 
-on eventProc me, tEvent, tSprID, tProp 
-  if (tEvent = #mouseEnter) then
+on eventProc(me, tEvent, tSprID, tProp)
+  if tEvent = #mouseEnter then
     tObjMover = getThread(#room).getInterface().getObjectMover()
     if tObjMover <> 0 then
       tObjMover.moveTrade()
     end if
   else
-    if (tEvent = #mouseUp) then
+    if tEvent = #mouseUp then
       if tSprID contains "rec_drop_slot_" then
         tObjMover = getThread(#room).getInterface().getObjectMover()
         tContainer = getThread(#room).getInterface().getContainer()
         if objectp(tObjMover) then
           tClientObj = tObjMover.getProperty(#clientObj)
           if objectp(tClientObj) then
-            if (tObjMover.getProperty(#stripId) = "") then
-              return FALSE
+            if tObjMover.getProperty(#stripId) = "" then
+              return(0)
             end if
             tClientProps = tObjMover.getProperty(#clientProps)
             tClass = tClientProps.getAt(#class)
@@ -142,14 +146,14 @@ on eventProc me, tEvent, tSprID, tProp
             if not integer(tClientProps.getAt(#isRecyclable)) then
               executeMessage(#alert, [#Msg:getText("recycler_furni_not_recyclable")])
               me.getComponent().clearObjectMover()
-              return FALSE
+              return(0)
             end if
             me.getComponent().addFurnitureToGivePool(tClass, tClientID, tClientProps)
             me.getComponent().clearObjectMover()
             me.updateLastPageIndex()
             pCurrentPageIndex = pLastPageIndex
             me.updateDynamicContent()
-            return TRUE
+            return(1)
           else
             tDelim = the itemDelimiter
             the itemDelimiter = "_"
@@ -160,34 +164,35 @@ on eventProc me, tEvent, tSprID, tProp
           tContainer.Refresh()
         end if
       end if
-      if (tSprID = "rec_next") then
-        pCurrentPageIndex = (pCurrentPageIndex + 1)
+      if me = "rec_next" then
+        pCurrentPageIndex = pCurrentPageIndex + 1
         me.updateDynamicContent()
       else
-        if (tSprID = "rec_prev") then
-          pCurrentPageIndex = (pCurrentPageIndex - 1)
+        if me = "rec_prev" then
+          pCurrentPageIndex = pCurrentPageIndex - 1
           me.updateDynamicContent()
         else
-          if tSprID <> "rec_accept_text" then
-            if (tSprID = "rec_current_btn") then
-              if (me.getComponent().getState() = "open") and (pAcceptBtnActive = 1) then
+          if me <> "rec_accept_text" then
+            if me = "rec_current_btn" then
+              if me.getComponent().getState() = "open" and pAcceptBtnActive = 1 then
                 me.getComponent().startRecycling()
               else
-                if (me.getComponent().getState() = "ready") then
+                if me.getComponent().getState() = "ready" then
                   me.getComponent().acceptRecycling()
                 end if
               end if
             else
-              if tSprID <> "rec_cancel_text" then
-                if (tSprID = "rec_cancel_btn") then
+              if me <> "rec_cancel_text" then
+                if me = "rec_cancel_btn" then
                   me.getComponent().cancelRecycling()
                 else
-                  if (tSprID = "rec_moreinfo_link") then
+                  if me = "rec_moreinfo_link" then
                     executeMessage(#externalLinkClick, the mouseLoc)
                     openNetPage("recycler_info_link_url")
                   end if
                 end if
-                return FALSE
+                return(0)
+                exit
               end if
             end if
           end if
@@ -197,98 +202,105 @@ on eventProc me, tEvent, tSprID, tProp
   end if
 end
 
-on updateDynamicContent me 
+on updateDynamicContent(me)
   tstate = me.getComponent().getState()
-  if (tstate = "open") then
+  if me = "open" then
     me.updateFurniSlots()
     me.updateNextAndPrevButtons()
     me.updatePageIndexes()
     me.updateAcceptButtonOpenState()
     me.updateProgressBar()
   else
-    if (tstate = "progress") then
+    if me = "progress" then
       me.updateCancelButton()
     else
-      if (tstate = "ready") then
+      if me = "ready" then
         me.updateAcceptButton()
         me.updateCancelButton()
       else
-        if (tstate = "timeout") then
+        if me = "timeout" then
           me.updateCancelButton()
         else
-          if (tstate = "disabled") then
+          if me = "disabled" then
             me.hideCancelButton()
           end if
         end if
       end if
     end if
   end if
+  exit
 end
 
-on updateInProgressText me 
+on updateInProgressText(me)
   if me.getComponent().getState() <> "progress" or voidp(pWindowObj) then
-    return FALSE
+    return(0)
   end if
   tTimeLeftText = getText("recycler_progress_timeleft")
-  tMinutesLeft = (me.getComponent().getMinutesLeftToRecycle() + 1)
+  tMinutesLeft = me.getComponent().getMinutesLeftToRecycle() + 1
   tTimeLeftText = me.replaceTimeKeysText(tTimeLeftText, tMinutesLeft)
   if pWindowObj.elementExists("ctlg_time_left") then
     pWindowObj.getElement("ctlg_time_left").setText(tTimeLeftText)
   end if
+  exit
 end
 
-on replaceTimeKeysText me, tText, tMinutes, tKeyPrefix 
+on replaceTimeKeysText(me, tText, tMinutes, tKeyPrefix)
   if not voidp(tMinutes) then
-    tHours = (tMinutes / 60)
-    tMinutes = (tMinutes - (tHours * 60))
+    tHours = tMinutes / 60
+    tMinutes = tMinutes - tHours * 60
     tText = replaceChunks(tText, "%" & tKeyPrefix & "hours%", tHours)
     tText = replaceChunks(tText, "%" & tKeyPrefix & "minutes%", tMinutes)
   end if
   return(tText)
+  exit
 end
 
-on showRecyclerStatusButton me 
+on showRecyclerStatusButton(me)
   tstate = me.getComponent().getState()
-  if (tstate = "ready") or (tstate = "timeout") then
+  if tstate = "ready" or tstate = "timeout" then
     pStatusIcon.showRecyclerButton("highlight")
   else
-    if (tstate = "progress") then
+    if tstate = "progress" then
       pStatusIcon.showRecyclerButton("normal")
     else
       nothing()
     end if
   end if
+  exit
 end
 
-on hideRecyclerStatusButton me 
+on hideRecyclerStatusButton(me)
   pStatusIcon.hideRecyclerButton()
+  exit
 end
 
-on updateLastPageIndex me 
+on updateLastPageIndex(me)
   tGivenAmount = me.getComponent().getGiveFurniPool().count
   if tGivenAmount < pFurnisPerPage then
     pLastPageIndex = 1
   else
-    pLastPageIndex = ((tGivenAmount / pFurnisPerPage) + 1)
+    pLastPageIndex = tGivenAmount / pFurnisPerPage + 1
   end if
+  exit
 end
 
-on removeItemFromSlot me, tSlotNo 
+on removeItemFromSlot(me, tSlotNo)
   tSlotNo = integer(tSlotNo)
-  tCurrentPageFirstIndex = (((pCurrentPageIndex - 1) * pFurnisPerPage) + 1)
-  tRemovedIndex = ((tCurrentPageFirstIndex + tSlotNo) - 1)
+  tCurrentPageFirstIndex = pCurrentPageIndex - 1 * pFurnisPerPage + 1
+  tRemovedIndex = tCurrentPageFirstIndex + tSlotNo - 1
   me.getComponent().removeFurniFromGivePool(tRemovedIndex)
   me.updateLastPageIndex()
   if pCurrentPageIndex > pLastPageIndex then
     pCurrentPageIndex = pLastPageIndex
   end if
   me.updateDynamicContent()
+  exit
 end
 
-on updateFurniSlots me 
+on updateFurniSlots(me)
   tGiveFurniPool = me.getComponent().getGiveFurniPool()
   tFurniAmount = tGiveFurniPool.count
-  tCurrentPageFirstIndex = (((pCurrentPageIndex - 1) * pFurnisPerPage) + 1)
+  tCurrentPageFirstIndex = pCurrentPageIndex - 1 * pFurnisPerPage + 1
   tSlotWidth = pWindowObj.getElement("rec_drop_slot_1").getProperty(#width)
   tSlotHeight = pWindowObj.getElement("rec_drop_slot_1").getProperty(#height)
   tEmptyImage = image(tSlotWidth, tSlotHeight, 8)
@@ -296,9 +308,9 @@ on updateFurniSlots me
   repeat while tTemp <= pFurnisPerPage
     tElement = pWindowObj.getElement("rec_drop_slot_" & tTemp)
     tElement.feedImage(tEmptyImage)
-    tTemp = (1 + tTemp)
+    tTemp = 1 + tTemp
   end repeat
-  tLastFurniIndexOnPage = min([tFurniAmount, ((tCurrentPageFirstIndex + pFurnisPerPage) - 1)])
+  tLastFurniIndexOnPage = min([tFurniAmount, tCurrentPageFirstIndex + pFurnisPerPage - 1])
   tSlotNo = 1
   tFurniIndex = tCurrentPageFirstIndex
   repeat while tFurniIndex <= tLastFurniIndexOnPage
@@ -310,45 +322,48 @@ on updateFurniSlots me
     tClass = tFurniItem.getAt(#class)
     tMemStr = me.detectMemberName(tClass, tProps)
     tFurniImage = getObject("Preview_renderer").renderPreviewImage(tMemStr, void(), tProps.getAt(#colors), tProps.getAt(#class))
-    tWidthMargin = ((tSlotWidth - tFurniImage.width) / 2)
-    tHeightMargin = ((tSlotHeight - tFurniImage.height) / 2)
-    tTargetRect = (tFurniImage.rect + rect(tWidthMargin, tHeightMargin, tWidthMargin, tHeightMargin))
+    tWidthMargin = tSlotWidth - tFurniImage.width / 2
+    tHeightMargin = tSlotHeight - tFurniImage.height / 2
+    tTargetRect = tFurniImage.rect + rect(tWidthMargin, tHeightMargin, tWidthMargin, tHeightMargin)
     tIconImage.copyPixels(tFurniImage, tTargetRect, tFurniImage.rect)
     tSlotElement.feedImage(tIconImage)
     tSlotElement.setProperty(#blend, 100)
-    tSlotNo = (tSlotNo + 1)
-    tFurniIndex = (1 + tFurniIndex)
+    tSlotNo = tSlotNo + 1
+    tFurniIndex = 1 + tFurniIndex
   end repeat
+  exit
 end
 
-on updateNextAndPrevButtons me 
+on updateNextAndPrevButtons(me)
   if pWindowObj.elementExists("rec_next") and pWindowObj.elementExists("rec_prev") then
     tNextElement = pWindowObj.getElement("rec_next")
     tPrevElement = pWindowObj.getElement("rec_prev")
   else
-    return FALSE
+    return(0)
   end if
-  if (pCurrentPageIndex = 1) then
+  if pCurrentPageIndex = 1 then
     tPrevElement.setProperty(#visible, 0)
   else
     tPrevElement.setProperty(#visible, 1)
   end if
-  if (pCurrentPageIndex = pLastPageIndex) then
+  if pCurrentPageIndex = pLastPageIndex then
     tNextElement.setProperty(#visible, 0)
   else
     tNextElement.setProperty(#visible, 1)
   end if
+  exit
 end
 
-on updatePageIndexes me 
+on updatePageIndexes(me)
   if pWindowObj.elementExists("rec_page") then
     pWindowObj.getElement("rec_page").setText(pCurrentPageIndex & "/" & pLastPageIndex)
   else
-    return FALSE
+    return(0)
   end if
+  exit
 end
 
-on updateAcceptButtonOpenState me 
+on updateAcceptButtonOpenState(me)
   tComponent = me.getComponent()
   tCurrentAmount = tComponent.getGiveFurniPool().count
   tCurrentSelectableFurni = tComponent.getRewardItemForCurrentAmount()
@@ -379,31 +394,35 @@ on updateAcceptButtonOpenState me
     tCurrentBarTextElement.setProperty(#cursor, "cursor.arrow")
     pAcceptBtnActive = 0
   end if
+  exit
 end
 
-on updateAcceptButton me 
+on updateAcceptButton(me)
   tCurrentBarElement = pWindowObj.getElement("rec_accept_btn")
   tBarWidth = tCurrentBarElement.getProperty(#width)
   tCurrentBarElement.setProperty(#image, me.getCustomButtonImage(tBarWidth, "green"))
+  exit
 end
 
-on updateCancelButton me 
+on updateCancelButton(me)
   tCurrentBarElement = pWindowObj.getElement("rec_cancel_btn")
   tBarTextElement = pWindowObj.getElement("rec_cancel_text")
   tBarWidth = tCurrentBarElement.getProperty(#width)
   tCurrentBarElement.setProperty(#visible, 1)
   tBarTextElement.setProperty(#visible, 1)
   tCurrentBarElement.setProperty(#image, me.getCustomButtonImage(tBarWidth, "orange"))
+  exit
 end
 
-on hideCancelButton me 
+on hideCancelButton(me)
   tCurrentBarElement = pWindowObj.getElement("rec_cancel_btn")
   tCurrentBarElement.setProperty(#visible, 0)
   tBarTextElement = pWindowObj.getElement("rec_cancel_text")
   tBarTextElement.setProperty(#visible, 0)
+  exit
 end
 
-on updateProgressBar me 
+on updateProgressBar(me)
   tComponent = me.getComponent()
   tCurrentAmount = tComponent.getGiveFurniPool().count
   tNextItem = tComponent.getNextRewardItemForCurrentAmount()
@@ -417,9 +436,9 @@ on updateProgressBar me
     tNextAmount = tNextItem.getAt(#furniValue)
     if tCurrentSelectableFurni <> void() then
       tCurrentAcceptableCount = tCurrentSelectableFurni.getAt(#furniValue)
-      tPercentage = integer(((float((tCurrentAmount - tCurrentAcceptableCount)) / (tNextAmount - tCurrentAcceptableCount)) * 100))
+      tPercentage = integer(float(tCurrentAmount - tCurrentAcceptableCount) / tNextAmount - tCurrentAcceptableCount * 100)
     else
-      tPercentage = integer(((float(tCurrentAmount) / tNextAmount) * 100))
+      tPercentage = integer(float(tCurrentAmount) / tNextAmount * 100)
     end if
     tNextFurniElement.setProperty(#blend, 100)
     tNextFurniElement.setText(tNextItem.getAt(#name))
@@ -432,26 +451,28 @@ on updateProgressBar me
     tProgressBarElement.setProperty(#blend, 0)
     tNextCounterElement.setProperty(#blend, 0)
   end if
+  exit
 end
 
-on getCustomButtonImage me, tWidth, tColor 
+on getCustomButtonImage(me, tWidth, tColor)
   if voidp(tColor) then
     tColor = "green"
   end if
   return(me.getBarImage(tWidth, 100, tColor))
+  exit
 end
 
-on getBarImage me, tBarWidth, tPercentage, tColor 
+on getBarImage(me, tBarWidth, tPercentage, tColor)
   if voidp(tColor) then
     tColor = "orange"
   end if
   tBarHeight = 29
   tMarginWidth = 8
   tBgColor = "gray"
-  if (tPercentage = 100) then
+  if tPercentage = 100 then
     tBgColor = tColor
   else
-    if (tPercentage = 0) then
+    if tPercentage = 0 then
       tColor = tBgColor
     end if
   end if
@@ -462,24 +483,25 @@ on getBarImage me, tBarWidth, tPercentage, tColor
   tBarImage = image(tBarWidth, tBarHeight, 32)
   tTargetRect = rect(0, 0, tMarginWidth, tBarHeight)
   tBarImage.copyPixels(tMarginLeftImg, tTargetRect, tMarginLeftImg.rect)
-  tTargetRect = rect((tBarWidth - tMarginWidth), 0, tBarWidth, tBarHeight)
+  tTargetRect = rect(tBarWidth - tMarginWidth, 0, tBarWidth, tBarHeight)
   tBarImage.copyPixels(tMarginRightImg, tTargetRect, tMarginRightImg.rect)
-  tTargetRect = rect(tMarginWidth, 0, (tBarWidth - tMarginWidth), tBarHeight)
+  tTargetRect = rect(tMarginWidth, 0, tBarWidth - tMarginWidth, tBarHeight)
   tBarImage.copyPixels(tBarBgImg, tTargetRect, tBarBgImg.rect)
-  tPercentagePixels = integer(((tBarWidth - (2 * tMarginWidth)) * (tPercentage / 100)))
-  tTargetRect = rect(tMarginWidth, 0, (tMarginWidth + tPercentagePixels), tBarHeight)
+  tPercentagePixels = integer(tBarWidth - 2 * tMarginWidth * tPercentage / 0)
+  tTargetRect = rect(tMarginWidth, 0, tMarginWidth + tPercentagePixels, tBarHeight)
   tBarImage.copyPixels(tBarPercentageImg, tTargetRect, tBarPercentageImg.rect)
   return(tBarImage)
+  exit
 end
 
-on detectMemberName me, tClass, tProps 
+on detectMemberName(me, tClass, tProps)
   tMemStr = "no_icon_small"
   tDelim = the itemDelimiter
   the itemDelimiter = "*"
   tClass = tClass.getProp(#item, 1)
   the itemDelimiter = tDelim
   if tClass contains "post.it" then
-    tCount = integer((value(tProps.getAt(#props)) / (20 / 6)))
+    tCount = integer(value(tProps.getAt(#props)) / 0 / 0)
     if tCount > 6 then
       tCount = 6
     end if
@@ -513,4 +535,5 @@ on detectMemberName me, tClass, tProps
     end if
   end if
   return(tMemStr)
+  exit
 end

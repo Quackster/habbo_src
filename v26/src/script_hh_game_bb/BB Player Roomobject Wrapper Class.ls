@@ -1,10 +1,9 @@
-property pRoomIndex, pRoomComponentObj
-
-on construct me 
+on construct(me)
   return(1)
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   me.removeRoomObject()
   pRoomComponentObj = void()
   if not getObject(#session).exists("user_index") then
@@ -17,9 +16,10 @@ on deconstruct me
     end if
   end if
   return(1)
+  exit
 end
 
-on define me, tdata 
+on define(me, tdata)
   tdata.setAt(#room_index, tdata.getAt(#roomindex))
   if tdata.getAt(#room_index) < 0 then
     return(error(me, "Invalid room index for avatar:" && tdata, #define))
@@ -30,9 +30,10 @@ on define me, tdata
     getObject(#session).set("user_game_index", tdata.getAt(#id))
   end if
   return(me.createRoomObject(tdata))
+  exit
 end
 
-on setLocation me, tdata 
+on setLocation(me, tdata)
   tUserObject = me.getRoomObject()
   if tUserObject = 0 then
     return(0)
@@ -41,9 +42,10 @@ on setLocation me, tdata
     return(0)
   end if
   return(tUserObject.resetValues(tdata.getAt(#x), tdata.getAt(#y), tdata.getAt(#z), tdata.getAt(#dirBody), tdata.getAt(#dirBody)))
+  exit
 end
 
-on setTarget me, tCurrentLoc, tNextLoc 
+on setTarget(me, tCurrentLoc, tNextLoc)
   tUserObject = me.getRoomObject()
   if tUserObject = 0 then
     return(0)
@@ -56,33 +58,37 @@ on setTarget me, tCurrentLoc, tNextLoc
     tUserObject.Refresh(tCurrentLoc.getAt(#x), tCurrentLoc.getAt(#y), tCurrentLoc.getAt(#z))
   end if
   return(1)
+  exit
 end
 
-on roomObjectAction me, tAction, tdata 
+on roomObjectAction(me, tAction, tdata)
   tUserObject = me.getRoomObject()
   if tUserObject = 0 then
     return(0)
   end if
   return(tUserObject.roomObjectAction(tAction, tdata))
+  exit
 end
 
-on getPicture me 
+on getPicture(me)
   tUserObject = me.getRoomObject()
   if tUserObject = 0 then
     return(0)
   end if
   return(tUserObject.getPicture())
+  exit
 end
 
-on getRoomObject me 
+on getRoomObject(me)
   tRoomComponentObj = getObject(#room_component)
   if tRoomComponentObj = 0 then
     return(error(me, "Room component unavailable!", #getRoomObject))
   end if
   return(tRoomComponentObj.getUserObject(pRoomIndex))
+  exit
 end
 
-on createRoomObject me, tdata 
+on createRoomObject(me, tdata)
   pRoomComponentObj = getObject(#room_component)
   if pRoomComponentObj = 0 then
     return(error(me, "Room component unavailable!", #createRoomObject))
@@ -94,7 +100,7 @@ on createRoomObject me, tdata
   if pRoomComponentObj.userObjectExists(pRoomIndex) then
     return(1)
   end if
-  tAvatarStruct = [:]
+  tAvatarStruct = []
   tClassID = "bb_gamesystem.roomobject.player.class"
   tPlayerClass = getVariable(tClassID)
   tClassContainer = pRoomComponentObj.getClassContainer()
@@ -127,9 +133,10 @@ on createRoomObject me, tdata
   else
     return(1)
   end if
+  exit
 end
 
-on removeRoomObject me 
+on removeRoomObject(me)
   tRoomComponentObj = getObject(#room_component)
   if tRoomComponentObj = 0 then
     return(error(me, "Room component unavailable!", #removeRoomObject))
@@ -138,4 +145,5 @@ on removeRoomObject me
     return(0)
   end if
   return(tRoomComponentObj.removeUserObject(pRoomIndex))
+  exit
 end

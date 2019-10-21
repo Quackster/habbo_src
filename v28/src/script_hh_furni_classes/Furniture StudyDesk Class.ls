@@ -1,16 +1,16 @@
-property pToggleParts, pState
-
-on prepare me, tdata 
+on prepare(me, tdata)
   pToggleParts = ["0":[[#sprite:"c", #member:void()], [#sprite:"d", #member:void()]], "1":[[#sprite:"c", #member:"0"], [#sprite:"d", #member:"0"]]]
   me.setState(tdata.getAt(#stuffdata))
   return(1)
+  exit
 end
 
-on updateStuffdata me, tValue 
+on updateStuffdata(me, tValue)
   me.setState(tValue)
+  exit
 end
 
-on setState me, tValue 
+on setState(me, tValue)
   if not listp(pToggleParts) then
     return(0)
   end if
@@ -23,7 +23,7 @@ on setState me, tValue
     tValue = pToggleParts.getPropAt(1)
   end if
   pState = tValue
-  repeat while tPartStates <= undefined
+  repeat while me <= undefined
     tPart = getAt(undefined, tValue)
     tPartId = tPart.sprite
     tmember = tPart.member
@@ -33,11 +33,12 @@ on setState me, tValue
     me.setPartVisible(tPartId, tmember <> void())
   end repeat
   return(1)
+  exit
 end
 
-on select me 
+on select(me)
   if the doubleClick then
-    if pState = "1" then
+    if me = "1" then
       pState = "0"
     else
       pState = "1"
@@ -45,9 +46,10 @@ on select me
     getThread(#room).getComponent().getRoomConnection().send("SETSTUFFDATA", [#string:string(me.getID()), #string:pState])
   end if
   return(1)
+  exit
 end
 
-on switchMember me, tPart, tNewMem 
+on switchMember(me, tPart, tNewMem)
   tSprNum = charToNum(tPart) - charToNum("a") - 1
   if me.count(#pSprList) < tSprNum or tSprNum <= 0 then
     return(0)
@@ -61,13 +63,15 @@ on switchMember me, tPart, tNewMem
     me.getPropRef(#pSprList, tSprNum).height = tmember.height
   end if
   return(1)
+  exit
 end
 
-on setPartVisible me, tPart, tstate 
+on setPartVisible(me, tPart, tstate)
   tSprNum = charToNum(tPart) - charToNum("a") - 1
   if me.count(#pSprList) < tSprNum or tSprNum <= 0 then
     return(0)
   end if
   me.getPropRef(#pSprList, tSprNum).visible = tstate
   return(1)
+  exit
 end

@@ -1,4 +1,4 @@
-on construct me 
+on construct(me)
   tWindowObj = getThread(#catalogue).getInterface().getCatalogWindow()
   if not tWindowObj then
     tWindowObj = void()
@@ -8,19 +8,23 @@ on construct me
   getThread(#recycler).getInterface().setHeaderImage(tHeaderImageNo)
   getThread(#recycler).getInterface().setHostWindowObject(tWindowObj)
   getThread(#recycler).getComponent().openRecycler()
-  return TRUE
+  return(1)
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   getThread(#recycler).getComponent().closeRecycler()
-  return TRUE
+  return(1)
+  exit
 end
 
-on closePage me 
+on closePage(me)
   getThread(#recycler).getComponent().closeRecycler()
+  exit
 end
 
-on eventProc me, tEvent, tSprID, tProp 
+on eventProc(me, tEvent, tSprID, tProp)
   tRecyclerInterface = getThread(#recycler).getInterface()
   return(tRecyclerInterface.eventProc(tEvent, tSprID, tProp))
+  exit
 end

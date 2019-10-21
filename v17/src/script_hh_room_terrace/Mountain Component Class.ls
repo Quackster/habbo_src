@@ -1,3 +1,4 @@
-on construct me 
-  return TRUE
+on construct(me)
+  return(1)
+  exit
 end

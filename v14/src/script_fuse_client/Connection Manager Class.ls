@@ -1,17 +1,16 @@
-property pListenerList, pCommandsList, pClassString
-
-on construct me 
+on construct(me)
   me.pItemList = []
-  me.pItemList.sort()
-  pListenerList = [:]
+  pItemList.sort()
+  pListenerList = []
   pListenerList.sort()
-  pCommandsList = [:]
+  pCommandsList = []
   pCommandsList.sort()
   pClassString = "connection.instance.class"
-  return TRUE
+  return(1)
+  exit
 end
 
-on create me, tid, tHost, tPort 
+on create(me, tid, tHost, tPort)
   if not symbolp(tid) and not stringp(tid) then
     return(error(me, "Symbol or string expected:" && tid, #create, #major))
   end if
@@ -21,7 +20,7 @@ on create me, tid, tHost, tPort
   if not integerp(tPort) then
     return(error(me, "Integer expected:" && tPort, #create, #major))
   end if
-  if (getIntVariable("connection.log.level") = 2) and the runMode contains "Author" then
+  if getIntVariable("connection.log.level") = 2 and the runMode contains "Author" then
     if not memberExists("connectionLog.text") then
       tLogField = member(createMember("connectionLog.text", #field))
       tLogField.boxType = #scroll
@@ -35,18 +34,18 @@ on create me, tid, tHost, tPort
     if not createObject(tid, getClassVariable(pClassString)) then
       return(error(me, "Failed to initialize connection:" && tid, #create, #major))
     end if
-    me.pItemList.add(tid)
+    pItemList.add(tid)
   end if
   if voidp(pListenerList.getAt(tid)) then
     tMsgPtr = getStructVariable("struct.pointer")
-    tMsgPtr.setaProp(#value, [:])
+    tMsgPtr.setaProp(#value, [])
     pListenerList.setAt(tid, tMsgPtr)
   else
     tMsgPtr = pListenerList.getAt(tid)
   end if
   if voidp(pCommandsList.getAt(tid)) then
     tCmdPtr = getStructVariable("struct.pointer")
-    tCmdPtr.setaProp(#value, [:])
+    tCmdPtr.setaProp(#value, [])
     pCommandsList.setAt(tid, tCmdPtr)
   else
     tCmdPtr = pCommandsList.getAt(tid)
@@ -54,31 +53,33 @@ on create me, tid, tHost, tPort
   me.GET(tid).setProperty(#listener, tMsgPtr)
   me.GET(tid).setProperty(#commands, tCmdPtr)
   me.GET(tid).connect(tHost, tPort)
-  return TRUE
+  return(1)
+  exit
 end
 
-on closeAll me 
+on closeAll(me)
   i = 1
   repeat while i <= me.count(#pItemList)
     if objectExists(me.getProp(#pItemList, i)) then
       removeObject(me.getProp(#pItemList, i))
     end if
-    i = (1 + i)
+    i = 1 + i
   end repeat
   me.pItemList = []
+  exit
 end
 
-on registerListener me, tid, tObjID, tMsgList 
+on registerListener(me, tid, tObjID, tMsgList)
   if tid.ilk <> #symbol and tid.ilk <> #string then
     return(error(me, "Invalid message header ID:" && tid, #registerListener, #major))
   end if
   tObject = getObject(tObjID)
-  if (tObject = 0) then
+  if tObject = 0 then
     return(error(me, "Object not found:" && tObjID, #registerListener, #major))
   end if
   if voidp(pListenerList.getAt(tid)) then
     tPtr = getStructVariable("struct.pointer")
-    tPtr.setaProp(#value, [:])
+    tPtr.setaProp(#value, [])
     pListenerList.setAt(tid, tPtr)
   else
     tPtr = pListenerList.getAt(tid)
@@ -95,18 +96,19 @@ on registerListener me, tid, tObjID, tMsgList
       end if
       tPtr.getaProp(#value).getaProp(tMsg).add([tObjID, tMethod])
     end if
-    i = (1 + i)
+    i = 1 + i
   end repeat
-  return TRUE
+  return(1)
+  exit
 end
 
-on unregisterListener me, tid, tObjID, tMsgList 
+on unregisterListener(me, tid, tObjID, tMsgList)
   if tid.ilk <> #symbol and tid.ilk <> #string then
     return(error(me, "Invalid message header ID:" && tid, #registerListener, #major))
   end if
   tPtr = pListenerList.getAt(tid)
   if voidp(tPtr) then
-    return FALSE
+    return(0)
   end if
   tList = tPtr.getaProp(#value)
   i = 1
@@ -119,25 +121,26 @@ on unregisterListener me, tid, tObjID, tMsgList
       j = 1
       repeat while j <= tList.getaProp(tMsg).count
         tCallback = tList.getaProp(tMsg).getAt(j)
-        if (tCallback.getAt(1) = tObjID) and (tCallback.getAt(2) = tMethod) then
+        if tCallback.getAt(1) = tObjID and tCallback.getAt(2) = tMethod then
           tList.getaProp(tMsg).deleteAt(j)
         else
-          j = (1 + j)
+          j = 1 + j
         end if
       end repeat
     end if
-    i = (1 + i)
+    i = 1 + i
   end repeat
-  return TRUE
+  return(1)
+  exit
 end
 
-on registerCommands me, tid, tObjID, tCmdList 
+on registerCommands(me, tid, tObjID, tCmdList)
   if tid.ilk <> #symbol and tid.ilk <> #string then
     return(error(me, "Invalid message header ID:" && tid, #registerListener, #major))
   end if
   if voidp(pCommandsList.getAt(tid)) then
     tPtr = getStructVariable("struct.pointer")
-    tPtr.setaProp(#value, [:])
+    tPtr.setaProp(#value, [])
     pCommandsList.setAt(tid, tPtr)
   else
     tPtr = pCommandsList.getAt(tid)
@@ -147,7 +150,7 @@ on registerCommands me, tid, tObjID, tCmdList
     tCmd = tCmdList.getPropAt(i)
     tNum = tCmdList.getAt(i)
     tOld = tPtr.getaProp(#value).getaProp(tCmd)
-    tBy1 = numToChar(bitOr(64, (tNum / 64)))
+    tBy1 = numToChar(bitOr(64, tNum / 64))
     tBy2 = numToChar(bitOr(64, bitAnd(63, tNum)))
     tNew = tBy1 & tBy2
     if tOld <> void() then
@@ -156,18 +159,20 @@ on registerCommands me, tid, tObjID, tCmdList
       end if
     end if
     tPtr.getaProp(#value).setaProp(tCmd, tNew)
-    i = (1 + i)
+    i = 1 + i
   end repeat
-  return TRUE
+  return(1)
+  exit
 end
 
-on unregisterCommands me, tid, tObjID, tCmdList 
+on unregisterCommands(me, tid, tObjID, tCmdList)
   if tid.ilk <> #symbol and tid.ilk <> #string then
     return(error(me, "Invalid message header ID:" && tid, #registerListener, #major))
   end if
   tPtr = pCommandsList.getAt(tid)
   if voidp(tPtr) then
-    return FALSE
+    return(0)
   end if
-  return TRUE
+  return(1)
+  exit
 end

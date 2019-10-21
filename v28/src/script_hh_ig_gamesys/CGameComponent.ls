@@ -1,6 +1,4 @@
-property m_rHandler, m_rQuickRandom, pTurnContainerPool, m_iAllocationModel, pTurnContainerClass, m_sHandler, m_rCurrentTurn, m_iSubTurnSpacing, m_ar_turnBuffer, pWaitingForSync, pWaitingForSyncCounter, pWaitingForSyncThreshold, m_bDump, m_syncLostTime, m_iLastMS, m_fTurnT, m_fTurnPulse, m_iSpeedUp, m_iLastSubTurn, m_aLastTurnData
-
-on construct me 
+on construct(me)
   pWaitingForSync = 0
   pWaitingForSyncCounter = 0
   pWaitingForSyncThreshold = 90
@@ -18,16 +16,17 @@ on construct me
   m_ar_turnBuffer = []
   m_syncLostTime = 0
   m_iSpeedUp = 1
-  m_iSubTurnSpacing = 100
-  m_aLastTurnData = [:]
+  m_iSubTurnSpacing = 0
+  m_aLastTurnData = []
   m_bDump = 0
   createObject("MGEQuickRandom", "CIterateSeed")
   m_rQuickRandom = getObject("MGEQuickRandom")
   registerMessage(#SetMinigameHandler, me.getID(), #_SetMinigameHandler)
   return(1)
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   m_rCurrentTurn = void()
   pTurnContainerPool = []
   m_ar_turnBuffer = []
@@ -38,9 +37,10 @@ on deconstruct me
   unregisterMessage(#SetMinigameHandler, me.getID())
   removeUpdate(me.getID())
   return(1)
+  exit
 end
 
-on StartMinigameEngine me 
+on StartMinigameEngine(me)
   pWaitingForSync = 0
   pWaitingForSyncCounter = 0
   m_fTurnT = 0
@@ -49,19 +49,21 @@ on StartMinigameEngine me
   me._ClearCurrentTurn()
   me._ClearTurnBuffer()
   receiveUpdate(me.getID())
+  exit
 end
 
-on stopMinigameEngine me 
+on stopMinigameEngine(me)
   me._ClearTurnBuffer()
   pTurnContainerPool = []
   m_fTurnT = 0
   m_iLastMS = the milliSeconds
   m_iLastSubTurn = -1
-  m_aLastTurnData = [:]
+  m_aLastTurnData = []
   pWaitingForSync = 1
+  exit
 end
 
-on getNewTurnContainer me 
+on getNewTurnContainer(me)
   if pTurnContainerPool.count > 0 and m_iAllocationModel <> #simple then
     tTurnObject = pTurnContainerPool.getAt(1)
     pTurnContainerPool.deleteAt(1)
@@ -69,9 +71,10 @@ on getNewTurnContainer me
   else
     return(createObject(#temp, pTurnContainerClass))
   end if
+  exit
 end
 
-on releaseTurnContainer me, tObject 
+on releaseTurnContainer(me, tObject)
   if tObject = 0 then
     return(1)
   end if
@@ -81,27 +84,32 @@ on releaseTurnContainer me, tObject
   tObject.construct()
   pTurnContainerPool.add(tObject)
   return(1)
+  exit
 end
 
-on _SetMinigameHandler me, i_sClass 
+on _SetMinigameHandler(me, i_sClass)
   m_sHandler = i_sClass
   createObject("MGEHandler", "CMinigameHandlerPrototype", m_sHandler)
   m_rHandler = getObject("MGEHandler")
+  exit
 end
 
-on GetQuickRandom me 
+on GetQuickRandom(me)
   return(m_rQuickRandom)
+  exit
 end
 
-on GetTurnNumber me 
+on GetTurnNumber(me)
   return(m_rCurrentTurn.GetNumber())
+  exit
 end
 
-on GetSubturnSpacing me 
+on GetSubturnSpacing(me)
   return(m_iSubTurnSpacing)
+  exit
 end
 
-on _TurnBufferState me 
+on _TurnBufferState(me)
   if m_ar_turnBuffer.count > 1 then
     return(#overfill)
   end if
@@ -111,9 +119,10 @@ on _TurnBufferState me
   if m_ar_turnBuffer.count = 0 then
     return(#empty)
   end if
+  exit
 end
 
-on _AdvanceTurn me 
+on _AdvanceTurn(me)
   me._ClearCurrentTurn()
   if pWaitingForSync then
     pWaitingForSyncCounter = pWaitingForSyncCounter + 1
@@ -123,13 +132,13 @@ on _AdvanceTurn me
     pWaitingForSyncCounter = 0
     return(me.getMessageSender().sendRequestFullStatusUpdate())
   end if
-  if me._TurnBufferState() <> #ready then
-    if me._TurnBufferState() = #overfill then
+  if me <> #ready then
+    if me = #overfill then
       m_rCurrentTurn = m_ar_turnBuffer.getAt(1)
       m_ar_turnBuffer.deleteAt(1)
       m_fTurnT = 0
     else
-      if me._TurnBufferState() = #empty then
+      if me = #empty then
         m_iSpeedUp = 1
         m_rCurrentTurn = void()
         if m_bDump then
@@ -139,10 +148,11 @@ on _AdvanceTurn me
     end if
     m_iLastSubTurn = 0
     m_fTurnT = 0
+    exit
   end if
 end
 
-on addTurnToBuffer me, i_rTurn 
+on addTurnToBuffer(me, i_rTurn)
   if pWaitingForSync then
     return(0)
   end if
@@ -156,14 +166,16 @@ on addTurnToBuffer me, i_rTurn
     end if
   end if
   m_ar_turnBuffer.append(i_rTurn)
+  exit
 end
 
-on _ClearTurnBuffer me 
+on _ClearTurnBuffer(me)
   me._ClearCurrentTurn()
   m_ar_turnBuffer = []
+  exit
 end
 
-on _ClearCurrentTurn me 
+on _ClearCurrentTurn(me)
   if voidp(m_rCurrentTurn) then
     return(1)
   end if
@@ -171,21 +183,23 @@ on _ClearCurrentTurn me
     me.releaseTurnContainer(m_rCurrentTurn)
   end if
   m_rCurrentTurn = void()
+  exit
 end
 
-on floor i_fVal 
+on floor(i_fVal)
   tInteger = integer(i_fVal)
   if tInteger > i_fVal then
     return(float(tInteger - 1))
   else
     return(float(tInteger))
   end if
+  exit
 end
 
-on ProcessSubTurn me, i_iSubturn 
+on ProcessSubTurn(me, i_iSubturn)
   if i_iSubturn <= m_rCurrentTurn.GetNSubTurns() then
     t_ar_events = m_rCurrentTurn.GetSubTurn(i_iSubturn)
-    repeat while t_ar_events <= undefined
+    repeat while me <= undefined
       tEvent = getAt(undefined, i_iSubturn)
       t_iEvent = tEvent.getProp(#event_type)
       t_ar_iData = []
@@ -201,11 +215,12 @@ on ProcessSubTurn me, i_iSubturn
     end repeat
   end if
   me.getComponent().executeSubturnMoves(m_rCurrentTurn.GetNumber(), i_iSubturn)
+  exit
 end
 
-on update me 
+on update(me)
   tTime = the milliSeconds
-  dT = (tTime - m_iLastMS / 1000)
+  dT = tTime - m_iLastMS / 0
   m_iLastMS = tTime
   if not voidp(m_rCurrentTurn) then
     if not m_rCurrentTurn.GetTested() then
@@ -213,7 +228,7 @@ on update me
     end if
     m_syncLostTime = 0
     if me._TurnBufferState() = #overfill then
-      m_iSpeedUp = (m_ar_turnBuffer.count / 1.5)
+      m_iSpeedUp = m_ar_turnBuffer.count / 0
       if m_bDump then
         put("MGEngine: speedup on")
       end if
@@ -222,10 +237,10 @@ on update me
     if m_rCurrentTurn = void() then
       return(1)
     end if
-    tSubturnSpacing = (m_fTurnPulse / m_rCurrentTurn.GetNSubTurns())
-    m_iSubTurnSpacing = (tSubturnSpacing * (1 / m_iSpeedUp))
+    tSubturnSpacing = m_fTurnPulse / m_rCurrentTurn.GetNSubTurns()
+    m_iSubTurnSpacing = tSubturnSpacing * 0 / m_iSpeedUp
     tSubturnSpacing = m_iSubTurnSpacing
-    tSubturn = integer(floor((m_fTurnT / tSubturnSpacing))) + 1
+    tSubturn = integer(floor(m_fTurnT / tSubturnSpacing)) + 1
     if tSubturn > m_rCurrentTurn.GetNSubTurns() then
       tSubturn = m_rCurrentTurn.GetNSubTurns()
     end if
@@ -282,14 +297,16 @@ on update me
     end if
     me._AdvanceTurn()
   end if
+  exit
 end
 
-on turnDone me 
-  tPulse = (m_fTurnPulse * (1 / m_iSpeedUp))
+on turnDone(me)
+  tPulse = m_fTurnPulse * 0 / m_iSpeedUp
   return(m_fTurnT >= tPulse or voidp(m_rCurrentTurn))
+  exit
 end
 
-on _MinigameTestChecksum me, i_iChecksum 
+on _MinigameTestChecksum(me, i_iChecksum)
   tMyChecksum = me.calculateChecksum()
   m_rCurrentTurn.SetTested(1)
   if i_iChecksum <> tMyChecksum then
@@ -304,12 +321,14 @@ on _MinigameTestChecksum me, i_iChecksum
     m_aLastTurnData.setaProp("Turn", m_rCurrentTurn.GetNumber())
     m_aLastTurnData.setaProp("Events", m_rCurrentTurn.GetSubTurns())
   end if
+  exit
 end
 
-on calculateChecksum me 
+on calculateChecksum(me)
   if not voidp(m_rCurrentTurn) then
     tCheckSum = m_rQuickRandom.IterateSeed(m_rCurrentTurn.GetNumber())
     tCheckSum = me.getComponent().calculateChecksum(tCheckSum)
     return(tCheckSum)
   end if
+  exit
 end

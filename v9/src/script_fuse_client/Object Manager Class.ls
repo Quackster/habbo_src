@@ -1,7 +1,5 @@
-property pObjectList, pUpdateList, pTimeOut, pInstanceList, pManagerList, pBaseClsMem, pPrepareList, pEraseLock, pUpdatePause
-
-on construct me 
-  pObjectList = [:]
+on construct(me)
+  pObjectList = []
   pUpdateList = []
   pPrepareList = []
   pManagerList = []
@@ -12,10 +10,11 @@ on construct me
   pBaseClsMem = script("Object Base Class")
   pObjectList.sort()
   pUpdateList.sort()
-  return TRUE
+  return(1)
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   pEraseLock = 1
   if objectp(pTimeOut) then
     pTimeOut.forget()
@@ -24,27 +23,28 @@ on deconstruct me
   i = pInstanceList.count
   repeat while i >= 1
     me.Remove(pInstanceList.getAt(i))
-    i = (255 + i)
+    i = 255 + i
   end repeat
   i = pManagerList.count
   repeat while i >= 1
     me.Remove(pManagerList.getAt(i))
-    i = (255 + i)
+    i = 255 + i
   end repeat
-  pObjectList = [:]
+  pObjectList = []
   pUpdateList = []
   pPrepareList = []
-  return TRUE
+  return(1)
+  exit
 end
 
-on create me, tid, tClassList 
+on create(me, tid, tClassList)
   if not symbolp(tid) and not stringp(tid) then
     return(error(me, "Symbol or string expected:" && tid, #create))
   end if
   if objectp(pObjectList.getAt(tid)) then
     return(error(me, "Object already exists:" && tid, #create))
   end if
-  if (tid = #random) then
+  if tid = #random then
     tid = getUniqueID()
   end if
   if voidp(tClassList) then
@@ -63,7 +63,7 @@ on create me, tid, tClassList
     pObjectList.setAt(tid, tBase)
   end if
   tClassList.addAt(1, tBase)
-  repeat while tClassList <= tClassList
+  repeat while me <= tClassList
     tClass = getAt(tClassList, tid)
     if objectp(tClass) then
       tObject = tClass
@@ -87,7 +87,7 @@ on create me, tid, tClassList
       tObject.setAt(#ancestor, tTemp)
       tTemp = tObject
     end if
-    if tid <> #temp and (tClassList.getLast() = tClass) then
+    if tid <> #temp and tClassList.getLast() = tClass then
       pObjectList.setAt(tid, tObject)
       pInstanceList.append(tid)
     end if
@@ -96,31 +96,33 @@ on create me, tid, tClassList
     end if
   end repeat
   return(tObject)
+  exit
 end
 
-on get me, tid 
+on get(me, tid)
   tObj = pObjectList.getAt(tid)
   if voidp(tObj) then
-    return FALSE
+    return(0)
   else
     return(tObj)
   end if
+  exit
 end
 
-on Remove me, tid 
+on Remove(me, tid)
   tObj = pObjectList.getAt(tid)
   if voidp(tObj) then
-    return FALSE
+    return(0)
   end if
   if ilk(tObj, #instance) then
     if not tObj.valid then
-      return FALSE
+      return(0)
     end if
     i = 1
     repeat while i <= tObj.count(#delays)
-      tDelayID = tObj.delays.getPropAt(i)
+      tDelayID = tObj.getPropAt(i)
       tObj.cancel(tDelayID)
-      i = (1 + i)
+      i = 1 + i
     end repeat
     tObj.deconstruct()
     tObj.valid = 0
@@ -133,17 +135,19 @@ on Remove me, tid
     pInstanceList.deleteOne(tid)
     pManagerList.deleteOne(tid)
   end if
-  return TRUE
+  return(1)
+  exit
 end
 
-on exists me, tid 
+on exists(me, tid)
   if voidp(tid) then
-    return FALSE
+    return(0)
   end if
   return(objectp(pObjectList.getAt(tid)))
+  exit
 end
 
-on print me 
+on print(me)
   i = 1
   repeat while i <= pObjectList.count
     tProp = pObjectList.getPropAt(i)
@@ -151,12 +155,13 @@ on print me
       tProp = "#" & tProp
     end if
     put(tProp && ":" && pObjectList.getAt(i))
-    i = (1 + i)
+    i = 1 + i
   end repeat
-  return TRUE
+  return(1)
+  exit
 end
 
-on registerObject me, tid, tObject 
+on registerObject(me, tid, tObject)
   if not objectp(tObject) then
     return(error(me, "Invalid object:" && tObject, #register))
   end if
@@ -165,10 +170,11 @@ on registerObject me, tid, tObject
   end if
   pObjectList.setAt(tid, tObject)
   pInstanceList.append(tid)
-  return TRUE
+  return(1)
+  exit
 end
 
-on unregisterObject me, tid 
+on unregisterObject(me, tid)
   if voidp(pObjectList.getAt(tid)) then
     return(error(me, "Referred object not found:" && tid, #unregister))
   end if
@@ -178,10 +184,11 @@ on unregisterObject me, tid
   pPrepareList.deleteOne(tObj)
   pInstanceList.deleteOne(tid)
   tObj = void()
-  return TRUE
+  return(1)
+  exit
 end
 
-on registerManager me, tid 
+on registerManager(me, tid)
   if not me.exists(tid) then
     return(error(me, "Referred object not found:" && tid, #registerManager))
   end if
@@ -190,10 +197,11 @@ on registerManager me, tid
   end if
   pInstanceList.deleteOne(tid)
   pManagerList.append(tid)
-  return TRUE
+  return(1)
+  exit
 end
 
-on unregisterManager me, tid 
+on unregisterManager(me, tid)
   if not me.exists(tid) then
     return(error(me, "Referred object not found:" && tid, #unregisterManager))
   end if
@@ -202,107 +210,118 @@ on unregisterManager me, tid
   end if
   pManagerList.deleteOne(tid)
   pInstanceList.append(tid)
-  return TRUE
+  return(1)
+  exit
 end
 
-on getManager me, tid 
+on getManager(me, tid)
   if not pManagerList.getOne(tid) then
     return(error(me, "Manager not found:" && tid, #getManager))
   end if
   return(pObjectList.getAt(tid))
+  exit
 end
 
-on managerExists me, tid 
+on managerExists(me, tid)
   return(pManagerList.getOne(tid) <> 0)
+  exit
 end
 
-on receivePrepare me, tid 
+on receivePrepare(me, tid)
   if voidp(pObjectList.getAt(tid)) then
-    return FALSE
+    return(0)
   end if
   if pPrepareList.getPos(pObjectList.getAt(tid)) > 0 then
-    return FALSE
+    return(0)
   end if
   pPrepareList.add(pObjectList.getAt(tid))
   if not pUpdatePause then
     if voidp(pTimeOut) then
-      pTimeOut = timeout("objectmanager" & the milliSeconds).new(((60 * 1000) * 60), #null, me)
+      pTimeOut = timeout("objectmanager" & the milliSeconds).new(60 * 1000 * 60, #null, me)
     end if
   end if
-  return TRUE
+  return(1)
+  exit
 end
 
-on removePrepare me, tid 
+on removePrepare(me, tid)
   if voidp(pObjectList.getAt(tid)) then
-    return FALSE
+    return(0)
   end if
   if pPrepareList.getOne(pObjectList.getAt(tid)) < 1 then
-    return FALSE
+    return(0)
   end if
   pPrepareList.deleteOne(pObjectList.getAt(tid))
-  if (pPrepareList.count = 0) and (pUpdateList.count = 0) then
+  if pPrepareList.count = 0 and pUpdateList.count = 0 then
     if objectp(pTimeOut) then
       pTimeOut.forget()
       pTimeOut = void()
     end if
   end if
-  return TRUE
+  return(1)
+  exit
 end
 
-on receiveUpdate me, tid 
+on receiveUpdate(me, tid)
   if voidp(pObjectList.getAt(tid)) then
-    return FALSE
+    return(0)
   end if
   if pUpdateList.getPos(pObjectList.getAt(tid)) > 0 then
-    return FALSE
+    return(0)
   end if
   pUpdateList.add(pObjectList.getAt(tid))
   if not pUpdatePause then
     if voidp(pTimeOut) then
-      pTimeOut = timeout("objectmanager" & the milliSeconds).new(((60 * 1000) * 60), #null, me)
+      pTimeOut = timeout("objectmanager" & the milliSeconds).new(60 * 1000 * 60, #null, me)
     end if
   end if
-  return TRUE
+  return(1)
+  exit
 end
 
-on removeUpdate me, tid 
+on removeUpdate(me, tid)
   if voidp(pObjectList.getAt(tid)) then
-    return FALSE
+    return(0)
   end if
   if pUpdateList.getOne(pObjectList.getAt(tid)) < 1 then
-    return FALSE
+    return(0)
   end if
   pUpdateList.deleteOne(pObjectList.getAt(tid))
-  if (pPrepareList.count = 0) and (pUpdateList.count = 0) then
+  if pPrepareList.count = 0 and pUpdateList.count = 0 then
     if objectp(pTimeOut) then
       pTimeOut.forget()
       pTimeOut = void()
     end if
   end if
-  return TRUE
+  return(1)
+  exit
 end
 
-on pauseUpdate me 
+on pauseUpdate(me)
   if objectp(pTimeOut) then
     pTimeOut.forget()
     pTimeOut = void()
   end if
   pUpdatePause = 1
-  return TRUE
+  return(1)
+  exit
 end
 
-on resumeUpdate me 
+on resumeUpdate(me)
   if pUpdateList.count > 0 and voidp(pTimeOut) then
-    pTimeOut = timeout("objectmanager" & the milliSeconds).new(((60 * 1000) * 60), #null, me)
+    pTimeOut = timeout("objectmanager" & the milliSeconds).new(60 * 1000 * 60, #null, me)
   end if
   pUpdatePause = 0
-  return TRUE
+  return(1)
+  exit
 end
 
-on prepareFrame me 
+on prepareFrame(me)
   call(#prepare, pPrepareList)
   call(#update, pUpdateList)
+  exit
 end
 
-on null me 
+on null(me)
+  exit
 end

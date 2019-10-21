@@ -1,6 +1,4 @@
-property pSpriteList, pElemList, pMemberList, pSpecialIDList, pGroupData, pWindowMngr, pClientRect, pVisible, pLocX, pLocY, pBoundary, pwidth, pheight, pActive, pLock, pProcedures, pLocZ, pTitle, pModal, pClientID, pScaleOffset, pDragOffset, pElemClsList, pScaleFlag, pDragFlag
-
-on construct me 
+on construct(me)
   pTitle = me.getID()
   pLocX = 0
   pLocY = 0
@@ -11,22 +9,23 @@ on construct me
   pActive = 0
   pLock = 0
   pModal = 0
-  pSpriteList = [:]
+  pSpriteList = []
   pScaleFlag = 0
   pDragFlag = 0
   pDragOffset = [0, 0]
   pBoundary = rect(0, 0, undefined.width, undefined.height) + [-20, -20, 20, 20]
   pClientID = void()
-  pMemberList = [:]
-  pElemList = [:]
+  pMemberList = []
+  pElemList = []
   pGroupData = []
   pClientRect = [0, 0, 0, 0]
   pSpecialIDList = ["drag", "close", "scale"]
   pProcedures = me.createProcListTemplate()
   return(1)
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   removeUpdate(me.getID())
   removePrepare(me.getID())
   i = 1
@@ -41,16 +40,17 @@ on deconstruct me
     removeMember(pMemberList.getAt(i).name)
     i = 1 + i
   end repeat
-  pElemList = [:]
-  pSpriteList = [:]
-  pMemberList = [:]
+  pElemList = []
+  pSpriteList = []
+  pMemberList = []
   pGroupData = []
   pClientID = ""
   pWindowMngr = void()
   return(1)
+  exit
 end
 
-on define me, tProps 
+on define(me, tProps)
   pLocX = tProps.getAt(#locX)
   pLocY = tProps.getAt(#locY)
   pLocZ = tProps.getAt(#locZ)
@@ -58,13 +58,15 @@ on define me, tProps
   pElemClsList = tProps.getAt(#elements)
   pWindowMngr = tProps.getAt(#manager)
   return(1)
+  exit
 end
 
-on close me 
+on close(me)
   return(removeWindow(me.getID()))
+  exit
 end
 
-on merge me, tLayout 
+on merge(me, tLayout)
   me.setDeactive()
   if not me.buildVisual(tLayout) then
     return(0)
@@ -73,25 +75,26 @@ on merge me, tLayout
   pSpecialIDList.add("close" & pGroupData.count)
   pWindowMngr.Activate(me.getID())
   return(1)
+  exit
 end
 
-on unmerge me 
+on unmerge(me)
   if pGroupData.count = 0 then
     return(error(me, "Cant't unmerge window without content!", #unmerge, #minor))
   end if
   tGroupData = pGroupData.getLast()
   call(#deconstruct, tGroupData.getAt(#items))
   pClientRect = pClientRect - tGroupData.getAt(#border)
-  repeat while tGroupData.getAt(#items) <= undefined
+  repeat while me <= undefined
     tItem = getAt(undefined, undefined)
     pElemList.deleteProp(pElemList.getOne(tItem))
   end repeat
-  repeat while tGroupData.getAt(#items) <= undefined
+  repeat while me <= undefined
     tsprite = getAt(undefined, undefined)
     pSpriteList.deleteProp(pSpriteList.getOne(tsprite))
     releaseSprite(tsprite.spriteNum)
   end repeat
-  repeat while tGroupData.getAt(#items) <= undefined
+  repeat while me <= undefined
     tmember = getAt(undefined, undefined)
     pMemberList.deleteProp(pMemberList.getOne(tmember))
     removeMember(tmember.name)
@@ -100,39 +103,44 @@ on unmerge me
   pSpecialIDList.deleteOne("drag" & pGroupData.count)
   pGroupData.deleteAt(pGroupData.count)
   return(1)
+  exit
 end
 
-on lock me, tBoolean 
+on lock(me, tBoolean)
   if voidp(tBoolean) then
     tBoolean = 1
   end if
   pLock = tBoolean
   return(1)
+  exit
 end
 
-on hide me 
+on hide(me)
   if pVisible = 1 then
     pVisible = 0
     me.moveX(10000)
     return(1)
   end if
   return(0)
+  exit
 end
 
-on show me 
+on show(me)
   if pVisible = 0 then
     pVisible = 1
     me.moveX(-10000)
     return(1)
   end if
   return(0)
+  exit
 end
 
-on moveTo me, tX, tY 
+on moveTo(me, tX, tY)
   me.moveBy(tX - pLocX, tY - pLocY)
+  exit
 end
 
-on moveBy me, tOffX, tOffY 
+on moveBy(me, tOffX, tOffY)
   if pLocX + tOffX < pBoundary.getAt(1) then
     tOffX = pBoundary.getAt(1) - pLocX
   end if
@@ -148,9 +156,10 @@ on moveBy me, tOffX, tOffY
   pLocX = pLocX + tOffX
   pLocY = pLocY + tOffY
   me.moveXY(tOffX, tOffY)
+  exit
 end
 
-on moveZ me, tZ 
+on moveZ(me, tZ)
   if not integerp(tZ) then
     return(error(me, "Integer expected:" && tZ, #moveZ, #minor))
   end if
@@ -160,38 +169,43 @@ on moveZ me, tZ
     i = 1 + i
   end repeat
   pLocZ = tZ
+  exit
 end
 
-on center me 
-  tX = (the stageRight - the stageLeft / 2) - (pwidth / 2)
-  tY = (the stageBottom - the stageTop / 2) - (pheight / 2)
+on center(me)
+  tX = the stageRight - the stageLeft / 2 - pwidth / 2
+  tY = the stageBottom - the stageTop / 2 - pheight / 2
   return(me.moveTo(tX, tY))
+  exit
 end
 
-on resizeBy me, tOffX, tOffY 
+on resizeBy(me, tOffX, tOffY)
   if tOffX <> 0 or tOffY <> 0 then
     pwidth = pwidth + tOffX
     pheight = pheight + tOffY
     call(#resizeBy, pElemList, tOffX, tOffY)
   end if
+  exit
 end
 
-on resizeTo me, tX, tY 
+on resizeTo(me, tX, tY)
   tOffW = tX - pwidth
   tOffH = tY - pheight
   me.resizeBy(tOffW, tOffH)
+  exit
 end
 
-on setActive me 
+on setActive(me)
   if not pActive then
     pActive = 1
     return(1)
   else
     return(0)
   end if
+  exit
 end
 
-on setDeactive me 
+on setDeactive(me)
   if pLock then
     return(0)
   else
@@ -202,38 +216,44 @@ on setDeactive me
       return(0)
     end if
   end if
+  exit
 end
 
-on getClientRect me 
+on getClientRect(me)
   return(rect(pLocX, pLocY, pLocX + pwidth, pLocY + pheight))
+  exit
 end
 
-on getElement me, tID 
+on getElement(me, tID)
   tElement = pElemList.getaProp(tID)
   if voidp(tElement) then
     return(0)
   end if
   return(tElement)
+  exit
 end
 
-on elementExists me, tID 
+on elementExists(me, tID)
   return(not voidp(pElemList.getaProp(tID)))
+  exit
 end
 
-on registerClient me, tClientID 
+on registerClient(me, tClientID)
   if not objectExists(tClientID) then
     return(error(me, "Object not found:" && tClientID, #registerClient, #major))
   end if
   pClientID = tClientID
   return(1)
+  exit
 end
 
-on removeClient me 
+on removeClient(me)
   pClientID = void()
   return(1)
+  exit
 end
 
-on registerProcedure me, tMethod, tClientID, tEvent 
+on registerProcedure(me, tMethod, tClientID, tEvent)
   if not symbolp(tMethod) then
     return(error(me, "Symbol expected:" && tMethod, #registerProcedure, #major))
   end if
@@ -250,9 +270,10 @@ on registerProcedure me, tMethod, tClientID, tEvent
   end if
   pProcedures.setAt(tEvent, [tMethod, tClientID])
   return(1)
+  exit
 end
 
-on removeProcedure me, tEvent 
+on removeProcedure(me, tEvent)
   if voidp(tEvent) then
     pProcedures = me.createProcListTemplate()
   else
@@ -261,49 +282,50 @@ on removeProcedure me, tEvent
     end if
   end if
   return(1)
+  exit
 end
 
-on getProperty me, tProp 
-  if tProp = #locX then
+on getProperty(me, tProp)
+  if me = #locX then
     return(pLocX)
   else
-    if tProp = #locY then
+    if me = #locY then
       return(pLocY)
     else
-      if tProp = #locZ then
+      if me = #locZ then
         return(pLocZ)
       else
-        if tProp = #boundary then
+        if me = #boundary then
           return(pBoundary)
         else
-          if tProp = #width then
+          if me = #width then
             return(pwidth)
           else
-            if tProp = #height then
+            if me = #height then
               return(pheight)
             else
-              if tProp = #visible then
+              if me = #visible then
                 return(pVisible)
               else
-                if tProp = #title then
+                if me = #title then
                   return(pTitle)
                 else
-                  if tProp = #id then
+                  if me = #id then
                     return(me.getID())
                   else
-                    if tProp = #modal then
+                    if me = #modal then
                       return(pModal)
                     else
-                      if tProp = #spriteList then
+                      if me = #spriteList then
                         return(pSpriteList)
                       else
-                        if tProp = #elementList then
+                        if me = #elementList then
                           return(pElemList)
                         else
-                          if tProp = #Active then
+                          if me = #Active then
                             return(pActive)
                           else
-                            if tProp = #lock then
+                            if me = #lock then
                               return(pLock)
                             end if
                           end if
@@ -320,35 +342,36 @@ on getProperty me, tProp
     end if
   end if
   return(0)
+  exit
 end
 
-on setProperty me, tProp, tValue 
-  if tProp = #locX then
+on setProperty(me, tProp, tValue)
+  if me = #locX then
     me.moveX(tValue)
   else
-    if tProp = #locY then
+    if me = #locY then
       me.moveY(tValue)
     else
-      if tProp = #locZ then
+      if me = #locZ then
         me.moveZ(tValue)
       else
-        if tProp = #boundary then
+        if me = #boundary then
           pBoundary = tValue
         else
-          if tProp = #title then
+          if me = #title then
             pTitle = tValue
           else
-            if tProp = #modal then
+            if me = #modal then
               pModal = tValue
             else
-              if tProp = #visible then
+              if me = #visible then
                 if tValue then
                   me.show()
                 else
                   me.hide()
                 end if
               else
-                if tProp = #otherwise then
+                if me = #otherwise then
                   return(0)
                 end if
               end if
@@ -359,29 +382,34 @@ on setProperty me, tProp, tValue
     end if
   end if
   return(1)
+  exit
 end
 
-on setBlend me, tNewBlend 
-  repeat while pSpriteList <= undefined
+on setBlend(me, tNewBlend)
+  repeat while me <= undefined
     tsprite = getAt(undefined, tNewBlend)
     tsprite.blend = tNewBlend
   end repeat
   return(1)
+  exit
 end
 
-on mouseEnter me, tNull, tSprID 
+on mouseEnter(me, tNull, tSprID)
   return(me.redirectEvent(#mouseEnter, tSprID))
+  exit
 end
 
-on mouseLeave me, tNull, tSprID 
+on mouseLeave(me, tNull, tSprID)
   return(me.redirectEvent(#mouseLeave, tSprID))
+  exit
 end
 
-on mouseWithin me, tNull, tSprID 
+on mouseWithin(me, tNull, tSprID)
   return(me.redirectEvent(#mouseWithin, tSprID))
+  exit
 end
 
-on mouseDown me, tNull, tSprID 
+on mouseDown(me, tNull, tSprID)
   if not pActive and not pLock then
     pWindowMngr.Activate(me.getID())
   end if
@@ -395,9 +423,10 @@ on mouseDown me, tNull, tSprID
     end if
   end if
   return(me.redirectEvent(#mouseDown, tSprID))
+  exit
 end
 
-on mouseUp me, tNull, tSprID 
+on mouseUp(me, tNull, tSprID)
   if pSpecialIDList.getPos(tSprID) <> 0 then
     if tSprID contains "drag" then
       me.drag(0)
@@ -416,9 +445,10 @@ on mouseUp me, tNull, tSprID
     end if
   end if
   return(me.redirectEvent(#mouseUp, tSprID))
+  exit
 end
 
-on mouseUpOutSide me, tNull, tSprID 
+on mouseUpOutSide(me, tNull, tSprID)
   if tSprID contains "drag" then
     me.drag(0)
   end if
@@ -426,17 +456,20 @@ on mouseUpOutSide me, tNull, tSprID
     me.scale(0)
   end if
   return(me.redirectEvent(#mouseUpOutSide, tSprID))
+  exit
 end
 
-on keyDown me, tNull, tSprID 
+on keyDown(me, tNull, tSprID)
   return(me.redirectEvent(#keyDown, tSprID))
+  exit
 end
 
-on keyUp me, tNull, tSprID 
+on keyUp(me, tNull, tSprID)
   return(me.redirectEvent(#keyUp, tSprID))
+  exit
 end
 
-on supportedEvents me 
+on supportedEvents(me)
   tList = []
   tList.add(#mouseEnter)
   tList.add(#mouseLeave)
@@ -447,9 +480,10 @@ on supportedEvents me
   tList.add(#keyDown)
   tList.add(#keyUp)
   return(tList)
+  exit
 end
 
-on redirectEvent me, tEvent, tSprID 
+on redirectEvent(me, tEvent, tSprID)
   getWindowManager().registerWindowEvent(pTitle, tSprID, tEvent)
   tMethod = pProcedures.getAt(tEvent).getAt(1)
   tTarget = pProcedures.getAt(tEvent).getAt(2)
@@ -463,21 +497,22 @@ on redirectEvent me, tEvent, tSprID
   else
     return(me.removeProcedure(tEvent))
   end if
+  exit
 end
 
-on buildVisual me, tLayout 
+on buildVisual(me, tLayout)
   tLayout = getObject(#layout_parser).parse(tLayout)
   if not listp(tLayout) then
     return(error(me, "Invalid window definition:" && tLayout, #buildVisual, #major))
   end if
   tGroupNum = pGroupData.count
-  tElemList = [:]
-  tmemberlist = [:]
-  tSpriteList = [:]
+  tElemList = []
+  tmemberlist = []
+  tSpriteList = []
   tGroupData = [#members:[], #sprites:[], #items:[], #rect:[], #border:[]]
   tSprManager = getSpriteManager()
   tResManager = getResourceManager()
-  repeat while tLayout.getAt(#elements) <= undefined
+  repeat while me <= undefined
     tElement = getAt(undefined, tLayout)
     tID = tElement.getAt(1).getAt(#id)
     if not voidp(pElemList.getaProp(tID)) then
@@ -486,16 +521,16 @@ on buildVisual me, tLayout
     tmember = member(tResManager.createMember(me.getID() & "_" & tID, #bitmap))
     tsprite = sprite(tSprManager.reserveSprite(me.getID()))
     if tsprite.spriteNum < 1 then
-      repeat while tLayout.getAt(#elements) <= undefined
+      repeat while me <= undefined
         t_rSpr = getAt(undefined, tLayout)
         releaseSprite(t_rSpr.spriteNum, me.getID())
       end repeat
-      tSpriteList = [:]
-      repeat while tLayout.getAt(#elements) <= undefined
+      tSpriteList = []
+      repeat while me <= undefined
         t_rMem = getAt(undefined, tLayout)
         removeMember(t_rMem.name)
       end repeat
-      tmemberlist = [:]
+      tmemberlist = []
       return(error(me, "Failed to build window. System out of sprites!", #buildVisual, #major))
     end if
     setaProp(tmemberlist, tID, tmember)
@@ -517,7 +552,7 @@ on buildVisual me, tLayout
     tIsBgColorShared = 1
     tIsInkShared = 1
     tIsPaletteShared = 1
-    repeat while tLayout.getAt(#elements) <= undefined
+    repeat while me <= undefined
       tItem = getAt(undefined, tLayout)
       tItem.setAt(#id, tID)
       tItem.setAt(#mother, me.getID())
@@ -584,7 +619,7 @@ on buildVisual me, tLayout
     else
       tProps = [#id:tID, #type:#wrapper, #style:#wrapper, #buffer:tmember, #sprite:tsprite, #locX:tElemRect.getAt(1), #locY:tElemRect.getAt(2)]
       tWrapper = me.CreateElement(tProps)
-      repeat while tLayout.getAt(#elements) <= undefined
+      repeat while me <= undefined
         tItem = getAt(undefined, tLayout)
         tItem.setAt(#locH, tItem.getAt(#locH) - tElemRect.getAt(1))
         tItem.setAt(#locV, tItem.getAt(#locV) - tElemRect.getAt(2))
@@ -650,9 +685,10 @@ on buildVisual me, tLayout
   call(#prepare, tGroupData.getAt(#items))
   call(#render, tGroupData.getAt(#items))
   return(1)
+  exit
 end
 
-on prepare me 
+on prepare(me)
   tOffX = the mouseH - pScaleOffset.getAt(1)
   tOffY = the mouseV - pScaleOffset.getAt(2)
   pScaleOffset = the mouseLoc
@@ -663,13 +699,15 @@ on prepare me
     tOffY = 64 - pheight
   end if
   me.resizeBy(tOffX, tOffY)
+  exit
 end
 
-on update me 
+on update(me)
   me.moveTo(the mouseH - pDragOffset.getAt(1), the mouseV - pDragOffset.getAt(2))
+  exit
 end
 
-on CreateElement me, tProps 
+on CreateElement(me, tProps)
   tTemplate = pElemClsList.getAt(tProps.getAt(#style))
   ttype = tProps.getAt(#type)
   tmodel = tProps.getAt(#model)
@@ -695,18 +733,20 @@ on CreateElement me, tProps
   tElement.setID(tProps.getAt(#id))
   tElement.define(tProps)
   return(tElement)
+  exit
 end
 
-on createProcListTemplate me 
-  tList = [:]
-  repeat while me.supportedEvents() <= undefined
+on createProcListTemplate(me)
+  tList = []
+  repeat while me <= undefined
     tEvent = getAt(undefined, undefined)
     tList.setAt(tEvent, [#null, me.getID()])
   end repeat
   return(tList)
+  exit
 end
 
-on scale me, tBoolean 
+on scale(me, tBoolean)
   if tBoolean = 1 and pScaleFlag = 0 then
     pScaleOffset = the mouseLoc
     receivePrepare(me.getID())
@@ -718,9 +758,10 @@ on scale me, tBoolean
     end if
   end if
   return(1)
+  exit
 end
 
-on drag me, tBoolean 
+on drag(me, tBoolean)
   if tBoolean = 1 and pDragFlag = 0 then
     pDragOffset = the mouseLoc - [pLocX, pLocY]
     receiveUpdate(me.getID())
@@ -732,41 +773,47 @@ on drag me, tBoolean
     end if
   end if
   return(1)
+  exit
 end
 
-on draw me, tRGB 
+on draw(me, tRGB)
   call(#draw, pElemList, tRGB)
+  exit
 end
 
-on moveX me, tOffX 
+on moveX(me, tOffX)
   i = 1
   repeat while i <= pSpriteList.count
     pSpriteList.getAt(i).locH = pSpriteList.getAt(i).locH + tOffX
     i = 1 + i
   end repeat
+  exit
 end
 
-on moveY me, tOffY 
+on moveY(me, tOffY)
   i = 1
   repeat while i <= pSpriteList.count
     pSpriteList.getAt(i).locV = pSpriteList.getAt(i).locV + tOffY
     i = 1 + i
   end repeat
+  exit
 end
 
-on moveXY me, tOffX, tOffY 
+on moveXY(me, tOffX, tOffY)
   i = 1
   repeat while i <= pSpriteList.count
     pSpriteList.getAt(i).loc = pSpriteList.getAt(i).loc + [tOffX, tOffY]
     i = 1 + i
   end repeat
+  exit
 end
 
-on null me 
+on null(me)
   return(0)
+  exit
 end
 
-on movePartBy me, ttype, tX, tY, tInverse 
+on movePartBy(me, ttype, tX, tY, tInverse)
   tsprite = pSpriteList.getAt(ttype)
   if voidp(tsprite) then
     return(0)
@@ -784,14 +831,17 @@ on movePartBy me, ttype, tX, tY, tInverse
     exit repeat
   end if
   tsprite.loc = tsprite.loc + [tX, tY]
+  exit
 end
 
-on movePartTo me, ttype, tX, tY, tInverse 
+on movePartTo(me, ttype, tX, tY, tInverse)
   tX = tX - pLocX
   tY = tY - pLocY
   me.movePartBy(ttype, tX, tY, tInverse)
+  exit
 end
 
-on handlers  
+on handlers()
   return([])
+  exit
 end

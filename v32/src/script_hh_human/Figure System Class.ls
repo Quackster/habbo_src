@@ -1,6 +1,4 @@
-property pDontProfile, pFigureData
-
-on construct me 
+on construct(me)
   pFigurePartListLoadedFlag = 0
   pAvailableSetListLoadedFlag = 0
   setVariable("figurepartlist.loaded", 0)
@@ -12,14 +10,16 @@ on construct me
   pFigureData = createObject(#temp, "Figure Data Class")
   me.setProfiling()
   return(1)
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   me.regMsgList(0)
   return(1)
+  exit
 end
 
-on setProfiling  
+on setProfiling()
   if voidp(pDontProfile) then
     pDontProfile = 1
     if getObjectManager().managerExists(#variable_manager) then
@@ -28,9 +28,10 @@ on setProfiling
       end if
     end if
   end if
+  exit
 end
 
-on define me, tProps 
+on define(me, tProps)
   if tProps.ilk <> #propList then
     tURL = getVariable("external.figurepartlist.txt")
     tProps = ["type":"url", "source":tURL]
@@ -38,31 +39,32 @@ on define me, tProps
   if voidp(tProps.getAt("type")) then
     error(me, "source type of figure list is void", #define, #major)
   end if
-  if tProps.getAt("type") = "url" then
+  if me = "url" then
     me.loadFigurePartList(tProps.getAt("source"))
   else
-    if tProps.getAt("type") = "proplist" then
+    if me = "proplist" then
       tProlist = tProps.getAt("source")
       initializeValidPartLists(tProlist)
     else
       error(me, "incorrect source type, can�t run define ", #define, #major)
     end if
   end if
+  exit
 end
 
-on parseFigure me, tFigureData, tsex, tClass 
+on parseFigure(me, tFigureData, tsex, tClass)
   if voidp(tClass) then
     tClass = "user"
   end if
-  if tClass <> "user" then
-    if tClass = "pelle" then
-      tTempFigure = [:]
-      if (tFigureData.count(#char) mod 5) = 0 and integerp(integer(tFigureData)) then
+  if me <> "user" then
+    if me = "pelle" then
+      tTempFigure = []
+      if tFigureData.count(#char) mod 5 = 0 and integerp(integer(tFigureData)) then
         tFigureData = tFigureData.getProp(#char, 1, tFigureData.count(#char))
-        tPartCount = (tFigureData.count(#char) / 5)
+        tPartCount = tFigureData.count(#char) / 5
         i = 0
         repeat while i <= tPartCount - 1
-          tPart = tFigureData.getProp(#char, (i * 5) + 1, (i * 5) + 5)
+          tPart = tFigureData.getProp(#char, i * 5 + 1, i * 5 + 5)
           tSetID = tPart.getProp(#char, 1, 3)
           tColorId = tPart.getProp(#char, 4, 5)
           tTempFigure.setAt(tSetID, value(tColorId))
@@ -89,10 +91,10 @@ on parseFigure me, tFigureData, tsex, tClass
       the itemDelimiter = tDelim
       tFigure = me.parseNewTypeFigure(tTempFigure, tsex)
     else
-      if tClass = "bot" then
+      if me = "bot" then
         the itemDelimiter = "&"
         tPartCount = tFigureData.count(#item)
-        tFigure = [:]
+        tFigure = []
         i = 1
         repeat while i <= tPartCount
           tPart = tFigureData.getProp(#item, i)
@@ -100,7 +102,7 @@ on parseFigure me, tFigureData, tsex, tClass
           tProp = tPart.getProp(#item, 1)
           tDesc = tPart.getProp(#item, 2)
           the itemDelimiter = "/"
-          tValue = [:]
+          tValue = []
           tValue.setAt("model", tDesc.getProp(#item, 1))
           repeat while tValue.getAt("model").getProp(#char, 1) = "0"
             tValue.setAt("model", tValue.getAt("model").getProp(#char, 2, tValue.getAt("model").length))
@@ -120,7 +122,7 @@ on parseFigure me, tFigureData, tsex, tClass
               if voidp(tValue.getAt("color")) then
                 tValue.setAt("color", rgb("EEEEEE"))
               end if
-              if tValue.getAt("color").red + tValue.getAt("color").green + tValue.getAt("color").blue > (238 * 3) then
+              if tValue.getAt("color").red + tValue.getAt("color").green + tValue.getAt("color").blue > 238 * 3 then
                 tValue.setAt("color", rgb("EEEEEE"))
               end if
             else
@@ -136,12 +138,13 @@ on parseFigure me, tFigureData, tsex, tClass
       return(tFigureData)
     end if
     return(tFigure)
+    exit
   end if
 end
 
-on parseNewTypeFigure me, tFigure, tsex 
-  tTempFigure = [:]
-  tHiddenLayers = [:]
+on parseNewTypeFigure(me, tFigure, tsex)
+  tTempFigure = []
+  tHiddenLayers = []
   f = 1
   repeat while f <= tFigure.count
     tSetID = tFigure.getPropAt(f)
@@ -179,11 +182,12 @@ on parseNewTypeFigure me, tFigure, tsex
   end repeat
   tTempFigure = me.checkAndFixFigure(tTempFigure, tHiddenLayers)
   return(tTempFigure)
+  exit
 end
 
-on checkDataLoaded me 
+on checkDataLoaded(me)
   tList = ["partsets.xml.loaded", "draworder.xml.loaded", "animation.xml.loaded", "figure.xml.loaded"]
-  repeat while tList <= undefined
+  repeat while me <= undefined
     tName = getAt(undefined, undefined)
     if not variableExists(tName) then
       return(0)
@@ -205,7 +209,6 @@ on checkDataLoaded me
   repeat while tCharNo <= tStamp.length
     tChar = chars(tStamp, tCharNo, tCharNo)
     tChar = charToNum(tChar)
-    tChar = (tChar * tCharNo) + 309203
     tReceipt.setAt(tCharNo, tChar)
     tCharNo = 1 + tCharNo
   end repeat
@@ -215,13 +218,14 @@ on checkDataLoaded me
   end if
   setVariable("figurepartlist.loaded", 1)
   return(1)
+  exit
 end
 
-on loadFigurePartList me, tURL 
+on loadFigurePartList(me, tURL)
   tMem = tURL
   tMemberCount = 0
   tCastList = ["hh_human_shirt", "hh_human_leg", "hh_human_shoe", "hh_human_body", "hh_human_face", "hh_human_hats", "hh_human_hair"]
-  repeat while tCastList <= undefined
+  repeat while me <= undefined
     tCastName = getAt(undefined, tURL)
     tCastLib = castLib(tCastName)
     if tCastLib <> 0 then
@@ -241,9 +245,10 @@ on loadFigurePartList me, tURL
   end if
   tmember = queueDownload(tURL, tMem, #field, 1)
   return(registerDownloadCallback(tmember, #partListLoaded, me.getID()))
+  exit
 end
 
-on partListLoaded me, tParams, tSuccess 
+on partListLoaded(me, tParams, tSuccess)
   if not tSuccess then
     fatalError(["error":"part_list"])
     return(error(me, "Failure while loading part list", #partListLoaded, #critical))
@@ -273,21 +278,22 @@ on partListLoaded me, tParams, tSuccess
   if not pDontProfile then
     finishProfilingTask("Figure System::partListLoaded")
   end if
+  exit
 end
 
-on checkAndFixFigure me, tFigure, tHiddenLayers 
+on checkAndFixFigure(me, tFigure, tHiddenLayers)
   if tFigure.ilk <> #propList then
-    tFigure = [:]
+    tFigure = []
   end if
   tFigure = tFigure.duplicate()
   if tHiddenLayers.ilk <> #propList then
-    tHiddenLayers = [:]
+    tHiddenLayers = []
   end if
   tPartDefinition = getVariableValue("human.parts.h")
   if tPartDefinition = 0 then
     tPartDefinition = []
   end if
-  tHiddenLayersOrdered = [:]
+  tHiddenLayersOrdered = []
   i = tPartDefinition.count
   repeat while i >= 1
     tPartSymbol = tPartDefinition.getAt(i)
@@ -299,7 +305,7 @@ on checkAndFixFigure me, tFigure, tHiddenLayers
   i = 1
   repeat while i <= tHiddenLayersOrdered.count
     tRemoveList = tHiddenLayersOrdered.getAt(i)
-    repeat while tRemoveList <= tHiddenLayers
+    repeat while me <= tHiddenLayers
       tPart = getAt(tHiddenLayers, tFigure)
       repeat while tFigure.findPos(tPart) > 0
         tFigure.deleteProp(tPart)
@@ -312,7 +318,7 @@ on checkAndFixFigure me, tFigure, tHiddenLayers
   end repeat
   tRemoveList = getVariable("human.parts.removeList")
   if ilk(tRemoveList) <> #propList then
-    tRemoveList = [:]
+    tRemoveList = []
   end if
   i = 1
   repeat while i <= tRemoveList.count
@@ -324,9 +330,10 @@ on checkAndFixFigure me, tFigure, tHiddenLayers
     i = 1 + i
   end repeat
   return(tFigure)
+  exit
 end
 
-on loadPartSetXML me 
+on loadPartSetXML(me)
   if variableExists("partsets.xml.loaded") then
     if getVariable("partsets.xml.loaded") = 1 then
       return(1)
@@ -339,9 +346,10 @@ on loadPartSetXML me
   tMem = tURL
   tmember = queueDownload(tURL, tMem, #field, 1)
   return(registerDownloadCallback(tmember, #partSetLoaded, me.getID()))
+  exit
 end
 
-on loadActionSetXML me 
+on loadActionSetXML(me)
   if variableExists("draworder.xml.loaded") then
     if getVariable("draworder.xml.loaded") = 1 then
       return(1)
@@ -354,9 +362,10 @@ on loadActionSetXML me
   tMem = tURL
   tmember = queueDownload(tURL, tMem, #field, 1)
   return(registerDownloadCallback(tmember, #actionSetLoaded, me.getID()))
+  exit
 end
 
-on loadAnimationSetXML me 
+on loadAnimationSetXML(me)
   if variableExists("animation.xml.loaded") then
     if getVariable("animation.xml.loaded") = 1 then
       return(1)
@@ -369,9 +378,10 @@ on loadAnimationSetXML me
   tMem = tURL
   tmember = queueDownload(tURL, tMem, #field, 1)
   return(registerDownloadCallback(tmember, #animationSetLoaded, me.getID()))
+  exit
 end
 
-on partSetLoaded me, tParams, tSuccess 
+on partSetLoaded(me, tParams, tSuccess)
   if not tSuccess then
     fatalError(["error":"part_sets"])
     return(error(me, "Failure while loading partset XML", #partSetLoaded, #critical))
@@ -409,8 +419,8 @@ on partSetLoaded me, tParams, tSuccess
             tSwimList = []
             tSmallList = []
             tSwimSmallList = []
-            tFlipList = [:]
-            tRemoveList = [:]
+            tFlipList = []
+            tRemoveList = []
             k = 1
             repeat while k <= tElementPartSet.count(#child)
               tElementPart = tElementPartSet.getProp(#child, k)
@@ -502,9 +512,10 @@ on partSetLoaded me, tParams, tSuccess
   if not pDontProfile then
     finishProfilingTask("Figure System::partSetLoaded")
   end if
+  exit
 end
 
-on actionSetLoaded me, tParams, tSuccess 
+on actionSetLoaded(me, tParams, tSuccess)
   if not tSuccess then
     fatalError(["error":"action_set"])
     return(error(me, "Failure while loading action set XML", #actionSetLoaded, #critical))
@@ -600,14 +611,15 @@ on actionSetLoaded me, tParams, tSuccess
   if not pDontProfile then
     finishProfilingTask("Figure System::actionSetLoaded")
   end if
+  exit
 end
 
-on animationSetLoaded me, tParams, tSuccess 
+on animationSetLoaded(me, tParams, tSuccess)
   if not tSuccess then
     fatalError(["error":"animation_set"])
     return(error(me, "Failure while loading animation XML", #animationSetLoaded, #critical))
   end if
-  tAnimationData = [:]
+  tAnimationData = []
   tMemName = getVariable("figure.animation.xml")
   if tMemName = 0 then
     return(error(me, "Failure while loading animation XML", #animationSetLoaded, #critical))
@@ -663,7 +675,7 @@ on animationSetLoaded me, tParams, tSuccess
                   if not voidp(tAttributes.getAt("set-type")) then
                     tFrameList = me.parseFrameListXML(tElementPart)
                     if voidp(tAnimationData.getAt(tAttributes.getAt("set-type"))) then
-                      tAnimationData.setAt(tAttributes.getAt("set-type"), [:])
+                      tAnimationData.setAt(tAttributes.getAt("set-type"), [])
                     end if
                     tAnimationData.getAt(tAttributes.getAt("set-type")).setAt(tID, tFrameList)
                   else
@@ -688,9 +700,10 @@ on animationSetLoaded me, tParams, tSuccess
   if not pDontProfile then
     finishProfilingTask("Figure System::animationSetLoaded")
   end if
+  exit
 end
 
-on parsePartListXML me, tElement 
+on parsePartListXML(me, tElement)
   tPartList = []
   tIndex = 1
   i = 1
@@ -715,9 +728,10 @@ on parsePartListXML me, tElement
     i = 1 + i
   end repeat
   return(tPartList)
+  exit
 end
 
-on parseFrameListXML me, tElement 
+on parseFrameListXML(me, tElement)
   tFrameList = []
   tIndex = 1
   i = 1
@@ -742,11 +756,12 @@ on parseFrameListXML me, tElement
     i = 1 + i
   end repeat
   return(tFrameList)
+  exit
 end
 
-on regMsgList me, tBool 
-  tMsgs = [:]
-  tCmds = [:]
+on regMsgList(me, tBool)
+  tMsgs = []
+  tCmds = []
   tCmds.setaProp("GETAVAILABLESETS", 9)
   if tBool then
     registerListener(getVariable("connection.info.id"), me.getID(), tMsgs)
@@ -755,4 +770,5 @@ on regMsgList me, tBool
     unregisterListener(getVariable("connection.info.id"), me.getID(), tMsgs)
     unregisterCommands(getVariable("connection.info.id"), me.getID(), tCmds)
   end if
+  exit
 end

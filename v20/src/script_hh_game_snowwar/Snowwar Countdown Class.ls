@@ -1,42 +1,43 @@
-property pWindowID, pTimeOutID, pEndTime, pDuration, pCountdownMember
-
-on construct me 
+on construct(me)
   pWindowID = getText("gs_title_countdown")
   pTimeOutID = "game_countdown_timeout"
-  return TRUE
+  return(1)
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   return(me.removeGameCountdown())
+  exit
 end
 
-on Refresh me, tTopic, tdata 
-  if (tTopic = #gamereset) then
+on Refresh(me, tTopic, tdata)
+  if me = #gamereset then
     return(me.startGameCountdown(tdata.getAt(#time_until_game_start), 0))
   else
-    if (tTopic = #fullgamestatus_time) then
-      if (tdata.getAt(#state) = #started) then
+    if me = #fullgamestatus_time then
+      if tdata.getAt(#state) = #started then
         return(me.removeGameCountdown())
       end if
-      return(me.startGameCountdown(tdata.getAt(#time_to_next_state), (tdata.getAt(#state_duration) - tdata.getAt(#time_to_next_state))))
+      return(me.startGameCountdown(tdata.getAt(#time_to_next_state), tdata.getAt(#state_duration) - tdata.getAt(#time_to_next_state)))
     else
-      if (tTopic = #gamestart) then
+      if me = #gamestart then
         playSound("LS-C64-draw-1", void(), [#volume:170])
         return(me.removeGameCountdown())
       end if
     end if
   end if
-  return TRUE
+  return(1)
+  exit
 end
 
-on startGameCountdown me, tSecondsLeft, tSecondsNowElapsed 
-  tMSecLeft = (tSecondsLeft * 1000)
-  tDuration = ((tSecondsLeft + tSecondsNowElapsed) * 1000)
+on startGameCountdown(me, tSecondsLeft, tSecondsNowElapsed)
+  tMSecLeft = tSecondsLeft * 1000
+  tDuration = tSecondsLeft + tSecondsNowElapsed * 1000
   if tMSecLeft <= 0 then
-    return FALSE
+    return(0)
   end if
   pDuration = tDuration
-  pEndTime = (the milliSeconds + tMSecLeft)
+  pEndTime = the milliSeconds + tMSecLeft
   if createWindow(pWindowID, "sw_cdown.window") then
     tWndObj = getWindow(pWindowID)
     if me.getGameSystem().getSpectatorModeFlag() then
@@ -63,11 +64,11 @@ on startGameCountdown me, tSecondsLeft, tSecondsNowElapsed
     end if
     createTimeout(pTimeOutID, 300, #setBar, me.getID())
     tElem = tWndObj.getElement("gs_numtickets")
-    if (tElem = 0) then
-      return FALSE
+    if tElem = 0 then
+      return(0)
     end if
-    if (me.getGameSystem() = 0) then
-      return FALSE
+    if me.getGameSystem() = 0 then
+      return(0)
     end if
     if me.getGameSystem().getGameTicketsNotUsedFlag() then
       tElem.hide()
@@ -77,31 +78,32 @@ on startGameCountdown me, tSecondsLeft, tSecondsNowElapsed
       end if
     else
       tNumTickets = string(me.getGameSystem().getNumTickets())
-      if (tNumTickets.length = 1) then
+      if tNumTickets.length = 1 then
         tNumTickets = "00" & tNumTickets
       end if
-      if (tNumTickets.length = 2) then
+      if tNumTickets.length = 2 then
         tNumTickets = "0" & tNumTickets
       end if
       tElem.setText(tNumTickets)
     end if
-    return TRUE
+    return(1)
   else
-    return FALSE
+    return(0)
   end if
+  exit
 end
 
-on setBar me 
+on setBar(me)
   tWndObj = getWindow(pWindowID)
-  if (tWndObj = 0) then
+  if tWndObj = 0 then
     return(me.removeGameCountdown())
   end if
   tElem = tWndObj.getElement("gs_bar_cntDwn")
   if the milliSeconds >= pEndTime then
     return(me.removeGameCountdown())
   end if
-  tProc = ((pEndTime - the milliSeconds) / float(pDuration))
-  tNextWidth = (159 * tProc)
+  tProc = pEndTime - the milliSeconds / float(pDuration)
+  tNextWidth = 159 * tProc
   tCurrWidth = tElem.getProperty(#width)
   if tNextWidth < 80 then
     if tNextWidth < 39 then
@@ -117,26 +119,29 @@ on setBar me
     pCountdownMember = tmember
     tElem.setProperty(#member, member(getmemnum(tmember)))
   end if
-  tElem.resizeBy((integer(tNextWidth) - tCurrWidth), 0)
-  return TRUE
+  tElem.resizeBy(integer(tNextWidth) - tCurrWidth, 0)
+  return(1)
+  exit
 end
 
-on removeGameCountdown me 
+on removeGameCountdown(me)
   if timeoutExists(pTimeOutID) then
     removeTimeout(pTimeOutID)
   end if
   if windowExists(pWindowID) then
     removeWindow(pWindowID)
   end if
-  return TRUE
+  return(1)
+  exit
 end
 
-on eventProc me, tEvent, tSprID, tParam 
-  if (tSprID = "gs_button_leavegame") then
-    if (me.getGameSystem() = 0) then
-      return FALSE
+on eventProc(me, tEvent, tSprID, tParam)
+  if me = "gs_button_leavegame" then
+    if me.getGameSystem() = 0 then
+      return(0)
     end if
     me.removeGameCountdown()
     return(me.getGameSystem().enterLounge())
   end if
+  exit
 end

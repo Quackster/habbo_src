@@ -1,26 +1,29 @@
-on constructStringServices  
+on constructStringServices()
   return(createManager(#string_services, getClassVariable("string.services.class")))
+  exit
 end
 
-on deconstructStringServices  
+on deconstructStringServices()
   return(removeManager(#string_services))
+  exit
 end
 
-on getStringServices  
+on getStringServices()
   tMgr = getObjectManager()
   if not tMgr.managerExists(#string_services) then
     return(constructStringServices())
   end if
   return(tMgr.getManager(#string_services))
+  exit
 end
 
-on convertToPropList tString, tDelimiter 
+on convertToPropList(tString, tDelimiter)
   tOldDelim = the itemDelimiter
   if voidp(tDelimiter) then
     tDelimiter = ","
   end if
   the itemDelimiter = tDelimiter
-  tProps = [:]
+  tProps = []
   i = 1
   repeat while i <= tString.count(#item)
     tPair = tString.getPropRef(#item, i).getProp(#word, 1, tString.getPropRef(#item, i).count(#word))
@@ -31,68 +34,85 @@ on convertToPropList tString, tDelimiter
   end repeat
   the itemDelimiter = tOldDelim
   return(tProps)
+  exit
 end
 
-on convertToLowerCase tString 
+on convertToLowerCase(tString)
   return(getStringServices().convertToLowerCase(tString))
+  exit
 end
 
-on convertToHigherCase tString 
+on convertToHigherCase(tString)
   return(getStringServices().convertToHigherCase(tString))
+  exit
 end
 
-on convertSpecialChars tString, tDirection 
+on convertSpecialChars(tString, tDirection)
   return(getStringServices().convertSpecialChars(tString, tDirection))
+  exit
 end
 
-on convertIntToHex tInt 
+on convertIntToHex(tInt)
   return(getStringServices().convertIntToHex(tInt))
+  exit
 end
 
-on convertHexToInt tHex 
+on convertHexToInt(tHex)
   return(getStringServices().convertHexToInt(tHex))
+  exit
 end
 
-on explode tString, tDelimiter, tLimit 
+on explode(tString, tDelimiter, tLimit)
   return(getStringServices().explode(tString, tDelimiter, tLimit))
+  exit
 end
 
-on implode tList, tDelimiter 
+on implode(tList, tDelimiter)
   return(getStringServices().implode(tList, tDelimiter))
+  exit
 end
 
-on replaceChars tString, tCharA, tCharB 
+on replaceChars(tString, tCharA, tCharB)
   return(getStringServices().replaceChars(tString, tCharA, tCharB))
+  exit
 end
 
-on replaceChunks tString, tChunkA, tChunkB 
+on replaceChunks(tString, tChunkA, tChunkB)
   return(getStringServices().replaceChunks(tString, tChunkA, tChunkB))
+  exit
 end
 
-on urlEncode tString 
+on urlEncode(tString)
   return(getStringServices().urlEncode(tString))
+  exit
 end
 
-on obfuscate tString 
+on obfuscate(tString)
   return(getStringServices().obfuscate(tString))
+  exit
 end
 
-on deobfuscate tString 
+on deobfuscate(tString)
   return(getStringServices().deobfuscate(tString))
+  exit
 end
 
-on getLocalFloat tStrFloat 
+on getLocalFloat(tStrFloat)
   return(getStringServices().getLocalFloat(tStrFloat))
+  exit
 end
 
-on encodeUTF8 tStr 
+on encodeUTF8(tStr)
   return(getStringServices().encodeUTF8(tStr))
+  exit
 end
 
-on decodeUTF8 tStr, tForceDecode 
+on decodeUTF8(tStr, tForceDecode)
   return(getStringServices().decodeUTF8(tStr, tForceDecode))
+  exit
 end
 
-on handlers  
+on handlers()
   return([])
+  exit
 end

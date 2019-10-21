@@ -1,27 +1,27 @@
-property pOnScreenNum, pRemoveCheckBoxList, pBuddyList, pLimitPntr, pWindowTitle, pPageCount, pPageNr, pChosen, pRemoveList, pArrangeType
-
-on construct me 
+on construct(me)
   pWindowTitle = getText("buddyremove_windowheader")
-  pBuddyList = [:]
+  pBuddyList = []
   pRemoveCheckBoxList = []
   pOnScreenNum = 10
   pPageNr = 1
   pPageCount = 1
   pArrangeType = #none
   pChosen = 0
-  pLimitPntr = [:]
+  pLimitPntr = []
   pRemoveList = []
   i = 1
   repeat while i <= pOnScreenNum
     pRemoveCheckBoxList.add(0)
     i = 1 + i
   end repeat
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
+  exit
 end
 
-on openRemoveWindow me, tFriendListCopy, tListLimitsPntr 
+on openRemoveWindow(me, tFriendListCopy, tListLimitsPntr)
   pBuddyList = tFriendListCopy
   pLimitPntr = tListLimitsPntr
   pBuddyList.sort()
@@ -52,13 +52,15 @@ on openRemoveWindow me, tFriendListCopy, tListLimitsPntr
   tWndObj.registerProcedure(#eventProcBuddyRemove, me.getID(), #mouseDown)
   tWndObj.center()
   return(1)
+  exit
 end
 
-on confirmationReceived me 
+on confirmationReceived(me)
   return(me.sendRemoveList())
+  exit
 end
 
-on removeUnnecessaryFromBuddylist me 
+on removeUnnecessaryFromBuddylist(me)
   i = 1
   repeat while i <= pBuddyList.count
     pBuddyList.deleteProp(#customText)
@@ -70,9 +72,10 @@ on removeUnnecessaryFromBuddylist me
     i = 1 + i
   end repeat
   return(1)
+  exit
 end
 
-on setUpMassRemoveWindow me 
+on setUpMassRemoveWindow(me)
   if not windowExists(pWindowTitle) then
     return(0)
   end if
@@ -86,26 +89,27 @@ on setUpMassRemoveWindow me
     pBuddyList.getAt(i).addProp(#Remove, 0)
     i = 1 + i
   end repeat
-  pPageCount = (pBuddyList.count / pOnScreenNum)
-  if (pBuddyList.count mod pOnScreenNum) <> 0 then
+  pPageCount = pBuddyList.count / pOnScreenNum
+  if pBuddyList.count mod pOnScreenNum <> 0 then
     pPageCount = pPageCount + 1
   end if
   me.arrangeFriendList(#name)
   return(1)
+  exit
 end
 
-on changeOptionLevel me, tStyle 
+on changeOptionLevel(me, tStyle)
   if not windowExists(pWindowTitle) then
     return(0)
   end if
-  if tStyle = #more then
+  if me = #more then
     tWndObj = getWindow(pWindowTitle)
     tWndObj.unmerge()
     if not tWndObj.merge("console_massremove_extended.window") then
       return(tWndObj.close())
     end if
   else
-    if tStyle = #less then
+    if me = #less then
       tWndObj = getWindow(pWindowTitle)
       tWndObj.unmerge()
       if not tWndObj.merge("console_massbuddyremove.window") then
@@ -114,14 +118,15 @@ on changeOptionLevel me, tStyle
     end if
   end if
   return(me.updateView())
+  exit
 end
 
-on updateView me 
+on updateView(me)
   if not windowExists(pWindowTitle) then
     return(0)
   end if
   tWndObj = getWindow(pWindowTitle)
-  tStartNr = (pPageNr - 1 * pOnScreenNum)
+  tStartNr = pPageNr - 1 * pOnScreenNum
   i = 1
   repeat while i <= pOnScreenNum
     tElem1ID = "console_friendremove_name" & i
@@ -167,9 +172,10 @@ on updateView me
   end if
   me.updateToChooseCounter()
   setcursor(#arrow)
+  exit
 end
 
-on hideNames me 
+on hideNames(me)
   if not windowExists(pWindowTitle) then
     return(0)
   end if
@@ -183,27 +189,31 @@ on hideNames me
     i = 1 + i
   end repeat
   return(1)
+  exit
 end
 
-on nextPage me 
+on nextPage(me)
   if pPageNr < pPageCount then
     pPageNr = pPageNr + 1
     me.updateView()
   end if
+  exit
 end
 
-on prevPage me 
+on prevPage(me)
   if pPageNr > 1 then
     pPageNr = pPageNr - 1
     me.updateView()
   end if
+  exit
 end
 
-on nameClicked me, tID 
+on nameClicked(me, tID)
   return(me.checkBoxClicked(tID, #name))
+  exit
 end
 
-on checkBoxClicked me, tID, ttype 
+on checkBoxClicked(me, tID, ttype)
   if not windowExists(pWindowTitle) then
     return(0)
   end if
@@ -212,7 +222,7 @@ on checkBoxClicked me, tID, ttype
   else
     tNum = integer(tID.getProp(#char, 22, tID.count(#char)))
   end if
-  tStartNr = (pPageNr - 1 * pOnScreenNum)
+  tStartNr = pPageNr - 1 * pOnScreenNum
   tBoxID = "friendremove_checkbox" & tNum
   if pRemoveCheckBoxList.getAt(tNum) = 0 then
     pRemoveCheckBoxList.setAt(tNum, 1)
@@ -233,9 +243,10 @@ on checkBoxClicked me, tID, ttype
     tElem.Activate()
   end if
   return(me.updateToChooseCounter())
+  exit
 end
 
-on updateToChooseCounter me 
+on updateToChooseCounter(me)
   if not windowExists(pWindowTitle) then
     return(0)
   end if
@@ -254,9 +265,10 @@ on updateToChooseCounter me
     tElem2.setText(tText)
   end if
   return(1)
+  exit
 end
 
-on getStayCount me 
+on getStayCount(me)
   tStay = 0
   i = 1
   repeat while i <= pBuddyList.count
@@ -266,9 +278,10 @@ on getStayCount me
     i = 1 + i
   end repeat
   return(tStay)
+  exit
 end
 
-on updateCheckButton me, tElementId, tMemName 
+on updateCheckButton(me, tElementId, tMemName)
   if not windowExists(pWindowTitle) then
     return(0)
   end if
@@ -278,9 +291,10 @@ on updateCheckButton me, tElementId, tMemName
     tWndObj.getElement(tElementId).feedImage(tNewImg)
   end if
   return(1)
+  exit
 end
 
-on endMassRemovalSession me, tHideMessenger 
+on endMassRemovalSession(me, tHideMessenger)
   tWndObj = getWindow(pWindowTitle)
   if not tWndObj = void() then
     tWndObj.close()
@@ -289,9 +303,10 @@ on endMassRemovalSession me, tHideMessenger
     removeObject("buddy_massremove")
   end if
   return(1)
+  exit
 end
 
-on showConfirmationWindow me 
+on showConfirmationWindow(me)
   tWndObj = getWindow(pWindowTitle)
   tWndObj.unmerge()
   if not tWndObj.merge("console_massremove_confirm.window") then
@@ -313,9 +328,10 @@ on showConfirmationWindow me
   tText = tText.getProp(#char, 1, tText.count(#char) - 2)
   tElem = tWndObj.getElement("console_friendremove_keep_list")
   tElem.setText(tText)
+  exit
 end
 
-on commitRemove me 
+on commitRemove(me)
   pRemoveList = []
   i = 1
   repeat while i <= pBuddyList.count
@@ -330,9 +346,10 @@ on commitRemove me
   end if
   getThread(#messenger).getInterface().setMessengerInactive()
   return(me.sendRemoveList())
+  exit
 end
 
-on sendRemoveList me 
+on sendRemoveList(me)
   if pRemoveList = [] then
     getConnection(getVariable("connection.info.id")).send("MESSENGER_UPDATE", [#integer:0])
     return(me.endMassRemovalSession())
@@ -353,24 +370,25 @@ on sendRemoveList me
   tSendList.setAt(1, tCount)
   getConnection(getVariable("connection.info.id")).send("MESSENGER_REMOVEBUDDY", tSendList)
   return(1)
+  exit
 end
 
-on arrangeFriendList me, ttype 
+on arrangeFriendList(me, ttype)
   if pArrangeType = ttype then
     return(0)
   end if
   if ttype = #logintime then
     me.showWaitIfNecessary()
   end if
-  tNewList = [:]
+  tNewList = []
   tTemp = the itemDelimiter
   the itemDelimiter = "-"
   i = 1
   repeat while i <= pBuddyList.count
-    if ttype = #name then
+    if me = #name then
       tNewList.addProp(pBuddyList.getAt(i).name, pBuddyList.getAt(i))
     else
-      if ttype = #logintime then
+      if me = #logintime then
         tTime = lastAccess.getProp(#word, 1)
         tArrangedTime = tTime.getProp(#item, 3) & tTime.getProp(#item, 2) & tTime.getProp(#item, 1)
         tNewList.addProp(tArrangedTime, pBuddyList.getAt(i))
@@ -385,9 +403,10 @@ on arrangeFriendList me, ttype
   pArrangeType = ttype
   me.updateView()
   return(1)
+  exit
 end
 
-on showWaitIfNecessary me 
+on showWaitIfNecessary(me)
   if pBuddyList.count < 500 then
     return(1)
   end if
@@ -402,9 +421,10 @@ on showWaitIfNecessary me
   setcursor(#timer)
   updateStage()
   return(1)
+  exit
 end
 
-on selectAllFriends me 
+on selectAllFriends(me)
   i = 1
   repeat while i <= pBuddyList.count
     pBuddyList.getAt(i).Remove = 1
@@ -413,9 +433,10 @@ on selectAllFriends me
   pChosen = pBuddyList.count
   me.updateView()
   return(1)
+  exit
 end
 
-on invertSelection me 
+on invertSelection(me)
   i = 1
   repeat while i <= pBuddyList.count
     pBuddyList.getAt(i).Remove = not pBuddyList.getAt(i).Remove
@@ -424,45 +445,46 @@ on invertSelection me
   pChosen = pBuddyList.count - pChosen
   me.updateView()
   return(1)
+  exit
 end
 
-on eventProcBuddyRemove me, tEvent, tElemID, tParam 
+on eventProcBuddyRemove(me, tEvent, tElemID, tParam)
   if tEvent = #mouseUp then
-    if tElemID = "console_friendremove_next" then
+    if me = "console_friendremove_next" then
       me.nextPage()
     else
-      if tElemID = "console_friendremove_prev" then
+      if me = "console_friendremove_prev" then
         me.prevPage()
       else
-        if tElemID = "console_friendremove_accept_button" then
+        if me = "console_friendremove_accept_button" then
           me.showConfirmationWindow()
         else
-          if tElemID = "console_friendremove_confirm" then
+          if me = "console_friendremove_confirm" then
             me.commitRemove()
           else
-            if tElemID = "console_friendremove_continue" then
+            if me = "console_friendremove_continue" then
               me.setUpMassRemoveWindow()
             else
-              if tElemID <> "console_friendremove_not_now" then
-                if tElemID = "console_friendremove_cancel_button" then
+              if me <> "console_friendremove_not_now" then
+                if me = "console_friendremove_cancel_button" then
                   me.endMassRemovalSession()
                 else
-                  if tElemID = "console_friendremove_dropmenu" then
-                    if tElemID = "buddyremove_logintime" then
+                  if me = "console_friendremove_dropmenu" then
+                    if me = "buddyremove_logintime" then
                       me.arrangeFriendList(#logintime)
                     else
-                      if tElemID = "buddyremove_alphabetical" then
+                      if me = "buddyremove_alphabetical" then
                         me.arrangeFriendList(#name)
                       end if
                     end if
                   else
-                    if tElemID = "console_friendremove_select_all" then
+                    if me = "console_friendremove_select_all" then
                       me.selectAllFriends()
                     else
-                      if tElemID = "console_friendremove_invert" then
+                      if me = "console_friendremove_invert" then
                         me.invertSelection()
                       else
-                        if tElemID = "console_friendremove_confirm_cancel" then
+                        if me = "console_friendremove_confirm_cancel" then
                           me.changeOptionLevel(#less)
                         end if
                       end if
@@ -479,22 +501,23 @@ on eventProcBuddyRemove me, tEvent, tElemID, tParam
                   end if
                 end if
                 if tEvent = #mouseDown then
-                  if tElemID = "close" then
+                  if me = "close" then
                     me.endMassRemovalSession()
                   else
-                    if tElemID = "console_friendremove_moreoptions" then
+                    if me = "console_friendremove_moreoptions" then
                       me.changeOptionLevel(#more)
                     else
-                      if tElemID = "console_friendremove_lessoptions" then
+                      if me = "console_friendremove_lessoptions" then
                         me.changeOptionLevel(#less)
                       else
-                        if tElemID = "buddyremove_hc_more_info" then
+                        if me = "buddyremove_hc_more_info" then
                           openNetPage(getText("buddyremove_hc_info_url"))
                         end if
                       end if
                     end if
                   end if
                 end if
+                exit
               end if
             end if
           end if

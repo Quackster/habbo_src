@@ -1,6 +1,4 @@
-property pBgImages, pSpacing, pRefreshTimeoutId, pItemsPerRow, pimage, pBgColor, pSelectedItem, pRotationQuad
-
-on construct me 
+on construct(me)
   callAncestor(#construct, [me])
   pimage = image(0, 0, 32)
   pSelectedItem = 0
@@ -14,15 +12,17 @@ on construct me
   me.pSmallItemWidth = getMember(getVariable("productstrip.itembg.selected")).width
   me.pSmallItemHeight = getMember(getVariable("productstrip.itembg.selected")).height
   return(1)
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   return(callAncestor(#deconstruct, [me]))
+  exit
 end
 
-on setTargetElement me, tElement, tScroll 
+on setTargetElement(me, tElement, tScroll)
   callAncestor(#setTargetElement, [me], tElement, tScroll)
-  pItemsPerRow = (pBgImages.getAt(#unselected) / image.width + pSpacing)
+  pItemsPerRow = pBgImages.getAt(#unselected) / image.width + pSpacing
   me.renderStripBg()
   pSelectedItem = 0
   i = 1
@@ -31,32 +31,36 @@ on setTargetElement me, tElement, tScroll
     i = 1 + i
   end repeat
   me.pushImage()
+  exit
 end
 
-on enableRefreshTimeout me 
+on enableRefreshTimeout(me)
   if not timeoutExists(pRefreshTimeoutId) then
     createTimeout(pRefreshTimeoutId, 500, #refreshDownloadingSlots, me.getID(), void(), 0)
   end if
+  exit
 end
 
-on disableRefreshTimeout me 
+on disableRefreshTimeout(me)
   if timeoutExists(pRefreshTimeoutId) then
     removeTimeout(pRefreshTimeoutId)
   end if
+  exit
 end
 
-on renderStripBg me 
+on renderStripBg(me)
   tItemCount = me.count(#pStripData)
-  tRowCount = (tItemCount / pItemsPerRow) + 1
-  if (tItemCount mod pItemsPerRow) = 0 then
+  tRowCount = tItemCount / pItemsPerRow + 1
+  if tItemCount mod pItemsPerRow = 0 then
     tRowCount = tRowCount - 1
   end if
-  tImageHeight = (image.height + pSpacing * tRowCount)
+  tImageHeight = image.height + pSpacing * tRowCount
   pimage = image(me.pwidth, tImageHeight, 32)
   pimage.fill(pimage.rect, [#shapeType:#rect, #color:pBgColor])
+  exit
 end
 
-on renderStripItem me, tItemIndex, tImageOverride 
+on renderStripItem(me, tItemIndex, tImageOverride)
   if me.pItemsPerRow = 0 then
     return(error(me, "Cannot render, strip items per row not resolved yet!", #renderStripItem))
   end if
@@ -66,8 +70,8 @@ on renderStripItem me, tItemIndex, tImageOverride
   if tItemIndex > tItemCount then
     return()
   end if
-  tOffsetY = (tRowHeight * (tItemIndex - 1 / pItemsPerRow))
-  tOffsetX = ((tItemIndex - 1 mod pItemsPerRow) * tItemWidth)
+  tOffsetY = tRowHeight * tItemIndex - 1 / pItemsPerRow
+  tOffsetX = tItemIndex - 1 mod pItemsPerRow * tItemWidth
   if pSelectedItem = tItemIndex then
     tBgImg = pBgImages.getAt(#selected).image
   else
@@ -90,22 +94,25 @@ on renderStripItem me, tItemIndex, tImageOverride
   tItemRect = tPrevImage.rect
   tCenterOffset = me.centerRectInRect(tItemRect, tRect)
   pimage.copyPixels(tPrevImage, tItemRect + rect(tOffsetX, tOffsetY, tOffsetX, tOffsetY) + rect(tCenterOffset.locH, tCenterOffset.locV, tCenterOffset.locH, tCenterOffset.locV), tItemRect, [#useFastQuads:1, #ink:36])
+  exit
 end
 
-on centerRectInRect me, tSmallrect, tLargeRect 
+on centerRectInRect(me, tSmallrect, tLargeRect)
   tpoint = point(0, 0)
-  tpoint.locH = (tLargeRect.width - tSmallrect.width / 2)
-  tpoint.locV = (tLargeRect.height - tSmallrect.height / 2)
+  tpoint.locH = tLargeRect.width - tSmallrect.width / 2
+  tpoint.locV = tLargeRect.height - tSmallrect.height / 2
   return(tpoint)
+  exit
 end
 
-on getItemIndexAt me, tloc 
+on getItemIndexAt(me, tloc)
   tRowHeight = image.height + pSpacing
   tItemWidth = image.width + pSpacing
-  return(((tloc.locV / tRowHeight) * pItemsPerRow) + (tloc.locH / tItemWidth) + 1)
+  return(tloc.locV / tRowHeight * pItemsPerRow + tloc.locH / tItemWidth + 1)
+  exit
 end
 
-on downloadCompleted me, tProps 
+on downloadCompleted(me, tProps)
   if tProps.getAt(#props).getaProp(#imagedownload) then
     return()
   end if
@@ -116,9 +123,10 @@ on downloadCompleted me, tProps
   tItemIndex = tProps.getAt(#props).getAt(#itemIndex)
   me.renderStripItem(tItemIndex)
   me.pushImage()
+  exit
 end
 
-on refreshDownloadingSlots me 
+on refreshDownloadingSlots(me)
   tIcon = getMember("ctlg_loading_icon2")
   t1 = pRotationQuad.getAt(1)
   t2 = pRotationQuad.getAt(2)
@@ -141,9 +149,10 @@ on refreshDownloadingSlots me
   if not tDownloadingStuffs then
     me.disableRefreshTimeout()
   end if
+  exit
 end
 
-on pushImage me 
+on pushImage(me)
   if not voidp(me.pTargetElement) then
     me.feedImage(pimage)
     if not voidp(me.pTargetScroll) then
@@ -152,9 +161,10 @@ on pushImage me
       end if
     end if
   end if
+  exit
 end
 
-on selectItemAt me, tloc 
+on selectItemAt(me, tloc)
   tItemIndex = me.getItemIndexAt(tloc)
   if tItemIndex <> pSelectedItem and tItemIndex <= me.count(#pStripData) then
     tOldSelection = pSelectedItem
@@ -165,12 +175,14 @@ on selectItemAt me, tloc
     me.renderStripItem(tItemIndex)
     me.pushImage()
   end if
+  exit
 end
 
-on getSelectedItem me 
+on getSelectedItem(me)
   if pSelectedItem > 0 then
     return(me.getProp(#pStripData, pSelectedItem))
   else
     return(void())
   end if
+  exit
 end

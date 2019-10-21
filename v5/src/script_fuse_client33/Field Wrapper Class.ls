@@ -1,10 +1,9 @@
-property pMember
-
-on deconstruct me 
+on deconstruct(me)
   return(getResourceManager().removeMember(pMember.name))
+  exit
 end
 
-on prepare me 
+on prepare(me)
   pMember = member(getResourceManager().createMember(me.getProp(#pProps, #member) & the milliSeconds, #field))
   pMember.wordWrap = me.getProp(#pProps, #wordWrap)
   pMember.autoTab = me.getProp(#pProps, #autoTab)
@@ -23,7 +22,7 @@ on prepare me
   if integerp(me.getProp(#pProps, #boxDropShadow)) then
     pMember.boxDropShadow = me.getProp(#pProps, #boxDropShadow)
   end if
-  if (me.getProp(#pProps, #key) = "") then
+  if me.getProp(#pProps, #key) = "" then
     pMember.text = ""
   else
     if textExists(me.getProp(#pProps, #key)) then
@@ -33,56 +32,63 @@ on prepare me
       pMember.text = me.getProp(#pProps, #key)
     end if
   end if
-  me.pSprite.member = pMember
+  pSprite.member = pMember
   pMember.rect = rect(0, 0, me.pwidth, me.pheight)
-  return TRUE
+  return(1)
+  exit
 end
 
-on getText me 
+on getText(me)
   return(pMember.text)
+  exit
 end
 
-on setText me, tText 
+on setText(me, tText)
   if not stringp(tText) then
     tText = string(tText)
   end if
   pMember.text = tText
-  return TRUE
+  return(1)
+  exit
 end
 
-on setEdit me, tBool 
+on setEdit(me, tBool)
   if tBool <> 1 and tBool <> 0 then
-    return FALSE
+    return(0)
   end if
   pMember.editable = tBool
-  me.pSprite.editable = tBool
-  return TRUE
+  pSprite.editable = tBool
+  return(1)
+  exit
 end
 
-on setFocus me, tBool 
-  if (tBool = 1) then
-    the keyboardFocusSprite = me.pSprite.spriteNum
+on setFocus(me, tBool)
+  if me = 1 then
+    the keyboardFocusSprite = pSprite.spriteNum
   else
-    if (tBool = 0) then
+    if me = 0 then
       the keyboardFocusSprite = 0
     else
-      return FALSE
+      return(0)
     end if
   end if
-  return TRUE
+  return(1)
+  exit
 end
 
-on render me 
-  me.pLocX = me.pSprite.locH
-  me.pLocY = me.pSprite.locV
-  me.pwidth = me.pSprite.width
-  me.pheight = me.pSprite.height
-  me.pMember.rect = rect(0, 0, me.pwidth, me.pheight)
+on render(me)
+  me.pLocX = pSprite.locH
+  me.pLocY = pSprite.locV
+  me.pwidth = pSprite.width
+  me.pheight = pSprite.height
+  me.rect = rect(0, 0, me.pwidth, me.pheight)
+  exit
 end
 
-on draw me, tRGB 
+on draw(me, tRGB)
   if not ilk(tRGB, #color) then
     tRGB = rgb(255, 0, 0)
   end if
-  the stage.image.draw(me.pSprite.rect, [#shapeType:#rect, #color:tRGB])
+  me.draw(pSprite.rect, [#shapeType:#rect, #color:tRGB])
+  exit
 end

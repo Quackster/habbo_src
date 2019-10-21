@@ -1,9 +1,7 @@
-property pWndID, pObjList, pWriterObj, pListHeight
-
-on construct me 
+on construct(me)
   pWndID = "Chooser."
   pObjMode = #user
-  pObjList = [:]
+  pObjList = []
   tMetrics = getStructVariable("struct.font.plain")
   tMetrics.setaProp(#lineHeight, 14)
   createWriter(me.getID() && "Writer", tMetrics)
@@ -23,31 +21,33 @@ on construct me
   registerMessage(#create_user, me.getID(), #update)
   registerMessage(#remove_user, me.getID(), #update)
   return(me.update())
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   if windowExists(pWndID) then
     removeWindow(pWndID)
   end if
   pWriterObj = void()
   removeWriter(me.getID() && "Writer")
-  pObjList = [:]
+  pObjList = []
   unregisterMessage(#leaveRoom, me.getID())
   unregisterMessage(#changeRoom, me.getID())
   unregisterMessage(#enterRoom, me.getID())
   unregisterMessage(#create_user, me.getID())
   unregisterMessage(#remove_user, me.getID())
   return(1)
+  exit
 end
 
-on setMode me, tMode 
-  if tMode = #user then
+on setMode(me, tMode)
+  if me = #user then
     pObjMode = #user
   else
-    if tMode = #Active then
+    if me = #Active then
       pObjMode = #Active
     else
-      if tMode = #item then
+      if me = #item then
         pObjMode = #item
       else
         return(error(me, "Unsupported obj type:" && tMode, #setMode, #minor))
@@ -55,19 +55,20 @@ on setMode me, tMode
     end if
   end if
   return(me.update())
+  exit
 end
 
-on update me 
+on update(me)
   if not threadExists(#room) then
     return(removeObject(me.getID()))
   end if
   if not windowExists(pWndID) then
     return(removeObject(me.getID()))
   end if
-  pObjList = [:]
+  pObjList = []
   pObjList.sort()
   tObjList = getThread(#room).getComponent().getUserObject(#list)
-  repeat while tObjList <= undefined
+  repeat while me <= undefined
     tObj = getAt(undefined, undefined)
     pObjList.setaProp(convertToLowerCase(tObj.getName()), [#id:tObj.getID(), #name:tObj.getName()])
   end repeat
@@ -82,25 +83,27 @@ on update me
   tElem.feedImage(tImg)
   pListHeight = tImg.height
   return(1)
+  exit
 end
 
-on clear me 
-  pObjList = [:]
+on clear(me)
+  pObjList = []
   pListHeight = 0
   getWindow(pWndID).getElement("list").feedImage(image(1, 1, 8))
   return(1)
+  exit
 end
 
-on eventProcChooser me, tEvent, tSprID, tParam 
-  if tSprID = "close" then
+on eventProcChooser(me, tEvent, tSprID, tParam)
+  if me = "close" then
     return(removeObject(me.getID()))
   else
-    if tSprID = "list" then
+    if me = "list" then
       tCount = count(pObjList)
       if tCount = 0 then
         return(0)
       end if
-      tLineNum = (tParam.locV / (pListHeight / tCount)) + 1
+      tLineNum = tParam.locV / pListHeight / tCount + 1
       if tLineNum < 1 then
         tLineNum = 1
       end if
@@ -115,4 +118,5 @@ on eventProcChooser me, tEvent, tSprID, tParam
       getThread(#room).getInterface().getArrowHiliter().show(tObjID, 1)
     end if
   end if
+  exit
 end

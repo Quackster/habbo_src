@@ -1,4 +1,4 @@
-on construct me 
+on construct(me)
   me.pDefRect = rect(0, 0, 480, 480)
   me.pTxtRect = void()
   me.pFntStru = void()
@@ -24,4 +24,5 @@ on construct me
     pMember.wordWrap = 0
     return(1)
   end if
+  exit
 end

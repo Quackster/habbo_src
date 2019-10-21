@@ -1,6 +1,4 @@
-property pSprite, pDirection, pOffset, pBicycleTypes, pBaseCastName, pStartPoint, pDelayCounter, pAnimFrame
-
-on define me, tsprite 
+on define(me, tsprite)
   pSprite = tsprite
   tItemDeLimiter = the itemDelimiter
   the itemDelimiter = "_"
@@ -10,21 +8,23 @@ on define me, tsprite
   pStartPoint = pSprite.loc
   pOffset = [2, -1]
   if pDirection = "front" then
-    pOffset = (pOffset * -1)
+    pOffset = pOffset * -1
   end if
   me.reset()
   return(1)
+  exit
 end
 
-on reset me 
+on reset(me)
   pBaseCastName = "bicycle_" & pDirection & "_" & pBicycleTypes.getAt(random(3)) & "_"
   pDelayCounter = random(200)
   pSprite.castNum = getmemnum(pBaseCastName & "1")
   pSprite.loc = pStartPoint
   return(1)
+  exit
 end
 
-on update me 
+on update(me)
   if pDelayCounter > 0 then
     pDelayCounter = pDelayCounter - 1
     return(1)
@@ -45,4 +45,5 @@ on update me
     end if
   end if
   return(1)
+  exit
 end

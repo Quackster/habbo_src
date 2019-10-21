@@ -1,17 +1,17 @@
-property pKeyAcceptTime
-
-on construct me 
+on construct(me)
   receiveUpdate(me.getID())
   return(1)
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   releaseSprite(me.spriteNum)
   removeUpdate(me.getID())
   return(1)
+  exit
 end
 
-on update me 
+on update(me)
   if voidp(pKeyAcceptTime) then
     pKeyAcceptTime = the milliSeconds - 101
   end if
@@ -23,4 +23,5 @@ on update me
     end if
     pKeyAcceptTime = the milliSeconds + 100 - the milliSeconds - pKeyAcceptTime
   end if
+  exit
 end

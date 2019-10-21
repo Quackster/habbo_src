@@ -1,28 +1,30 @@
-property pMsgIds
-
-on construct me 
+on construct(me)
   return(me.regMsgList(1))
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   return(me.regMsgList(0))
+  exit
 end
 
-on defineClient me, tid 
-  return TRUE
+on defineClient(me, tid)
+  return(1)
+  exit
 end
 
-on handle_message me, tMsg 
+on handle_message(me, tMsg)
   tIdStr = pMsgIds.getProp(tMsg.getAt(#subject))
-  if (tIdStr = void()) then
-    return FALSE
+  if tIdStr = void() then
+    return(0)
   end if
   call(#distributeEvent, me.getProcManager(), symbol("msgstruct_" & tIdStr), tMsg)
-  return TRUE
+  return(1)
+  exit
 end
 
-on regMsgList me, tBool 
-  pMsgIds = [:]
+on regMsgList(me, tBool)
+  pMsgIds = []
   pMsgIds.setaProp(28, #users)
   pMsgIds.setaProp(30, #objects)
   pMsgIds.setaProp(31, #heightmap)
@@ -50,13 +52,13 @@ on regMsgList me, tBool
   pMsgIds.setaProp(250, #gameplayerinfo)
   pMsgIds.setaProp(251, #idlewarning)
   pMsgIds.setaProp(252, #skilllevelchanged)
-  tMsgs = [:]
+  tMsgs = []
   i = 1
   repeat while i <= pMsgIds.count
     tMsgs.setaProp(pMsgIds.getPropAt(i), #handle_message)
-    i = (1 + i)
+    i = 1 + i
   end repeat
-  tCmds = [:]
+  tCmds = []
   tCmds.setaProp("MOVE", 75)
   tCmds.setaProp("GETINSTANCELIST", 159)
   tCmds.setaProp("OBSERVEINSTANCE", 160)
@@ -80,5 +82,6 @@ on regMsgList me, tBool
     unregisterListener(getVariable("connection.info.id", #info), me.getID(), tMsgs)
     unregisterCommands(getVariable("connection.info.id", #info), me.getID(), tCmds)
   end if
-  return TRUE
+  return(1)
+  exit
 end

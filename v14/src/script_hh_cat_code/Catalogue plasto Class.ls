@@ -1,11 +1,9 @@
-property pNumOfColorBoxies, pPageData, pSmallImg, pSelectedProduct, pLastProductNum, pSelectedOrderNum, pSelectedColorNum
-
-on construct me 
+on construct(me)
   tCataloguePage = getThread(#catalogue).getInterface().getCatalogWindow()
   if not tCataloguePage then
     return(error(me, "Couldn't access catalogue window!", #construct, #major))
   end if
-  pPageData = [:]
+  pPageData = []
   pSmallImg = image(32, 32, 24)
   pSelectedOrderNum = 1
   pSelectedColorNum = 1
@@ -15,19 +13,20 @@ on construct me
   repeat while f <= 50
     tid = "ctlg_selectcolor_bg_" & f
     if tCataloguePage.elementExists(tid) then
-      pNumOfColorBoxies = (pNumOfColorBoxies + 1)
+      pNumOfColorBoxies = pNumOfColorBoxies + 1
     else
     end if
-    f = (1 + f)
+    f = 1 + f
   end repeat
-  return TRUE
+  return(1)
+  exit
 end
 
-on define me, tPageProps 
+on define(me, tPageProps)
   if tPageProps.ilk <> #propList then
     return(error(me, "Incorrect Catalogue page data", #define, #major))
   end if
-  pPageData = [:]
+  pPageData = []
   pPageData.sort()
   if not voidp(tPageProps.getAt("productList")) then
     tProducts = tPageProps.getAt("productList")
@@ -37,15 +36,15 @@ on define me, tPageProps
       if not voidp(tProducts.getAt(f).getAt("class")) then
         tClass = tProducts.getAt(f).getAt("class")
         if tClass contains "*" then
-          tClass = tClass.getProp(#char, 1, (offset("*", tClass) - 1))
+          tClass = tClass.getProp(#char, 1, offset("*", tClass) - 1)
         end if
         if voidp(pPageData.getAt(tClass)) then
-          pPageData.setAt(tClass, [:])
+          pPageData.setAt(tClass, [])
           pPageData.getAt(tClass).sort()
         end if
         pPageData.getAt(tClass).addProp(tProducts.getAt(f).getAt("class"), tProducts.getAt(f))
       end if
-      f = (1 + f)
+      f = 1 + f
     end repeat
   end if
   if pPageData.count > 1 then
@@ -55,15 +54,16 @@ on define me, tPageProps
     selectProduct(me, 1)
     renderProductColors(me, 1)
   end if
+  exit
 end
 
-on renderSmallIcons me, tstate, tPram 
+on renderSmallIcons(me, tstate, tPram)
   tCataloguePage = getThread(#catalogue).getInterface().getCatalogWindow()
   if not tCataloguePage then
     return(error(me, "Couldn't access catalogue window!", #renderSmallIcons, #major))
   end if
   tWndObj = tCataloguePage
-  if (tstate = void()) then
+  if me = void() then
     tFirst = 1
     tLast = pPageData.count
     f = 1
@@ -73,12 +73,12 @@ on renderSmallIcons me, tstate, tPram
         tWndObj.getElement(tid).clearImage()
         tWndObj.getElement(tid).setProperty(#ink, 36)
       end if
-      f = (1 + f)
+      f = 1 + f
     end repeat
     exit repeat
   end if
-  if tstate <> #hilite then
-    if (tstate = #unhilite) then
+  if me <> #hilite then
+    if me = #unhilite then
       tFirst = tPram
       tLast = tPram
     else
@@ -99,27 +99,28 @@ on renderSmallIcons me, tstate, tPram
           if tWndObj.elementExists(tid) then
             pSmallImg.fill(pSmallImg.rect, rgb(255, 255, 255))
             if not voidp(tstate) then
-              if (tstate = #hilite) and memberExists("ctlg_small_active2_bg") then
+              if tstate = #hilite and memberExists("ctlg_small_active2_bg") then
                 tBgImage = member("ctlg_small_active2_bg").image
                 pSmallImg.copyPixels(tBgImage, tBgImage.rect, pSmallImg.rect)
               end if
             end if
             tTempSmallImg = member(tmember).image
-            tdestrect = (pSmallImg.rect - tTempSmallImg.rect)
+            tdestrect = pSmallImg.rect - tTempSmallImg.rect
             tMargins = rect(0, 0, 0, 0)
-            tdestrect = (rect((tdestrect.width / 2), (tdestrect.height / 2), (tTempSmallImg.width + (tdestrect.width / 2)), ((tdestrect.height / 2) + tTempSmallImg.height)) + tMargins)
+            tdestrect = rect(tdestrect.width / 2, tdestrect.height / 2, tTempSmallImg.width + tdestrect.width / 2, tdestrect.height / 2 + tTempSmallImg.height) + tMargins
             pSmallImg.copyPixels(tTempSmallImg, tdestrect, tTempSmallImg.rect, [#ink:36])
             tWndObj.getElement(tid).clearImage()
             tWndObj.getElement(tid).feedImage(pSmallImg)
           end if
         end if
       end if
-      f = (1 + f)
+      f = 1 + f
     end repeat
+    exit
   end if
 end
 
-on renderProductColors me, tOrderNum 
+on renderProductColors(me, tOrderNum)
   if not integerp(tOrderNum) then
     return(error(me, "Incorrect value", #renderProductColors, #major))
   end if
@@ -143,7 +144,7 @@ on renderProductColors me, tOrderNum
     if tCataloguePage.elementExists(tid) then
       tWndObj.getElement(tid).setProperty(#blend, 30)
     end if
-    f = (1 + f)
+    f = 1 + f
   end repeat
   if tOrderNum <= pPageData.count then
     tProducts = pPageData.getAt(tOrderNum)
@@ -154,7 +155,7 @@ on renderProductColors me, tOrderNum
         the itemDelimiter = ","
         tColor = tProducts.getAt(f).getAt("partColors").getProp(#item, tProducts.getAt(f).getAt("partColors").count(#item))
         the itemDelimiter = tItemDeLimiter
-        if (tColor.getProp(#char, 1) = "#") then
+        if tColor.getProp(#char, 1) = "#" then
           tColor = rgb(tColor)
         else
           tColor = paletteIndex(integer(tColor))
@@ -169,12 +170,13 @@ on renderProductColors me, tOrderNum
           tWndObj.getElement(tid).setProperty(#blend, 100)
         end if
       end if
-      f = (1 + f)
+      f = 1 + f
     end repeat
   end if
+  exit
 end
 
-on selectProduct me, tOrderNum 
+on selectProduct(me, tOrderNum)
   tCataloguePage = getThread(#catalogue).getInterface().getCatalogWindow()
   if not tCataloguePage then
     return(error(me, "Couldn't access catalogue window!", #selectProduct, #major))
@@ -223,9 +225,10 @@ on selectProduct me, tOrderNum
   renderSmallIcons(me, #hilite, tOrderNum)
   renderSmallIcons(me, #unhilite, pLastProductNum)
   pLastProductNum = pSelectedOrderNum
+  exit
 end
 
-on selectColor me, tOrderNum 
+on selectColor(me, tOrderNum)
   if voidp(pSelectedOrderNum) then
     return()
   end if
@@ -272,15 +275,16 @@ on selectColor me, tOrderNum
       tWndObj.getElement("ctlg_price_1").setText(tText)
     end if
   end if
+  exit
 end
 
-on eventProc me, tEvent, tSprID, tProp 
-  if (tEvent = #mouseUp) then
-    if (tSprID = "close") then
-      return FALSE
+on eventProc(me, tEvent, tSprID, tProp)
+  if tEvent = #mouseUp then
+    if tSprID = "close" then
+      return(0)
     end if
   end if
-  if (tEvent = #mouseDown) then
+  if tEvent = #mouseDown then
     if tSprID contains "ctlg_small_img_" then
       tItemDeLimiter = the itemDelimiter
       the itemDelimiter = "_"
@@ -295,16 +299,17 @@ on eventProc me, tEvent, tSprID, tProp
         the itemDelimiter = tItemDeLimiter
         selectColor(me, tOrderNum)
       else
-        if (tSprID = "ctlg_buy_button") then
+        if tSprID = "ctlg_buy_button" then
           if pSelectedProduct.ilk <> #propList then
             return(error(me, "incorrect Selected Product Data", #eventProc, #major))
           end if
           getThread(#catalogue).getComponent().checkProductOrder(pSelectedProduct)
         else
-          return FALSE
+          return(0)
         end if
       end if
     end if
   end if
-  return TRUE
+  return(1)
+  exit
 end

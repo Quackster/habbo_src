@@ -1,31 +1,31 @@
-property pChanges, pActive, pTimer, pNextChange
-
-on prepare me, tdata 
-  if (tdata.getAt(#stuffdata) = "ON") then
+on prepare(me, tdata)
+  if tdata.getAt(#stuffdata) = "ON" then
     pActive = 1
   else
     pActive = 0
   end if
   pChanges = 1
   pTimer = 0
-  pNextChange = (random(36) + 12)
-  return TRUE
+  pNextChange = random(36) + 12
+  return(1)
+  exit
 end
 
-on updateStuffdata me, tValue 
-  if (tValue = "OFF") then
+on updateStuffdata(me, tValue)
+  if tValue = "OFF" then
     pActive = 0
   else
     pActive = 1
   end if
   if me.count(#pSprList) < 2 then
-    return FALSE
+    return(0)
   end if
   me.getPropRef(#pSprList, 2).castNum = 0
   pChanges = 1
+  exit
 end
 
-on update me 
+on update(me)
   if not pChanges then
     return()
   end if
@@ -33,40 +33,43 @@ on update me
     return()
   end if
   if pActive then
-    if (me.pXFactor = 32) then
+    if me.pXFactor = 32 then
       tClass = "s_red_tv"
     else
       tClass = "red_tv"
     end if
-    pTimer = (pTimer + 1)
+    pTimer = pTimer + 1
     if pTimer < pNextChange then
       return()
     end if
     pTimer = 0
-    pNextChange = (random(36) + 12)
-    tNewName = tClass & "_b_0_1_1_2_" & (random(8) - 1)
+    pNextChange = random(36) + 12
+    tNewName = tClass & "_b_0_1_1_2_" & random(8) - 1
     if memberExists(tNewName) then
       tmember = member(getmemnum(tNewName))
       me.getPropRef(#pSprList, 2).castNum = tmember.number
       me.getPropRef(#pSprList, 2).width = tmember.width
       me.getPropRef(#pSprList, 2).height = tmember.height
-      me.getPropRef(#pSprList, 2).locZ = (me.getPropRef(#pSprList, 1).locZ + 2)
+      me.getPropRef(#pSprList, 2).locZ = me.getPropRef(#pSprList, 1).locZ + 2
     end if
   else
     me.getPropRef(#pSprList, 2).castNum = 0
     pChanges = 0
   end if
+  exit
 end
 
-on setOn me 
+on setOn(me)
   getThread(#room).getComponent().getRoomConnection().send("SETSTUFFDATA", [#string:string(me.getID()), #string:"ON"])
+  exit
 end
 
-on setOff me 
+on setOff(me)
   getThread(#room).getComponent().getRoomConnection().send("SETSTUFFDATA", [#string:string(me.getID()), #string:"OFF"])
+  exit
 end
 
-on select me 
+on select(me)
   if the doubleClick then
     if pActive then
       me.setOff()
@@ -74,5 +77,6 @@ on select me
       me.setOn()
     end if
   end if
-  return TRUE
+  return(1)
+  exit
 end

@@ -1,28 +1,31 @@
-property pPersistentFurniData, pPersistentCatalogData
-
-on construct me 
+on construct(me)
   pPersistentFurniData = void()
   pPersistentCatalogData = void()
   return(me.regMsgList(1))
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   return(me.regMsgList(0))
+  exit
 end
 
-on handle_purchase_ok me, tMsg 
+on handle_purchase_ok(me, tMsg)
   me.getComponent().purchaseReady("OK")
+  exit
 end
 
-on handle_purchase_error me, tMsg 
+on handle_purchase_error(me, tMsg)
   me.getComponent().purchaseReady("ERROR", tMsg.getaProp(#content))
+  exit
 end
 
-on handle_purchase_nobalance me, tMsg 
+on handle_purchase_nobalance(me, tMsg)
   me.getComponent().purchaseReady("NOBALANCE", tMsg.getaProp(#content))
+  exit
 end
 
-on handle_tickets me, tMsg 
+on handle_tickets(me, tMsg)
   tNum = integer(tMsg.getPropRef(#line, 1).getProp(#word, 1))
   if not integerp(tNum) then
     return(0)
@@ -30,12 +33,13 @@ on handle_tickets me, tMsg
   getObject(#session).set("user_ph_tickets", tNum)
   executeMessage(#updateTicketCount, tNum)
   return(1)
+  exit
 end
 
-on handle_catalogindex me, tMsg 
+on handle_catalogindex(me, tMsg)
   tCount = tMsg.count(#line)
   tDelim = the itemDelimiter
-  tList = [:]
+  tList = []
   the itemDelimiter = "\t"
   tLineNum = 1
   repeat while tLineNum <= tCount
@@ -49,9 +53,10 @@ on handle_catalogindex me, tMsg
   end repeat
   the itemDelimiter = tDelim
   me.getComponent().saveCatalogueIndex(tList)
+  exit
 end
 
-on handle_catalogpage me, tMsg 
+on handle_catalogpage(me, tMsg)
   if voidp(pPersistentFurniData) then
     pPersistentFurniData = getThread("dynamicdownloader").getComponent().getPersistentFurniDataObject()
   end if
@@ -60,9 +65,9 @@ on handle_catalogpage me, tMsg
   end if
   tCount = tMsg.count(#line)
   tDelim = the itemDelimiter
-  tList = [:]
+  tList = []
   tProductList = []
-  tTextList = [:]
+  tTextList = []
   tTextList.sort()
   tDealNumber = 1
   tLineNum = 1
@@ -72,25 +77,25 @@ on handle_catalogpage me, tMsg
     tProp = tLine.getProp(#char, 1)
     tNum = integer(tLine.getPropRef(#item, 1).getProp(#char, 2, tLine.getPropRef(#item, 1).length))
     tdata = tLine.getProp(#item, 2, tLine.count(#item))
-    if tProp = "i" then
+    if me = "i" then
       tList.setAt("id", tdata)
     else
-      if tProp = "n" then
+      if me = "n" then
         tList.setAt("pageName", tdata)
       else
-        if tProp = "l" then
+        if me = "l" then
           tList.setAt("layout", tdata)
         else
-          if tProp = "h" then
+          if me = "h" then
             tList.setAt("headerText", replaceChunks(tdata, "<br>", "\r"))
           else
-            if tProp = "g" then
+            if me = "g" then
               tList.setAt("headerImage", tdata)
             else
-              if tProp = "w" then
+              if me = "w" then
                 tList.setAt("teaserText", replaceChunks(tdata, "<br>", "\r"))
               else
-                if tProp = "e" then
+                if me = "e" then
                   the itemDelimiter = ","
                   tTempList = []
                   f = 1
@@ -104,15 +109,15 @@ on handle_catalogpage me, tMsg
                     tList.setAt("teaserImgList", tTempList)
                   end if
                 else
-                  if tProp = "s" then
+                  if me = "s" then
                     tList.setAt("teaserSpecialText", replaceChunks(tdata, "<br>", "\r"))
                   else
-                    if tProp = "t" then
+                    if me = "t" then
                       if not voidp(tNum) then
                         tTextList.addProp(tNum, replaceChunks(tdata, "<br>", "\r"))
                       end if
                     else
-                      if tProp = "u" then
+                      if me = "u" then
                         the itemDelimiter = ","
                         tTempList = []
                         f = 1
@@ -122,9 +127,9 @@ on handle_catalogpage me, tMsg
                         end repeat
                         tList.setAt("linkList", tTempList)
                       else
-                        if tProp = "p" then
+                        if me = "p" then
                           the itemDelimiter = "\t"
-                          tTemp = [:]
+                          tTemp = []
                           tCode = tdata.getProp(#item, 1)
                           tTemp.setAt("price", tdata.getProp(#item, 2))
                           ttype = tdata.getProp(#item, 3)
@@ -156,7 +161,7 @@ on handle_catalogpage me, tMsg
                           tThisFurniCount = value(tdata.getProp(#item, 5))
                           if tThisFurniCount > 1 or tdata.count(#item) > 5 then
                             tDealList = []
-                            tDealItem = [:]
+                            tDealItem = []
                             tDealItem.setAt("class", tTemp.getAt("class"))
                             tDealItem.setAt("count", tThisFurniCount)
                             tDealItem.setAt("partColors", tTemp.getAt("partColors"))
@@ -168,18 +173,18 @@ on handle_catalogpage me, tMsg
                           if tdata.count(#item) > 5 then
                             tTemp.setAt("class", "")
                             tDealList = []
-                            tDealItem = [:]
+                            tDealItem = []
                             i = 1
-                            repeat while i <= (tdata.count(#item) - 5 / 3)
-                              ttype = tdata.getProp(#item, 5 + (i - 1 * 3) + 1)
-                              tClassID = value(tdata.getProp(#item, 5 + (i - 1 * 3) + 2))
+                            repeat while i <= tdata.count(#item) - 5 / 3
+                              ttype = tdata.getProp(#item, 5 + i - 1 * 3 + 1)
+                              tClassID = value(tdata.getProp(#item, 5 + i - 1 * 3 + 2))
                               tFurniProps = pPersistentFurniData.getProps(ttype, tClassID)
                               if voidp(tFurniProps) then
                                 error(me, "Persistent furnidata missing for classid " & tClassID & " type " & ttype, #handle_catalogpage, #major)
                                 tTemp.setAt("class", "")
                               else
                                 tDealItem.setAt("class", tFurniProps.getAt(#class))
-                                tDealItem.setAt("count", tdata.getProp(#item, 5 + (i - 1 * 3) + 3))
+                                tDealItem.setAt("count", tdata.getProp(#item, 5 + i - 1 * 3 + 3))
                                 tDealItem.setAt("partColors", tFurniProps.getAt(#partColors))
                                 tDealList.setAt(i, tDealItem.duplicate())
                               end if
@@ -215,7 +220,7 @@ on handle_catalogpage me, tMsg
     tLineNum = 1 + tLineNum
   end repeat
   tTempTextList = []
-  repeat while tProp <= undefined
+  repeat while me <= undefined
     tText = getAt(undefined, tMsg)
     tTempTextList.add(tText)
   end repeat
@@ -223,23 +228,25 @@ on handle_catalogpage me, tMsg
   tList.setAt("productList", tProductList)
   the itemDelimiter = tDelim
   me.getComponent().saveCataloguePage(tList)
+  exit
 end
 
-on handle_purchasenotallowed me, tMsg 
+on handle_purchasenotallowed(me, tMsg)
   if voidp(tMsg.connection) then
     return(0)
   end if
   tCode = tMsg.GetIntFrom(tMsg)
-  if tCode = 0 then
+  if me = 0 then
   else
-    if tCode = 1 then
+    if me = 1 then
       return(executeMessage(#alert, [#Msg:"catalog_purchase_not_allowed_hc", #modal:1]))
     end if
   end if
   return(0)
+  exit
 end
 
-on handle_purse me, tMsg 
+on handle_purse(me, tMsg)
   tPlaySnd = getObject(#session).exists("user_walletbalance")
   tCredits = integer(getLocalFloat(tMsg.getProp(#word, 1)))
   getObject(#session).set("user_walletbalance", tCredits)
@@ -249,10 +256,11 @@ on handle_purse me, tMsg
     playSound("naw_snd_cash_cat", #cut, [#loopCount:1, #infiniteloop:0, #volume:255])
   end if
   return(1)
+  exit
 end
 
-on regMsgList me, tBool 
-  tMsgs = [:]
+on regMsgList(me, tBool)
+  tMsgs = []
   tMsgs.setaProp(6, #handle_purse)
   tMsgs.setaProp(65, #handle_purchase_error)
   tMsgs.setaProp(67, #handle_purchase_ok)
@@ -262,7 +270,7 @@ on regMsgList me, tBool
   tMsgs.setaProp(126, #handle_catalogindex)
   tMsgs.setaProp(127, #handle_catalogpage)
   tMsgs.setaProp(296, #handle_purchasenotallowed)
-  tCmds = [:]
+  tCmds = []
   tCmds.setaProp("PURCHASE_FROM_CATALOG", 100)
   tCmds.setaProp("GCIX", 101)
   tCmds.setaProp("GCAP", 102)
@@ -274,4 +282,5 @@ on regMsgList me, tBool
     unregisterCommands(getVariable("connection.info.id"), me.getID(), tCmds)
   end if
   return(1)
+  exit
 end

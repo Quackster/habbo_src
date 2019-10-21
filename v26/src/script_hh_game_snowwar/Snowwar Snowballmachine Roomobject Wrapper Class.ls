@@ -1,35 +1,38 @@
-property pObjectId
-
-on construct me 
+on construct(me)
   return(1)
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   me.removeRoomObject()
   return(1)
+  exit
 end
 
-on define me, tdata 
+on define(me, tdata)
   return(me.createRoomObject(tdata))
+  exit
 end
 
-on render me, tValue 
+on render(me, tValue)
   if me.getRoomObject() = 0 then
     return(0)
   end if
   return(me.getRoomObject().setFrame(tValue))
+  exit
 end
 
-on animate me, tValue 
+on animate(me, tValue)
   if me.getRoomObject() = 0 then
     return(0)
   end if
   me.getRoomObject().animate()
   me.delay(1000, #render, tValue)
   return(1)
+  exit
 end
 
-on createRoomObject me, tdata 
+on createRoomObject(me, tdata)
   tdata.setAt(#id, "sbm_" & tdata.getAt(#id))
   pObjectId = tdata.getAt(#id)
   tdata.setAt(#class, "snowball_machine")
@@ -48,17 +51,19 @@ on createRoomObject me, tdata
   end if
   tClassContainer.set(tdata.getAt("class"), getClassVariable("snowwar.object_snowball_machine.roomobject.class"))
   return(tRoomComponent.validateActiveObjects(tdata))
+  exit
 end
 
-on getRoomObject me 
+on getRoomObject(me)
   tRoomComponentObj = getObject(#room_component)
   if tRoomComponentObj = 0 then
     return(error(me, "Room component unavailable!", #getRoomObject))
   end if
   return(tRoomComponentObj.getActiveObject(pObjectId))
+  exit
 end
 
-on removeRoomObject me 
+on removeRoomObject(me)
   tRoomComponentObj = getObject(#room_component)
   if tRoomComponentObj = 0 then
     return(error(me, "Room component unavailable!", #removeRoomObject))
@@ -70,4 +75,5 @@ on removeRoomObject me
     return(1)
   end if
   return(tRoomComponentObj.removeActiveObject(pObjectId))
+  exit
 end

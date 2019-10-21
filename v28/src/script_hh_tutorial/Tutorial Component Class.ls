@@ -1,4 +1,4 @@
-on construct me 
+on construct(me)
   me.pEnabled = 0
   me.pRunning = 0
   me.pWaitingForPrefs = 1
@@ -6,7 +6,7 @@ on construct me
   if variableExists("tutorial.name.new_user_flow") then
     me.pDefaultTutorial = getVariable("tutorial.name.new_user_flow")
   end if
-  me.pMessages = [:]
+  me.pMessages = []
   pMessages.setaProp(#userlogin, #getUserProperties)
   pMessages.setaProp(#restart_tutorial, #restartTutorial)
   pMessages.setaProp(#updateAvailableFlatCategories, #startDefaultTutorial)
@@ -20,14 +20,16 @@ on construct me
   pMessages.setaProp(#getHotelClosedDisconnectStatus, #hideTutorial)
   me.registerClientMessages(1)
   return(1)
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   me.registerClientMessages(0)
   return(1)
+  exit
 end
 
-on registerClientMessages me, tBool 
+on registerClientMessages(me, tBool)
   if pMessages.ilk <> #propList then
     return(error(me, "Message list not initialized.", #registerClientMessages, #major))
   end if
@@ -42,37 +44,42 @@ on registerClientMessages me, tBool
     end if
     tMsgNo = 1 + tMsgNo
   end repeat
+  exit
 end
 
-on showTutorial me 
+on showTutorial(me)
   if not me.pRunning or not me.pEnabled then
     return(0)
   end if
   me.getInterface().show()
   return(1)
+  exit
 end
 
-on hideTutorial me 
+on hideTutorial(me)
   me.getInterface().hide()
   return(1)
+  exit
 end
 
-on getUserProperties me 
+on getUserProperties(me)
   tSession = getObject(#session)
   me.pUserName = tSession.GET(#userName)
   me.pUserSex = tSession.GET(#user_sex)
   me.pEnabledOnServer = tSession.GET(#tutorial_enabled, 0)
   me.getInterface().setUserSex(me.pUserSex)
+  exit
 end
 
-on startDefaultTutorial me 
+on startDefaultTutorial(me)
   if voidp(me.pDefaultTutorial) then
     return(0)
   end if
   me.startTutorial(me.pDefaultTutorial)
+  exit
 end
 
-on restartTutorial me 
+on restartTutorial(me)
   me.pEnabled = 1
   tConn = getConnection(getVariable("connection.info.id"))
   if voidp(tConn) then
@@ -81,18 +88,20 @@ on restartTutorial me
   tConn.send("SET_TUTORIAL_MODE", [#integer:1])
   me.startTutorial(me.pDefaultTutorial)
   me.sendTrackingRequest(#restart)
+  exit
 end
 
-on setEnabled me, tBoolean 
+on setEnabled(me, tBoolean)
   me.pEnabled = tBoolean
   if me.pEnabled and me.pWaitingForPrefs and me.pRunning then
     me.pWaitingForPrefs = 0
     me.startTutorial()
   end if
   return(1)
+  exit
 end
 
-on startTutorial me, tTutorialName 
+on startTutorial(me, tTutorialName)
   if not me.pEnabledOnServer then
     return(0)
   end if
@@ -113,9 +122,10 @@ on startTutorial me, tTutorialName
   end if
   tConn.send("GET_TUTORIAL_CONFIGURATION", [#string:me.pTutorialName])
   return(1)
+  exit
 end
 
-on setTutorialConfig me, tConfigList 
+on setTutorialConfig(me, tConfigList)
   me.pTutorialID = tConfigList.getAt(#id)
   me.pTutorialName = tConfigList.getAt(#name)
   me.pTopics = tConfigList.getaProp(#topics)
@@ -128,9 +138,10 @@ on setTutorialConfig me, tConfigList
   me.pTopicStatuses = tConfigList.getaProp(#statuses)
   me.getInterface().show()
   me.showMenu(#welcome)
+  exit
 end
 
-on setTopicConfig me, tTopicConfig 
+on setTopicConfig(me, tTopicConfig)
   me.pTopicID = tTopicConfig.getAt(#id)
   me.pSteps = tTopicConfig.getAt(#steps)
   tTopicName = pTopics.getaProp(me.pTopicID)
@@ -151,20 +162,21 @@ on setTopicConfig me, tTopicConfig
   me.pCurrentStepNumber = 0
   me.nextStep()
   return(1)
+  exit
 end
 
-on selectTopic me, tTopicID 
-  if tTopicID <> #menu then
-    if tTopicID = #Cancel then
+on selectTopic(me, tTopicID)
+  if me <> #menu then
+    if me = #Cancel then
       me.showMenu()
       return(1)
     else
-      if tTopicID = #quit then
+      if me = #quit then
         me.exitTutorial()
         executeMessage(#show_navigator)
         return(1)
       else
-        if tTopicID = #otherwise then
+        if me = #otherwise then
           nothing()
         end if
       end if
@@ -183,10 +195,11 @@ on selectTopic me, tTopicID
       return(error(me, "Connection not found.", #startTutorial, #major))
     end if
     tConn.send("GET_TUTORIAL_TOPIC_CONFIGURATION", [#integer:tTopicID])
+    exit
   end if
 end
 
-on nextStep me 
+on nextStep(me)
   if not me.pEnabled or not me.pRunning then
     return(0)
   end if
@@ -208,7 +221,7 @@ on nextStep me
   me.getInterface().setBubbles(tTopic.getAt(#content))
   tTutorList = tTopic.getAt(#tutor)
   if me.pCurrentStepNumber = me.count(#pSteps) then
-    tLinkList = [:]
+    tLinkList = []
     tNextTopicNumber = me.pCurrentTopicNumber + 1
     if tNextTopicNumber <= me.count(#pTopics) then
       tNextTopicID = pTopics.getPropAt(tNextTopicNumber)
@@ -222,9 +235,10 @@ on nextStep me
     me.completeTopic(me.pTopicID)
   end if
   me.getInterface().setTutor(tTutorList)
+  exit
 end
 
-on completeTopic me, tTopicID 
+on completeTopic(me, tTopicID)
   pTopicStatuses.setaProp(tTopicID, 1)
   tConn = getConnection(getVariable("connection.info.id"))
   if voidp(tConn) then
@@ -233,9 +247,10 @@ on completeTopic me, tTopicID
   me.sendTrackingRequest(#topicCompleted)
   tConn.send("COMPLETE_TUTORIAL_TOPIC", [#integer:tTopicID])
   tConn.send("GET_TUTORIAL_STATUS", [#integer:me.pTutorialID])
+  exit
 end
 
-on executePrerequisites me, tPrerequisiteList 
+on executePrerequisites(me, tPrerequisiteList)
   i = 1
   repeat while i <= tPrerequisiteList.count
     tMessage = tPrerequisiteList.getPropAt(i)
@@ -243,35 +258,38 @@ on executePrerequisites me, tPrerequisiteList
     executeMessage(symbol(tMessage), tParam)
     i = 1 + i
   end repeat
+  exit
 end
 
-on setTriggers me, tTriggerList 
+on setTriggers(me, tTriggerList)
   if not listp(tTriggerList) then
     return(0)
   end if
-  repeat while tTriggerList <= undefined
+  repeat while me <= undefined
     tTrigger = getAt(undefined, tTriggerList)
     registerMessage(symbol(tTrigger), me.getID(), #nextStep)
   end repeat
   me.pTriggerList = tTriggerList
+  exit
 end
 
-on setRestrictions me, tRestrictionList 
+on setRestrictions(me, tRestrictionList)
   if not listp(tRestrictionList) then
     return(0)
   end if
-  repeat while tRestrictionList <= undefined
+  repeat while me <= undefined
     tRestriction = getAt(undefined, tRestrictionList)
     registerMessage(symbol(tRestriction), me.getID(), #restriction)
   end repeat
   me.pRestrictionList = tRestrictionList
+  exit
 end
 
-on clearTriggers me, tForced 
+on clearTriggers(me, tForced)
   if not listp(me.pTriggerList) then
     return(0)
   end if
-  repeat while me.pTriggerList <= undefined
+  repeat while me <= undefined
     tTrigger = getAt(undefined, tForced)
     unregisterMessage(symbol(tTrigger), me.getID())
     tHandler = pMessages.getaProp(tTrigger)
@@ -283,13 +301,14 @@ on clearTriggers me, tForced
     end if
   end repeat
   me.pTriggerList = []
+  exit
 end
 
-on clearRestrictions me, tForced 
+on clearRestrictions(me, tForced)
   if not listp(me.pRestrictionList) then
     return(0)
   end if
-  repeat while me.pRestrictionList <= undefined
+  repeat while me <= undefined
     tRestriction = getAt(undefined, tForced)
     unregisterMessage(symbol(tRestriction), me.getID())
     tHandler = pMessages.getaProp(tRestriction)
@@ -301,9 +320,10 @@ on clearRestrictions me, tForced
     end if
   end repeat
   me.pRestrictionList = []
+  exit
 end
 
-on exitTutorial me 
+on exitTutorial(me)
   me.pRunning = 0
   me.getInterface().hide()
   tConn = getConnection(getVariable("connection.info.id"))
@@ -313,47 +333,54 @@ on exitTutorial me
   tConn.send("SET_TUTORIAL_MODE", [#integer:0])
   me.pEnabled = 0
   me.sendTrackingRequest(#quit)
+  exit
 end
 
-on restriction me 
+on restriction(me)
   me.showMenu(#offtopic)
+  exit
 end
 
-on getTopics me 
+on getTopics(me)
   return(me.pTopics)
+  exit
 end
 
-on showMenu me, tstate 
+on showMenu(me, tstate)
   me.pQuitting = 0
   me.clearTriggers(1)
   me.clearRestrictions(1)
   me.getInterface().showMenu(tstate)
+  exit
 end
 
-on setTopicResult me, tBoolReward 
+on setTopicResult(me, tBoolReward)
   tConn = getConnection(getVariable("connection.info.id"))
   if voidp(tConn) then
     return(error(me, "Connection not found.", #stopTutorial, #major))
   end if
   tConn.send("GET_TUTORIAL_STATUS", [#integer:me.pTutorialID])
+  exit
 end
 
-on setTutorialStatus me, tStatusList 
+on setTutorialStatus(me, tStatusList)
   me.pTopicStatuses = tStatusList
+  exit
 end
 
-on getProperty me, tProp 
-  if tProp = #topics then
+on getProperty(me, tProp)
+  if me = #topics then
     return(me.pTopics)
   else
-    if tProp = #statuses then
+    if me = #statuses then
       return(me.pTopicStatuses)
     end if
   end if
+  exit
 end
 
-on sendTrackingRequest me, tCase 
-  if tCase = #step then
+on sendTrackingRequest(me, tCase)
+  if me = #step then
     tTopicName = pTopics.getaProp(me.pTopicID)
     tTrackMsg = "/client/tutorial/" & tTopicName & "/" & string(me.pCurrentStepNumber)
   else
@@ -374,34 +401,35 @@ on sendTrackingRequest me, tCase
   end if
   executeMessage(#sendTrackingPoint, tTrackMsg)
   return(1)
+  exit
 end
 
-on tryExit me 
+on tryExit(me)
   if me.pQuitting then
     me.selectTopic(#quit)
     return(1)
   end if
   me.pQuitting = 1
-  tPrerequisites = [:]
+  tPrerequisites = []
   tPrerequisites.setaProp(#hide_navigator, void())
   tPrerequisites.setaProp(#hide_purse, void())
   tPrerequisites.setaProp(#hide_messenger, void())
-  tBubbles = [:]
-  tBubble = [:]
+  tBubbles = []
+  tBubble = []
   tBubble.setaProp(#textKey, "tutorial_help_button_bubble")
   tBubble.setaProp(#targetID, "help_icon_image")
   tBubble.setaProp(#direction, 5)
   tBubble.setaProp(#offsetx, 0)
   tBubble.setaProp(#offsety, 0)
   tBubbles.setaProp(#help, tBubble)
-  tBubble = [:]
+  tBubble = []
   tBubble.setaProp(#textKey, "tutorial_restart_button_bubble")
   tBubble.setaProp(#targetID, "help_restart_tutorial")
   tBubble.setaProp(#direction, 6)
   tBubble.setaProp(#offsetx, 50)
   tBubble.setaProp(#offsety, 0)
   tBubbles.setaProp(#restart, tBubble)
-  tTutor = [:]
+  tTutor = []
   tTutor.setaProp(#textKey, "tutorial_quit_confirmation")
   tTutor.setaProp(#targetID, "tutor")
   tTutor.setaProp(#direction, 1)
@@ -413,9 +441,10 @@ on tryExit me
   me.executePrerequisites(tPrerequisites)
   me.getInterface().setBubbles(tBubbles)
   me.getInterface().setTutor(tTutor)
+  exit
 end
 
-on sendConsoleMessage me, tTextKey 
+on sendConsoleMessage(me, tTextKey)
   return(0)
   if not objectExists(#messenger_component) then
     return(error(me, "Messenger component not found", #sendConsoleMessage, #major))
@@ -426,18 +455,21 @@ on sendConsoleMessage me, tTextKey
   tText = getText(tTextKey)
   tMsg = [#campaign:1, #id:"3", #url:"http://www.fi", #message:tText]
   getObject("messenger_component").receive_Message(tMsg)
+  exit
 end
 
-on openGuestroomsTab me 
+on openGuestroomsTab(me)
   executeMessage(#show_navigator)
   getObject(#navigator_interface).ChangeWindowView("nav_gr0")
   getObject(#navigator_component).expandHistoryItem(1)
   executeMessage(#hide_navigator)
+  exit
 end
 
-on openPublicroomsTab me 
+on openPublicroomsTab(me)
   executeMessage(#show_navigator)
   getObject(#navigator_interface).ChangeWindowView("nav_pr")
   getObject(#navigator_component).expandHistoryItem(1)
   executeMessage(#hide_navigator)
+  exit
 end

@@ -1,29 +1,30 @@
-property pAnimPhase, pAnimTimer
-
-on construct me 
+on construct(me)
   pAnimPhase = 0
   pAnimTimer = the timer
   return(1)
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   return(removeUpdate(me.getID()))
+  exit
 end
 
-on prepare me 
+on prepare(me)
   return(receiveUpdate(me.getID()))
+  exit
 end
 
-on update me 
-  if pAnimPhase = 0 then
-    if the timer > pAnimTimer + (60 * 20) then
+on update(me)
+  if me = 0 then
+    if the timer > pAnimTimer + 60 * 20 then
       if random(20) = 1 then
         tMode = random(4)
         tObj = getThread(#room).getInterface().getRoomVisualizer()
         if tObj = 0 then
           return(0)
         end if
-        if pAnimPhase = 1 then
+        if me = 1 then
           tSp = tObj.getSprById("valentinebear_eyes")
           if tSp = 0 then
             return(0)
@@ -31,7 +32,7 @@ on update me
           tSp.blend = 100
           pAnimPhase = 3
         else
-          if pAnimPhase = 2 then
+          if me = 2 then
             tSp = tObj.getSprById("valentinebear_ears")
             if tSp = 0 then
               return(0)
@@ -39,7 +40,7 @@ on update me
             tSp.blend = 100
             pAnimPhase = 3
           else
-            if pAnimPhase = 3 then
+            if me = 3 then
               tSp1 = tObj.getSprById("valentinebear_ears")
               tSp2 = tObj.getSprById("valentinebear_eyes")
               if tSp1 = 0 or tSp2 = 0 then
@@ -49,7 +50,7 @@ on update me
               tSp2.blend = 100
               pAnimPhase = 3
             else
-              if pAnimPhase = 4 then
+              if me = 4 then
                 tSp = tObj.getSprById("valentinebear_eyes")
                 if tSp = 0 then
                   return(0)
@@ -64,7 +65,7 @@ on update me
       end if
     end if
   else
-    if pAnimPhase = 1 then
+    if me = 1 then
       if the timer > pAnimTimer + 10 then
         tObj = getThread(#room).getInterface().getRoomVisualizer()
         if tObj = 0 then
@@ -78,7 +79,7 @@ on update me
         pAnimPhase = 2
       end if
     else
-      if pAnimPhase = 2 then
+      if me = 2 then
         if the timer > pAnimTimer + 20 then
           tObj = getThread(#room).getInterface().getRoomVisualizer()
           if tObj = 0 then
@@ -92,7 +93,7 @@ on update me
           pAnimPhase = 3
         end if
       else
-        if pAnimPhase = 3 then
+        if me = 3 then
           if the timer > pAnimTimer + 30 then
             tObj = getThread(#room).getInterface().getRoomVisualizer()
             if tObj = 0 then
@@ -112,9 +113,10 @@ on update me
       end if
     end if
   end if
+  exit
 end
 
-on showprogram me, tMsg 
+on showprogram(me, tMsg)
   if voidp(tMsg) then
     return(0)
   end if
@@ -122,4 +124,5 @@ on showprogram me, tMsg
   tCmd = tMsg.getAt(#show_command)
   tPar = tMsg.getAt(#show_params)
   put(tDst, tCmd, tPar)
+  exit
 end

@@ -1,14 +1,16 @@
-on construct me 
+on construct(me)
   return(me.regMsgList(1))
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   return(me.regMsgList(0))
+  exit
 end
 
-on handle_flatinfo me, tMsg 
+on handle_flatinfo(me, tMsg)
   tConn = tMsg.connection
-  tFlat = [:]
+  tFlat = []
   tFlat.setAt(#ableothersmovefurniture, tConn.GetIntFrom())
   tFlat.setAt(#door, tConn.GetIntFrom())
   tFlat.setAt(#flatId, string(tConn.GetIntFrom()))
@@ -20,35 +22,36 @@ on handle_flatinfo me, tMsg
   tFlat.setAt(#trading, tConn.GetIntFrom())
   tFlat.setAt(#alert, tConn.GetIntFrom())
   tFlat.setAt(#nodeType, 2)
-  if (tFlat.getAt(#door) = 0) then
+  if me = 0 then
     tFlat.setAt(#door, "open")
   else
-    if (tFlat.getAt(#door) = 1) then
+    if me = 1 then
       tFlat.setAt(#door, "closed")
     else
-      if (tFlat.getAt(#door) = 2) then
+      if me = 2 then
         tFlat.setAt(#door, "password")
       end if
     end if
   end if
-  if (tFlat.getAt(#alert) = 1) and (tFlat.getAt(#owner) = getObject(#session).get(#user_name)) then
+  if tFlat.getAt(#alert) = 1 and tFlat.getAt(#owner) = getObject(#session).get(#user_name) then
     me.getComponent().delayedAlert("alert_no_category", 2500)
   end if
   tMode = me.getInterface().getNaviView()
   me.getComponent().updateSingleFlatInfo(tFlat, tMode)
+  exit
 end
 
-on handle_flat_results me, tMsg 
-  tResult = [:]
-  tList = [:]
+on handle_flat_results(me, tMsg)
+  tResult = []
+  tList = []
   tDelim = the itemDelimiter
   the itemDelimiter = "\t"
   i = 1
-  repeat while i <= tMsg.content.count(#line)
-    tLine = tMsg.content.getProp(#line, i)
-    if (tLine = "") then
+  repeat while i <= tMsg.count(#line)
+    tLine = tMsg.getProp(#line, i)
+    if tLine = "" then
     else
-      tFlat = [:]
+      tFlat = []
       tFlat.setAt(#id, "f_" & tLine.getProp(#item, 1))
       tFlat.setAt(#flatId, tLine.getProp(#item, 1))
       tFlat.setAt(#name, tLine.getProp(#item, 2))
@@ -60,92 +63,98 @@ on handle_flat_results me, tMsg
       tFlat.setAt(#description, tLine.getProp(#item, 8))
       tFlat.setAt(#nodeType, 2)
       tList.setAt(tFlat.getAt(#id), tFlat)
-      i = (1 + i)
+      i = 1 + i
     end if
   end repeat
   tResult.addProp(#children, tList)
-  if (tMsg.subject = 16) then
+  if me = 16 then
     tResult.setAt(#id, #own)
   else
-    if (tMsg.subject = 55) then
+    if me = 55 then
       tResult.setAt(#id, #src)
     else
-      if (tMsg.subject = 61) then
+      if me = 61 then
         tResult.setAt(#id, #fav)
       end if
     end if
   end if
   the itemDelimiter = tDelim
   me.getComponent().saveFlatResults(tResult)
+  exit
 end
 
-on handle_noflatsforuser me, tMsg 
+on handle_noflatsforuser(me, tMsg)
   me.getComponent().noflatsforuser()
+  exit
 end
 
-on handle_noflats me, tMsg 
+on handle_noflats(me, tMsg)
   me.getComponent().noflats()
+  exit
 end
 
-on handle_flatpassword_ok me, tMsg 
+on handle_flatpassword_ok(me, tMsg)
   me.getComponent().flatAccessResult("flatpassword_ok")
+  exit
 end
 
-on handle_navnodeinfo me, tMsg 
+on handle_navnodeinfo(me, tMsg)
   tConn = tMsg.connection
-  tNodeInfo = [:]
-  tCategoryIndex = [:]
+  tNodeInfo = []
+  tCategoryIndex = []
   tNode = me.parseNode(tMsg)
-  if (tNode = 0) then
-    return FALSE
+  if tNode = 0 then
+    return(0)
   end if
   tCategoryId = tNode.getAt(#id)
   tNodeInfo = tNode
   tCategoryIndex.setaProp(tCategoryId, [#name:tNode.getAt(#name), #parentid:tNode.getAt(#parentid), #children:[]])
   repeat while tConn <> void()
     tNode = me.parseNode(tMsg)
-    if (tNode = 0) then
+    if tNode = 0 then
     else
       tNodeId = tNode.getAt(#id)
       tParentId = tNode.getAt(#parentid)
-      if (tParentId = tCategoryId) then
+      if tParentId = tCategoryId then
         tNodeInfo.getAt(#children).addProp(tNodeId, tNode)
       end if
       if tCategoryIndex.getAt(tParentId) <> 0 then
         tCategoryIndex.getAt(tParentId).getAt(#children).add(tNodeId)
       end if
-      if (tNode.getAt(#nodeType) = 0) then
+      if tNode.getAt(#nodeType) = 0 then
         tCategoryIndex.addProp(tNodeId, [#name:tNode.getAt(#name), #parentid:tParentId, #children:[]])
       end if
     end if
   end repeat
   me.getComponent().updateCategoryIndex(tCategoryIndex)
   me.getComponent().saveNodeInfo(tNodeInfo)
-  return TRUE
+  return(1)
+  exit
 end
 
-on handle_error me, tMsg 
+on handle_error(me, tMsg)
   tErr = tMsg.content
-  error(me, tMsg.connection.getID() & ":" && tErr, #handle_error)
-  if (tErr = "Only 10 favorite rooms allowed!") then
+  error(me, tMsg.getID() & ":" && tErr, #handle_error)
+  if me = "Only 10 favorite rooms allowed!" then
     executeMessage(#alert, [#msg:getText("nav_error_toomanyfavrooms")])
   end if
-  return TRUE
+  return(1)
+  exit
 end
 
-on parseNode me, tMsg 
+on parseNode(me, tMsg)
   tConn = tMsg.connection
   tNodeId = tConn.GetIntFrom()
   if tNodeId <= 0 then
-    return FALSE
+    return(0)
   end if
   tNodeType = tConn.GetIntFrom()
   tNodeInfo = [#id:string(tNodeId), #nodeType:tNodeType, #name:tConn.GetStrFrom(), #percentFilled:tConn.GetIntFrom(), #parentid:string(tConn.GetIntFrom())]
   tChildCount = tConn.GetIntFrom()
-  if (tNodeType = 0) then
-    tNodeInfo.addProp(#children, [:])
+  if me = 0 then
+    tNodeInfo.addProp(#children, [])
   else
-    if (tNodeType = 1) then
+    if me = 1 then
       tNodeInfo.addProp(#unitStrId, tConn.GetStrFrom())
       tNodeInfo.addProp(#port, tConn.GetIntFrom())
       tNodeInfo.addProp(#door, tConn.GetIntFrom())
@@ -156,18 +165,18 @@ on parseNode me, tMsg
       c = 1
       repeat while c <= tCasts.count(#item)
         tNodeInfo.getAt(#casts).add(tCasts.getProp(#item, c))
-        c = (1 + c)
+        c = 1 + c
       end repeat
       the itemDelimiter = tDelim
     else
-      if (tNodeType = 2) then
+      if me = 2 then
         tNodeInfo.setAt(#nodeType, 0)
         tFlatCount = tConn.GetIntFrom()
-        tFlatList = [:]
+        tFlatList = []
         i = 1
         repeat while i <= tFlatCount
           tFlatID = string(tConn.GetIntFrom())
-          tFlatInfo = [:]
+          tFlatInfo = []
           tFlatInfo.setAt(#id, "f_" & tFlatID)
           tFlatInfo.setAt(#flatId, tFlatID)
           tFlatInfo.setAt(#name, tConn.GetStrFrom())
@@ -177,17 +186,18 @@ on parseNode me, tMsg
           tFlatInfo.setAt(#description, tConn.GetStrFrom())
           tFlatInfo.setAt(#nodeType, 2)
           tFlatList.addProp("f_" & tFlatID, tFlatInfo)
-          i = (1 + i)
+          i = 1 + i
         end repeat
         tNodeInfo.addProp(#children, tFlatList)
       end if
     end if
   end if
   return(tNodeInfo)
+  exit
 end
 
-on handle_userflatcats me, tMsg 
-  tList = [:]
+on handle_userflatcats(me, tMsg)
+  tList = []
   tConn = tMsg.getaProp(#connection)
   tItemCount = tConn.GetIntFrom()
   t = 1
@@ -195,23 +205,25 @@ on handle_userflatcats me, tMsg
     tNodeId = tConn.GetIntFrom()
     tNodeName = tConn.GetStrFrom()
     tList.addProp(string(tNodeId), tNodeName)
-    t = (1 + t)
+    t = 1 + t
   end repeat
   getObject(#session).set("user_flat_cats", tList)
   executeMessage(#userflatcats_received, tList)
-  return TRUE
+  return(1)
+  exit
 end
 
-on handle_flatcat me, tMsg 
+on handle_flatcat(me, tMsg)
   tConn = tMsg.getaProp(#connection)
   tFlatID = tConn.GetIntFrom()
   tCategoryId = tConn.GetIntFrom()
   me.getComponent().setNodeProperty("f_" & tFlatID, #parentid, tCategoryId)
   executeMessage(#flatcat_received, [#flatId:tFlatID, #id:"f_" & tFlatID, #parentid:tCategoryId])
-  return TRUE
+  return(1)
+  exit
 end
 
-on handle_spacenodeusers me, tMsg 
+on handle_spacenodeusers(me, tMsg)
   tConn = tMsg.getaProp(#connection)
   tNodeId = string(tConn.GetIntFrom())
   tUserCount = tConn.GetIntFrom()
@@ -219,47 +231,51 @@ on handle_spacenodeusers me, tMsg
   i = 1
   repeat while i <= tUserCount
     tUserList.append(tConn.GetStrFrom())
-    i = (1 + i)
+    i = 1 + i
   end repeat
   me.getInterface().showSpaceNodeUsers(tNodeId, tUserList)
-  return TRUE
+  return(1)
+  exit
 end
 
-on handle_cantconnect me, tMsg 
+on handle_cantconnect(me, tMsg)
   tConn = tMsg.getaProp(#connection)
   tError = tConn.GetIntFrom()
   executeMessage(#leaveRoom)
-  if (tError = 1) then
+  if me = 1 then
     tError = "nav_error_room_full"
   else
-    if (tError = 2) then
+    if me = 2 then
       tError = "nav_error_room_closed"
     end if
   end if
   return(executeMessage(#alert, [#id:"nav_error", #msg:tError]))
+  exit
 end
 
-on handle_success me, tMsg 
+on handle_success(me, tMsg)
   tConn = tMsg.getaProp(#connection)
   tMsgId = tConn.GetIntFrom()
-  return TRUE
+  return(1)
+  exit
 end
 
-on handle_failure me, tMsg 
+on handle_failure(me, tMsg)
   tConn = tMsg.getaProp(#connection)
   tMsgId = tConn.GetIntFrom()
   tErrorTxt = tConn.GetStrFrom()
   if tErrorTxt <> "" then
     executeMessage(#alert, [#msg:tErrorTxt])
   end if
-  return TRUE
+  return(1)
+  exit
 end
 
-on handle_parentchain me, tMsg 
+on handle_parentchain(me, tMsg)
   tConn = tMsg.getaProp(#connection)
   tChildId = string(tConn.GetIntFrom())
   tNodeName = tConn.GetStrFrom()
-  tCategoryIndex = [:]
+  tCategoryIndex = []
   repeat while tConn <> void()
     tid = tConn.GetIntFrom()
     if tid <= 0 then
@@ -274,10 +290,11 @@ on handle_parentchain me, tMsg
     end if
   end repeat
   return(me.getComponent().updateCategoryIndex(tCategoryIndex))
+  exit
 end
 
-on regMsgList me, tBool 
-  tMsgs = [:]
+on regMsgList(me, tBool)
+  tMsgs = []
   tMsgs.setaProp(16, #handle_flat_results)
   tMsgs.setaProp(33, #handle_error)
   tMsgs.setaProp(54, #handle_flatinfo)
@@ -294,7 +311,7 @@ on regMsgList me, tBool
   tMsgs.setaProp(225, #handle_success)
   tMsgs.setaProp(226, #handle_failure)
   tMsgs.setaProp(227, #handle_parentchain)
-  tCmds = [:]
+  tCmds = []
   tCmds.setaProp("GETAVAILABLESETS", 9)
   tCmds.setaProp("SBUSYF", 13)
   tCmds.setaProp("SUSERF", 16)
@@ -320,5 +337,6 @@ on regMsgList me, tBool
     unregisterListener(getVariable("connection.info.id", #info), me.getID(), tMsgs)
     unregisterCommands(getVariable("connection.info.id", #info), me.getID(), tCmds)
   end if
-  return TRUE
+  return(1)
+  exit
 end

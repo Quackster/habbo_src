@@ -1,25 +1,26 @@
-property pUserList, pUserListFilter, pTicketsLeft
-
-on construct me 
+on construct(me)
   pUserList = void()
   pExcludeList = []
   pUserListFilter = 1
   pTicketsLeft = 0
   return(1)
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   return(me.deconstruct())
+  exit
 end
 
-on getUserList me 
+on getUserList(me)
   if pUserList = void() then
     return(me.getHandler().send_LIST_POSSIBLE_INVITEES(pUserListFilter))
   end if
   return(pUserList)
+  exit
 end
 
-on changeUserListFilter me, tFilter 
+on changeUserListFilter(me, tFilter)
   if tFilter = void() then
     return(0)
   end if
@@ -28,13 +29,15 @@ on changeUserListFilter me, tFilter
   end if
   pUserListFilter = tFilter
   return(me.getHandler().send_LIST_POSSIBLE_INVITEES(pUserListFilter))
+  exit
 end
 
-on getUserListFilter me 
+on getUserListFilter(me)
   return(pUserListFilter)
+  exit
 end
 
-on sendInviteToListIndex me, tIndex, tMessage 
+on sendInviteToListIndex(me, tIndex, tMessage)
   if tIndex = void() then
     return(0)
   end if
@@ -48,18 +51,20 @@ on sendInviteToListIndex me, tIndex, tMessage
   me.getHandler().send_INVITE_USER(tUserName, tMessage)
   me.append(tUserName)
   return(1)
+  exit
 end
 
-on sendInviteToName me, tUserName, tMessage 
+on sendInviteToName(me, tUserName, tMessage)
   if tUserName = "" then
     return(0)
   end if
   me.getHandler().send_INVITE_USER(tUserName, tMessage)
   me.append(tUserName)
   return(1)
+  exit
 end
 
-on excludeListIndex me, tIndex 
+on excludeListIndex(me, tIndex)
   if tIndex = void() then
     return(0)
   end if
@@ -72,29 +77,36 @@ on excludeListIndex me, tIndex
   tUserName = pUserList.getAt(tIndex)
   me.append(tUserName)
   return(1)
+  exit
 end
 
-on saveInviteTicketCount me, tNum 
+on saveInviteTicketCount(me, tNum)
   pTicketsLeft = tNum
   return(1)
+  exit
 end
 
-on getInviteTicketCount me 
+on getInviteTicketCount(me)
   return(pTicketsLeft)
+  exit
 end
 
-on showInviteResponse me, tdata 
+on showInviteResponse(me, tdata)
   return(1)
+  exit
 end
 
-on saveInviteData me, tdata 
+on saveInviteData(me, tdata)
   pUserListFilter = tdata.getaProp(#list_type)
   pUserList = tdata.getaProp(#invitee_list)
   return(1)
+  exit
 end
 
-on update me 
+on update(me)
+  exit
 end
 
-on render me 
+on render(me)
+  exit
 end

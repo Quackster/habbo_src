@@ -1,23 +1,22 @@
-property pSkillLevelChangeNoticeWindowID
-
-on construct me 
+on construct(me)
   pSkillLevelChangeNoticeWindowID = "gamesys_skilllevel_announcement"
   pTurnManagerState = 0
-  pDownloadMgrs = [:]
+  pDownloadMgrs = []
   registerMessage(#roomReady, me.getID(), #checkIfInGameArea)
   registerMessage(#leaveRoom, me.getID(), #leaveRoom)
   registerMessage(#changeRoom, me.getID(), #leaveRoom)
   registerMessage(#spectatorMode_on, me.getID(), #store_spectatorMode_on)
   registerMessage(#spectatorMode_off, me.getID(), #store_spectatorMode_off)
-  return TRUE
+  return(1)
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   if windowExists(pSkillLevelChangeNoticeWindowID) then
     removeWindow(pSkillLevelChangeNoticeWindowID)
   end if
   me.stopTurnManager()
-  pDownloadMgrs = [:]
+  pDownloadMgrs = []
   if memberExists("gsys_tournamentlogo") then
     removeMember("gsys_tournamentlogo")
   end if
@@ -26,87 +25,97 @@ on deconstruct me
   unregisterMessage(#changeRoom, me.getID())
   unregisterMessage(#spectatorMode_on, me.getID())
   unregisterMessage(#spectatorMode_off, me.getID())
-  return TRUE
+  return(1)
+  exit
 end
 
-on defineClient me, tID 
+on defineClient(me, tID)
   me.initVariables()
+  exit
 end
 
-on leaveRoom me 
+on leaveRoom(me)
   me.stopTurnManager()
   me.getMessageSender().setInstanceListUpdates(0)
   me.initVariables()
-  return TRUE
+  return(1)
+  exit
 end
 
-on initVariables me 
+on initVariables(me)
   tVarMgr = me.getVariableManager()
-  if (tVarMgr = 0) then
-    return TRUE
+  if tVarMgr = 0 then
+    return(1)
   end if
   tVarMgr.set(#game_status, #none)
-  tVarMgr.set(#game_location, [:])
-  tVarMgr.set(#instancelist, [:])
-  tVarMgr.set(#observed_instance_data, [:])
+  tVarMgr.set(#game_location, [])
+  tVarMgr.set(#instancelist, [])
+  tVarMgr.set(#observed_instance_data, [])
   tVarMgr.set(#spectatormode_flag, 0)
   tVarMgr.set(#tournament_flag, 0)
-  return TRUE
+  return(1)
+  exit
 end
 
-on getGamestatus me 
+on getGamestatus(me)
   tVarMgr = me.getVariableManager()
-  if (tVarMgr = 0) then
-    return FALSE
+  if tVarMgr = 0 then
+    return(0)
   end if
-  if (tVarMgr.exists(#game_status) = 0) then
-    return FALSE
+  if tVarMgr.exists(#game_status) = 0 then
+    return(0)
   end if
   return(tVarMgr.GET(#game_status))
+  exit
 end
 
-on startTurnManager me 
+on startTurnManager(me)
   return(me.getTurnManager().StartMinigameEngine())
+  exit
 end
 
-on stopTurnManager me 
+on stopTurnManager(me)
   return(me.getTurnManager().stopMinigameEngine())
+  exit
 end
 
-on cancelCreateGame me 
+on cancelCreateGame(me)
   me.getVariableManager().set(#game_status, #none)
   return(me.getMessageSender().setInstanceListUpdates(1))
+  exit
 end
 
-on enterLounge me 
+on enterLounge(me)
   if not getObject(#session).exists(#gamelounge_world_info) then
-    return FALSE
+    return(0)
   end if
   tLoungeData = getObject(#session).GET(#gamelounge_world_info)
   if not listp(tLoungeData) then
-    return FALSE
+    return(0)
   end if
   executeMessage(#changeRoom)
   return(me.spaceTravel(tLoungeData.getAt(#unitId), tLoungeData.getAt(#worldId), tLoungeData.getAt(#type)))
+  exit
 end
 
-on checkIfInGameArea me 
+on checkIfInGameArea(me)
   if not getObject(#session).exists("lastroom") then
-    return FALSE
+    return(0)
   end if
   tRoomData = getObject(#session).GET("lastroom")
   if not getObject(#session).exists(#gamespace_world_info) then
-    return FALSE
+    return(0)
   end if
   tGameSpaceData = getObject(#session).GET(#gamespace_world_info)
-  if (tRoomData.getAt(#port) = tGameSpaceData.getAt(#unitId)) and (tRoomData.getAt(#door) = tGameSpaceData.getAt(#worldId)) then
-    return TRUE
+  if tRoomData.getAt(#port) = tGameSpaceData.getAt(#unitId) and tRoomData.getAt(#door) = tGameSpaceData.getAt(#worldId) then
+    return(1)
   else
-    return FALSE
+    return(0)
   end if
+  exit
 end
 
-on store_loungeinfo me, tdata 
+on store_loungeinfo(me, tdata)
   if tdata.getAt(#tournament_logo_url) <> void() then
     me.getVariableManager().set(#tournament_flag, 1)
     if memberExists("gsys_tournamentlogo") then
@@ -114,95 +123,104 @@ on store_loungeinfo me, tdata
     end if
     tAdMemNum = queueDownload(tdata.getAt(#tournament_logo_url), "gsys_tournamentlogo", #bitmap, 1, #httpcookie)
     registerDownloadCallback(tAdMemNum, #store_tournamentlogo_member, me.getID(), [#member_num:tAdMemNum, #click_url:tdata.getAt(#tournament_logo_click_url)])
-    if (tAdMemNum = 0) then
+    if tAdMemNum = 0 then
       error(me, "Gamesystem cannot initialize download manager!", #store_loungeinfo)
     end if
   end if
   me.getVariableManager().set(#game_status, #none)
   me.getMessageSender().setInstanceListUpdates(1)
-  if (getObject(#session) = 0) then
-    return FALSE
+  if getObject(#session) = 0 then
+    return(0)
   end if
   tWorldData = getObject(#session).GET("lastroom")
   if not listp(tWorldData) then
-    return FALSE
+    return(0)
   end if
   getObject(#session).set(#gamelounge_world_info, [#unitId:tWorldData.getAt(#port), #worldId:tWorldData.getAt(#door), #type:tWorldData.getAt(#type)])
   getObject(#session).Remove(#gamespace_world_info)
-  return TRUE
+  return(1)
+  exit
 end
 
-on store_tournamentlogo_member me, tdata 
+on store_tournamentlogo_member(me, tdata)
   me.getProcManager().distributeEvent(#tournamentlogo, tdata)
-  return TRUE
+  return(1)
+  exit
 end
 
-on store_instancelist me, tList 
-  if (tList = 0) then
-    tList = [:]
+on store_instancelist(me, tList)
+  if tList = 0 then
+    tList = []
   end if
   tVarMgr = me.getVariableManager()
-  if (tVarMgr = 0) then
-    return FALSE
+  if tVarMgr = 0 then
+    return(0)
   end if
   tVarMgr.set(#instancelist, tList)
   tVarMgr.set(#instancelist_timestamp, the milliSeconds)
+  exit
 end
 
-on store_gameinstance me, tItem 
+on store_gameinstance(me, tItem)
   me.getMessageSender().setInstanceListUpdates(0)
   me.getVariableManager().set(#observed_instance_data, tItem)
   tInstanceList = me.getVariableManager().GET(#instancelist)
   tInstanceList.setAt(string(tItem.getAt(#id)), tItem)
   me.getVariableManager().set(#instancelist, tInstanceList)
-  if (me.getGamestatus() = #watch_requested) then
+  if me.getGamestatus() = #watch_requested then
     me.getVariableManager().set(#game_status, #watch_confirmed)
     return(me.getProcManager().distributeEvent(#watchok))
   end if
-  if (me.getGamestatus() = #join_requested) then
+  if me.getGamestatus() = #join_requested then
     me.getVariableManager().set(#game_status, #join_confirmed)
     return(me.getProcManager().distributeEvent(#joinok))
   end if
-  if (me.getGamestatus() = #create_requested) then
+  if me.getGamestatus() = #create_requested then
     me.getVariableManager().set(#game_status, #create_confirmed)
     return(me.getProcManager().distributeEvent(#createok))
   end if
-  return TRUE
+  return(1)
+  exit
 end
 
-on store_gameparameters me, tParamList 
+on store_gameparameters(me, tParamList)
   me.getVariableManager().set(#gameparametervalues_format, tParamList)
+  exit
 end
 
-on store_createfailed me, tReason 
+on store_createfailed(me, tReason)
   me.getVariableManager().set(#game_status, #none)
   me.getMessageSender().setInstanceListUpdates(1)
+  exit
 end
 
-on store_gamedeleted me, tInstanceId 
+on store_gamedeleted(me, tInstanceId)
   tInstanceList = me.getVariableManager().GET(#instancelist)
   tInstanceList.deleteProp(string(tInstanceId))
   me.getVariableManager().set(#instancelist, tInstanceList)
-  me.getVariableManager().set(#observed_instance_data, [:])
+  me.getVariableManager().set(#observed_instance_data, [])
   me.getVariableManager().set(#game_status, #none)
   me.getMessageSender().setInstanceListUpdates(1)
+  exit
 end
 
-on store_joinparameters me, tParamList 
+on store_joinparameters(me, tParamList)
   me.getVariableManager().set(#joinparametervalues_format, tParamList)
+  exit
 end
 
-on store_watchfailed me, tParamList 
+on store_watchfailed(me, tParamList)
   me.getVariableManager().set(#game_status, #observe_confirmed)
+  exit
 end
 
-on store_gamelocation me, tParamList 
+on store_gamelocation(me, tParamList)
   executeMessage(#changeRoom)
   tVarMgr = me.getVariableManager()
-  tVarMgr.set(#observed_instance_data, [:])
+  tVarMgr.set(#observed_instance_data, [])
   tVarMgr.set(#game_status, #game_waiting_for_start)
-  if (getObject(#session) = 0) then
-    return FALSE
+  if getObject(#session) = 0 then
+    return(0)
   end if
   if me.getVariableManager().exists(#tournament_flag) then
     tParamList.addProp(#tournament_flag, me.getVariableManager().GET(#tournament_flag))
@@ -214,56 +232,64 @@ on store_gamelocation me, tParamList
   tUnitId = tParamList.getAt(#unitId)
   tWorldId = tParamList.getAt(#worldId)
   me.spaceTravel(tUnitId, tWorldId, #game)
+  exit
 end
 
-on store_gamestatus me, tdata 
+on store_gamestatus(me, tdata)
   if not listp(tdata) then
-    return FALSE
+    return(0)
   end if
   i = 1
   repeat while i <= tdata.count
     tElementId = tdata.getPropAt(i)
     me.getProcManager().distributeEvent(tdata.getPropAt(i), tdata.getAt(i))
-    i = (1 + i)
+    i = 1 + i
   end repeat
-  return TRUE
+  return(1)
+  exit
 end
 
-on store_gamestatus_turn me, tdata 
+on store_gamestatus_turn(me, tdata)
   if not objectp(tdata) then
-    return FALSE
+    return(0)
   end if
   return(me.getTurnManager().addTurnToBuffer(tdata))
+  exit
 end
 
-on store_gamestart me, tdata 
+on store_gamestart(me, tdata)
   executeMessage(#game_started)
   return(me.getVariableManager().set(#game_status, #game_started))
+  exit
 end
 
-on store_gameend me, tdata 
+on store_gameend(me, tdata)
   executeMessage(#game_end)
   return(me.getVariableManager().set(#game_status, #game_waiting_for_restart))
+  exit
 end
 
-on store_gamereset me, tdata 
+on store_gamereset(me, tdata)
   executeMessage(#game_reset)
   return(me.getVariableManager().set(#game_status, #game_waiting_for_start))
+  exit
 end
 
-on store_spectatorMode_on me 
+on store_spectatorMode_on(me)
   return(me.getVariableManager().set(#spectatormode_flag, 1))
+  exit
 end
 
-on store_spectatorMode_off me 
+on store_spectatorMode_off(me)
   return(me.getVariableManager().set(#spectatormode_flag, 0))
+  exit
 end
 
-on store_skilllevelchanged me, tProps 
+on store_skilllevelchanged(me, tProps)
   tLevelName = tProps.getAt(#level)
   createWindow(pSkillLevelChangeNoticeWindowID, "habbo_simple.window")
   tWndObj = getWindow(pSkillLevelChangeNoticeWindowID)
-  if (tWndObj = 0) then
+  if tWndObj = 0 then
     return(error(me, "Cannot create window", #store_skilllevelchanged))
   end if
   if not tWndObj.merge("habbo_games_levelup.window") then
@@ -278,20 +304,22 @@ on store_skilllevelchanged me, tProps
     tElem.setText(replaceChunks(getText("gs_skill_changed"), "%1", tLevelName))
   end if
   tWndObj.registerProcedure(#eventProcSkillChange, me.getID(), #mouseUp)
-  return TRUE
+  return(1)
+  exit
 end
 
-on eventProcSkillChange me, tSprID, tPar1, tPar2 
+on eventProcSkillChange(me, tSprID, tPar1, tPar2)
   return(removeWindow(pSkillLevelChangeNoticeWindowID))
+  exit
 end
 
-on spaceTravel me, tUnitId, tWorldId, tWorldType 
+on spaceTravel(me, tUnitId, tWorldId, tWorldType)
   me.getMessageSender().setInstanceListUpdates(0)
   tPresentStruct = getObject(#session).GET("lastroom")
-  if (tPresentStruct = 0) then
+  if tPresentStruct = 0 then
     tPresentStruct = [#name:tWorldId, #casts:[]]
   end if
-  tStruct = [:]
+  tStruct = []
   tStruct.setaProp(#id, tPresentStruct.getAt(#id))
   tStruct.setaProp(#name, tPresentStruct.getAt(#name))
   tStruct.setaProp(#type, tWorldType)
@@ -301,5 +329,6 @@ on spaceTravel me, tUnitId, tWorldId, tWorldType
   tStruct.setaProp(#port, tUnitId)
   tStruct.setaProp(#casts, tPresentStruct.getAt(#casts))
   executeMessage(#enterRoomDirect, tStruct)
-  return TRUE
+  return(1)
+  exit
 end

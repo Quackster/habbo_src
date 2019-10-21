@@ -1,10 +1,9 @@
-property pMember, pDontProfile
-
-on deconstruct me 
+on deconstruct(me)
   return(getResourceManager().removeMember(pMember.name))
+  exit
 end
 
-on setProfiling  
+on setProfiling()
   if voidp(pDontProfile) then
     pDontProfile = 1
     if getObjectManager().managerExists(#variable_manager) then
@@ -13,9 +12,10 @@ on setProfiling
       end if
     end if
   end if
+  exit
 end
 
-on prepare me 
+on prepare(me)
   me.setProfiling()
   if not pDontProfile then
     startProfilingTask("Field Wrapper::prepare")
@@ -54,13 +54,15 @@ on prepare me
     finishProfilingTask("Field Wrapper::prepare")
   end if
   return(1)
+  exit
 end
 
-on getText me 
+on getText(me)
   return(pMember.text)
+  exit
 end
 
-on setText me, tText 
+on setText(me, tText)
   if not pDontProfile then
     startProfilingTask("Field Wrapper::setText")
   end if
@@ -72,43 +74,49 @@ on setText me, tText
     finishProfilingTask("Field Wrapper::setText")
   end if
   return(1)
+  exit
 end
 
-on setEdit me, tBool 
+on setEdit(me, tBool)
   if tBool <> 1 and tBool <> 0 then
     return(0)
   end if
   pMember.editable = tBool
   me.editable = tBool
   return(1)
+  exit
 end
 
-on setFocus me, tBool 
-  if tBool = 1 then
+on setFocus(me, tBool)
+  if me = 1 then
     the keyboardFocusSprite = me.spriteNum
   else
-    if tBool = 0 then
+    if me = 0 then
       the keyboardFocusSprite = 0
     else
       return(0)
     end if
   end if
   return(1)
+  exit
 end
 
-on render me 
+on render(me)
   me.pwidth = me.width
   me.pheight = me.height
   me.rect = rect(0, 0, me.pwidth, me.pheight)
+  exit
 end
 
-on draw me, tRGB 
+on draw(me, tRGB)
   if not ilk(tRGB, #color) then
     tRGB = rgb(255, 0, 0)
   end if
   undefined.draw(me.rect, [#shapeType:#rect, #color:tRGB])
+  exit
 end
 
-on handlers  
+on handlers()
   return([])
+  exit
 end

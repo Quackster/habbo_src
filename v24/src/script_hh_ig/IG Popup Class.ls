@@ -1,57 +1,60 @@
-property pVisible, pTargetElementID
-
-on construct me 
+on construct(me)
   pVisible = 0
   registerMessage(#toggle_ig, me.getID(), #hide)
-  return TRUE
+  return(1)
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   unregisterMessage(#toggle_ig, me.getID())
-  return TRUE
+  return(1)
+  exit
 end
 
-on Init me, tTargetElementID 
+on Init(me, tTargetElementID)
   pTargetElementID = tTargetElementID
+  exit
 end
 
-on show me 
+on show(me)
   if pVisible then
-    return TRUE
+    return(1)
   end if
   tMainThread = getObject(#ig_component)
-  if (tMainThread = 0) then
+  if tMainThread = 0 then
     return(me.hide())
   end if
   if tMainThread.getSystemState() <> #ready then
     return(me.hide())
   end if
   if tMainThread.getInterface().getWindowVisible() then
-    return TRUE
+    return(1)
   end if
   tService = tMainThread.getIGComponent("Recommended")
-  if (tService = 0) then
-    return FALSE
+  if tService = 0 then
+    return(0)
   end if
   tRenderObj = tService.getRenderer(1)
-  if (tRenderObj = 0) then
-    return FALSE
+  if tRenderObj = 0 then
+    return(0)
   end if
   tService.renderUI()
   tRenderObj.setTarget(pTargetElementID)
   pVisible = 1
-  return TRUE
+  return(1)
+  exit
 end
 
-on hide me 
+on hide(me)
   if not pVisible then
-    return TRUE
+    return(1)
   end if
   pVisible = 0
   tService = getObject(#ig_component)
-  if (tService = 0) then
-    return FALSE
+  if tService = 0 then
+    return(0)
   end if
   tService.removeIGComponent("Recommended")
-  return TRUE
+  return(1)
+  exit
 end

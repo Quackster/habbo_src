@@ -1,31 +1,35 @@
-on construct me 
-  me.pItemList = [:]
+on construct(me)
+  me.pItemList = []
   me.sort()
   return(1)
+  exit
 end
 
-on deconstruct me 
-  me.pItemList = [:]
+on deconstruct(me)
+  me.pItemList = []
   return(1)
+  exit
 end
 
-on create me, tVariable, tValue 
+on create(me, tVariable, tValue)
   if not stringp(tVariable) and not symbolp(tVariable) then
     return(error(me, "String or symbol expected:" && tVariable, #create, #major))
   end if
   me.setProp(#pItemList, tVariable, tValue)
   return(1)
+  exit
 end
 
-on set me, tVariable, tValue 
+on set(me, tVariable, tValue)
   if not stringp(tVariable) and not symbolp(tVariable) then
     return(error(me, "String or symbol expected:" && tVariable, #set, #major))
   end if
   me.setProp(#pItemList, tVariable, tValue)
   return(1)
+  exit
 end
 
-on GET me, tVariable, tDefault 
+on GET(me, tVariable, tDefault)
   tValue = me.getProp(#pItemList, tVariable)
   if voidp(tValue) then
     tError = "Variable not found:" && "\"" & tVariable & "\""
@@ -38,9 +42,10 @@ on GET me, tVariable, tDefault
     error(me, tError, #GET, #minor)
   end if
   return(tValue)
+  exit
 end
 
-on getInt me, tVariable, tDefault 
+on getInt(me, tVariable, tDefault)
   tValue = integer(me.getProp(#pItemList, tVariable))
   if not integerp(tValue) then
     tError = "Variable not found:" && "\"" & tVariable & "\""
@@ -51,9 +56,10 @@ on getInt me, tVariable, tDefault
     error(me, tError, #getInt, #minor)
   end if
   return(tValue)
+  exit
 end
 
-on GetValue me, tVariable, tDefault 
+on GetValue(me, tVariable, tDefault)
   tValue = value(me.getProp(#pItemList, tVariable))
   if voidp(tValue) then
     tError = "Variable not found:" && "\"" & tVariable & "\""
@@ -67,17 +73,20 @@ on GetValue me, tVariable, tDefault
     return(tValue.duplicate())
   end if
   return(tValue)
+  exit
 end
 
-on Remove me, tVariable 
+on Remove(me, tVariable)
   return(me.deleteProp(tVariable))
+  exit
 end
 
-on exists me, tVariable 
+on exists(me, tVariable)
   return(not voidp(me.getProp(#pItemList, tVariable)))
+  exit
 end
 
-on dump me, tField, tDelimiter, tOverride 
+on dump(me, tField, tDelimiter, tOverride)
   tStr = field(0)
   tDelim = the itemDelimiter
   if voidp(tDelimiter) then
@@ -126,8 +135,10 @@ on dump me, tField, tDelimiter, tOverride
   end repeat
   the itemDelimiter = tDelim
   return(1)
+  exit
 end
 
-on clear me 
-  me.pItemList = [:]
+on clear(me)
+  me.pItemList = []
+  exit
 end

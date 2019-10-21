@@ -1,26 +1,27 @@
-property pGameTypeObjectList
-
-on construct me 
-  pGameTypeObjectList = [:]
-  return TRUE
+on construct(me)
+  pGameTypeObjectList = []
+  return(1)
+  exit
 end
 
-on deconstruct me 
-  pGameTypeObjectList = [:]
-  return(me.ancestor.deconstruct())
+on deconstruct(me)
+  pGameTypeObjectList = []
+  return(me.deconstruct())
+  exit
 end
 
-on getGameTypeCount me 
+on getGameTypeCount(me)
   return(3)
+  exit
 end
 
-on convertGamePropsForCreate me, tGameType, tParams 
+on convertGamePropsForCreate(me, tGameType, tParams)
   tFormat = me.getAction(tGameType, #get_create_defaults)
   if not listp(tFormat) then
-    return FALSE
+    return(0)
   end if
   if not listp(tParams) then
-    return FALSE
+    return(0)
   end if
   tOutputList = []
   i = 1
@@ -28,7 +29,7 @@ on convertGamePropsForCreate me, tGameType, tParams
     tFormatItem = tFormat.getAt(i)
     tFormatKey = tFormat.getPropAt(i)
     tFormatIlk = tFormatItem.getaProp(#ilk)
-    if (tParams.findPos(tFormatKey) = 0) then
+    if tParams.findPos(tFormatKey) = 0 then
       return(error(me, tFormatKey && "not defined!", #convertGamePropsForCreate))
     else
       tParamValue = tParams.getaProp(tFormatKey)
@@ -36,72 +37,75 @@ on convertGamePropsForCreate me, tGameType, tParams
     if ilk(tParamValue) <> tFormatIlk then
       return(error(me, tFormatKey && "type mismatch." && ilk(tParamValue) && tFormatIlk, #convertGamePropsForCreate))
     end if
-    if (tFormatIlk = #integer) then
+    if me = #integer then
       tMax = tFormatItem.getaProp(#max)
       if not voidp(tMax) and tParamValue > tMax then
-        return FALSE
+        return(0)
       end if
       tMin = tFormatItem.getaProp(#min)
       if not voidp(tMin) and tParamValue < tMin then
-        return FALSE
+        return(0)
       end if
       tOutputList.append(tParamValue)
     else
-      if (tFormatIlk = #string) then
-        if (tParamValue = "") then
-          return FALSE
+      if me = #string then
+        if tParamValue = "" then
+          return(0)
         end if
         tOutputList.append(tParamValue)
       else
-        if (tFormatIlk = #list) then
-          if (tParamValue = "") then
-            return FALSE
+        if me = #list then
+          if tParamValue = "" then
+            return(0)
           end if
           tCount = tParamValue.count
           tOutputList.append(tCount)
           j = 1
           repeat while j <= tCount
             tOutputList.append(tParamValue.getAt(j))
-            j = (1 + j)
+            j = 1 + j
           end repeat
           exit repeat
         end if
-        if (tFormatIlk = #not_for_server) then
+        if me = #not_for_server then
           nothing()
         end if
       end if
     end if
-    i = (1 + i)
+    i = 1 + i
   end repeat
   return(tOutputList)
+  exit
 end
 
-on getAction me, tGameType, tKey, tParam1, tParam2 
+on getAction(me, tGameType, tKey, tParam1, tParam2)
   tTypeObject = me.getGameTypeInformation(tGameType)
-  if (tTypeObject = 0) then
-    return FALSE
+  if tTypeObject = 0 then
+    return(0)
   end if
   return(tTypeObject.getAction(tKey, tParam1, tParam2))
+  exit
 end
 
-on getGameTypeString me, tGameType 
-  if (tGameType = 0) then
+on getGameTypeString(me, tGameType)
+  if me = 0 then
     return("Snowwar")
   else
-    if (tGameType = 1) then
+    if me = 1 then
       return("BB")
     else
-      if (tGameType = 2) then
+      if me = 2 then
         return("GemHunt")
       end if
     end if
   end if
-  return FALSE
+  return(0)
+  exit
 end
 
-on getGameTypeInformation me, tGameType 
+on getGameTypeInformation(me, tGameType)
   if voidp(tGameType) then
-    return FALSE
+    return(0)
   end if
   tTypeObject = pGameTypeObjectList.getaProp(tGameType)
   if objectp(tTypeObject) then
@@ -114,4 +118,5 @@ on getGameTypeInformation me, tGameType
   end if
   pGameTypeObjectList.setaProp(tGameType, tTypeObject)
   return(tTypeObject)
+  exit
 end

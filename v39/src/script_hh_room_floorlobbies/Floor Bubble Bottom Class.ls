@@ -1,29 +1,29 @@
-property pAreaWidth, pAreaHeight, pSprite, pMiddle, pMuutos, pLocV, pFromLeft, pMaksimi, pDivPi, pMuutos2, pOffV
-
-on define me, tsprite, tLocH 
+on define(me, tsprite, tLocH)
   pSprite = tsprite
   pAreaWidth = 20
   pAreaHeight = 500
-  pFromLeft = tLocH - (pAreaWidth / 2)
-  pDivPi = (pi() / 180)
+  pFromLeft = tLocH - pAreaWidth / 2
+  pDivPi = pi() / 180
   me.replace()
   return(1)
+  exit
 end
 
-on replace me 
+on replace(me)
   pLocV = random(pAreaHeight - 235) + 235
   pOffV = random(3)
   pMuutos = random(10)
   pMuutos2 = random(20)
   pMiddle = pSprite.width + random(pAreaWidth) - pSprite.width
-  pMaksimi = (pAreaWidth - pAreaWidth - pMiddle / 2)
+  pMaksimi = pAreaWidth - pAreaWidth - pMiddle / 2
+  exit
 end
 
-on update me 
+on update(me)
   pMuutos = pMuutos + 7
   pSprite.locV = pLocV
   if pSprite.locV > 354 or pSprite.locV < 244 then
-    pSprite.locH = pFromLeft + pMiddle - ((pMaksimi * sin((pMuutos * pDivPi))) * sin((pMuutos2 * pDivPi)))
+    pSprite.locH = pFromLeft + pMiddle - pMaksimi * sin(pMuutos * pDivPi) * sin(pMuutos2 * pDivPi)
   else
     pSprite.locH = -20
   end if
@@ -31,4 +31,5 @@ on update me
   if pLocV <= 235 and random(20) > 14 then
     me.replace()
   end if
+  exit
 end

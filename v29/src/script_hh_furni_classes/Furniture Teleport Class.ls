@@ -1,10 +1,8 @@
-property pProcessActive, pTargetData, pDoorOpentimer, pAnimActive, pAnimTime, pKickTime, pCloseDoorTimer
-
-on prepare me, tdata 
+on prepare(me, tdata)
   if pProcessActive then
     me.delay(50, #doorLogin)
   else
-    pTargetData = [:]
+    pTargetData = []
   end if
   pProcessActive = 0
   pAnimActive = 0
@@ -25,9 +23,10 @@ on prepare me, tdata
     end if
   end if
   return(1)
+  exit
 end
 
-on updateStuffdata me, tValue 
+on updateStuffdata(me, tValue)
   if tValue = "TRUE" then
     tValue = 2
     pDoorOpentimer = 18
@@ -38,9 +37,10 @@ on updateStuffdata me, tValue
     end if
   end if
   me.setState(tValue)
+  exit
 end
 
-on select me 
+on select(me)
   if the doubleClick then
     tRoom = getThread(#room).getComponent()
     tUserObj = tRoom.getOwnUser()
@@ -67,9 +67,10 @@ on select me
     end if
   end if
   return(1)
+  exit
 end
 
-on tryDoor me 
+on tryDoor(me)
   if getObject(#session).exists("target_door_ID") then
     tTargetDoorID = getObject(#session).GET("target_door_ID")
     if tTargetDoorID <> 0 then
@@ -81,28 +82,32 @@ on tryDoor me
     getConnection(getVariable("connection.info.id")).send("GETDOORFLAT", me.getID())
   end if
   return(1)
+  exit
 end
 
-on startTeleport me, tDataList 
+on startTeleport(me, tDataList)
   pTargetData = tDataList
   pProcessActive = 1
   me.animate(50)
   getThread(#room).getComponent().getRoomConnection().send("DOORGOIN", me.getID())
+  exit
 end
 
-on doorLogin me 
+on doorLogin(me)
   pProcessActive = 0
   getObject(#session).set("target_door_ID", pTargetData.getAt(#teleport))
   return(getThread(#room).getComponent().enterDoor(pTargetData))
+  exit
 end
 
-on prepareToKick me, tIncomer 
+on prepareToKick(me, tIncomer)
   if tIncomer = getObject(#session).GET("user_name") then
     pKickTime = 20
   end if
+  exit
 end
 
-on kickOut me 
+on kickOut(me)
   tRoom = getThread(#room).getComponent()
   tRoom.getRoomConnection().send("SETSTUFFDATA", [#string:string(me.getID()), #string:"TRUE"])
   tCloseList = ["0":[0, -1], "2":[1, 0], "4":[0, 1], "6":[-1, 0]]
@@ -110,17 +115,19 @@ on kickOut me
   if not voidp(tDelta) then
     tRoom.getRoomConnection().send("MOVE", [#short:me.pLocX + tDelta.getAt(1), #short:me.pLocY + tDelta.getAt(2)])
   end if
+  exit
 end
 
-on animate me, tTime 
+on animate(me, tTime)
   if voidp(tTime) then
     tTime = 25
   end if
   pAnimTime = tTime
   pAnimActive = 1
+  exit
 end
 
-on update me 
+on update(me)
   callAncestor(#update, [me])
   if pDoorOpentimer > 0 then
     pDoorOpentimer = pDoorOpentimer - 1
@@ -129,7 +136,7 @@ on update me
     end if
   end if
   if pAnimActive > 0 then
-    pAnimActive = (pAnimActive + 1 mod pAnimTime)
+    pAnimActive = pAnimActive + 1 mod pAnimTime
     if me.pState = 1 then
       me.setState(3)
     end if
@@ -153,4 +160,5 @@ on update me
       me.setState(1)
     end if
   end if
+  exit
 end

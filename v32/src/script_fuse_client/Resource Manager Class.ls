@@ -1,7 +1,5 @@
-property pAllMemNumList, pDynMemNumList, pBmpMemNumList, pLegalDuplicates, pBin
-
-on construct me 
-  pAllMemNumList = [:]
+on construct(me)
+  pAllMemNumList = []
   pAllMemNumList.sort()
   pDynMemNumList = []
   pDynMemNumList.sort()
@@ -17,33 +15,37 @@ on construct me
     me.emptyDynamicBin()
   end if
   return(1)
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   if the runMode contains "Author" then
     me.deleteDynamicMembers()
   end if
-  pAllMemNumList = [:]
+  pAllMemNumList = []
   return(1)
+  exit
 end
 
-on getProperty me, tPropID 
-  if tPropID = #memberCount then
+on getProperty(me, tPropID)
+  if me = #memberCount then
     return(pAllMemNumList.count())
   else
-    if tPropID = #dynMemCount then
+    if me = #dynMemCount then
       return(pDynMemNumList.count())
     else
       return(0)
     end if
   end if
+  exit
 end
 
-on setProperty me, tPropID, tValue 
+on setProperty(me, tPropID, tValue)
   return(0)
+  exit
 end
 
-on createMember me, tMemName, ttype, tForcedDuplicate 
+on createMember(me, tMemName, ttype, tForcedDuplicate)
   if not voidp(pAllMemNumList.getAt(tMemName)) and not tForcedDuplicate then
     error(me, "Member already exists:" && tMemName, #createMember, #minor)
     return(me.getmemnum(tMemName))
@@ -64,9 +66,10 @@ on createMember me, tMemName, ttype, tForcedDuplicate
     pDynMemNumList.add(tMemNum)
   end if
   return(tMemNum)
+  exit
 end
 
-on removeMember me, tMemName 
+on removeMember(me, tMemName)
   tMemNum = pAllMemNumList.getAt(tMemName)
   if pDynMemNumList.getPos(tMemNum) < 1 then
     return(error(me, "Can't delete member:" && tMemName, #removeMember, #minor))
@@ -81,17 +84,19 @@ on removeMember me, tMemName
   pDynMemNumList.deleteOne(tMemNum)
   pAllMemNumList.deleteProp(tMemName)
   return(1)
+  exit
 end
 
-on getMember me, tMemName 
+on getMember(me, tMemName)
   tMemNum = pAllMemNumList.getaProp(tMemName)
   if voidp(tMemNum) then
     tMemNum = 0
   end if
   return(member(tMemNum))
+  exit
 end
 
-on updateMember me, tMemName 
+on updateMember(me, tMemName)
   if tMemName.ilk <> #string then
     return(error(me, "Member's name required:" && tMemName, #updateMember, #minor))
   end if
@@ -102,9 +107,10 @@ on updateMember me, tMemName
     return(0)
   end if
   return(1)
+  exit
 end
 
-on registerMember me, tMemName, tMemberNum 
+on registerMember(me, tMemName, tMemberNum)
   if voidp(tMemberNum) then
     tMemberNum = member(tMemName).number
   end if
@@ -113,22 +119,24 @@ on registerMember me, tMemName, tMemberNum
   end if
   pAllMemNumList.setAt(tMemName, tMemberNum)
   return(tMemberNum)
+  exit
 end
 
-on unregisterMember me, tMemName 
+on unregisterMember(me, tMemName)
   if voidp(pAllMemNumList.getAt(tMemName)) then
     return(0)
   end if
   pAllMemNumList.deleteProp(tMemName)
   return(1)
+  exit
 end
 
-on preIndexMembers me, tCastNum 
+on preIndexMembers(me, tCastNum)
   if integerp(tCastNum) then
     tFirstCast = tCastNum
     tLastCast = tCastNum
   else
-    pAllMemNumList = [:]
+    pAllMemNumList = []
     pAllMemNumList.sort()
     tFirstCast = 1
     tLastCast = the number of undefineds
@@ -179,9 +187,10 @@ on preIndexMembers me, tCastNum
     tCastLib = 1 + tCastLib
   end repeat
   return(1)
+  exit
 end
 
-on readAliasIndexesFromField me, tAliasIndex, tCastlibNo 
+on readAliasIndexesFromField(me, tAliasIndex, tCastlibNo)
   tAliasList = field(tCastlibNo)
   tItemDeLim = the itemDelimiter
   the itemDelimiter = "="
@@ -210,9 +219,10 @@ on readAliasIndexesFromField me, tAliasIndex, tCastlibNo
     i = 1 + i
   end repeat
   the itemDelimiter = tItemDeLim
+  exit
 end
 
-on unregisterMembers me, tCastNum 
+on unregisterMembers(me, tCastNum)
   if voidp(tCastNum) then
     return(me.clearMemNumLists())
   end if
@@ -253,44 +263,50 @@ on unregisterMembers me, tCastNum
     end repeat
   end if
   return(1)
+  exit
 end
 
-on replaceMember me, tExistingMemName, tReplacingMemName 
+on replaceMember(me, tExistingMemName, tReplacingMemName)
   if voidp(pAllMemNumList.getAt(tReplacingMemName)) then
     return(0)
   end if
   pAllMemNumList.setAt(tExistingMemName, pAllMemNumList.getAt(tReplacingMemName))
   return(1)
+  exit
 end
 
-on exists me, tMemName 
+on exists(me, tMemName)
   return(not voidp(pAllMemNumList.getAt(tMemName)))
+  exit
 end
 
-on getmemnum me, tMemName 
+on getmemnum(me, tMemName)
   tMemNum = pAllMemNumList.getAt(tMemName)
   if voidp(tMemNum) then
     tMemNum = 0
   end if
   return(tMemNum)
+  exit
 end
 
-on print me 
+on print(me)
   i = 1
   repeat while i <= pAllMemNumList.count
     put(pAllMemNumList.getPropAt(i) && "--" && pAllMemNumList.getAt(i))
     i = 1 + i
   end repeat
   return(1)
+  exit
 end
 
-on clearMemNumLists me 
-  pAllMemNumList = [:]
+on clearMemNumLists(me)
+  pAllMemNumList = []
   pAllMemNumList.sort()
   return(1)
+  exit
 end
 
-on emptyDynamicBin me 
+on emptyDynamicBin(me)
   tMemberAmount = the number of castMembers
   i = 1
   repeat while i <= tMemberAmount
@@ -303,22 +319,25 @@ on emptyDynamicBin me
   pDynMemNumList = []
   pBmpMemNumList = []
   return(1)
+  exit
 end
 
-on deleteDynamicMembers me 
-  repeat while pDynMemNumList <= undefined
+on deleteDynamicMembers(me)
+  repeat while me <= undefined
     tMemNum = getAt(undefined, undefined)
     member(tMemNum).erase()
   end repeat
-  repeat while pDynMemNumList <= undefined
+  repeat while me <= undefined
     tMemNum = getAt(undefined, undefined)
     member(tMemNum).erase()
   end repeat
   pDynMemNumList = []
   pBmpMemNumList = []
   return(1)
+  exit
 end
 
-on handlers  
+on handlers()
   return([])
+  exit
 end

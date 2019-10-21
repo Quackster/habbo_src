@@ -1,6 +1,4 @@
-property pArrowSpr, pCounter, pUserId, pLastLoc, pLastDir, pSize, pAnimFlag, pAnimCntr
-
-on construct me 
+on construct(me)
   pArrowSpr = sprite(reserveSprite(me.getID()))
   pArrowSpr.ink = 8
   pArrowSpr.visible = 0
@@ -10,15 +8,17 @@ on construct me
   pAnimFlag = 0
   pAnimCntr = 0
   return(1)
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   removeUpdate(me.getID())
   releaseSprite(pArrowSpr.spriteNum)
   return(1)
+  exit
 end
 
-on Init me 
+on Init(me)
   tXFactor = getThread(#room).getInterface().getGeometry().pXFactor
   pArrowSpr.locZ = getIntVariable("window.default.locz") - 2020
   pArrowSpr.visible = 0
@@ -27,9 +27,10 @@ on Init me
   else
     pSize = "sh"
   end if
+  exit
 end
 
-on show me, tUserID, tAnimFlag 
+on show(me, tUserID, tAnimFlag)
   if stringp(tUserID) then
     pUserId = tUserID
   else
@@ -44,16 +45,18 @@ on show me, tUserID, tAnimFlag
   pAnimFlag = tAnimFlag = 1
   receiveUpdate(me.getID())
   return(1)
+  exit
 end
 
-on hide me 
+on hide(me)
   removeUpdate(me.getID())
   pArrowSpr.loc = point(-1000, -1000)
   pArrowSpr.visible = 0
   return(1)
+  exit
 end
 
-on update me 
+on update(me)
   pCounter = not pCounter
   if pCounter then
     return(0)
@@ -108,8 +111,9 @@ on update me
     tLocV = 40
   end if
   if pAnimFlag then
-    pAnimCntr = (pAnimCntr + 4 mod 32)
-    tOffY = tHumanLoc.getAt(2) + (-8 * sin((float(pAnimCntr) / 10)))
+    pAnimCntr = pAnimCntr + 4 mod 32
+    tOffY = tHumanLoc.getAt(2) + -8 * sin(float(pAnimCntr) / 10)
     pArrowSpr.locV = tOffY - tLocV
   end if
+  exit
 end

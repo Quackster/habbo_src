@@ -1,15 +1,14 @@
-property pCanvasName, pValid
-
-on deconstruct me 
+on deconstruct(me)
   callAncestor(#deconstruct, [me])
   pValid = 0
   if memberExists(pCanvasName) and pCanvasName <> void() then
     removeMember(pCanvasName)
   end if
   return(1)
+  exit
 end
 
-on define me, tdata 
+on define(me, tdata)
   pValid = 1
   me.pName = "template"
   me.pClass = tdata.getAt(#class)
@@ -42,13 +41,15 @@ on define me, tdata
   me.arrangeParts()
   me.simulateUpdate()
   return(me.pMember)
+  exit
 end
 
-on getMember me 
+on getMember(me)
   return(me.pMember)
+  exit
 end
 
-on resetTemplateHuman me 
+on resetTemplateHuman(me)
   me.pMoving = 0
   me.pDancing = 0
   me.pTalking = 0
@@ -60,9 +61,10 @@ on resetTemplateHuman me
   me.resetAction()
   me.arrangeParts()
   me.pChanges = 1
+  exit
 end
 
-on simulateUpdate me 
+on simulateUpdate(me)
   if pValid then
     me.pSync = not me.pSync
     if me.pSync then
@@ -70,11 +72,12 @@ on simulateUpdate me
     else
       me.render()
     end if
-    me.delay((1000 / the frameTempo), #simulateUpdate)
+    me.delay(1000 / the frameTempo, #simulateUpdate)
   end if
+  exit
 end
 
-on Refresh me, tX, tY, tH, tDirHead, tDirBody 
+on Refresh(me, tX, tY, tH, tDirHead, tDirBody)
   me.pMoving = 0
   me.pDancing = 0
   me.pTalking = 0
@@ -97,9 +100,10 @@ on Refresh me, tX, tY, tH, tDirHead, tDirBody
   me.pDirection = tDirBody
   me.arrangeParts()
   me.pChanges = 1
+  exit
 end
 
-on render me 
+on render(me)
   if not me.pChanges then
     return()
   end if
@@ -107,4 +111,5 @@ on render me
   me.pUpdateRect = rect(0, 0, 0, 0)
   me.fill(pBuffer.rect, me.pAlphaColor)
   call(#update, me.pPartList)
+  exit
 end

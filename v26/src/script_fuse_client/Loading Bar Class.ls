@@ -1,6 +1,4 @@
-property pWindowID, pwidth, pheight, pBuffer, pBarRect, pBgColor, pcolor, pTaskId, pReadyFlag, pTaskType, pDrawPoint, pPercent, pOffRect
-
-on construct me 
+on construct(me)
   tProps = [#bgColor:the stage.bgColor, #color:rgb(128, 128, 128), #width:128, #height:16]
   tProps = getVariableValue("loading.bar.props", tProps)
   pTaskId = ""
@@ -14,9 +12,10 @@ on construct me
   pWindowID = ""
   pReadyFlag = 0
   return(1)
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   pTaskId = void()
   removePrepare(me.getID())
   if pWindowID <> "" then
@@ -24,9 +23,10 @@ on deconstruct me
     pWindowID = ""
   end if
   return(1)
+  exit
 end
 
-on define me, tLoadID, tProps 
+on define(me, tLoadID, tProps)
   if not stringp(tLoadID) and not symbolp(tLoadID) then
     return(error(me, "Invalid castload task ID:" && tLoadID, #define, #major))
   end if
@@ -78,26 +78,27 @@ on define me, tLoadID, tProps
   if pheight > tRect.height then
     pheight = tRect.height
   end if
-  pBarRect = rect((tRect.width / 2) - (pwidth / 2), (tRect.height / 2) - (pheight / 2), (tRect.width / 2) + (pwidth / 2), (tRect.height / 2) + (pheight / 2))
+  pBarRect = rect(tRect.width / 2 - pwidth / 2, tRect.height / 2 - pheight / 2, tRect.width / 2 + pwidth / 2, tRect.height / 2 + pheight / 2)
   pOffRect = rect(pBarRect.getAt(1) + 2, pBarRect.getAt(2) + 2, pBarRect.getAt(3) - 2, pBarRect.getAt(4) - 2)
   pBuffer.fill(pBarRect, pBgColor)
   pBuffer.draw(pBarRect, [#color:pcolor, #shapeType:#rect])
   return(receivePrepare(me.getID()))
+  exit
 end
 
-on prepare me 
+on prepare(me)
   if voidp(pTaskId) or pReadyFlag then
     return(removeObject(me.getID()))
   end if
-  if pTaskType = #cast then
+  if me = #cast then
     tPercent = getCastLoadManager().getLoadPercent(pTaskId)
   else
-    if pTaskType = #file then
+    if me = #file then
       tPercent = getDownloadManager().getLoadPercent(pTaskId)
     end if
   end if
   pDrawPoint = pDrawPoint + 1
-  if pDrawPoint <= (pPercent * pOffRect.width) then
+  if pDrawPoint <= pPercent * pOffRect.width then
     tRect = rect(pOffRect.getAt(1) + pDrawPoint - 1, pOffRect.getAt(2), pOffRect.getAt(1) + pDrawPoint, pOffRect.getAt(4))
     pBuffer.fill(tRect, pcolor)
   end if
@@ -106,12 +107,13 @@ on prepare me
   end if
   pBuffer.fill(pBarRect, pBgColor)
   pBuffer.draw(pBarRect, [#color:pcolor, #shapeType:#rect])
-  tRect = rect(pOffRect.getAt(1), pOffRect.getAt(2), (pPercent * pOffRect.width) + pOffRect.getAt(1), pOffRect.getAt(4))
+  tRect = rect(pOffRect.getAt(1), pOffRect.getAt(2), pPercent * pOffRect.width + pOffRect.getAt(1), pOffRect.getAt(4))
   pBuffer.fill(tRect, pcolor)
-  pDrawPoint = (pPercent * pOffRect.width)
+  pDrawPoint = pPercent * pOffRect.width
   pPercent = tPercent
-  if pPercent >= 1 then
+  if pPercent >= 0 then
     pBuffer.fill(pOffRect, pcolor)
     pReadyFlag = 1
   end if
+  exit
 end

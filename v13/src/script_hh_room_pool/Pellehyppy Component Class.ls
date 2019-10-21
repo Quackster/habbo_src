@@ -1,12 +1,11 @@
-property pJumpButtonsWnd, pTicketCountWnd
-
-on construct me 
+on construct(me)
   pJumpButtonsWnd = "pool_helpbuttons"
   pTicketCountWnd = "pool_ticketcount"
-  return TRUE
+  return(1)
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   if objectExists(#jumpingpelle_obj) then
     removeObject(#jumpingpelle_obj)
   end if
@@ -26,30 +25,36 @@ on deconstruct me
     removeWindow(pTicketCountWnd)
   end if
   pJumpinPelleObj = void()
-  return TRUE
+  return(1)
+  exit
 end
 
-on openUimakoppi me 
+on openUimakoppi(me)
   me.getInterface().openUimakoppi()
+  exit
 end
 
-on closeUimaKoppi me 
+on closeUimaKoppi(me)
   me.getInterface().closeUimaKoppi()
+  exit
 end
 
-on poolUpView me, tMode 
+on poolUpView(me, tMode)
   if not visualizerExists(#pooltower) then
     createVisualizer(#pooltower, "pool_tower.room")
-    getVisualizer(#pooltower).moveZ(19000000)
+    -- UNK_C0 4325991
+    exit
+    objectExists
+    if not ERROR then
+      createObject(#poolclouds, "poolClouds Class")
+    end if
+    executeMessage(#hide_messenger)
+    executeMessage(#hide_navigator)
+    exit
   end if
-  if not objectExists(#poolclouds) then
-    createObject(#poolclouds, "poolClouds Class")
-  end if
-  executeMessage(#hide_messenger)
-  executeMessage(#hide_navigator)
 end
 
-on poolDownView me 
+on poolDownView(me)
   if windowExists(pJumpButtonsWnd) then
     removeWindow(pJumpButtonsWnd)
   end if
@@ -62,17 +67,18 @@ on poolDownView me
   if visualizerExists(#pooltower) then
     removeVisualizer(#pooltower)
   end if
+  exit
 end
 
-on jumpingPlaceOk me 
+on jumpingPlaceOk(me)
   me.getInterface().deactivateChatField()
   getConnection(getVariable("connection.room.id")).send("JUMPSTART")
   me.poolUpView("jump")
   createWindow(pJumpButtonsWnd, "ph_instructions.window", 20, 20)
   tWndObj = getWindow(pJumpButtonsWnd)
   tWndObj.registerClient(me.getID())
-  tWndObj.moveZ(19000040)
-  tWndObj.lock()
+  -- UNK_E8 4325991
+  exit
   tPelleKeys = getVariableValue("swimjump.key.list")
   if tPelleKeys.ilk <> #propList then
     error(me, "Couldn't retrieve keymap for jump! Using default keys.", #jumpingPlaceOk)
@@ -81,16 +87,17 @@ on jumpingPlaceOk me
   i = 1
   repeat while i <= 9
     tWndObj.getElement("ph_ui_text_" & i).setText(tPelleKeys.getAt(i))
-    i = (1 + i)
+    i = 1 + i
   end repeat
   tUserName = getObject(#session).get("user_name")
   tFigure = getThread(#room).getComponent().getOwnUser().getPelleFigure()
   createObject(#jumpingpelle_obj, "Jumping Pelle Class", "Pelle KeyDown Class")
   getObject(#jumpingpelle_obj).Init(tUserName, tFigure, 0)
-  return TRUE
+  return(1)
+  exit
 end
 
-on jumpPlayPack me, tMsg 
+on jumpPlayPack(me, tMsg)
   if objectExists(#jumpingpelle_obj) then
     removeObject(#jumpingpelle_obj)
   end if
@@ -100,9 +107,9 @@ on jumpPlayPack me, tMsg
   tUserObj = getThread(#room).getComponent().getUserObject(tMsg.getAt(#index))
   tFigure = call(#getPelleFigure, [tUserObj])
   if not listp(tFigure) then
-    return FALSE
+    return(0)
   end if
-  if (tMsg.getAt(#index) = getObject(#session).get("user_index")) then
+  if tMsg.getAt(#index) = getObject(#session).get("user_index") then
     me.poolUpView("playback")
   end if
   getObject(#playpackpelle_obj).Init(tUserObj.getName(), tFigure, 1)
@@ -110,15 +117,18 @@ on jumpPlayPack me, tMsg
   if objectExists(#pool_fuse_screen) then
     getObject(#pool_fuse_screen).fuseShow_showtext(tUserObj.getName())
   end if
+  exit
 end
 
-on sendSign me, tSign 
+on sendSign(me, tSign)
   getConnection(getVariable("connection.room.id")).send("SIGN", tSign)
+  exit
 end
 
-on sendJumpPerf me, tJumpData 
+on sendJumpPerf(me, tJumpData)
   if not objectExists("Figure_System_Pool") then
     return(error(me, "Figure system Pool object not found", #sendJumpPerf))
   end if
   getConnection(getVariable("connection.room.id")).send("JUMPPERF", tJumpData)
+  exit
 end

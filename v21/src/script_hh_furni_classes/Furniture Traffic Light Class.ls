@@ -1,62 +1,64 @@
-property pState
-
-on prepare me, tdata 
+on prepare(me, tdata)
   me.setState(tdata.getAt(#stuffdata))
-  return TRUE
+  return(1)
+  exit
 end
 
-on updateStuffdata me, tValue 
+on updateStuffdata(me, tValue)
   me.setState(tValue)
+  exit
 end
 
-on setState me, tValue 
+on setState(me, tValue)
   if me.count(#pSprList) < 3 then
-    return FALSE
+    return(0)
   end if
   pState = tValue
-  if (tValue = "1") then
+  if me = "1" then
     me.switchMember("c", "0")
     me.getPropRef(#pSprList, 3).visible = 1
   else
-    if (tValue = "2") then
+    if me = "2" then
       me.switchMember("c", "1")
       me.getPropRef(#pSprList, 3).visible = 1
     else
       me.getPropRef(#pSprList, 3).visible = 0
     end if
   end if
-  return TRUE
+  return(1)
+  exit
 end
 
-on switchMember me, tPart, tNewMem 
+on switchMember(me, tPart, tNewMem)
   tSprNum = ["a", "b", "c", "d", "e", "f"].getPos(tPart)
-  if me.count(#pSprList) < tSprNum or (tSprNum = 0) then
-    return FALSE
+  if me.count(#pSprList) < tSprNum or tSprNum = 0 then
+    return(0)
   end if
-  tName = me.getPropRef(#pSprList, tSprNum).member.name
-  tName = tName.getProp(#char, 1, (tName.length - 1)) & tNewMem
+  tName = member.name
+  tName = tName.getProp(#char, 1, tName.length - 1) & tNewMem
   if memberExists(tName) then
     tmember = member(getmemnum(tName))
     me.getPropRef(#pSprList, tSprNum).castNum = tmember.number
     me.getPropRef(#pSprList, tSprNum).width = tmember.width
     me.getPropRef(#pSprList, tSprNum).height = tmember.height
   end if
-  return TRUE
+  return(1)
+  exit
 end
 
-on select me 
+on select(me)
   if the doubleClick then
     tUserObj = getThread(#room).getComponent().getOwnUser()
     if not tUserObj then
-      return TRUE
+      return(1)
     end if
-    if abs((tUserObj.pLocX - me.pLocX)) > 1 or abs((tUserObj.pLocY - me.pLocY)) > 1 then
-      return TRUE
+    if abs(tUserObj.pLocX - me.pLocX) > 1 or abs(tUserObj.pLocY - me.pLocY) > 1 then
+      return(1)
     end if
-    if (pState = "0") then
+    if me = "0" then
       pState = "1"
     else
-      if (pState = "1") then
+      if me = "1" then
         pState = "2"
       else
         pState = "0"
@@ -64,5 +66,6 @@ on select me
     end if
     getThread(#room).getComponent().getRoomConnection().send("SETSTUFFDATA", [#string:string(me.getID()), #string:pState])
   end if
-  return TRUE
+  return(1)
+  exit
 end

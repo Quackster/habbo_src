@@ -1,21 +1,21 @@
-property pSkipFrames
-
-on construct me 
+on construct(me)
   callAncestor(#construct, [me])
   pUpdate = 1
   receiveUpdate(me.getID())
   pSkipFrames = 1
   return(1)
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   pUpdate = 0
   removeUpdate(me.getID())
   callAncestor(#deconstruct, [me])
   return(1)
+  exit
 end
 
-on update me 
+on update(me)
   pSkipFrames = not pSkipFrames
   if pSkipFrames = 1 then
     return(0)
@@ -34,4 +34,5 @@ on update me
   else
     me.selectPointerAndPosition(4)
   end if
+  exit
 end

@@ -1,6 +1,4 @@
-property pWriterPlainNormLeft, pWriterListPlainNormLeft, pWriterPlainNormRight, pWriterLinkRight, pGoButtonImages, pJoinButtonImage, pMainWindowId, pWriterPlainBoldLeft
-
-on construct me 
+on construct(me)
   pMainWindowId = "GAME"
   tPlainFontStruct = getStructVariable("struct.font.plain")
   createWriter("gs_plain_norm_left", tPlainFontStruct)
@@ -23,9 +21,10 @@ on construct me
   pWriterLinkRight = getWriter("gs_link_right")
   me.renderButtonImages()
   return(1)
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   removeWriter("gs_plain_norm_left")
   pWriterPlainNormLeft = void()
   removeWriter("gs_list_plain_norm_left")
@@ -39,16 +38,18 @@ on deconstruct me
   pGoButtonImages = void()
   pJoinButtonImage = void()
   return(1)
+  exit
 end
 
-on defineWindow me, tID 
+on defineWindow(me, tID)
   pMainWindowId = tID
   return(1)
+  exit
 end
 
-on renderButtonImages me 
-  pGoButtonImages = [:]
-  repeat while ["created", "started", "finished"] <= undefined
+on renderButtonImages(me)
+  pGoButtonImages = []
+  repeat while me <= undefined
     tstate = getAt(undefined, undefined)
     tButtonImage = image(92, 12, 8)
     tImage = pWriterLinkRight.render(getText("gs_button_go_" & tstate))
@@ -65,9 +66,10 @@ on renderButtonImages me
   tImage = member(getmemnum("sw_arr")).image
   pJoinButtonImage.copyPixels(tImage, tImage.rect + rect(180, 4, 180, 4), tImage.rect)
   return(1)
+  exit
 end
 
-on renderTournamentLogo me, tTournamentLogoMemNum 
+on renderTournamentLogo(me, tTournamentLogoMemNum)
   tWndObj = getWindow(pMainWindowId)
   if tWndObj = 0 then
     return(0)
@@ -84,9 +86,10 @@ on renderTournamentLogo me, tTournamentLogoMemNum
     end if
   end if
   return(1)
+  exit
 end
 
-on renderInstanceList me, tList, tStartIndex, tCount 
+on renderInstanceList(me, tList, tStartIndex, tCount)
   tWndObj = getWindow(pMainWindowId)
   if tWndObj = 0 then
     return(0)
@@ -126,25 +129,26 @@ on renderInstanceList me, tList, tStartIndex, tCount
     i = 1 + i
   end repeat
   return(1)
+  exit
 end
 
-on getInstanceListItemBg me, tstate 
-  if tstate = #created then
+on getInstanceListItemBg(me, tstate)
+  if me = #created then
     tImage1 = member(getmemnum("sw_bg_grn4")).image
     tImage2 = member(getmemnum("sw_ico_thumb")).image
     tRegPoint2 = member(getmemnum("sw_ico_thumb")).regPoint
   else
-    if tstate = #started then
+    if me = #started then
       tImage1 = member(getmemnum("sw_bg_red4")).image
       tImage2 = member(getmemnum("sw_ico_bounce")).image
       tRegPoint2 = member(getmemnum("sw_ico_bounce")).regPoint
     else
-      if tstate = #finished then
+      if me = #finished then
         tImage1 = member(getmemnum("sw_bg_gry4")).image
         tImage2 = member(getmemnum("sw_ico_flag")).image
         tRegPoint2 = member(getmemnum("sw_ico_flag")).regPoint
       else
-        if tstate = #empty then
+        if me = #empty then
           tImage1 = member(getmemnum("sw_bg_emp3")).image
         end if
       end if
@@ -156,9 +160,10 @@ on getInstanceListItemBg me, tstate
     tImage.copyPixels(tImage2, tImage2.rect + rect(3 - tRegPoint2.locH, 7 - tRegPoint2.locV, 3 - tRegPoint2.locH, 7 - tRegPoint2.locV), tImage2.rect, [#ink:8, #maskImage:tImage2.createMatte()])
   end if
   return(tImage)
+  exit
 end
 
-on renderInstanceDetailTop me, tName, tHostName, tstate, tStateStr, tSpecs 
+on renderInstanceDetailTop(me, tName, tHostName, tstate, tStateStr, tSpecs)
   tWndObj = getWindow(pMainWindowId)
   if tWndObj = 0 then
     return(0)
@@ -168,15 +173,15 @@ on renderInstanceDetailTop me, tName, tHostName, tstate, tStateStr, tSpecs
     tElem.setText(tName)
   end if
   tImage = image(191, 48, 8, member(getmemnum("snow_war2 Palette")))
-  if tstate = #created then
+  if me = #created then
     tStateIconMember = member(getmemnum("sw_ico_thumb"))
     tBgImageMember = member(getmemnum("sw_gameinfo_bg_1"))
   else
-    if tstate = #started then
+    if me = #started then
       tStateIconMember = member(getmemnum("sw_ico_bounce"))
       tBgImageMember = member(getmemnum("sw_gameinfo_bg_1"))
     else
-      if tstate = #finished then
+      if me = #finished then
         tStateIconMember = member(getmemnum("sw_ico_flag"))
         tBgImageMember = member(getmemnum("sw_gameinfo_bg_1"))
       end if
@@ -205,13 +210,14 @@ on renderInstanceDetailTop me, tName, tHostName, tstate, tStateStr, tSpecs
     tElem.feedImage(tImage)
   end if
   return(1)
+  exit
 end
 
-on renderInstanceDetailButton me, tButtonState, tGameState 
+on renderInstanceDetailButton(me, tButtonState, tGameState)
   tResult = image(191, 16, 8)
   tBlend = 255
-  if tButtonState <> #start then
-    if tButtonState = #start_dimmed then
+  if me <> #start then
+    if me = #start_dimmed then
       tBg = member(getmemnum("sw_lnk_px_1")).image
       tText = getText("gs_button_start")
       if tButtonState = #start_dimmed then
@@ -219,11 +225,11 @@ on renderInstanceDetailButton me, tButtonState, tGameState
         tButtonState = #start
       end if
     else
-      if tButtonState = #spectate then
+      if me = #spectate then
         tBg = member(getmemnum("sw_bg_px")).image
         tText = getText("gs_button_spectate")
       else
-        if tButtonState = #spectateInfo then
+        if me = #spectateInfo then
           tBg = member(getmemnum("sw_bg_px")).image
           tText = getText("gs_text_spectate")
         else
@@ -246,7 +252,7 @@ on renderInstanceDetailButton me, tButtonState, tGameState
     else
       if tText <> #empty then
         tImage = pWriterPlainBoldLeft.render(tText)
-        tLocH = (tWidth / 2) - (tImage.width / 2)
+        tLocH = tWidth / 2 - tImage.width / 2
         tResult.copyPixels(tImage, tImage.rect + rect(tLocH, 3, tLocH, 3), tImage.rect)
       end if
     end if
@@ -256,17 +262,18 @@ on renderInstanceDetailButton me, tButtonState, tGameState
     end if
     tElem = tWndObj.getElement("gs_link_gameInfo")
     tElem.feedImage(tResult)
-    if tButtonState <> #empty then
-      if tButtonState = #spectateInfo then
+    if me <> #empty then
+      if me = #spectateInfo then
         tElem.setProperty(#cursor, 0)
       else
         tElem.setProperty(#cursor, "cursor.finger")
       end if
+      exit
     end if
   end if
 end
 
-on renderInstanceDetailTeams me, tParams, tUserName, tHost, tOwnTeam 
+on renderInstanceDetailTeams(me, tParams, tUserName, tHost, tOwnTeam)
   tWndObj = getWindow(pMainWindowId)
   if tWndObj = 0 then
     return(0)
@@ -337,9 +344,10 @@ on renderInstanceDetailTeams me, tParams, tUserName, tHost, tOwnTeam
     end if
     tTeamNum = 1 + tTeamNum
   end repeat
+  exit
 end
 
-on renderPageNumber me, tPage, tNumPages 
+on renderPageNumber(me, tPage, tNumPages)
   tWndObj = getWindow(pMainWindowId)
   if tWndObj = 0 then
     return(0)
@@ -361,9 +369,10 @@ on renderPageNumber me, tPage, tNumPages
     tElem.setProperty(#blend, 30)
     tElem.setProperty(#cursor, 0)
   end if
+  exit
 end
 
-on updateRadioButton me, tElement, tListOfOthersElements 
+on updateRadioButton(me, tElement, tListOfOthersElements)
   tOnImg = member(getmemnum("button.radio.on")).image
   tOffImg = member(getmemnum("button.radio.off")).image
   tWndObj = getWindow(pMainWindowId)
@@ -373,19 +382,21 @@ on updateRadioButton me, tElement, tListOfOthersElements
   if tWndObj.elementExists(tElement) then
     tWndObj.getElement(tElement).setProperty(#image, tOnImg)
   end if
-  repeat while tListOfOthersElements <= tListOfOthersElements
+  repeat while me <= tListOfOthersElements
     tRadioElement = getAt(tListOfOthersElements, tElement)
     if tWndObj.elementExists(tRadioElement) then
       tWndObj.getElement(tRadioElement).setProperty(#image, tOffImg)
     end if
   end repeat
+  exit
 end
 
-on convertSecToMinSec me, tTime 
-  tMin = (tTime / 60)
-  tSec = (tTime mod 60)
+on convertSecToMinSec(me, tTime)
+  tMin = tTime / 60
+  tSec = tTime mod 60
   if tSec < 10 then
     tSec = "0" & tSec
   end if
   return(tMin & ":" & tSec)
+  exit
 end

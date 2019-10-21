@@ -1,6 +1,4 @@
-property pWindowID, pTextWidth, pWindow
-
-on construct me 
+on construct(me)
   me.pWindowType = "bubble_text.window"
   me.pFadeState = #ready
   me.pTextWidth = 120
@@ -9,14 +7,16 @@ on construct me
   me.registerProcedure(#blendHandler, me.getID(), #mouseEnter)
   me.registerProcedure(#blendHandler, me.getID(), #mouseLeave)
   return(1)
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   removeWindow(me.pWindowID)
   removeWriter(me.getID())
+  exit
 end
 
-on Init me 
+on Init(me)
   if voidp(me.pWindowID) then
     me.pWindowID = getUniqueID()
   end if
@@ -38,18 +38,21 @@ on Init me
   me.pEmptySizeY = me.getProperty(#height)
   me.hide()
   return(1)
+  exit
 end
 
-on hide me 
+on hide(me)
   me.hide()
   me.pTargetWindowID = void()
+  exit
 end
 
-on show me 
+on show(me)
   me.show()
+  exit
 end
 
-on setText me, tText 
+on setText(me, tText)
   me.pText = tText
   tTextImage = me.render(tText).duplicate()
   tElem = me.getElement("bubble_text")
@@ -58,29 +61,31 @@ on setText me, tText
   tElem.resizeTo(tTextImage.width, tTextImage.height, 1)
   me.resizeTo(me.pEmptySizeX, tMarginH + tTextImage.height)
   me.updatePointer()
+  exit
 end
 
-on addText me, tText 
+on addText(me, tText)
   me.setText(me.pText & "\r" & "\r" & getText(tText))
+  exit
 end
 
-on getProperty me, tProp 
-  if tProp = #windowId then
+on getProperty(me, tProp)
+  if me = #windowId then
     return(me.pWindowID)
   else
-    if tProp = #targetWindowID then
+    if me = #targetWindowID then
       return(me.pTargetWindowID)
     else
-      if tProp = #text then
+      if me = #text then
         return(me.pText)
       else
-        if tProp = #offset then
+        if me = #offset then
           return(me.pOffset)
         else
-          if tProp = #direction then
+          if me = #direction then
             return(me.pDirection)
           else
-            if tProp = #special then
+            if me = #special then
               return(me.pSpecial)
             end if
           end if
@@ -89,9 +94,10 @@ on getProperty me, tProp
     end if
   end if
   return(void())
+  exit
 end
 
-on setProperty me, tProperty, tValue 
+on setProperty(me, tProperty, tValue)
   if listp(tProperty) then
     i = 1
     repeat while i <= tProperty.count
@@ -99,24 +105,24 @@ on setProperty me, tProperty, tValue
       i = 1 + i
     end repeat
   end if
-  if tProperty = #textKey then
+  if me = #textKey then
     tText = getText(tValue)
     tText = replaceChunks(tText, "\\n", "\r" & "\r")
     me.setText(tText)
   else
-    if tProperty = #targetID then
+    if me = #targetID then
       me.pTargetElementID = tValue
     else
-      if tProperty = #direction then
+      if me = #direction then
         me.selectPointer(tValue)
       else
-        if tProperty = #offsetx then
+        if me = #offsetx then
           me.pOffsetX = value(tValue)
         else
-          if tProperty = #offsety then
+          if me = #offsety then
             me.pOffsetY = value(tValue)
           else
-            if tProperty = #special then
+            if me = #special then
               me.pSpecial = tValue
             else
               nothing()
@@ -126,9 +132,10 @@ on setProperty me, tProperty, tValue
       end if
     end if
   end if
+  exit
 end
 
-on selectPointer me, tPointerNum 
+on selectPointer(me, tPointerNum)
   me.pDirection = tPointerNum
   i = 1
   repeat while i <= 8
@@ -153,9 +160,10 @@ on selectPointer me, tPointerNum
     i = 1 + i
   end repeat
   me.updatePointer()
+  exit
 end
 
-on update me 
+on update(me)
   if me.pFaded then
     tX1 = me.getProperty(#locX)
     tY1 = me.getProperty(#locY)
@@ -168,38 +176,39 @@ on update me
   end if
   me.updateFade()
   me.updatePosition()
+  exit
 end
 
-on updatePointer me 
-  if me.pDirection = 1 then
+on updatePointer(me)
+  if me = 1 then
     me.pPointerX = 33
     me.pPointerY = 0
   else
-    if me.pDirection = 2 then
+    if me = 2 then
       me.pPointerX = me.getProperty(#width) - 33
       me.pPointerY = 0
     else
-      if me.pDirection = 3 then
+      if me = 3 then
         me.pPointerX = me.getProperty(#width)
         me.pPointerY = 26
       else
-        if me.pDirection = 4 then
+        if me = 4 then
           me.pPointerX = me.getProperty(#width)
           me.pPointerY = me.getProperty(#height) - 26
         else
-          if me.pDirection = 5 then
+          if me = 5 then
             me.pPointerX = me.getProperty(#width) - 33
             me.pPointerY = me.getProperty(#height)
           else
-            if me.pDirection = 6 then
+            if me = 6 then
               me.pPointerX = 33
               me.pPointerY = me.getProperty(#height)
             else
-              if me.pDirection = 7 then
+              if me = 7 then
                 me.pPointerX = 0
                 me.pPointerY = me.getProperty(#height) - 26
               else
-                if me.pDirection = 8 then
+                if me = 8 then
                   me.pPointerX = 0
                   me.pPointerY = 26
                 end if
@@ -210,9 +219,10 @@ on updatePointer me
       end if
     end if
   end if
+  exit
 end
 
-on updatePosition me 
+on updatePosition(me)
   if voidp(me.pTargetElementID) then
     return(1)
   end if
@@ -248,11 +258,12 @@ on updatePosition me
   if not me.pFaded then
     me.show()
   end if
+  exit
 end
 
-on findTargetWindow me 
+on findTargetWindow(me)
   tWindowList = getWindowIDList()
-  repeat while tWindowList <= undefined
+  repeat while me <= undefined
     tWindowID = getAt(undefined, undefined)
     if getWindow(tWindowID).elementExists(me.pTargetElementID) then
       me.pTargetWindowID = tWindowID
@@ -260,9 +271,10 @@ on findTargetWindow me
     end if
   end repeat
   return(0)
+  exit
 end
 
-on updateFade me 
+on updateFade(me)
   if me.pFadeState = #ready then
     return(1)
   end if
@@ -271,10 +283,10 @@ on updateFade me
   tLowerLimit = 0
   tElemBG = me.getElement("bubble_bg")
   tBlend = tElemBG.getProperty(#blend)
-  if me.pFadeState = #in then
+  if me = #in then
     tNewBlend = tBlend + tFadeSpeed
   else
-    if me.pFadeState = #out then
+    if me = #out then
       tNewBlend = tBlend - tFadeSpeed
     end if
   end if
@@ -292,22 +304,24 @@ on updateFade me
     removeUpdate(me.getID())
   end if
   tElemList = me.getProperty(#elementList)
-  repeat while me.pFadeState <= undefined
+  repeat while me <= undefined
     tElem = getAt(undefined, undefined)
     if tElemList.getOne(tElem) contains "shadow" then
     else
       tElem.setProperty(#blend, tNewBlend)
     end if
   end repeat
+  exit
 end
 
-on blendHandler me, tEvent, tSpriteID, tParam 
-  if tEvent = #mouseEnter then
+on blendHandler(me, tEvent, tSpriteID, tParam)
+  if me = #mouseEnter then
     me.pFadeState = #out
   else
-    if tEvent = #mouseLeave then
+    if me = #mouseLeave then
       me.pFadeState = #in
     end if
   end if
   receiveUpdate(me.getID())
+  exit
 end

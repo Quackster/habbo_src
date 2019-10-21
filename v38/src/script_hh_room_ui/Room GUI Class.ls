@@ -1,6 +1,4 @@
-property pRoomInfoID, pRoomBarID, pObjectDispID, pBadgeObjID, pFxInvObjID
-
-on construct me 
+on construct(me)
   pRoomBarID = "RoomBarProgram"
   pRoomInfoID = "RoomInfoProgram"
   pObjectDispID = "ObjectDisplayerProgram"
@@ -13,9 +11,10 @@ on construct me
   createObject(pFxInvObjID, "Effect Inventory Class")
   registerMessage(#takingPhoto, me.getID(), #hideInfoStand)
   return(1)
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   unregisterMessage(#takingPhoto, me.getID())
   removeObject(pRoomInfoID)
   removeObject(pRoomBarID)
@@ -23,17 +22,20 @@ on deconstruct me
   removeObject(pBadgeObjID)
   removeObject(pFxInvObjID)
   return(1)
+  exit
 end
 
-on getBadgeObject me 
+on getBadgeObject(me)
   return(getObject(pBadgeObjID))
+  exit
 end
 
-on getFxInventory me 
+on getFxInventory(me)
   return(getObject(pFxInvObjID))
+  exit
 end
 
-on showRoomBar me, tLayout 
+on showRoomBar(me, tLayout)
   tRoomInfoObj = getObject(pRoomInfoID)
   if not voidp(tRoomInfoObj) and not tRoomInfoObj = 0 then
     tRoomInfoObj.showRoomInfo()
@@ -48,9 +50,10 @@ on showRoomBar me, tLayout
       tRoomBarObj.applyChatHelpText()
     end if
   end if
+  exit
 end
 
-on hideRoomBar me 
+on hideRoomBar(me)
   tRoomInfoObj = getObject(pRoomInfoID)
   if not voidp(tRoomInfoObj) and not tRoomInfoObj = 0 then
     tRoomInfoObj.hideRoomInfo()
@@ -59,34 +62,40 @@ on hideRoomBar me
   if not voidp(tRoomBarObj) and not tRoomBarObj = 0 then
     tRoomBarObj.hideRoomBar()
   end if
+  exit
 end
 
-on setRollOverInfo me, tInfoText 
+on setRollOverInfo(me, tInfoText)
   tRoomBarObj = getObject(pRoomBarID)
   if not voidp(tRoomBarObj) and not tRoomBarObj = 0 then
     tRoomBarObj.setRollOverInfo(tInfoText)
   end if
+  exit
 end
 
-on showInfostand me 
+on showInfostand(me)
   nothing()
+  exit
 end
 
-on hideInfoStand me 
+on hideInfoStand(me)
   tObjDisp = getObject(pObjectDispID)
   tObjDisp.clearWindowDisplayList()
+  exit
 end
 
-on showObjectInfo me, tObjType 
+on showObjectInfo(me, tObjType)
   tObjDisp = getObject(pObjectDispID)
   sendProcessTracking(780)
   tObjDisp.showObjectInfo(tObjType)
   sendProcessTracking(781)
+  exit
 end
 
-on showVote me 
+on showVote(me)
   tRoomBarObj = getObject(pRoomBarID)
   if not voidp(tRoomBarObj) and not tRoomBarObj = 0 then
     tRoomBarObj.showVote()
   end if
+  exit
 end

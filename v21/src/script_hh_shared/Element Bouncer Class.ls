@@ -1,64 +1,67 @@
-property pTimeOutID, pOrigXList, pOrigYList, pWindowID, pElemIdList, pBounceOn, pSpeed, pOffset
-
-on construct me 
+on construct(me)
   pTimeOutID = "bouncer_timeout_" & getUniqueID()
-  pOrigXList = [:]
-  pOrigYList = [:]
-  return TRUE
+  pOrigXList = []
+  pOrigYList = []
+  return(1)
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   if timeoutExists(pTimeOutID) then
     removeTimeout(pTimeOutID)
   end if
-  return TRUE
+  return(1)
+  exit
 end
 
-on registerElement me, tWindowID, tElemIdList 
+on registerElement(me, tWindowID, tElemIdList)
   if not listp(tElemIdList) then
     tElemIdList = [tElemIdList]
   end if
   if not me.checkWindowAndElemExistence(tWindowID, tElemIdList) then
-    return FALSE
+    return(0)
   end if
   pWindowID = tWindowID
   pElemIdList = tElemIdList
   tWindowObj = getWindow(tWindowID)
-  repeat while tElemIdList <= tElemIdList
+  repeat while me <= tElemIdList
     tElemID = getAt(tElemIdList, tWindowID)
     tElem = tWindowObj.getElement(tElemID)
     pOrigXList.setaProp(tElemID, tElem.getProperty(#locX))
     pOrigYList.setaProp(tElemID, tElem.getProperty(#locY))
   end repeat
-  return TRUE
+  return(1)
+  exit
 end
 
-on checkWindowAndElemExistence me, tWindowID, tElemIdList 
+on checkWindowAndElemExistence(me, tWindowID, tElemIdList)
   if voidp(tWindowID) and voidp(tElemIdList) then
     tWindowID = pWindowID
     tElemIdList = pElemIdList
   end if
   if not windowExists(tWindowID) then
-    return FALSE
+    return(0)
   end if
   tWndObj = getWindow(tWindowID)
-  repeat while tElemIdList <= tElemIdList
+  repeat while me <= tElemIdList
     tElemID = getAt(tElemIdList, tWindowID)
     if not tWndObj.elementExists(tElemID) then
-      return FALSE
+      return(0)
     end if
   end repeat
-  return TRUE
+  return(1)
+  exit
 end
 
-on getState me 
+on getState(me)
   return(me.pBounceOn or timeoutExists(pTimeOutID))
+  exit
 end
 
-on setBounce me, tBounceOn 
+on setBounce(me, tBounceOn)
   if not me.checkWindowAndElemExistence() then
     pBounceOn = 0
-    return FALSE
+    return(0)
   end if
   if tBounceOn then
     pBounceOn = 1
@@ -72,51 +75,55 @@ on setBounce me, tBounceOn
     me.resetPosition()
     removeUpdate(me.getID())
   end if
-  return TRUE
+  return(1)
+  exit
 end
 
-on resetBounce me 
+on resetBounce(me)
   pBounceOn = 1
   pOffset = 0
   pSpeed = 6
+  exit
 end
 
-on resetPosition me 
+on resetPosition(me)
   if not me.checkWindowAndElemExistence() then
-    return FALSE
+    return(0)
   end if
   tWndObj = getWindow(pWindowID)
-  repeat while pElemIdList <= undefined
+  repeat while me <= undefined
     tElemID = getAt(undefined, undefined)
     tOrigX = pOrigXList.getAt(tElemID)
     tOrigY = pOrigYList.getAt(tElemID)
     tWndObj.getElement(tElemID).moveTo(tOrigX, tOrigY)
   end repeat
+  exit
 end
 
-on update me 
+on update(me)
   if not pBounceOn then
-    return FALSE
+    return(0)
   end if
   if not me.checkWindowAndElemExistence() then
-    return FALSE
+    return(0)
   end if
-  pSpeed = (pSpeed - 1)
-  pOffset = (pOffset + pSpeed)
+  pSpeed = pSpeed - 1
+  pOffset = pOffset + pSpeed
   if pOffset <= 0 then
     pOffset = 0
     pSpeed = abs(pSpeed)
-    if (integer(pSpeed) = 0) then
+    if integer(pSpeed) = 0 then
       me.setBounce(0)
       if not timeoutExists(pTimeOutID) then
         createTimeout(pTimeOutID, 3000, #setBounce, me.getID(), 1, 1)
       end if
     end if
   end if
-  repeat while pElemIdList <= undefined
+  repeat while me <= undefined
     tElemID = getAt(undefined, undefined)
     tElem = getWindow(pWindowID).getElement(tElemID)
-    tElem.moveTo(pOrigXList.getAt(tElemID), (pOrigYList.getAt(tElemID) - pOffset))
+    tElem.moveTo(pOrigXList.getAt(tElemID), pOrigYList.getAt(tElemID) - pOffset)
   end repeat
-  return TRUE
+  return(1)
+  exit
 end

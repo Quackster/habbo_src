@@ -1,28 +1,29 @@
-property pConnectionId
-
-on construct me 
+on construct(me)
   pConnectionId = getVariableValue("connection.info.id")
   registerMessage(#create_user, me.getID(), #handleUserCreated)
   return(1)
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   unregisterMessage(#create_user, me.getID())
   return(1)
+  exit
 end
 
-on Refresh me, tTopic, tdata 
-  if tTopic = #send_set_target then
+on Refresh(me, tTopic, tdata)
+  if me = #send_set_target then
     me.sendSetTarget(tdata)
   else
-    if tTopic = #gamestart then
+    if me = #gamestart then
       me.hideArrowHiliter()
     end if
   end if
   return(1)
+  exit
 end
 
-on sendSetTarget me, tdata 
+on sendSetTarget(me, tdata)
   tGameSystem = me.getGameSystem()
   if tGameSystem = 0 then
     return(0)
@@ -47,9 +48,10 @@ on sendSetTarget me, tdata
   else
     return(tConnection.send("MOVE", [#short:tdata.getAt(1), #short:tdata.getAt(2)]))
   end if
+  exit
 end
 
-on handleUserCreated me, tName, tUserStrId 
+on handleUserCreated(me, tName, tUserStrId)
   if me.getGameSystem().getSpectatorModeFlag() then
     return(1)
   end if
@@ -60,16 +62,18 @@ on handleUserCreated me, tName, tUserStrId
     return(0)
   end if
   return(getObject(#room_interface).showArrowHiliter(tUserStrId))
+  exit
 end
 
-on hideArrowHiliter me 
+on hideArrowHiliter(me)
   if not objectExists(#room_interface) then
     return(0)
   end if
   return(getObject(#room_interface).hideArrowHiliter())
+  exit
 end
 
-on getGameObject me 
+on getGameObject(me)
   tGameSystem = me.getGameSystem()
   if tGameSystem = 0 then
     return(0)
@@ -83,11 +87,13 @@ on getGameObject me
   end if
   tUserIndex = tSession.GET("user_game_index")
   return(tGameSystem.getGameObject(tUserIndex))
+  exit
 end
 
-on getRoomConnection me 
+on getRoomConnection(me)
   if not connectionExists(pConnectionId) then
     return(error(me, "Info connection not found!", #getRoomConnection))
   end if
   return(getConnection(pConnectionId))
+  exit
 end

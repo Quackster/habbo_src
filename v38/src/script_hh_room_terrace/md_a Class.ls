@@ -1,6 +1,4 @@
-property pCurtainsLocZ, pSplashs, pTimer
-
-on construct me 
+on construct(me)
   pTimer = 0
   createObject("dew_clouds", "Mountain Clouds Class")
   createObject("dew_camera", "FUSE screen Class")
@@ -10,9 +8,10 @@ on construct me
   me.prepareRoom()
   me.regMsgList(1)
   return(1)
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   me.regMsgList(0)
   removePrepare(me.getID())
   removeObject("dew_clouds")
@@ -21,10 +20,11 @@ on deconstruct me
   closeThread(#mountain)
   closeThread(#paalu)
   return(1)
+  exit
 end
 
-on prepareRoom me 
-  pCurtainsLocZ = [:]
+on prepareRoom(me)
+  pCurtainsLocZ = []
   f = 1
   repeat while f <= 2
     tsprite = getThread(#room).getInterface().getRoomVisualizer().getSprById("curtains" & f)
@@ -32,8 +32,8 @@ on prepareRoom me
     tsprite.locZ = tsprite.locZ - 2000
     f = 1 + f
   end repeat
-  tProps = [:]
-  pSplashs = [:]
+  tProps = []
+  pSplashs = []
   pSplashs.addProp("Splash0", createObject(#temp, "AnimSprite Class"))
   tProps.setAt(#visible, 0)
   tProps.setAt(#AnimFrames, 10)
@@ -43,9 +43,10 @@ on prepareRoom me
   pSplashs.getAt("Splash0").setData(tProps)
   createObject(#waterripples, "Water Ripple Effects Class")
   getObject(#waterripples).Init("vesi1")
+  exit
 end
 
-on showprogram me, tMsg 
+on showprogram(me, tMsg)
   if not voidp(tMsg) then
     tDest = tMsg.getAt(#show_dest)
     tCommand = tMsg.getAt(#show_command)
@@ -56,17 +57,18 @@ on showprogram me, tMsg
       end if
     end if
   end if
+  exit
 end
 
-on handle_dressing_room_curtain me, tMsg 
+on handle_dressing_room_curtain(me, tMsg)
   tConn = tMsg.connection
   tID = tConn.GetStrFrom()
   tStateInt = tConn.GetIntFrom()
-  if tStateInt = 0 then
+  if me = 0 then
     tmember = member(getmemnum("dew_verho_kiinni"))
     tlocz = pCurtainsLocZ.getAt(tID) - 1000
   else
-    if tStateInt = 1 then
+    if me = 1 then
       tmember = member(getmemnum("dew_verho_auki"))
       tlocz = pCurtainsLocZ.getAt(tID) - 2000
     end if
@@ -83,17 +85,19 @@ on handle_dressing_room_curtain me, tMsg
   tSpr.setMember(tmember)
   tSpr.locZ = tlocz
   return(1)
+  exit
 end
 
-on handle_pool_stair_splash me, tMsg 
+on handle_pool_stair_splash(me, tMsg)
   tConn = tMsg.connection
   tDest = "Splash0"
   if not voidp(pSplashs.getAt(tDest)) then
     call(#Activate, pSplashs.getAt(tDest))
   end if
+  exit
 end
 
-on prepare me 
+on prepare(me)
   pTimer = not pTimer
   tRoomVis = getThread(#room).getInterface().getRoomVisualizer()
   if pTimer then
@@ -106,13 +110,14 @@ on prepare me
   if pSplashs.count > 0 then
     call(#updateSplashs, pSplashs)
   end if
+  exit
 end
 
-on regMsgList me, tBool 
-  tMsgs = [:]
+on regMsgList(me, tBool)
+  tMsgs = []
   tMsgs.setaProp(504, #handle_dressing_room_curtain)
   tMsgs.setaProp(505, #handle_pool_stair_splash)
-  tCmds = [:]
+  tCmds = []
   if tBool then
     registerListener(getVariable("connection.info.id"), me.getID(), tMsgs)
     registerCommands(getVariable("connection.info.id"), me.getID(), tCmds)
@@ -121,4 +126,5 @@ on regMsgList me, tBool
     unregisterCommands(getVariable("connection.info.id"), me.getID(), tCmds)
   end if
   return(1)
+  exit
 end

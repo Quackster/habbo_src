@@ -1,6 +1,4 @@
-property pSprite, pPaletteMember, pUseCreases, pCreases, pBinMember, pPhase, pSpeed, pMaxOffset, pLocOrig, pOffset
-
-on define me, tsprite 
+on define(me, tsprite)
   pMaxOffset = 165
   pSpeed = 10
   pUseCreases = 1
@@ -13,10 +11,10 @@ on define me, tsprite
   tOrigWidth = tsprite.width
   tOrigHeight = tsprite.height
   tOrigLoc = tsprite.loc
-  tLeft = tOrigLoc.getAt(1) - (tOrigWidth / 2)
-  tRight = tOrigLoc.getAt(1) + (tOrigWidth / 2)
-  tTop = tOrigLoc.getAt(2) - (tOrigHeight / 2)
-  tBottom = tOrigLoc.getAt(2) + (tOrigHeight / 2)
+  tLeft = tOrigLoc.getAt(1) - tOrigWidth / 2
+  tRight = tOrigLoc.getAt(1) + tOrigWidth / 2
+  tTop = tOrigLoc.getAt(2) - tOrigHeight / 2
+  tBottom = tOrigLoc.getAt(2) + tOrigHeight / 2
   tOrigRect = rect(tLeft, tTop, tRight, tBottom)
   if memberExists("starlounge_gradient") then
     pBinMember = member(getmemnum("starlounge_gradient"))
@@ -43,16 +41,18 @@ on define me, tsprite
   pBinMember.regPoint = point(0, 0)
   pSprite.member = pBinMember
   return(1)
+  exit
 end
 
-on update me 
-  pPhase = (pPhase + pSpeed mod 3600)
-  pOffset = ((pMaxOffset / 2) * sin(((pPhase * pi()) / 1800))) + (pMaxOffset / 2)
+on update(me)
+  pPhase = pPhase + pSpeed mod 3600
+  pOffset = pMaxOffset / 2 * sin(pPhase * pi() / 1800) + pMaxOffset / 2
   pSprite.locV = pLocOrig.getAt(2) - pOffset
   return(1)
+  exit
 end
 
-on makeCreases me, tRect, tSourceImage, tCreases, tPalette 
+on makeCreases(me, tRect, tSourceImage, tCreases, tPalette)
   tImageNew = image(tRect.width, tRect.height, 8, tPalette)
   tImageNew.copyPixels(tSourceImage, tImageNew.rect, tSourceImage.rect)
   tImageCreased = image(tImageNew.width, tImageNew.height, 8, tPalette)
@@ -61,7 +61,7 @@ on makeCreases me, tRect, tSourceImage, tCreases, tPalette
   i = 1
   repeat while i <= tCreases.count - 1
     tPoint1 = point(tCreases.getAt(i), tTop)
-    tTop = tTop - ((tdir * tCreases.getAt(i + 1) - tCreases.getAt(i)) / 2)
+    tTop = tTop - tdir * tCreases.getAt(i + 1) - tCreases.getAt(i) / 2
     tdir = -tdir
     tPoint2 = point(tCreases.getAt(i + 1), tTop)
     tPoint3 = tPoint2 + [0, tImageNew.height]
@@ -72,13 +72,15 @@ on makeCreases me, tRect, tSourceImage, tCreases, tPalette
     i = 1 + i
   end repeat
   return(tImageCreased)
+  exit
 end
 
-on cleanUp me 
+on cleanUp(me)
   if not voidp(pBinMember) then
     removeMember(pBinMember.name)
   end if
   if not voidp(pPaletteMember) then
     removeMember(pPaletteMember.name)
   end if
+  exit
 end

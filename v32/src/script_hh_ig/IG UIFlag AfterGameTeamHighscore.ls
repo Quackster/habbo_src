@@ -1,4 +1,4 @@
-on showInfo me, tWindowList, tdata, tMode 
+on showInfo(me, tWindowList, tdata, tMode)
   if not tMode then
     return(1)
   end if
@@ -18,7 +18,7 @@ on showInfo me, tWindowList, tdata, tMode
   end if
   i = 1
   repeat while i <= tCount
-    tWndObj = getWindow(tWindowList.getAt((i * 2)))
+    tWndObj = getWindow(tWindowList.getAt(i * 2))
     if tWndObj = 0 then
       return(0)
     end if
@@ -75,7 +75,7 @@ on showInfo me, tWindowList, tdata, tMode
     tElem.setText(tText)
     tFont = tElem.getFont()
     tLineHeight = tFont.getaProp(#lineHeight)
-    tHeight = ((tPlayers.count + 1 / 2) * tLineHeight) + 14
+    tHeight = tPlayers.count + 1 / 2 * tLineHeight + 14
     tWndObj.resizeTo(tWndObj.getProperty(#width), tHeight)
     i = 1 + i
   end repeat
@@ -93,17 +93,20 @@ on showInfo me, tWindowList, tdata, tMode
     i = 1 + i
   end repeat
   return(1)
+  exit
 end
 
-on getTitleText me 
+on getTitleText(me)
   return(getText("ig_ag_flag_teamhigh_title"))
+  exit
 end
 
-on getLayout me, tMode 
+on getLayout(me, tMode)
   if tMode then
     tLayout = ["ig_ag_tip_title_exp.window", "ig_ag_teamhigh_mid.window", "ig_ag_teamhigh_brk.window", "ig_ag_teamhigh_mid.window", "ig_ag_teamhigh_brk.window", "ig_ag_teamhigh_mid.window", "ig_ag_teamhigh_btm.window"]
   else
     tLayout = ["ig_ag_tip_title.window"]
   end if
   return(tLayout)
+  exit
 end

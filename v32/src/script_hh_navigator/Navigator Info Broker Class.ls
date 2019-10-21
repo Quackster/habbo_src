@@ -1,16 +1,16 @@
-property pClientList
-
-on construct me 
-  pClientList = [:]
+on construct(me)
+  pClientList = []
   registerMessage(#requestRoomData, me.getID(), #requestRoomData)
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   pClientList = void()
   unregisterMessage(#requestRoomData, me.getID())
+  exit
 end
 
-on requestRoomData me, tRoomID, ttype, tCallback 
+on requestRoomData(me, tRoomID, ttype, tCallback)
   tNavComponent = me.getNavComponent()
   if tNavComponent = 0 then
     return(0)
@@ -39,9 +39,10 @@ on requestRoomData me, tRoomID, ttype, tCallback
   else
     return(tNavComponent.sendNavigate(tRoomID, 1, 0))
   end if
+  exit
 end
 
-on processNavigatorData me, tdata 
+on processNavigatorData(me, tdata)
   if not listp(tdata) then
     return(0)
   end if
@@ -50,7 +51,7 @@ on processNavigatorData me, tdata
   if tList = void() then
     return(1)
   end if
-  repeat while tList <= undefined
+  repeat while me <= undefined
     tCallback = getAt(undefined, tdata)
     tTargetObject = getObject(tCallback.getAt(1))
     tTargetMethod = tCallback.getAt(2)
@@ -59,12 +60,14 @@ on processNavigatorData me, tdata
     end if
   end repeat
   return(1)
+  exit
 end
 
-on getNavComponent me 
+on getNavComponent(me)
   tObject = getObject(#navigator_component)
   if tObject = 0 then
     return(error(me, "Navigator component not found!", #getNavigator, #major))
   end if
   return(tObject)
+  exit
 end

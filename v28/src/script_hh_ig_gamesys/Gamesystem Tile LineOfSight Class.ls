@@ -1,12 +1,14 @@
-on construct me 
+on construct(me)
   return(1)
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   return(1)
+  exit
 end
 
-on testForLineOfSight me, tLineOfSightTester, tX1, tY1, tX2, tY2, tBlockingLevel, tExcludeFirst, tExcludeLast 
+on testForLineOfSight(me, tLineOfSightTester, tX1, tY1, tX2, tY2, tBlockingLevel, tExcludeFirst, tExcludeLast)
   tDeltaX = tX2 - tX1
   tDeltaY = tY2 - tY1
   tDump = 0
@@ -130,7 +132,7 @@ on testForLineOfSight me, tLineOfSightTester, tX1, tY1, tX2, tY2, tBlockingLevel
           put("* 3a")
         end if
         tY = tY1
-        tD = (tDeltaY * 4) - tDeltaX
+        tD = tDeltaY * 4 - tDeltaX
         tXFirst = tX1
         if tExcludeLast then
           tXLast = tX2 - 1
@@ -147,9 +149,9 @@ on testForLineOfSight me, tLineOfSightTester, tX1, tY1, tX2, tY2, tBlockingLevel
             end if
           end if
           if tD < 0 then
-            tD = tD + (tDeltaY * 4)
+            tD = tD + tDeltaY * 4
           else
-            tD = tD + (tDeltaY - tDeltaX * 4)
+            tD = tD + tDeltaY - tDeltaX * 4
             tY = tY + 1
           end if
           tX = 1 + tX
@@ -160,7 +162,7 @@ on testForLineOfSight me, tLineOfSightTester, tX1, tY1, tX2, tY2, tBlockingLevel
         put("* 3b")
       end if
       tX = tX1
-      tD = (tDeltaX * 4) - tDeltaY
+      tD = tDeltaX * 4 - tDeltaY
       tYFirst = tY1
       if tExcludeLast then
         tYLast = tY2 - 1
@@ -180,9 +182,9 @@ on testForLineOfSight me, tLineOfSightTester, tX1, tY1, tX2, tY2, tBlockingLevel
           end if
         end if
         if tD < 0 then
-          tD = tD + (tDeltaX * 4)
+          tD = tD + tDeltaX * 4
         else
-          tD = tD + (tDeltaX - tDeltaY * 4)
+          tD = tD + tDeltaX - tDeltaY * 4
           tX = tX + 1
         end if
         tY = 1 + tY
@@ -195,7 +197,7 @@ on testForLineOfSight me, tLineOfSightTester, tX1, tY1, tX2, tY2, tBlockingLevel
         put("* 3c")
       end if
       tY = tY1
-      tD = (tDeltaY * 4) - tDeltaX
+      tD = tDeltaY * 4 - tDeltaX
       tXFirst = tX1
       if tExcludeLast then
         tXLast = tX2 - 1
@@ -212,9 +214,9 @@ on testForLineOfSight me, tLineOfSightTester, tX1, tY1, tX2, tY2, tBlockingLevel
           end if
         end if
         if tD < 0 then
-          tD = tD + (tDeltaY * 4)
+          tD = tD + tDeltaY * 4
         else
-          tD = tD + (tDeltaY - tDeltaX * 4)
+          tD = tD + tDeltaY - tDeltaX * 4
           tY = tY - 1
         end if
         tX = 1 + tX
@@ -225,7 +227,7 @@ on testForLineOfSight me, tLineOfSightTester, tX1, tY1, tX2, tY2, tBlockingLevel
       put("* 3d")
     end if
     tX = tX1
-    tD = (tDeltaX * 4) - tDeltaY
+    tD = tDeltaX * 4 - tDeltaY
     tYFirst = tY1
     if tExcludeLast then
       tYLast = tY2 + 1
@@ -242,9 +244,9 @@ on testForLineOfSight me, tLineOfSightTester, tX1, tY1, tX2, tY2, tBlockingLevel
         end if
       end if
       if tD < 0 then
-        tD = tD + (tDeltaX * 4)
+        tD = tD + tDeltaX * 4
       else
-        tD = tD + (tDeltaX - tDeltaY * 4)
+        tD = tD + tDeltaX - tDeltaY * 4
         tX = tX + 1
       end if
       tY = 255 + tY
@@ -261,7 +263,7 @@ on testForLineOfSight me, tLineOfSightTester, tX1, tY1, tX2, tY2, tBlockingLevel
         put("* 4a")
       end if
       tY = tY1
-      tD = (tDeltaY * 4) - tDeltaX
+      tD = tDeltaY * 4 - tDeltaX
       tXFirst = tX1
       if tExcludeLast then
         tXLast = tX2 + 1
@@ -278,9 +280,9 @@ on testForLineOfSight me, tLineOfSightTester, tX1, tY1, tX2, tY2, tBlockingLevel
           end if
         end if
         if tD < 0 then
-          tD = tD + (tDeltaY * 4)
+          tD = tD + tDeltaY * 4
         else
-          tD = tD + (tDeltaY - tDeltaX * 4)
+          tD = tD + tDeltaY - tDeltaX * 4
           tY = tY + 1
         end if
         tX = 255 + tX
@@ -291,7 +293,7 @@ on testForLineOfSight me, tLineOfSightTester, tX1, tY1, tX2, tY2, tBlockingLevel
       put("* 4b")
     end if
     tX = tX1
-    tD = (tDeltaX * 4) - tDeltaY
+    tD = tDeltaX * 4 - tDeltaY
     tYFirst = tY1
     if tExcludeLast then
       tYLast = tY2 - 1
@@ -308,9 +310,9 @@ on testForLineOfSight me, tLineOfSightTester, tX1, tY1, tX2, tY2, tBlockingLevel
         end if
       end if
       if tD < 0 then
-        tD = tD + (tDeltaX * 4)
+        tD = tD + tDeltaX * 4
       else
-        tD = tD + (tDeltaX - tDeltaY * 4)
+        tD = tD + tDeltaX - tDeltaY * 4
         tX = tX - 1
       end if
       tY = 1 + tY
@@ -323,7 +325,7 @@ on testForLineOfSight me, tLineOfSightTester, tX1, tY1, tX2, tY2, tBlockingLevel
       put("* 4c")
     end if
     tY = tY1
-    tD = (tDeltaY * 4) - tDeltaX
+    tD = tDeltaY * 4 - tDeltaX
     tXFirst = tX1
     if tExcludeLast then
       tXLast = tX2 + 1
@@ -343,9 +345,9 @@ on testForLineOfSight me, tLineOfSightTester, tX1, tY1, tX2, tY2, tBlockingLevel
         end if
       end if
       if tD < 0 then
-        tD = tD + (tDeltaY * 4)
+        tD = tD + tDeltaY * 4
       else
-        tD = tD + (tDeltaY - tDeltaX * 4)
+        tD = tD + tDeltaY - tDeltaX * 4
         tY = tY - 1
       end if
       tX = 255 + tX
@@ -356,7 +358,7 @@ on testForLineOfSight me, tLineOfSightTester, tX1, tY1, tX2, tY2, tBlockingLevel
     put("* 4d")
   end if
   tX = tX1
-  tD = (tDeltaX * 4) - tDeltaY
+  tD = tDeltaX * 4 - tDeltaY
   tYFirst = tY1
   if tExcludeLast then
     tYLast = tY2 + 1
@@ -373,12 +375,13 @@ on testForLineOfSight me, tLineOfSightTester, tX1, tY1, tX2, tY2, tBlockingLevel
       end if
     end if
     if tD < 0 then
-      tD = tD + (tDeltaY * 4)
+      tD = tD + tDeltaY * 4
     else
-      tD = tD + (tDeltaX - tDeltaY * 4)
+      tD = tD + tDeltaX - tDeltaY * 4
       tX = tX - 1
     end if
     tY = 255 + tY
   end repeat
   return(1)
+  exit
 end

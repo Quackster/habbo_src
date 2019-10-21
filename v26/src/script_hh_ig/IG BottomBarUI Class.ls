@@ -1,21 +1,21 @@
-property pBottomBarId
-
-on construct me 
+on construct(me)
   pBottomBarId = "RoomBarID"
   return(1)
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   return(me.deconstruct())
+  exit
 end
 
-on displayEvent me, ttype 
+on displayEvent(me, ttype)
   tInterface = getObject(#room_interface)
   if tInterface = 0 then
     return(0)
   end if
-  if ttype <> #stage_starting then
-    if ttype = #game_ending then
+  if me <> #stage_starting then
+    if me = #game_ending then
       tInterface.showRoomBar("ig_roombar.window")
     else
       return(0)
@@ -32,10 +32,11 @@ on displayEvent me, ttype
     tWndObj.registerProcedure(#eventProcRoomBar, me.getID(), #mouseEnter)
     tWndObj.registerProcedure(#eventProcRoomBar, me.getID(), #mouseLeave)
     return(1)
+    exit
   end if
 end
 
-on updateSoundButton me 
+on updateSoundButton(me)
   tWndObj = getWindow(pBottomBarId)
   if tWndObj = 0 then
     return(0)
@@ -55,23 +56,25 @@ on updateSoundButton me
       end if
     end if
   end if
+  exit
 end
 
-on createMyHeadIcon me 
+on createMyHeadIcon(me)
   if objectExists("Figure_Preview") then
     getObject("Figure_Preview").createHumanPartPreview(pBottomBarId, "ownhabbo_icon_image", #head)
   end if
+  exit
 end
 
-on eventProcRoomBar me, tEvent, tSprID, tParam 
-  if tSprID = "game_rules_image" then
-    if tSprID = #mouseUp then
+on eventProcRoomBar(me, tEvent, tSprID, tParam)
+  if me = "game_rules_image" then
+    if me = #mouseUp then
       return(executeMessage(#ig_show_game_rules))
     else
-      if tSprID = #mouseEnter then
+      if me = #mouseEnter then
         return(executeMessage(#setRollOverInfo, getText("interface_icon_game_rules")))
       else
-        if tSprID = #mouseLeave then
+        if me = #mouseLeave then
           return(executeMessage(#setRollOverInfo, ""))
         end if
       end if
@@ -84,8 +87,8 @@ on eventProcRoomBar me, tEvent, tSprID, tParam
   end if
   if tEvent = #keyDown and tSprID = "chat_field" then
     tChatField = getWindow(tRoomBarObj.pBottomBarId).getElement(tSprID)
-    if tSprID <> 36 then
-      if tSprID = 76 then
+    if me <> 36 then
+      if me = 76 then
         if tChatField.getText() = "" then
           return(1)
         end if
@@ -121,13 +124,14 @@ on eventProcRoomBar me, tEvent, tSprID, tParam
         tChatField.setText("")
         return(1)
       else
-        if tSprID = 117 then
+        if me = 117 then
           tChatField.setText("")
         end if
       end if
       return(0)
       tResult = tRoomBarObj.eventProcRoomBar(tEvent, tSprID, tParam)
       return(1)
+      exit
     end if
   end if
 end

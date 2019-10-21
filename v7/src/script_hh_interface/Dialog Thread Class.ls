@@ -1,24 +1,23 @@
-property pReadyFlag, pWindowList, pAlertList, pWriterPlain, pWriterLink, pWriterBold, pDefWndType
-
-on construct me 
+on construct(me)
   pWindowList = []
   pAlertList = []
   pDefWndType = "habbo_basic.window"
   pReadyFlag = 0
   registerMessage(#openGeneralDialog, me.getID(), #showDialog)
   registerMessage(#alert, me.getID(), #ShowAlert)
-  return TRUE
+  return(1)
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   if pReadyFlag then
-    repeat while pWindowList <= undefined
+    repeat while me <= undefined
       tid = getAt(undefined, undefined)
       if windowExists(tid) then
         removeWindow(tid)
       end if
     end repeat
-    repeat while pWindowList <= undefined
+    repeat while me <= undefined
       tid = getAt(undefined, undefined)
       if windowExists(tid) then
         removeWindow(tid)
@@ -39,10 +38,11 @@ on deconstruct me
   pReadyFlag = 0
   unregisterMessage(#openGeneralDialog, me.getID())
   unregisterMessage(#alert, me.getID())
-  return TRUE
+  return(1)
+  exit
 end
 
-on ShowAlert me, tProps 
+on ShowAlert(me, tProps)
   if not pReadyFlag then
     me.buildResources()
   end if
@@ -60,7 +60,7 @@ on ShowAlert me, tProps
   else
     tActualID = "alert" && tProps.getAt(#id)
   end if
-  if (tProps.getAt(#modal) = 1) then
+  if tProps.getAt(#modal) = 1 then
     tSpecial = #modal
   else
     tSpecial = void()
@@ -69,7 +69,7 @@ on ShowAlert me, tProps
     me.removeDialog(tActualID, pAlertList)
   end if
   if not createWindow(tActualID, void(), void(), void(), tSpecial) then
-    return FALSE
+    return(0)
   end if
   tWndObj = getWindow(tActualID)
   tWndObj.setProperty(#title, tWndTitle)
@@ -98,24 +98,24 @@ on ShowAlert me, tProps
   tTextElem.feedImage(tTextImg)
   if tTitleWidth > tTextImg.width then
     if tWidth < tTitleWidth then
-      tOffW = (tTitleWidth - tWidth)
+      tOffW = tTitleWidth - tWidth
     end if
   else
     if tWidth < tTextImg.width then
-      tOffW = (tTextImg.width - tWidth)
+      tOffW = tTextImg.width - tWidth
     end if
   end if
-  if tHeight < (tTextImg.height + tTitleHeight) then
-    tOffH = ((tTextImg.height + tTitleHeight) - tHeight)
+  if tHeight < tTextImg.height + tTitleHeight then
+    tOffH = tTextImg.height + tTitleHeight - tHeight
   end if
   tWndObj.resizeBy(tOffW, tOffH)
   if tTitle <> "" then
     tTitleV = tTitleElem.getProperty(#locV)
     tTitleH = tTitleElem.getProperty(#locH)
-    tTitleElem.moveTo((((tWndObj.getProperty(#width) / 2) - (tTitleWidth / 2)) - tTitleH), tTitleV)
+    tTitleElem.moveTo(tWndObj.getProperty(#width) / 2 - tTitleWidth / 2 - tTitleH, tTitleV)
   end if
   tWndObj.center()
-  tLocOff = (pAlertList.count * 10)
+  tLocOff = pAlertList.count * 10
   tWndObj.moveBy(tLocOff, tLocOff)
   tWndObj.registerClient(me.getID())
   if symbolp(tProps.getAt(#registerProcedure)) then
@@ -124,25 +124,26 @@ on ShowAlert me, tProps
     tWndObj.registerProcedure(#eventProcAlert, me.getID(), #mouseUp)
   end if
   pAlertList.add(tActualID)
-  return TRUE
+  return(1)
+  exit
 end
 
-on showDialog me, tWndID, tProps 
+on showDialog(me, tWndID, tProps)
   if not pReadyFlag then
     me.buildResources()
   end if
-  if tWndID <> #alert then
-    if tWndID <> "alert" then
-      if tWndID <> #modal_alert then
-        if (tWndID = "modal_alert") then
+  if me <> #alert then
+    if me <> "alert" then
+      if me <> #modal_alert then
+        if me = "modal_alert" then
           return(me.ShowAlert(tProps))
         else
-          if tWndID <> #purse then
-            if (tWndID = "purse") then
+          if me <> #purse then
+            if me = "purse" then
               return(executeMessage(#show_hide_purse))
             else
-              if tWndID <> #help then
-                if (tWndID = "help") then
+              if me <> #help then
+                if me = "help" then
                   tWndTitle = getText("win_help", "Help")
                   if windowExists(tWndTitle) then
                     return(me.removeDialog(tWndTitle, pWindowList))
@@ -152,34 +153,35 @@ on showDialog me, tWndID, tProps
                   tStr = ""
                   i = 0
                   repeat while 1
-                    i = (i + 1)
+                    i = i + 1
                     if textExists("help_txt_" & i) then
                       tStr = tStr & getText("help_txt_" & i) & "\r"
                       next repeat
                     end if
                   end repeat
-                  tStr = tStr.getProp(#line, 1, (tStr.count(#line) - 1))
+                  tStr = tStr.getProp(#line, 1, tStr.count(#line) - 1)
                   tLinkImg = getWriter(pWriterLink).render(tStr).duplicate()
                   tWndObj.getElement("link_list").feedImage(tLinkImg)
                   if threadExists(#room) then
-                    if (getThread(#room).getComponent().getRoomID() = "") then
+                    if getThread(#room).getComponent().getRoomID() = "" then
                       tWndObj.getElement("help_callforhelp_textlink").hide()
                     end if
                   end if
                 else
-                  if tWndID <> #call_for_help then
-                    if (tWndID = "call_for_help") then
+                  if me <> #call_for_help then
+                    if me = "call_for_help" then
                       tWndTitle = getText("win_callforhelp", "Alert a Hobba")
                       if windowExists(tWndTitle) then
                         return(me.removeDialog(tWndTitle, pWindowList))
                       end if
                       me.createDialog(tWndTitle, pDefWndType, "habbo_hobba_compose.window", #eventProcCallHelp)
                     else
-                      if tWndID <> #ban then
-                        if (tWndID = "ban") then
+                      if me <> #ban then
+                        if me = "ban" then
                           tProps.setAt(#registerProcedure, #eventProcBan)
                           return(me.ShowAlert(tProps))
                         end if
+                        exit
                       end if
                     end if
                   end if
@@ -193,7 +195,7 @@ on showDialog me, tWndID, tProps
   end if
 end
 
-on buildResources me 
+on buildResources(me)
   pWriterPlain = "dialog_writer_plain"
   pWriterLink = "dialog_writer_link"
   pWriterBold = "dialog_writer_bold"
@@ -207,12 +209,13 @@ on buildResources me
   createWriter(pWriterLink, tFontLink)
   createWriter(pWriterBold, tFontBold)
   pReadyFlag = 1
-  return TRUE
+  return(1)
+  exit
 end
 
-on createDialog me, tWndTitle, tWndType, tContentType, tEventProc 
+on createDialog(me, tWndTitle, tWndType, tContentType, tEventProc)
   if not createWindow(tWndTitle, tWndType) then
-    return FALSE
+    return(0)
   end if
   tWndObj = getWindow(tWndTitle)
   tWndObj.merge(tContentType)
@@ -220,35 +223,38 @@ on createDialog me, tWndTitle, tWndType, tContentType, tEventProc
   tWndObj.registerClient(me.getID())
   tWndObj.registerProcedure(tEventProc, me.getID(), #mouseUp)
   pWindowList.add(tWndTitle)
-  return TRUE
+  return(1)
+  exit
 end
 
-on removeDialog me, tWndTitle, tWndList 
+on removeDialog(me, tWndTitle, tWndList)
   if tWndList.getOne(tWndTitle) then
     tWndList.deleteOne(tWndTitle)
     return(removeWindow(tWndTitle))
   else
     return(error(me, "Attempted to remove unknown dialog:" && tWndTitle, #removeDialog))
   end if
+  exit
 end
 
-on eventProcAlert me, tEvent, tElemID, tParam, tWndID 
-  if (tEvent = #mouseUp) then
-    if tElemID <> "alert_ok" then
-      if (tElemID = "close") then
+on eventProcAlert(me, tEvent, tElemID, tParam, tWndID)
+  if tEvent = #mouseUp then
+    if me <> "alert_ok" then
+      if me = "close" then
         return(me.removeDialog(tWndID, pAlertList))
       end if
+      exit
     end if
   end if
 end
 
-on eventProcPurse me, tEvent, tElemID, tParam, tWndID 
-  if (tEvent = #mouseUp) then
-    if tElemID <> "close" then
-      if (tElemID = "purse_close") then
+on eventProcPurse(me, tEvent, tElemID, tParam, tWndID)
+  if tEvent = #mouseUp then
+    if me <> "close" then
+      if me = "purse_close" then
         return(executeMessage(#hide_purse))
       else
-        if (tElemID = "purse_link_text") then
+        if me = "purse_link_text" then
           tSession = getObject(#session)
           if tSession.get("user_rights").getOne("can_buy_credits") then
             tURL = getText("url_purselink")
@@ -262,20 +268,21 @@ on eventProcPurse me, tEvent, tElemID, tParam, tWndID
           openNetPage(tURL, "_new")
         end if
       end if
+      exit
     end if
   end if
 end
 
-on eventProcHelp me, tEvent, tElemID, tParam, tWndID 
-  if (tEvent = #mouseUp) then
-    if (tElemID = "link_list") then
-      tLineNum = ((tParam.getAt(2) / 14) + 1)
+on eventProcHelp(me, tEvent, tElemID, tParam, tWndID)
+  if tEvent = #mouseUp then
+    if me = "link_list" then
+      tLineNum = tParam.getAt(2) / 14 + 1
       if textExists("url_help_" & tLineNum) then
         tSession = getObject(#session)
         tURL = getText("url_help_" & tLineNum)
         tName = urlEncode(tSession.get("user_name"))
-        if (tURL = "") then
-          return TRUE
+        if tURL = "" then
+          return(1)
         end if
         if tURL contains "\\user_name" then
           tURL = replaceChunks(tURL, "\\user_name", tName)
@@ -285,50 +292,53 @@ on eventProcHelp me, tEvent, tElemID, tParam, tWndID
         end if
         openNetPage(tURL, "_new")
       end if
-      return TRUE
+      return(1)
     else
-      if tElemID <> "close" then
-        if (tElemID = "help_ok") then
+      if me <> "close" then
+        if me = "help_ok" then
           return(me.removeDialog(tWndID, pWindowList))
         else
-          if (tElemID = "help_callforhelp_textlink") then
+          if me = "help_callforhelp_textlink" then
             me.removeDialog(tWndID, pWindowList)
             me.showDialog(#call_for_help)
-            return TRUE
+            return(1)
           end if
         end if
+        exit
       end if
     end if
   end if
 end
 
-on eventProcCallHelp me, tEvent, tElemID, tParam, tWndID 
-  if (tEvent = #mouseUp) then
-    if tElemID <> "close" then
-      if tElemID <> "callhelp_cancel" then
-        if (tElemID = "alertsent_ok") then
+on eventProcCallHelp(me, tEvent, tElemID, tParam, tWndID)
+  if tEvent = #mouseUp then
+    if me <> "close" then
+      if me <> "callhelp_cancel" then
+        if me = "alertsent_ok" then
           return(me.removeDialog(tWndID, pWindowList))
         else
-          if (tElemID = "callhelp_send") then
+          if me = "callhelp_send" then
             tWndObj = getWindow(tWndID)
             executeMessage(#sendCallForHelp, tWndObj.getElement("callhelp_text").getText())
             tWndObj.unmerge()
             tWndObj.merge("habbo_hobba_alertsent.window")
-            return TRUE
+            return(1)
           end if
         end if
+        exit
       end if
     end if
   end if
 end
 
-on eventProcBan me, tEvent, tElemID, tParam, tWndID 
-  if (tEvent = #mouseUp) then
-    if tElemID <> "alert_ok" then
-      if (tElemID = "close") then
+on eventProcBan(me, tEvent, tElemID, tParam, tWndID)
+  if tEvent = #mouseUp then
+    if me <> "alert_ok" then
+      if me = "close" then
         me.removeDialog(tWndID, pAlertList)
         resetClient()
       end if
+      exit
     end if
   end if
 end

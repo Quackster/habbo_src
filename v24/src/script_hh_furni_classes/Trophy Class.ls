@@ -1,6 +1,4 @@
-property pMsg, pPlateObjID, pName, pDate, pWindowName
-
-on prepare me, tdata 
+on prepare(me, tdata)
   pPlateObjID = "trophy_plate"
   pName = ""
   pMsg = ""
@@ -10,7 +8,7 @@ on prepare me, tdata
     return(error(me, "Incorrect data", #prepare, #major))
   end if
   if voidp(tdata.getAt(#stuffdata)) then
-    return TRUE
+    return(1)
   else
     tTemp = tdata.getAt(#stuffdata)
     tDelim = the itemDelimiter
@@ -21,7 +19,7 @@ on prepare me, tdata
       pMsg = tTemp.getProp(#item, 3, tTemp.count(#item))
       pMsg = replaceChunks(pMsg, "\\r", "\r")
     else
-      if (tTemp.count(#item) = 2) then
+      if tTemp.count(#item) = 2 then
         pName = tTemp.getProp(#item, 1)
         pDate = tTemp.getProp(#item, 2)
       else
@@ -32,27 +30,28 @@ on prepare me, tdata
       end if
     end if
     the itemDelimiter = tDelim
-    if (me.pPartColors.ilk = #list) then
-      if (me.count(#pPartColors) = 5) then
+    if pPartColors.ilk = #list then
+      if me.count(#pPartColors) = 5 then
         tSilverDetected = 0
         tCol = me.getProp(#pPartColors, 3)
-        if (chars(tCol, 2, 3) = chars(tCol, 4, 5)) and (chars(tCol, 2, 3) = chars(tCol, 6, 7)) then
+        if chars(tCol, 2, 3) = chars(tCol, 4, 5) and chars(tCol, 2, 3) = chars(tCol, 6, 7) then
           tSilverDetected = 1
         end if
         if tSilverDetected then
           pWindowName = "plate_silver.window"
         else
-          if (me.getProp(#pPartColors, 3) = "#996600") then
+          if me.getProp(#pPartColors, 3) = "#996600" then
             pWindowName = "plate_bronze.window"
           end if
         end if
       end if
     end if
   end if
-  return TRUE
+  return(1)
+  exit
 end
 
-on select me 
+on select(me)
   if the doubleClick then
     if not objectExists(pPlateObjID) then
       tObj = createObject(pPlateObjID, "Plate Class")
@@ -63,5 +62,6 @@ on select me
       tObj.show(pName, pDate, pMsg, pWindowName)
     end if
   end if
-  return TRUE
+  return(1)
+  exit
 end

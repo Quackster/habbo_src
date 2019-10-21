@@ -1,82 +1,82 @@
-property pSkillLevelWindowId
-
-on construct me 
+on construct(me)
   pSkillLevelWindowId = "bb_skillevelwindow"
   initThread("bouncingloungemenu.thread.index")
-  return TRUE
+  return(1)
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   if windowExists(pSkillLevelWindowId) then
     removeWindow(pSkillLevelWindowId)
   end if
   closeThread(#loungemenu)
-  return TRUE
+  return(1)
+  exit
 end
 
-on Refresh me, tTopic, tdata 
-  if (getThread(#loungemenu) = 0) then
-    return FALSE
+on Refresh(me, tTopic, tdata)
+  if getThread(#loungemenu) = 0 then
+    return(0)
   end if
   tIntObj = getThread(#loungemenu).getInterface()
-  if (tIntObj = 0) then
-    return FALSE
+  if tIntObj = 0 then
+    return(0)
   end if
   tComObj = getThread(#loungemenu).getComponent()
-  if (tComObj = 0) then
-    return FALSE
+  if tComObj = 0 then
+    return(0)
   end if
-  if (tTopic = #loungeinfo) then
+  if me = #loungeinfo then
     return(me.createSkillLevelWindow(tdata))
   else
-    if (tTopic = #tournamentlogo) then
+    if me = #tournamentlogo then
       return(tIntObj.setTournamentLogo(tdata))
     else
-      if (tTopic = #numtickets) then
+      if me = #numtickets then
         return(tIntObj.setNumTickets())
       else
-        if (tTopic = #instancelist) then
+        if me = #instancelist then
           return(tIntObj.setInstanceList())
         else
-          if (tTopic = #gameparameters) then
+          if me = #gameparameters then
             return(tIntObj.showGameCreation())
           else
-            if tTopic <> #createok then
-              if (tTopic = #gameinstance) then
+            if me <> #createok then
+              if me = #gameinstance then
                 if tComObj.checkUserWasKicked() then
                   tIntObj.showErrorMessage(6)
                 end if
                 tComObj.saveUserTeamIndex()
                 return(tIntObj.showInstance())
               else
-                if (tTopic = #gamedeleted) then
+                if me = #gamedeleted then
                   me.getGameSystem().unobserveInstance()
                   tComObj.resetUserTeamIndex()
                   return(tIntObj.ChangeWindowView(#gameList))
                 else
-                  if (tTopic = #joinparameters) then
+                  if me = #joinparameters then
                     return(tComObj.joinGame())
                   else
-                    if (tTopic = #watchok) then
+                    if me = #watchok then
                       return(tIntObj.setWatchMode(1))
                     else
-                      if (tTopic = #watchfailed) then
+                      if me = #watchfailed then
                         tIntObj.setWatchMode(0)
                         return(tIntObj.showErrorMessage(tdata.getAt(#reason), tdata.getAt(#request)))
                       else
-                        if (tTopic = #joinfailed) then
+                        if me = #joinfailed then
                           return(tIntObj.showErrorMessage(tdata.getAt(#reason), tdata.getAt(#request)))
                         else
-                          if (tTopic = #createfailed) then
+                          if me = #createfailed then
                             return(tIntObj.showErrorMessage(tdata.getAt(#reason), tdata.getAt(#request), tdata.getAt(#key)))
                           else
-                            if (tTopic = #startfailed) then
+                            if me = #startfailed then
                               return(tIntObj.showErrorMessage(tdata.getAt(#reason), tdata.getAt(#request)))
                             else
-                              if (tTopic = #instancenotavailable) then
+                              if me = #instancenotavailable then
                                 return(tIntObj.showErrorMessage("game_deleted"))
                               else
-                                if (tTopic = #idlewarning) then
+                                if me = #idlewarning then
                                   return(tIntObj.showErrorMessage("idlewarning"))
                                 end if
                               end if
@@ -88,7 +88,8 @@ on Refresh me, tTopic, tdata
                   end if
                 end if
               end if
-              return TRUE
+              return(1)
+              exit
             end if
           end if
         end if
@@ -97,7 +98,7 @@ on Refresh me, tTopic, tdata
   end if
 end
 
-on createSkillLevelWindow me, tdata 
+on createSkillLevelWindow(me, tdata)
   tSkillLevel = tdata.getAt(#lounge_skill_name)
   tSkillMin = tdata.getAt(#lounge_skill_score_min)
   tSkillMax = tdata.getAt(#lounge_skill_score_max)
@@ -109,8 +110,8 @@ on createSkillLevelWindow me, tdata
   end if
   createWindow(pSkillLevelWindowId, "bb_skillevel.window")
   tWndObj = getWindow(pSkillLevelWindowId)
-  if (tWndObj = 0) then
-    return FALSE
+  if tWndObj = 0 then
+    return(0)
   end if
   tWndObj.moveTo(224, 449)
   tSkillStr = replaceChunks(getText("gs_lounge_skill"), "\\x", tSkillLevel)
@@ -118,16 +119,17 @@ on createSkillLevelWindow me, tdata
   tSkillStr = replaceChunks(tSkillStr, "\\z", tSkillMax)
   tSkillStr = replaceChunks(tSkillStr, "\\r", "\r")
   tElem = tWndObj.getElement("skill_text")
-  if (tElem = 0) then
-    return FALSE
+  if tElem = 0 then
+    return(0)
   end if
   tElem.setText(tSkillStr.getProp(#line, 1))
   if tSkillStr.count(#line) > 1 then
     tElem = tWndObj.getElement("skill_score")
-    if (tElem = 0) then
-      return FALSE
+    if tElem = 0 then
+      return(0)
     end if
     tElem.setText(tSkillStr.getProp(#line, 2))
   end if
-  return TRUE
+  return(1)
+  exit
 end

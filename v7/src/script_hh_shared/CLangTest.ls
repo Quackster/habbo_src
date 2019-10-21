@@ -1,21 +1,20 @@
-property m_cWindowID
-
-on deconstruct me 
+on deconstruct(me)
   if windowExists(m_cWindowID) then
     return(removeWindow(m_cWindowID))
   else
-    return TRUE
+    return(1)
   end if
+  exit
 end
 
-on setWord me, tWord 
+on setWord(me, tWord)
   if tWord.ilk <> #string then
-    return(error(me, "String expected!", #setWord, #minor))
+    return(error(me, "String expected!", #setWord))
   end if
   m_cWindowID = "lang_test_wnd"
   if not windowExists(m_cWindowID) then
     if not createWindow(m_cWindowID) then
-      return(error(me, "Failed to create window!", #construct, #major))
+      return(error(me, "Failed to create window!", #construct))
     end if
   end if
   tWndObj = getWindow(m_cWindowID)
@@ -27,33 +26,36 @@ on setWord me, tWord
   tWndObj.getElement("lang_test_example").setText(tWord)
   tWndObj.center()
   setText("lang_test_text", getText("lang_test_text_2"))
+  exit
 end
 
-on testWord me 
+on testWord(me)
   tWord = getWindow(m_cWindowID).getElement("lang_test_field").getText()
-  if (tWord = "") then
-    return FALSE
+  if tWord = "" then
+    return(0)
   end if
   if connectionExists(getVariable("connection.info.id")) then
     getConnection(getVariable("connection.info.id")).send("LANGCHECK", [#string:tWord])
   end if
   removeObject(me.getID())
+  exit
 end
 
-on eventProc me, tEvent, tElemID 
-  if (tEvent = #mouseUp) then
-    if (tElemID = "ok") then
+on eventProc(me, tEvent, tElemID)
+  if me = #mouseUp then
+    if tElemID = "ok" then
       me.testWord()
-      return TRUE
+      return(1)
     end if
   else
-    if (tEvent = #keyDown) then
-      if (the key = "\r") then
+    if me = #keyDown then
+      if the key = "\r" then
         me.testWord()
-        return TRUE
+        return(1)
       else
-        return FALSE
+        return(0)
       end if
     end if
   end if
+  exit
 end

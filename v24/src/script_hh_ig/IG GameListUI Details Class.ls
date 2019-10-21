@@ -1,16 +1,16 @@
-on render me 
+on render(me)
   me.pWindowID = "list_det"
   tWrapObjRef = me.getWindowWrapper()
-  if (tWrapObjRef = 0) then
-    return FALSE
+  if tWrapObjRef = 0 then
+    return(0)
   end if
   tSetID = me.pWindowSetId & "_c"
   if not tWrapObjRef.existsSet(tSetID) then
     tWrapObjRef.initSet(tSetID, 2)
   end if
   tService = me.getIGComponent("GameList")
-  if (tService = 0) then
-    return FALSE
+  if tService = 0 then
+    return(0)
   end if
   tItemRef = tService.getObservedGame()
   tHasCompleteData = tItemRef <> 0
@@ -24,7 +24,7 @@ on render me
     tWrapObjRef.addOneWindow(me.getWindowId("hor"), "ig_divider_hor.window", tSetID, [#scaleV:1])
     tWrapObjRef.addOneWindow(me.getWindowId("btn_j"), "ig_frame_blank2_btm.window", tSetID)
     tWrapObjRef.render()
-    return TRUE
+    return(1)
   end if
   tTeamCount = tItemRef.getTeamCount()
   tTeamMaxSize = tItemRef.getTeamMaxSize()
@@ -39,65 +39,69 @@ on render me
     tKey = tPropList.getPropAt(i)
     tValue = tPropList.getAt(i)
     me.renderProperty(tKey, tValue)
-    i = (1 + i)
+    i = 1 + i
   end repeat
   me.renderButtons()
   tWrapObjRef.render()
-  return TRUE
+  return(1)
+  exit
 end
 
-on renderProperty me, tKey, tValue 
-  if (tKey = #game_type_icon) then
+on renderProperty(me, tKey, tValue)
+  if me = #game_type_icon then
     return(me.renderType(tValue))
   else
-    if (tKey = #level_name) then
+    if me = #level_name then
       return(me.renderName(tValue))
     end if
   end if
-  return FALSE
+  return(0)
+  exit
 end
 
-on renderType me, tValue 
+on renderType(me, tValue)
   tWndObj = getWindow(me.getWindowId())
-  if (tWndObj = 0) then
-    return FALSE
+  if tWndObj = 0 then
+    return(0)
   end if
   tElem = tWndObj.getElement("info_gamemode")
-  if (tElem = 0) then
-    return FALSE
+  if tElem = 0 then
+    return(0)
   end if
-  if (ilk(tValue) = #image) then
+  if ilk(tValue) = #image then
     tElem.feedImage(tValue)
   end if
-  return TRUE
+  return(1)
+  exit
 end
 
-on renderName me, tValue 
+on renderName(me, tValue)
   tWndObj = getWindow(me.getWindowId())
-  if (tWndObj = 0) then
-    return FALSE
+  if tWndObj = 0 then
+    return(0)
   end if
   tElem = tWndObj.getElement("ig_level_name")
-  if (tElem = 0) then
-    return FALSE
+  if tElem = 0 then
+    return(0)
   end if
   tElem.setText(tValue)
-  return TRUE
+  return(1)
+  exit
 end
 
-on renderButtons me 
+on renderButtons(me)
   tWrapObjRef = me.getWindowWrapper()
-  if (tWrapObjRef = 0) then
-    return FALSE
+  if tWrapObjRef = 0 then
+    return(0)
   end if
   tSetID = me.pWindowSetId & "_c"
   tService = me.getIGComponent("GameList")
-  if (tService = 0) then
-    return FALSE
+  if tService = 0 then
+    return(0)
   end if
   tJoinedId = tService.getJoinedGameId()
   tGameId = tService.getObservedGameId()
-  if (tGameId = tJoinedId) then
+  if tGameId = tJoinedId then
     tLayout = "ig_frame_swap_own.window"
   else
     if tJoinedId > -1 then
@@ -111,13 +115,14 @@ on renderButtons me
   else
     tWrapObjRef.replaceOneWindow(me.getWindowId("btn_j"), tLayout, 1)
   end if
-  return TRUE
+  return(1)
+  exit
 end
 
-on renderTeams me, tGameRef 
+on renderTeams(me, tGameRef)
   tWndObj = getWindow(me.getWindowId())
-  if (tWndObj = 0) then
-    return FALSE
+  if tWndObj = 0 then
+    return(0)
   end if
   tTeams = tGameRef.getAllTeamData()
   tOwnerFlag = tGameRef.checkIfOwnerOfGame()
@@ -140,17 +145,18 @@ on renderTeams me, tGameRef
       else
         me.renderPlayer(tTeams.getAt(tTeamIndex).getAt(#players).getAt(tPlayerIndex), tTeamIndex, tPlayerIndex, tOwnerFlag)
       end if
-      tPlayerIndex = (1 + tPlayerIndex)
+      tPlayerIndex = 1 + tPlayerIndex
     end repeat
-    tTeamIndex = (1 + tTeamIndex)
+    tTeamIndex = 1 + tTeamIndex
   end repeat
-  return TRUE
+  return(1)
+  exit
 end
 
-on renderNoPlayer me, tRequired, tTeamIndex, tPlayerIndex 
+on renderNoPlayer(me, tRequired, tTeamIndex, tPlayerIndex)
   tWndObj = getWindow(me.getWindowId())
-  if (tWndObj = 0) then
-    return FALSE
+  if tWndObj = 0 then
+    return(0)
   end if
   tSuffix = tTeamIndex & "_" & tPlayerIndex
   tElement = tWndObj.getElement("ig_icon_team_player_" & tSuffix)
@@ -179,28 +185,29 @@ on renderNoPlayer me, tRequired, tTeamIndex, tPlayerIndex
   if tElement <> 0 then
     tElement.hide()
   end if
-  return TRUE
+  return(1)
+  exit
 end
 
-on renderPlayer me, tInfo, tTeamIndex, tPlayerIndex, tOwnerFlag 
+on renderPlayer(me, tInfo, tTeamIndex, tPlayerIndex, tOwnerFlag)
   tWndObj = getWindow(me.getWindowId())
-  if (tWndObj = 0) then
-    return FALSE
+  if tWndObj = 0 then
+    return(0)
   end if
   tSuffix = tTeamIndex & "_" & tPlayerIndex
   tElement = tWndObj.getElement("ig_icon_team_player_" & tSuffix)
-  if (tElement = 0) then
-    return TRUE
+  if tElement = 0 then
+    return(1)
   end if
   tElement.show()
-  tOwnPlayer = (tInfo.getaProp(#name) = me.getOwnPlayerName())
+  tOwnPlayer = tInfo.getaProp(#name) = me.getOwnPlayerName()
   tImage = me.getHeadImage(tInfo.getaProp(#figure), tInfo.getaProp(#sex), 18, 18)
-  if (tImage.ilk = #image) then
+  if tImage.ilk = #image then
     tElement.setProperty(#image, tImage)
   end if
   tElement = tWndObj.getElement("ig_name_team_player_" & tSuffix)
   if tElement <> 0 then
-    if (tOwnPlayer = 1) then
+    if tOwnPlayer = 1 then
       tFontStruct = tElement.getFont()
       tFontStruct.setaProp(#font, "vb")
       tElement.setFont(tFontStruct)
@@ -224,5 +231,6 @@ on renderPlayer me, tInfo, tTeamIndex, tPlayerIndex, tOwnerFlag
       tElement.setProperty(#blend, 100)
     end if
   end if
-  return TRUE
+  return(1)
+  exit
 end

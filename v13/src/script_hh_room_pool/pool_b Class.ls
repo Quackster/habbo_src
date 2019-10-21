@@ -1,14 +1,13 @@
-property pBalloonRightMargin, pSplashs, pArrowCursor
-
-on construct me 
-  pSplashs = [:]
+on construct(me)
+  pSplashs = []
   pBalloonRightMargin = getIntVariable("balloons.rightmargin", 720)
   createVariable("balloons.rightmargin", 597)
   initThread("thread.pelle")
-  return TRUE
+  return(1)
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   closeThread(#pellehyppy)
   createVariable("balloons.rightmargin", pBalloonRightMargin)
   removeUpdate(me.getID())
@@ -21,19 +20,20 @@ on deconstruct me
   if objectExists(#pool_fuse_screen) then
     removeObject(#pool_fuse_screen)
   end if
-  pSplashs = [:]
+  pSplashs = []
   if objectExists(#pool_bigSplash) then
     removeObject(#pool_bigSplash)
   end if
   return(me.removeArrowCursor())
+  exit
 end
 
-on prepare me 
+on prepare(me)
   createObject(#pool_fuse_screen, "FUSE screen Class")
-  pSplashs = [:]
+  pSplashs = []
   f = 0
   repeat while f <= 2
-    tProps = [:]
+    tProps = []
     pSplashs.addProp("Splash" & f, createObject(#temp, "AnimSprite Class"))
     tProps.setAt(#visible, 0)
     tProps.setAt(#AnimFrames, 10)
@@ -41,7 +41,7 @@ on prepare me
     tProps.setAt(#MemberName, "splash_")
     tProps.setAt(#id, "Splash" & f)
     pSplashs.getAt("Splash" & f).setData(tProps)
-    f = (1 + f)
+    f = 1 + f
   end repeat
   if not objectExists(#waterripples) then
     createObject(#waterripples, "Water Ripple Effects Class")
@@ -54,7 +54,7 @@ on prepare me
   end if
   tSpr = getThread(#room).getInterface().getRoomVisualizer().getSprById("jumpticketautomatic")
   registerProcedure(tSpr, #eventProcJumpTicketAutomatic, me.getID(), #mouseDown)
-  repeat while ["pool_clickarea", "floor", "hiliter", "vesi2", "portaat1", "portaat3"] <= undefined
+  repeat while me <= undefined
     tid = getAt(undefined, undefined)
     tSpr = getThread(#room).getInterface().getRoomVisualizer().getSprById(tid)
     registerProcedure(tSpr, #poolTeleport, me.getID(), #mouseDown)
@@ -65,22 +65,23 @@ on prepare me
   end if
   getThread(#pellehyppy).getInterface().showRoomBar()
   receiveUpdate(me.getID())
-  return TRUE
+  return(1)
+  exit
 end
 
-on showprogram me, tMsg 
+on showprogram(me, tMsg)
   if not getThread(#room).getComponent().pActiveFlag then
-    return FALSE
+    return(0)
   end if
   if voidp(tMsg) then
-    return FALSE
+    return(0)
   end if
   tDst = tMsg.getAt(#show_dest)
   tCmd = tMsg.getAt(#show_command)
   tPrm = tMsg.getAt(#show_params)
   if tDst contains "cam" then
     if not objectExists(#pool_fuse_screen) then
-      return FALSE
+      return(0)
     end if
     call(symbol("fuseShow_" & tCmd), getObject(#pool_fuse_screen), tPrm)
   else
@@ -93,73 +94,80 @@ on showprogram me, tMsg
       end if
     end if
   end if
+  exit
 end
 
-on splash me, tDest, tCommand 
+on splash(me, tDest, tCommand)
   if voidp(pSplashs.getAt(tDest)) then
-    return FALSE
+    return(0)
   end if
   call(#Activate, pSplashs.getAt(tDest))
+  exit
 end
 
-on elvatorDoor me, tProps 
+on elvatorDoor(me, tProps)
   tDst = tProps.getAt(#dest)
   tCmd = tProps.getAt(#command)
-  if (tCmd = "open") then
+  if me = "open" then
     tmember = getMember("towerdoor_2")
   else
-    if (tCmd = "close") then
+    if me = "close" then
       tmember = getMember("towerdoor_0")
     end if
   end if
   tVisObj = getThread(#room).getInterface().getRoomVisualizer()
-  if (tVisObj = 0) then
-    return FALSE
+  if tVisObj = 0 then
+    return(0)
   end if
   tVisObj.getSprById("lift_door").setMember(tmember)
+  exit
 end
 
-on update me 
+on update(me)
   if pSplashs.count > 0 then
     call(#updateSplashs, pSplashs)
   end if
   if pArrowCursor or the mouseH < 25 then
     me.poolArrows()
   end if
+  exit
 end
 
-on poolArrows me 
+on poolArrows(me)
   tStartPos = [0, 13]
   tloc = getThread(#room).getInterface().getGeometry().getWorldCoordinate(the mouseH, the mouseV)
   if tloc.ilk <> #list then
     return(me.removeArrowCursor())
   end if
-  if ((tStartPos.getAt(1) - tloc.getAt(1)) = (tStartPos.getAt(2) - tloc.getAt(2))) then
+  if tStartPos.getAt(1) - tloc.getAt(1) = tStartPos.getAt(2) - tloc.getAt(2) then
     pArrowCursor = 1
     cursor([member(getmemnum("cursor_arrow_l")), member(getmemnum("cursor_arrow_l_mask"))])
   else
     me.removeArrowCursor()
   end if
+  exit
 end
 
-on removeArrowCursor me 
+on removeArrowCursor(me)
   pArrowCursor = 0
   cursor(-1)
-  return TRUE
+  return(1)
+  exit
 end
 
-on eventProcJumpTicketAutomatic me 
+on eventProcJumpTicketAutomatic(me)
   if threadExists(#pellehyppy) then
     return(executeMessage(#show_ticketWindow))
   else
-    return FALSE
+    return(0)
   end if
+  exit
 end
 
-on poolTeleport me, tEvent, tSprID, tParam 
+on poolTeleport(me, tEvent, tSprID, tParam)
   tMyIndex = getObject(#session).get("user_index")
   if not getThread(#room).getComponent().userObjectExists(tMyIndex) then
-    return FALSE
+    return(0)
   end if
   tloc = getThread(#room).getComponent().getUserObject(tMyIndex).getLocation()
   getThread(#room).getInterface().eventProcRoom(tEvent, "floor", tParam)
@@ -170,7 +178,7 @@ on poolTeleport me, tEvent, tSprID, tParam
       getConnection(getVariable("connection.room.id")).send("MOVE", [#short:31, #short:11])
     end if
   else
-    if tSprID contains "pool_clickarea" and (tloc.getAt(3) = 7) then
+    if tSprID contains "pool_clickarea" and tloc.getAt(3) = 7 then
       if tloc.getAt(2) > 11 then
         getConnection(getVariable("connection.room.id")).send("MOVE", [#short:17, #short:21])
       else
@@ -178,4 +186,5 @@ on poolTeleport me, tEvent, tSprID, tParam
       end if
     end if
   end if
+  exit
 end

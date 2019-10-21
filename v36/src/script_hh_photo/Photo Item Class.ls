@@ -1,4 +1,4 @@
-on select me 
+on select(me)
   if threadExists(#photo) then
     tSprites = me.getSprites()
     if not listp(tSprites) then
@@ -13,4 +13,5 @@ on select me
   else
     return(0)
   end if
+  exit
 end

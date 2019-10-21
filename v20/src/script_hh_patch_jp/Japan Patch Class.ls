@@ -1,4 +1,4 @@
-on construct me 
+on construct(me)
   the romanLingo = 1
   the inlineImeEnabled = 1
   if the platform contains "windows" then
@@ -12,10 +12,10 @@ on construct me
   end if
   tui = the environment.uiLanguage
   tos = the environment.osLanguage
-  if (tui = "Japanese") and (tos = "Japanese") then
+  if tui = "Japanese" and tos = "Japanese" then
     setVariable("writer.instance.class", string(["Writer Class", "Writer Patch A"]))
   else
-    if (tos = "Japanese") then
+    if tos = "Japanese" then
       setVariable("writer.instance.class", string(["Writer Class", "Writer Patch A", "Writer Patch B"]))
     end if
   end if
@@ -53,10 +53,12 @@ on construct me
   end if
   createObject(#string_validator, "String Validator Cls")
   registerMessage(#Initialize, me.getID(), #delayedPatch)
-  return TRUE
+  return(1)
+  exit
 end
 
-on delayedPatch me 
+on delayedPatch(me)
   replaceMember("matik_upp", "matik_upp_jp")
   unregisterMessage(#Initialize, me.getID())
+  exit
 end

@@ -1,34 +1,36 @@
-property pTotalSprList, pFreeSprList, pClientList, pEventBroker
-
-on construct me 
+on construct(me)
   pTotalSprList = void()
   pFreeSprList = void()
   pClientList = void()
   pEventBroker = script(getVariable("event.broker.behavior"))
   return(me.preIndexChannels())
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   return(1)
+  exit
 end
 
-on getProperty me, tPropID 
-  if tPropID = #totalSprCount then
+on getProperty(me, tPropID)
+  if me = #totalSprCount then
     return(pTotalSprList.count)
   else
-    if tPropID = #freeSprCount then
+    if me = #freeSprCount then
       return(pFreeSprList.count)
     else
       return(0)
     end if
   end if
+  exit
 end
 
-on setProperty me, tPropID, tValue 
+on setProperty(me, tPropID, tValue)
   return(0)
+  exit
 end
 
-on reserveSprite me, tClientID 
+on reserveSprite(me, tClientID)
   if pFreeSprList.count = 0 then
     executeMessage(#releaseSpritesLevel1)
     if pFreeSprList.count = 0 then
@@ -47,9 +49,10 @@ on reserveSprite me, tClientID
   tsprite.visible = 1
   pClientList.setAt(tSprNum, tClientID)
   return(tSprNum)
+  exit
 end
 
-on releaseSprite me, tSprNum 
+on releaseSprite(me, tSprNum)
   if pTotalSprList.getPos(tSprNum) < 1 then
     return(error(me, "Sprite not marked as usable:" && tSprNum, #releaseSprite, #minor))
   end if
@@ -72,18 +75,20 @@ on releaseSprite me, tSprNum
   pFreeSprList.append(tSprNum)
   pClientList.setAt(tSprNum, 0)
   return(1)
+  exit
 end
 
-on releaseAllSprites me 
+on releaseAllSprites(me)
   pFreeSprList = []
-  repeat while pTotalSprList.count <= undefined
+  repeat while me <= undefined
     tSprNum = getAt(undefined, undefined)
     me.releaseSprite(tSprNum)
   end repeat
   return(1)
+  exit
 end
 
-on setEventBroker me, tSprNum, tID 
+on setEventBroker(me, tSprNum, tID)
   if pTotalSprList.getPos(tSprNum) < 1 then
     return(error(me, "Sprite not marked as usable:" && tSprNum, #setEventBroker, #major))
   end if
@@ -94,9 +99,10 @@ on setEventBroker me, tSprNum, tID
   tsprite.scriptInstanceList = [new(pEventBroker)]
   tsprite.setID(tID)
   return(1)
+  exit
 end
 
-on removeEventBroker me, tSprNum 
+on removeEventBroker(me, tSprNum)
   if pTotalSprList.getPos(tSprNum) < 1 then
     return(error(me, "Sprite not marked as usable:" && tSprNum, #removeEventBroker, #minor))
   end if
@@ -105,9 +111,10 @@ on removeEventBroker me, tSprNum
   end if
   sprite(tSprNum).scriptInstanceList = []
   return(1)
+  exit
 end
 
-on print me, tCount 
+on print(me, tCount)
   if integerp(tCount) then
     if tCount > the lastChannel then
       tCount = the lastChannel
@@ -119,7 +126,7 @@ on print me, tCount
     end repeat
     exit repeat
   end if
-  repeat while sprite(i).spriteNum && "--" <= undefined
+  repeat while me <= undefined
     tNum = getAt(undefined, tCount)
     if pFreeSprList.getPos(tNum) < 1 then
       tSymbol = "#"
@@ -128,9 +135,10 @@ on print me, tCount
     end if
     put(sprite(tNum) && member.name && "--" && sprite(tNum).locZ && "--" && sprite(tNum).rect && "--" && pClientList.getAt(tNum))
   end repeat
+  exit
 end
 
-on preIndexChannels me 
+on preIndexChannels(me)
   pTotalSprList = []
   pFreeSprList = []
   pClientList = []
@@ -145,4 +153,5 @@ on preIndexChannels me
   pFreeSprList = pTotalSprList.duplicate()
   pTotalSprList.sort()
   return(1)
+  exit
 end

@@ -1,6 +1,4 @@
-property pActiveEffects, pOrigBallColor, pBounceState, pBallState
-
-on construct me 
+on construct(me)
   pBallState = 1
   pBounceState = 0
   pBounceAnimCount = 1
@@ -12,10 +10,11 @@ on construct me
     return(0)
   end if
   return(ancestor.construct())
+  exit
 end
 
-on deconstruct me 
-  repeat while pActiveEffects <= undefined
+on deconstruct(me)
+  repeat while me <= undefined
     tEffect = getAt(undefined, undefined)
     tEffect.deconstruct()
   end repeat
@@ -24,21 +23,22 @@ on deconstruct me
     return(1)
   end if
   return(ancestor.deconstruct())
+  exit
 end
 
-on roomObjectAction me, tAction, tdata 
-  if tAction = #set_ball_color then
+on roomObjectAction(me, tAction, tdata)
+  if me = #set_ball_color then
     tTeamColors = [rgb("#E73929"), rgb("#217BEF"), rgb("#FFCE21"), rgb("#8CE700")]
     me.setBallColor(tTeamColors.getAt(tdata.getAt(#opponentTeamId) + 1))
   else
-    if tAction = #reset_ball_color then
+    if me = #reset_ball_color then
       me.setBallColor(pOrigBallColor)
     else
-      if tAction = #set_bounce_state then
+      if me = #set_bounce_state then
         pBounceState = tdata
         me.clearEffectAnimation()
       else
-        if tAction = #set_ball then
+        if me = #set_ball then
           if tdata then
             pBallState = 1
           else
@@ -46,14 +46,14 @@ on roomObjectAction me, tAction, tdata
           end if
           me.pChanges = 1
           me.pDirChange = 1
-          repeat while tAction <= tdata
+          repeat while me <= tdata
             tBodyPart = getAt(tdata, tAction)
             tBodyPart.pMemString = ""
           end repeat
           pMember.fill(image.rect, me.pAlphaColor)
           me.render()
         else
-          if tAction = #fly_into then
+          if me = #fly_into then
             me.createEffect(#loop, "bb2_efct_pu_cannon_", [#ink:33], me.pDirection)
             me.pMainAction = "sit"
             me.pMoving = 1
@@ -68,20 +68,22 @@ on roomObjectAction me, tAction, tdata
       end if
     end if
   end if
+  exit
 end
 
-on select me 
+on select(me)
   return(0)
+  exit
 end
 
-on prepare me 
+on prepare(me)
   tScreenLoc = pScreenLoc.duplicate()
   if me.pMoving then
-    tFactor = (float(the milliSeconds - me.pMoveStart) / me.pMoveTime)
-    if tFactor > 1 then
-      tFactor = 1
+    tFactor = float(the milliSeconds - me.pMoveStart) / me.pMoveTime
+    if tFactor > 0 then
+      tFactor = 0
     end if
-    me.pScreenLoc = (me.pDestLScreen - me.pStartLScreen * tFactor) + me.pStartLScreen
+    me.pScreenLoc = me.pDestLScreen - me.pStartLScreen * tFactor + me.pStartLScreen
     me.adjustScreenLoc(1)
     me.pChanges = 1
   else
@@ -92,49 +94,51 @@ on prepare me
   if tScreenLoc <> me.pScreenLoc then
     me.pLocChange = 1
   end if
+  exit
 end
 
-on adjustScreenLoc me, tMoving 
+on adjustScreenLoc(me, tMoving)
   if tMoving then
-    if pBounceState = 8 then
+    if me = 8 then
       tBounceLocV = [0.7]
     else
-      if pBounceState = 7 then
+      if me = 7 then
         me.setEffectAnimationLocations([#screenLoc:me.pScreenLoc])
         tBounceLocV = [0]
       else
-        if pBounceState = 3 then
-          tBounceLocV = [0, -1, -2, -2.4, -2, -1, -0]
+        if me = 3 then
+          tBounceLocV = [0, -0, -0, -2.4, -0, -0, -0]
           if me.pBounceAnimCount = 3 then
             me.createEffect(#once, "bb2_efct_pu_spring_", [#ink:33])
           end if
         else
-          if pBounceState = 4 then
-            tBounceLocV = [0, -0.5, -1, -0, -0.5, -1, -0]
+          if me = 4 then
+            tBounceLocV = [0, -0, -0, -0, -0, -0, -0]
             if me.pBounceAnimCount = 3 then
               me.createEffect(#once, "bb2_efct_pu_drill_", [#ink:33])
             end if
           else
-            tBounceLocV = [0, -0.5, -1, -1.2, -1, -0.5, -0]
+            tBounceLocV = [0, -0, -0, -1.2, -0, -0, -0]
           end if
         end if
       end if
     end if
   else
-    if pBounceState = 8 then
+    if me = 8 then
       tBounceLocV = [0.7]
     else
-      tBounceLocV = [0, -0.3, -0.4, -0.5, -0.4, -0.1]
+      tBounceLocV = [0, -0.3, -0.4, -0, -0.4, -0.1]
     end if
   end if
   me.pBounceAnimCount = me.pBounceAnimCount + 1
   if me.pBounceAnimCount > tBounceLocV.count then
     me.pBounceAnimCount = 1
   end if
-  me.setProp(#pScreenLoc, 2, me.getProp(#pScreenLoc, 2) + (10 * tBounceLocV.getAt(me.pBounceAnimCount)))
+  me.setProp(#pScreenLoc, 2, me.getProp(#pScreenLoc, 2) + 10 * tBounceLocV.getAt(me.pBounceAnimCount))
+  exit
 end
 
-on update me 
+on update(me)
   me.pSync = not me.pSync
   if me.pSync then
     me.prepare()
@@ -155,9 +159,10 @@ on update me
     end if
     i = 1 + i
   end repeat
+  exit
 end
 
-on render me 
+on render(me)
   if not me.pChanges then
     return(1)
   end if
@@ -216,9 +221,10 @@ on render me
   end if
   image.copyPixels(me.pBuffer, me.pUpdateRect, me.pUpdateRect)
   return(1)
+  exit
 end
 
-on setHumanSpriteLoc me 
+on setHumanSpriteLoc(me)
   tOffZ = 2
   pSprite.locH = me.getProp(#pScreenLoc, 1)
   pSprite.locV = me.getProp(#pScreenLoc, 2)
@@ -228,9 +234,10 @@ on setHumanSpriteLoc me
   me.loc = pSprite.loc + [me.pShadowFix, 0]
   me.locZ = pSprite.locZ - 3
   return(1)
+  exit
 end
 
-on setBallColor me, tColor 
+on setBallColor(me, tColor)
   if pPartIndex.findPos("bl") = 0 then
     return(0)
   end if
@@ -243,9 +250,10 @@ on setBallColor me, tColor
   me.pDirChange = 1
   me.render()
   return(1)
+  exit
 end
 
-on setPartLists me, tmodels 
+on setPartLists(me, tmodels)
   me.pMainAction = "sit"
   me.pPartList = []
   tPartDefinition = getVariableValue("bouncing.human.parts.sh")
@@ -253,7 +261,7 @@ on setPartLists me, tmodels
   repeat while i <= tPartDefinition.count
     tPartSymbol = tPartDefinition.getAt(i)
     if voidp(tmodels.getAt(tPartSymbol)) then
-      tmodels.setAt(tPartSymbol, [:])
+      tmodels.setAt(tPartSymbol, [])
     end if
     if voidp(tmodels.getAt(tPartSymbol).getAt("model")) then
       tmodels.getAt(tPartSymbol).setAt("model", "001")
@@ -278,7 +286,7 @@ on setPartLists me, tmodels
     else
       tColor = tmodels.getAt(tPartSymbol).getAt("color")
     end if
-    if tColor.red + tColor.green + tColor.blue > (238 * 3) then
+    if tColor.red + tColor.green + tColor.blue > 238 * 3 then
       tColor = rgb("EEEEEE")
     end if
     if ["ls", "lh", "rs", "rh"].getPos(tPartSymbol) = 0 then
@@ -291,7 +299,7 @@ on setPartLists me, tmodels
     pColors.setaProp(tPartSymbol, tColor)
     i = 1 + i
   end repeat
-  me.pPartIndex = [:]
+  me.pPartIndex = []
   i = 1
   repeat while i <= me.count(#pPartList)
     me.setProp(#pPartIndex, me.getPropRef(#pPartList, i).pPart, i)
@@ -301,9 +309,10 @@ on setPartLists me, tmodels
   call(#defineActMultiple, me.pPartList, "sit", ["bd", "lg", "sh"])
   call(#defineActMultiple, me.pPartList, "crr", ["lh", "rh", "ls", "rs"])
   return(1)
+  exit
 end
 
-on getPicture me, tImg 
+on getPicture(me, tImg)
   if voidp(tImg) then
     tCanvas = image(32, 62, 32)
   else
@@ -311,7 +320,7 @@ on getPicture me, tImg
   end if
   tPartDefinition = getVariableValue("human.parts.sh")
   tTempPartList = []
-  repeat while tPartDefinition <= undefined
+  repeat while me <= undefined
     tPartSymbol = getAt(undefined, tImg)
     if not voidp(me.getProp(#pPartIndex, tPartSymbol)) then
       tTempPartList.append(me.getProp(#pPartList, me.getProp(#pPartIndex, tPartSymbol)))
@@ -319,16 +328,18 @@ on getPicture me, tImg
   end repeat
   call(#copyPicture, tTempPartList, tCanvas, "2", "sh")
   return(tCanvas)
+  exit
 end
 
-on Refresh me, tX, tY, tH 
+on Refresh(me, tX, tY, tH)
   call(#defineDir, me.pPartList, me.pDirection)
   call(#defineDirMultiple, me.pPartList, me.pDirection, ["hd", "hr", "ey", "fc"])
   me.arrangeParts()
   return(1)
+  exit
 end
 
-on resetValues me, tX, tY, tH, tDirHead, tDirBody 
+on resetValues(me, tX, tY, tH, tDirHead, tDirBody)
   tDirHead = tDirBody
   me.pMoving = 0
   me.pDancing = 0
@@ -354,16 +365,18 @@ on resetValues me, tX, tY, tH, tDirHead, tDirBody
   me.pChanges = 1
   me.pLocChange = 1
   return(1)
+  exit
 end
 
-on clearEffectAnimation me 
-  repeat while pActiveEffects <= undefined
+on clearEffectAnimation(me)
+  repeat while me <= undefined
     tEffect = getAt(undefined, undefined)
     tEffect.pActive = 0
   end repeat
+  exit
 end
 
-on setEffectAnimationLocations me, tlocation 
+on setEffectAnimationLocations(me, tlocation)
   if tlocation.getAt(#screenLoc) = void() then
     tX = tlocation.getAt(#x)
     tY = tlocation.getAt(#y)
@@ -380,14 +393,15 @@ on setEffectAnimationLocations me, tlocation
   else
     tScreenLoc = tlocation.getAt(#screenLoc)
   end if
-  repeat while pActiveEffects <= undefined
+  repeat while me <= undefined
     tEffect = getAt(undefined, tlocation)
     tEffect.setLocation(tScreenLoc)
   end repeat
   return(1)
+  exit
 end
 
-on createEffect me, tMode, tEffectID, tProps, tDirection 
+on createEffect(me, tMode, tEffectID, tProps, tDirection)
   tX = me.pLocX
   tY = me.pLocY
   tZ = me.pLocH
@@ -407,9 +421,10 @@ on createEffect me, tMode, tEffectID, tProps, tDirection
   tEffect.define(tMode, tScreenLoc, tlocz, tEffectID, tProps, tDirection)
   pActiveEffects.append(tEffect)
   return(1)
+  exit
 end
 
-on action_mv me, tProps 
+on action_mv(me, tProps)
   me.pMainAction = "sit"
   me.pMoving = 1
   tDelim = the itemDelimiter
@@ -425,4 +440,5 @@ on action_mv me, tProps
   me.pMoveStart = the milliSeconds
   call(#defineActMultiple, me.pPartList, "sit", ["bd", "lg", "sh"])
   call(#defineActMultiple, me.pPartList, "crr", ["lh", "rh", "ls", "rs"])
+  exit
 end

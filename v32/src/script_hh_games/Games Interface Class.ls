@@ -1,16 +1,16 @@
-property pWindowTitle, pChessPieces, pChessWait, pOpenWindow, pBattleShipMyBoardImg, pPokerOpponentChange, pMyName, pPokerChangeCards
-
-on construct me 
+on construct(me)
   pWindowTitle = "GAME"
   return(1)
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   me.closeGame()
   return(1)
+  exit
 end
 
-on closeGame me 
+on closeGame(me)
   if objectExists("battleShipPlacer") then
     removeObject("battleShipPlacer")
   end if
@@ -21,24 +21,25 @@ on closeGame me
     me.getComponent().sendGameClose()
     removeWindow(pWindowTitle)
   end if
+  exit
 end
 
-on openGameWindow me, tWindowName, tProps 
-  if tWindowName = "TicTacToe" then
+on openGameWindow(me, tWindowName, tProps)
+  if me = "TicTacToe" then
     tWindowTitle = getText("game_TicTacToe", "TicTacToe")
     me.ChangeWindowView(tWindowTitle, "habbo_ttt_choose_side.window", #eventProcTicTacToe)
     me.chooseSideTicTacToe()
   else
-    if tWindowName = "Chess" then
+    if me = "Chess" then
       tWindowTitle = getText("game_Chess", "Chess")
       me.ChangeWindowView(tWindowTitle, "habbo_chess_choose_side.window", #eventProcChess)
       pChessWait = 0
     else
-      if tWindowName = "BattleShip" then
+      if me = "BattleShip" then
         tWindowTitle = getText("game_BattleShip", "BattleShip")
         me.ChangeWindowView(tWindowTitle, "habbo_battleships_start.window", #eventProcBattleShip)
       else
-        if tWindowName = "Poker" then
+        if me = "Poker" then
           tWindowTitle = getText("game_poker", "Poker")
           if not windowExists(tWindowTitle) then
             me.ChangeWindowView(tWindowTitle, "poker.window", #eventProcPoker)
@@ -49,9 +50,10 @@ on openGameWindow me, tWindowName, tProps
       end if
     end if
   end if
+  exit
 end
 
-on ChangeWindowView me, tWindowTitle, tWindowName, tEventProc, tX, tY, tWindowType 
+on ChangeWindowView(me, tWindowTitle, tWindowName, tEventProc, tX, tY, tWindowType)
   if voidp(tWindowType) then
     tTemp = "habbo_basic.window"
   else
@@ -72,29 +74,33 @@ on ChangeWindowView me, tWindowTitle, tWindowName, tEventProc, tX, tY, tWindowTy
       tWndObj.center()
     end if
   end if
+  exit
 end
 
-on flipH me, tImg 
+on flipH(me, tImg)
   tImage = image(tImg.width, tImg.height, tImg.depth)
   tQuad = [point(tImg.width, 0), point(0, 0), point(0, tImg.height), point(tImg.width, tImg.height)]
   tImage.copyPixels(tImg, tQuad, tImg.rect)
   return(tImage)
+  exit
 end
 
-on flipV me, tImg 
+on flipV(me, tImg)
   tImage = image(tImg.width, tImg.height, tImg.depth)
   tQuad = [point(0, tImg.height), point(tImg.width, tImg.height), point(tImg.width, 0), point(0, 0)]
   tImage.copyPixels(tImg, tQuad, tImg.rect)
   return(tImage)
+  exit
 end
 
-on chooseSideTicTacToe me 
+on chooseSideTicTacToe(me)
   me.drawGameBoardTicTacToe()
   getWindow(pWindowTitle).getElement("choose_side_x").setText("x")
   getWindow(pWindowTitle).getElement("choose_side_o").setText("o")
+  exit
 end
 
-on StartTicTacToe me, tGameProps 
+on StartTicTacToe(me, tGameProps)
   if not windowExists(pWindowTitle) then
     return(0)
   end if
@@ -102,9 +108,10 @@ on StartTicTacToe me, tGameProps
   me.drawGameBoardTicTacToe()
   tText = tGameProps.getAt(#player1).getAt(#type) && tGameProps.getAt(#player1).getAt(#name) & "\r" & tGameProps.getAt(#player2).getAt(#type) && tGameProps.getAt(#player2).getAt(#name)
   getWindow(pWindowTitle).getElement("game_text1").setText(tText)
+  exit
 end
 
-on updateTicTacToe me, tGameProps 
+on updateTicTacToe(me, tGameProps)
   if not windowExists(pWindowTitle) then
     return(0)
   end if
@@ -114,9 +121,10 @@ on updateTicTacToe me, tGameProps
   end if
   getWindow(pWindowTitle).getElement("game_text1").setText(tText1)
   me.drawGameBoardTicTacToe(tGameProps)
+  exit
 end
 
-on drawGameBoardTicTacToe me, tGameProps 
+on drawGameBoardTicTacToe(me, tGameProps)
   tWndObj = getWindow(pWindowTitle)
   tElem = tWndObj.getElement("game_area")
   tImg = image.duplicate()
@@ -133,25 +141,27 @@ on drawGameBoardTicTacToe me, tGameProps
   repeat while i <= tGameProps.getAt(#gameboard).length
     tC = tGameProps.getAt(#gameboard).getProp(#char, i)
     if charToNum(tC) <> 32 then
-      me.drawTicTacToe((i mod tW) - 1, (i / tW), tC, tBuffer)
+      me.drawTicTacToe(i mod tW - 1, i / tW, tC, tBuffer)
     end if
     i = 1 + i
   end repeat
   tElem.render()
   return(1)
+  exit
 end
 
-on drawTicTacToe me, tX, tY, tC, tBuffer 
+on drawTicTacToe(me, tX, tY, tC, tBuffer)
   if not memberExists("game_TicTacToe." & tC) then
     return(error(me, "Member not found:" && "game_TicTacToe." & tC))
   end if
   tSquareSize = 10
   tMemImg = member(getmemnum("game_TicTacToe." & tC)).image
-  tdestrect = rect((tX * tSquareSize) + 1, (tY * tSquareSize) + 1, (tX + 1 * tSquareSize), (tY + 1 * tSquareSize))
+  tdestrect = rect(tX * tSquareSize + 1, tY * tSquareSize + 1, tX + 1 * tSquareSize, tY + 1 * tSquareSize)
   tBuffer.copyPixels(tMemImg, tdestrect, tMemImg.rect, [#ink:36])
+  exit
 end
 
-on selectedTypeTicTacToe me, tPlayerProps, tGameProps 
+on selectedTypeTicTacToe(me, tPlayerProps, tGameProps)
   tWndObj = getWindow(pWindowTitle)
   if tWndObj = 0 then
     return(0)
@@ -168,27 +178,29 @@ on selectedTypeTicTacToe me, tPlayerProps, tGameProps
     tText1 = tGameProps.getAt(#player1).getAt(#type) && tGameProps.getAt(#player1).getAt(#name) & "\r" & tGameProps.getAt(#player2).getAt(#type) && tGameProps.getAt(#player2).getAt(#name)
     tWndObj.getElement("game_text1").setText(tText1)
   end if
+  exit
 end
 
-on getTicTacToeSector me, tpoint 
-  return([(tpoint.getAt(1) / 10), (tpoint.getAt(2) / 10)])
+on getTicTacToeSector(me, tpoint)
+  return([tpoint.getAt(1) / 10, tpoint.getAt(2) / 10])
+  exit
 end
 
-on eventProcTicTacToe me, tEvent, tElemID, tParam 
+on eventProcTicTacToe(me, tEvent, tElemID, tParam)
   if tEvent = #mouseUp then
-    if tElemID = "close" then
+    if me = "close" then
       me.closeGame("TicTacToe")
     else
-      if tElemID = "choose_side_x" then
+      if me = "choose_side_x" then
         me.getComponent().chooseSideTicTacToe("X")
       else
-        if tElemID = "choose_side_o" then
+        if me = "choose_side_o" then
           me.getComponent().chooseSideTicTacToe("O")
         else
-          if tElemID = "game_newgame" then
+          if me = "game_newgame" then
             me.getComponent().restartTicTacToe()
           else
-            if tElemID = "game_area" then
+            if me = "game_area" then
               tClickArea = me.getTicTacToeSector(tParam)
               me.getComponent().makeMoveTicTacToe(tClickArea.getAt(1), tClickArea.getAt(2))
             end if
@@ -197,16 +209,18 @@ on eventProcTicTacToe me, tEvent, tElemID, tParam
       end if
     end if
   end if
+  exit
 end
 
-on startChess me, tGameProps 
+on startChess(me, tGameProps)
   if not windowExists(pWindowTitle) then
     return(0)
   end if
   me.ChangeWindowView(pWindowTitle, "habbo_chess.window", #eventProcChess)
+  exit
 end
 
-on updateChess me, tGameProps 
+on updateChess(me, tGameProps)
   tWndObj = getWindow(pWindowTitle)
   if tWndObj = 0 then
     return(0)
@@ -222,9 +236,10 @@ on updateChess me, tGameProps
     tText = tGameProps.getAt(#player1).getAt(#type) && tGameProps.getAt(#player1).getAt(#name) & "\r" & tGameProps.getAt(#player2).getAt(#type) && tGameProps.getAt(#player2).getAt(#name)
     tWndObj.getElement("game_players").setText(tText)
   end if
+  exit
 end
 
-on setupChessPieces me, tGameProps 
+on setupChessPieces(me, tGameProps)
   if voidp(tGameProps) then
     return(0)
   end if
@@ -233,7 +248,7 @@ on setupChessPieces me, tGameProps
   end if
   tElem = getWindow(pWindowTitle).getElement("game_area")
   tBuffer = tElem.getProperty(#image)
-  pChessPieces = [:]
+  pChessPieces = []
   i = 1
   repeat while i <= tGameProps.getAt(#gameboard).count(#word)
     if tGameProps.getAt(#gameboard).getPropRef(#word, i).length = 5 then
@@ -247,25 +262,28 @@ on setupChessPieces me, tGameProps
     i = 1 + i
   end repeat
   tElem.render()
+  exit
 end
 
-on drawChessPieces me, tX, tY, tC, tBuffer 
+on drawChessPieces(me, tX, tY, tC, tBuffer)
   tSize = 27
   tmember = member(getmemnum(tC))
   tMemImg = tmember.image
   tMemRect = tmember.rect
-  tcenter = rect((tX * tSize) + (tSize / 2), (tY * tSize) + (tSize / 2), (tX * tSize) + (tSize / 2), (tY * tSize) + (tSize / 2))
+  tcenter = rect(tX * tSize + tSize / 2, tY * tSize + tSize / 2, tX * tSize + tSize / 2, tY * tSize + tSize / 2)
   tDstRect = tMemRect + tcenter
-  tDstRect = tDstRect - rect((tMemRect.width / 2), (tMemRect.height / 2), (tMemRect.width / 2), (tMemRect.height / 2))
+  tDstRect = tDstRect - rect(tMemRect.width / 2, tMemRect.height / 2, tMemRect.width / 2, tMemRect.height / 2)
   tBuffer.copyPixels(tMemImg, tDstRect, tMemRect, [#ink:36])
+  exit
 end
 
-on getChessSector me, tpoint 
+on getChessSector(me, tpoint)
   tSquareSize = 27
-  return(string((tpoint.getAt(1) / tSquareSize) & (tpoint.getAt(2) / tSquareSize)))
+  return(string(tpoint.getAt(1) / tSquareSize & tpoint.getAt(2) / tSquareSize))
+  exit
 end
 
-on makeChessSectorEmpty me, tX, tY 
+on makeChessSectorEmpty(me, tX, tY)
   tWndObj = getWindow(pWindowTitle)
   if tWndObj = 0 then
     return(0)
@@ -275,12 +293,13 @@ on makeChessSectorEmpty me, tX, tY
     return(0)
   end if
   tSquareSize = 27
-  tdestrect = rect((tX * tSquareSize), (tY * tSquareSize), (tX * tSquareSize) + tSquareSize, (tY * tSquareSize) + tSquareSize)
+  tdestrect = rect(tX * tSquareSize, tY * tSquareSize, tX * tSquareSize + tSquareSize, tY * tSquareSize + tSquareSize)
   tElem.getProperty(#image).fill(tdestrect, rgb(255, 255, 255))
   tElem.render()
+  exit
 end
 
-on makeMoveChess me, tpoint, tPieceData 
+on makeMoveChess(me, tpoint, tPieceData)
   tClickArea = me.getChessSector(tpoint)
   if not voidp(pChessPieces.getAt(tClickArea)) then
     tMySide = me.getComponent().getMySideChess()
@@ -299,27 +318,29 @@ on makeMoveChess me, tpoint, tPieceData
   pChessWait = 1
   me.delay(500, #waitMoveChess)
   return(1)
+  exit
 end
 
-on waitMoveChess me 
+on waitMoveChess(me)
   pChessWait = 0
+  exit
 end
 
-on eventProcChess me, tEvent, tElemID, tParam 
+on eventProcChess(me, tEvent, tElemID, tParam)
   if tEvent = #mouseUp then
-    if tElemID = "close" then
+    if me = "close" then
       if objectExists("chessPlacer") then
         removeObject("chessPlacer")
       end if
       me.closeGame("Chess")
     else
-      if tElemID = "chess_white" then
+      if me = "chess_white" then
         me.getComponent().chooseSideTicTacToe("w")
       else
-        if tElemID = "chess_black" then
+        if me = "chess_black" then
           me.getComponent().chooseSideTicTacToe("b")
         else
-          if tElemID = "game_area" then
+          if me = "game_area" then
             if pChessWait then
               return(1)
             end if
@@ -350,7 +371,7 @@ on eventProcChess me, tEvent, tElemID, tParam
             createObject("chessPlacer", "Chess Placer Class")
             getObject("chessPlacer").Init(tmember, tlocz, tPieceData, tAreaElem.getProperty(#sprite))
           else
-            if tElemID = "game_chess_newgame" then
+            if me = "game_chess_newgame" then
               if not windowExists(pWindowTitle) then
                 return(1)
               end if
@@ -359,13 +380,13 @@ on eventProcChess me, tEvent, tElemID, tParam
               end if
               me.ChangeWindowView(pWindowTitle, "habbo_chess_reset.window", #eventProcChess)
             else
-              if tElemID = "game_restart_yes" then
+              if me = "game_restart_yes" then
                 me.getComponent().restartChess()
               else
-                if tElemID = "game_restart_cancel" then
+                if me = "game_restart_cancel" then
                   me.getComponent().notRestartChess()
                 else
-                  if tElemID = "game_chess_email" then
+                  if me = "game_chess_email" then
                     me.getComponent().sendChessByEmail()
                   end if
                 end if
@@ -376,9 +397,10 @@ on eventProcChess me, tEvent, tElemID, tParam
       end if
     end if
   end if
+  exit
 end
 
-on showShipInfo me, tText 
+on showShipInfo(me, tText)
   tWndObj = getWindow(pWindowTitle)
   if tWndObj = 0 then
     return(0)
@@ -388,9 +410,10 @@ on showShipInfo me, tText
     return(0)
   end if
   return(tElem.setText(tText))
+  exit
 end
 
-on placeShip me, tmember, tdestrect 
+on placeShip(me, tmember, tdestrect)
   tWndObj = getWindow(pWindowTitle)
   if tWndObj = 0 then
     return(0)
@@ -402,29 +425,33 @@ on placeShip me, tmember, tdestrect
   tBuffer = tElem.getProperty(#image)
   tBuffer.copyPixels(tmember.image, tdestrect, tmember.rect, [#ink:36])
   tElem.render()
+  exit
 end
 
-on drawShip me, tX, tY, tmember, tImage 
+on drawShip(me, tX, tY, tmember, tImage)
   tSquareSize = 19
   tMemberImg = tmember.image
   tMemRect = tmember.rect
-  tcenter = rect((tX * tSquareSize) + (tSquareSize / 2), (tY * tSquareSize) + (tSquareSize / 2), (tX * tSquareSize) + (tSquareSize / 2), (tY * tSquareSize) + (tSquareSize / 2))
+  tcenter = rect(tX * tSquareSize + tSquareSize / 2, tY * tSquareSize + tSquareSize / 2, tX * tSquareSize + tSquareSize / 2, tY * tSquareSize + tSquareSize / 2)
   tdestrect = tMemRect + tcenter
-  tdestrect = tdestrect - rect((tMemRect.width / 2), (tMemRect.height / 2), (tMemRect.width / 2), (tMemRect.height / 2))
+  tdestrect = tdestrect - rect(tMemRect.width / 2, tMemRect.height / 2, tMemRect.width / 2, tMemRect.height / 2)
   tImage.copyPixels(tMemberImg, tdestrect, tMemRect, [#ink:36])
+  exit
 end
 
-on getBattleShipSector me, tpoint 
+on getBattleShipSector(me, tpoint)
   tSquareSize = 19
-  return(string((tpoint.getAt(1) / tSquareSize) && (tpoint.getAt(2) / tSquareSize)))
+  return(string(tpoint.getAt(1) / tSquareSize && tpoint.getAt(2) / tSquareSize))
+  exit
 end
 
-on battleShipWaitOtherPlayer me 
+on battleShipWaitOtherPlayer(me)
   pBattleShipMyBoardImg = getWindow(pWindowTitle).getElement("game_area").getProperty(#image).duplicate()
   me.ChangeWindowView(pWindowTitle, "habbo_battleships_wait.window", #eventProcBattleShip)
+  exit
 end
 
-on battleShipMyTurn me 
+on battleShipMyTurn(me)
   if pOpenWindow <> "habbo_battleships.window" then
     me.ChangeWindowView(pWindowTitle, "habbo_battleships.window", #eventProcBattleShip)
   end if
@@ -439,9 +466,10 @@ on battleShipMyTurn me
   tElem.clearBuffer()
   tElem.clearImage()
   me.battleShipShowTurnText(1)
+  exit
 end
 
-on battleShipOtherPlayersTurn me 
+on battleShipOtherPlayersTurn(me)
   if pOpenWindow <> "habbo_battleships.window" then
     me.ChangeWindowView(pWindowTitle, "habbo_battleships.window", #eventProcBattleShip)
   end if
@@ -459,9 +487,10 @@ on battleShipOtherPlayersTurn me
   tBuffer.copyPixels(pBattleShipMyBoardImg, tBuffer.rect, tBuffer.rect)
   tElem.render()
   me.battleShipShowTurnText(0)
+  exit
 end
 
-on battleShipShowTurnText me, tMyTurn 
+on battleShipShowTurnText(me, tMyTurn)
   tWndObj = getWindow(pWindowTitle)
   if tWndObj = 0 then
     return(0)
@@ -479,9 +508,10 @@ on battleShipShowTurnText me, tMyTurn
   end if
   tWndObj.getElement("game_battleships_text1").setText(tText)
   tWndObj.getElement("game_battleships_text2").setText("")
+  exit
 end
 
-on battleShipShowStatusText me, tText 
+on battleShipShowStatusText(me, tText)
   tWndObj = getWindow(pWindowTitle)
   if tWndObj = 0 then
     return(0)
@@ -491,17 +521,19 @@ on battleShipShowStatusText me, tText
     return(0)
   end if
   return(tElem.setText(tText))
+  exit
 end
 
-on battleShipGameEnd me, tText 
+on battleShipGameEnd(me, tText)
   if not windowExists(pWindowTitle) then
     return(0)
   end if
   me.ChangeWindowView(pWindowTitle, "habbo_battleships_end.window", #eventProcBattleShip)
   getWindow(pWindowTitle).getElement("game_winner").setText(tText)
+  exit
 end
 
-on updateBattleShipBoard me, tBoardData 
+on updateBattleShipBoard(me, tBoardData)
   if voidp(tBoardData) then
     return(0)
   end if
@@ -515,59 +547,61 @@ on updateBattleShipBoard me, tBoardData
   end if
   tBuffer = tElem.getProperty(#image)
   tSquareSize = 19
-  repeat while tBoardData <= undefined
+  repeat while me <= undefined
     tShoot = getAt(undefined, tBoardData)
     tX = tShoot.getAt(1)
     tY = tShoot.getAt(2)
     ttype = tShoot.getAt(3)
     tHitImage = member(getmemnum("game_bs_" & string(ttype))).image
     if ttype = #miss then
-      tdestrect = rect((tX * tSquareSize), (tY * tSquareSize), (tX * tSquareSize) + tHitImage.width - 1, (tY * tSquareSize) + tHitImage.height - 1)
+      tdestrect = rect(tX * tSquareSize, tY * tSquareSize, tX * tSquareSize + tHitImage.width - 1, tY * tSquareSize + tHitImage.height - 1)
     else
-      tdestrect = rect((tX * tSquareSize) + 1, (tY * tSquareSize) + 1, (tX * tSquareSize) + tHitImage.width, (tY * tSquareSize) + tHitImage.height)
+      tdestrect = rect(tX * tSquareSize + 1, tY * tSquareSize + 1, tX * tSquareSize + tHitImage.width, tY * tSquareSize + tHitImage.height)
     end if
     tBuffer.copyPixels(tHitImage, tdestrect, tHitImage.rect, [#ink:36])
   end repeat
   tElem.render()
+  exit
 end
 
-on eventProcBattleShip me, tEvent, tElemID, tParam 
+on eventProcBattleShip(me, tEvent, tElemID, tParam)
   if tEvent = #mouseUp then
-    if tElemID <> "close" then
-      if tElemID = "game_close" then
+    if me <> "close" then
+      if me = "game_close" then
         if objectExists("battleShipPlacer") then
           removeObject("battleShipPlacer")
         end if
         me.closeGame("BattleShip")
       else
-        if tElemID = "setships_ok" then
+        if me = "setships_ok" then
           me.ChangeWindowView(pWindowTitle, "habbo_battleships_place.window", #eventProcBattleShip)
           tElem = getWindow(pWindowTitle).getElement("game_area")
           tlocz = tElem.getProperty(#locZ) + 1
           createObject("battleShipPlacer", "BattleShip Placer Class")
           getObject("battleShipPlacer").Init(tElem.getProperty(#sprite), tlocz)
         else
-          if tElemID = "game_battleships_turn" then
+          if me = "game_battleships_turn" then
             if objectExists("battleShipPlacer") then
               getObject("battleShipPlacer").turnShip()
             end if
           else
-            if tElemID = "game_area" then
+            if me = "game_area" then
               tClickArea = me.getBattleShipSector(tParam)
               me.getComponent().sendBattleShipShoot(tClickArea.getProp(#word, 1), tClickArea.getProp(#word, 2))
             else
-              if tElemID = "game_newgame" then
+              if me = "game_newgame" then
                 me.getComponent().restartBattleShip()
               end if
             end if
           end if
         end if
       end if
+      exit
     end if
   end if
 end
 
-on PokerShowStatusText me, tText, tElement 
+on PokerShowStatusText(me, tText, tElement)
   tWndObj = getWindow(pWindowTitle)
   if tWndObj = 0 then
     return(0)
@@ -577,9 +611,10 @@ on PokerShowStatusText me, tText, tElement
     return(0)
   end if
   return(tElem.setText(tText))
+  exit
 end
 
-on drawPokerCard me, tElem, tMemName 
+on drawPokerCard(me, tElem, tMemName)
   if not windowExists(pWindowTitle) then
     return(error(me, "Window not exists!", #drawPokerCard))
   end if
@@ -593,9 +628,10 @@ on drawPokerCard me, tElem, tMemName
   tElem = tWndObj.getElement(tElem)
   tImg = image.duplicate()
   tElem.feedImage(tImg)
+  exit
 end
 
-on pokerMarkCards me 
+on pokerMarkCards(me)
   if pOpenWindow <> "poker_cards.window" then
     return(0)
   end if
@@ -617,9 +653,10 @@ on pokerMarkCards me
       i = 1 + i
     end repeat
   end if
+  exit
 end
 
-on fitOpponentCards me, tElemID, tImage 
+on fitOpponentCards(me, tElemID, tImage)
   tWndObj = getWindow(pWindowTitle)
   if tWndObj.elementExists(tElemID) then
     tElem = tWndObj.getElement(tElemID)
@@ -631,9 +668,10 @@ on fitOpponentCards me, tElemID, tImage
     tDestImg.copyPixels(tSourceImg, tdestrect, tSourceImg.rect)
     tElem.feedImage(tDestImg)
   end if
+  exit
 end
 
-on RemoveOpponentCards me, tOpponentNum 
+on RemoveOpponentCards(me, tOpponentNum)
   if pOpenWindow <> "poker_cards.window" then
     return(0)
   end if
@@ -650,9 +688,10 @@ on RemoveOpponentCards me, tOpponentNum
     tElem.clearImage()
     i = 1 + i
   end repeat
+  exit
 end
 
-on drawSelectedCards me, tElemName 
+on drawSelectedCards(me, tElemName)
   if pOpenWindow <> "poker_cards.window" then
     return(0)
   end if
@@ -666,9 +705,10 @@ on drawSelectedCards me, tElemName
     tDestImg.copyPixels(tSourceImg, tdestrect, tSourceImg.rect)
     tElem.feedImage(tDestImg)
   end if
+  exit
 end
 
-on hideChangeCards me 
+on hideChangeCards(me)
   if pOpenWindow <> "poker_cards.window" then
     return(0)
   end if
@@ -682,9 +722,10 @@ on hideChangeCards me
   end if
   tElem.setProperty(#visible, 0)
   return(1)
+  exit
 end
 
-on changePokerWindow me, tView 
+on changePokerWindow(me, tView)
   tWndObj = getWindow(pWindowTitle)
   if tWndObj = 0 then
     return(0)
@@ -692,9 +733,10 @@ on changePokerWindow me, tView
   tPosY = tWndObj.getProperty(#locY)
   tPosX = tWndObj.getProperty(#locX)
   me.ChangeWindowView(pWindowTitle, tView, #eventProcPoker, tPosX, tPosY)
+  exit
 end
 
-on PokerListMyCards me, tMsg 
+on PokerListMyCards(me, tMsg)
   tItemD = the itemDelimiter
   the itemDelimiter = "/"
   tProps = tMsg.getProp(#item, 2)
@@ -717,9 +759,10 @@ on PokerListMyCards me, tMsg
   if not voidp(pPokerOpponentChange) then
     me.pokerMarkCards()
   end if
+  exit
 end
 
-on PokerHandleOpponents me, tMsg 
+on PokerHandleOpponents(me, tMsg)
   pMyName = getObject(#session).GET(#userName)
   if voidp(pPokerOpponentChange) then
     pPokerOpponentChange = [[], [], []]
@@ -761,9 +804,10 @@ on PokerHandleOpponents me, tMsg
     end repeat
   end if
   me.getComponent().setProp(#pOpenGameProps, #opponentList, tOppList)
+  exit
 end
 
-on PokerOpponentLeaves me, tName 
+on PokerOpponentLeaves(me, tName)
   tOppList = me.getComponent().getProp(#pOpenGameProps, #opponentList)
   tPlayerNum = tOppList.findPos(tName)
   me.RemoveOpponentCards(tPlayerNum)
@@ -772,9 +816,10 @@ on PokerOpponentLeaves me, tName
   tPlayer = tName & "\r" & tText
   me.PokerShowStatusText(tPlayer, "poker_player_" & tPlayerNum)
   me.getComponent().setProp(#pOpenGameProps, #opponentList, tOppList)
+  exit
 end
 
-on pokerChangeCards me, tMsg 
+on pokerChangeCards(me, tMsg)
   tOppList = me.getComponent().getProp(#pOpenGameProps, #opponentList)
   tOpponents = tOppList.count
   tItemD = the itemDelimiter
@@ -811,14 +856,15 @@ on pokerChangeCards me, tMsg
     me.pokerChangeCursor()
   end if
   the itemDelimiter = tItemD
+  exit
 end
 
-on PokerRevealCards me, tMsg 
+on PokerRevealCards(me, tMsg)
   pPokerOpponentChange = [[], [], []]
   tOppChanged = me.getComponent().getProp(#pOpenGameProps, #PokerOpponentChange)
   tOppList = me.getComponent().getProp(#pOpenGameProps, #opponentList)
   tOpponents = tOppList.count
-  tOppChanged = [:]
+  tOppChanged = []
   tItemD = the itemDelimiter
   the itemDelimiter = "/"
   tPlayersCards = []
@@ -855,9 +901,10 @@ on PokerRevealCards me, tMsg
     i = 1 + i
   end repeat
   the itemDelimiter = tItemD
+  exit
 end
 
-on pokerChangeCursor me 
+on pokerChangeCursor(me)
   tWinObj = getWindow(pWindowTitle)
   tElem = tWinObj.getElement("my_1")
   if tElem.getProperty(#cursor) <> 0 then
@@ -867,14 +914,15 @@ on pokerChangeCursor me
       i = 1 + i
     end repeat
   end if
+  exit
 end
 
-on eventProcPoker me, tEvent, tElemID, tParam 
+on eventProcPoker(me, tEvent, tElemID, tParam)
   if tEvent = #mouseUp then
-    if tElemID = "close" then
+    if me = "close" then
       me.closeGame("Poker")
     else
-      if tElemID = "game_newgame" then
+      if me = "game_newgame" then
         pPokerChangeCards = []
         me.changePokerWindow("poker_cards.window")
         me.getComponent().startPoker()
@@ -883,11 +931,11 @@ on eventProcPoker me, tEvent, tElemID, tParam
         tText = getText("game_newgame", "Start a new game")
         me.PokerShowStatusText(tText, "poker_start")
       else
-        if tElemID <> "my_1" then
-          if tElemID <> "my_2" then
-            if tElemID <> "my_3" then
-              if tElemID <> "my_4" then
-                if tElemID = "my_5" then
+        if me <> "my_1" then
+          if me <> "my_2" then
+            if me <> "my_3" then
+              if me <> "my_4" then
+                if me = "my_5" then
                   if value(me.getComponent().getProp(#pOpenGameProps, #changeDone)) = 0 then
                     tMyCard = integer(tElemID.getProp(#char, length(tElemID)) - 1)
                     tCardSearch = pPokerChangeCards.findPos(tMyCard)
@@ -900,7 +948,7 @@ on eventProcPoker me, tEvent, tElemID, tParam
                     end if
                   end if
                 else
-                  if tElemID = "poker_ready" then
+                  if me = "poker_ready" then
                     if value(me.getComponent().getProp(#pOpenGameProps, #changeDone)) = 0 then
                       me.hideChangeCards()
                       tCardCount = pPokerChangeCards.count
@@ -924,6 +972,7 @@ on eventProcPoker me, tEvent, tElemID, tParam
                     end if
                   end if
                 end if
+                exit
               end if
             end if
           end if

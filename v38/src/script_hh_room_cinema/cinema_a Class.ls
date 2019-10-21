@@ -1,6 +1,4 @@
-property pAnimCounter, pAnimList, pCurrentFrm
-
-on construct me 
+on construct(me)
   pAnimCounter = 0
   pCurrentFrm = 1
   pAnimList = [2, 3, 4, 5, 6, 7, 8, 9, 10]
@@ -8,13 +6,15 @@ on construct me
   tSpr = getThread(#room).getInterface().getRoomVisualizer().getSprById("teleport")
   registerProcedure(tSpr, #eventProc, me.getID(), #mouseUp)
   return(1)
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   return(removeUpdate(me.getID()))
+  exit
 end
 
-on eventProc me 
+on eventProc(me)
   if connectionExists(getVariable("connection.room.id")) then
     tloc = getThread(#room).getComponent().getOwnUser().getLocation()
     tLocY = tloc.getAt(2)
@@ -24,9 +24,10 @@ on eventProc me
       getConnection(getVariable("connection.room.id")).send("MOVE", [#short:7, #short:0])
     end if
   end if
+  exit
 end
 
-on update me 
+on update(me)
   if pAnimCounter > 2 then
     tNextFrm = pAnimList.getAt(random(pAnimList.count))
     pAnimList.deleteOne(tNextFrm)
@@ -41,4 +42,5 @@ on update me
     pAnimCounter = 0
   end if
   pAnimCounter = pAnimCounter + 1
+  exit
 end

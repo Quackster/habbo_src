@@ -1,6 +1,4 @@
-property pGameOverShown
-
-on construct me 
+on construct(me)
   me.construct()
   me.pViewMode = #game_score
   pGameOverShown = 0
@@ -8,9 +6,10 @@ on construct me
   me.setaProp(#alltime_score, [#modal, "AlltimeScore", "ReplayQuery", "GamescoreButton"])
   me.setaProp(#rejoin, [#modal, "Rejoin"])
   return(1)
+  exit
 end
 
-on displayPlayerLeft me, tTeamId, tPlayerPos 
+on displayPlayerLeft(me, tTeamId, tPlayerPos)
   if me.pViewMode <> #game_score then
     return(1)
   end if
@@ -19,9 +18,10 @@ on displayPlayerLeft me, tTeamId, tPlayerPos
     return(0)
   end if
   return(tComponent.displayPlayerLeft(tTeamId, tPlayerPos))
+  exit
 end
 
-on displayPlayerRejoined me, tTeamId, tPlayerPos 
+on displayPlayerRejoined(me, tTeamId, tPlayerPos)
   if me.pViewMode = #game_score then
     tComponent = me.getSubComponent("GameScore")
     if tComponent = 0 then
@@ -37,17 +37,19 @@ on displayPlayerRejoined me, tTeamId, tPlayerPos
       return(tComponent.render())
     end if
   end if
+  exit
 end
 
-on displayTimeLeft me, tTime 
+on displayTimeLeft(me, tTime)
   tComponent = me.getSubComponent("Rejoin")
   if tComponent = 0 then
     return(0)
   end if
   return(tComponent.displayTimeLeft(tTime))
+  exit
 end
 
-on update me 
+on update(me)
   tComponent = me.getSubComponent("Gameover")
   if tComponent <> 0 then
     tComponent.update()
@@ -57,9 +59,10 @@ on update me
     tComponent.update()
   end if
   return(1)
+  exit
 end
 
-on getSubComponentClass me, tID 
+on getSubComponentClass(me, tID)
   if tID = "Gameover" then
     if pGameOverShown then
       return([])
@@ -67,11 +70,12 @@ on getSubComponentClass me, tID
     pGameOverShown = 1
   end if
   return(["IG TeamUI Subcomponent Class", "IG AfterGameUI" && tID && "Class"])
+  exit
 end
 
-on eventProcMouseDown me, tEvent, tSprID, tParam, tWndID 
-  if tSprID <> "playagain_no.button" then
-    if tSprID = "ig_link_leave_game" then
+on eventProcMouseDown(me, tEvent, tSprID, tParam, tWndID)
+  if me <> "playagain_no.button" then
+    if me = "ig_link_leave_game" then
       tService = me.getIGComponent("GameList")
       if tService = 0 then
         return(0)
@@ -80,11 +84,11 @@ on eventProcMouseDown me, tEvent, tSprID, tParam, tWndID
       me.getComponent().setSystemState(#ready)
       return(me.getHandler().send_EXIT_GAME(1))
     else
-      if tSprID = "playagain_yes.button" then
+      if me = "playagain_yes.button" then
         executeMessage(#sendTrackingPoint, "/game/joined/replay")
         return(me.getHandler().send_PLAY_AGAIN())
       else
-        if tSprID = "join.button" then
+        if me = "join.button" then
           tTeamIndex = integer(tWndID.getProp(#char, tWndID.length))
           if not integerp(tTeamIndex) then
             return(0)
@@ -95,10 +99,10 @@ on eventProcMouseDown me, tEvent, tSprID, tParam, tWndID
           end if
           return(tService.setJoinedGameId(tService.getJoinedGameId(), tTeamIndex))
         else
-          if tSprID <> "ig_tip_title" then
-            if tSprID <> "ig_title_bg" then
-              if tSprID <> "ig_tip_close" then
-                if tSprID = "ig_title_bg_light" then
+          if me <> "ig_tip_title" then
+            if me <> "ig_title_bg" then
+              if me <> "ig_tip_close" then
+                if me = "ig_title_bg_light" then
                   tFlagManager = me.getFlagManager()
                   if tFlagManager = 0 then
                     return(0)
@@ -110,15 +114,16 @@ on eventProcMouseDown me, tEvent, tSprID, tParam, tWndID
                   end if
                   return(tFlagManager.toggle(tWndID))
                 else
-                  if tSprID = "ig_link_highscores_show" then
+                  if me = "ig_link_highscores_show" then
                     return(me.setViewMode(#alltime_score))
                   else
-                    if tSprID = "ig_link_highscores_hide" then
+                    if me = "ig_link_highscores_hide" then
                       return(me.setViewMode(#game_score))
                     end if
                   end if
                 end if
                 return(1)
+                exit
               end if
             end if
           end if
@@ -128,11 +133,11 @@ on eventProcMouseDown me, tEvent, tSprID, tParam, tWndID
   end if
 end
 
-on eventProcMouseHover me, tEvent, tSprID, tParam, tWndID, tTargetID 
-  if tSprID <> "ig_tip_title" then
-    if tSprID <> "ig_title_bg" then
-      if tSprID <> "ig_tip_close" then
-        if tSprID = "ig_title_bg_light" then
+on eventProcMouseHover(me, tEvent, tSprID, tParam, tWndID, tTargetID)
+  if me <> "ig_tip_title" then
+    if me <> "ig_title_bg" then
+      if me <> "ig_tip_close" then
+        if me = "ig_title_bg_light" then
           tFlagManager = me.getFlagManager()
           if tFlagManager = 0 then
             return(0)
@@ -145,6 +150,7 @@ on eventProcMouseHover me, tEvent, tSprID, tParam, tWndID, tTargetID
           return(1)
         end if
         return(0)
+        exit
       end if
     end if
   end if

@@ -1,6 +1,4 @@
-property pPauseTimer, pSkipPulseCounter, pSkipPulseAmount, pFrameCounter, pAnimCycle, pSprite
-
-on define me, tsprite 
+on define(me, tsprite)
   pSprite = tsprite
   pAnimCycle = [1, 2, 3, 2]
   pFrameCounter = random(10)
@@ -8,9 +6,10 @@ on define me, tsprite
   pSkipPulseAmount = 12
   pPauseTimer = random(20)
   return(1)
+  exit
 end
 
-on update me 
+on update(me)
   if pPauseTimer > 0 then
     pPauseTimer = pPauseTimer - 1
     return(1)
@@ -25,4 +24,5 @@ on update me
     end if
     pSprite.castNum = getmemnum("palmtop" & pAnimCycle.getAt(pFrameCounter))
   end if
+  exit
 end

@@ -1,6 +1,4 @@
-property pSpr, pGameBoardSpr, pPieceData
-
-on Init me, tMem, tlocz, tPieceData, tGameBoardSpr 
+on Init(me, tMem, tlocz, tPieceData, tGameBoardSpr)
   pSpr = sprite(reserveSprite(me.getID()))
   setEventBroker(pSpr.spriteNum, me.getID())
   call(#registerClient, pSpr.scriptInstanceList, me)
@@ -11,15 +9,17 @@ on Init me, tMem, tlocz, tPieceData, tGameBoardSpr
   pGameBoardSpr = tGameBoardSpr
   pPieceData = tPieceData
   receiveUpdate(me.getID())
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   removeUpdate(me.getID())
   releaseSprite(pSpr.spriteNum)
   pSpr = void()
+  exit
 end
 
-on eventProcChessPlacer me, tEvent, tSprID, tParam 
+on eventProcChessPlacer(me, tEvent, tSprID, tParam)
   pSpr.visible = 0
   tsprite = rollover()
   pSpr.visible = 1
@@ -27,9 +27,10 @@ on eventProcChessPlacer me, tEvent, tSprID, tParam
   if tID = "close" then
     getThread(#games).getInterface().eventProcChess(tEvent, tID)
   end if
+  exit
 end
 
-on update me 
+on update(me)
   pSpr.loc = the mouseLoc
   if pSpr.intersects(pGameBoardSpr.spriteNum) then
     pSpr.blend = 100
@@ -42,4 +43,5 @@ on update me
       removeObject(me.getID())
     end if
   end if
+  exit
 end

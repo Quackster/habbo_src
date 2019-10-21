@@ -1,12 +1,10 @@
-property pChannelNum, pChanges, pTvFrame, pActive
-
-on prepare me, tdata 
+on prepare(me, tdata)
   pTvFrame = 0
   if integerp(integer(tdata.getAt(#stuffdata))) then
     pChanges = 1
     pActive = 1
     pChannelNum = integer(tdata.getAt(#stuffdata))
-    if ([1, 2, 3].getOne(pChannelNum) = 0) then
+    if [1, 2, 3].getOne(pChannelNum) = 0 then
       pChannelNum = 0
       pActive = 0
     end if
@@ -15,44 +13,46 @@ on prepare me, tdata
     pActive = 0
     pChannelNum = 1
   end if
-  return TRUE
+  return(1)
+  exit
 end
 
-on updateStuffdata me, tValue 
-  if (tValue = "OFF") then
+on updateStuffdata(me, tValue)
+  if tValue = "OFF" then
     pActive = 0
   else
     pActive = 1
     pChannelNum = integer(tValue)
-    if ([1, 2, 3].getOne(pChannelNum) = 0) then
+    if [1, 2, 3].getOne(pChannelNum) = 0 then
       pChannelNum = 0
       pActive = 0
     end if
   end if
   pChanges = 1
+  exit
 end
 
-on update me 
+on update(me)
   if not pChanges then
     return()
   end if
   if me.count(#pSprList) < 3 then
     return()
   end if
-  tName = me.getPropRef(#pSprList, 3).member.name
+  tName = undefined.name
   tDelim = the itemDelimiter
   the itemDelimiter = "_"
-  tTmpName = tName.getProp(#item, 1, (tName.count(#item) - 1)) & "_"
+  tTmpName = tName.getProp(#item, 1, tName.count(#item) - 1) & "_"
   the itemDelimiter = tDelim
-  pTvFrame = (pTvFrame + 1)
-  if pActive and ((pTvFrame mod 3) = 1) then
-    if (pChannelNum = 1) then
+  pTvFrame = pTvFrame + 1
+  if pActive and pTvFrame mod 3 = 1 then
+    if me = 1 then
       tNewName = tTmpName & random(10)
     else
-      if (pChannelNum = 2) then
-        tNewName = tTmpName & (10 + random(5))
+      if me = 2 then
+        tNewName = tTmpName & 10 + random(5)
       else
-        tNewName = tTmpName & (15 + random(5))
+        tNewName = tTmpName & 15 + random(5)
       end if
     end if
     if memberExists(tNewName) then
@@ -65,8 +65,8 @@ on update me
   end if
   if not pActive then
     the itemDelimiter = "_"
-    tMemName = me.getPropRef(#pSprList, 3).member.name
-    tClass = tMemName.getProp(#item, 1, (tMemName.count(#item) - 6))
+    tMemName = undefined.name
+    tClass = tMemName.getProp(#item, 1, tMemName.count(#item) - 6)
     tNewName = tTmpName & "0"
     if memberExists(tNewName) then
       tmember = member(getmemnum(tNewName))
@@ -76,21 +76,24 @@ on update me
     end if
     pChanges = 0
   end if
-  me.getPropRef(#pSprList, 3).locZ = (me.getPropRef(#pSprList, 2).locZ + 2)
+  me.getPropRef(#pSprList, 3).locZ = me.getPropRef(#pSprList, 2).locZ + 2
+  exit
 end
 
-on setOn me 
+on setOn(me)
   pActive = 1
   pChannelNum = random(3)
   getThread(#room).getComponent().getRoomConnection().send("SETSTUFFDATA", [#string:string(me.getID()), #string:string(pChannelNum)])
+  exit
 end
 
-on setOff me 
+on setOff(me)
   pActive = 0
   getThread(#room).getComponent().getRoomConnection().send("SETSTUFFDATA", [#string:string(me.getID()), #string:"OFF"])
+  exit
 end
 
-on select me 
+on select(me)
   if the doubleClick then
     if pActive then
       me.setOff()
@@ -98,5 +101,6 @@ on select me
       me.setOn()
     end if
   end if
-  return TRUE
+  return(1)
+  exit
 end

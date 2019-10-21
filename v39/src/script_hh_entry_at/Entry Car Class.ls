@@ -1,6 +1,4 @@
-property pMaxStartDelay, pMinStartDelay, pSprite, pModelType, pStartDelay, pHAdv, pVAdv, pTurningPoints
-
-on define me, tsprite, tCarNo 
+on define(me, tsprite, tCarNo)
   pTurningPoints = [434, 534]
   pMinStartDelay = 150
   pMaxStartDelay = 400
@@ -10,9 +8,10 @@ on define me, tsprite, tCarNo
     pStartDelay = 0
   end if
   return(1)
+  exit
 end
 
-on reset me 
+on reset(me)
   tPos = random(2)
   pModelType = random(2)
   pStartDelay = random(pMaxStartDelay - pMinStartDelay) + pMinStartDelay
@@ -33,9 +32,10 @@ on reset me
   end if
   pSprite.ink = 41
   pSprite.backColor = random(150) + 20
+  exit
 end
 
-on update me 
+on update(me)
   pStartDelay = pStartDelay - 1
   if pStartDelay > 0 then
     return(1)
@@ -53,9 +53,10 @@ on update me
     else
       pSprite.flipH = 0
     end if
-    pVAdv = (pVAdv * -1)
+    pVAdv = pVAdv * -1
   end if
   if pSprite.locH > 748 or pSprite.locH < 140 then
     me.reset()
   end if
+  exit
 end

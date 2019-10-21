@@ -1,51 +1,56 @@
-property pClubStatus
-
-on construct me 
-  pClubStatus = [:]
-  return TRUE
+on construct(me)
+  pClubStatus = []
+  return(1)
+  exit
 end
 
-on deconstruct me 
-  pClubStatus = [:]
-  return TRUE
+on deconstruct(me)
+  pClubStatus = []
+  return(1)
+  exit
 end
 
-on setStatus me, tStatus 
+on setStatus(me, tStatus)
   pClubStatus = tStatus
   getObject(#session).set("club_status", tStatus)
   me.getInterface().updateClubStatus(tStatus)
   executeMessage(#updateClubStatus, tStatus)
-  return TRUE
+  return(1)
+  exit
 end
 
-on getStatus me 
+on getStatus(me)
   if voidp(pClubStatus) then
-    return FALSE
+    return(0)
   else
     return(pClubStatus)
   end if
+  exit
 end
 
-on subscribe me, tDays 
+on subscribe(me, tDays)
   if connectionExists(getVariable("connection.info.id")) then
     return(getConnection(getVariable("connection.info.id")).send("SCR_SUBSCRIBE", "club_habbo 0" && tDays))
   else
     return(error(me, "Couldn't find connection:" && getVariable("connection.info.id"), #subscribe))
   end if
+  exit
 end
 
-on extendSubscription me, tDays 
+on extendSubscription(me, tDays)
   if connectionExists(getVariable("connection.info.id")) then
     return(getConnection(getVariable("connection.info.id")).send("SCR_EXTSCR", "club_habbo" && tDays))
   else
     return(error(me, "Couldn't find connection:" && getVariable("connection.info.id"), #extendSubscription))
   end if
+  exit
 end
 
-on askforBadgeUpdate me 
+on askforBadgeUpdate(me)
   if connectionExists(getVariable("connection.info.id")) then
     return(getConnection(getVariable("connection.info.id")).send("GETAVAILABLEBADGES"))
   else
     return(error(me, "Couldn't find connection:" && getVariable("connection.info.id"), #askforBadgeUpdate))
   end if
+  exit
 end

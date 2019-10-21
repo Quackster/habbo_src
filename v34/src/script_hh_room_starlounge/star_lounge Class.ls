@@ -1,6 +1,4 @@
-property pGradientObj
-
-on construct me 
+on construct(me)
   tVisualizer = getThread(#room).getInterface().getRoomVisualizer()
   tsprite = tVisualizer.getSprById("starlounge_gr")
   if tsprite = 0 then
@@ -10,17 +8,20 @@ on construct me
   tObj.define(tsprite)
   me.pGradientObj = tObj
   receiveUpdate(me.getID())
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   if not voidp(me.pGradientObj) then
     pGradientObj.cleanUp()
     call(#deconstruct, pGradientObj)
   end if
   pGradientObj = void()
   return(removeUpdate(me.getID()))
+  exit
 end
 
-on update me 
+on update(me)
   call(#update, pGradientObj)
+  exit
 end

@@ -1,20 +1,20 @@
-property pClientSecret, pCryptoParams
-
-on construct me 
-  pCryptoParams = [:]
+on construct(me)
+  pCryptoParams = []
   pMD5ChecksumArr = []
   pSecCastNum = 0
   registerMessage(#hideLogin, me.getID(), #hideLogin)
   return(me.regMsgList(1))
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   unregisterMessage(#performLogin, me.getID())
   unregisterMessage(#hideLogin, me.getID())
   return(me.regMsgList(0))
+  exit
 end
 
-on handleDisconnect me, tMsg 
+on handleDisconnect(me, tMsg)
   tSession = getObject(#session)
   tUserLoggedIn = 0
   if objectp(tSession) then
@@ -25,7 +25,7 @@ on handleDisconnect me, tMsg
     me.getInterface().showDisconnect()
     return(fatalError(["error":"disconnect"]))
   else
-    tErrorList = [:]
+    tErrorList = []
     tErrorList.setAt("error", me.getComponent().GetDisconnectErrorState())
     tConnection = getConnection(getVariable("connection.info.id", #info))
     if tConnection <> void() then
@@ -34,9 +34,10 @@ on handleDisconnect me, tMsg
     end if
     return(fatalError(tErrorList))
   end if
+  exit
 end
 
-on handleHello me, tMsg 
+on handleHello(me, tMsg)
   if the traceScript then
     return(0)
   end if
@@ -46,9 +47,10 @@ on handleHello me, tMsg
   sendProcessTracking(21)
   me.getComponent().SetDisconnectErrorState("init_crypto")
   return(tMsg.send("INIT_CRYPTO", [#integer:0]))
+  exit
 end
 
-on handleSessionParameters me, tMsg 
+on handleSessionParameters(me, tMsg)
   if the traceScript then
     return(0)
   end if
@@ -62,28 +64,28 @@ on handleSessionParameters me, tMsg
       repeat while i <= tPairsCount
         tID = tMsg.GetIntFrom()
         tSession = getObject(#session)
-        if tID = 0 then
+        if me = 0 then
           tValue = tMsg.GetIntFrom()
           tSession.set("conf_coppa", tValue > 0)
           tSession.set("conf_strong_coppa_required", tValue > 1)
         else
-          if tID = 1 then
+          if me = 1 then
             tValue = tMsg.GetIntFrom()
             tSession.set("conf_voucher", tValue > 0)
           else
-            if tID = 2 then
+            if me = 2 then
               tValue = tMsg.GetIntFrom()
               tSession.set("conf_parent_email_request", tValue > 0)
             else
-              if tID = 3 then
+              if me = 3 then
                 tValue = tMsg.GetIntFrom()
                 tSession.set("conf_parent_email_request_reregistration", tValue > 0)
               else
-                if tID = 4 then
+                if me = 4 then
                   tValue = tMsg.GetIntFrom()
                   tSession.set("conf_allow_direct_mail", tValue > 0)
                 else
-                  if tID = 5 then
+                  if me = 5 then
                     tValue = tMsg.GetStrFrom()
                     if not objectExists(#dateFormatter) then
                       createObject(#dateFormatter, ["Date Class"])
@@ -93,19 +95,19 @@ on handleSessionParameters me, tMsg
                       tDateForm.define(tValue)
                     end if
                   else
-                    if tID = 6 then
+                    if me = 6 then
                       tValue = tMsg.GetIntFrom()
                       tSession.set("conf_partner_integration", tValue > 0)
                     else
-                      if tID = 7 then
+                      if me = 7 then
                         tValue = tMsg.GetIntFrom()
                         tSession.set("allow_profile_editing", tValue > 0)
                       else
-                        if tID = 8 then
+                        if me = 8 then
                           tValue = tMsg.GetStrFrom()
                           tSession.set("tracking_header", tValue)
                         else
-                          if tID = 9 then
+                          if me = 9 then
                             tValue = tMsg.GetIntFrom()
                             tSession.set("tutorial_enabled", tValue)
                           end if
@@ -123,13 +125,15 @@ on handleSessionParameters me, tMsg
     end if
   end if
   return(me.getComponent().sendLogin(tMsg.connection))
+  exit
 end
 
-on handlePing me, tMsg 
+on handlePing(me, tMsg)
   tMsg.send("PONG")
+  exit
 end
 
-on handleLoginOK me, tMsg 
+on handleLoginOK(me, tMsg)
   if the traceScript then
     return(0)
   end if
@@ -150,16 +154,17 @@ on handleLoginOK me, tMsg
   end if
   executeMessage(#userloggedin)
   executeMessage(#sendTrackingPoint, "/client/loggedin")
+  exit
 end
 
-on handleUserObj me, tMsg 
+on handleUserObj(me, tMsg)
   if the traceScript then
     return(0)
   end if
   the traceScript = 0
   _player.traceScript = 0
   _player.traceScript = 0
-  tuser = [:]
+  tuser = []
   tConn = tMsg.connection
   tuser.setAt("user_id", tConn.GetStrFrom())
   tuser.setAt("name", tConn.GetStrFrom())
@@ -202,9 +207,10 @@ on handleUserObj me, tMsg
   end if
   me.getInterface().hideLogin()
   executeMessage(#userlogin, "userLogin")
+  exit
 end
 
-on handleUserBanned me, tMsg 
+on handleUserBanned(me, tMsg)
   tConn = tMsg.getaProp(#connection)
   if not tConn then
     return(0)
@@ -214,25 +220,29 @@ on handleUserBanned me, tMsg
   tBanMsg = getText("Alert_YouAreBanned") & "\r" & tBanReason
   executeMessage(#openGeneralDialog, #ban, [#id:"BannWarning", #title:"Alert_YouAreBanned_T", #Msg:tBanMsg, #modal:1])
   removeConnection(tConn.getID())
+  exit
 end
 
-on handleNoLoginPermission me, tMsg 
+on handleNoLoginPermission(me, tMsg)
   return(1)
+  exit
 end
 
-on handleSystemBroadcast me, tMsg 
+on handleSystemBroadcast(me, tMsg)
   tStr = tMsg.GetStrFrom()
   tStr = replaceChunks(tStr, "\\r", "\r")
   tStr = replaceChunks(tStr, "<br>", "\r")
   executeMessage(#alert, [#Msg:tStr])
   the keyboardFocusSprite = 0
+  exit
 end
 
-on handleCheckSum me, tMsg 
+on handleCheckSum(me, tMsg)
   getObject(#session).set("user_checksum", tMsg.content)
+  exit
 end
 
-on handleAvailableBadges me, tMsg 
+on handleAvailableBadges(me, tMsg)
   if getObject(#session).exists("available_badges") then
     tOldBadgeList = getObject(#session).GET("available_badges")
   else
@@ -251,7 +261,7 @@ on handleAvailableBadges me, tMsg
     i = 1 + i
   end repeat
   tChosenBadgeCount = tMsg.GetIntFrom()
-  tChosenBadges = [:]
+  tChosenBadges = []
   i = 1
   repeat while i <= tChosenBadgeCount
     tBadgeIndex = tMsg.GetIntFrom()
@@ -261,9 +271,10 @@ on handleAvailableBadges me, tMsg
   end repeat
   getObject("session").set("available_badges", tBadgeList)
   getObject("session").set("chosen_badges", tChosenBadges)
+  exit
 end
 
-on handleRights me, tMsg 
+on handleRights(me, tMsg)
   tSession = getObject(#session)
   tSession.set("user_rights", [])
   tRights = tSession.GET("user_rights")
@@ -277,18 +288,19 @@ on handleRights me, tMsg
     tRights.add(tPrivilege)
   end repeat
   return(1)
+  exit
 end
 
-on handleError me, tMsg 
+on handleError(me, tMsg)
   tConn = tMsg.connection
   tErrorCode = tConn.GetIntFrom()
-  if tErrorCode = -3 then
+  if me = -3 then
     removeConnection(tMsg.getID())
     me.getComponent().setaProp(#pOkToLogin, 0)
     if getObject(#session).exists("failed_password") then
       openNetPage(getText("login_forgottenPassword_url"))
       me.getInterface().showLogin()
-      executeMessage(#externalLinkClick, point((undefined.width / 2), (undefined.height / 2)))
+      executeMessage(#externalLinkClick, point(undefined.width / 2, undefined.height / 2))
       return(0)
     else
       getObject(#session).set("failed_password", 1)
@@ -296,14 +308,15 @@ on handleError me, tMsg
       executeMessage(#alert, [#Msg:"Alert_WrongNameOrPassword"])
     end if
   else
-    if tErrorCode = -400 then
+    if me = -400 then
       executeMessage(#alert, [#Msg:"alert_old_client"])
     end if
   end if
   return(1)
+  exit
 end
 
-on handleModAlert me, tMsg 
+on handleModAlert(me, tMsg)
   tTest = tMsg.getaProp(#content)
   tConn = tMsg.connection
   if not tConn then
@@ -316,9 +329,10 @@ on handleModAlert me, tMsg
     tURL = void()
   end if
   executeMessage(#alert, [#title:"alert_warning", #Msg:tMessageText, #modal:1, #url:tURL])
+  exit
 end
 
-on handleCryptoParameters me, tMsg 
+on handleCryptoParameters(me, tMsg)
   if the traceScript then
     return(0)
   end if
@@ -339,9 +353,10 @@ on handleCryptoParameters me, tMsg
   tLoadID = startCastLoad([tSecUrl], 1, void(), void(), 1)
   registerCastloadCallback(tLoadID, #securityCastDownloadCallback, me.getID(), tSecUrl)
   return(1)
+  exit
 end
 
-on responseWithPublicKey me, tConnection 
+on responseWithPublicKey(me, tConnection)
   startProfilingTask("Login Handler Diffie-Hellman Handshake")
   if the traceScript then
     return(0)
@@ -360,7 +375,7 @@ on responseWithPublicKey me, tConnection
   tLength = 24
   tHexChars = "012345679"
   tNo = 1
-  repeat while tNo <= (tLength * 2)
+  repeat while tNo <= tLength * 2
     tRandPos = random(tHexChars.length)
     if tRandPos = 1 and tNo = 1 then
       tRandPos = 1 + random(tHexChars.length - 1)
@@ -382,9 +397,10 @@ on responseWithPublicKey me, tConnection
   executeMessage(#loadingBarSetExtraTaskDone, #handshake1)
   tConnection = getConnection(getVariable("connection.info.id"))
   tConnection.send("GENERATEKEY", [#string:tPublicKeyStr])
+  exit
 end
 
-on handleServerSecretKey me, tMsg 
+on handleServerSecretKey(me, tMsg)
   if the traceScript then
     return(0)
   end if
@@ -439,37 +455,40 @@ on handleServerSecretKey me, tMsg
   me.startNewSession()
   finishProfilingTask("Login Handler Diffie-Hellman Handshake")
   return(1)
+  exit
 end
 
-on handleHotelLogout me, tMsg 
+on handleHotelLogout(me, tMsg)
   tLogoutMsgId = tMsg.GetIntFrom()
-  if tLogoutMsgId = -1 then
+  if me = -1 then
     me.getComponent().disconnect()
     me.getInterface().showDisconnect()
   else
-    if tLogoutMsgId = 1 then
+    if me = 1 then
       openNetPage(getText("url_logged_out"), "self")
     else
-      if tLogoutMsgId = 2 then
+      if me = 2 then
         openNetPage(getText("url_logout_concurrent"), "self")
       else
-        if tLogoutMsgId = 3 then
+        if me = 3 then
           openNetPage(getText("url_logout_timeout"), "self")
         end if
       end if
     end if
   end if
+  exit
 end
 
-on handleSoundSetting me, tMsg 
+on handleSoundSetting(me, tMsg)
   tstate = tMsg.GetIntFrom()
   setSoundState(tstate)
   executeMessage(#soundSettingChanged, tstate)
+  exit
 end
 
-on handlePossibleAchievements me, tMsg 
+on handlePossibleAchievements(me, tMsg)
   tConn = tMsg.getaProp(#connection)
-  tAchievements = [:]
+  tAchievements = []
   tCount = tConn.GetIntFrom()
   i = 1
   repeat while i <= tCount
@@ -484,9 +503,10 @@ on handlePossibleAchievements me, tMsg
   end if
   getObject(#session).set("possible_achievements", tAchievements)
   executeMessage(#achievementsUpdated)
+  exit
 end
 
-on handleAchievementNotification me, tMsg 
+on handleAchievementNotification(me, tMsg)
   tConn = tMsg.getaProp(#connection)
   if not tConn then
     return(0)
@@ -511,9 +531,10 @@ on handleAchievementNotification me, tMsg
     end if
   end if
   me.getComponent().sendGetBadges()
+  exit
 end
 
-on startNewSession me 
+on startNewSession(me)
   if the traceScript then
     return(0)
   end if
@@ -548,26 +569,31 @@ on startNewSession me
   tConnection.send("VERSIONCHECK", [#integer:getIntVariable("client.version.id"), #string:tClientURL, #string:tExtVarsURL])
   tConnection.send("UNIQUEID", [#string:getMachineID()])
   tConnection.send("GET_SESSION_PARAMETERS")
+  exit
 end
 
-on hideLogin me 
+on hideLogin(me)
   me.getInterface().hideLogin()
+  exit
 end
 
-on handleLatencyTest me, tMsg 
+on handleLatencyTest(me, tMsg)
   tID = tMsg.GetIntFrom()
   me.getComponent().handleLatencyTest(tID)
+  exit
 end
 
-on handleMachineId me, tMsg 
+on handleMachineId(me, tMsg)
   getSpecialServices().setMachineId(tMsg.GetStrFrom())
+  exit
 end
 
-on forwardToRosettaDisablePage me 
+on forwardToRosettaDisablePage(me)
   openNetPage(getVariable("rosetta.warning.page.url"), "self")
+  exit
 end
 
-on securityCastDownloadCallback me, tURL, tSuccess 
+on securityCastDownloadCallback(me, tURL, tSuccess)
   if the traceScript then
     return(0)
   end if
@@ -580,10 +606,11 @@ on securityCastDownloadCallback me, tURL, tSuccess
   else
     fatalError(["error":"security_cct"])
   end if
+  exit
 end
 
-on regMsgList me, tBool 
-  tMsgs = [:]
+on regMsgList(me, tBool)
+  tMsgs = []
   tMsgs.setaProp(-1, #handleDisconnect)
   tMsgs.setaProp(0, #handleHello)
   tMsgs.setaProp(1, #handleServerSecretKey)
@@ -606,7 +633,7 @@ on regMsgList me, tBool
   tMsgs.setaProp(437, #handleAchievementNotification)
   tMsgs.setaProp(439, #handleMachineId)
   tMsgs.setaProp(354, #handleLatencyTest)
-  tCmds = [:]
+  tCmds = []
   tCmds.setaProp("TRY_LOGIN", 756)
   tCmds.setaProp("VERSIONCHECK", 1170)
   tCmds.setaProp("UNIQUEID", 813)
@@ -636,8 +663,10 @@ on regMsgList me, tBool
     unregisterCommands(tConn, me.getID(), tCmds)
   end if
   return(1)
+  exit
 end
 
-on handlers me 
+on handlers(me)
   return([])
+  exit
 end

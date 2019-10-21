@@ -1,26 +1,26 @@
-property pChanges, pLastActive, pActive, pStopped, pScifiDoorSpeed, pSizeMultiplier, pScifiDoorTimeOut, pScifiDoorLocs, pDoubleClick
-
-on construct me 
+on construct(me)
   pLastActive = -1
   pScifiDoorSpeed = 7
-  pScifiDoorTimeOut = (0.4 * 60)
+  pScifiDoorTimeOut = 0.4 * 60
   pScifiDoorLocs = [0, 0, 0]
   pScifiDoorTimer = 0
   pDoubleClick = 0
   pStopped = 1
   if me.pXFactor = 32 then
-    pSizeMultiplier = 0.5
+    pSizeMultiplier = 0
   else
-    pSizeMultiplier = 1
+    pSizeMultiplier = 0
   end if
+  exit
 end
 
-on prepareForMove me 
+on prepareForMove(me)
   pChanges = 1
   me.update()
+  exit
 end
 
-on prepare me, tdata 
+on prepare(me, tdata)
   if tdata.getAt(#stuffdata) = "O" then
     me.setOn()
   else
@@ -29,9 +29,10 @@ on prepare me, tdata
   pScifiDoorTimer = the timer
   pChanges = 1
   return(1)
+  exit
 end
 
-on updateStuffdata me, tValue 
+on updateStuffdata(me, tValue)
   if tValue = "O" then
     me.setOn()
   else
@@ -41,9 +42,10 @@ on updateStuffdata me, tValue
   pStopped = 0
   pChanges = 1
   pDoubleClick = 0
+  exit
 end
 
-on update me 
+on update(me)
   if not pChanges then
     return(0)
   end if
@@ -51,9 +53,10 @@ on update me
     return(0)
   end if
   return(me.updateScifiDoor())
+  exit
 end
 
-on updateScifiDoor me 
+on updateScifiDoor(me)
   if me.count(#pSprList) < 4 then
     return(0)
   end if
@@ -78,28 +81,29 @@ on updateScifiDoor me
     tTopSp.locV = tTopSp.locV + pScifiDoorSpeed
     me.moveTopLine(tMidSp1, -pScifiDoorSpeed)
     me.moveTopLine(tMidSp2, -pScifiDoorSpeed)
-    if tMidSp1.height <= (11 * pSizeMultiplier) or tDoorTimer > pScifiDoorTimeOut then
+    if tMidSp1.height <= 11 * pSizeMultiplier or tDoorTimer > pScifiDoorTimeOut then
       me.SetScifiDoor("down")
     end if
   else
     if tDoorTimer > pScifiDoorTimeOut then
       return(me.SetScifiDoor("up"))
     end if
-    if pSizeMultiplier = 1 then
+    if pSizeMultiplier = 0 then
       tTopSp.locV = tTopSp.locV - pScifiDoorSpeed
     else
       tTopSp.locV = tTopSp.locV - pScifiDoorSpeed
     end if
     me.moveTopLine(tMidSp1, pScifiDoorSpeed)
     me.moveTopLine(tMidSp2, pScifiDoorSpeed)
-    if tMidSp1.height > (65 * pSizeMultiplier) then
+    if tMidSp1.height > 65 * pSizeMultiplier then
       me.SetScifiDoor("up")
     end if
   end if
   return(1)
+  exit
 end
 
-on SetScifiDoor me, tdir 
+on SetScifiDoor(me, tdir)
   if me.count(#pSprList) < 4 then
     return(0)
   end if
@@ -108,12 +112,12 @@ on SetScifiDoor me, tdir
   tMidSp2 = me.getProp(#pSprList, 3)
   if tdir = "up" then
     tTopSp.locV = pScifiDoorLocs.getAt(1)
-    tMidSp1.height = (65 * pSizeMultiplier)
-    tMidSp2.height = (64 * pSizeMultiplier)
+    tMidSp1.height = 65 * pSizeMultiplier
+    tMidSp2.height = 64 * pSizeMultiplier
     tMidSp1.locV = pScifiDoorLocs.getAt(2)
     tMidSp2.locV = pScifiDoorLocs.getAt(3)
   else
-    if pSizeMultiplier = 1 then
+    if pSizeMultiplier = 0 then
       tTopSp.locV = pScifiDoorLocs.getAt(1) + 57
       tMidSp1.height = 8
       tMidSp2.height = 7
@@ -122,18 +126,19 @@ on SetScifiDoor me, tdir
       tMidSp1.height = 2
       tMidSp2.height = 2
     end if
-    tMidSp1.height = (8 * pSizeMultiplier)
-    tMidSp2.height = (7 * pSizeMultiplier)
-    tMidSp1.locV = pScifiDoorLocs.getAt(2) - (2 * pSizeMultiplier)
-    tMidSp2.locV = pScifiDoorLocs.getAt(3) + (5 * pSizeMultiplier)
+    tMidSp1.height = 8 * pSizeMultiplier
+    tMidSp2.height = 7 * pSizeMultiplier
+    tMidSp1.locV = pScifiDoorLocs.getAt(2) - 2 * pSizeMultiplier
+    tMidSp2.locV = pScifiDoorLocs.getAt(3) + 5 * pSizeMultiplier
   end if
   pChanges = 0
   pLastActive = pActive
   pStopped = 1
   return(1)
+  exit
 end
 
-on moveTopLine me, tSpr, tAmount 
+on moveTopLine(me, tSpr, tAmount)
   tBot = tSpr.bottom
   tSpr.height = tSpr.height + tAmount
   if tBot > tSpr.bottom then
@@ -143,17 +148,20 @@ on moveTopLine me, tSpr, tAmount
     tSpr.locV = tSpr.locV - 1
   end if
   return(1)
+  exit
 end
 
-on setOn me 
+on setOn(me)
   pActive = 1
+  exit
 end
 
-on setOff me 
+on setOff(me)
   pActive = 0
+  exit
 end
 
-on select me 
+on select(me)
   if the doubleClick then
     if pChanges then
       return(0)
@@ -171,4 +179,5 @@ on select me
     end if
   end if
   return(1)
+  exit
 end

@@ -1,6 +1,4 @@
-property pMaxBalloons, pScrollStep, pTextMember, pMoveOffsetV, pBalloonImg, pAvailableBalloons, pVisibleBalloons, pBalloonPulse, pReservedSprites, pState, pStartV, pLastBalloonId, pBalloonBuffer, pFastScrollStep, pFirstLocz, pMaxWidth, pDefaultTextColor, pMarginH, pMarginV, pLastMsg, pBalloonColor, pScrollCounter, pScrollBy, pAutoScrollTime
-
-on construct me 
+on construct(me)
   pAutoScrollTime = 140
   if variableExists("chat.balloon.scrollstep") then
     pScrollStep = getIntVariable("chat.balloon.scrollstep")
@@ -9,11 +7,11 @@ on construct me
   end if
   pState = #normal
   pScrollCounter = 0
-  pVisibleBalloons = [:]
-  pAvailableBalloons = [:]
+  pVisibleBalloons = []
+  pAvailableBalloons = []
   pBalloonBuffer = []
-  pMaxBalloons = (6 + 1)
-  pFirstLocz = ((getIntVariable("window.default.locz") + 2000) - pMaxBalloons)
+  pMaxBalloons = 6 + 1
+  pFirstLocz = getIntVariable("window.default.locz") + 2000 - pMaxBalloons
   pMoveOffsetV = 21
   pMarginH = 20
   pMarginV = 11
@@ -28,23 +26,24 @@ on construct me
   pTextMember.font = tFontStruct.getaProp(#font)
   pTextMember.fontSize = tFontStruct.getaProp(#fontSize)
   pTextMember.fontStyle = tFontStruct.getaProp(#fontStyle)
-  if (pMoveOffsetV mod pScrollStep) <> 0 then
-    pMoveOffsetV = (pMoveOffsetV - (pMoveOffsetV mod pScrollStep))
+  if pMoveOffsetV mod pScrollStep <> 0 then
+    pMoveOffsetV = pMoveOffsetV - pMoveOffsetV mod pScrollStep
   end if
-  pFastScrollStep = (pMoveOffsetV / pScrollStep)
-  pStartV = (((pMaxBalloons - 1) * pMoveOffsetV) - 1)
-  pMaxWidth = ((the stageRight - the stageLeft) - 10)
+  pFastScrollStep = pMoveOffsetV / pScrollStep
+  pStartV = pMaxBalloons - 1 * pMoveOffsetV - 1
+  pMaxWidth = the stageRight - the stageLeft - 10
   pReservedSprites = []
-  pBalloonImg = [:]
-  pBalloonImg.addProp(#middle, member(getmemnum("bb2_pwrupbubble.middle")).image.duplicate())
+  pBalloonImg = []
+  #middle.addProp(member(getmemnum("bb2_pwrupbubble.middle")), image.duplicate())
   pBalloonImg.addProp(#right, member(getmemnum("bb2_pwrupbubble.right")).image)
   registerMessage(#leaveRoom, me.getID(), #removeBalloons)
   registerMessage(#changeRoom, me.getID(), #removeBalloons)
   me.resetBalloons()
-  return TRUE
+  return(1)
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   if timeoutExists(#bbballoonautoscroll) then
     removeTimeout(#bbballoonautoscroll)
   end if
@@ -61,39 +60,41 @@ on deconstruct me
   if not voidp(pBalloonPulse) then
     call(#deconstruct, pBalloonPulse)
   end if
-  repeat while pReservedSprites <= undefined
+  repeat while me <= undefined
     tSpr = getAt(undefined, undefined)
     releaseSprite(tSpr)
   end repeat
   removeMember(pTextMember.name)
   pReservedSprites = []
-  pTextMembers = [:]
+  pTextMembers = []
   pAvailableBalloons = void()
   pVisibleBalloons = void()
   pBalloonBuffer = void()
-  return TRUE
+  return(1)
+  exit
 end
 
-on Refresh me, tTopic, tdata 
-  if (tTopic = #bb_event_5) then
+on Refresh(me, tTopic, tdata)
+  if me = #bb_event_5 then
     me.createBalloon(tdata.getAt(#playerId), tdata.getAt(#powerupType), tdata.getAt(#playerId))
   else
-    if (tTopic = #gameend) then
+    if me = #gameend then
       me.removeBalloons()
     end if
   end if
-  return TRUE
+  return(1)
+  exit
 end
 
-on createBalloon me, tLocRefObjId, tPowerupType, tOwnerId 
-  if (pState = #normal) then
+on createBalloon(me, tLocRefObjId, tPowerupType, tOwnerId)
+  if pState = #normal then
     if pAvailableBalloons.count > 0 then
       tGameSystem = me.getGameSystem()
-      if (tGameSystem = 0) then
-        return FALSE
+      if tGameSystem = 0 then
+        return(0)
       end if
       tLocRefObj = tGameSystem.getGameObject(tLocRefObjId)
-      if (tLocRefObj = 0) then
+      if tLocRefObj = 0 then
         return(error(me, "Cannot find game object by id:" && tLocRefObjId, #createNewBalloon))
       end if
       tTileLocation = tLocRefObj.getLocation().getLocation()
@@ -101,12 +102,12 @@ on createBalloon me, tLocRefObjId, tPowerupType, tOwnerId
       tlocation = tGameSystem.convertWorldToScreenCoordinate(tWorldLocation.getAt(#x), tWorldLocation.getAt(#y), tWorldLocation.getAt(#z))
       tlocation = point(tlocation.getAt(1), tlocation.getAt(2))
       tText = getText("bb_powerup_" & tPowerupType)
-      tMsg = [:]
+      tMsg = []
       tMsg.addProp(#text, tText)
       tMsg.addProp(#location, tlocation)
       tMsg.addProp(#id, string(tLocRefObjId))
-      if (tPowerupType = 6) then
-        tMsg.addProp(#type, "6_" & (me.getGameSystem().getGameObjectProperty(tOwnerId, #teamId) + 1))
+      if tPowerupType = 6 then
+        tMsg.addProp(#type, "6_" & me.getGameSystem().getGameObjectProperty(tOwnerId, #teamId) + 1)
       else
         tMsg.addProp(#type, tPowerupType)
       end if
@@ -119,7 +120,7 @@ on createBalloon me, tLocRefObjId, tPowerupType, tOwnerId
       call(#definePulse, pBalloonPulse)
       pScrollCounter = 0
       pState = #scroll
-      if (pBalloonBuffer.count() = 0) then
+      if pBalloonBuffer.count() = 0 then
         pScrollBy = pScrollStep
       else
         if pBalloonBuffer.count() < 2 then
@@ -136,23 +137,24 @@ on createBalloon me, tLocRefObjId, tPowerupType, tOwnerId
       me.createBalloon(tLocRefObjId, tPowerupType, tOwnerId)
     end if
   else
-    if (pState = #scroll) then
+    if pState = #scroll then
       tMsg = [tLocRefObjId, tPowerupType, tOwnerId]
       if not pBalloonBuffer.getPos(tMsg) then
         pBalloonBuffer.add(tMsg)
       end if
     end if
   end if
-  return TRUE
+  return(1)
+  exit
 end
 
-on resetBalloons me 
-  pVisibleBalloons = [:]
-  pAvailableBalloons = [:]
+on resetBalloons(me)
+  pVisibleBalloons = []
+  pAvailableBalloons = []
   tSprNum = reserveSprite(me.getID())
   pReservedSprites.add(tSprNum)
   pBalloonPulse = createObject(#temp, "BB Balloon Pulse Class")
-  if (pBalloonPulse = 0) then
+  if pBalloonPulse = 0 then
     return(error(me, "Cannot create Balloon Pulse controller.", #resetBalloons))
   end if
   sprite(tSprNum).locZ = pFirstLocz
@@ -163,11 +165,11 @@ on resetBalloons me
   repeat while f <= pMaxBalloons
     tSprNum = reserveSprite(me.getID())
     pReservedSprites.add(tSprNum)
-    if (tSprNum = 0) then
-      pMaxBalloons = (f - 1)
+    if tSprNum = 0 then
+      pMaxBalloons = f - 1
       return()
     end if
-    sprite(tSprNum).locZ = ((pFirstLocz + f) - 1)
+    sprite(tSprNum).locZ = pFirstLocz + f - 1
     sprite(tSprNum).ink = 8
     tBalloonId = "bb.balloon" & f
     tmember = "bb.balloon." & tBalloonId
@@ -181,11 +183,12 @@ on resetBalloons me
     pAvailableBalloons.getAt(tBalloonId).set(#member, tmember)
     pAvailableBalloons.getAt(tBalloonId).set(#loc, point(0, -1000))
     pAvailableBalloons.getAt(tBalloonId).set(#manager, me)
-    f = (1 + f)
+    f = 1 + f
   end repeat
+  exit
 end
 
-on removeBalloons me 
+on removeBalloons(me)
   removePrepare(me.getID())
   if timeoutExists(#bbballoonautoscroll) then
     removeTimeout(#bbballoonautoscroll)
@@ -202,20 +205,22 @@ on removeBalloons me
   f = 1
   repeat while f <= tTempRemoveVisible.count
     me.removeVisibleBalloon(tTempRemoveVisible.getPropAt(f))
-    f = (1 + f)
+    f = 1 + f
   end repeat
+  exit
 end
 
-on removeVisibleBalloon me, tID 
+on removeVisibleBalloon(me, tID)
   if not voidp(pVisibleBalloons.getAt(tID)) then
     pAvailableBalloons.setAt(tID, pVisibleBalloons.getAt(tID))
     pAvailableBalloons.getAt(tID).set(#loc, point(0, -1000))
     pVisibleBalloons.deleteProp(tID)
-    return TRUE
+    return(1)
   end if
+  exit
 end
 
-on createballoonImg me, tText, ttype 
+on createballoonImg(me, tText, ttype)
   tmember = pTextMember
   tSavedFont = tmember.font
   tSavedStyle = tmember.fontStyle
@@ -230,53 +235,54 @@ on createballoonImg me, tText, ttype
   end if
   tLeftMember = member(tLeftImageMemNum)
   tLeftImage = tLeftMember.image
-  tTextWidth = ((tmember.charPosToLoc(tmember.count(#char)).locH * 2) + 10)
+  tTextWidth = tmember.charPosToLoc(tmember.count(#char)).locH * 2 + 10
   tmember.rect = rect(0, 0, tTextWidth, tmember.height)
   tTextImg = tmember.image
-  tWidth = ((tTextWidth + (pMarginH * 2)) + tLeftMember.regPoint.locH)
-  tHeight = (tLeftImage.height + tLeftMember.regPoint.locV)
+  tWidth = tLeftMember + regPoint.locH
+  tHeight = tLeftMember + regPoint.locV
   tNewImg = image(tWidth, tHeight, 8)
   tStartPointY = 0
   tEndPointY = tNewImg.height
   tStartPointX = 0
   tEndPointX = 0
-  repeat while [#left, #middle, #right] <= ttype
+  repeat while me <= ttype
     i = getAt(ttype, tText)
     tStartPointX = tEndPointX
-    if ([#left, #middle, #right] = #left) then
+    if me = #left then
       tStartPointY = 0
-      tEndPointX = (tEndPointX + tLeftImage.width)
+      tEndPointX = tEndPointX + tLeftImage.width
       tEndPointY = tLeftImage.height
     else
-      if ([#left, #middle, #right] = #middle) then
-        tStartPointY = (6 + tLeftMember.regPoint.locV)
-        tEndPointX = (((tEndPointX + tWidth) - tLeftImage.width) - pBalloonImg.getProp(#right).width)
-        tEndPointY = (pBalloonImg.getProp(i).height + tStartPointY)
+      if me = #middle then
+        tStartPointY = tLeftMember + regPoint.locV
+        tEndPointX = tEndPointX + tWidth - tLeftImage.width - pBalloonImg.getProp(#right).width
+        tEndPointY = pBalloonImg.getProp(i).height + tStartPointY
       else
-        if ([#left, #middle, #right] = #right) then
-          tStartPointY = (6 + tLeftMember.regPoint.locV)
-          tEndPointX = (tEndPointX + pBalloonImg.getProp(i).width)
-          tEndPointY = (pBalloonImg.getProp(i).height + tStartPointY)
+        if me = #right then
+          tStartPointY = tLeftMember + regPoint.locV
+          tEndPointX = tEndPointX + pBalloonImg.getProp(i).width
+          tEndPointY = pBalloonImg.getProp(i).height + tStartPointY
         end if
       end if
     end if
     tdestrect = rect(tStartPointX, tStartPointY, tEndPointX, tEndPointY)
-    if (i = #left) then
+    if i = #left then
       tNewImg.copyPixels(tLeftImage, tdestrect, tLeftImage.rect)
     else
       tNewImg.copyPixels(pBalloonImg.getProp(i), tdestrect, pBalloonImg.getProp(i).rect)
     end if
   end repeat
-  tdestrect = (tTextImg.rect + rect(pMarginH, (pMarginV + tLeftMember.regPoint.locV), pMarginH, (pMarginV + tLeftMember.regPoint.locV)))
-  tdestrect = ((tdestrect + rect((tNewImg.width / 2), 0, (tNewImg.width / 2), 0)) - rect((tTextWidth / 2), 0, (tTextWidth / 2), 0))
+  tdestrect = pMarginV + rect(tLeftMember + regPoint.locV, pMarginH, pMarginV, tLeftMember + regPoint.locV)
+  tdestrect = tdestrect + rect(tNewImg.width / 2, 0, tNewImg.width / 2, 0) - rect(tTextWidth / 2, 0, tTextWidth / 2, 0)
   tNewImg.copyPixels(tTextImg, tdestrect, tTextImg.rect)
   tmember.font = tSavedFont
   tmember.fontStyle = tSavedStyle
   tmember.color = tSavedColor
   return(tNewImg)
+  exit
 end
 
-on showNewBalloon me 
+on showNewBalloon(me)
   tMsg = pLastMsg
   if voidp(pLastBalloonId) then
     return()
@@ -287,19 +293,19 @@ on showNewBalloon me
   tmember = member(pVisibleBalloons.getAt(pLastBalloonId).GET(#member))
   pVisibleBalloons.getAt(pLastBalloonId).set(#balloonColor, pBalloonColor)
   tBalloonImage = me.createballoonImg(tMsg.getAt(#text), tMsg.getAt(#type))
-  if (tBalloonImage = 0) then
+  if tBalloonImage = 0 then
     me.removeVisibleBalloon(tMsg.getAt(#id))
     return(error(me, "No image for balloon.", #showNewBalloon))
   end if
   tmember.image = tBalloonImage
-  tmember.regPoint = (tmember.regPoint + point(0, (tmember.image.height / 2)))
+  tmember.regPoint.regPoint = 0 + point(tmember, image.height / 2)
   pBalloonLeftMarg = getIntVariable("balloons.leftmargin", 0)
   pBalloonRightMarg = getIntVariable("balloons.rightmargin", 720)
-  if (tMsg.getAt(#location).getAt(1) + (tmember.image.width / 2)) > pBalloonRightMarg then
-    tStartH = (pBalloonRightMarg - (tmember.image.width / 2))
+  if tmember + image.width / 2 > pBalloonRightMarg then
+    tStartH = tmember - image.width / 2
   else
-    if (tMsg.getAt(#location).getAt(1) - (tmember.image.width / 2)) < pBalloonLeftMarg then
-      tStartH = (pBalloonLeftMarg + (tmember.image.width / 2))
+    if tmember - image.width / 2 < pBalloonLeftMarg then
+      tStartH = tmember + image.width / 2
     else
       tStartH = tMsg.getAt(#location).getAt(1)
     end if
@@ -307,15 +313,16 @@ on showNewBalloon me
   pVisibleBalloons.getAt(pLastBalloonId).set(#loc, point(tStartH, pStartV))
   pVisibleBalloons.getAt(pLastBalloonId).set(#ownerID, tMsg.getAt(#id))
   call(#defineBalloon, pVisibleBalloons.getAt(pLastBalloonId))
+  exit
 end
 
-on prepare me 
-  if (pState = #scroll) then
-    if (pScrollCounter + pScrollBy) <= pMoveOffsetV then
-      pScrollCounter = (pScrollCounter + pScrollBy)
+on prepare(me)
+  if pState = #scroll then
+    if pScrollCounter + pScrollBy <= pMoveOffsetV then
+      pScrollCounter = pScrollCounter + pScrollBy
       call(#UpdateBalloonPos, pVisibleBalloons, -pScrollBy)
       if not voidp(pLastBalloonId) then
-        call(#OpeningBalloon, pBalloonPulse, (-pScrollCounter * (pScrollBy * 2)))
+        call(#OpeningBalloon, pBalloonPulse, -pScrollCounter * pScrollBy * 2)
       end if
     else
       if not voidp(pLastBalloonId) then
@@ -336,13 +343,15 @@ on prepare me
       end if
     end if
   end if
+  exit
 end
 
-on timeToScrollLines me 
-  if (pState = #normal) and pVisibleBalloons.count() > 0 then
+on timeToScrollLines(me)
+  if pState = #normal and pVisibleBalloons.count() > 0 then
     pLastBalloonId = void()
     pScrollCounter = 0
     pState = #scroll
     receivePrepare(me.getID())
   end if
+  exit
 end

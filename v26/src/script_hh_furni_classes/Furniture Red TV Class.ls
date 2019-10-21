@@ -1,6 +1,4 @@
-property pChanges, pActive, pTimer, pNextChange
-
-on prepare me, tdata 
+on prepare(me, tdata)
   if tdata.getAt(#stuffdata) = "ON" then
     pActive = 1
   else
@@ -10,9 +8,10 @@ on prepare me, tdata
   pTimer = 0
   pNextChange = random(36) + 12
   return(1)
+  exit
 end
 
-on updateStuffdata me, tValue 
+on updateStuffdata(me, tValue)
   if tValue = "OFF" then
     pActive = 0
   else
@@ -23,9 +22,10 @@ on updateStuffdata me, tValue
   end if
   me.getPropRef(#pSprList, 2).castNum = 0
   pChanges = 1
+  exit
 end
 
-on update me 
+on update(me)
   if not pChanges then
     return()
   end if
@@ -56,17 +56,20 @@ on update me
     me.getPropRef(#pSprList, 2).castNum = 0
     pChanges = 0
   end if
+  exit
 end
 
-on setOn me 
+on setOn(me)
   getThread(#room).getComponent().getRoomConnection().send("SETSTUFFDATA", [#string:string(me.getID()), #string:"ON"])
+  exit
 end
 
-on setOff me 
+on setOff(me)
   getThread(#room).getComponent().getRoomConnection().send("SETSTUFFDATA", [#string:string(me.getID()), #string:"OFF"])
+  exit
 end
 
-on select me 
+on select(me)
   if the doubleClick then
     if pActive then
       me.setOff()
@@ -75,4 +78,5 @@ on select me
     end if
   end if
   return(1)
+  exit
 end

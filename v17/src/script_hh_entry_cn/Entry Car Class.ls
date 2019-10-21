@@ -1,7 +1,5 @@
-property pDirection, pSprite, pmodel, pDelayCounter, pOffset
-
-on define me, tsprite, tCount 
-  if ((tCount mod 2) = 1) then
+on define(me, tsprite, tCount)
+  if tCount mod 2 = 1 then
     tDirection = #right
   else
     tDirection = #left
@@ -10,17 +8,18 @@ on define me, tsprite, tCount
   pOffset = [0, 0]
   pDirection = tDirection
   me.reset()
-  return TRUE
+  return(1)
+  exit
 end
 
-on reset me 
-  if (random(2) = 2) then
-    pDelayCounter = (random(25) * 10)
+on reset(me)
+  if random(2) = 2 then
+    pDelayCounter = random(25) * 10
   else
     pDelayCounter = 0
   end if
   pmodel = ["car", "car_b", "bus"].getAt(random(3))
-  if (pDirection = #left) then
+  if pDirection = #left then
     pSprite.castNum = getmemnum(pmodel & "1")
     pSprite.flipH = 0
     pSprite.flipV = 0
@@ -32,29 +31,31 @@ on reset me
     pSprite.loc = point(562, 506)
     pOffset = [2, -1]
   end if
-  pSprite.width = pSprite.member.width
-  pSprite.height = pSprite.member.height
+  pSprite.width = member.width
+  pSprite.height = member.height
   pSprite.ink = 41
-  pSprite.backColor = (random(150) + 20)
-  return TRUE
+  pSprite.backColor = random(150) + 20
+  return(1)
+  exit
 end
 
-on update me 
+on update(me)
   if pDelayCounter > 0 then
-    pDelayCounter = (pDelayCounter - 1)
-    return TRUE
+    pDelayCounter = pDelayCounter - 1
+    return(1)
   end if
-  pSprite.loc = (pSprite.loc + pOffset)
-  if (pDirection = #left) then
+  pSprite.loc = pSprite.loc + pOffset
+  if pDirection = #left then
     if pSprite.locV > 510 then
       return(me.reset())
     end if
   else
-    if (pDirection = #right) then
+    if pDirection = #right then
       if pSprite.locV < 380 then
         return(me.reset())
       end if
     end if
   end if
-  return TRUE
+  return(1)
+  exit
 end

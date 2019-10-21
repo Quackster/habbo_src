@@ -1,13 +1,12 @@
-property registerSpr
-
-on beginSprite me 
+on beginSprite(me)
   if registerSpr then
     gPlastoSpr = me.spriteNum
   end if
   updateColor(me)
+  exit
 end
 
-on updateColor me 
+on updateColor(me)
   if voidp(gPlastoColor) then
     gPlastoColor = "255,255,255"
   end if
@@ -18,8 +17,10 @@ on updateColor me
   colorB = integer(gPlastoColor.item[3])
   the itemDelimiter = save
   sprite(me.spriteNum).bgColor = rgb(colorR, colorG, colorB)
+  exit
 end
 
-on getPropertyDescriptionList me 
+on getPropertyDescriptionList(me)
   return([#registerSpr:[#comment:"Register Sprite?", #format:#boolean, #default:1]])
+  exit
 end

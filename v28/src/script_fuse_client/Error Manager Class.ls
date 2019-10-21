@@ -1,6 +1,4 @@
-property pErrorLevelList, pErrorDialogLevel, pClientErrorList, pErrorCache, pCacheSize, pDebugLevel, pServerErrorList, pFatalReportParamOrder, pFatalReported
-
-on construct me 
+on construct(me)
   if not the runMode contains "Author" then
     the alertHook = me
   end if
@@ -25,14 +23,16 @@ on construct me
   end if
   pFatalReportParamOrder = ["error", "version", "build", "os", "host", "port", "client_version", "mus_errorcode", "error_id"]
   return(1)
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   the alertHook = 0
   return(1)
+  exit
 end
 
-on error me, tObject, tMsg, tMethod, tErrorLevel 
+on error(me, tObject, tMsg, tMethod, tErrorLevel)
   if objectp(tObject) then
     tObject = string(tObject)
     tObject = tObject.getProp(#word, 2, tObject.count(#word) - 2)
@@ -64,13 +64,13 @@ on error me, tObject, tMsg, tMethod, tErrorLevel
   if pErrorCache.count(#line) > pCacheSize then
     pErrorCache = pErrorCache.getProp(#line, pErrorCache.count(#line) - pCacheSize, pErrorCache.count(#line))
   end if
-  if pDebugLevel = 1 then
+  if me = 1 then
     put("Error:" & tError)
   else
-    if pDebugLevel = 2 then
+    if me = 2 then
       put("Error:" & tError)
     else
-      if pDebugLevel = 3 then
+      if me = 3 then
         executeMessage(#debugdata, "Error: " & tError)
       else
         put("Error:" & tError)
@@ -91,63 +91,71 @@ on error me, tObject, tMsg, tMethod, tErrorLevel
     executeMessage(#showErrorMessage, "client", tError)
   end if
   return(0)
+  exit
 end
 
-on serverError me, tErrorList 
+on serverError(me, tErrorList)
   if ilk(tErrorList) = #propList then
     tErrorStr = tErrorList.getAt(#errorId) & "-" & tErrorList.getAt(#errorMsgId) & "-" & tErrorList.getAt(#time)
     pServerErrorList.add(tErrorStr)
   end if
+  exit
 end
 
-on getClientErrors me 
+on getClientErrors(me)
   tErrorStr = ""
-  repeat while pClientErrorList <= undefined
+  repeat while me <= undefined
     tError = getAt(undefined, undefined)
     tErrorStr = tErrorStr & tError & ";"
   end repeat
   tMaxLength = 1000
   tErrorStr = chars(tErrorStr, tErrorStr.length - tMaxLength, tErrorStr.length)
   return(tErrorStr)
+  exit
 end
 
-on getServerErrors me 
+on getServerErrors(me)
   tErrorStr = ""
-  repeat while pServerErrorList <= undefined
+  repeat while me <= undefined
     tError = getAt(undefined, undefined)
     tErrorStr = tErrorStr & tError & ";"
   end repeat
   tMaxLength = 1000
   tErrorStr = chars(tErrorStr, tErrorStr.length - tMaxLength, tErrorStr.length)
   return(tErrorStr)
+  exit
 end
 
-on SystemAlert me, tObject, tMsg, tMethod 
+on SystemAlert(me, tObject, tMsg, tMethod)
   return(me.error(tObject, tMsg, tMethod))
+  exit
 end
 
-on setDebugLevel me, tDebugLevel 
+on setDebugLevel(me, tDebugLevel)
   if not integerp(tDebugLevel) then
     return(0)
   end if
   pDebugLevel = tDebugLevel
   return(1)
+  exit
 end
 
-on print me 
+on print(me)
   put("Errors:" & "\r" & pErrorCache)
   return(1)
+  exit
 end
 
-on fatalError me, tErrorData 
+on fatalError(me, tErrorData)
   if ilk(tErrorData) <> #propList then
-    tErrorData = [:]
+    tErrorData = []
   end if
   me.handleFatalError(tErrorData)
+  exit
 end
 
-on alertHook me, tErr, tMsgA, tMsgB 
-  tErrorData = [:]
+on alertHook(me, tErr, tMsgA, tMsgB)
+  tErrorData = []
   tErrorData.setAt("error", "script_error")
   tErrorData.setAt("hookerror", tErr)
   tErrorData.setAt("hookmsga", tMsgA)
@@ -176,9 +184,10 @@ on alertHook me, tErr, tMsgA, tMsgB
     me.handleFatalError(tErrorData)
   end if
   return(1)
+  exit
 end
 
-on zeroPadToString tNumber, tCount 
+on zeroPadToString(tNumber, tCount)
   tOut = ""
   if string(tNumber).length < tCount then
     i = 1
@@ -189,21 +198,23 @@ on zeroPadToString tNumber, tCount
   end if
   tOut = tOut & string(tNumber)
   return(tOut)
+  exit
 end
 
-on makeErrorId me 
-  tSrc = (integer(getVariable("account_id")) mod 10000)
-  tSrc2 = (random(10000) mod 10000)
+on makeErrorId(me)
+  tSrc = integer(getVariable("account_id")) mod 10000
+  tSrc2 = random(10000) mod 10000
   tDst = zeroPadToString(tSrc, 4) & zeroPadToString(tSrc2, 4)
   return(tDst)
+  exit
 end
 
-on handleFatalError me, tErrorData 
+on handleFatalError(me, tErrorData)
   tErrorUrl = ""
   tParams = ""
   if ilk(tErrorData) <> #propList then
     error(me, "Invalid error data", #handleFatalError, #major)
-    tErrorData = [:]
+    tErrorData = []
   end if
   tErrorType = tErrorData.getAt("error")
   if variableExists("client.fatal.error.url") then
@@ -238,11 +249,11 @@ on handleFatalError me, tErrorData
   tErrorData.setAt("error_id", makeErrorId())
   if variableExists("account_id") then
     tAccountID = getVariable("account_id")
-    tAccoutnID = (tAccountID mod 9999)
+    tAccoutnID = tAccountID mod 9999
   else
     tAccountID = 0
   end if
-  tNuErrorData = [:]
+  tNuErrorData = []
   i = 1
   repeat while i <= pFatalReportParamOrder.count
     tKey = pFatalReportParamOrder.getAt(i)
@@ -283,9 +294,10 @@ on handleFatalError me, tErrorData
     pFatalReported = 1
   end if
   return(1)
+  exit
 end
 
-on showErrorDialog me 
+on showErrorDialog(me)
   if createWindow(#error, "error.window", 0, 0, #modal) <> 0 then
     getWindow(#error).registerClient(me.getID())
     getWindow(#error).registerProcedure(#eventProcError, me.getID(), #mouseUp)
@@ -293,10 +305,12 @@ on showErrorDialog me
   else
     return(0)
   end if
+  exit
 end
 
-on eventProcError me, tEvent, tSprID, tParam 
+on eventProcError(me, tEvent, tSprID, tParam)
   if tEvent = #mouseUp and tSprID = "error_close" then
     removeWindow(#error)
   end if
+  exit
 end

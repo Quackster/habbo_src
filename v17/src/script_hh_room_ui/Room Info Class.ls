@@ -1,26 +1,26 @@
-property pWindowID, pUseRatings
-
-on construct me 
+on construct(me)
   pWindowID = "RoomInfoWindow"
   pUseRatings = 0
   if variableExists("room.rating.enable") then
-    if (getVariable("room.rating.enable") = 1) then
+    if getVariable("room.rating.enable") = 1 then
       pUseRatings = 1
     end if
   end if
   registerMessage(#roomRatingChanged, me.getID(), #updateRatingData)
-  return TRUE
+  return(1)
+  exit
 end
 
-on deconstruct me 
-  return TRUE
+on deconstruct(me)
+  return(1)
+  exit
 end
 
-on showRoomInfo me 
-  if (getThread(#room).getComponent().getRoomData().type = #private) then
+on showRoomInfo(me)
+  if getThread(#room).getComponent().getRoomData().type = #private then
     tWndObj = me.createInfoWindow()
-    if (tWndObj = 0) then
-      return FALSE
+    if tWndObj = 0 then
+      return(0)
     end if
     tRoomData = getThread(#room).getComponent().pSaveData
     tWndObj.getElement("room_info_room_name").setText(tRoomData.getAt(#name))
@@ -29,23 +29,25 @@ on showRoomInfo me
   else
     me.hideRoomInfo()
   end if
+  exit
 end
 
-on hideRoomInfo me 
+on hideRoomInfo(me)
   if windowExists(pWindowID) then
     removeWindow(pWindowID)
   end if
+  exit
 end
 
-on createInfoWindow me 
+on createInfoWindow(me)
   if not windowExists(pWindowID) then
     if pUseRatings then
       tSuccess = createWindow(pWindowID, "room_info.window", 10, 420)
     else
       tSuccess = createWindow(pWindowID, "room_info_no_rating.window", 10, 437)
     end if
-    if (tSuccess = 0) then
-      return FALSE
+    if tSuccess = 0 then
+      return(0)
     else
       tWndObj = getWindow(pWindowID)
       tWndObj.lock()
@@ -55,25 +57,27 @@ on createInfoWindow me
   else
     return(getWindow(pWindowID))
   end if
+  exit
 end
 
-on sendFlatRate me, tValue 
+on sendFlatRate(me, tValue)
   getThread(#room).getComponent().getRoomConnection().send("RATEFLAT", [#integer:tValue])
+  exit
 end
 
-on updateRatingData me 
+on updateRatingData(me)
   if not pUseRatings then
-    return TRUE
+    return(1)
   end if
   tWndObj = getWindow(pWindowID)
-  if (tWndObj = 0) then
-    return FALSE
+  if tWndObj = 0 then
+    return(0)
   end if
   if not tWndObj.elementExists("room_info_rate_plus") then
-    return FALSE
+    return(0)
   end if
   tRoomRatings = getThread(#room).getComponent().getRoomRating()
-  if (tRoomRatings.getAt(#rate) = -1) then
+  if tRoomRatings.getAt(#rate) = -1 then
     tWndObj.getElement("room_info_rate_plus").setProperty(#visible, 1)
     tWndObj.getElement("room_info_rate_minus").setProperty(#visible, 1)
     tWndObj.getElement("room_info_rate_room").setProperty(#visible, 1)
@@ -86,17 +90,19 @@ on updateRatingData me
     tRateText = getText("room_info_rated") && tRoomRatings.getAt(#rate)
     tWndObj.getElement("room_info_rate_value").setText(tRateText)
   end if
+  exit
 end
 
-on eventProcInfo me, tEvent, tSprID, tParam 
+on eventProcInfo(me, tEvent, tSprID, tParam)
   if tEvent <> #mouseUp then
-    return FALSE
+    return(0)
   end if
-  if (tSprID = "room_info_rate_plus") then
+  if me = "room_info_rate_plus" then
     me.sendFlatRate(1)
   else
-    if (tSprID = "room_info_rate_minus") then
+    if me = "room_info_rate_minus" then
       me.sendFlatRate(-1)
     end if
   end if
+  exit
 end

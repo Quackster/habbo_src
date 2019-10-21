@@ -1,4 +1,4 @@
-on construct me 
+on construct(me)
   pOkToLogin = 0
   if variableExists("stats.tracking.javascript") then
     createObject(#statsBrokerJs, "Statistics Broker Javascript Class")
@@ -46,9 +46,10 @@ on construct me
   registerMessage(#performLogin, me.getID(), #sendLogin)
   registerMessage(#loginIsOk, me.getID(), #setLoginOk)
   return(1)
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   pOkToLogin = 0
   if objectExists("Figure_System") then
     removeObject("Figure_System")
@@ -78,16 +79,18 @@ on deconstruct me
   else
     return(1)
   end if
+  exit
 end
 
-on initA me 
+on initA(me)
   if getIntVariable("figurepartlist.loaded", 1) = 0 then
     return(me.delay(250, #initA))
   end if
   return(me.delay(1000, #initB))
+  exit
 end
 
-on initB me 
+on initB(me)
   tUseSSO = 0
   if variableExists("use.sso.ticket") then
     tUseSSO = getVariable("use.sso.ticket")
@@ -104,9 +107,10 @@ on initB me
   else
     executeMessage(#alert, [#Msg:"Alert_generic_login_error"])
   end if
+  exit
 end
 
-on sendLogin me, tConnection 
+on sendLogin(me, tConnection)
   if voidp(tConnection) then
     tConnection = getConnection(getVariable("connection.info.id"))
   end if
@@ -134,14 +138,16 @@ on sendLogin me, tConnection
     end if
   end if
   return(1)
+  exit
 end
 
-on openConnection me 
+on openConnection(me)
   me.setaProp(#pOkToLogin, 1)
   me.connect()
+  exit
 end
 
-on connect me 
+on connect(me)
   tHost = getVariable("connection.info.host")
   tPort = getIntVariable("connection.info.port")
   tConn = getVariable("connection.info.id", #info)
@@ -161,21 +167,25 @@ on connect me
     initThread("thread.hobba")
   end if
   return(1)
+  exit
 end
 
-on disconnect me 
+on disconnect(me)
   tConn = getVariable("connection.info.id", #info)
   if connectionExists(tConn) then
     return(removeConnection(tConn))
   else
     return(error(me, "Connection not found!", #disconnect, #minor))
   end if
+  exit
 end
 
-on setAllowLogin me 
+on setAllowLogin(me)
   pOkToLogin = 1
+  exit
 end
 
-on isOkToLogin me 
+on isOkToLogin(me)
   return(me.pOkToLogin)
+  exit
 end

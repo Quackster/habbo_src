@@ -1,16 +1,16 @@
-property pWindowID
-
-on construct me 
+on construct(me)
   pWindowID = "ig_tooltip"
   return(1)
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   me.removeTooltipWindow()
   return(1)
+  exit
 end
 
-on handleEvent me, tEvent, tSprID, tWndID, tKey 
+on handleEvent(me, tEvent, tSprID, tWndID, tKey)
   if tEvent = #mouseLeave then
     return(me.removeTooltipWindow())
   end if
@@ -37,13 +37,14 @@ on handleEvent me, tEvent, tSprID, tWndID, tKey
   if tsprite = 0 then
     return(0)
   end if
-  tLocX = tsprite.locH + (tsprite.width / 2)
+  tLocX = tsprite.locH + tsprite.width / 2
   tLocY = tsprite.locV
   me.createTooltipWindow(tText, tLocX, tLocY)
   return(1)
+  exit
 end
 
-on getTooltipText me, tSprID 
+on getTooltipText(me, tSprID)
   if tSprID.length < 4 then
     return(0)
   end if
@@ -58,9 +59,10 @@ on getTooltipText me, tSprID
     return(getText(tKey))
   end if
   return(0)
+  exit
 end
 
-on createTooltipWindow me, tText, tLocX, tLocY 
+on createTooltipWindow(me, tText, tLocX, tLocY)
   if windowExists(pWindowID) then
     me.removeTooltipWindow(pWindowID)
   end if
@@ -75,13 +77,15 @@ on createTooltipWindow me, tText, tLocX, tLocY
   end if
   tElem.setText(tText)
   tWndObj.moveTo(100, 100)
-  tWndObj.moveTo(tLocX - (tWndObj.getProperty(#width) / 2), tLocY - tWndObj.getProperty(#height))
-  tWndObj.moveZ(10000000)
+  tWndObj.moveTo(tLocX - tWndObj.getProperty(#width) / 2, tLocY - tWndObj.getProperty(#height))
+  -- UNK_80 16898
   return(1)
+  exit
 end
 
-on removeTooltipWindow me 
+on removeTooltipWindow(me)
   if windowExists(pWindowID) then
     removeWindow(pWindowID)
   end if
+  exit
 end

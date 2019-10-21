@@ -1,6 +1,4 @@
-property pIcon, pWindowID, pGuideToolAnimTimeoutID, pUseAlertSound, pAnimFrame
-
-on construct me 
+on construct(me)
   pIcon = createObject("guide_tool_icon_object", "Guide Tool Icon Class")
   pUseAlertSound = 1
   pWindowID = "guide_tool_window_id"
@@ -8,10 +6,11 @@ on construct me
   registerMessage(#toggleGuideTool, me.getID(), #toggleGuideTool)
   registerMessage(#gamesystem_constructed, me.getID(), #hideAll)
   registerMessage(#gamesystem_deconstructed, me.getID(), #update)
-  return TRUE
+  return(1)
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   removeObject(pIcon.getID())
   unregisterMessage(#toggleGuideTool, me.getID())
   unregisterMessage(#gamesystem_constructed, me.getID())
@@ -19,27 +18,31 @@ on deconstruct me
   if windowExists(pWindowID) then
     removeWindow(pWindowID)
   end if
-  return TRUE
+  return(1)
+  exit
 end
 
-on hideAll me 
+on hideAll(me)
   me.hideGuideToolIcon()
   me.closeGuideTool()
+  exit
 end
 
-on showGuideToolIcon me 
+on showGuideToolIcon(me)
   if objectp(pIcon) then
     pIcon.show()
   end if
+  exit
 end
 
-on hideGuideToolIcon me 
+on hideGuideToolIcon(me)
   if objectp(pIcon) then
     pIcon.hide()
   end if
+  exit
 end
 
-on toggleGuideTool me 
+on toggleGuideTool(me)
   if not windowExists(pWindowID) then
     return(me.openGuideTool())
   end if
@@ -49,9 +52,10 @@ on toggleGuideTool me
   else
     me.openGuideTool()
   end if
+  exit
 end
 
-on openGuideTool me 
+on openGuideTool(me)
   if windowExists(pWindowID) then
     tWindow = getWindow(pWindowID)
     tWindow.show()
@@ -59,25 +63,26 @@ on openGuideTool me
     tstate = me.getComponent().getState()
     me.createGuideToolWindow(tstate)
   end if
-  return TRUE
+  return(1)
+  exit
 end
 
-on createGuideToolWindow me, tstate 
+on createGuideToolWindow(me, tstate)
   tUseDefaultLoc = 1
   if windowExists(pWindowID) then
     removeWindow(pWindowID)
     tUseDefaultLoc = 0
   end if
-  if (tstate = #disabled) then
-    return FALSE
+  if me = #disabled then
+    return(0)
   else
-    if (tstate = #enabled) then
+    if me = #enabled then
       tLayout = "guide_tool_start.window"
     else
-      if (tstate = #waiting) then
+      if me = #waiting then
         tLayout = "guide_tool_waiting.window"
       else
-        if (tstate = #ready) then
+        if me = #ready then
           tLayout = "guide_tool_invite.window"
         end if
       end if
@@ -93,10 +98,10 @@ on createGuideToolWindow me, tstate
   if timeoutExists(pGuideToolAnimTimeoutID) then
     removeTimeout(pGuideToolAnimTimeoutID)
   end if
-  if (tstate = #waiting) then
+  if me = #waiting then
     createTimeout(pGuideToolAnimTimeoutID, 250, #updateGuideToolAnim, me.getID(), void(), 0)
   else
-    if (tstate = #ready) then
+    if me = #ready then
       if pUseAlertSound then
         tSoundMemName = getVariable("guidetool.alert.sound")
         playSound(tSoundMemName, #cut, [#loopCount:1, #infiniteloop:0, #volume:255])
@@ -110,18 +115,19 @@ on createGuideToolWindow me, tstate
     end if
   end if
   me.updateCheckbox()
+  exit
 end
 
-on updateCheckbox me 
+on updateCheckbox(me)
   if not windowExists(pWindowID) then
-    return FALSE
+    return(0)
   end if
   tWndObj = getWindow(pWindowID)
   if not tWndObj.elementExists("guide_tool_checkbox") then
-    return FALSE
+    return(0)
   end if
   if not memberExists("button.checkbox.on") and memberExists("button.checkbox.off") then
-    return FALSE
+    return(0)
   end if
   tImageOn = member(getmemnum("button.checkbox.on")).image
   tImageOff = member(getmemnum("button.checkbox.off")).image
@@ -131,18 +137,19 @@ on updateCheckbox me
   else
     tElem.feedImage(tImageOff)
   end if
+  exit
 end
 
-on updateGuideToolAnim me 
+on updateGuideToolAnim(me)
   if not windowExists(pWindowID) then
-    return FALSE
+    return(0)
   end if
   tWndObj = getWindow(pWindowID)
   if not tWndObj.elementExists("guide_tool_progress_bar") then
-    return FALSE
+    return(0)
   end if
   tElem = tWndObj.getElement("guide_tool_progress_bar")
-  pAnimFrame = (pAnimFrame + 1)
+  pAnimFrame = pAnimFrame + 1
   if pAnimFrame > 3 then
     pAnimFrame = 1
   end if
@@ -150,75 +157,82 @@ on updateGuideToolAnim me
   if memberExists(tMemName) then
     tElem.setProperty(#image, member(getmemnum(tMemName)).image)
   end if
+  exit
 end
 
-on closeGuideTool me 
+on closeGuideTool(me)
   if windowExists(pWindowID) then
     tWndObj = getWindow(pWindowID)
     tWndObj.hide()
   end if
+  exit
 end
 
-on update me 
+on update(me)
   tstate = me.getComponent().getState()
   me.updateIcon(tstate)
   me.updateToolWindow(tstate)
+  exit
 end
 
-on isMinimized me 
+on isMinimized(me)
   if not windowExists(pWindowID) then
-    return TRUE
+    return(1)
   end if
   tWndObj = getWindow(pWindowID)
   return(not tWndObj.getProperty(#visible))
+  exit
 end
 
-on updateIcon me, tstate 
-  if (tstate = #disabled) then
+on updateIcon(me, tstate)
+  if tstate = #disabled then
     pIcon.hide()
   else
     pIcon.show()
   end if
-  if (tstate = #ready) then
+  if tstate = #ready then
     pIcon.setFlashing(1)
   else
     pIcon.setFlashing(0)
   end if
+  exit
 end
 
-on updateToolWindow me, tstate 
+on updateToolWindow(me, tstate)
   tIsMinimized = me.isMinimized()
   me.createGuideToolWindow(tstate)
   if tIsMinimized and windowExists(pWindowID) then
     tWndObj = getWindow(pWindowID)
     tWndObj.hide()
   end if
+  exit
 end
 
-on eventProcGuideTool me, tEvent, tSprID, tProp 
-  if (tSprID = "guide_tool_start") then
+on eventProcGuideTool(me, tEvent, tSprID, tProp)
+  if me = "guide_tool_start" then
     me.getComponent().startWaiting()
   else
-    if (tSprID = "guide_tool_close") then
+    if me = "guide_tool_close" then
       me.closeGuideTool()
     else
-      if (tSprID = "guide_tool_cancel") then
+      if me = "guide_tool_cancel" then
         me.getComponent().cancelWaiting()
         me.closeGuideTool()
       else
-        if (tSprID = "guide_tool_accept") then
+        if me = "guide_tool_accept" then
           me.getComponent().acceptInvitation()
           me.closeGuideTool()
         else
-          if (tSprID = "guide_tool_reject") then
+          if me = "guide_tool_reject" then
             me.getComponent().rejectInvitation()
             me.closeGuideTool()
           else
-            if tSprID <> "guide_tool_checkbox" then
-              if (tSprID = "guide_tool_checkbox_text") then
+            if me <> "guide_tool_checkbox" then
+              if me = "guide_tool_checkbox_text" then
                 pUseAlertSound = not pUseAlertSound
                 me.updateCheckbox()
               end if
+              exit
             end if
           end if
         end if

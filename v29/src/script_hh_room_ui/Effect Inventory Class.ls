@@ -1,11 +1,9 @@
-property pBadgeWindowID, pListRenderer, pState, pInventoryEffects, pSelectedEffectType, pInventoryList, pActiveEffectIndex, pActiveEffects, pActiveSlot, pSlotOffset, pUpdateTimerId
-
-on construct me 
+on construct(me)
   pState = 0
   me.regMsgList(1)
-  pInventoryList = [:]
+  pInventoryList = []
   pInventoryEffects = []
-  pActiveEffects = [:]
+  pActiveEffects = []
   pActiveEffectIndex = []
   pBadgeWindowID = "badgeSelectionWindowID"
   pUpdateTimerId = "fx_inventory_timer"
@@ -16,9 +14,10 @@ on construct me
   registerMessage(#activate_avatar_effect, me.getID(), #send_activate_avatar_effect)
   registerMessage(#openFxWindow, me.getID(), #openFxWindow)
   return(1)
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   pState = 0
   me.setUpdateTimer(0)
   me.regMsgList(0)
@@ -30,9 +29,10 @@ on deconstruct me
     removeObject(pListRenderer.getID())
   end if
   return(1)
+  exit
 end
 
-on openFxWindow me 
+on openFxWindow(me)
   if not pState then
     return(1)
   end if
@@ -47,9 +47,10 @@ on openFxWindow me
   me.getWindowObj()
   me.updateFxView()
   me.setUpdateTimer(1)
+  exit
 end
 
-on setCatalogLinkVisibility me 
+on setCatalogLinkVisibility(me)
   tWndObj = getWindow(pBadgeWindowID)
   if tWndObj = 0 then
     return(0)
@@ -63,9 +64,10 @@ on setCatalogLinkVisibility me
     tWndObj.getElement("selected_fx_bg").hide()
     tWndObj.getElement("fx_catalog_link_text").show()
   end if
+  exit
 end
 
-on updateListImage me 
+on updateListImage(me)
   tWndObj = getWindow(pBadgeWindowID)
   if tWndObj = 0 then
     return(0)
@@ -76,9 +78,10 @@ on updateListImage me
   tListElem = tWndObj.getElement("fx_list")
   tListElem.feedImage(pListRenderer.render(pInventoryEffects, pActiveEffectIndex, void(), pSelectedEffectType))
   return(1)
+  exit
 end
 
-on updatePreview me 
+on updatePreview(me)
   if not windowExists(pBadgeWindowID) then
     return(0)
   end if
@@ -114,8 +117,8 @@ on updatePreview me
       tText = getText("fx_" & pSelectedEffectType & "_desc") & getText("fx_desc_duration")
       tText = replaceChunks(tText, "%r", "\r")
       tText = replaceChunks(tText, "%h", me.getHours(tItemData.getaProp(#time_duration)))
-      tText = replaceChunks(tText, "%m", (me.getMinutes(tItemData.getaProp(#time_duration)) mod 60))
-      tText = replaceChunks(tText, "%d", me.getHours(tItemData.getaProp(#time_duration)) & ":" & (me.getMinutes(tItemData.getaProp(#time_duration)) mod 60))
+      tText = replaceChunks(tText, "%m", me.getMinutes(tItemData.getaProp(#time_duration)) mod 60)
+      tText = replaceChunks(tText, "%d", me.getHours(tItemData.getaProp(#time_duration)) & ":" & me.getMinutes(tItemData.getaProp(#time_duration)) mod 60)
       tText = replaceChunks(tText, "%c", tItemData.getaProp(#count))
       tDescElem.setText(tText)
     else
@@ -131,17 +134,20 @@ on updatePreview me
     end if
   end if
   return(1)
+  exit
 end
 
-on getHours me, tSeconds 
-  return((tSeconds / 3600))
+on getHours(me, tSeconds)
+  return(tSeconds / 3600)
+  exit
 end
 
-on getMinutes me, tSeconds 
-  return((tSeconds / 60))
+on getMinutes(me, tSeconds)
+  return(tSeconds / 60)
+  exit
 end
 
-on selectSlot me, tSlotIndex 
+on selectSlot(me, tSlotIndex)
   tSlotIndex = integer(tSlotIndex)
   if tSlotIndex < 1 or tSlotIndex > pActiveEffects.count then
     return(error(me, "Slot index out of range", #selectSlot, #major))
@@ -150,17 +156,19 @@ on selectSlot me, tSlotIndex
   if tBadgeID <> 0 then
     me.selectBadge(tBadgeID)
   end if
+  exit
 end
 
-on clearActiveSlot me 
+on clearActiveSlot(me)
   if pActiveSlot = 0 then
     return(0)
   end if
   pSelectedBadges([pActiveSlot] = 0)
   me.updateBadgeView()
+  exit
 end
 
-on updateSlots me 
+on updateSlots(me)
   if not pState then
     return(1)
   end if
@@ -230,9 +238,9 @@ on updateSlots me
             tSlotElem.setProperty(#member, "slot")
           end if
         end if
-        tTimeInt = (tEndTime - the milliSeconds / 1000)
-        tMin = (tTimeInt mod 60)
-        tHour = (tTimeInt - tMin / 60)
+        tTimeInt = tEndTime - the milliSeconds / 1000
+        tMin = tTimeInt mod 60
+        tHour = tTimeInt - tMin / 60
         if tMin < 10 then
           tMin = "0" & tMin
         end if
@@ -248,23 +256,26 @@ on updateSlots me
     end if
     tSlot = 1 + tSlot
   end repeat
+  exit
 end
 
-on selectItem me, tBadgeID 
+on selectItem(me, tBadgeID)
   pSelectedEffectType = tBadgeID
   me.updateFxView()
+  exit
 end
 
-on updateFxView me 
+on updateFxView(me)
   if not pState then
     return(1)
   end if
   me.updateListImage()
   me.updatePreview()
   me.updateSlots()
+  exit
 end
 
-on getWindowObj me 
+on getWindowObj(me)
   tTitleStr = getText("fx_inv_window_title")
   if windowExists(pBadgeWindowID) then
     tWndObj = getWindow(pBadgeWindowID)
@@ -291,18 +302,20 @@ on getWindowObj me
   registerMessage(#changeRoom, tWndObj.getID(), #close)
   tWndObj.registerProcedure(#eventProc, me.getID(), #mouseUp)
   return(tWndObj)
+  exit
 end
 
-on removeWindowObj me 
+on removeWindowObj(me)
   if windowExists(pBadgeWindowID) then
     tWndObj = getWindow(pBadgeWindowID)
     unregisterMessage(#leaveRoom, tWndObj.getID())
     unregisterMessage(#changeRoom, tWndObj.getID())
     tWndObj.close()
   end if
+  exit
 end
 
-on setUpdateTimer me, tstate 
+on setUpdateTimer(me, tstate)
   if not pState then
     return(1)
   end if
@@ -317,9 +330,10 @@ on setUpdateTimer me, tstate
     end if
   end if
   return(1)
+  exit
 end
 
-on send_use_avatar_effect me, ttype 
+on send_use_avatar_effect(me, ttype)
   if not pState then
     return(1)
   end if
@@ -328,27 +342,29 @@ on send_use_avatar_effect me, ttype
     return(0)
   end if
   return(tConn.send("USE_AVATAR_EFFECT", [#integer:ttype]))
+  exit
 end
 
-on send_activate_avatar_effect me, ttype 
+on send_activate_avatar_effect(me, ttype)
   tConn = getConnection(#info)
   if tConn = 0 then
     return(0)
   end if
   return(tConn.send("ACTIVATE_AVATAR_EFFECT", [#integer:ttype]))
+  exit
 end
 
-on handle_avatar_effects me, tMsg 
+on handle_avatar_effects(me, tMsg)
   tConn = tMsg.getaProp(#connection)
-  tList = [:]
+  tList = []
   tIndex = []
   tActiveIndex = []
-  tActiveList = [:]
+  tActiveList = []
   tTypeCount = tConn.GetIntFrom()
   i = 1
   repeat while i <= tTypeCount
     ttype = tConn.GetIntFrom()
-    tItem = [:]
+    tItem = []
     tItem.setaProp(#time_duration, tConn.GetIntFrom())
     tItem.setaProp(#count, tConn.GetIntFrom())
     tTimeLeft = tConn.GetIntFrom()
@@ -358,7 +374,7 @@ on handle_avatar_effects me, tMsg
     if tTimeLeft > 0 then
       if tActiveIndex.findPos(ttype) = 0 then
         tActiveIndex.append(ttype)
-        tActiveList.setaProp(ttype, the milliSeconds + (tTimeLeft * 1000))
+        tActiveList.setaProp(ttype, the milliSeconds + tTimeLeft * 1000)
       end if
     end if
     i = 1 + i
@@ -376,11 +392,12 @@ on handle_avatar_effects me, tMsg
   pState = 1
   getObject(#session).set(#fx_on, 1)
   return(me.updateFxView())
+  exit
 end
 
-on handle_avatar_effect_added me, tMsg 
+on handle_avatar_effect_added(me, tMsg)
   tConn = tMsg.getaProp(#connection)
-  tItem = [:]
+  tItem = []
   ttype = tConn.GetIntFrom()
   if pInventoryList.findPos(ttype) = 0 then
     tItem.setaProp(#type, ttype)
@@ -395,15 +412,16 @@ on handle_avatar_effect_added me, tMsg
   tItem.setaProp(#time_duration, tTime)
   tItem.setaProp(#time_left, tTime)
   return(me.updateFxView())
+  exit
 end
 
-on handle_avatar_effect_activated me, tMsg 
+on handle_avatar_effect_activated(me, tMsg)
   tConn = tMsg.getaProp(#connection)
   ttype = tConn.GetIntFrom()
   tTime = tConn.GetIntFrom()
   if pActiveEffectIndex.findPos(ttype) = 0 then
     pActiveEffectIndex.add(ttype)
-    pActiveEffects.setaProp(ttype, the milliSeconds + (tTime * 1000))
+    pActiveEffects.setaProp(ttype, the milliSeconds + tTime * 1000)
   end if
   getObject(#session).set("active_fx", pActiveEffects)
   tSlotCount = 5
@@ -411,9 +429,10 @@ on handle_avatar_effect_activated me, tMsg
     pSlotOffset = pActiveEffectIndex.count - tSlotCount
   end if
   return(me.updateFxView())
+  exit
 end
 
-on handle_avatar_effect_expired me, tMsg, tTestType 
+on handle_avatar_effect_expired(me, tMsg, tTestType)
   if voidp(tMsg) then
     if not voidp(tTestType) then
       ttype = tTestType
@@ -447,23 +466,25 @@ on handle_avatar_effect_expired me, tMsg, tTestType
   end if
   executeMessage(#updateInfostandAvatar)
   return(me.updateFxView())
+  exit
 end
 
-on handle_avatar_effect_selected me, tMsg 
+on handle_avatar_effect_selected(me, tMsg)
   tConn = tMsg.getaProp(#connection)
   ttype = tConn.GetIntFrom()
   executeMessage(#fx_selected, ttype)
   return(me.updateFxView())
+  exit
 end
 
-on regMsgList me, tBool 
-  tMsgs = [:]
+on regMsgList(me, tBool)
+  tMsgs = []
   tMsgs.setaProp(460, #handle_avatar_effects)
   tMsgs.setaProp(461, #handle_avatar_effect_added)
   tMsgs.setaProp(462, #handle_avatar_effect_activated)
   tMsgs.setaProp(463, #handle_avatar_effect_expired)
   tMsgs.setaProp(464, #handle_avatar_effect_selected)
-  tCmds = [:]
+  tCmds = []
   tCmds.setaProp("USE_AVATAR_EFFECT", 372)
   tCmds.setaProp("ACTIVATE_AVATAR_EFFECT", 373)
   if tBool then
@@ -474,36 +495,37 @@ on regMsgList me, tBool
     unregisterCommands(getVariable("connection.info.id", #info), me.getID(), tCmds)
   end if
   return(1)
+  exit
 end
 
-on eventProc me, tEvent, tSprID, tParam, tWndID 
+on eventProc(me, tEvent, tSprID, tParam, tWndID)
   if not pState then
     return(1)
   end if
-  if tSprID = "fx_activate_button" then
+  if me = "fx_activate_button" then
     return(me.send_activate_avatar_effect(pSelectedEffectType))
   else
-    if tSprID = "slot_arrow_right" then
+    if me = "slot_arrow_right" then
       if pSlotOffset >= pActiveEffectIndex.count - 5 then
         return(1)
       end if
       pSlotOffset = pSlotOffset + 1
       return(me.updateSlots())
     else
-      if tSprID = "slot_arrow_left" then
+      if me = "slot_arrow_left" then
         if pSlotOffset < 1 then
           return(1)
         end if
         pSlotOffset = pSlotOffset - 1
         return(me.updateSlots())
       else
-        if tSprID = "badges_tab" then
+        if me = "badges_tab" then
           return(executeMessage(#openBadgeWindow))
         else
-          if tSprID = "achievements_tab" then
+          if me = "achievements_tab" then
             return(executeMessage(#openAchievementsWindow))
           else
-            if tSprID = "fx_list" then
+            if me = "fx_list" then
               if tParam.ilk <> #point then
                 return(0)
               end if
@@ -513,27 +535,28 @@ on eventProc me, tEvent, tSprID, tParam, tWndID
               end if
               me.selectItem(tFXId)
             else
-              if tSprID <> "slot_bg_1" then
-                if tSprID <> "slot_bg_2" then
-                  if tSprID <> "slot_bg_3" then
-                    if tSprID <> "slot_bg_4" then
-                      if tSprID <> "slot_bg_5" then
-                        if tSprID <> "fx_slot_1" then
-                          if tSprID <> "fx_slot_2" then
-                            if tSprID <> "fx_slot_3" then
-                              if tSprID <> "fx_slot_4" then
-                                if tSprID = "fx_slot_5" then
+              if me <> "slot_bg_1" then
+                if me <> "slot_bg_2" then
+                  if me <> "slot_bg_3" then
+                    if me <> "slot_bg_4" then
+                      if me <> "slot_bg_5" then
+                        if me <> "fx_slot_1" then
+                          if me <> "fx_slot_2" then
+                            if me <> "fx_slot_3" then
+                              if me <> "fx_slot_4" then
+                                if me = "fx_slot_5" then
                                   tPos = pSlotOffset + integer(tSprID.getProp(#char, 9))
                                   if tPos > pActiveEffectIndex.count then
                                     return(1)
                                   end if
                                   me.selectItem(pActiveEffectIndex.getAt(tPos))
                                 else
-                                  if tSprID = "fx_catalog_link_text" then
+                                  if me = "fx_catalog_link_text" then
                                     getThread(#catalogue).getComponent().preparePageByName(getText("fx.catalog.link.nodename", "Special Effects"))
                                   end if
                                 end if
                                 return(1)
+                                exit
                               end if
                             end if
                           end if

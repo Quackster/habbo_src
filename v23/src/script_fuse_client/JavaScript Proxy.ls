@@ -1,2 +1,2 @@
-on callJavascript  
+on callJavascript()
 end

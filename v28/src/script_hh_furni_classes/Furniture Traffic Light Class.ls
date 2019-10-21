@@ -1,24 +1,24 @@
-property pState
-
-on prepare me, tdata 
+on prepare(me, tdata)
   me.setState(tdata.getAt(#stuffdata))
   return(1)
+  exit
 end
 
-on updateStuffdata me, tValue 
+on updateStuffdata(me, tValue)
   me.setState(tValue)
+  exit
 end
 
-on setState me, tValue 
+on setState(me, tValue)
   if me.count(#pSprList) < 3 then
     return(0)
   end if
   pState = tValue
-  if tValue = "1" then
+  if me = "1" then
     me.switchMember("c", "0")
     me.getPropRef(#pSprList, 3).visible = 1
   else
-    if tValue = "2" then
+    if me = "2" then
       me.switchMember("c", "1")
       me.getPropRef(#pSprList, 3).visible = 1
     else
@@ -26,9 +26,10 @@ on setState me, tValue
     end if
   end if
   return(1)
+  exit
 end
 
-on switchMember me, tPart, tNewMem 
+on switchMember(me, tPart, tNewMem)
   tSprNum = ["a", "b", "c", "d", "e", "f"].getPos(tPart)
   if me.count(#pSprList) < tSprNum or tSprNum = 0 then
     return(0)
@@ -42,9 +43,10 @@ on switchMember me, tPart, tNewMem
     me.getPropRef(#pSprList, tSprNum).height = tmember.height
   end if
   return(1)
+  exit
 end
 
-on select me 
+on select(me)
   if the doubleClick then
     tUserObj = getThread(#room).getComponent().getOwnUser()
     if not tUserObj then
@@ -53,10 +55,10 @@ on select me
     if abs(tUserObj.pLocX - me.pLocX) > 1 or abs(tUserObj.pLocY - me.pLocY) > 1 then
       return(1)
     end if
-    if pState = "0" then
+    if me = "0" then
       pState = "1"
     else
-      if pState = "1" then
+      if me = "1" then
         pState = "2"
       else
         pState = "0"
@@ -65,4 +67,5 @@ on select me
     getThread(#room).getComponent().getRoomConnection().send("SETSTUFFDATA", [#string:string(me.getID()), #string:pState])
   end if
   return(1)
+  exit
 end

@@ -1,18 +1,20 @@
-on deconstruct me 
+on deconstruct(me)
   callAncestor(#deconstruct, [me])
   executeMessage(#roomdimmer_removed, me.getID())
   return(1)
+  exit
 end
 
-on define me, tProps 
+on define(me, tProps)
   callAncestor(#define, [me], tProps)
   if voidp(tProps.getAt(#stripId)) then
     executeMessage(#roomdimmer_defined, me.getID())
   end if
   return(1)
+  exit
 end
 
-on select me 
+on select(me)
   towner = 0
   tSession = getObject(#session)
   if tSession <> 0 then
@@ -30,9 +32,10 @@ on select me
     return(callAncestor(#select, [me]))
   end if
   return(1)
+  exit
 end
 
-on setState me, tNewState 
+on setState(me, tNewState)
   tNewState = string(tNewState)
   tDelim = the itemDelimiter
   the itemDelimiter = ","
@@ -47,7 +50,7 @@ on setState me, tNewState
   tLightness = tNewState.getProp(#item, 5)
   the itemDelimiter = tDelim
   callAncestor(#setState, [me], tstate)
-  tStateData = [:]
+  tStateData = []
   tStateData.setaProp(#dimmerID, me.getID())
   tStateData.setaProp(#isOn, tstate = 2)
   tStateData.setaProp(#presetID, value(tPresetID))
@@ -55,4 +58,5 @@ on setState me, tNewState
   tStateData.setaProp(#color, rgb(tColor))
   tStateData.setaProp(#lightness, value(tLightness))
   executeMessage(#roomdimmer_set_state, tStateData)
+  exit
 end

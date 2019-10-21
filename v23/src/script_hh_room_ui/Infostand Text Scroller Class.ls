@@ -1,68 +1,71 @@
-property pMaxOffset, pWindowID, pElemName, pDelay, pScrollOn, pDelayLeft, pOffset, pSpeed
-
-on construct me 
+on construct(me)
   pScrollOn = 0
   pOffset = 0
   pSpeed = 1
   pDelay = 36
-  return TRUE
+  return(1)
+  exit
 end
 
-on deconstruct me 
-  return TRUE
+on deconstruct(me)
+  return(1)
+  exit
 end
 
-on registerElement me, tWindowID, tElementName 
+on registerElement(me, tWindowID, tElementName)
   tValidParams = me.checkWindowAndElemExistence(tWindowID, tElementName)
   if not tValidParams then
-    return FALSE
+    return(0)
   end if
   pWindowID = tWindowID
   pElemName = tElementName
   tElem = getWindow(tWindowID).getElement(tElementName)
   tImage = tElem.getProperty(#image)
   if tImage.ilk <> #image then
-    return FALSE
+    return(0)
   end if
-  pMaxOffset = (tImage.width - tElem.getProperty(#width))
+  pMaxOffset = tImage.width - tElem.getProperty(#width)
   if pMaxOffset < 0 then
     me.centerText()
   end if
-  return TRUE
+  return(1)
+  exit
 end
 
-on centerText me 
+on centerText(me)
   if not me.checkWindowAndElemExistence() then
-    return FALSE
+    return(0)
   end if
   tElem = getWindow(pWindowID).getElement(pElemName)
-  tElem.adjustOffsetTo((pMaxOffset / 2), 0)
-  return TRUE
+  tElem.adjustOffsetTo(pMaxOffset / 2, 0)
+  return(1)
+  exit
 end
 
-on checkWindowAndElemExistence me, tWindowID, tElementName 
+on checkWindowAndElemExistence(me, tWindowID, tElementName)
   if voidp(tWindowID) and voidp(tElementName) then
     tWindowID = pWindowID
     tElementName = pElemName
   end if
   if not windowExists(tWindowID) then
-    return FALSE
+    return(0)
   end if
   tWndObj = getWindow(tWindowID)
   if not tWndObj.elementExists(tElementName) then
-    return FALSE
+    return(0)
   end if
-  return TRUE
+  return(1)
+  exit
 end
 
-on setScroll me, tScrollOn 
+on setScroll(me, tScrollOn)
   if not me.checkWindowAndElemExistence(pWindowID, pElemName) then
     pScrollOn = 0
-    return FALSE
+    return(0)
   end if
   if tScrollOn then
     if pMaxOffset <= 0 then
-      return FALSE
+      return(0)
     end if
     pScrollOn = 1
     me.resetScroll()
@@ -71,35 +74,38 @@ on setScroll me, tScrollOn
     pScrollOn = 0
     removeUpdate(me.getID())
   end if
-  return TRUE
+  return(1)
+  exit
 end
 
-on resetScroll me 
+on resetScroll(me)
   pDelayLeft = pDelay
   pOffset = 0
   pSpeed = 1
+  exit
 end
 
-on update me 
+on update(me)
   if not pScrollOn then
-    return FALSE
+    return(0)
   end if
   if pMaxOffset < 0 then
-    return FALSE
+    return(0)
   end if
   if pDelayLeft > 0 then
-    pDelayLeft = (pDelayLeft - 1)
-    return TRUE
+    pDelayLeft = pDelayLeft - 1
+    return(1)
   end if
   if not me.checkWindowAndElemExistence() then
-    return FALSE
+    return(0)
   end if
-  pOffset = (pOffset + pSpeed)
+  pOffset = pOffset + pSpeed
   if pOffset >= pMaxOffset or pOffset <= 0 then
     pSpeed = -pSpeed
     pDelayLeft = pDelay
   end if
   tElem = getWindow(pWindowID).getElement(pElemName)
   tElem.adjustOffsetTo(pOffset, 0)
-  return TRUE
+  return(1)
+  exit
 end

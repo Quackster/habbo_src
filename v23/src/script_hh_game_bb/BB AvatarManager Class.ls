@@ -1,26 +1,30 @@
-on construct me 
-  return TRUE
+on construct(me)
+  return(1)
+  exit
 end
 
-on deconstruct me 
-  return TRUE
+on deconstruct(me)
+  return(1)
+  exit
 end
 
-on Refresh me, tTopic, tdata 
-  if (tTopic = #bb_event_2) then
+on Refresh(me, tTopic, tdata)
+  if me = #bb_event_2 then
     me.updatePlayerObjectGoal(tdata)
   end if
-  return TRUE
+  return(1)
+  exit
 end
 
-on updatePlayerObjectGoal me, tdata 
+on updatePlayerObjectGoal(me, tdata)
   tGameSystem = me.getGameSystem()
-  if (tGameSystem = 0) then
-    return FALSE
+  if tGameSystem = 0 then
+    return(0)
   end if
   if not listp(tdata) then
-    return FALSE
+    return(0)
   end if
   tID = tdata.getAt(#id)
   return(tGameSystem.executeGameObjectEvent(tID, #set_target_custom, tdata))
+  exit
 end

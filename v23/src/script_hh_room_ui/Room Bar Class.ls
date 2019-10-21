@@ -1,6 +1,4 @@
-property pTypingTimeoutName, pBottomBarId, pDisableRoomevents, pBouncerID, pIMFlashTimeoutID, pIMFlashState, pTextIsHelpTExt, pFloodblocking, pFloodTimer, pFloodEnterCount, pPopupControllerID, pSignState, pOldPosV, pOldPosH, pSignImg
-
-on construct me 
+on construct(me)
   pBottomBarId = "RoomBarID"
   pFloodblocking = 0
   pMessengerFlash = 0
@@ -20,10 +18,11 @@ on construct me
   registerMessage(#updateFriendListIcon, me.getID(), #updateFriendListIcon)
   registerMessage(#soundSettingChanged, me.getID(), #updateSoundButton)
   registerMessage(#IMStateChanged, me.getID(), #updateIMIcon)
-  return TRUE
+  return(1)
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   if timeoutExists(pTypingTimeoutName) then
     removeTimeout(pTypingTimeoutName)
   end if
@@ -33,18 +32,19 @@ on deconstruct me
   unregisterMessage(#updateFriendListIcon, me.getID())
   unregisterMessage(#soundSettingChanged, me.getID())
   unregisterMessage(#IMStateChanged, me.getID())
-  return TRUE
+  return(1)
+  exit
 end
 
-on showRoomBar me 
+on showRoomBar(me)
   if not windowExists(pBottomBarId) then
     createWindow(pBottomBarId, "empty.window", 0, 487)
   end if
   tManager = getThread(#room).getComponent().getIconBarManager()
   tManager.define(pBottomBarId)
   tWndObj = getWindow(pBottomBarId)
-  if (tWndObj = 0) then
-    return FALSE
+  if tWndObj = 0 then
+    return(0)
   end if
   tWndObj.lock(1)
   tWndObj.unmerge()
@@ -54,7 +54,7 @@ on showRoomBar me
     tLayout = "room_bar.window"
   end if
   if not tWndObj.merge(tLayout) then
-    return FALSE
+    return(0)
   end if
   if pDisableRoomevents then
     tEventsIcon = tWndObj.getElement("int_event_image")
@@ -70,10 +70,11 @@ on showRoomBar me
   tWndObj.registerProcedure(#eventProcRoomBar, me.getID(), #mouseWithin)
   tWndObj.registerProcedure(#eventProcRoomBar, me.getID(), #mouseUpOutSide)
   me.updateSoundButton()
-  return TRUE
+  return(1)
+  exit
 end
 
-on hideRoomBar me 
+on hideRoomBar(me)
   if timeoutExists(#flash_messenger_icon) then
     removeTimeout(#flash_messenger_icon)
   end if
@@ -85,11 +86,12 @@ on hideRoomBar me
   end if
   tManager = getThread(#room).getComponent().getIconBarManager()
   tManager.hideExtensions()
+  exit
 end
 
-on applyChatHelpText me 
+on applyChatHelpText(me)
   if not windowExists(pBottomBarId) then
-    return FALSE
+    return(0)
   end if
   if windowExists(pBottomBarId) then
     tWindowObj = getWindow(pBottomBarId)
@@ -99,66 +101,71 @@ on applyChatHelpText me
       pTextIsHelpTExt = 1
     end if
   end if
+  exit
 end
 
-on setSpeechDropdown me, tMode 
+on setSpeechDropdown(me, tMode)
   if windowExists(pBottomBarId) then
     tWndObj = getWindow(pBottomBarId)
-    if (tWndObj = 0) then
-      return TRUE
+    if tWndObj = 0 then
+      return(1)
     end if
     tElem = tWndObj.getElement("int_speechmode_dropmenu")
-    if (tElem = 0) then
-      return TRUE
+    if tElem = 0 then
+      return(1)
     end if
     tElem.setSelection(tMode, 1)
-    return TRUE
+    return(1)
   end if
+  exit
 end
 
-on setRollOverInfo me, tInfo 
+on setRollOverInfo(me, tInfo)
   tWndObj = getWindow(pBottomBarId)
   if tWndObj.elementExists("room_tooltip_text") then
     tWndObj.getElement("room_tooltip_text").setText(tInfo)
   end if
+  exit
 end
 
-on updateMessageCount me, tCount 
+on updateMessageCount(me, tCount)
   if tCount > 0 then
     me.updateFriendListIcon(1)
   else
     me.updateFriendListIcon(0)
   end if
+  exit
 end
 
-on updateFriendListIcon me, tActive 
+on updateFriendListIcon(me, tActive)
   tWndObj = getWindow(pBottomBarId)
-  if (tWndObj = 0) then
-    return FALSE
+  if tWndObj = 0 then
+    return(0)
   end if
   tIconElem = tWndObj.getElement("friend_list_icon")
   if not tIconElem then
-    return FALSE
+    return(0)
   end if
   if tActive then
     tIconElem.setProperty(#member, "friend_list_icon_notification")
   else
     tIconElem.setProperty(#member, "friend_list_icon")
   end if
+  exit
 end
 
-on bounceIMIcon me, tstate 
+on bounceIMIcon(me, tstate)
   if variableExists("bounce.messenger.icon") then
     if not getVariable("bounce.messenger.icon") then
-      return FALSE
+      return(0)
     end if
   end if
   if not objectExists(pBouncerID) then
     createObject(pBouncerID, "Element Bouncer Class")
   end if
   tBouncer = getObject(pBouncerID)
-  if (tstate = tBouncer.getState()) then
-    return TRUE
+  if tstate = tBouncer.getState() then
+    return(1)
   end if
   if tstate then
     tBouncer.registerElement(pBottomBarId, ["im_icon"])
@@ -166,12 +173,13 @@ on bounceIMIcon me, tstate
   else
     tBouncer.setBounce(0)
   end if
+  exit
 end
 
-on updateSoundButton me 
+on updateSoundButton(me)
   tWndObj = getWindow(pBottomBarId)
-  if (tWndObj = 0) then
-    return FALSE
+  if tWndObj = 0 then
+    return(0)
   end if
   tstate = getSoundState()
   tElem = tWndObj.getElement("int_sound_image")
@@ -188,11 +196,12 @@ on updateSoundButton me
       end if
     end if
   end if
+  exit
 end
 
-on setTypingState me, tstate 
+on setTypingState(me, tstate)
   tTimeoutTime = 2000
-  if (tstate = 0) then
+  if tstate = 0 then
     if timeoutExists(pTypingTimeoutName) then
       removeTimeout(pTypingTimeoutName)
     else
@@ -204,22 +213,24 @@ on setTypingState me, tstate
     end if
     createTimeout(pTypingTimeoutName, tTimeoutTime, #sendTypingState, me.getID(), 1, 1)
   end if
+  exit
 end
 
-on sendTypingState me, tstate 
+on sendTypingState(me, tstate)
   tConn = getConnection(#info)
-  if (tstate = 1) then
+  if tstate = 1 then
     tConn.send("USER_START_TYPING")
   else
     tConn.send("USER_CANCEL_TYPING")
   end if
+  exit
 end
 
-on showVote me 
+on showVote(me)
   tWndObj = getWindow(pBottomBarId)
   tWidthLong = tWndObj.getElement("chat_field_bg_long").getProperty(#width)
   tWidthShort = tWndObj.getElement("chat_field_bg_short").getProperty(#width)
-  tWndObj.getElement("chat_field").resizeBy((tWidthShort - tWidthLong), 0, 1)
+  tWndObj.getElement("chat_field").resizeBy(tWidthShort - tWidthLong, 0, 1)
   tWndObj.getElement("chat_field_bg_long").hide()
   if tWndObj.elementExists("int_drop_vote") then
     tWndObj.getElement("int_drop_vote").feedImage(member(getmemnum("pelle_kyltti1")).image)
@@ -228,14 +239,15 @@ on showVote me
     pOldPosV = -1
     pSignImg = image(member(getmemnum("pelle_kyltti2")).width, member(getmemnum("pelle_kyltti2")).height, 16)
   end if
+  exit
 end
 
-on updateIMIcon me 
+on updateIMIcon(me)
   if not windowExists(pBottomBarId) then
-    return FALSE
+    return(0)
   end if
   if not threadExists("instant_messenger") then
-    return FALSE
+    return(0)
   end if
   tstate = getThread("instant_messenger").getInterface().getState()
   if voidp(tstate) then
@@ -243,37 +255,38 @@ on updateIMIcon me
   end if
   tWnd = getWindow(pBottomBarId)
   tElem = tWnd.getElement("im_icon")
-  if (tElem = 0) then
-    return FALSE
+  if tElem = 0 then
+    return(0)
   end if
-  if (tstate = #Active) then
+  if me = #Active then
     tmember = getMember("im.icon.active")
     tElem.setProperty(#cursor, "cursor.finger")
     me.bounceIMIcon(0)
     me.flashIMIcon(#stop)
   else
-    if (tstate = #highlighted) then
+    if me = #highlighted then
       tmember = getMember("im.icon.highlighted")
       tElem.setProperty(#cursor, "cursor.finger")
       me.bounceIMIcon(1)
       me.flashIMIcon(#start)
     else
-      if (tstate = #inactive) then
+      if me = #inactive then
         tmember = getMember("im.icon.inactive")
         tElem.setProperty(#cursor, 0)
         me.bounceIMIcon(0)
         me.flashIMIcon(#stop)
       else
-        return FALSE
+        return(0)
       end if
     end if
   end if
   tElem.setProperty(#member, tmember)
-  return TRUE
+  return(1)
+  exit
 end
 
-on flashIMIcon me, tstate 
-  if (tstate = #start) then
+on flashIMIcon(me, tstate)
+  if me = #start then
     if timeoutExists(pIMFlashTimeoutID) then
       removeTimeout(pIMFlashTimeoutID)
     end if
@@ -281,18 +294,18 @@ on flashIMIcon me, tstate
       createTimeout(pIMFlashTimeoutID, 500, #flashIMIcon, me.getID(), #flash, 0)
     end if
   else
-    if (tstate = #stop) then
+    if me = #stop then
       if timeoutExists(pIMFlashTimeoutID) then
         removeTimeout(pIMFlashTimeoutID)
       end if
     else
-      if (tstate = #flash) then
+      if me = #flash then
         tWnd = getWindow(pBottomBarId)
         if not tWnd then
-          return FALSE
+          return(0)
         end if
         tElem = tWnd.getElement("im_icon")
-        if (pIMFlashState = 1) then
+        if pIMFlashState = 1 then
           tElem.setProperty(#member, "im.icon.highlighted.2")
         else
           tElem.setProperty(#member, "im.icon.highlighted")
@@ -301,33 +314,34 @@ on flashIMIcon me, tstate
       end if
     end if
   end if
+  exit
 end
 
-on eventProcRoomBar me, tEvent, tSprID, tParam 
-  if (tSprID = "chat_field") and (tEvent = #keyDown) or (tEvent = #mouseUp) then
+on eventProcRoomBar(me, tEvent, tSprID, tParam)
+  if tSprID = "chat_field" and tEvent = #keyDown or tEvent = #mouseUp then
     if pTextIsHelpTExt then
       tChatField = getWindow(pBottomBarId).getElement(tSprID)
       tChatField.setText("")
       pTextIsHelpTExt = 0
     end if
   end if
-  if (tEvent = #keyDown) and (tSprID = "chat_field") then
+  if tEvent = #keyDown and tSprID = "chat_field" then
     tChatField = getWindow(pBottomBarId).getElement(tSprID)
-    if the commandDown and (the keyCode = 8) or (the keyCode = 9) then
+    if the commandDown and the keyCode = 8 or the keyCode = 9 then
       if not getObject(#session).GET("user_rights").getOne("fuse_debug_window") then
         tChatField.setText("")
-        return TRUE
+        return(1)
       end if
     end if
     tKeyCode = the keyCode
-    if tKeyCode <> 36 then
-      if (tKeyCode = 76) then
-        if (tChatField.getText() = "") then
-          return TRUE
+    if me <> 36 then
+      if me = 76 then
+        if tChatField.getText() = "" then
+          return(1)
         end if
         if pFloodblocking then
           if the milliSeconds < pFloodTimer then
-            return FALSE
+            return(0)
           else
             pFloodEnterCount = void()
           end if
@@ -337,7 +351,7 @@ on eventProcRoomBar me, tEvent, tSprID, tParam
           pFloodblocking = 0
           pFloodTimer = the milliSeconds
         else
-          pFloodEnterCount = (pFloodEnterCount + 1)
+          pFloodEnterCount = pFloodEnterCount + 1
           tFloodCountLimit = 2
           tFloodTimerLimit = 3000
           tFloodTimeout = 30000
@@ -348,12 +362,12 @@ on eventProcRoomBar me, tEvent, tSprID, tParam
             end if
           end if
           if pFloodEnterCount > tFloodCountLimit then
-            if the milliSeconds < (pFloodTimer + tFloodTimerLimit) then
+            if the milliSeconds < pFloodTimer + tFloodTimerLimit then
               tChatField.setText("")
               createObject("FloodBlocking", "Flood Blocking Class")
               getObject("FloodBlocking").Init(pBottomBarId, tSprID, tFloodTimeout)
               pFloodblocking = 1
-              pFloodTimer = (the milliSeconds + tFloodTimeout)
+              pFloodTimer = the milliSeconds + tFloodTimeout
             else
               pFloodEnterCount = void()
             end if
@@ -368,177 +382,177 @@ on eventProcRoomBar me, tEvent, tSprID, tParam
           removeTimeout(pTypingTimeoutName)
         end if
         tChatField.setText("")
-        return TRUE
+        return(1)
       else
-        if (tKeyCode = 51) then
-          if (tChatField.getText().length = 1) then
+        if me = 51 then
+          if tChatField.getText().length = 1 then
             me.setTypingState(0)
           end if
         else
-          if (tKeyCode = 117) then
+          if me = 117 then
             if tChatField.getText() <> "" then
               me.setTypingState(0)
             end if
             tChatField.setText("")
           else
-            if (tChatField.getText().length = 0) then
+            if tChatField.getText().length = 0 then
               me.setTypingState(1)
             end if
           end if
         end if
       end if
-      return FALSE
-      if (getWindow(pBottomBarId).getElement(tSprID).getProperty(#blend) = 100) then
-        if (tKeyCode = "int_help_image") then
-          if (tEvent = #mouseUp) then
+      return(0)
+      if getWindow(pBottomBarId).getElement(tSprID).getProperty(#blend) = 100 then
+        if me = "int_help_image" then
+          if tEvent = #mouseUp then
             executeMessage(#openGeneralDialog, #help)
           end if
-          if (tEvent = #mouseEnter) then
+          if tEvent = #mouseEnter then
             tInfo = getText("interface_icon_help", "interface_icon_help")
             me.setRollOverInfo(tInfo)
           else
-            if (tEvent = #mouseLeave) then
+            if tEvent = #mouseLeave then
               me.setRollOverInfo("")
             end if
           end if
         else
-          if (tKeyCode = "int_hand_image") then
-            if (tEvent = #mouseUp) then
+          if me = "int_hand_image" then
+            if tEvent = #mouseUp then
               getThread(#room).getInterface().getContainer().openClose()
             end if
-            if (tEvent = #mouseEnter) then
+            if tEvent = #mouseEnter then
               tInfo = getText("interface_icon_hand", "interface_icon_hand")
               me.setRollOverInfo(tInfo)
             else
-              if (tEvent = #mouseLeave) then
+              if tEvent = #mouseLeave then
                 me.setRollOverInfo("")
               end if
             end if
           else
-            if (tKeyCode = "int_brochure_image") then
-              if (tEvent = #mouseUp) then
+            if me = "int_brochure_image" then
+              if tEvent = #mouseUp then
                 executeMessage(#show_hide_catalogue)
               end if
-              if (tEvent = #mouseEnter) then
+              if tEvent = #mouseEnter then
                 tInfo = getText("interface_icon_catalog", "interface_icon_catalog")
                 me.setRollOverInfo(tInfo)
               else
-                if (tEvent = #mouseLeave) then
+                if tEvent = #mouseLeave then
                   me.setRollOverInfo("")
                 end if
               end if
             else
-              if (tKeyCode = "int_purse_image") then
-                if (tEvent = #mouseUp) then
+              if me = "int_purse_image" then
+                if tEvent = #mouseUp then
                   executeMessage(#openGeneralDialog, #purse)
                 end if
-                if (tEvent = #mouseEnter) then
+                if tEvent = #mouseEnter then
                   tInfo = getText("interface_icon_purse", "interface_icon_purse")
                   me.setRollOverInfo(tInfo)
                 else
-                  if (tEvent = #mouseLeave) then
+                  if tEvent = #mouseLeave then
                     me.setRollOverInfo("")
                   end if
                 end if
               else
-                if (tKeyCode = "int_event_image") then
+                if me = "int_event_image" then
                   if pDisableRoomevents then
-                    return TRUE
+                    return(1)
                   end if
-                  if (tEvent = #mouseUp) then
+                  if tEvent = #mouseUp then
                     executeMessage(#show_hide_roomevents)
                   end if
-                  if (tEvent = #mouseEnter) then
+                  if tEvent = #mouseEnter then
                     tInfo = getText("interface_icon_events")
                     me.setRollOverInfo(tInfo)
                   else
-                    if (tEvent = #mouseLeave) then
+                    if tEvent = #mouseLeave then
                       me.setRollOverInfo("")
                     end if
                   end if
                 else
-                  if (tKeyCode = "int_nav_image") then
-                    if (tEvent = #mouseUp) then
+                  if me = "int_nav_image" then
+                    if tEvent = #mouseUp then
                       executeMessage(#show_hide_navigator)
                     end if
-                    if (tEvent = #mouseEnter) then
+                    if tEvent = #mouseEnter then
                       tInfo = getText("interface_icon_navigator", "interface_icon_navigator")
                       me.setRollOverInfo(tInfo)
                     else
-                      if (tEvent = #mouseLeave) then
+                      if tEvent = #mouseLeave then
                         me.setRollOverInfo("")
                       end if
                     end if
                   else
-                    if (tKeyCode = "int_hand_image") then
-                      if (tEvent = #mouseUp) then
+                    if me = "int_hand_image" then
+                      if tEvent = #mouseUp then
                         getThread(#room).getInterface().getContainer().openClose()
                       end if
                     else
-                      if (tKeyCode = "get_credit_text") then
-                        if (tEvent = #mouseUp) then
+                      if me = "get_credit_text" then
+                        if tEvent = #mouseUp then
                           executeMessage(#openGeneralDialog, #purse)
                         end if
                       else
-                        if (tKeyCode = "int_speechmode_dropmenu") then
-                          if (tEvent = #mouseUp) then
+                        if me = "int_speechmode_dropmenu" then
+                          if tEvent = #mouseUp then
                             getThread(#room).getComponent().setChatMode(tParam)
                           end if
                         else
-                          if (tKeyCode = "int_tv_close") then
-                            if (tEvent = #mouseUp) then
+                          if me = "int_tv_close" then
+                            if tEvent = #mouseUp then
                               getThread(#room).getComponent().setSpectatorMode(0)
                             end if
-                            if (tEvent = #mouseEnter) then
+                            if tEvent = #mouseEnter then
                               tInfo = getText("interface_icon_tv_close")
                               me.setRollOverInfo(tInfo)
                             else
-                              if (tEvent = #mouseLeave) then
+                              if tEvent = #mouseLeave then
                                 me.setRollOverInfo("")
                               end if
                             end if
                           else
-                            if tKeyCode <> "int_sound_image" then
-                              if (tKeyCode = "int_sound_bg_image") then
-                                if (tEvent = #mouseUp) then
+                            if me <> "int_sound_image" then
+                              if me = "int_sound_bg_image" then
+                                if tEvent = #mouseUp then
                                   setSoundState(not getSoundState())
                                   getThread(#room).getComponent().getRoomConnection().send("SET_SOUND_SETTING", [#integer:getSoundState()])
                                   me.updateSoundButton()
                                 end if
-                                if (tEvent = #mouseEnter) then
+                                if tEvent = #mouseEnter then
                                   tInfo = getText("interface_icon_sound", "interface_icon_sound")
                                   me.setRollOverInfo(tInfo)
                                 else
-                                  if (tEvent = #mouseLeave) then
+                                  if tEvent = #mouseLeave then
                                     me.setRollOverInfo("")
                                   end if
                                 end if
                               else
-                                if (tKeyCode = "int_drop_vote") then
+                                if me = "int_drop_vote" then
                                   me.eventProcVote(tEvent, tSprID, tParam)
                                 else
-                                  if (tKeyCode = "im_icon") then
-                                    if (tKeyCode = #mouseUp) then
+                                  if me = "im_icon" then
+                                    if me = #mouseUp then
                                       return(executeMessage(#toggle_im))
                                     else
-                                      if (tKeyCode = #mouseEnter) then
+                                      if me = #mouseEnter then
                                         me.setRollOverInfo(getText("im_tooltip"))
                                       else
-                                        if (tKeyCode = #mouseLeave) then
+                                        if me = #mouseLeave then
                                           me.setRollOverInfo("")
                                         end if
                                       end if
                                     end if
                                   else
-                                    if (tKeyCode = "friend_list_icon") then
-                                      if (tEvent = #mouseUp) then
+                                    if me = "friend_list_icon" then
+                                      if tEvent = #mouseUp then
                                         executeMessage(#toggle_friend_list)
                                       else
-                                        if (tEvent = #mouseEnter) then
+                                        if tEvent = #mouseEnter then
                                           tInfo = getText("friend_list_title")
                                           me.setRollOverInfo(tInfo)
                                         else
-                                          if (tEvent = #mouseLeave) then
+                                          if tEvent = #mouseLeave then
                                             me.setRollOverInfo("")
                                           end if
                                         end if
@@ -547,13 +561,14 @@ on eventProcRoomBar me, tEvent, tSprID, tParam
                                   end if
                                 end if
                               end if
-                              if (tEvent = #mouseEnter) or (tEvent = #mouseLeave) then
+                              if tEvent = #mouseEnter or tEvent = #mouseLeave then
                                 if not objectExists(pPopupControllerID) then
                                   createObject(pPopupControllerID, "Popup Controller Class")
                                 end if
                                 tPopupController = getObject(pPopupControllerID)
                                 tPopupController.handleEvent(tEvent, tSprID, tParam)
                               end if
+                              exit
                             end if
                           end if
                         end if
@@ -570,25 +585,25 @@ on eventProcRoomBar me, tEvent, tSprID, tParam
   end if
 end
 
-on eventProcVote me, tEvent, tSprID, tParam 
-  if (tSprID = "int_drop_vote") then
+on eventProcVote(me, tEvent, tSprID, tParam)
+  if tSprID = "int_drop_vote" then
     tWndObj = getWindow(pBottomBarId)
-    if (tEvent = #mouseDown) then
+    if tEvent = #mouseDown then
       tSignMem = member(getmemnum("pelle_kyltti2"))
       tDropElem = tWndObj.getElement("int_drop_vote")
-      tDropElem.getProperty(#buffer).image = tSignMem.image.duplicate()
+      tSignMem.image = image.duplicate()
       tDropElem.getProperty(#buffer).regPoint = point(0, 120)
       tDropElem.setProperty(#height, tSignMem.height)
       pSignState = 1
     else
-      if (tEvent = #mouseUp) then
+      if tEvent = #mouseUp then
         tSignMem = member(getmemnum("pelle_kyltti1"))
         tDropElem = tWndObj.getElement("int_drop_vote")
-        tDropElem.getProperty(#buffer).image = tSignMem.image.duplicate()
+        tSignMem.image = image.duplicate()
         tDropElem.getProperty(#buffer).regPoint = point(0, 0)
         tDropElem.setProperty(#height, tSignMem.height)
         if voidp(pSignState) or pOldPosV < 7 then
-          tSignMode = ((pOldPosH * 7) + (pOldPosV + 1))
+          tSignMode = pOldPosH * 7 + pOldPosV + 1
           if tSignMode > 14 then
             tSignMode = 14
           else
@@ -600,15 +615,15 @@ on eventProcVote me, tEvent, tSprID, tParam
         end if
         pSignState = void()
       else
-        if (tEvent = #mouseUpOutSide) then
+        if tEvent = #mouseUpOutSide then
           tSignMem = member(getmemnum("pelle_kyltti1"))
           tDropElem = tWndObj.getElement("int_drop_vote")
-          tDropElem.getProperty(#buffer).image = tSignMem.image.duplicate()
+          tSignMem.image = image.duplicate()
           tDropElem.getProperty(#buffer).regPoint = point(0, 0)
           tDropElem.setProperty(#height, tSignMem.height)
           pSignState = void()
         else
-          if (tEvent = #mouseWithin) then
+          if tEvent = #mouseWithin then
             if voidp(pSignState) then
               return()
             end if
@@ -621,19 +636,19 @@ on eventProcVote me, tEvent, tSprID, tParam
             tSignMem = member(getmemnum("pelle_kyltti2"))
             tDropElem = tWndObj.getElement("int_drop_vote")
             tSpr = tDropElem.getProperty(#sprite)
-            if pOldPosH <> ((the mouseH - tSpr.left) / w) or pOldPosV <> ((the mouseV - tSpr.top) / h) then
-              if ((the mouseV - tSpr.top) / h) < 7 then
-                pOldPosH = ((the mouseH - tSpr.left) / w)
-                pOldPosV = ((the mouseV - tSpr.top) / h)
+            if pOldPosH <> the mouseH - tSpr.left / w or pOldPosV <> the mouseV - tSpr.top / h then
+              if the mouseV - tSpr.top / h < 7 then
+                pOldPosH = the mouseH - tSpr.left / w
+                pOldPosV = the mouseV - tSpr.top / h
                 pSignImg.copyPixels(tSignMem.image, pSignImg.rect, pSignImg.rect)
                 tSignHiliterImg = member(getmemnum("kyltti_hiliter")).image
                 tSignHiliterImg = image(w, h, 16)
                 tSignHiliterImg.fill(tSignHiliterImg.rect, rgb(187, 187, 187))
-                tdestrect = (tSignHiliterImg.rect + rect(((w * pOldPosH) + 1), ((h * pOldPosV) + 1), ((w * pOldPosH) + 1), ((h * pOldPosV) + 1)))
+                tdestrect = tSignHiliterImg.rect + rect(w * pOldPosH + 1, h * pOldPosV + 1, w * pOldPosH + 1, h * pOldPosV + 1)
                 pSignImg.copyPixels(tSignHiliterImg, tdestrect, tSignHiliterImg.rect, [#ink:39])
               else
-                pOldPosH = ((the mouseH - tSpr.left) / w)
-                pOldPosV = ((the mouseV - tSpr.top) / h)
+                pOldPosH = the mouseH - tSpr.left / w
+                pOldPosV = the mouseV - tSpr.top / h
                 pSignImg.copyPixels(tSignMem.image, pSignImg.rect, pSignImg.rect)
               end if
               tDropElem.getProperty(#buffer).image = pSignImg
@@ -644,4 +659,5 @@ on eventProcVote me, tEvent, tSprID, tParam
       end if
     end if
   end if
+  exit
 end

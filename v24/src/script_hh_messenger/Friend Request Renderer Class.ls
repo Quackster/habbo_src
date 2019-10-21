@@ -1,69 +1,74 @@
-property pCurrentPageIndex, pWindowID, pRequestsPerPage, pPageCount, pRequestList
-
-on construct me 
+on construct(me)
   pRequestList = []
   pWindowID = ""
   pCurrentPageIndex = 1
   pRequestsPerPage = 5
   pPageCount = 0
-  return TRUE
+  return(1)
+  exit
 end
 
-on deconstruct me 
-  return TRUE
+on deconstruct(me)
+  return(1)
+  exit
 end
 
-on Init me, tWindowName 
+on Init(me, tWindowName)
   pWindowID = tWindowName
   pCurrentPageIndex = 1
   me.updateView()
+  exit
 end
 
-on showNextPage me 
-  pCurrentPageIndex = (pCurrentPageIndex + 1)
+on showNextPage(me)
+  pCurrentPageIndex = pCurrentPageIndex + 1
   me.updateView()
+  exit
 end
 
-on showPreviousPage me 
-  pCurrentPageIndex = (pCurrentPageIndex - 1)
+on showPreviousPage(me)
+  pCurrentPageIndex = pCurrentPageIndex - 1
   me.updateView()
+  exit
 end
 
-on clearRequests me 
+on clearRequests(me)
   pRequestList = []
   pCurrentPageIndex = 1
+  exit
 end
 
-on isBuddyListFull me 
+on isBuddyListFull(me)
   tListLimits = getThread(#messenger).getInterface().getBuddyListLimits()
   tOwnLimit = tListLimits.getAt(#own)
   tBuddyData = getThread(#messenger).getComponent().getBuddyData()
   tBuddyCount = tBuddyData.getAt(#buddies).count
-  if (tOwnLimit = -1) or tBuddyCount < tOwnLimit then
-    return FALSE
+  if tOwnLimit = -1 or tBuddyCount < tOwnLimit then
+    return(0)
   end if
-  return TRUE
+  return(1)
+  exit
 end
 
-on updateView me 
+on updateView(me)
   if not windowExists(pWindowID) then
-    return FALSE
+    return(0)
   end if
   if pCurrentPageIndex < 1 then
-    return FALSE
+    return(0)
   end if
   tWindowObj = getWindow(pWindowID)
   tComponent = getThread(#messenger).getComponent()
   tRequestCount = tComponent.getRequestCount()
-  pPageCount = (tRequestCount / pRequestsPerPage)
-  if (tRequestCount mod pRequestsPerPage) > 0 then
-    pPageCount = (pPageCount + 1)
+  pPageCount = tRequestCount / pRequestsPerPage
+  if tRequestCount mod pRequestsPerPage > 0 then
+    pPageCount = pPageCount + 1
   end if
   pRequestList = tComponent.getRequestSet(pCurrentPageIndex, pRequestsPerPage)
   tScreenIndex = 1
   repeat while tScreenIndex <= pRequestsPerPage
     me.updateListItemView(tScreenIndex)
-    tScreenIndex = (1 + tScreenIndex)
+    tScreenIndex = 1 + tScreenIndex
   end repeat
   tNextElem = tWindowObj.getElement("console_fr_next")
   tPrevElem = tWindowObj.getElement("console_fr_previous")
@@ -72,7 +77,7 @@ on updateView me
   else
     tNextElem.setProperty(#visible, 0)
   end if
-  if (pCurrentPageIndex = 1) then
+  if pCurrentPageIndex = 1 then
     tPrevElem.setProperty(#visible, 0)
   else
     tPrevElem.setProperty(#visible, 1)
@@ -84,12 +89,13 @@ on updateView me
   else
     tOptionsElem.setProperty(#visible, 0)
   end if
-  return TRUE
+  return(1)
+  exit
 end
 
-on updateListItemView me, tItemNumber 
+on updateListItemView(me, tItemNumber)
   if not windowExists(pWindowID) then
-    return FALSE
+    return(0)
   end if
   tWindowObj = getWindow(pWindowID)
   tNameElem = tWindowObj.getElement("request_name" & tItemNumber)
@@ -101,7 +107,7 @@ on updateListItemView me, tItemNumber
     tNameElem.setProperty(#visible, 1)
     tNameElem.setText(tRequest.getAt(#name))
     tstate = pRequestList.getAt(tItemNumber).getaProp(#state)
-    if (tstate = #pending) then
+    if tstate = #pending then
       tAcceptElem.setProperty(#visible, 1)
       tDeclineElem.setProperty(#visible, 1)
       tDecisionElem.setProperty(#visible, 0)
@@ -109,16 +115,16 @@ on updateListItemView me, tItemNumber
       tAcceptElem.setProperty(#visible, 0)
       tDeclineElem.setProperty(#visible, 0)
       tDecisionElem.setProperty(#visible, 1)
-      if (tstate = #accepted) then
+      if me = #accepted then
         tDecisionElem.setText(getText("friend_request_accepted"))
       else
-        if (tstate = #declined) then
+        if me = #declined then
           tDecisionElem.setText(getText("friend_request_declined"))
         else
-          if (tstate = #failed) then
+          if me = #failed then
             tDecisionElem.setText(getText("friend_request_failed"))
           else
-            if (tstate = #sent) then
+            if me = #sent then
               tDecisionElem.setProperty(#visible, 0)
             else
               error(me, "Unknown request state", #updateListItemView, #minor)
@@ -133,9 +139,10 @@ on updateListItemView me, tItemNumber
     tAcceptElem.setProperty(#visible, 0)
     tDeclineElem.setProperty(#visible, 0)
   end if
+  exit
 end
 
-on confirmRequest me, tItemNo, tAccept 
+on confirmRequest(me, tItemNo, tAccept)
   tstate = pRequestList.getAt(tItemNo).getaProp(#state)
   if tstate <> #pending then
     return(error(me, "Friend request already confirmed.", #confirm, #major))
@@ -145,20 +152,22 @@ on confirmRequest me, tItemNo, tAccept
   if tAccept then
     if me.isBuddyListFull() then
       executeMessage(#alert, "console_fr_limit_exceeded_error")
-      return FALSE
+      return(0)
     end if
     tComponent.acceptRequest(tRequestId)
   else
     tComponent.declineRequest(tRequestId)
   end if
   me.updateView()
-  return TRUE
+  return(1)
+  exit
 end
 
-on getUserId me, tItemNo 
+on getUserId(me, tItemNo)
   if tItemNo < 1 or tItemNo > pRequestList.count then
-    return FALSE
+    return(0)
   end if
   tUserID = pRequestList.getAt(tItemNo).getaProp(#webID)
   return(tUserID)
+  exit
 end

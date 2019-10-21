@@ -1,16 +1,19 @@
-on construct me 
+on construct(me)
   return(me.regMsgList(1))
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   return(me.regMsgList(0))
+  exit
 end
 
-on handle_cannot_enter_bus me, tMsg 
+on handle_cannot_enter_bus(me, tMsg)
   content.showBusClosed(#line.getProp(1, tMsg, content.count(#line)))
+  exit
 end
 
-on handle_vote_question me, tMsg 
+on handle_vote_question(me, tMsg)
   tQuestion = content.getProp(#line, 1)
   tChoices = []
   i = 2
@@ -22,9 +25,10 @@ on handle_vote_question me, tMsg
     i = 1 + i
   end repeat
   me.getInterface().showVoteQuestion(tQuestion, tChoices)
+  exit
 end
 
-on handle_vote_results me, tMsg 
+on handle_vote_results(me, tMsg)
   tDelim = the itemDelimiter
   tLine = content.getProp(#line, 1)
   the itemDelimiter = "/"
@@ -37,14 +41,15 @@ on handle_vote_results me, tMsg
   end repeat
   the itemDelimiter = tDelim
   me.getInterface().showVoteResults(tTotalVotes, tChoiceVotes)
+  exit
 end
 
-on regMsgList me, tBool 
-  tMsgs = [:]
+on regMsgList(me, tBool)
+  tMsgs = []
   tMsgs.setaProp(79, #handle_vote_question)
   tMsgs.setaProp(80, #handle_vote_results)
   tMsgs.setaProp(81, #handle_cannot_enter_bus)
-  tCmds = [:]
+  tCmds = []
   tCmds.setaProp("CHANGEWORLD", 111)
   tCmds.setaProp("VOTE", 112)
   tCmds.setaProp("TRYBUS", 113)
@@ -56,4 +61,5 @@ on regMsgList me, tBool
     unregisterCommands(getVariable("connection.room.id"), me.getID(), tCmds)
   end if
   return(1)
+  exit
 end

@@ -1,4 +1,4 @@
-on initializeAndRun  
+on initializeAndRun()
   if the traceScript then
     return(0)
   end if
@@ -36,9 +36,10 @@ on initializeAndRun
   end if
   finishProfilingTask("Client Initialization::initCore")
   return(1)
+  exit
 end
 
-on stopClient  
+on stopClient()
   if the runMode contains "Author" then
     if voidp(gCore) then
       return(0)
@@ -50,9 +51,10 @@ on stopClient
     end if
   end if
   return(0)
+  exit
 end
 
-on resetClient  
+on resetClient()
   if the runMode contains "Author" then
     stopClient()
   else
@@ -65,8 +67,10 @@ on resetClient
     gotoNetPage(tURL)
   end if
   return(1)
+  exit
 end
 
-on handlers  
+on handlers()
   return([])
+  exit
 end

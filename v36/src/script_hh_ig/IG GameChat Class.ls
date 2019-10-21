@@ -1,19 +1,22 @@
-on construct me 
+on construct(me)
   return(1)
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   return(me.deconstruct())
+  exit
 end
 
-on executeGameChat me, tdata 
+on executeGameChat(me, tdata)
   tSystemState = me.getComponent().getSystemState()
-  if tSystemState <> #after_game then
-    if tSystemState = #pre_game then
+  if me <> #after_game then
+    if me = #pre_game then
       executeMessage(#showCustomMessage, [#mode:"CHAT", #id:string(tdata.getaProp(#id)), #message:tdata.getaProp(#message), #loc:point(450, 500)])
     else
       executeMessage(#showChatMessage, "CHAT", string(tdata.getaProp(#id)), tdata.getaProp(#message))
     end if
     return(1)
+    exit
   end if
 end

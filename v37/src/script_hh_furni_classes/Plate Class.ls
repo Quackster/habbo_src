@@ -1,27 +1,28 @@
-property pPlateID, pNumberOfStars, pStarProps, pFrameCounter
-
-on construct me 
+on construct(me)
   pPlateID = "trophyplate"
-  pStarProps = [:]
+  pStarProps = []
   pNumberOfStars = 3
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   unregisterMessage(#leaveRoom, me.getID())
   unregisterMessage(#changeRoom, me.getID())
   removeUpdate(me.getID())
   me.hideStars()
   return(1)
+  exit
 end
 
-on hidePlate me 
+on hidePlate(me)
   if windowExists(pPlateID) then
     removeWindow(pPlateID)
   end if
   return(removeObject(me.getID()))
+  exit
 end
 
-on show me, tName, tDate, tMsg, tWindowName 
+on show(me, tName, tDate, tMsg, tWindowName)
   if windowExists(pPlateID) then
     removeWindow(pPlateID)
   end if
@@ -30,19 +31,19 @@ on show me, tName, tDate, tMsg, tWindowName
   else
     tWndObj = getWindow(pPlateID)
     tWndObj.center()
-    repeat while ["dedication_text_1", "dedication_text_2"] <= tDate
+    repeat while me <= tDate
       tElemID = getAt(tDate, tName)
       if tWndObj.elementExists(tElemID) then
         tWndObj.getElement(tElemID).setText(tMsg)
       end if
     end repeat
-    repeat while ["dedication_text_1", "dedication_text_2"] <= tDate
+    repeat while me <= tDate
       tElemID = getAt(tDate, tName)
       if tWndObj.elementExists(tElemID) then
         tWndObj.getElement(tElemID).setText(tName)
       end if
     end repeat
-    repeat while ["dedication_text_1", "dedication_text_2"] <= tDate
+    repeat while me <= tDate
       tElemID = getAt(tDate, tName)
       if tWndObj.elementExists(tElemID) then
         tWndObj.getElement(tElemID).setText(tDate)
@@ -53,10 +54,11 @@ on show me, tName, tDate, tMsg, tWindowName
     receiveUpdate(me.getID())
   end if
   return(1)
+  exit
 end
 
-on showStars me 
-  pStarProps = [:]
+on showStars(me)
+  pStarProps = []
   f = 1
   repeat while f <= pNumberOfStars
     tSprNum = reserveSprite(me.getID())
@@ -67,9 +69,10 @@ on showStars me
     end if
     f = 1 + f
   end repeat
+  exit
 end
 
-on hideStars me 
+on hideStars(me)
   if pStarProps.ilk = #propList then
     if pStarProps.count > 0 then
       f = 1
@@ -82,10 +85,11 @@ on hideStars me
       end repeat
     end if
   end if
-  pStarProps = [:]
+  pStarProps = []
+  exit
 end
 
-on update me 
+on update(me)
   if windowExists(pPlateID) then
     if pFrameCounter > 1 then
       if pStarProps.count = 0 then
@@ -104,9 +108,10 @@ on update me
   else
     me.deconstruct()
   end if
+  exit
 end
 
-on animateStars me, tminX, tMaxX, tMinY, tMaxY 
+on animateStars(me, tminX, tMaxX, tMinY, tMaxY)
   if pStarProps.ilk = #propList then
     if pStarProps.count > 0 then
       f = 1
@@ -133,4 +138,5 @@ on animateStars me, tminX, tMaxX, tMinY, tMaxY
       end repeat
     end if
   end if
+  exit
 end

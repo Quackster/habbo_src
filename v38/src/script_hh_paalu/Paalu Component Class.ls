@@ -1,6 +1,4 @@
-property pGameCounterID, pPlayer01, pPlayer02, pGameActive
-
-on construct me 
+on construct(me)
   pGameCounterID = "PaaluCounter"
   createObject(pGameCounterID, "Peelo Counter Class")
   createObject("PeeloPlayer01", "Paalu Player Class")
@@ -11,9 +9,10 @@ on construct me
   pPlayer02.setDir(4)
   pGameActive = 0
   return(1)
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   executeMessage(#resume_messenger_update)
   if objectExists(pGameCounterID) then
     removeObject(pGameCounterID)
@@ -28,9 +27,10 @@ on deconstruct me
   end if
   pGameActive = 0
   return(1)
+  exit
 end
 
-on prepareGame me, tPlayer01, tPlayer02 
+on prepareGame(me, tPlayer01, tPlayer02)
   executeMessage(#pause_messenger_update)
   getObject(#session).set("peelo_kesken", 1)
   tPlayerObj01 = getThread(#room).getComponent().getUserObject(tPlayer01)
@@ -56,9 +56,10 @@ on prepareGame me, tPlayer01, tPlayer02
   end if
   pGameActive = 1
   getObject(pGameCounterID).start()
+  exit
 end
 
-on startGame me, tPlayer01, tPlayer02 
+on startGame(me, tPlayer01, tPlayer02)
   executeMessage(#pause_messenger_update)
   if not pGameActive then
     me.getInterface().resetDialog()
@@ -83,9 +84,10 @@ on startGame me, tPlayer01, tPlayer02
     getObject("dew_camera").activatePaaluPlayer(tPlayer01, pPlayer01)
     getObject("dew_camera").activatePaaluPlayer(tPlayer02, pPlayer02)
   end if
+  exit
 end
 
-on updateGame me, tStatus01, tStatus02 
+on updateGame(me, tStatus01, tStatus02)
   if pPlayer01 = 0 or pPlayer02 = 0 then
     return(0)
   end if
@@ -93,13 +95,15 @@ on updateGame me, tStatus01, tStatus02
     pPlayer01.status(tStatus01)
     pPlayer02.status(tStatus02)
   end if
+  exit
 end
 
-on timeout me, tTime 
+on timeout(me, tTime)
   put("TIMEOUT")
+  exit
 end
 
-on endGame me, tLooser 
+on endGame(me, tLooser)
   if not pGameActive then
     return()
   end if
@@ -107,30 +111,31 @@ on endGame me, tLooser
   if pPlayer01 = 0 or pPlayer02 = 0 then
     return(0)
   end if
-  if tLooser = 0 then
+  if me = 0 then
     pPlayer01.drop()
     if objectExists("dew_camera") then
       tUserName = getThread(#room).getComponent().getUserObject(pPlayer02.pName).getName()
       getObject("dew_camera").fuseShow_showtext(getText("paalu.winner", "VOITTAJA:") & "\r" & tUserName)
     end if
   else
-    if tLooser = 1 then
+    if me = 1 then
       pPlayer02.drop()
       if objectExists("dew_camera") then
         tUserName = getThread(#room).getComponent().getUserObject(pPlayer01.pName).getName()
         getObject("dew_camera").fuseShow_showtext(getText("paalu.winner", "VOITTAJA:") & "\r" & tUserName)
       end if
     else
-      if tLooser = #both then
+      if me = #both then
         pPlayer01.drop()
         pPlayer02.drop()
       end if
     end if
   end if
   executeMessage(#resume_messenger_update)
+  exit
 end
 
-on resetGame me 
+on resetGame(me)
   if objectExists("dew_camera") then
     getObject("dew_camera").deActivatePaaluPlayer(pPlayer01.pName)
     getObject("dew_camera").deActivatePaaluPlayer(pPlayer02.pName)
@@ -143,4 +148,5 @@ on resetGame me
   me.getInterface().stop()
   pGameActive = 0
   executeMessage(#resume_messenger_update)
+  exit
 end

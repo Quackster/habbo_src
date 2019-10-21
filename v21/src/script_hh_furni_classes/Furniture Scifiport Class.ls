@@ -1,24 +1,26 @@
-on prepare me, tdata 
-  if (tdata.getAt(#stuffdata) = "O") then
+on prepare(me, tdata)
+  if tdata.getAt(#stuffdata) = "O" then
     me.setOn()
     me.pChanges = 1
   else
     me.setOff()
     me.pChanges = 0
   end if
-  return TRUE
+  return(1)
+  exit
 end
 
-on updateStuffdata me, tValue 
-  if (tValue = "O") then
+on updateStuffdata(me, tValue)
+  if tValue = "O" then
     me.setOn()
   else
     me.setOff()
   end if
   me.pChanges = 1
+  exit
 end
 
-on update me 
+on update(me)
   if not me.pChanges then
     return()
   end if
@@ -26,11 +28,12 @@ on update me
     return()
   end if
   return(me.updateScifiPort())
+  exit
 end
 
-on updateScifiPort me 
+on updateScifiPort(me)
   if me.count(#pSprList) < 4 then
-    return FALSE
+    return(0)
   end if
   tGateSp1 = me.getProp(#pSprList, 3)
   tGateSp2 = me.getProp(#pSprList, 4)
@@ -42,18 +45,21 @@ on updateScifiPort me
     tGateSp2.visible = 1
   end if
   me.pChanges = 0
-  return TRUE
+  return(1)
+  exit
 end
 
-on setOn me 
+on setOn(me)
   me.pActive = 1
+  exit
 end
 
-on setOff me 
+on setOff(me)
   me.pActive = 0
+  exit
 end
 
-on select me 
+on select(me)
   if the doubleClick then
     if me.pActive then
       tStr = "C"
@@ -62,5 +68,6 @@ on select me
     end if
     getThread(#room).getComponent().getRoomConnection().send("SETSTUFFDATA", [#string:string(me.getID()), #string:tStr])
   end if
-  return TRUE
+  return(1)
+  exit
 end

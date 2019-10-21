@@ -1,6 +1,4 @@
-property pDefaultMode, pWndLoc, pState, pmode, pWindowID, pLastRead, pItemPointer, pDragStart
-
-on construct me 
+on construct(me)
   pWindowID = "if_window"
   pState = 0
   pDefaultMode = 0
@@ -17,30 +15,34 @@ on construct me
   registerMessage(#changeRoom, me.getID(), #minimize)
   registerMessage(#tutorial_hand_opened, me.getID(), #pushBehindHand)
   return(1)
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   unregisterMessage(#changeRoom, me.getID())
   me.removeUI()
   return(1)
+  exit
 end
 
-on hide me 
+on hide(me)
   if not pState then
     return(1)
   end if
   return(me.removeUI())
+  exit
 end
 
-on toggleMode me 
+on toggleMode(me)
   if pmode then
     return(me.minimize())
   else
     return(me.maximize())
   end if
+  exit
 end
 
-on minimize me 
+on minimize(me)
   if not pState then
     return(0)
   end if
@@ -49,9 +51,10 @@ on minimize me
   end if
   pmode = 0
   return(me.updateUI())
+  exit
 end
 
-on maximize me 
+on maximize(me)
   if not pState then
     return(0)
   end if
@@ -60,15 +63,17 @@ on maximize me
   end if
   pmode = 1
   return(me.updateUI())
+  exit
 end
 
-on showItem me, tItemID 
+on showItem(me, tItemID)
   pItemPointer = tItemID
   me.updateUI()
   return(1)
+  exit
 end
 
-on itemCreated me, tItemID 
+on itemCreated(me, tItemID)
   tItemObj = me.getComponent().getItem(tItemID)
   if tItemObj.getShowOnCreate() then
     me.maximize()
@@ -76,9 +81,10 @@ on itemCreated me, tItemID
   else
     return(me.updateUI())
   end if
+  exit
 end
 
-on createUI me 
+on createUI(me)
   if not me.checkContentToDisplay() then
     return(1)
   end if
@@ -96,18 +102,20 @@ on createUI me
   end if
   pState = 1
   return(1)
+  exit
 end
 
-on removeUI me 
+on removeUI(me)
   if windowExists(pWindowID) then
     removeWindow(pWindowID)
   end if
   pState = 0
   pmode = pDefaultMode
   return(1)
+  exit
 end
 
-on updateUI me 
+on updateUI(me)
   if not me.checkContentToDisplay() then
     return(1)
   end if
@@ -119,9 +127,10 @@ on updateUI me
   else
     return(me.updateMinUI())
   end if
+  exit
 end
 
-on updateMinUI me 
+on updateMinUI(me)
   tWndObj = getWindow(pWindowID)
   if tWndObj = 0 then
     return(0)
@@ -137,9 +146,10 @@ on updateMinUI me
     tItemRef.renderMin(tWndObj)
   end if
   return(1)
+  exit
 end
 
-on updateFullUI me 
+on updateFullUI(me)
   tWndObj = getWindow(pWindowID)
   if tWndObj = 0 then
     return(0)
@@ -157,9 +167,10 @@ on updateFullUI me
     pLastRead = tItemPos
   end if
   return(1)
+  exit
 end
 
-on checkContentToDisplay me 
+on checkContentToDisplay(me)
   if me.getCurrentItem() <> 0 then
     return(1)
   end if
@@ -169,51 +180,58 @@ on checkContentToDisplay me
   end if
   me.removeUI()
   return(0)
+  exit
 end
 
-on pushBehindHand me 
+on pushBehindHand(me)
   tWndObj = getWindow(pWindowID)
   if tWndObj = 0 then
     return(0)
   end if
   tStageWidth = the stageRight - the stageLeft
   if pWndLoc.locH + tWndObj.getProperty(#width) > tStageWidth - 325 and pWndLoc.locV < 178 then
-    tWndObj.setProperty(#locZ, -1000000)
+    -- UNK_40 9
+    ERROR.setProperty()
     tWndObj.lock(1)
   end if
+  exit
 end
 
-on getItemPointer me 
+on getItemPointer(me)
   if me.getComponent().getItemCount() = 0 then
     return(-1)
   end if
   return(pItemPointer)
+  exit
 end
 
-on getCurrentItem me 
+on getCurrentItem(me)
   tItemRef = me.getComponent().getItem(me.getItemPointer())
   return(tItemRef)
+  exit
 end
 
-on showNextItem me 
+on showNextItem(me)
+  exit
 end
 
-on saveWindowPosition me 
+on saveWindowPosition(me)
   tWndObj = getWindow(pWindowID)
   if tWndObj = 0 then
     return(0)
   end if
   pWndLoc = point(tWndObj.getProperty(#locX), tWndObj.getProperty(#locY))
   setPref(getVariable("infofeed.window.location.prefname"), string(pWndLoc))
+  exit
 end
 
-on eventProc me, tEvent, tElemID, tParam 
+on eventProc(me, tEvent, tElemID, tParam)
   tWndObj = getWindow(pWindowID)
   if tWndObj = 0 then
     return(0)
   end if
-  if tEvent = #mouseUp then
-    if tEvent = "if_title" then
+  if me = #mouseUp then
+    if me = "if_title" then
       tWndObj.drag(0)
       if pDragStart = the mouseLoc then
         return(me.toggleMode())
@@ -222,15 +240,15 @@ on eventProc me, tEvent, tElemID, tParam
       end if
       return(1)
     else
-      if tEvent = "if_btn_toggle" then
+      if me = "if_btn_toggle" then
         return(me.toggleMode())
       else
-        if tEvent = "if_btn_prev" then
+        if me = "if_btn_prev" then
           me.getComponent().executePrevCallbacks(me.getItemPointer())
           tID = me.getComponent().getPreviousFrom(pItemPointer)
           return(me.showItem(tID))
         else
-          if tEvent = "if_btn_next" then
+          if me = "if_btn_next" then
             me.getComponent().executeNextCallbacks(me.getItemPointer())
             tID = me.getComponent().getNextFrom(pItemPointer)
             return(me.showItem(tID))
@@ -239,13 +257,14 @@ on eventProc me, tEvent, tElemID, tParam
       end if
     end if
   else
-    if tEvent = #mouseDown then
+    if me = #mouseDown then
       tWndObj.lock(0)
-      if tEvent = "if_title" then
+      if me = "if_title" then
         pDragStart = the mouseLoc
         tWndObj.drag(1)
       end if
     end if
   end if
   return(1)
+  exit
 end

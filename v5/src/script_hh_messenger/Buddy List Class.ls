@@ -1,8 +1,6 @@
-property pWriterID_name, pWriterID_msgs, pWriterID_last, pWriterID_text, pBuddyListPntr, pRenderObjList, pRenderIndex, pBufferImage, pBufferWidth, pBufferHeight
-
-on construct me 
+on construct(me)
   pBuddyListPntr = void()
-  pRenderObjList = [:]
+  pRenderObjList = []
   pSelectionList = []
   pRenderIndex = 1
   pBufferWidth = 203
@@ -23,55 +21,61 @@ on construct me
   createWriter(pWriterID_last, tMetrics)
   tMetrics = [#font:tPlain.getaProp(#font), #fontStyle:tPlain.getaProp(#fontStyle), #color:rgb("#EEEEEE")]
   createWriter(pWriterID_text, tMetrics)
-  return TRUE
+  return(1)
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   pBuddyListPntr = void()
   removeWriter(pWriterID_name)
   removeWriter(pWriterID_msgs)
   removeWriter(pWriterID_last)
   removeWriter(pWriterID_text)
-  return TRUE
+  return(1)
+  exit
 end
 
-on define me, tBuddyListPntr 
+on define(me, tBuddyListPntr)
   pBuddyListPntr = tBuddyListPntr
-  pRenderObjList = [:]
+  pRenderObjList = []
   pCompleteFlag = 0
   tTheBuddyList = pBuddyListPntr.getaProp(#value).getaProp(#buddies)
-  repeat while tTheBuddyList <= undefined
+  repeat while me <= undefined
     tdata = getAt(undefined, tBuddyListPntr)
     pRenderObjList.setAt(tdata.getAt(#name), me.createRenderObj(tdata))
   end repeat
   return(me.buildBufferImage())
+  exit
 end
 
-on update me, tBuddyList 
+on update(me, tBuddyList)
   call(#update, pRenderObjList)
   return(me.buildBufferImage())
+  exit
 end
 
-on prepare me 
+on prepare(me)
   tName = 0
   pRenderObjList.getAt(pRenderIndex).render(pBufferImage, pRenderIndex)
-  pRenderIndex = (pRenderIndex + 1)
+  pRenderIndex = pRenderIndex + 1
   if pRenderIndex > pRenderObjList.count then
     removePrepare(me.getID())
     pCompleteFlag = 1
   end if
+  exit
 end
 
-on appendBuddy me, tdata 
+on appendBuddy(me, tdata)
   if voidp(pRenderObjList.getAt(tdata.getAt(#name))) then
     pRenderObjList.setAt(tdata.getAt(#name), me.createBuddyDrawObj(tdata))
   end if
   return(me.buildListBuffer())
+  exit
 end
 
-on createRenderObj me, tdata 
+on createRenderObj(me, tdata)
   tObject = createObject(#temp, "Draw Friend Class")
-  tProps = [:]
+  tProps = []
   tProps.setAt(#width, pBufferWidth)
   tProps.setAt(#height, pBufferHeight)
   tProps.setAt(#writer_name, pWriterID_name)
@@ -80,16 +84,18 @@ on createRenderObj me, tdata
   tProps.setAt(#writer_text, pWriterID_text)
   tObject.define(tdata, tProps)
   return(tObject)
+  exit
 end
 
-on buildBufferImage me 
+on buildBufferImage(me)
   pRenderIndex = 1
   tBuddyCount = pBuddyListPntr.getaProp(#value).count
-  if (tBuddyCount = 0) then
+  if tBuddyCount = 0 then
     pBufferImage = image(pBufferWidth, pBufferHeight, 8)
   else
-    pBufferImage = image(pBufferWidth, (tBuddyCount * pBufferHeight), 8)
+    pBufferImage = image(pBufferWidth, tBuddyCount * pBufferHeight, 8)
     receivePrepare(me.getID())
   end if
-  return TRUE
+  return(1)
+  exit
 end

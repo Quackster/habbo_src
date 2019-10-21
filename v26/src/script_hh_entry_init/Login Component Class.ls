@@ -1,10 +1,8 @@
-property pLatencyTestInterval, pLatencyTestTimeoutID, pLatencyTestID, pLatencyTestTimeStampList, pLatencyValueList, pLatencyValueCount, pLatencyReportIndex, pLatencyTotalValue, pLatencyClearedValue, pLatencyClearedCount, pLatencyReported, pLatencyReportDelta, pDisconnectErrorState
-
-on construct me 
+on construct(me)
   pOkToLogin = 0
   pLatencyTestID = 1
   pLatencyValueList = []
-  pLatencyTestTimeStampList = [:]
+  pLatencyTestTimeStampList = []
   pLatencyTotalValue = 0
   pLatencyValueCount = 0
   pLatencyClearedValue = 0
@@ -58,9 +56,10 @@ on construct me
   registerMessage(#performLogin, me.getID(), #sendLogin)
   registerMessage(#loginIsOk, me.getID(), #setLoginOk)
   return(1)
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   pOkToLogin = 0
   if objectExists("Figure_System") then
     removeObject("Figure_System")
@@ -90,16 +89,18 @@ on deconstruct me
   else
     return(1)
   end if
+  exit
 end
 
-on initA me 
+on initA(me)
   if getIntVariable("figurepartlist.loaded", 1) = 0 then
     return(me.delay(250, #initA))
   end if
   return(me.delay(1000, #initB))
+  exit
 end
 
-on initB me 
+on initB(me)
   tUseSSO = 0
   if variableExists("use.sso.ticket") then
     tUseSSO = getVariable("use.sso.ticket")
@@ -116,9 +117,10 @@ on initB me
   else
     executeMessage(#alert, [#Msg:"Alert_generic_login_error"])
   end if
+  exit
 end
 
-on sendLogin me, tConnection 
+on sendLogin(me, tConnection)
   me.SetDisconnectErrorState("login")
   if voidp(tConnection) then
     tConnection = getConnection(getVariable("connection.info.id"))
@@ -147,14 +149,16 @@ on sendLogin me, tConnection
     end if
   end if
   return(1)
+  exit
 end
 
-on openConnection me 
+on openConnection(me)
   me.setaProp(#pOkToLogin, 1)
   me.connect()
+  exit
 end
 
-on connect me 
+on connect(me)
   tHost = getVariable("connection.info.host")
   tPort = getIntVariable("connection.info.port")
   tConn = getVariable("connection.info.id", #info)
@@ -174,26 +178,30 @@ on connect me
     initThread("thread.hobba")
   end if
   return(1)
+  exit
 end
 
-on disconnect me 
+on disconnect(me)
   tConn = getVariable("connection.info.id", #info)
   if connectionExists(tConn) then
     return(removeConnection(tConn))
   else
     return(error(me, "Connection not found!", #disconnect, #minor))
   end if
+  exit
 end
 
-on setAllowLogin me 
+on setAllowLogin(me)
   pOkToLogin = 1
+  exit
 end
 
-on isOkToLogin me 
+on isOkToLogin(me)
   return(me.pOkToLogin)
+  exit
 end
 
-on initLatencyTest me 
+on initLatencyTest(me)
   if pLatencyTestInterval <= 0 then
     return(0)
   end if
@@ -201,9 +209,10 @@ on initLatencyTest me
     createTimeout(pLatencyTestTimeoutID, pLatencyTestInterval, #sendLatencyTest, me.getID(), void(), 0)
   end if
   return(1)
+  exit
 end
 
-on sendLatencyTest me 
+on sendLatencyTest(me)
   if not connectionExists(getVariable("connection.info.id")) then
     return(0)
   end if
@@ -214,17 +223,19 @@ on sendLatencyTest me
     return(1)
   end if
   return(0)
+  exit
 end
 
-on sendGetBadges me 
+on sendGetBadges(me)
   if not connectionExists(getVariable("connection.info.id")) then
     return(0)
   end if
   tConnection = getConnection(getVariable("connection.info.id"))
   return(tConnection.send("GETSELECTEDBADGES"))
+  exit
 end
 
-on handleLatencyTest me, tID 
+on handleLatencyTest(me, tID)
   if voidp(pLatencyTestTimeStampList.getAt(string(tID))) then
     return(0)
   end if
@@ -242,16 +253,16 @@ on handleLatencyTest me, tID
       pLatencyTotalValue = pLatencyTotalValue + pLatencyValueList.getAt(i)
       i = 1 + i
     end repeat
-    tLatency = (pLatencyTotalValue / pLatencyValueCount)
+    tLatency = pLatencyTotalValue / pLatencyValueCount
     i = 1
     repeat while i <= pLatencyValueList.count
-      if pLatencyValueList.getAt(i) < (tLatency * 2) then
+      if pLatencyValueList.getAt(i) < tLatency * 2 then
         pLatencyClearedValue = pLatencyClearedValue + pLatencyValueList.getAt(i)
         pLatencyClearedCount = pLatencyClearedCount + 1
       end if
       i = 1 + i
     end repeat
-    tLatencyCleared = (pLatencyClearedValue / pLatencyClearedCount)
+    tLatencyCleared = pLatencyClearedValue / pLatencyClearedCount
     if abs(tLatency - pLatencyReported) > pLatencyReportDelta or pLatencyReported = 0 then
       pLatencyReported = tLatency
       tConnection.send("REPORT_LATENCY", [#integer:tLatency, #integer:tLatencyCleared, #integer:pLatencyValueCount])
@@ -259,12 +270,15 @@ on handleLatencyTest me, tID
     pLatencyValueList = []
   end if
   return(1)
+  exit
 end
 
-on SetDisconnectErrorState me, tError 
+on SetDisconnectErrorState(me, tError)
   pDisconnectErrorState = tError
+  exit
 end
 
-on GetDisconnectErrorState me 
+on GetDisconnectErrorState(me)
   return(pDisconnectErrorState)
+  exit
 end

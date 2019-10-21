@@ -1,51 +1,55 @@
-property pState
-
-on construct me 
+on construct(me)
   registerMessage(#enterRoom, me.getID(), #leaveEntry)
   registerMessage(#leaveRoom, me.getID(), #enterEntry)
   registerMessage(#Initialize, me.getID(), #updateState)
-  return TRUE
+  return(1)
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   unregisterMessage(#enterRoom, me.getID())
   unregisterMessage(#leaveRoom, me.getID())
   unregisterMessage(#Initialize, me.getID())
   me.updateState("reset")
-  return TRUE
+  return(1)
+  exit
 end
 
-on enterEntry me 
+on enterEntry(me)
   me.updateState(#hotelView)
   me.updateState(#entryBar)
-  return TRUE
+  return(1)
+  exit
 end
 
-on leaveEntry me 
+on leaveEntry(me)
   return(me.updateState("reset"))
+  exit
 end
 
-on getState me 
+on getState(me)
   return(pState)
+  exit
 end
 
-on updateState me, tstate 
-  if (tstate = "reset") then
+on updateState(me, tstate)
+  if me = "reset" then
     pState = tstate
     return(me.getInterface().hideAll())
   else
-    if tstate <> #hotelView then
-      if (tstate = "initialize") then
+    if me <> #hotelView then
+      if me = "initialize" then
         pState = tstate
         return(me.getInterface().showHotel())
       else
-        if (tstate = #entryBar) then
+        if me = #entryBar then
           pState = tstate
           return(me.getInterface().showEntryBar())
         else
           return(error(me, "Unknown state:" && tstate, #updateState))
         end if
       end if
+      exit
     end if
   end if
 end

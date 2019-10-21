@@ -1,6 +1,4 @@
-property pSprList, pClass, pName, pCustom, pDirection, pType, pFormatVer, pLocX, pLocY, pLocH, pWallX, pWallY, pLocalX, pLocalY
-
-on construct me 
+on construct(me)
   pClass = ""
   pName = ""
   pCustom = ""
@@ -16,19 +14,21 @@ on construct me
   pLocalY = 0
   pFormatVer = 0
   pDirection = 0
-  return TRUE
+  return(1)
+  exit
 end
 
-on deconstruct me 
-  repeat while pSprList <= undefined
+on deconstruct(me)
+  repeat while me <= undefined
     tSpr = getAt(undefined, undefined)
     releaseSprite(tSpr.spriteNum)
   end repeat
   pSprList = []
-  return TRUE
+  return(1)
+  exit
 end
 
-on define me, tProps 
+on define(me, tProps)
   pClass = tProps.getAt(#class)
   pLocX = tProps.getAt(#x)
   pLocY = tProps.getAt(#y)
@@ -45,51 +45,58 @@ on define me, tProps
   me.solveMembers()
   me.updateLocation()
   me.solveDescription()
-  return TRUE
+  return(1)
+  exit
 end
 
-on getClass me 
+on getClass(me)
   return(pClass)
+  exit
 end
 
-on setDirection me, tDirection 
+on setDirection(me, tDirection)
   me.pDirection = tDirection
+  exit
 end
 
-on getInfo me 
-  tInfo = [:]
+on getInfo(me)
+  tInfo = []
   tInfo.setAt(#name, pName)
   tInfo.setAt(#class, pClass)
   tInfo.setAt(#custom, pCustom)
   if memberExists(pClass & "_small") then
     tInfo.setAt(#image, member(getmemnum(pClass & "_small")).image)
   else
-    tInfo.setAt(#image, pSprList.getAt(1).member.image)
+    #image.setAt(pSprList.getAt(1), member.image)
   end if
   return(tInfo)
+  exit
 end
 
-on getCustom me 
+on getCustom(me)
   return(pCustom)
+  exit
 end
 
-on getSprites me 
+on getSprites(me)
   return(pSprList)
+  exit
 end
 
-on select me 
-  return TRUE
+on select(me)
+  return(1)
+  exit
 end
 
-on solveMembers me 
-  if pClass <> "post.it" then
-    if (pClass = "post.it.vd") then
+on solveMembers(me)
+  if me <> "post.it" then
+    if me = "post.it.vd" then
       tMemName = pDirection && pClass
     else
-      if (pClass = "poster") then
+      if me = "poster" then
         tMemName = pDirection && pClass && pType
       else
-        if (pClass = "photo") then
+        if me = "photo" then
           tMemName = pDirection && pClass
         else
           return(error(me, "Unknown item class:" && pClass, #solveMembers))
@@ -99,14 +106,14 @@ on solveMembers me
     if memberExists(tMemName) then
       tSpr = sprite(reserveSprite(me.getID()))
       tSpr.ink = 8
-      if (pClass = "post.it") then
-        if (pType = "") then
+      if pClass = "post.it" then
+        if pType = "" then
           pType = "#FFFF33"
         end if
         tSpr.bgColor = rgb(pType)
         tSpr.color = paletteIndex(255)
       else
-        if (pClass = "post.it.vd") then
+        if pClass = "post.it.vd" then
           pType = "FFFFFF"
           tSpr.bgColor = rgb(pType)
           tSpr.color = rgb(0, 0, 0)
@@ -119,42 +126,43 @@ on solveMembers me
       tSpr.registerProcedure(#eventProcItemRollOver, tTargetID, #mouseEnter)
       tSpr.registerProcedure(#eventProcItemRollOver, tTargetID, #mouseLeave)
       pSprList.add(tSpr)
-      return TRUE
+      return(1)
     end if
-    return FALSE
+    return(0)
+    exit
   end if
 end
 
-on updateLocation me 
-  if (pFormatVer = #old) then
+on updateLocation(me)
+  if me = #old then
     tGeometry = getThread(#room).getInterface().getGeometry()
-    tScreenLocs = tGeometry.getScreenCoordinate(pLocX, pLocY, ((pLocH * 18) / 32))
-    repeat while pFormatVer <= undefined
+    tScreenLocs = tGeometry.getScreenCoordinate(pLocX, pLocY, pLocH * 0 / 0)
+    repeat while me <= undefined
       tSpr = getAt(undefined, undefined)
       tSpr.locH = tScreenLocs.getAt(1)
       tSpr.locV = tScreenLocs.getAt(2)
     end repeat
   else
-    if (pFormatVer = #new) then
+    if me = #new then
       tWallObjs = getThread(#room).getComponent().getPassiveObject(#list)
-      repeat while pFormatVer <= undefined
+      repeat while me <= undefined
         tWallObj = getAt(undefined, undefined)
-        if (tWallObj.getLocation().getAt(1) = pWallX) and (tWallObj.getLocation().getAt(2) = pWallY) then
+        if tWallObj.getLocation().getAt(1) = pWallX and tWallObj.getLocation().getAt(2) = pWallY then
           tWallSprites = tWallObj.getSprites()
-          repeat while pFormatVer <= undefined
+          repeat while me <= undefined
             tSpr = getAt(undefined, undefined)
-            tSpr.locH = ((tWallSprites.getAt(1).locH - tWallSprites.getAt(1).member.getProp(#regPoint, 1)) + pLocalX)
-            tSpr.locV = ((tWallSprites.getAt(1).locV - tWallSprites.getAt(1).member.getProp(#regPoint, 2)) + pLocalY)
+            tWallSprites.getAt(1).locH.locH = tWallSprites.getAt(1) - member.getProp(#regPoint, 1) + pLocalX
+            tWallSprites.getAt(1).locV.locV = tWallSprites.getAt(1) - member.getProp(#regPoint, 2) + pLocalY
           end repeat
         else
         end if
       end repeat
     end if
   end if
-  repeat while pFormatVer <= undefined
+  repeat while me <= undefined
     tSpr = getAt(undefined, undefined)
-    tItemRp = tSpr.member.regPoint
-    tItemR = (rect(tSpr.locH, tSpr.locV, tSpr.locH, tSpr.locV) + rect(-tItemRp.getAt(1), -tItemRp.getAt(2), (tSpr.member.width - tItemRp.getAt(1)), (tSpr.member.height - tItemRp.getAt(2))))
+    tItemRp = member.regPoint
+    tItemR = -tItemRp.getAt(2) + rect(tSpr, member.width - tItemRp.getAt(1), tSpr, member.height - tItemRp.getAt(2))
     tPieceUnderSpr = getThread(#room).getInterface().getPassiveObjectIntersectingRect(tItemR).getAt(1)
     if objectp(tPieceUnderSpr) then
       tlocz = tPieceUnderSpr.getSprites().getAt(1).locZ
@@ -163,23 +171,25 @@ on updateLocation me
           tlocz = tPieceUnderSpr.getSprites().getAt(2).locZ
         end if
       end if
-      tSpr.locZ = (tlocz + 2)
+      tSpr.locZ = tlocz + 2
     else
-      tSpr.locZ = (getIntVariable("window.default.locz") - 10000)
+      tSpr.locZ = getIntVariable("window.default.locz") - 10000
     end if
   end repeat
+  exit
 end
 
-on solveDescription me 
-  if (pClass = "poster") then
+on solveDescription(me)
+  if pClass = "poster" then
     if threadExists(#item_data_db) then
       tdata = getThread(#item_data_db).getComponent().getPosterData(pType)
       if not tdata then
-        return FALSE
+        return(0)
       end if
       pName = tdata.getAt(#name)
       pCustom = tdata.getAt(#text)
     end if
   end if
-  return TRUE
+  return(1)
+  exit
 end

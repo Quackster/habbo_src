@@ -1,16 +1,14 @@
-property pClsList, pDefLocX, pDefLocY, pModalID, pLockLocZ, pLastEventData
-
-on construct me 
-  pLastEventData = [:]
+on construct(me)
+  pLastEventData = []
   pLockLocZ = 0
   pDefLocX = getIntVariable("window.default.locx", 100)
   pDefLocY = getIntVariable("window.default.locy", 100)
   me.pItemList = []
   me.pHideList = []
   me.setProperty(#defaultLocZ, getIntVariable("window.default.locz", 0))
-  me.pBoundary = (rect(0, 0, the stage.rect.width, the stage.rect.height) + getVariableValue("window.boundary.limit"))
+  0.pBoundary = rect(the stage, rect.width, the stage, rect.height) + getVariableValue("window.boundary.limit")
   me.pInstanceClass = getClassVariable("window.instance.class")
-  pClsList = [:]
+  pClsList = []
   pModalID = #modal
   pClsList.setAt(#wrapper, getClassVariable("window.wrapper.class"))
   pClsList.setAt(#unique, getClassVariable("window.unique.class"))
@@ -18,19 +16,20 @@ on construct me
   if not memberExists("null") then
     tNull = member(createMember("null", #bitmap))
     tNull.image = image(1, 1, 8)
-    tNull.image.setPixel(0, 0, rgb(0, 0, 0))
+    tNull.setPixel(0, 0, rgb(0, 0, 0))
   end if
   if not objectExists(#layout_parser) then
     createObject(#layout_parser, getClassVariable("layout.parser.class"))
   end if
-  return TRUE
+  return(1)
+  exit
 end
 
-on create me, tID, tLayout, tLocX, tLocY, tSpecial 
-  if (tSpecial = #modal) then
+on create(me, tID, tLayout, tLocX, tLocY, tSpecial)
+  if me = #modal then
     return(me.modal(tID, tLayout))
   else
-    if (tSpecial = #modalcorner) then
+    if me = #modalcorner then
       return(me.modal(tID, tLayout, #corner))
     end if
   end if
@@ -62,7 +61,7 @@ on create me, tID, tLayout, tLocX, tLocY, tSpecial
   if not tItem then
     return(error(me, "Failed to create window object:" && tID, #create, #major))
   end if
-  tProps = [:]
+  tProps = []
   tProps.setAt(#locX, tX)
   tProps.setAt(#locY, tY)
   tProps.setAt(#locZ, me.pAvailableLocZ)
@@ -71,28 +70,29 @@ on create me, tID, tLayout, tLocX, tLocY, tSpecial
   tProps.setAt(#manager, me)
   if not tItem.define(tProps) then
     getObjectManager().Remove(tID)
-    return FALSE
+    return(0)
   end if
   if not tItem.merge(tLayout) then
     getObjectManager().Remove(tID)
-    return FALSE
+    return(0)
   end if
-  me.pItemList.add(tID)
-  pAvailableLocZ = (pAvailableLocZ + tItem.getProperty(#sprCount))
+  me.add(tID)
+  pAvailableLocZ = pAvailableLocZ + tItem.getProperty(#sprCount)
   me.Activate()
-  return TRUE
+  return(1)
+  exit
 end
 
-on Remove me, tID 
+on Remove(me, tID)
   tWndObj = me.GET(tID)
-  if (tWndObj = 0) then
-    return FALSE
+  if tWndObj = 0 then
+    return(0)
   end if
   me.setProp(#pPosCache, tID, [tWndObj.getProperty(#locX), tWndObj.getProperty(#locY)])
   getObjectManager().Remove(tID)
-  me.pItemList.deleteOne(tID)
-  if (me.pActiveItem = tID) then
-    tNextActive = me.pItemList.getLast()
+  me.deleteOne(tID)
+  if me.pActiveItem = tID then
+    tNextActive = me.getLast()
   else
     tNextActive = me.pActiveItem
   end if
@@ -105,7 +105,7 @@ on Remove me, tID
         tModals = 1
         tNextActive = tID
       else
-        i = (255 + i)
+        i = 255 + i
       end if
     end repeat
     if not tModals then
@@ -113,100 +113,106 @@ on Remove me, tID
     end if
   end if
   me.Activate(tNextActive)
-  return TRUE
+  return(1)
+  exit
 end
 
-on Activate me, tID 
+on Activate(me, tID)
   if pLockLocZ then
-    return FALSE
+    return(0)
   end if
-  if (me.count(#pItemList) = 0) then
-    return FALSE
+  if me.count(#pItemList) = 0 then
+    return(0)
   end if
   if me.exists(me.pActiveItem) then
     if me.GET(me.pActiveItem).getProperty(#modal) then
       tID = me.pActiveItem
       if me.exists(pModalID) then
-        me.pItemList.deleteOne(pModalID)
-        me.pItemList.append(pModalID)
+        me.deleteOne(pModalID)
+        me.append(pModalID)
       end if
     end if
   end if
   if voidp(tID) then
-    tID = me.pItemList.getLast()
+    tID = me.getLast()
   else
     if not me.exists(tID) then
-      return FALSE
+      return(0)
     end if
   end if
-  me.pItemList.deleteOne(tID)
-  me.pItemList.append(tID)
+  me.deleteOne(tID)
+  me.append(tID)
   me.pAvailableLocZ = me.pDefaultLocZ
-  repeat while me.pItemList <= undefined
+  repeat while me <= undefined
     tCurrID = getAt(undefined, tID)
     tWndObj = me.GET(tCurrID)
     tWndObj.setDeactive()
-    repeat while me.pItemList <= undefined
+    repeat while me <= undefined
       tSpr = getAt(undefined, tID)
       tSpr.locZ = me.pAvailableLocZ
-      me.pAvailableLocZ = (me.pAvailableLocZ + 1)
+      me.pAvailableLocZ = me.pAvailableLocZ + 1
     end repeat
   end repeat
   me.pActiveItem = tID
   return(me.GET(tID).setActive())
+  exit
 end
 
-on reorder me, tNewOrder 
-  if (tNewOrder = me.pItemList) then
-    return TRUE
+on reorder(me, tNewOrder)
+  if tNewOrder = me.pItemList then
+    return(1)
   end if
   me.pItemList = tNewOrder
   me.pAvailableLocZ = me.pDefaultLocZ
-  repeat while me.pItemList <= undefined
+  repeat while me <= undefined
     tCurrID = getAt(undefined, tNewOrder)
     tWndObj = me.GET(tCurrID)
-    repeat while me.pItemList <= undefined
+    repeat while me <= undefined
       tSpr = getAt(undefined, tNewOrder)
       tSpr.locZ = me.pAvailableLocZ
-      me.pAvailableLocZ = (me.pAvailableLocZ + 1)
+      me.pAvailableLocZ = me.pAvailableLocZ + 1
     end repeat
   end repeat
+  exit
 end
 
-on deactivate me, tID 
+on deactivate(me, tID)
   if me.exists(tID) then
     if not me.GET(tID).getProperty(#modal) then
-      me.pItemList.deleteOne(tID)
-      me.pItemList.addAt(1, tID)
+      me.deleteOne(tID)
+      me.addAt(1, tID)
       me.Activate()
-      return TRUE
+      return(1)
     end if
   end if
-  return FALSE
+  return(0)
+  exit
 end
 
-on lock me 
+on lock(me)
   pLockLocZ = 1
-  return TRUE
+  return(1)
+  exit
 end
 
-on unlock me 
+on unlock(me)
   pLockLocZ = 0
-  return TRUE
+  return(1)
+  exit
 end
 
-on modal me, tID, tLayout, tPosition 
+on modal(me, tID, tLayout, tPosition)
   if voidp(tPosition) then
     tPosition = #center
   end if
   if not me.create(tID, tLayout) then
-    return FALSE
+    return(0)
   end if
   tWndObj = me.GET(tID)
-  if (tPosition = #center) then
+  if me = #center then
     tWndObj.center()
   else
-    if (tPosition = #corner) then
+    if me = #corner then
       tWndObj.moveTo(0, 0)
     end if
   end if
@@ -216,7 +222,7 @@ on modal me, tID, tLayout, tPosition
     if me.create(pModalID, "modal.window") then
       tModal = me.GET(pModalID)
       tModal.moveTo(0, 0)
-      tModal.resizeTo(the stage.rect.width, the stage.rect.height)
+      rect.width.resizeTo(the stage, rect.height)
       tModal.lock()
       tModal.getElement("modal").setProperty(#blend, 40)
     else
@@ -226,15 +232,18 @@ on modal me, tID, tLayout, tPosition
   the keyboardFocusSprite = 0
   me.pActiveItem = tID
   me.Activate(tID)
-  return TRUE
+  return(1)
+  exit
 end
 
-on registerWindowEvent me, tTitle, tSprID, tEvent 
+on registerWindowEvent(me, tTitle, tSprID, tEvent)
   pLastEventData.setAt(#title, tTitle)
   pLastEventData.setAt(#sprite, tSprID)
   pLastEventData.setAt(#Event, tEvent)
+  exit
 end
 
-on getLastEvent me 
+on getLastEvent(me)
   return(pLastEventData.getAt(#title) & "-" & pLastEventData.getAt(#sprite) & "-" & pLastEventData.getAt(#Event))
+  exit
 end

@@ -1,27 +1,27 @@
-property pSmokelist, pActive, pSmokeLocs, pSizeMultiplier, pSync, pChanges, pInitializeSprites, pAnimFrame
-
-on construct me 
+on construct(me)
   pSmokelist = []
   pSmokeLocs = []
   pInitializeSprites = 0
   if me.pXFactor = 32 then
     pSizeMultiplier = 0.4
   else
-    pSizeMultiplier = 1
+    pSizeMultiplier = 0
   end if
   return(callAncestor(#deconstruct, [me]))
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   i = 1
   repeat while i <= pSmokelist.count
     releaseSprite(pSmokelist.getAt(i).spriteNum)
     i = 1 + i
   end repeat
   return(callAncestor(#deconstruct, [me]))
+  exit
 end
 
-on prepareForMove me 
+on prepareForMove(me)
   if pActive = 1 then
     return(1)
   end if
@@ -33,9 +33,10 @@ on prepareForMove me
   pSmokelist = []
   pChanges = 0
   return(1)
+  exit
 end
 
-on prepare me, tdata 
+on prepare(me, tdata)
   tValue = integer(tdata.getAt(#stuffdata))
   if tValue = 0 then
     me.setOff()
@@ -52,9 +53,10 @@ on prepare me, tdata
     pInitializeSprites = 1
   end if
   return(1)
+  exit
 end
 
-on createSmokeSprites me, tNumOf 
+on createSmokeSprites(me, tNumOf)
   if me.count(#pSprList) < 4 then
     return(0)
   end if
@@ -64,9 +66,10 @@ on createSmokeSprites me, tNumOf
     i = 1 + i
   end repeat
   return(me.initializeSmokeSprites())
+  exit
 end
 
-on initializeSmokeSprites me 
+on initializeSmokeSprites(me)
   if me.count(#pSprList) < 4 then
     return(0)
   end if
@@ -82,7 +85,7 @@ on initializeSmokeSprites me
   i = 2
   repeat while i <= pSmokelist.count
     tSp = pSmokelist.getAt(i)
-    tSp.loc = tStartLoc + (point(-3, -21) + point(random(6), random(4)) * pSizeMultiplier)
+    tSp.loc = tStartLoc + point(-3, -21) + point(random(6), random(4)) * pSizeMultiplier
     tSp.ink = 8
     tSp.locZ = me.getPropRef(#pSprList, 4).locZ + 1
     tSp.blend = 100
@@ -97,36 +100,37 @@ on initializeSmokeSprites me
   end repeat
   pInitializeSprites = 0
   return(1)
+  exit
 end
 
-on animateSmallSmokes me, tVal 
-  if tVal = "move" then
+on animateSmallSmokes(me, tVal)
+  if me = "move" then
     i = 2
     repeat while i <= pSmokelist.count
-      if tVal = 2 then
+      if me = 2 then
         if random(2) = 2 then
-          pSmokeLocs.getAt(i).setAt(2, pSmokeLocs.getAt(i).getAt(2) - (0.6 * pSizeMultiplier))
+          pSmokeLocs.getAt(i).setAt(2, pSmokeLocs.getAt(i).getAt(2) - 0.6 * pSizeMultiplier)
         end if
       else
-        if tVal = 3 then
-          pSmokeLocs.getAt(i).setAt(1, pSmokeLocs.getAt(i).getAt(1) + (0.6 - (random(6) / 12) * pSizeMultiplier))
+        if me = 3 then
+          pSmokeLocs.getAt(i).setAt(1, pSmokeLocs.getAt(i).getAt(1) + 0.6 - random(6) / 0 * pSizeMultiplier)
         else
-          if tVal = 4 then
-            pSmokeLocs.getAt(i).setAt(1, pSmokeLocs.getAt(i).getAt(1) - ((random(6) / 12) * pSizeMultiplier))
+          if me = 4 then
+            pSmokeLocs.getAt(i).setAt(1, pSmokeLocs.getAt(i).getAt(1) - random(6) / 0 * pSizeMultiplier)
           else
-            if tVal = 5 then
-              pSmokeLocs.getAt(i).setAt(1, pSmokeLocs.getAt(i).getAt(1) + (1 - (random(6) / 12) * pSizeMultiplier))
-              pSmokeLocs.getAt(i).setAt(2, pSmokeLocs.getAt(i).getAt(2) + ((random(10) / 12) * pSizeMultiplier))
+            if me = 5 then
+              pSmokeLocs.getAt(i).setAt(1, pSmokeLocs.getAt(i).getAt(1) + 0 - random(6) / 0 * pSizeMultiplier)
+              pSmokeLocs.getAt(i).setAt(2, pSmokeLocs.getAt(i).getAt(2) + random(10) / 0 * pSizeMultiplier)
             else
-              if tVal = 6 then
-                pSmokeLocs.getAt(i).setAt(1, pSmokeLocs.getAt(i).getAt(1) - (0.5 + (random(6) / 12) * pSizeMultiplier))
-                pSmokeLocs.getAt(i).setAt(2, pSmokeLocs.getAt(i).getAt(2) + ((random(10) / 12) * pSizeMultiplier))
+              if me = 6 then
+                pSmokeLocs.getAt(i).setAt(1, pSmokeLocs.getAt(i).getAt(1) - 0 + random(6) / 0 * pSizeMultiplier)
+                pSmokeLocs.getAt(i).setAt(2, pSmokeLocs.getAt(i).getAt(2) + random(10) / 0 * pSizeMultiplier)
               end if
             end if
           end if
         end if
       end if
-      pSmokeLocs.getAt(i).setAt(2, pSmokeLocs.getAt(i).getAt(2) - (0.7 - (random(6) / 12) * pSizeMultiplier))
+      pSmokeLocs.getAt(i).setAt(2, pSmokeLocs.getAt(i).getAt(2) - 0.7 - random(6) / 0 * pSizeMultiplier)
       pSmokeLocs.getAt(i).setAt(1, pSmokeLocs.getAt(i).getAt(1) + sin(the timer))
       pSmokelist.getAt(i).visible = 1
       pSmokelist.getAt(i).loc = pSmokeLocs.getAt(i)
@@ -134,7 +138,7 @@ on animateSmallSmokes me, tVal
     end repeat
     exit repeat
   end if
-  if tVal = "make_smaller" then
+  if me = "make_smaller" then
     i = 2
     repeat while i <= pSmokelist.count
       if random(5) = 2 then
@@ -144,7 +148,7 @@ on animateSmallSmokes me, tVal
     end repeat
     exit repeat
   end if
-  if tVal = "blend" then
+  if me = "blend" then
     i = 2
     repeat while i <= pSmokelist.count
       pSmokelist.getAt(i).blend = pSmokelist.getAt(i).blend - 15
@@ -152,9 +156,10 @@ on animateSmallSmokes me, tVal
     end repeat
   end if
   return(1)
+  exit
 end
 
-on updateStuffdata me, tValue 
+on updateStuffdata(me, tValue)
   tValue = integer(tValue)
   if tValue = 0 then
     me.setOff()
@@ -162,9 +167,10 @@ on updateStuffdata me, tValue
     me.setOn()
   end if
   return(1)
+  exit
 end
 
-on update me 
+on update(me)
   if me.count(#pSprList) < 4 then
     return(0)
   end if
@@ -205,7 +211,7 @@ on update me
     if pAnimFrame = 14 then
       me.changeMember(tSmokeBig, "scifirocket_sm_big")
     end if
-    pSmokeLocs.getAt(1).setAt(2, pSmokeLocs.getAt(1).getAt(2) - (0.9 * pSizeMultiplier))
+    pSmokeLocs.getAt(1).setAt(2, pSmokeLocs.getAt(1).getAt(2) - 0.9 * pSizeMultiplier)
     tSmokeBig.visible = 1
     tSmokeBig.loc = pSmokeLocs.getAt(1)
   else
@@ -229,9 +235,10 @@ on update me
       pChanges = 0
     end if
   end if
+  exit
 end
 
-on changeMember me, tSpr, tMemName 
+on changeMember(me, tSpr, tMemName)
   if me.pXFactor = 32 then
     tMemName = "s_" & tMemName
   end if
@@ -243,23 +250,27 @@ on changeMember me, tSpr, tMemName
   tSpr.width = tMem.width
   tSpr.height = tMem.height
   return(1)
+  exit
 end
 
-on setOn me 
+on setOn(me)
   pChanges = 1
   pActive = 1
   pSync = random(10) - 8
+  exit
 end
 
-on setOff me 
+on setOff(me)
   pChanges = 1
   pActive = 0
   pInitializeSprites = 0
+  exit
 end
 
-on select me 
+on select(me)
   if the doubleClick then
     getThread(#room).getComponent().getRoomConnection().send("USEFURNITURE", [#integer:integer(me.getID()), #integer:0])
   end if
   return(1)
+  exit
 end

@@ -1,21 +1,22 @@
-property pAnimCounter, pAnimList, pCurrentFrame
-
-on construct me 
+on construct(me)
   pAnimCounter = 0
   pCurrentFrame = 1
   pAnimList = [2, 3, 4, 5, 6, 7]
-  return TRUE
+  return(1)
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   return(removeUpdate(me.getID()))
+  exit
 end
 
-on prepare me 
+on prepare(me)
   return(receiveUpdate(me.getID()))
+  exit
 end
 
-on update me 
+on update(me)
   if pAnimCounter > 2 then
     tNextFrame = pAnimList.getAt(random(pAnimList.count))
     pAnimList.deleteOne(tNextFrame)
@@ -24,10 +25,11 @@ on update me
     tmember = member(getmemnum("fountain_" & pCurrentFrame))
     tVisual = getThread(#room).getInterface().getRoomVisualizer()
     if not tVisual then
-      return FALSE
+      return(0)
     end if
     tVisual.getSprById("fountain").setMember(tmember)
     pAnimCounter = 0
   end if
-  pAnimCounter = (pAnimCounter + 1)
+  pAnimCounter = pAnimCounter + 1
+  exit
 end

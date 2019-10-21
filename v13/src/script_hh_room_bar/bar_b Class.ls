@@ -1,30 +1,31 @@
-property pDiscoTimer
-
-on construct me 
+on construct(me)
   pDiscoTimer = 0
-  return TRUE
+  return(1)
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   return(removeUpdate(me.getID()))
+  exit
 end
 
-on prepare me 
+on prepare(me)
   return(receiveUpdate(me.getID()))
+  exit
 end
 
-on update me 
-  if the milliSeconds < (pDiscoTimer + 500) then
-    return TRUE
+on update(me)
+  if the milliSeconds < pDiscoTimer + 500 then
+    return(1)
   end if
   pDiscoTimer = the milliSeconds
   tThread = getThread(#room)
-  if (tThread = 0) then
-    return FALSE
+  if tThread = 0 then
+    return(0)
   end if
   tRoomVis = tThread.getInterface().getRoomVisualizer()
-  if (tRoomVis = 0) then
-    return FALSE
+  if tRoomVis = 0 then
+    return(0)
   end if
   tDst = "df" & random(3)
   tCmd = "setfloor" & ["a", "b"].getAt(random(2))
@@ -33,27 +34,28 @@ on update me
   if not tSpr then
     return(error(me, "Sprite not found:" && "show_" & tDst, #showprogram))
   else
-    if (tCmd = "setfloora") then
-      tSpr.member.paletteRef = member(getmemnum("clubfloorparta" & tNum))
+    if me = "setfloora" then
+      member.paletteRef = member(getmemnum("clubfloorparta" & tNum))
     else
-      if (tCmd = "setfloorb") then
-        tSpr.member.paletteRef = member(getmemnum("clubfloorpartb" & tNum))
+      if me = "setfloorb" then
+        member.paletteRef = member(getmemnum("clubfloorpartb" & tNum))
       end if
     end if
   end if
+  exit
 end
 
-on showprogram me, tMsg 
+on showprogram(me, tMsg)
   if voidp(tMsg) then
-    return FALSE
+    return(0)
   end if
   tThread = getThread(#room)
-  if (tThread = 0) then
-    return FALSE
+  if tThread = 0 then
+    return(0)
   end if
   tRoomVis = tThread.getInterface().getRoomVisualizer()
-  if (tRoomVis = 0) then
-    return FALSE
+  if tRoomVis = 0 then
+    return(0)
   end if
   tDst = tMsg.getAt(#show_dest)
   tCmd = tMsg.getAt(#show_command)
@@ -62,8 +64,9 @@ on showprogram me, tMsg
   if not tSpr then
     return(error(me, "Sprite not found:" && "show_" & tDst, #showprogram))
   else
-    if (tCmd = "setlamp") then
-      tSpr.member.paletteRef = member(getmemnum("lattialamppu" & tNum))
+    if me = "setlamp" then
+      member.paletteRef = member(getmemnum("lattialamppu" & tNum))
     end if
   end if
+  exit
 end

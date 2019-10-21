@@ -1,29 +1,30 @@
-property pUpdateBrokerList, pProcessorObjList
-
-on construct me 
-  pProcessorObjList = [:]
-  pUpdateBrokerList = [:]
-  return TRUE
+on construct(me)
+  pProcessorObjList = []
+  pUpdateBrokerList = []
+  return(1)
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   me.removeProcessors()
-  return TRUE
+  return(1)
+  exit
 end
 
-on defineClient me, tID 
+on defineClient(me, tID)
   return(me.defineProcessors(tID))
+  exit
 end
 
-on distributeEvent me, tTopic, tdata 
+on distributeEvent(me, tTopic, tdata)
   if me.getBaseLogic().handler(symbol("store_" & tTopic)) then
     call(symbol("store_" & tTopic), me.getBaseLogic(), tdata)
   end if
   tList = pUpdateBrokerList.getAt(tTopic)
   if not listp(tList) then
-    return FALSE
+    return(0)
   end if
-  repeat while tList <= tdata
+  repeat while me <= tdata
     tListenerId = getAt(tdata, tTopic)
     tListener = pProcessorObjList.getAt(tListenerId)
     if tListener <> void() then
@@ -33,10 +34,11 @@ on distributeEvent me, tTopic, tdata
       pUpdateBrokerList.getAt(tTopic).deleteOne(tListenerId)
     end if
   end repeat
-  return TRUE
+  return(1)
+  exit
 end
 
-on defineProcessors me, tID 
+on defineProcessors(me, tID)
   me.removeProcessors()
   if variableExists(tID & ".processors") then
     tProcIdList = getVariableValue(tID & ".processors")
@@ -48,7 +50,7 @@ on defineProcessors me, tID
     return(error(me, "gamesystem.processor.superclass not found.", #defineProcessors))
   end if
   tBaseProcClassList = getClassVariable("gamesystem.processor.superclass")
-  repeat while tProcIdList <= undefined
+  repeat while me <= undefined
     tProcId = getAt(undefined, tID)
     tProcObjId = symbol(tID & "_proc_" & tProcId)
     tScriptList = getClassVariable(tID & "." & tProcId & ".processor.class")
@@ -66,29 +68,31 @@ on defineProcessors me, tID
     pProcessorObjList.addProp(tProcId, tProcObject)
     tProcessorRegList = getVariableValue(tID & "." & tProcId & ".processor.updates")
     if listp(tProcessorRegList) then
-      repeat while tProcIdList <= undefined
+      repeat while me <= undefined
         tMsg = getAt(undefined, tID)
-        if (tMsg = void()) then
+        if tMsg = void() then
           return(error(me, "Invalid format in processor message:" && tProcObjId && tMsg, #defineProcessors))
         end if
-        if (pUpdateBrokerList.getAt(tMsg) = void()) then
+        if pUpdateBrokerList.getAt(tMsg) = void() then
           pUpdateBrokerList.addProp(tMsg, [])
         end if
-        if (pUpdateBrokerList.getAt(tMsg).getPos(tProcId) = 0) then
+        if pUpdateBrokerList.getAt(tMsg).getPos(tProcId) = 0 then
           pUpdateBrokerList.getAt(tMsg).add(tProcId)
         end if
       end repeat
     end if
   end repeat
-  return TRUE
+  return(1)
+  exit
 end
 
-on removeProcessors me 
-  repeat while pProcessorObjList <= undefined
+on removeProcessors(me)
+  repeat while me <= undefined
     pProc = getAt(undefined, undefined)
     removeObject(pProc.getID())
   end repeat
-  pProcessorObjList = [:]
-  pUpdateBrokerList = [:]
-  return TRUE
+  pProcessorObjList = []
+  pUpdateBrokerList = []
+  return(1)
+  exit
 end

@@ -1,61 +1,74 @@
-on constructProfileManager  
+on constructProfileManager()
   return(createManager(#profile_manager, ["Profile Manager Class"]))
+  exit
 end
 
-on deconstructProfileManager  
+on deconstructProfileManager()
   return(removeManager(#profile_manager))
+  exit
 end
 
-on getProfileManager  
+on getProfileManager()
   tMgr = getObjectManager()
   if not tMgr.managerExists(#profile_manager) then
     return(constructProfileManager())
   end if
   return(tMgr.getManager(#profile_manager))
+  exit
 end
 
-on createProfileTask tTask 
+on createProfileTask(tTask)
   return(getProfileManager().create(tTask))
+  exit
 end
 
-on removeProfileTask tTask 
+on removeProfileTask(tTask)
   return(getProfileManager().Remove(tTask))
+  exit
 end
 
-on getProfileTask tTask 
+on getProfileTask(tTask)
   return(getProfileManager().GET(tTask))
+  exit
 end
 
-on profileTaskExists tTask 
+on profileTaskExists(tTask)
   return(getProfileManager().exists(tTask))
+  exit
 end
 
-on startProfilingTask tTask 
+on startProfilingTask(tTask)
   if not getObjectManager().managerExists(#profile_manager) then
     return()
   end if
   return(getProfileManager().start(tTask))
+  exit
 end
 
-on finishProfilingTask tTask 
+on finishProfilingTask(tTask)
   if not getObjectManager().managerExists(#profile_manager) then
     return()
   end if
   return(getProfileManager().finish(tTask))
+  exit
 end
 
-on resetProfiler  
+on resetProfiler()
   return(getProfileManager().reset())
+  exit
 end
 
-on printProfileTasks  
+on printProfileTasks()
   return(getProfileManager().print())
+  exit
 end
 
-on showProfileWindow  
+on showProfileWindow()
   return(getProfileManager().printToDialog())
+  exit
 end
 
-on handlers  
+on handlers()
   return([])
+  exit
 end

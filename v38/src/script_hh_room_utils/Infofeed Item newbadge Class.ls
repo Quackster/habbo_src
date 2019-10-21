@@ -1,4 +1,4 @@
-on feedContentText me, tWndObj 
+on feedContentText(me, tWndObj)
   if tWndObj = 0 then
     return(0)
   end if
@@ -10,9 +10,10 @@ on feedContentText me, tWndObj
   tText = replaceChunks(tText, "\\r", "\r")
   tElem.setText(tText)
   return(1)
+  exit
 end
 
-on feedContentImage me, tWndObj 
+on feedContentImage(me, tWndObj)
   if tWndObj = 0 then
     return(0)
   end if
@@ -32,4 +33,5 @@ on feedContentImage me, tWndObj
   tImage = me.alignIconImage(tImage, tElem.getProperty(#width), tElem.getProperty(#height))
   tElem.feedImage(tImage)
   return(1)
+  exit
 end

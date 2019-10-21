@@ -1,11 +1,10 @@
-property pID, pLoc, pVisible, pStartAnim, pAnimFrame, pMaxFrames, pMember
-
-on construct me 
+on construct(me)
   pAnimFrame = 0
   return(1)
+  exit
 end
 
-on setData me, tProps 
+on setData(me, tProps)
   pVisible = tProps.getAt(#visible)
   pMaxFrames = tProps.getAt(#AnimFrames)
   pAnimFrame = tProps.getAt(#startFrame)
@@ -17,13 +16,15 @@ on setData me, tProps
     getThread(#room).getInterface().getRoomVisualizer().getSprById(pID).loc = pLoc
   end if
   me.setVisible(pVisible)
+  exit
 end
 
-on Activate me 
+on Activate(me)
   me.delay(250, #setVisible, 1)
+  exit
 end
 
-on setVisible me, tVisible 
+on setVisible(me, tVisible)
   pVisible = tVisible
   tVisual = getThread(#room).getInterface().getRoomVisualizer()
   if not tVisual then
@@ -31,9 +32,10 @@ on setVisible me, tVisible
   end if
   tVisual.getSprById(pID).visible = tVisible
   pAnimFrame = pStartAnim
+  exit
 end
 
-on updateSplashs me 
+on updateSplashs(me)
   if pVisible <> 1 then
     return(0)
   end if
@@ -48,4 +50,5 @@ on updateSplashs me
   else
     me.setVisible(0)
   end if
+  exit
 end

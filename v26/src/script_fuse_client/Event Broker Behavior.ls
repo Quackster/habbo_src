@@ -1,6 +1,4 @@
-property pProcList, id, pSprite, pLink
-
-on registerProcedure me, tMethod, tClientID, tEvent 
+on registerProcedure(me, tMethod, tClientID, tEvent)
   if voidp(pProcList) then
     pProcList = me.createProcListTemplate()
   end if
@@ -25,9 +23,10 @@ on registerProcedure me, tMethod, tClientID, tEvent
   end if
   pProcList.setAt(tEvent, [tMethod, tClientID])
   return(1)
+  exit
 end
 
-on removeProcedure me, tEvent 
+on removeProcedure(me, tEvent)
   if voidp(tEvent) then
     pProcList = me.createProcListTemplate()
   else
@@ -36,51 +35,57 @@ on removeProcedure me, tEvent
     end if
   end if
   return(1)
+  exit
 end
 
-on getID me 
+on getID(me)
   return(id)
+  exit
 end
 
-on setID me, tID 
+on setID(me, tID)
   pSprite = sprite(me.spriteNum)
   if not stringp(tID) then
     return(error(me, "String expected:" && tID, #setID, #major))
   end if
   id = tID
   return(1)
+  exit
 end
 
-on getMember me 
+on getMember(me)
   return(pSprite.member)
+  exit
 end
 
-on setMember me, tmember 
+on setMember(me, tmember)
   pSprite.member = tmember
   pSprite.width = member.width
   pSprite.height = member.height
   return(1)
+  exit
 end
 
-on getCursor me 
+on getCursor(me)
   return(pSprite.cursor)
+  exit
 end
 
-on setcursor me, ttype 
+on setcursor(me, ttype)
   if symbolp(ttype) then
-    if ttype = #arrow then
+    if me = #arrow then
       ttype = -1
     else
-      if ttype = #ibeam then
+      if me = #ibeam then
         ttype = 1
       else
-        if ttype = #crosshair then
+        if me = #crosshair then
           ttype = 2
         else
-          if ttype = #crossbar then
+          if me = #crossbar then
             ttype = 3
           else
-            if ttype = #timer then
+            if me = #timer then
               ttype = 4
             end if
           end if
@@ -102,38 +107,44 @@ on setcursor me, ttype
   end if
   pSprite.cursor = ttype
   return(1)
+  exit
 end
 
-on getLink me 
+on getLink(me)
   if stringp(pLink) then
     return(pLink)
   else
     return(0)
   end if
+  exit
 end
 
-on setLink me, tUrlOrKey 
+on setLink(me, tUrlOrKey)
   if stringp(tUrlOrKey) then
     pLink = tUrlOrKey
     return(1)
   else
     return(0)
   end if
+  exit
 end
 
-on mouseEnter me 
+on mouseEnter(me)
   return(me.redirectEvent(#mouseEnter))
+  exit
 end
 
-on mouseLeave me 
+on mouseLeave(me)
   return(me.redirectEvent(#mouseLeave))
+  exit
 end
 
-on mouseWithin me 
+on mouseWithin(me)
   return(me.redirectEvent(#mouseWithin))
+  exit
 end
 
-on mouseDown me 
+on mouseDown(me)
   if not voidp(pProcList) then
     getObject(#session).set("client_lastclick", id && "->" && pProcList.getAt(#mouseDown).getAt(2) && "/" && the long time)
   end if
@@ -142,9 +153,10 @@ on mouseDown me
     stopEvent()
   end if
   return(tResult)
+  exit
 end
 
-on mouseUp me 
+on mouseUp(me)
   if not voidp(pLink) then
     getSpecialServices().openNetPage(pLink)
   end if
@@ -153,13 +165,15 @@ on mouseUp me
     stopEvent()
   end if
   return(tResult)
+  exit
 end
 
-on mouseUpOutSide me 
+on mouseUpOutSide(me)
   return(me.redirectEvent(#mouseUpOutSide))
+  exit
 end
 
-on keyDown me 
+on keyDown(me)
   if pSprite.spriteNum <> the keyboardFocusSprite then
     return(1)
   end if
@@ -167,9 +181,10 @@ on keyDown me
     return(1)
   end if
   pass()
+  exit
 end
 
-on keyUp me 
+on keyUp(me)
   if pSprite.spriteNum <> the keyboardFocusSprite then
     return(1)
   end if
@@ -177,9 +192,10 @@ on keyUp me
     return(1)
   end if
   pass()
+  exit
 end
 
-on redirectEvent me, tEvent 
+on redirectEvent(me, tEvent)
   if voidp(pProcList) then
     pProcList = me.createProcListTemplate()
   end if
@@ -190,10 +206,11 @@ on redirectEvent me, tEvent
     return(0)
   end if
   return(call(pProcList.getAt(tEvent).getAt(1), getObject(pProcList.getAt(tEvent).getAt(2)), tEvent, id))
+  exit
 end
 
-on createProcListTemplate me 
-  tList = [:]
+on createProcListTemplate(me)
+  tList = []
   tList.setAt(#mouseEnter, [#null, 0])
   tList.setAt(#mouseLeave, [#null, 0])
   tList.setAt(#mouseWithin, [#null, 0])
@@ -203,4 +220,5 @@ on createProcListTemplate me
   tList.setAt(#keyDown, [#null, 0])
   tList.setAt(#keyUp, [#null, 0])
   return(tList)
+  exit
 end

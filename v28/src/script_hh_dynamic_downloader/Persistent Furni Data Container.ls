@@ -1,13 +1,11 @@
-property pStuffData, pWallitemData, pStuffDataByClass, pWallitemDataByClass, pMemberName
-
-on construct me 
-  pStuffData = [:]
+on construct(me)
+  pStuffData = []
   pStuffData.sort()
-  pWallitemData = [:]
+  pWallitemData = []
   pWallitemData.sort()
-  pStuffDataByClass = [:]
+  pStuffDataByClass = []
   pStuffDataByClass.sort()
-  pWallitemDataByClass = [:]
+  pWallitemDataByClass = []
   pWallitemDataByClass.sort()
   pMemberName = getUniqueID()
   pDownloadRetryCount = 1
@@ -15,63 +13,71 @@ on construct me
     tURL = getVariable("furnidata.load.url")
     tHash = getSpecialServices().getSessionHash()
     if tHash = "" then
-      tHash = string(random(1000000))
+      -- UNK_40 67
+      exit
+      random
+      tHash = string()
     end if
     tURL = replaceChunks(tURL, "%hash%", tHash)
     me.initDownload(tURL)
   end if
+  exit
 end
 
-on deconstruct me 
-  pStuffData = [:]
-  pWallitemData = [:]
+on deconstruct(me)
+  pStuffData = []
+  pWallitemData = []
+  exit
 end
 
-on getProps me, ttype, tID 
-  if ttype = "s" then
+on getProps(me, ttype, tID)
+  if me = "s" then
     return(pStuffData.getaProp(tID))
   else
-    if ttype = "i" then
+    if me = "i" then
       return(pWallitemData.getaProp(tID))
     else
       error(me, "invalid item type", #getProps, #minor)
     end if
   end if
+  exit
 end
 
-on getPropsByClass me, ttype, tClass 
-  if ttype = "s" then
+on getPropsByClass(me, ttype, tClass)
+  if me = "s" then
     return(pStuffDataByClass.getaProp(tClass))
   else
-    if ttype = "i" then
+    if me = "i" then
       return(pWallitemDataByClass.getaProp(tClass))
     else
       error(me, "invalid item type", #getProps, #minor)
     end if
   end if
+  exit
 end
 
-on initDownload me, tSourceURL 
+on initDownload(me, tSourceURL)
   if not createMember(pMemberName, #field) then
     return(error(me, "Could not create member!", #initDownload))
   end if
   tMemNum = queueDownload(tSourceURL, pMemberName, #field, 1)
   registerDownloadCallback(tMemNum, #downloadCallback, me.getID(), tMemNum)
+  exit
 end
 
-on downloadCallback me, tParams, tSuccess 
+on downloadCallback(me, tParams, tSuccess)
   if tSuccess then
     tTime = the milliSeconds
-    pData = [:]
+    pData = []
     tmember = member(tParams)
     i = 1
     l = 1
     repeat while tmember <= text.count(#line)
       tVal = value(text.getProp(#line, l))
       if ilk(tVal) = #list then
-        repeat while l <= tSuccess
+        repeat while me <= tSuccess
           tItem = getAt(tSuccess, tParams)
-          tdata = [:]
+          tdata = []
           tdata.setAt(#type, tItem.getAt(1))
           tdata.setAt(#classID, value(tItem.getAt(2)))
           tdata.setAt(#class, tItem.getAt(3))
@@ -100,4 +106,5 @@ on downloadCallback me, tParams, tSuccess
     fatalError(["error":"furnidata"])
     return(error(me, "Failure while loading furnidata", #downloadCallback, #critical))
   end if
+  exit
 end

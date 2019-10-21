@@ -1,20 +1,24 @@
-on construct me 
+on construct(me)
   return(me.regMsgList(1))
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   return(me.regMsgList(0))
+  exit
 end
 
-on handle_openuimakoppi me, tMsg 
+on handle_openuimakoppi(me, tMsg)
   me.getComponent().openUimakoppi()
+  exit
 end
 
-on handle_closeuimakoppi me, tMsg 
+on handle_closeuimakoppi(me, tMsg)
   me.getComponent().closeUimaKoppi()
+  exit
 end
 
-on handle_jumpdata me, tMsg 
+on handle_jumpdata(me, tMsg)
   tConn = tMsg.getaProp(#connection)
   if not tConn then
     return(0)
@@ -22,19 +26,21 @@ on handle_jumpdata me, tMsg
   tRoomIndex = tConn.GetIntFrom()
   tJumpData = tConn.GetStrFrom()
   me.getComponent().jumpPlayPack([#index:tRoomIndex, #jumpdata:tJumpData])
+  exit
 end
 
-on handle_jumpingplace_ok me, tMsg 
+on handle_jumpingplace_ok(me, tMsg)
   me.getComponent().jumpingPlaceOk()
+  exit
 end
 
-on regMsgList me, tBool 
-  tMsgs = [:]
+on regMsgList(me, tBool)
+  tMsgs = []
   tMsgs.setaProp(74, #handle_jumpdata)
   tMsgs.setaProp(96, #handle_openuimakoppi)
   tMsgs.setaProp(97, #handle_closeuimakoppi)
   tMsgs.setaProp(125, #handle_jumpingplace_ok)
-  tCmds = [:]
+  tCmds = []
   tCmds.setaProp("JUMPSTART", 103)
   tCmds.setaProp("SIGN", 104)
   tCmds.setaProp("JUMPPERF", 106)
@@ -49,4 +55,5 @@ on regMsgList me, tBool
     unregisterCommands(getVariable("connection.room.id"), me.getID(), tCmds)
   end if
   return(1)
+  exit
 end

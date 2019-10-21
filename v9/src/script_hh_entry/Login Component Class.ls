@@ -1,4 +1,4 @@
-on construct me 
+on construct(me)
   pOkToLogin = 0
   if variableExists("stats.tracking.url") then
     createObject(#statsBroker, "Statistics Broker Class")
@@ -35,10 +35,11 @@ on construct me
   if not objectExists("Ticket_Window_Manager") then
     createObject("Ticket_Window_Manager", "Ticket Window Manager Class")
   end if
-  return TRUE
+  return(1)
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   pOkToLogin = 0
   if objectExists("Figure_System") then
     removeObject("Figure_System")
@@ -61,22 +62,25 @@ on deconstruct me
   if connectionExists(getVariable("connection.info.id", #info)) then
     return(me.disconnect())
   else
-    return TRUE
+    return(1)
   end if
+  exit
 end
 
-on initA me 
-  if (getIntVariable("figurepartlist.loaded", 1) = 0) then
+on initA(me)
+  if getIntVariable("figurepartlist.loaded", 1) = 0 then
     return(me.delay(250, #initA))
   end if
   return(me.delay(1000, #initB))
+  exit
 end
 
-on initB me 
+on initB(me)
   return(me.getInterface().showLogin())
+  exit
 end
 
-on connect me 
+on connect(me)
   tHost = getVariable("connection.info.host")
   tPort = getIntVariable("connection.info.port")
   tConn = getVariable("connection.info.id", #info)
@@ -95,18 +99,21 @@ on connect me
   if not threadExists(#hobba) then
     initThread("thread.hobba")
   end if
-  return TRUE
+  return(1)
+  exit
 end
 
-on disconnect me 
+on disconnect(me)
   tConn = getVariable("connection.info.id", #info)
   if connectionExists(tConn) then
     return(removeConnection(tConn))
   else
     return(error(me, "Connection not found!", #disconnect))
   end if
+  exit
 end
 
-on isOkToLogin me 
+on isOkToLogin(me)
   return(me.pOkToLogin)
+  exit
 end

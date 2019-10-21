@@ -1,37 +1,38 @@
-on addWindows me 
+on addWindows(me)
   me.pWindowID = "cr"
   tWrapObjRef = me.getWindowWrapper()
-  if (tWrapObjRef = 0) then
-    return FALSE
+  if tWrapObjRef = 0 then
+    return(0)
   end if
   tSetID = me.pWindowSetId & "_c"
   tWrapObjRef.initSet(tSetID, 3)
   tWrapObjRef.addOneWindow(me.getWindowId(), "ig_level_highscores.window", tSetID)
   tWrapObjRef.addOneWindow(me.getWindowId("hor"), "ig_divider_hor.window", tSetID, [#scaleV:1])
   tWrapObjRef.addOneWindow(me.getWindowId("btn_j"), "ig_frame_create_btm.window", tSetID)
-  return TRUE
+  return(1)
+  exit
 end
 
-on render me 
+on render(me)
   tService = me.getIGComponent("LevelList")
-  if (tService = 0) then
-    return FALSE
+  if tService = 0 then
+    return(0)
   end if
   tItemRef = tService.getSelectedLevel()
-  if (tItemRef = 0) then
-    return FALSE
+  if tItemRef = 0 then
+    return(0)
   end if
   tLevelData = tItemRef.getLevelHighscore()
-  if (tLevelData = 0) then
-    return FALSE
+  if tLevelData = 0 then
+    return(0)
   end if
   tTeamData = tItemRef.getLevelTeamHighscore()
-  if (tTeamData = 0) then
-    return FALSE
+  if tTeamData = 0 then
+    return(0)
   end if
   tWndObj = getWindow(me.getWindowId())
-  if (tWndObj = 0) then
-    return FALSE
+  if tWndObj = 0 then
+    return(0)
   end if
   i = 1
   repeat while i <= tLevelData.count
@@ -44,14 +45,14 @@ on render me
     if tElement <> 0 then
       tElement.setText(tItem.getaProp(#score))
     end if
-    i = (1 + i)
+    i = 1 + i
   end repeat
   i = 1
   repeat while i <= tTeamData.count
     tItem = tTeamData.getAt(i)
     tText = ""
     tPlayers = tItem.getaProp(#players)
-    repeat while tPlayers <= undefined
+    repeat while me <= undefined
       tName = getAt(undefined, undefined)
       tText = tText & tName & "\r"
     end repeat
@@ -63,7 +64,7 @@ on render me
     if tElement <> 0 then
       tElement.setText(tItem.getaProp(#score))
     end if
-    i = (1 + i)
+    i = 1 + i
   end repeat
   tPropList = tItemRef.dump()
   i = 1
@@ -71,34 +72,37 @@ on render me
     tKey = tPropList.getPropAt(i)
     tValue = tPropList.getAt(i)
     me.renderProperty(tKey, tValue)
-    i = (1 + i)
+    i = 1 + i
   end repeat
-  return TRUE
+  return(1)
+  exit
 end
 
-on renderProperty me, tKey, tValue 
-  if (tKey = #game_type_icon) then
-    return TRUE
+on renderProperty(me, tKey, tValue)
+  if me = #game_type_icon then
+    return(1)
   else
-    if (tKey = #game_type) then
+    if me = #game_type then
       return(me.renderType(tValue))
     end if
   end if
-  return(me.ancestor.renderProperty(tKey, tValue))
+  return(me.renderProperty(tKey, tValue))
+  exit
 end
 
-on renderType me, tValue 
+on renderType(me, tValue)
   tWndObj = getWindow(me.getWindowId())
-  if (tWndObj = 0) then
-    return FALSE
+  if tWndObj = 0 then
+    return(0)
   end if
   tElem = tWndObj.getElement("info_gamemode")
-  if (tElem = 0) then
-    return FALSE
+  if tElem = 0 then
+    return(0)
   end if
   tMemNum = getmemnum("ig_icon_gamemode_" & tValue & "_b")
   if tMemNum > 0 then
     tElem.feedImage(member(tMemNum).image)
   end if
-  return TRUE
+  return(1)
+  exit
 end

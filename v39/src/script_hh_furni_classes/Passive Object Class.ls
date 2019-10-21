@@ -1,6 +1,4 @@
-property pSprList, pClass, pCustom, pLocX, pLocY, pLocH, pDirection, pPartColors, pDimensions, pAnimFrame, pLoczList, pXFactor, pCorrectLocZ
-
-on construct me 
+on construct(me)
   pClass = ""
   pCustom = ""
   pSprList = []
@@ -27,18 +25,20 @@ on construct me
     pCorrectLocZ = 0
   end if
   return(1)
+  exit
 end
 
-on deconstruct me 
-  repeat while pSprList <= undefined
+on deconstruct(me)
+  repeat while me <= undefined
     tSpr = getAt(undefined, undefined)
     releaseSprite(tSpr.spriteNum)
   end repeat
   pSprList = []
   return(1)
+  exit
 end
 
-on define me, tdata 
+on define(me, tdata)
   pClass = tdata.getAt(#class)
   pDirection = tdata.getAt(#direction)
   pDimensions = tdata.getAt(#dimensions)
@@ -54,38 +54,45 @@ on define me, tdata
   end if
   me.updateLocation()
   return(1)
+  exit
 end
 
-on prepare me, tdata 
+on prepare(me, tdata)
   return(1)
+  exit
 end
 
-on getInfo me 
-  tInfo = [:]
+on getInfo(me)
+  tInfo = []
   tInfo.setAt(#name, pClass)
   tInfo.setAt(#class, pClass)
   tInfo.setAt(#custom, pCustom)
   tInfo.setAt(#expire, -1)
   return(tInfo)
+  exit
 end
 
-on getLocation me 
+on getLocation(me)
   return([pLocX, pLocY, pLocH])
+  exit
 end
 
-on getDirection me 
+on getDirection(me)
   return(pDirection)
+  exit
 end
 
-on getSprites me 
+on getSprites(me)
   return(pSprList)
+  exit
 end
 
-on select me 
+on select(me)
   return(0)
+  exit
 end
 
-on solveColors me, tpartColors 
+on solveColors(me, tpartColors)
   if voidp(tpartColors) then
     tpartColors = "0,0,0"
   end if
@@ -103,9 +110,10 @@ on solveColors me, tpartColors
     j = 1 + j
   end repeat
   the itemDelimiter = tDelim
+  exit
 end
 
-on solveInk me, tPart 
+on solveInk(me, tPart)
   if not memberExists(pClass & ".props") then
     return(8)
   end if
@@ -122,9 +130,10 @@ on solveInk me, tPart
     end if
   end if
   return(8)
+  exit
 end
 
-on solveBlend me, tPart 
+on solveBlend(me, tPart)
   if not memberExists(pClass & ".props") then
     return(100)
   end if
@@ -141,9 +150,10 @@ on solveBlend me, tPart
     end if
   end if
   return(100)
+  exit
 end
 
-on solveLocZ me, tPart, tdir 
+on solveLocZ(me, tPart, tdir)
   if not memberExists(pClass & ".props") then
     return(0)
   end if
@@ -163,16 +173,17 @@ on solveLocZ me, tPart, tdir
     end if
   end if
   return(tPropList.getAt(tPart).getAt(#zshift).getAt(tdir + 1))
+  exit
 end
 
-on solveMembers me 
+on solveMembers(me)
   if listp(pDirection) then
     tTmpDirection = pDirection.duplicate()
   else
     tTmpDirection = pDirection
   end if
   if pSprList.count > 0 then
-    repeat while pSprList <= undefined
+    repeat while me <= undefined
       tSpr = getAt(undefined, undefined)
       releaseSprite(tSpr.spriteNum)
     end repeat
@@ -300,12 +311,13 @@ on solveMembers me
   else
     return(error(me, "Couldn't define members:" && pClass, #solveMembers, #major))
   end if
+  exit
 end
 
-on updateLocation me 
+on updateLocation(me)
   tScreenLocs = getThread(#room).getInterface().getGeometry().getScreenCoordinate(pLocX, pLocY, pLocH)
   i = 0
-  repeat while pSprList <= undefined
+  repeat while me <= undefined
     tSpr = getAt(undefined, undefined)
     i = i + 1
     tSpr.locH = tScreenLocs.getAt(1)
@@ -319,23 +331,26 @@ on updateLocation me
       tZ = 0
     end if
     if pCorrectLocZ then
-      tSpr.locZ = tScreenLocs.getAt(3) + (pLocH * 1000) + tZ
+      tSpr.locZ = tScreenLocs.getAt(3) + pLocH * 1000 + tZ
     else
       tSpr.locZ = tScreenLocs.getAt(3) + tZ
     end if
   end repeat
+  exit
 end
 
-on show me 
-  repeat while pSprList <= undefined
+on show(me)
+  repeat while me <= undefined
     tSpr = getAt(undefined, undefined)
     tSpr.visible = 1
   end repeat
+  exit
 end
 
-on hide me 
-  repeat while pSprList <= undefined
+on hide(me)
+  repeat while me <= undefined
     tSpr = getAt(undefined, undefined)
     tSpr.visible = 0
   end repeat
+  exit
 end

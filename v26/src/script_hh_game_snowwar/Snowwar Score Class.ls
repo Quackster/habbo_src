@@ -1,6 +1,4 @@
-property pTeamScoreCache, pTeamCount, pTimeOutID, pTimerEndTime, pTimeWindowId, pOwnScoreWindowId, pTeamScoreWindowId
-
-on construct me 
+on construct(me)
   pTeamScoreCache = []
   pCountdownObjId = "game_countdown"
   pFinalScoresObjId = "game_finalscores"
@@ -9,36 +7,38 @@ on construct me
   pTimeWindowId = "game_win_time"
   pTimeOutID = "game_score_updateGameTimeout"
   return(1)
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   me.removeGameScoreWindows()
   return(1)
+  exit
 end
 
-on Refresh me, tTopic, tdata 
-  if tTopic = #set_number_of_teams then
+on Refresh(me, tTopic, tdata)
+  if me = #set_number_of_teams then
     return(me.setTeamNumber(tdata))
   else
-    if tTopic = #team_score_updated then
+    if me = #team_score_updated then
       return(me.updateTeamScores(tdata))
     else
-      if tTopic = #personal_score_updated then
+      if me = #personal_score_updated then
         return(me.renderPersonalScores(tdata))
       else
-        if tTopic = #update_game_visuals then
+        if me = #update_game_visuals then
           me.cacheTeamScores()
           me.renderPersonalScores(me.getOwnScore())
           return(1)
         else
-          if tTopic = #gamestart then
+          if me = #gamestart then
             me.startGameTimer(tdata.getAt(#time_until_game_end), tdata.getAt(#time_until_game_end), tdata.getAt(#time_until_game_end))
             return(me.showGameScoreWindows())
           else
-            if tTopic = #gameend then
+            if me = #gameend then
               return(me.removeGameScoreWindows())
             else
-              if tTopic = #fullgamestatus_time then
+              if me = #fullgamestatus_time then
                 if tdata.getAt(#state) <> #started then
                   return(1)
                 end if
@@ -52,47 +52,54 @@ on Refresh me, tTopic, tdata
     end if
   end if
   return(1)
+  exit
 end
 
-on setTeamNumber me, tTeamNum 
+on setTeamNumber(me, tTeamNum)
   pTeamCount = tTeamNum
   pTeamScoreCache = []
   pTeamScoreCache.setAt(pTeamCount, 0)
   return(1)
+  exit
 end
 
-on getOwnScore me 
+on getOwnScore(me)
   if not getObject(#session).exists("user_game_index") then
     return(0)
   end if
   tObjectID = getObject(#session).GET("user_game_index")
   tScore = me.getGameSystem().getGameObjectProperty(tObjectID, #score)
   return(tScore)
+  exit
 end
 
-on startGameTimer me, tTimeUntilNextState, tStateDuration, tTimeUntilGameEnd 
+on startGameTimer(me, tTimeUntilNextState, tStateDuration, tTimeUntilGameEnd)
   if tTimeUntilNextState <= 0 then
     return(0)
   end if
-  pTimerEndTime = the milliSeconds + (tTimeUntilNextState * 1000)
+  pTimerEndTime = the milliSeconds + tTimeUntilNextState * 1000
   pTimerDurationSec = tStateDuration
   if timeoutExists(pTimeOutID) then
     removeTimeout(pTimeOutID)
   end if
   createTimeout(pTimeOutID, 1000, #renderGameTimer, me.getID(), pTimerEndTime, tTimeUntilGameEnd)
   return(me.renderGameTimer(pTimerEndTime))
+  exit
 end
 
-on convertToMinSec me, tTime 
-  tMin = (tTime / 60000)
-  tSec = ((tTime mod 60000) / 1000)
+on convertToMinSec(me, tTime)
+  the gameObjectMoveDone = tTime.snowwar_event_4
+  tMin = ERROR
+  the gameObjectAction = tTime.snowwar_event_4
+  tSec = ERROR / 1000
   if tSec < 10 then
     tSec = "0" & tSec
   end if
   return([tMin, tSec])
+  exit
 end
 
-on renderGameTimer me, tEndTime 
+on renderGameTimer(me, tEndTime)
   tWndObj = getWindow(pTimeWindowId)
   if tWndObj = 0 then
     return(0)
@@ -113,9 +120,10 @@ on renderGameTimer me, tEndTime
   end if
   tElem.setText(tTimeStr)
   return(1)
+  exit
 end
 
-on renderPersonalScores me, tdata 
+on renderPersonalScores(me, tdata)
   tWndObj = getWindow(pOwnScoreWindowId)
   if tWndObj = 0 then
     return(0)
@@ -134,9 +142,10 @@ on renderPersonalScores me, tdata
   end if
   tElem.setText(tdata)
   return(1)
+  exit
 end
 
-on cacheTeamScores me 
+on cacheTeamScores(me)
   if pTeamCount < 1 then
     return(error(me, "Team count has not been set!", #cacheTeamScores))
   end if
@@ -144,7 +153,7 @@ on cacheTeamScores me
   pTeamScoreCache.setAt(pTeamCount, 0)
   tGameSystem = me.getGameSystem()
   tIDList = tGameSystem.getGameObjectIdsOfType("avatar")
-  repeat while tIDList <= undefined
+  repeat while me <= undefined
     tID = getAt(undefined, undefined)
     tObject = tGameSystem.getGameObject(tID)
     if tObject <> 0 then
@@ -154,13 +163,14 @@ on cacheTeamScores me
     end if
   end repeat
   return(me.renderTeamScores())
+  exit
 end
 
-on updateTeamScores me, tdata 
+on updateTeamScores(me, tdata)
   if not listp(tdata) then
     return(0)
   end if
-  repeat while tdata <= undefined
+  repeat while me <= undefined
     tTeam = getAt(undefined, tdata)
     tTeamId = tTeam.getAt(#team_id) + 1
     if pTeamScoreCache.count < tTeamId then
@@ -169,9 +179,10 @@ on updateTeamScores me, tdata
     pTeamScoreCache.setAt(tTeamId, pTeamScoreCache.getAt(tTeamId) + tTeam.getAt(#score_add))
   end repeat
   return(me.renderTeamScores())
+  exit
 end
 
-on renderTeamScores me 
+on renderTeamScores(me)
   tWndObj = getWindow(pTeamScoreWindowId)
   if tWndObj = 0 then
     return(0)
@@ -192,9 +203,10 @@ on renderTeamScores me
     tTeamId = 1 + tTeamId
   end repeat
   return(1)
+  exit
 end
 
-on showGameScoreWindows me 
+on showGameScoreWindows(me)
   if not windowExists(pTeamScoreWindowId) then
     if createWindow(pTeamScoreWindowId, "team_stats.window") then
       tWndObj = getWindow(pTeamScoreWindowId)
@@ -241,9 +253,10 @@ on showGameScoreWindows me
     end if
   end if
   return(1)
+  exit
 end
 
-on setTeamScoreVisible me, tTeamId, tstate 
+on setTeamScoreVisible(me, tTeamId, tstate)
   tWndObj = getWindow(pTeamScoreWindowId)
   if tWndObj = 0 then
     return(0)
@@ -261,9 +274,10 @@ on setTeamScoreVisible me, tTeamId, tstate
     tElement.setProperty(#visible, tstate)
   end if
   return(1)
+  exit
 end
 
-on removeGameScoreWindows me 
+on removeGameScoreWindows(me)
   if windowExists(pTeamScoreWindowId) then
     removeWindow(pTeamScoreWindowId)
   end if
@@ -277,4 +291,5 @@ on removeGameScoreWindows me
     removeTimeout(pTimeOutID)
   end if
   return(1)
+  exit
 end

@@ -1,14 +1,12 @@
-property pStuffData, pWallitemData, pStuffDataByClass, pWallitemDataByClass, pDownloadRetriesLeft, pMemberName, pDownloadedData
-
-on construct me 
+on construct(me)
   pDownloadRetriesLeft = 1
-  pStuffData = [:]
+  pStuffData = []
   pStuffData.sort()
-  pWallitemData = [:]
+  pWallitemData = []
   pWallitemData.sort()
-  pStuffDataByClass = [:]
+  pStuffDataByClass = []
   pStuffDataByClass.sort()
-  pWallitemDataByClass = [:]
+  pWallitemDataByClass = []
   pWallitemDataByClass.sort()
   pDownloadRetryCount = 1
   pDownloadedData = []
@@ -17,47 +15,54 @@ on construct me
   else
     fatalError(["error":"furnidata_config"])
   end if
+  exit
 end
 
-on deconstruct me 
-  pStuffData = [:]
-  pWallitemData = [:]
+on deconstruct(me)
+  pStuffData = []
+  pWallitemData = []
+  exit
 end
 
-on getProps me, ttype, tID 
-  if ttype = "s" then
+on getProps(me, ttype, tID)
+  if me = "s" then
     return(pStuffData.getaProp(tID))
   else
-    if ttype <> "i" then
-      if ttype = "e" then
+    if me <> "i" then
+      if me = "e" then
         return(pWallitemData.getaProp(tID))
       else
         error(me, "invalid item type", #getProps, #minor)
       end if
+      exit
     end if
   end if
 end
 
-on getPropsByClass me, ttype, tClass 
-  if ttype = "s" then
+on getPropsByClass(me, ttype, tClass)
+  if me = "s" then
     return(pStuffDataByClass.getaProp(tClass))
   else
-    if ttype <> "i" then
-      if ttype = "e" then
+    if me <> "i" then
+      if me = "e" then
         return(pWallitemDataByClass.getaProp(tClass))
       else
         error(me, "invalid item type", #getProps, #minor)
       end if
+      exit
     end if
   end if
 end
 
-on initDownload me 
+on initDownload(me)
   tURL = getVariable("furnidata.load.url")
   pMemberName = tURL & "-" & pDownloadRetriesLeft
   tHash = getSpecialServices().getSessionHash()
   if tHash = "" then
-    tHash = string(random(1000000))
+    -- UNK_40 67
+    exit
+    random
+    tHash = string()
   end if
   tURL = replaceChunks(tURL, "%hash%", tHash)
   if not createMember(pMemberName, #field) then
@@ -65,11 +70,12 @@ on initDownload me
   end if
   tMemNum = queueDownload(tURL, pMemberName, #field, 1)
   registerDownloadCallback(tMemNum, #downloadCallback, me.getID(), tMemNum)
+  exit
 end
 
-on downloadCallback me, tParams, tSuccess 
+on downloadCallback(me, tParams, tSuccess)
   if tSuccess then
-    pData = [:]
+    pData = []
     tmember = member(tParams)
     tNewArgument = [#member:tmember, #start:1, #count:1]
     createTimeout(getUniqueID(), 10, #parseCallback, me.getID(), tNewArgument, 1)
@@ -77,9 +83,10 @@ on downloadCallback me, tParams, tSuccess
     fatalError(["error":"furnidata"])
     return(error(me, "Failure while loading furnidata", #downloadCallback, #critical))
   end if
+  exit
 end
 
-on parseCallback me, tArgument 
+on parseCallback(me, tArgument)
   pDownloadedData = []
   tmember = tArgument.getAt(#member)
   if ilk(tmember) <> #member then
@@ -93,9 +100,10 @@ on parseCallback me, tArgument
     tLineNo = 1 + tLineNo
   end repeat
   me.parseOneLine(tArgument)
+  exit
 end
 
-on parseOneLine me, tArgument 
+on parseOneLine(me, tArgument)
   tStartingLine = tArgument.getAt(#start)
   tLineCount = tArgument.getAt(#count)
   if tStartingLine + tLineCount > pDownloadedData.count then
@@ -105,9 +113,9 @@ on parseOneLine me, tArgument
   repeat while l <= tStartingLine + tLineCount
     tVal = value(pDownloadedData.getAt(l))
     if ilk(tVal) = #list then
-      repeat while tVal <= undefined
+      repeat while me <= undefined
         tItem = getAt(undefined, tArgument)
-        tdata = [:]
+        tdata = []
         tdata.setAt(#type, tItem.getAt(1))
         tdata.setAt(#classID, value(tItem.getAt(2)))
         tdata.setAt(#class, tItem.getAt(3))
@@ -152,4 +160,5 @@ on parseOneLine me, tArgument
     tNewArgument = [#start:tStartingLine + tLineCount, #count:tLineCount]
     createTimeout(getUniqueID(), 250, #parseOneLine, me.getID(), tNewArgument, 1)
   end if
+  exit
 end

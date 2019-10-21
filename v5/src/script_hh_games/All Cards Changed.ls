@@ -1,3 +1,4 @@
-on mouseDown me 
+on mouseDown(me)
   change(gPoker)
+  exit
 end

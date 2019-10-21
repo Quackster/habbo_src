@@ -1,6 +1,4 @@
-property pChannelNum, pVolume, pMuted, pReserved, pEndTime
-
-on define me, tChannelNum 
+on define(me, tChannelNum)
   pChannelNum = tChannelNum
   tChannel = sound(pChannelNum)
   if ilk(tChannel) <> #instance then
@@ -12,9 +10,10 @@ on define me, tChannelNum
   pVolume = 255
   pReserved = 0
   return(1)
+  exit
 end
 
-on setSoundState me, tstate 
+on setSoundState(me, tstate)
   tChannel = sound(pChannelNum)
   if ilk(tChannel) <> #instance then
     return(error(me, "Sound channel bug:" && pChannelNum, #setSoundState, #major))
@@ -26,9 +25,10 @@ on setSoundState me, tstate
     tChannel.volume = 0
     pMuted = 1
   end if
+  exit
 end
 
-on reset me 
+on reset(me)
   pEndTime = 0
   tChannel = sound(pChannelNum)
   if ilk(tChannel) <> #instance then
@@ -38,9 +38,10 @@ on reset me
   tChannel.stop()
   pReserved = 0
   return(1)
+  exit
 end
 
-on play me, tSoundObj 
+on play(me, tSoundObj)
   tmember = tSoundObj.getMember()
   if tmember = 0 then
     return(0)
@@ -63,15 +64,16 @@ on play me, tSoundObj
   else
     tChannel.volume = 0
   end if
-  pEndTime = the milliSeconds + (tmember.duration * tLoopCount)
+  pEndTime = the milliSeconds + tmember.duration * tLoopCount
   if tLoopCount = 0 then
     pEndTime = -1
   end if
   tChannel.play([#member:tmember, #loopCount:tLoopCount])
   return(pChannelNum)
+  exit
 end
 
-on queue me, tSoundObj 
+on queue(me, tSoundObj)
   tmember = tSoundObj.getMember()
   if tmember = 0 then
     return(0)
@@ -85,18 +87,20 @@ on queue me, tSoundObj
   end if
   tChannel.queue(tProps)
   return(1)
+  exit
 end
 
-on startPlaying me 
+on startPlaying(me)
   tChannel = sound(pChannelNum)
   if ilk(tChannel) <> #instance then
     return(error(me, "Sound channel bug:" && pChannelNum, #startPlaying, #major))
   end if
   tChannel.play()
   return(1)
+  exit
 end
 
-on getTimeRemaining me 
+on getTimeRemaining(me)
   tChannel = sound(pChannelNum)
   if ilk(tChannel) <> #instance then
     return(error(me, "Sound channel bug:" && pChannelNum, #getTimeRemaining, #major))
@@ -112,20 +116,23 @@ on getTimeRemaining me
     tDurationLeft = 0
   end if
   if pReserved and tDurationLeft = 0 then
-    tDurationLeft = 100000
+    the undefined = ERROR.createHelpTooltip
   end if
   return(tDurationLeft)
+  exit
 end
 
-on setReserved me 
+on setReserved(me)
   pReserved = 1
+  exit
 end
 
-on getIsReserved me 
+on getIsReserved(me)
   return(pReserved)
+  exit
 end
 
-on dump me 
+on dump(me)
   tChannel = sound(pChannelNum)
   if ilk(tChannel) <> #instance then
     return(error(me, "Sound channel bug:" && pChannelNum, #dump, #major))
@@ -135,4 +142,5 @@ on dump me
     tName = member.name
   end if
   put("* Channel" && pChannelNum & " - Playtime left:" && me.getTimeRemaining() && "Now playing:" && tName && "Queue:" && tChannel.getPlaylist().count)
+  exit
 end

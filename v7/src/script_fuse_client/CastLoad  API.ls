@@ -1,43 +1,53 @@
-on constructCastLoader  
+on constructCastLoader()
   return(createManager(#castload_manager, getClassVariable("castlib.manager.class")))
+  exit
 end
 
-on deconstructCastLoader  
+on deconstructCastLoader()
   return(removeManager(#castload_manager))
+  exit
 end
 
-on getCastLoadManager  
+on getCastLoadManager()
   tMgr = getObjectManager()
   if not tMgr.managerExists(#castload_manager) then
     return(constructCastLoader())
   end if
   return(tMgr.getManager(#castload_manager))
+  exit
 end
 
-on startCastLoad tCastlibs, tPermanentOrNot, tAddFlag 
+on startCastLoad(tCastlibs, tPermanentOrNot, tAddFlag)
   return(getCastLoadManager().startCastLoad(tCastlibs, tPermanentOrNot, tAddFlag))
+  exit
 end
 
-on registerCastloadCallback tid, tMethod, tClientObj, tArgument 
+on registerCastloadCallback(tid, tMethod, tClientObj, tArgument)
   return(getCastLoadManager().registerCallback(tid, tMethod, tClientObj, tArgument))
+  exit
 end
 
-on resetCastLibs tClean, tForced 
+on resetCastLibs(tClean, tForced)
   return(getCastLoadManager().resetCastLibs(tClean, tForced))
+  exit
 end
 
-on getCastLoadPercent tid 
+on getCastLoadPercent(tid)
   return(getCastLoadManager().getLoadPercent(tid))
+  exit
 end
 
-on FindCastNumber tCastName 
+on FindCastNumber(tCastName)
   return(getCastLoadManager().FindCastNumber(tCastName))
+  exit
 end
 
-on castExists tCastName 
+on castExists(tCastName)
   return(getCastLoadManager().exists(tCastName))
+  exit
 end
 
-on printCasts  
+on printCasts()
   return(getCastLoadManager().print())
+  exit
 end

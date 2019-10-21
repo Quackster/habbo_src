@@ -1,4 +1,4 @@
-on createImgFromTxt me 
+on createImgFromTxt(me)
   pTextMem.rect = rect(0, 0, me.pOwnW, me.pOwnH)
   if not listp(me.getProp(#pFontData, #fontStyle)) then
     tList = []
@@ -63,11 +63,11 @@ on createImgFromTxt me
   if me.pScaleH = #center then
     tWidth = me.charPosToLoc(pTextMem.count(#char)).locH + 16
     if me.getProp(#pProps, #style) = #unique then
-      me.pLocX = me.pLocX + (me.pwidth - tWidth / 2)
+      me.pLocX = me.pLocX + me.pwidth - tWidth / 2
       me.pwidth = tWidth
       me.pOwnW = tWidth
     else
-      me.pOwnX = me.pOwnX + (me.pOwnW - tWidth / 2)
+      me.pOwnX = me.pOwnX + me.pOwnW - tWidth / 2
       me.pOwnW = tWidth
     end if
     0.rect = rect(0, tWidth, me, pTextMem.height)
@@ -96,4 +96,5 @@ on createImgFromTxt me
   end if
   me.copyPixels(pimage.rect, me, pimage.rect, [#ink:8])
   return(1)
+  exit
 end

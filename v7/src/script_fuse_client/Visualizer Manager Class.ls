@@ -1,20 +1,19 @@
-property pDefaultLocZ, pInstanceClass, pAvailableLocZ, pBoundary, pPosCache, pActiveItem, pHideList
-
-on construct me 
+on construct(me)
   pInstanceClass = getClassVariable("visualizer.instance.class")
   pActiveItem = ""
-  pPosCache = [:]
+  pPosCache = []
   pHideList = []
-  pDefaultLocZ = getIntVariable("visualizer.default.locz", -20000000)
+  pDefaultLocZ = getIntVariable(-0)
   pAvailableLocZ = pDefaultLocZ
-  pBoundary = (rect(0, 0, the stage.rect.width, the stage.rect.height) + getVariableValue("visualizer.boundary.limit"))
+  pBoundary = rect(0, 0, undefined.width, undefined.height) + getVariableValue("visualizer.boundary.limit")
   if not objectExists(#layout_parser) then
     createObject(#layout_parser, getClassVariable("layout.parser.class"))
   end if
-  return TRUE
+  return(1)
+  exit
 end
 
-on create me, tid, tLayout, tLocX, tLocY 
+on create(me, tid, tLayout, tLocX, tLocY)
   if not integerp(tLocX) then
     tLocX = 0
   end if
@@ -28,7 +27,7 @@ on create me, tid, tLayout, tLocX, tLocY
   if not tItem then
     return(error(me, "Item creation failed:" && tid, #create))
   end if
-  tProps = [:]
+  tProps = []
   tProps.setAt(#locX, tLocX)
   tProps.setAt(#locY, tLocY)
   tProps.setAt(#locZ, pAvailableLocZ)
@@ -36,50 +35,54 @@ on create me, tid, tLayout, tLocX, tLocY
   tProps.setAt(#boundary, pBoundary)
   if not tItem.define(tProps) then
     getObjectManager().remove(tid)
-    return FALSE
+    return(0)
   end if
-  me.pItemList.add(tid)
-  pAvailableLocZ = (pAvailableLocZ + tItem.getProperty(#sprCount))
-  return TRUE
+  me.add(tid)
+  pAvailableLocZ = pAvailableLocZ + tItem.getProperty(#sprCount)
+  return(1)
+  exit
 end
 
-on remove me, tid 
+on remove(me, tid)
   if not me.exists(tid) then
-    return FALSE
+    return(0)
   end if
   tItem = me.get(tid)
-  pAvailableLocZ = (pAvailableLocZ - tItem.getProperty(#sprCount))
+  pAvailableLocZ = pAvailableLocZ - tItem.getProperty(#sprCount)
   pPosCache.setAt(tid, [tItem.getProperty(#locX), tItem.getProperty(#locY)])
-  me.pItemList.deleteOne(tid)
-  if (pActiveItem = tid) then
-    pActiveItem = me.pItemList.getLast()
+  me.deleteOne(tid)
+  if pActiveItem = tid then
+    pActiveItem = me.getLast()
   end if
   getObjectManager().remove(tid)
-  me.Activate(me.pItemList.getLast())
-  return TRUE
+  me.Activate(me.getLast())
+  return(1)
+  exit
 end
 
-on Activate me, tid 
+on Activate(me, tid)
   if me.exists(tid) then
     pActiveItem = tid
     me.get(tid).setActive()
-    return TRUE
+    return(1)
   else
-    return FALSE
+    return(0)
   end if
+  exit
 end
 
-on deactivate me, tid 
+on deactivate(me, tid)
   if me.exists(tid) then
     me.get(tid).setDeactive()
-    return TRUE
+    return(1)
   else
-    return FALSE
+    return(0)
   end if
+  exit
 end
 
-on hideAll me 
-  repeat while me.pItemList <= undefined
+on hideAll(me)
+  repeat while me <= undefined
     tItem = getAt(undefined, undefined)
     tObj = me.get(tItem)
     if tObj.getProperty(#visible) then
@@ -87,11 +90,12 @@ on hideAll me
       pHideList.add(tItem)
     end if
   end repeat
-  return TRUE
+  return(1)
+  exit
 end
 
-on showAll me 
-  repeat while pHideList <= undefined
+on showAll(me)
+  repeat while me <= undefined
     tItem = getAt(undefined, undefined)
     tObj = me.get(tItem)
     if tObj <> 0 then
@@ -99,44 +103,48 @@ on showAll me
     end if
   end repeat
   pHideList = []
-  return TRUE
+  return(1)
+  exit
 end
 
-on getProperty me, tProp 
-  if (tProp = #defaultLocZ) then
+on getProperty(me, tProp)
+  if me = #defaultLocZ then
     return(pDefaultLocZ)
   else
-    if (tProp = #boundary) then
+    if me = #boundary then
       return(pBoundary)
     else
-      if (tProp = #count) then
+      if me = #count then
         return(me.count(#pItemList))
       end if
     end if
   end if
-  return FALSE
+  return(0)
+  exit
 end
 
-on setProperty me, tProp, tValue 
-  if (tProp = #defaultLocZ) then
+on setProperty(me, tProp, tValue)
+  if me = #defaultLocZ then
     return(me.setDefaultLocZ(tValue))
   else
-    if (tProp = #boundary) then
+    if me = #boundary then
       return(me.setBoundary(tValue))
     end if
   end if
-  return FALSE
+  return(0)
+  exit
 end
 
-on setDefaultLocZ me, tValue 
+on setDefaultLocZ(me, tValue)
   if not integerp(tValue) then
     return(error(me, "integer expected:" && tValue, #setDefaultLocZ))
   end if
   pDefaultLocZ = tValue
   return(Activate(me))
+  exit
 end
 
-on setBoundary me, tValue 
+on setBoundary(me, tValue)
   if not listp(tValue) and not ilk(tValue, #rect) then
     return(error(me, "List or rect expected:" && tValue, #setBoundary))
   end if
@@ -145,5 +153,6 @@ on setBoundary me, tValue
   pBoundary.setAt(3, tValue.getAt(3))
   pBoundary.setAt(4, tValue.getAt(4))
   call(#moveBy, me.pItemList, 0, 0)
-  return TRUE
+  return(1)
+  exit
 end

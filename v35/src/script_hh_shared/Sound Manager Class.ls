@@ -1,6 +1,4 @@
-property pChannelCount, pChannelList, pMuted
-
-on construct me 
+on construct(me)
   pMuted = 0
   pChannelCount = 5
   pChannelList = []
@@ -15,9 +13,10 @@ on construct me
   end repeat
   pChannelCount = pChannelList.count
   registerMessage(#set_all_sounds, me.getID(), #setSoundState)
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   unregisterMessage(#set_all_sounds, me.getID())
   i = 1
   repeat while i <= pChannelCount
@@ -30,36 +29,41 @@ on deconstruct me
   pChannelList = void()
   pChannelCount = void()
   return(1)
+  exit
 end
 
-on getProperty me, tPropID 
-  if tPropID = #channelCount then
+on getProperty(me, tPropID)
+  if me = #channelCount then
     return(pChannelList.count)
   else
     return(0)
   end if
+  exit
 end
 
-on setProperty me, tPropID, tValue 
+on setProperty(me, tPropID, tValue)
   return(0)
+  exit
 end
 
-on getChannel me, tNum 
+on getChannel(me, tNum)
   if tNum < 0 or tNum > pChannelList.count then
     return(0)
   end if
   return(pChannelList.getAt(tNum))
+  exit
 end
 
-on print me, tCount 
+on print(me, tCount)
   if integerp(tCount) then
   end if
+  exit
 end
 
-on play me, tMemName, tPriority, tProps 
+on play(me, tMemName, tPriority, tProps)
   tObject = me.createSoundInstance(tMemName, tPriority, tProps)
-  if tPriority <> #pass then
-    if tPriority = void() then
+  if me <> #pass then
+    if me = void() then
       i = 1
       repeat while i <= pChannelCount
         tStatus = pChannelList.getAt(i).getTimeRemaining()
@@ -70,8 +74,8 @@ on play me, tMemName, tPriority, tProps
       end repeat
       return(0)
     else
-      if tPriority = #cut then
-        tStatusList = [:]
+      if me = #cut then
+        tStatusList = []
         i = 1
         repeat while i <= pChannelCount
           tStatus = pChannelList.getAt(i).getTimeRemaining()
@@ -89,8 +93,8 @@ on play me, tMemName, tPriority, tProps
         tStatusList.sort()
         return(pChannelList.getAt(tStatusList.getAt(1)).play(tObject))
       else
-        if tPriority = #queue then
-          tStatusList = [:]
+        if me = #queue then
+          tStatusList = []
           i = 1
           repeat while i <= pChannelCount
             tStatus = pChannelList.getAt(i).getTimeRemaining()
@@ -112,10 +116,11 @@ on play me, tMemName, tPriority, tProps
     end if
     tObject = void()
     return(0)
+    exit
   end if
 end
 
-on playInChannel me, tMemName, tChannelNum 
+on playInChannel(me, tMemName, tChannelNum)
   tChannel = me.getChannel(tChannelNum)
   if tChannel = 0 then
     return(error(void(), "Invalid sound channel:" && tChannelNum, #playInChannel, #minor))
@@ -123,9 +128,10 @@ on playInChannel me, tMemName, tChannelNum
   tObject = me.createSoundInstance(tMemName, void(), void())
   tChannel.reset()
   return(tChannel.play(tObject))
+  exit
 end
 
-on queue me, tMemName, tChannelNum, tProps 
+on queue(me, tMemName, tChannelNum, tProps)
   tChannel = me.getChannel(tChannelNum)
   if tChannel = 0 then
     return(error(void(), "Invalid sound channel:" && tChannelNum, #queue, #minor))
@@ -135,9 +141,10 @@ on queue me, tMemName, tChannelNum, tProps
   if tRetVal then
     tChannel.setReserved()
   end if
+  exit
 end
 
-on stopChannel me, tNum 
+on stopChannel(me, tNum)
   if tNum = void() then
     return(0)
   end if
@@ -145,9 +152,10 @@ on stopChannel me, tNum
     return(0)
   end if
   return(pChannelList.getAt(tNum).reset())
+  exit
 end
 
-on playChannel me, tNum 
+on playChannel(me, tNum)
   if tNum = void() then
     return(0)
   end if
@@ -155,18 +163,20 @@ on playChannel me, tNum
     return(0)
   end if
   return(pChannelList.getAt(tNum).startPlaying())
+  exit
 end
 
-on stopAllSounds me 
+on stopAllSounds(me)
   i = 1
   repeat while i <= pChannelCount
     pChannelList.getAt(i).reset()
     i = 1 + i
   end repeat
   return(1)
+  exit
 end
 
-on setSoundState me, tValue 
+on setSoundState(me, tValue)
   if tValue then
     pMuted = 0
   else
@@ -178,17 +188,20 @@ on setSoundState me, tValue
     i = 1 + i
   end repeat
   return(1)
+  exit
 end
 
-on getSoundState me 
+on getSoundState(me)
   return(not pMuted)
+  exit
 end
 
-on createSoundInstance me, tMemName, tPriority, tProps 
+on createSoundInstance(me, tMemName, tPriority, tProps)
   tObject = createObject(#temp, "Sound Instance Class")
   if tObject = 0 then
     return(0)
   end if
   tObject.define(tMemName, tPriority, tProps)
   return(tObject)
+  exit
 end

@@ -1,6 +1,4 @@
-property pNameSpriteNum, pBottomSpriteNum, pNameFieldMemName
-
-on display me, tName, tScore, tTeamId, tloc, tOwnPlayer 
+on display(me, tName, tScore, tTeamId, tloc, tOwnPlayer)
   if not stringp(tName) then
     return(error(me, "String expected by hiliter.", #display))
   end if
@@ -18,8 +16,9 @@ on display me, tName, tScore, tTeamId, tloc, tOwnPlayer
   if tmember <> 0 then
     tsprite.member = tmember
   end if
-  tsprite.locZ = 1000000
-  tsprite.loc = point(tloc.getAt(1) - (tmember.width / 2), tloc.getAt(2) + 10)
+  -- UNK_40 98
+  -- UNK_A3 19458
+  ERROR.loc = point(tloc.getAt(1) - tmember.width / 2, tloc.getAt(2) + 10)
   tsprite.ink = 36
   if not tOwnPlayer then
     tmember = member(getmemnum("sw_avatar_hilite_team_" & tTeamId))
@@ -32,9 +31,10 @@ on display me, tName, tScore, tTeamId, tloc, tOwnPlayer
     tsprite.ink = 36
   end if
   return(1)
+  exit
 end
 
-on hide me 
+on hide(me)
   if memberExists(pNameFieldMemName) then
     removeMember(pNameFieldMemName)
   end if
@@ -47,9 +47,10 @@ on hide me
   pNameSpriteNum = void()
   pBottomSpriteNum = void()
   return(0)
+  exit
 end
 
-on getNameFieldMember me, tText, tTeamId 
+on getNameFieldMember(me, tText, tTeamId)
   pNameFieldMemName = "____sw_hilite_field"
   if not memberExists(pNameFieldMemName) then
     tNameFieldMem = member(createMember(pNameFieldMemName, #text))
@@ -68,4 +69,5 @@ on getNameFieldMember me, tText, tTeamId
   tNameFieldMem.font = tFontStruct.getAt(#font)
   tNameFieldMem.text = tText
   return(tNameFieldMem)
+  exit
 end

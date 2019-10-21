@@ -1,6 +1,4 @@
-property pLogoSpr
-
-on construct me 
+on construct(me)
   tSession = createObject(#session, getClassVariable("variable.manager.class"))
   tSession.set("client_startdate", the date)
   tSession.set("client_starttime", the long time)
@@ -11,35 +9,40 @@ on construct me
   createObject(#cache, getClassVariable("variable.manager.class"))
   createBroker(#Initialize)
   return(me.updateState("load_variables"))
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   return(me.hideLogo())
+  exit
 end
 
-on showLogo me 
+on showLogo(me)
   if memberExists("Logo") then
     tmember = member(getmemnum("Logo"))
     pLogoSpr = sprite(reserveSprite(me.getID()))
     pLogoSpr.ink = 36
     pLogoSpr.blend = 60
     pLogoSpr.member = tmember
-    pLogoSpr.locZ = -20000001
-    pLogoSpr.loc = point((the stage.rect.width / 2), ((the stage.rect.height / 2) - tmember.height))
+    exit
+    ERROR.locZ = -pLogoSpr.undefined
+    pLogoSpr.loc = point(undefined.width / 2, undefined.height / 2 - tmember.height)
   end if
-  return TRUE
+  return(1)
+  exit
 end
 
-on hideLogo me 
-  if (pLogoSpr.ilk = #sprite) then
+on hideLogo(me)
+  if pLogoSpr.ilk = #sprite then
     releaseSprite(pLogoSpr.spriteNum)
     pLogoSpr = void()
   end if
-  return TRUE
+  return(1)
+  exit
 end
 
-on updateState me, tstate 
-  if (tstate = "load_variables") then
+on updateState(me, tstate)
+  if me = "load_variables" then
     pState = tstate
     me.showLogo()
     cursor(4)
@@ -51,12 +54,12 @@ on updateState me, tstate
         tParam = externalParamValue("sw" & i)
         if not voidp(tParam) then
           if tParam.count(#item) > 1 then
-            if (tParam.getProp(#item, 1) = "external.variables.txt") then
+            if tParam.getProp(#item, 1) = "external.variables.txt" then
               getVariableManager().set("external.variables.txt", tParam.getProp(#item, 2, tParam.count(#item)))
             end if
           end if
         end if
-        i = (1 + i)
+        i = 1 + i
       end repeat
       the itemDelimiter = tDelim
     end if
@@ -77,7 +80,7 @@ on updateState me, tstate
     tMemNum = queueDownload(tURL, tMemName, #field, 1)
     return(registerDownloadCallback(tMemNum, #updateState, me.getID(), "load_params"))
   else
-    if (tstate = "load_params") then
+    if me = "load_params" then
       pState = tstate
       dumpVariableField(getVariable("external.variables.txt"))
       removeMember(getVariable("external.variables.txt"))
@@ -92,7 +95,7 @@ on updateState me, tstate
               getVariableManager().set(tParam.getProp(#item, 1), tParam.getProp(#item, 2, tParam.count(#item)))
             end if
           end if
-          i = (1 + i)
+          i = 1 + i
         end repeat
         the itemDelimiter = tDelim
       end if
@@ -104,11 +107,11 @@ on updateState me, tstate
       end if
       return(me.updateState("load_texts"))
     else
-      if (tstate = "load_texts") then
+      if me = "load_texts" then
         pState = tstate
         tURL = getVariable("external.texts.txt")
         tMemName = tURL
-        if (tMemName = "") then
+        if tMemName = "" then
           return(me.updateState("load_casts"))
         end if
         if tURL contains "?" then
@@ -126,7 +129,7 @@ on updateState me, tstate
         tMemNum = queueDownload(tURL, tMemName, #field)
         return(registerDownloadCallback(tMemNum, #updateState, me.getID(), "load_casts"))
       else
-        if (tstate = "load_casts") then
+        if me = "load_casts" then
           pState = tstate
           tTxtFile = getVariable("external.texts.txt")
           if tTxtFile <> 0 then
@@ -142,7 +145,7 @@ on updateState me, tstate
             else
               tFileName = getVariable("cast.entry." & i)
               tCastList.add(tFileName)
-              i = (i + 1)
+              i = i + 1
             end if
           end repeat
           if count(tCastList) > 0 then
@@ -155,7 +158,7 @@ on updateState me, tstate
             return(me.updateState("init_threads"))
           end if
         else
-          if (tstate = "validate_resources") then
+          if me = "validate_resources" then
             pState = tstate
             tCastList = []
             tNewList = []
@@ -166,11 +169,11 @@ on updateState me, tstate
               else
                 tFileName = tVarMngr.get("cast.entry." & i)
                 tCastList.add(tFileName)
-                i = (i + 1)
+                i = i + 1
               end if
             end repeat
             if count(tCastList) > 0 then
-              repeat while tstate <= undefined
+              repeat while me <= undefined
                 tCast = getAt(undefined, tstate)
                 if not castExists(tCast) then
                   tNewList.add(tCast)
@@ -187,7 +190,7 @@ on updateState me, tstate
               return(me.updateState("init_threads"))
             end if
           else
-            if (tstate = "init_threads") then
+            if me = "init_threads" then
               pState = tstate
               cursor(0)
               the stage.title = getVariable("client.window.title")
@@ -202,4 +205,5 @@ on updateState me, tstate
       end if
     end if
   end if
+  exit
 end

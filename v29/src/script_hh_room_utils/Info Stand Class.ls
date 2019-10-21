@@ -1,19 +1,19 @@
-property pInfoStandId, pInfoStandName
-
-on construct me 
+on construct(me)
   pInfoStandId = "Info_Stand_Window"
   pInfoStandName = void()
   pCurrentlySelectedUserId = void()
   registerMessage(#hideInfoStand, me.getID(), #hideInfoStand)
   registerMessage(#groupLogoDownloaded, me.getID(), #groupLogoDownloaded)
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   unregisterMessage(#hideInfoStand, me.getID())
   unregisterMessage(#groupLogoDownloaded, me.getID())
+  exit
 end
 
-on showInfostand me 
+on showInfostand(me)
   if not windowExists(pInfoStandId) then
     createWindow(pInfoStandId, "info_stand.window", 552, 300)
     tWndObj = getWindow(pInfoStandId)
@@ -22,16 +22,18 @@ on showInfostand me
     tWndObj.registerProcedure(#eventProcInfoStand, me.getID(), #mouseUp)
   end if
   return(1)
+  exit
 end
 
-on hideInfoStand me 
+on hideInfoStand(me)
   executeMessage(#hideObjectDEVELOPMENT)
   if windowExists(pInfoStandId) then
     return(removeWindow(pInfoStandId))
   end if
+  exit
 end
 
-on showObjectInfo me, tObjType 
+on showObjectInfo(me, tObjType)
   executeMessage(#showObjectDEVELOPMENT, tObjType)
   tWndObj = getWindow(pInfoStandId)
   if not tWndObj then
@@ -40,19 +42,19 @@ on showObjectInfo me, tObjType
   tRoomComponent = getThread(#room).getComponent()
   tRoomInterface = getThread(#room).getInterface()
   tSelectedObj = tRoomInterface.getSelectedObject()
-  if tObjType = "user" then
+  if me = "user" then
     tObj = tRoomComponent.getUserObject(tSelectedObj)
     pCurrentlySelectedUserIdId = tSelectedObj
   else
-    if tObjType = "active" then
+    if me = "active" then
       tObj = tRoomComponent.getActiveObject(tSelectedObj)
       pCurrentlySelectedUserIdId = void()
     else
-      if tObjType = "item" then
+      if me = "item" then
         tObj = tRoomComponent.getItemObject(tSelectedObj)
         pCurrentlySelectedUserIdId = void()
       else
-        if tObjType = "pet" then
+        if me = "pet" then
           tObj = tRoomComponent.getUserObject(tSelectedObj)
           pCurrentlySelectedUserIdId = void()
         else
@@ -88,7 +90,7 @@ on showObjectInfo me, tObjType
     end if
     if ilk(tProps.getAt(#image)) = #image then
       tElem.resizeTo(tProps.getAt(#image).width, tProps.getAt(#image).height)
-      member.regPoint = point((tProps.getAt(#image).width / 2), tProps.getAt(#image).height)
+      member.regPoint = point(tProps.getAt(#image).width / 2, tProps.getAt(#image).height)
       tElem.feedImage(tProps.getAt(#image))
     end if
     me.updateInfoStandBadge(tProps.getAt(#badge))
@@ -102,9 +104,10 @@ on showObjectInfo me, tObjType
   else
     return(me.hideObjectInfo())
   end if
+  exit
 end
 
-on updateInfostandAvatar me, tUserObj 
+on updateInfostandAvatar(me, tUserObj)
   if call(#getClass, [tUserObj]) <> "user" then
     return(1)
   end if
@@ -118,9 +121,10 @@ on updateInfostandAvatar me, tUserObj
   me.showObjectInfo("user")
   tRoomInterface.setSelectedObject(tSaveSelectedObj)
   return(1)
+  exit
 end
 
-on hideObjectInfo me 
+on hideObjectInfo(me)
   executeMessage(#hideObjectDEVELOPMENT)
   if objectExists("BadgeEffect") then
     removeObject("BadgeEffect")
@@ -138,15 +142,17 @@ on hideObjectInfo me
   pCurrentlySelectedUserId = void()
   me.updateInfoStandGroup()
   return(1)
+  exit
 end
 
-on updateInfoStandBadge me, tBadgeID, tUserID 
+on updateInfoStandBadge(me, tBadgeID, tUserID)
   tRoomInterface = getThread(#room).getInterface()
   tSelectedObj = tRoomInterface.getSelectedObject()
   return(tRoomInterface.getBadgeObject().updateInfoStandBadge(pInfoStandId, tSelectedObj, tBadgeID, tUserID))
+  exit
 end
 
-on updateInfoStandGroup me, tGroupId 
+on updateInfoStandGroup(me, tGroupId)
   if windowExists(pInfoStandId) then
     tWindowObj = getWindow(pInfoStandId)
     if tWindowObj.elementExists("info_group_badge") then
@@ -179,9 +185,10 @@ on updateInfoStandGroup me, tGroupId
     tElem.clearImage()
     tElem.setProperty(#cursor, "cursor.arrow")
   end if
+  exit
 end
 
-on groupLogoDownloaded me, tGroupId 
+on groupLogoDownloaded(me, tGroupId)
   tRoomInterface = getThread(#room).getInterface()
   tRoomComponent = getThread(#room).getComponent()
   tSelectedObj = tRoomInterface.getSelectedObject()
@@ -193,17 +200,18 @@ on groupLogoDownloaded me, tGroupId
   if tUsersGroup = tGroupId then
     me.updateInfoStandGroup(tGroupId)
   end if
+  exit
 end
 
-on eventProcInfoStand me, tEvent, tSprID, tParam 
-  if tSprID = "info_badge" then
+on eventProcInfoStand(me, tEvent, tSprID, tParam)
+  if me = "info_badge" then
     tSession = getObject(#session)
     tRoomInterface = getThread(#room).getInterface()
     tSelectedObj = tRoomInterface.getSelectedObject()
     if tSelectedObj = tSession.GET("user_index") then
     end if
   else
-    if tSprID = "info_group_badge" then
+    if me = "info_group_badge" then
       tRoomInterface = getThread(#room).getInterface()
       tSelectedObj = tRoomInterface.getSelectedObject()
       if not voidp(tSelectedObj) and tSelectedObj <> "" then
@@ -214,4 +222,5 @@ on eventProcInfoStand me, tEvent, tSprID, tParam
     end if
   end if
   return(1)
+  exit
 end

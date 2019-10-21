@@ -1,19 +1,19 @@
-property pwidth, pTurnPoint, pREquiresUpdate, pheight, pimage
-
-on construct me 
+on construct(me)
   pimage = image(1, 1, 32)
   pwidth = 720
   pheight = 400
-  pTurnPoint = (pwidth / 2)
+  pTurnPoint = pwidth / 2
   pREquiresUpdate = 1
-  return TRUE
+  return(1)
+  exit
 end
 
-on deconstruct me 
-  return TRUE
+on deconstruct(me)
+  return(1)
+  exit
 end
 
-on define me, tdata 
+on define(me, tdata)
   pwidth = tdata.getAt(#width)
   pheight = tdata.getAt(#height)
   pBgID = tdata.getAt(#id)
@@ -22,15 +22,17 @@ on define me, tdata
     tRoomDef = getVariableValue("landscape.def." & pRoomTypeID)
     pTurnPoint = tRoomDef.getAt(#middle)
   end if
-  pTurnPoint = (pTurnPoint + tdata.getAt(#offset))
+  pTurnPoint = pTurnPoint + tdata.getAt(#offset)
   pREquiresUpdate = 1
+  exit
 end
 
-on requiresUpdate me 
+on requiresUpdate(me)
   return(pREquiresUpdate)
+  exit
 end
 
-on getImage me 
+on getImage(me)
   if me.requiresUpdate() then
     pimage = image(pwidth, pheight, 32)
     pimage.fill(0, 0, pTurnPoint, pheight, color(110, 173, 200))
@@ -38,4 +40,5 @@ on getImage me
     pREquiresUpdate = 0
   end if
   return(pimage.duplicate())
+  exit
 end

@@ -1,13 +1,12 @@
- property pSpr, pInks, pJumpDirection, pStartloc, pModels, pColors, pBgScreenBuffer, pPelleKeys, pStatus, pSpeed, pMyLoc, pScreenUpOrDown, name, pMyName, pBigSplashActive, pPlayerMode, pJumpData, pPelleImg, jumpAction, jumpAnimFrame, AnimListCounter, runAnimList, pnewLocV, pjumpBoardEnd, pJumpSpeed, pVelocityV, pJumpMode, pJumpLoop, plastPressKey, pJumpMaxAnimFrames, pJumpLastDirection, myLocZ, pPelleBgImg, pjumpBoardStart, pRemoveJumperTime
-
-on deconstruct me 
+on deconstruct(me)
   if ilk(pSpr, #sprite) then
     releaseSprite(pSpr.spriteNum)
   end if
   return(1)
+  exit
 end
 
-on Init me, tName, tMemberModels, tplayerMode, tKeyList 
+on Init(me, tName, tMemberModels, tplayerMode, tKeyList)
   pJumpReady = 0
   pBigSplashActive = 0
   pMyName = getObject(#session).GET("user_name")
@@ -18,13 +17,13 @@ on Init me, tName, tMemberModels, tplayerMode, tKeyList
   memberPrefix = "h"
   memberModels = tMemberModels
   counter = 0
-  pModels = [:]
-  pColors = [:]
-  pInks = [:]
-  pFlipped = [:]
+  pModels = []
+  pColors = []
+  pInks = []
+  pFlipped = []
   sort(pInks)
   lParts = []
-  pSprites = [:]
+  pSprites = []
   pLocFix = point(0, 0)
   iLocZFix = 0
   pPlayerMode = tplayerMode
@@ -51,11 +50,11 @@ on Init me, tName, tMemberModels, tplayerMode, tKeyList
   pnewLocV = pSpr.locV
   pSpr.flipH = 1
   pSpr.flipV = 0
-  myLocZ = 20000000
+  myLocZ = 0
   pSpr.ink = 36
   pSpr.member = member(getmemnum("JumpingPelle"))
   pScreenUpOrDown = #up
-  pVelocityV = 1.5
+  pVelocityV = 0
   pjumpBoardEnd = 393
   pjumpBoardStart = 523
   pJumpSpeed = 2
@@ -76,13 +75,13 @@ on Init me, tName, tMemberModels, tplayerMode, tKeyList
   pBgScreenBuffer = image(member(getmemnum("pelle_bg3")).width, member(getmemnum("pelle_bg3")).height, 16, rgb(157, 206, 255))
   pBgScreenBuffer.fill(pBgScreenBuffer.rect, rgb(157, 206, 255))
   tPilvet = [point(141 + random(250), random(100)), point(141 + random(250), random(30) + 150), point(141 + random(250), random(20) + 240)]
-  repeat while tPilvet <= tMemberModels
+  repeat while me <= tMemberModels
     tPilvi = getAt(tMemberModels, tName)
     tCloud = member(getmemnum("pilvi" & random(5)))
     tRect = tCloud.rect + rect(tPilvi.locH, tPilvi.locV, tPilvi.locH, tPilvi.locV)
-    tCloud.image.copyPixels(tRect, tCloud.rect, #maskImage, [#ink:8, tCloud.image.createMatte()])
+    tCloud.image.copyPixels(tRect, tCloud.rect, #maskImage, [tCloud:image.createMatte(), #ink:8])
   end repeat
-  member(getmemnum("pelle_bg3")).image.copyPixels(pBgScreenBuffer.rect, pBgScreenBuffer.rect, #maskImage, [#ink:8, member(getmemnum("pelle_bg3")).image.createMatte()])
+  member(getmemnum("pelle_bg3")).image.copyPixels(pBgScreenBuffer.rect, pBgScreenBuffer.rect, #maskImage, [member(getmemnum("pelle_bg3")):image.createMatte(), #ink:8])
   pKeyTimerStat = 0
   me.UpdatePelle()
   pPelleKeys = getVariableValue("swimjump.key.list")
@@ -91,9 +90,10 @@ on Init me, tName, tMemberModels, tplayerMode, tKeyList
     pPelleKeys = [#run1:"A", #run2:"D", #dive1:"W", #dive2:"E", #dive3:"A", #dive4:"S", #dive5:"D", #dive6:"Z", #dive7:"X", #jump:"SPACE"]
   end if
   return(1)
+  exit
 end
 
-on StopRunnig me 
+on StopRunnig(me)
   if pStatus = #Run then
     pSpeed = pSpeed - 0.1
     if pSpeed <= 0 then
@@ -102,9 +102,10 @@ on StopRunnig me
       pSpeed = 0
     end if
   end if
+  exit
 end
 
-on StopJumping me 
+on StopJumping(me)
   if pMyLoc.locV > 511 then
     if pScreenUpOrDown = #up then
       pScreenUpOrDown = #down
@@ -122,13 +123,13 @@ on StopJumping me
   else
     if pScreenUpOrDown = #down then
       pJumStoploc = point(429, 310)
-      jumpReadyV = pJumStoploc.locV + (pJumStoploc.locH - pMyLoc.locH / 2)
+      jumpReadyV = pJumStoploc.locV + pJumStoploc.locH - pMyLoc.locH / 2
       if pBigSplashActive = 0 and pMyLoc.locV >= jumpReadyV - 40 then
         pBigSplashActive = 1
         if not objectExists(#pool_bigSplash) then
           createObject(#pool_bigSplash, "AnimSprite Class", "BigSplash Class")
         end if
-        tProps = [:]
+        tProps = []
         tProps.setAt(#visible, 0)
         tProps.setAt(#AnimFrames, 20)
         tProps.setAt(#startFrame, 0)
@@ -169,20 +170,21 @@ on StopJumping me
       end if
     end if
   end if
+  exit
 end
 
-on UpdatePelle me 
+on UpdatePelle(me)
   pPelleImg.fill(pPelleImg.rect, rgb(255, 255, 255))
   i = 1
   repeat while i <= pModels.count
     f = pModels.getPropAt(i)
-    if f = "ey" then
+    if me = "ey" then
       pInk = 36
     else
-      if f = "ch" then
+      if me = "ch" then
         pInk = 41
       else
-        if f = "sd" then
+        if me = "sd" then
           pInk = 32
         else
           pInk = 41
@@ -220,9 +222,10 @@ on UpdatePelle me
   end repeat
   tPelleMem = member(getmemnum("JumpingPelle"))
   image.copyPixels(pPelleImg, pPelleImg.rect, pPelleImg.rect)
+  exit
 end
 
-on JumpingExitFrame me 
+on JumpingExitFrame(me)
   if pStatus = #Run then
     if jumpAction = "run" then
       AnimListCounter = AnimListCounter + 1
@@ -230,8 +233,8 @@ on JumpingExitFrame me
         AnimListCounter = 1
       end if
       jumpAnimFrame = runAnimList.getAt(AnimListCounter)
-      pMyLoc.locH = pMyLoc.locH - (2 * integer(pSpeed))
-      pnewLocV = pnewLocV + (1 * integer(pSpeed))
+      pMyLoc.locH = pMyLoc.locH - 2 * integer(pSpeed)
+      pnewLocV = pnewLocV + 1 * integer(pSpeed)
       if pSpeed > 1 then
         pMyLoc.locV = pnewLocV - jumpAnimFrame
       else
@@ -252,12 +255,12 @@ on JumpingExitFrame me
     me.StopRunnig()
   else
     if pStatus = #jump then
-      pMyLoc.locH = pMyLoc.locH - (2 * integer(pSpeed))
-      pnewLocV = pnewLocV + (1 * integer(pSpeed)) - pJumpSpeed
+      pMyLoc.locH = pMyLoc.locH - 2 * integer(pSpeed)
+      pnewLocV = pnewLocV + 1 * integer(pSpeed) - pJumpSpeed
       pMyLoc.locV = pnewLocV
       pJumpSpeed = pJumpSpeed - pVelocityV
       if pMyLoc.locH > pjumpBoardEnd then
-        jumpBoardColV = pStartloc.locV + (pStartloc.locH - pMyLoc.locH / 2)
+        jumpBoardColV = pStartloc.locV + pStartloc.locH - pMyLoc.locH / 2
         if pMyLoc.locV >= jumpBoardColV then
           pMyLoc.locV = jumpBoardColV
           pStatus = #Run
@@ -361,7 +364,7 @@ on JumpingExitFrame me
   pSpr.locZ = myLocZ
   if name <> pMyName and pPlayerMode and pScreenUpOrDown = #up then
     pSpr.loc = point(660, 72)
-    pSpr.locZ = 33000
+    -- UNK_E8 10617092
     if voidp(pPelleBgImg) then
       pSpr.locH = 1000
     end if
@@ -369,16 +372,18 @@ on JumpingExitFrame me
     h = pPelleImg.height - 4
     w = pPelleImg.width - 6
     BgsourceRect = pPelleBgImg.rect + rect(pMyLoc.locH - w, pMyLoc.locV - h, pMyLoc.locH - w, pMyLoc.locV - h)
-    member(getmemnum("pomppulauta_4")).image.copyPixels(rect(393, 131, 523, 199), member(getmemnum("pomppulauta_4")).rect, #maskImage, [#ink:8, member(getmemnum("pomppulauta_4")).image.createMatte()])
+    member(getmemnum("pomppulauta_4")).image.copyPixels(rect(393, 131, 523, 199), member(getmemnum("pomppulauta_4")).rect, #maskImage, [member(getmemnum("pomppulauta_4")):image.createMatte(), #ink:8])
     pPelleBgImg.copyPixels(pBgScreenBuffer, rect(0, 0, 108, 102), BgsourceRect)
   end if
+  exit
 end
 
-on jumpBoardCollisionD me, tNum 
-  return(pStartloc.locV + integer((pStartloc.locH - tNum / 2)))
+on jumpBoardCollisionD(me, tNum)
+  return(pStartloc.locV + integer(pStartloc.locH - tNum / 2))
+  exit
 end
 
-on translateKey me, tPelleKey 
+on translateKey(me, tPelleKey)
   if tPelleKey = space() then
     return(space())
   end if
@@ -391,15 +396,16 @@ on translateKey me, tPelleKey
     i = 1 + i
   end repeat
   return("0")
+  exit
 end
 
-on MykeyDown me, tPelleKey, tTimeElapsed, tNoTranslation 
+on MykeyDown(me, tPelleKey, tTimeElapsed, tNoTranslation)
   if not tNoTranslation then
     tPelleKey = me.translateKey(tPelleKey)
   end if
   if pStatus = #Run then
-    if tPelleKey <> "a" then
-      if tPelleKey = "d" then
+    if me <> "a" then
+      if me = "d" then
         if tPelleKey <> plastPressKey then
           tRunOK = 1
         end if
@@ -414,7 +420,7 @@ on MykeyDown me, tPelleKey, tTimeElapsed, tNoTranslation
           pJumpData = pJumpData & "0"
         end if
       else
-        if tPelleKey = space() then
+        if me = space() then
           if pStatus <> #jump then
             ppJumpMode = #inactive
             pJumpLoop = 1
@@ -423,13 +429,13 @@ on MykeyDown me, tPelleKey, tTimeElapsed, tNoTranslation
             pStatus = #jump
             pJumpSpeed = 0
             if pMyLoc.locH < pjumpBoardStart and pMyLoc.locH > pjumpBoardEnd then
-              pJumpSpeed = ((pjumpBoardStart - pMyLoc.locH / 22) * pSpeed)
+              pJumpSpeed = pjumpBoardStart - pMyLoc.locH / 22 * pSpeed
             end if
             pJumpSpeed = pJumpSpeed + 5
             pJumpDirection = "u"
           end if
           if pSpeed < 1 then
-            pSpeed = pSpeed + 0.5
+            pSpeed = pSpeed + 0
           end if
           pJumpData = pJumpData & tPelleKey
         else
@@ -448,7 +454,7 @@ on MykeyDown me, tPelleKey, tTimeElapsed, tNoTranslation
           end if
         end if
         if hyppyKesken = 0 then
-          if tPelleKey = "w" then
+          if me = "w" then
             if jumpAction <> "j" & pJumpDirection & "w" then
               jumpAnimFrame = 0
             end if
@@ -458,7 +464,7 @@ on MykeyDown me, tPelleKey, tTimeElapsed, tNoTranslation
             pJumpData = pJumpData & tPelleKey
             pJumpMaxAnimFrames = 1
           else
-            if tPelleKey = "a" then
+            if me = "a" then
               if jumpAction <> "j" & pJumpDirection & "a" then
                 jumpAnimFrame = 0
               end if
@@ -472,7 +478,7 @@ on MykeyDown me, tPelleKey, tTimeElapsed, tNoTranslation
                 pJumpMaxAnimFrames = 7
               end if
             else
-              if tPelleKey = "d" then
+              if me = "d" then
                 if jumpAction <> "j" & pJumpDirection & "d" then
                   jumpAnimFrame = 0
                 end if
@@ -486,7 +492,7 @@ on MykeyDown me, tPelleKey, tTimeElapsed, tNoTranslation
                   pJumpMaxAnimFrames = 5
                 end if
               else
-                if tPelleKey = "e" then
+                if me = "e" then
                   if jumpAction <> "j" & pJumpDirection & "e" then
                     jumpAnimFrame = 0
                   end if
@@ -496,7 +502,7 @@ on MykeyDown me, tPelleKey, tTimeElapsed, tNoTranslation
                   pJumpData = pJumpData & tPelleKey
                   pJumpMaxAnimFrames = 1
                 else
-                  if tPelleKey = "z" then
+                  if me = "z" then
                     if jumpAction <> "j" & pJumpDirection & "z" then
                       jumpAnimFrame = 0
                     end if
@@ -506,7 +512,7 @@ on MykeyDown me, tPelleKey, tTimeElapsed, tNoTranslation
                     pJumpData = pJumpData & tPelleKey
                     pJumpMaxAnimFrames = 1
                   else
-                    if tPelleKey = "x" then
+                    if me = "x" then
                       if jumpAction <> "j" & pJumpDirection & "x" then
                         jumpAnimFrame = 0
                       end if
@@ -516,7 +522,7 @@ on MykeyDown me, tPelleKey, tTimeElapsed, tNoTranslation
                       pJumpData = pJumpData & tPelleKey
                       pJumpMaxAnimFrames = 1
                     else
-                      if tPelleKey = "s" then
+                      if me = "s" then
                         if pMyLoc.locH > pjumpBoardEnd then
                           pJumpDirection = "u"
                         else
@@ -544,30 +550,33 @@ on MykeyDown me, tPelleKey, tTimeElapsed, tNoTranslation
       end if
       plastPressKey = tPelleKey
       me.JumpingExitFrame()
+      exit
     end if
   end if
 end
 
-on NotKeyDown me 
-  if the milliSeconds > pRemoveJumperTime + 45000 then
-    if pMyLoc.locH > pjumpBoardEnd then
-      pStatus = #Run
-      jumpAction = "run"
-      pSpeed = 2
-    end if
-    if not voidp(pJumpData) then
-      if pJumpData.getProp(#char, length(pJumpData)) = "a" then
-        presskey = "d"
-      else
-        presskey = "a"
-      end if
-      me.MykeyDown(presskey, void(), 1)
-    else
-      pJumpData = pJumpData & "a"
-    end if
-  else
-    pJumpData = pJumpData & "0"
-    pJumpMode = #inactive
-    me.JumpingExitFrame()
+on NotKeyDown(me)
+  -- UNK_C8 331925
+  -- UNK_6A 138
+  exit
+  undefined = ERROR
+  if ERROR > 0 then
+    pStatus = #Run
+    jumpAction = "run"
+    pSpeed = 2
   end if
+  if not voidp(pJumpData) then
+    if pJumpData.getProp(#char, length(pJumpData)) = "a" then
+      presskey = "d"
+    else
+      presskey = "a"
+    end if
+    me.MykeyDown(presskey, void(), 1)
+  else
+    pJumpData = pJumpData & "a"
+  end if
+  pJumpData = pJumpData & "0"
+  pJumpMode = #inactive
+  me.JumpingExitFrame()
+  exit
 end

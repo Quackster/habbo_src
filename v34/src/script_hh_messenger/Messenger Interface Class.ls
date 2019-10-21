@@ -1,6 +1,4 @@
-property pBuddylistItemHeight, pWriterID_nobuddies, pWriterID_consolemsg, pBuddyDrw_writerID_name, pBuddyDrw_writerID_msgs, pBuddyDrw_writerID_last, pBuddyDrw_writerID_text, pWindowTitle, pTimeOutID, pRequestRenderID, pMessengerInactive, pBuddyListLimits, pOpenWindow, pSelectedBuddies, pBuddyListPntr, pBuddyDrawObjList, pBuddyListBuffer, pBuddyDrawNum, pBuddyListBufferWidth, pRemoveBuddy, pLastSearch, pLastGetMsg, pComposeMsg, pLastOpenWindow
-
-on construct me 
+on construct(me)
   pWindowTitle = getText("win_messenger", "Habbo Console")
   pBuddyListBufferWidth = 203
   pBuddylistItemHeight = 53
@@ -9,12 +7,12 @@ on construct me
   end if
   pLastOpenWindow = ""
   pSelectedBuddies = []
-  pLastSearch = [:]
-  pLastGetMsg = [:]
+  pLastSearch = []
+  pLastGetMsg = []
   pComposeMsg = ""
   pBuddyListPntr = void()
-  pBuddyDrawObjList = [:]
-  pRemoveBuddy = [:]
+  pBuddyDrawObjList = []
+  pRemoveBuddy = []
   pBuddyDrawNum = 1
   pCurrProf = []
   pMsgsStr = getText("console_msgs", "msgs")
@@ -47,9 +45,10 @@ on construct me
   createWriter(pBuddyDrw_writerID_text, tMetrics)
   pTimeOutID = "console_change_window_timeout"
   return(1)
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   if windowExists(pWindowTitle) then
     removeWindow(pWindowTitle)
   end if
@@ -59,7 +58,7 @@ on deconstruct me
   removeWriter(pBuddyDrw_writerID_msgs)
   removeWriter(pBuddyDrw_writerID_last)
   removeWriter(pBuddyDrw_writerID_text)
-  pBuddyDrawObjList = [:]
+  pBuddyDrawObjList = []
   removePrepare(me.getID())
   if timeoutExists(pTimeOutID) then
     removeTimeout(pTimeOutID)
@@ -68,17 +67,19 @@ on deconstruct me
     removeObject(pRequestRenderID)
   end if
   return(1)
+  exit
 end
 
-on showhidemessenger me 
+on showhidemessenger(me)
   if windowExists(pWindowTitle) then
     return(me.hideMessenger())
   else
     return(me.showMessenger())
   end if
+  exit
 end
 
-on showMessenger me 
+on showMessenger(me)
   if pMessengerInactive then
     executeMessage(#alert, "buddyremove_messenger_updating")
     return(1)
@@ -91,9 +92,10 @@ on showMessenger me
   else
     return(0)
   end if
+  exit
 end
 
-on hideMessenger me 
+on hideMessenger(me)
   if windowExists(pWindowTitle) then
     me.getComponent().clearRequests()
     pOpenWindow = ""
@@ -102,77 +104,88 @@ on hideMessenger me
   else
     return(0)
   end if
+  exit
 end
 
-on setBuddyListLimits me, tOwn, tNormal, tClub 
+on setBuddyListLimits(me, tOwn, tNormal, tClub)
   pBuddyListLimits.own = tOwn
   pBuddyListLimits.normal = tNormal
   pBuddyListLimits.club = tClub
   pBuddyListLimits.sort()
   return(1)
+  exit
 end
 
-on getBuddyListLimits me 
+on getBuddyListLimits(me)
   return(duplicate(pBuddyListLimits))
+  exit
 end
 
-on setMessengerInactive me 
+on setMessengerInactive(me)
   pMessengerInactive = 1
   me.hideMessenger()
   me.getComponent().deleteAllMessages()
   me.getComponent().pause()
   return(1)
+  exit
 end
 
-on setMessengerActive me 
+on setMessengerActive(me)
   pMessengerInactive = 0
   me.getComponent().resume()
   return(1)
+  exit
 end
 
-on isMessengerOpen me 
+on isMessengerOpen(me)
   if pOpenWindow = "" or voidp(pOpenWindow) then
     return(0)
   else
     return(1)
   end if
+  exit
 end
 
-on isMessengerActive me 
+on isMessengerActive(me)
   return(not pMessengerInactive)
+  exit
 end
 
-on getSelectedBuddiesCount me 
+on getSelectedBuddiesCount(me)
   if listp(pSelectedBuddies) then
     return(pSelectedBuddies.count)
   else
     return(0)
   end if
+  exit
 end
 
-on createBuddyList me, tBuddyListPntr 
+on createBuddyList(me, tBuddyListPntr)
   pBuddyListPntr = tBuddyListPntr
-  pBuddyDrawObjList = [:]
-  repeat while pBuddyListPntr.getaProp(#value).buddies <= undefined
+  pBuddyDrawObjList = []
+  repeat while me <= undefined
     tdata = getAt(undefined, tBuddyListPntr)
     pBuddyDrawObjList.setAt(tdata.getAt(#name), me.createBuddyDrawObj(tdata))
   end repeat
   return(me.buildBuddyListImg())
+  exit
 end
 
-on updateBuddyList me 
+on updateBuddyList(me)
   call(#update, pBuddyDrawObjList)
   return(me.buildBuddyListImg())
+  exit
 end
 
-on appendBuddy me, tdata 
+on appendBuddy(me, tdata)
   if voidp(pBuddyDrawObjList.getAt(tdata.getAt(#name))) then
     pBuddyDrawObjList.setAt(tdata.getAt(#name), me.createBuddyDrawObj(tdata))
   end if
   return(me.buildBuddyListImg())
+  exit
 end
 
-on removeBuddy me, tID 
+on removeBuddy(me, tID)
   if voidp(buddies.getaProp(tID)) then
     return(error(me, "Buddy data not found:" && tID, #removeBuddy, #minor))
   end if
@@ -197,15 +210,16 @@ on removeBuddy me, tID
   tH = pBuddyListBuffer.height - pBuddylistItemHeight
   tD = pBuddyListBuffer.depth
   tImg = image(tW, tH, tD)
-  tRect = rect(0, 0, tW, (tPos - 1 * pBuddylistItemHeight))
+  tRect = rect(0, 0, tW, tPos - 1 * pBuddylistItemHeight)
   tImg.copyPixels(pBuddyListBuffer, tRect, tRect)
-  tRect = rect(0, (tPos * pBuddylistItemHeight), tW, pBuddyListBuffer.height)
+  tRect = rect(0, tPos * pBuddylistItemHeight, tW, pBuddyListBuffer.height)
   tImg.copyPixels(pBuddyListBuffer, tRect - [0, pBuddylistItemHeight, 0, pBuddylistItemHeight], tRect)
   pBuddyListBuffer = tImg
   return(me.updateBuddyListImg())
+  exit
 end
 
-on updateFrontPage me 
+on updateFrontPage(me)
   if windowExists(pWindowTitle) then
     if pOpenWindow = "console_myinfo.window" then
       tNumOfNewMsg = string(me.getComponent().getNumOfMessages()) && getText("console_newmessages", "new message(s)")
@@ -215,9 +229,10 @@ on updateFrontPage me
       tWndObj.getElement("console_myinfo_requests_link").setText(tNumOfBuddyRequest)
     end if
   end if
+  exit
 end
 
-on updateUserFind me, tMsg, tstate 
+on updateUserFind(me, tMsg, tstate)
   if pOpenWindow <> "console_find.window" then
     return(0)
   end if
@@ -258,7 +273,7 @@ on updateUserFind me, tMsg, tstate
     end if
     return(tWinObj.getElement("console_search_habbo_online_text").setText(tlocation))
   else
-    pLastSearch = [:]
+    pLastSearch = []
     tMsg = getText("console_usersnotfound")
     tWinObj.getElement("console_search_friendrequest_button").deactivate()
     tWinObj.getElement("console_search_friendrequest_button").setProperty(#cursor, 0)
@@ -269,9 +284,10 @@ on updateUserFind me, tMsg, tstate
     tWinObj.getElement("console_search_habbo_online_text").setText("")
     return(1)
   end if
+  exit
 end
 
-on prepare me 
+on prepare(me)
   if pBuddyListPntr.getaProp(#value).render = [] then
     return(1)
   end if
@@ -286,11 +302,12 @@ on prepare me
       me.updateBuddyListImg()
     end if
   end if
+  exit
 end
 
-on createBuddyDrawObj me, tdata 
+on createBuddyDrawObj(me, tdata)
   tObject = createObject(#temp, "Draw Friend Class")
-  tProps = [:]
+  tProps = []
   tProps.setAt(#width, pBuddyListBufferWidth)
   tProps.setAt(#height, pBuddylistItemHeight)
   tProps.setAt(#writer_name, pBuddyDrw_writerID_name)
@@ -299,9 +316,10 @@ on createBuddyDrawObj me, tdata
   tProps.setAt(#writer_text, pBuddyDrw_writerID_text)
   tObject.define(tdata, tProps)
   return(tObject)
+  exit
 end
 
-on buildBuddyListImg me 
+on buildBuddyListImg(me)
   pBuddyDrawNum = 1
   if pBuddyListPntr.getaProp(#value).count(#buddies) = 0 then
     pBuddyListBuffer = image(pBuddyListBufferWidth, pBuddylistItemHeight, 8)
@@ -314,33 +332,37 @@ on buildBuddyListImg me
     return(0)
   else
     pListRendering = 1
-    pBuddyListBuffer = image(pBuddyListBufferWidth, (pBuddyListPntr.getaProp(#value).count(#buddies) * pBuddylistItemHeight), 8)
+    pBuddyListBuffer = image(pBuddyListBufferWidth, pBuddyListPntr.getaProp(#value).count(#buddies) * pBuddylistItemHeight, 8)
     return(receivePrepare(me.getID()))
   end if
+  exit
 end
 
-on enterFriendRequestList me 
+on enterFriendRequestList(me)
   tRenderer = me.getFriendRequestRenderer()
   tRenderer.Init(pWindowTitle)
+  exit
 end
 
-on getFriendRequestRenderer me 
+on getFriendRequestRenderer(me)
   if not objectExists(pRequestRenderID) then
     createObject(pRequestRenderID, "Friend Request Renderer Class")
   end if
   tRenderer = getObject(pRequestRenderID)
   return(tRenderer)
+  exit
 end
 
-on updateRequests me 
+on updateRequests(me)
   if pOpenWindow <> "console_request_list.window" then
     return(0)
   end if
   tRenderer = me.getFriendRequestRenderer()
   tRenderer.updateView()
+  exit
 end
 
-on updateBuddyListImg me 
+on updateBuddyListImg(me)
   if voidp(pBuddyListBuffer) then
     return(0)
   end if
@@ -352,34 +374,38 @@ on updateBuddyListImg me
     return(0)
   end if
   return(tWndObj.getElement("console_friends_friendlist").feedImage(pBuddyListBuffer))
+  exit
 end
 
-on updateRadioButton me, tElement, tListOfOthersElements 
+on updateRadioButton(me, tElement, tListOfOthersElements)
   tOnImg = member(getmemnum("messenger_radio_on")).image
   tOffImg = member(getmemnum("messenger_radio_off")).image
   tWinObj = getWindow(pWindowTitle)
   if tWinObj.elementExists(tElement) then
     tWinObj.getElement(tElement).feedImage(tOnImg)
   end if
-  repeat while tListOfOthersElements <= tListOfOthersElements
+  repeat while me <= tListOfOthersElements
     tRadioElement = getAt(tListOfOthersElements, tElement)
     if tWinObj.elementExists(tRadioElement) then
       tWinObj.getElement(tRadioElement).feedImage(tOffImg)
     end if
   end repeat
+  exit
 end
 
-on updateMyHeadPreview me, tFigure, tElement 
+on updateMyHeadPreview(me, tFigure, tElement)
   me.createHeadPreview(tElement, tFigure)
+  exit
 end
 
-on createHeadPreview me, tElemID, tFigure 
+on createHeadPreview(me, tElemID, tFigure)
   if objectExists("Figure_Preview") then
     getObject("Figure_Preview").createHumanPartPreview(pWindowTitle, tElemID, #head, tFigure)
   end if
+  exit
 end
 
-on buddySelectOrNot me, tName, tID, tstate 
+on buddySelectOrNot(me, tName, tID, tstate)
   tdata = [#name:tName, #id:tID]
   if tstate then
     pSelectedBuddies.add(tdata)
@@ -400,9 +426,10 @@ on buddySelectOrNot me, tName, tID, tstate
     tWndObj.getElement("messenger_friends_compose_button").deactivate()
     tWndObj.getElement("messenger_friends_remove_button").deactivate()
   end if
+  exit
 end
 
-on getSelectedBuddiesStr me, tProp, tItemDeLim 
+on getSelectedBuddiesStr(me, tProp, tItemDeLim)
   if voidp(pSelectedBuddies) then
     return("")
   end if
@@ -417,9 +444,10 @@ on getSelectedBuddiesStr me, tProp, tItemDeLim
   end repeat
   tStr = tStr.getProp(#char, 1, length(tStr) - length(tItemDeLim))
   return(tStr)
+  exit
 end
 
-on renderMessage me, tMsgStruct 
+on renderMessage(me, tMsgStruct)
   pActiveMessage = tMsgStruct
   if not listp(tMsgStruct) then
     return(error(me, "Invalid message struct:" && tMsgStruct, #renderMessage, #major))
@@ -474,9 +502,10 @@ on renderMessage me, tMsgStruct
   call(#unselect, pBuddyDrawObjList)
   me.buddySelectOrNot(tSenderName, tSenderId, 1)
   return(1)
+  exit
 end
 
-on openBuddyMassremoveWindow me 
+on openBuddyMassremoveWindow(me)
   me.ChangeWindowView("console_myinfo.window")
   if objectp(createObject("buddy_massremove", "Buddy Massremove Class")) then
     pBuddyListPntr.getaProp(#value).openRemoveWindow(buddies.duplicate(), pBuddyListLimits)
@@ -484,9 +513,10 @@ on openBuddyMassremoveWindow me
   else
     return(0)
   end if
+  exit
 end
 
-on ChangeWindowView me, tWindowName 
+on ChangeWindowView(me, tWindowName)
   tWndObj = getWindow(pWindowTitle)
   if objectp(tWndObj) then
     if pOpenWindow = "console_myinfo.window" then
@@ -513,7 +543,7 @@ on ChangeWindowView me, tWindowName
   end if
   pLastOpenWindow = pOpenWindow
   pOpenWindow = tWindowName
-  if tWindowName = "console_myinfo.window" then
+  if me = "console_myinfo.window" then
     pSelectedBuddies = []
     me.updateMyHeadPreview(getObject(#session).GET("user_figure"), "console_myhead_image")
     tName = getObject(#session).GET("user_name")
@@ -526,10 +556,10 @@ on ChangeWindowView me, tWindowName
     tWndObj.getElement("console_myinfo_requests_link").setText(tNewReqCount)
     me.getComponent().clearRequests()
   else
-    if tWindowName = "console_getmessage.window" then
-      pLastGetMsg = [:]
+    if me = "console_getmessage.window" then
+      pLastGetMsg = []
     else
-      if tWindowName = "console_friends.window" then
+      if me = "console_friends.window" then
         pSelectedBuddies = []
         tRenderList = pBuddyListPntr.getaProp(#value).render
         if tRenderList.count > 0 then
@@ -556,10 +586,10 @@ on ChangeWindowView me, tWindowName
         end if
         createTimeout(pTimeOutID, 100, #changeWindowDelayedUpdate, me.getID(), void(), 1)
       else
-        if tWindowName = "console_request_list.window" then
+        if me = "console_request_list.window" then
           me.enterFriendRequestList()
         else
-          if tWindowName = "console_request_massoperations.window" then
+          if me = "console_request_massoperations.window" then
             tMessageCount = me.getComponent().getPendingRequestCount()
             tTitleText = getText("console_request_massoperation_title")
             tTitleText = replaceChunks(tTitleText, "%messageCount%", string(tMessageCount))
@@ -567,7 +597,7 @@ on ChangeWindowView me, tWindowName
             tElem = tWndObj.getElement("console_request_massoperation_title")
             tElem.setText(tTitleText)
           else
-            if tWindowName = "console_compose.window" then
+            if me = "console_compose.window" then
               if pSelectedBuddies.count = 0 then
                 return(me.ChangeWindowView("console_friends.window"))
               end if
@@ -576,7 +606,7 @@ on ChangeWindowView me, tWindowName
               tSelectedBuddies = me.getSelectedBuddiesStr(#name, "," & space())
               tWndObj.getElement("console_compose_recipients").setText(tSelectedBuddies)
             else
-              if tWindowName = "console_removefriend.window" then
+              if me = "console_removefriend.window" then
                 if pSelectedBuddies.count > 0 then
                   pRemoveBuddy = pSelectedBuddies.getAt(1)
                   pSelectedBuddies.deleteAt(1)
@@ -586,22 +616,22 @@ on ChangeWindowView me, tWindowName
                   call(#unselect, pBuddyDrawObjList)
                 end if
               else
-                if tWindowName = "console_find.window" then
-                  pLastSearch = [:]
+                if me = "console_find.window" then
+                  pLastSearch = []
                   tWndObj.getElement("console_magnifier").hide()
                   tWndObj.getElement("console_search_friendrequest_button").deactivate()
                   tWndObj.getElement("console_search_friendrequest_button").setProperty(#cursor, 0)
                 else
-                  if tWindowName = "console_sentrequest.window" then
+                  if me = "console_sentrequest.window" then
                     tWndObj.getElement("console_request_habbo_name_text").setText(pLastSearch.getAt(#name))
                   else
-                    if tWindowName = "console_reportmessage.window" then
+                    if me = "console_reportmessage.window" then
                     else
-                      if tWindowName = "console_main_help.window" then
+                      if me = "console_main_help.window" then
                       else
-                        if tWindowName = "console_messagemodes_help.window" then
+                        if me = "console_messagemodes_help.window" then
                         else
-                          if tWindowName = "console_friends_help.window" then
+                          if me = "console_friends_help.window" then
                           end if
                         end if
                       end if
@@ -615,18 +645,20 @@ on ChangeWindowView me, tWindowName
       end if
     end if
   end if
+  exit
 end
 
-on changeWindowDelayedUpdate me 
+on changeWindowDelayedUpdate(me)
   if pOpenWindow = "console_friends.window" then
     tElem = getWindow(pWindowTitle).getElement("console_select_friend_field")
     if tElem <> 0 then
       the keyboardFocusSprite = tElem.getProperty(#sprite).spriteNum
     end if
   end if
+  exit
 end
 
-on getBuddyListName me, tpoint 
+on getBuddyListName(me, tpoint)
   if ilk(tpoint) <> #point then
     return(0)
   end if
@@ -634,7 +666,7 @@ on getBuddyListName me, tpoint
   if tRenderList.count = 0 then
     return(0)
   end if
-  tLine = integer((tpoint.locV / pBuddylistItemHeight)) + 1
+  tLine = integer(tpoint.locV / pBuddylistItemHeight) + 1
   if tLine < 1 then
     return(0)
   end if
@@ -642,39 +674,41 @@ on getBuddyListName me, tpoint
     return(0)
   end if
   return(tRenderList.getAt(tLine))
+  exit
 end
 
-on getBuddyListPoint me, tpoint 
-  return(point(tpoint.locH, (tpoint.locV mod pBuddylistItemHeight)))
+on getBuddyListPoint(me, tpoint)
+  return(point(tpoint.locH, tpoint.locV mod pBuddylistItemHeight))
+  exit
 end
 
-on eventProcMessenger me, tEvent, tElemID, tParm 
+on eventProcMessenger(me, tEvent, tElemID, tParm)
   if tEvent = #mouseDown then
-    if tElemID = "console.myinfo.button" then
+    if me = "console.myinfo.button" then
       me.ChangeWindowView("console_myinfo.window")
     else
-      if tElemID = "console.myfriends.button" then
+      if me = "console.myfriends.button" then
         me.ChangeWindowView("console_friends.window")
       else
-        if tElemID = "console.find.button" then
+        if me = "console.find.button" then
           me.ChangeWindowView("console_find.window")
           executeMessage(#tutorial_console_find_button_clicked)
         else
-          if tElemID = "console.help.button" then
+          if me = "console.help.button" then
             me.ChangeWindowView("console_main_help.window")
           else
-            if tElemID = "console_myinfo_messages_link" then
+            if me = "console_myinfo_messages_link" then
               if me.getComponent().getNumOfMessages() > 0 then
                 me.renderMessage(me.getComponent().getNextMessage())
               end if
             else
-              if tElemID = "console_myinfo_requests_link" then
+              if me = "console_myinfo_requests_link" then
                 if me.getComponent().getPendingRequestCount() = 0 then
                   return()
                 end if
                 me.ChangeWindowView("console_request_list.window")
               else
-                if tElemID = "console_friends_friendlist" then
+                if me = "console_friends_friendlist" then
                   if tParm.ilk <> #point then
                     return(0)
                   end if
@@ -682,7 +716,7 @@ on eventProcMessenger me, tEvent, tElemID, tParm
                   if tRenderList.count = 0 then
                     return(0)
                   end if
-                  tClickLine = integer((tParm.locV / pBuddylistItemHeight))
+                  tClickLine = integer(tParm.locV / pBuddylistItemHeight)
                   if tClickLine < 0 then
                     return(0)
                   end if
@@ -691,7 +725,7 @@ on eventProcMessenger me, tEvent, tElemID, tParm
                   end if
                   if not the doubleClick then
                     tPosition = tClickLine + 1
-                    tpoint = tParm - [0, (tClickLine * pBuddylistItemHeight)]
+                    tpoint = tParm - [0, tClickLine * pBuddylistItemHeight]
                     tName = tRenderList.getAt(tPosition)
                     pBuddyDrawObjList.getAt(tName).clickAt(tpoint, pBuddyListBuffer, tClickLine)
                     me.updateBuddyListImg()
@@ -726,7 +760,7 @@ on eventProcMessenger me, tEvent, tElemID, tParm
         tHomepageURL = replaceChunks(tHomepageURL, "%ID%", tUserID)
         openNetPage(tHomepageURL)
       end if
-      if tElemID = "close" then
+      if me = "close" then
         tWndObj = getWindow(pWindowTitle)
         if objectp(tWndObj) then
           if pOpenWindow = "console_myinfo.window" and tWndObj.elementExists("console_myinfo_mission_field") then
@@ -736,25 +770,25 @@ on eventProcMessenger me, tEvent, tElemID, tParm
         end if
         me.hideMessenger()
       else
-        if tElemID = "console_fr_previous" then
+        if me = "console_fr_previous" then
           me.getFriendRequestRenderer().showPreviousPage()
         else
-          if tElemID = "console_fr_next" then
+          if me = "console_fr_next" then
             me.getFriendRequestRenderer().showNextPage()
           else
-            if tElemID = "console_report_remove" then
+            if me = "console_report_remove" then
               tMsgStruct = me.getComponent().getNextMessage()
               if listp(tMsgStruct) then
                 me.getComponent().send_RemoveBuddy(integer(tMsgStruct.getAt(#senderID)))
                 me.ChangeWindowView("console_friends.window")
               end if
             else
-              if tElemID = "console_report_report" then
+              if me = "console_report_report" then
                 tMsgStruct = me.getComponent().getNextMessage()
                 me.ChangeWindowView("console_friends.window")
                 me.getComponent().send_reportMessage(integer(tMsgStruct.getAt(#id)))
               else
-                if tElemID = "console_report_cancel" then
+                if me = "console_report_cancel" then
                   if me.getComponent().getNumOfMessages() > 0 then
                     if me.getComponent().getMessageUpdateRequired() then
                       me.getComponent().send_AskForMessages()
@@ -762,7 +796,7 @@ on eventProcMessenger me, tEvent, tElemID, tParm
                     me.renderMessage(me.getComponent().getNextMessage())
                   end if
                 else
-                  if tElemID = "console_getmessage_follow" then
+                  if me = "console_getmessage_follow" then
                     tID = integer(pLastGetMsg.getaProp(#senderID))
                     if voidp(pLastGetMsg.getAt(#senderID)) then
                       return(0)
@@ -770,14 +804,14 @@ on eventProcMessenger me, tEvent, tElemID, tParm
                     tConn = getConnection(getVariable("connection.info.id"))
                     tConn.send("FOLLOW_FRIEND", [#integer:tID])
                   else
-                    if tElemID = "console_getmessage_reply" then
+                    if me = "console_getmessage_reply" then
                       if voidp(pLastGetMsg.getAt(#id)) then
                         return(0)
                       end if
                       me.getComponent().send_MessageMarkRead(pLastGetMsg.getAt(#id), pLastGetMsg.getAt(#senderID))
                       me.ChangeWindowView("console_compose.window")
                     else
-                      if tElemID = "console_getmessage_next" then
+                      if me = "console_getmessage_next" then
                         if voidp(pLastGetMsg.getAt(#id)) then
                           return(0)
                         end if
@@ -791,33 +825,33 @@ on eventProcMessenger me, tEvent, tElemID, tParm
                           me.ChangeWindowView("console_myinfo.window")
                         end if
                       else
-                        if tElemID = "console_getmessage_report" then
+                        if me = "console_getmessage_report" then
                           me.ChangeWindowView("console_reportmessage.window")
                         else
-                          if tElemID = "friend_request_options_button" then
+                          if me = "friend_request_options_button" then
                             me.ChangeWindowView("console_request_massoperations.window")
                           else
-                            if tElemID = "friend_request_ok_button" then
+                            if me = "friend_request_ok_button" then
                               me.ChangeWindowView("console_myinfo.window")
                             else
-                              if tElemID = "console_fr_accept_all" then
+                              if me = "console_fr_accept_all" then
                                 me.getComponent().acceptAllRequests()
                                 me.ChangeWindowView("console_myinfo.window")
                               else
-                                if tElemID = "console_fr_decline_all" then
+                                if me = "console_fr_decline_all" then
                                   me.getComponent().declineAllRequests()
                                   me.ChangeWindowView("console_myinfo.window")
                                 else
-                                  if tElemID = "friend_request_mass_operation_cancel" then
+                                  if me = "friend_request_mass_operation_cancel" then
                                     me.ChangeWindowView("console_request_list.window")
                                   else
-                                    if tElemID = "messenger_friends_compose_button" then
+                                    if me = "messenger_friends_compose_button" then
                                       if pSelectedBuddies.count < 1 then
                                         return(0)
                                       end if
                                       me.ChangeWindowView("console_compose.window")
                                     else
-                                      if tElemID = "console_compose_send" then
+                                      if me = "console_compose_send" then
                                         if pSelectedBuddies.count < 1 then
                                           if me.getComponent().getMessageUpdateRequired() then
                                             me.getComponent().send_AskForMessages()
@@ -833,17 +867,17 @@ on eventProcMessenger me, tEvent, tElemID, tParm
                                           me.ChangeWindowView("console_myinfo.window")
                                         end if
                                       else
-                                        if tElemID = "console_compose_cancel" then
+                                        if me = "console_compose_cancel" then
                                           if pLastOpenWindow = "console_friends.window" then
                                             me.ChangeWindowView("console_friends.window")
                                           else
                                             me.ChangeWindowView("console_myinfo.window")
                                           end if
                                         else
-                                          if tElemID = "messenger_friends_remove_button" then
+                                          if me = "messenger_friends_remove_button" then
                                             me.ChangeWindowView("console_removefriend.window")
                                           else
-                                            if tElemID = "console_friendrequest_remove" then
+                                            if me = "console_friendrequest_remove" then
                                               if voidp(pRemoveBuddy) or pRemoveBuddy = "" then
                                                 return()
                                               end if
@@ -854,30 +888,30 @@ on eventProcMessenger me, tEvent, tElemID, tParm
                                                 me.ChangeWindowView("console_removefriend.window")
                                               end if
                                             else
-                                              if tElemID = "console_getfriendrequest_cancel" then
+                                              if me = "console_getfriendrequest_cancel" then
                                                 if pSelectedBuddies.count < 1 then
                                                   me.ChangeWindowView("console_friends.window")
                                                 else
                                                   me.ChangeWindowView("console_removefriend.window")
                                                 end if
                                               else
-                                                if tElemID = "console_compose_help_button" then
+                                                if me = "console_compose_help_button" then
                                                   pComposeMsg = getWindow(pWindowTitle).getElement("console_compose_message_field").getText()
                                                   me.ChangeWindowView("console_messagemodes_help.window")
                                                 else
-                                                  if tElemID = "console_messagemode_back" then
+                                                  if me = "console_messagemode_back" then
                                                     if voidp(pComposeMsg) then
                                                       return(0)
                                                     end if
                                                     me.ChangeWindowView("console_compose.window")
                                                     getWindow(pWindowTitle).getElement("console_compose_message_field").setText(pComposeMsg)
                                                   else
-                                                    if tElemID = "console_search_search_button" then
+                                                    if me = "console_search_search_button" then
                                                       tQuery = getWindow(pWindowTitle).getElement("console_search_key_field").getText()
                                                       me.getComponent().send_FindUser(tQuery)
                                                       getWindow(pWindowTitle).getElement("console_search_key_field").setText("")
                                                     else
-                                                      if tElemID = "console_search_friendrequest_button" then
+                                                      if me = "console_search_friendrequest_button" then
                                                         executeMessage(#tutorial_console_friendrequest_button_clicked)
                                                         tListLimits = getBuddyListLimits()
                                                         tLimit = tListLimits.getAt(#own)
@@ -897,20 +931,20 @@ on eventProcMessenger me, tEvent, tElemID, tParm
                                                           me.ChangeWindowView("console_sentrequest.window")
                                                         end if
                                                       else
-                                                        if tElemID = "console_friendrequest_ok" then
+                                                        if me = "console_friendrequest_ok" then
                                                           me.ChangeWindowView("console_find.window")
                                                         else
-                                                          if tElemID = "console_friends_help_button" then
+                                                          if me = "console_friends_help_button" then
                                                             me.ChangeWindowView("console_friends_help.window")
                                                           else
-                                                            if tElemID = "console_friends_help_backbutton" then
+                                                            if me = "console_friends_help_backbutton" then
                                                               me.ChangeWindowView("console_friends.window")
                                                             else
-                                                              if tElemID = "console_safety_info" then
+                                                              if me = "console_safety_info" then
                                                                 getConnection(getVariable("connection.info.id")).send("MESSENGER_C_CLICK", [#integer:integer(pLastGetMsg.getAt(#id))])
                                                                 openNetPage(getWindow(pWindowTitle).getElement(tElemID).getaProp(#pLinkTarget))
                                                               else
-                                                                if tElemID = "console_official_exit" then
+                                                                if me = "console_official_exit" then
                                                                   getConnection(getVariable("connection.info.id")).send("MESSENGER_C_READ", [#string:integer(pLastGetMsg.getAt(#id))])
                                                                   me.ChangeWindowView("console_myinfo.window")
                                                                 end if
@@ -964,10 +998,10 @@ on eventProcMessenger me, tEvent, tElemID, tParm
           tElem = getWindow(pWindowTitle).getElement(tElemID)
           tElem.setText("")
           tElem = getWindow(pWindowTitle).getElement("friendlist_scrollbar")
-          if tElemID = 126 then
+          if me = 126 then
             tElem.setScrollOffset(tElem.getProperty(#offset) - tElem.getProperty(#scrollStep))
           else
-            if tElemID = 125 then
+            if me = 125 then
               tElem.setScrollOffset(tElem.getProperty(#offset) + tElem.getProperty(#scrollStep))
             end if
           end if
@@ -978,20 +1012,20 @@ on eventProcMessenger me, tEvent, tElemID, tParm
               tBuddy = tBuddyList.getAt(i)
               if tBuddy.getProp(#char, 1) = the key then
                 tScrollRange = tElem.getProperty(#scrollrange)
-                tElem.setScrollOffset(((tScrollRange * i - 1) / tBuddyList.count()))
+                tElem.setScrollOffset(tScrollRange * i - 1 / tBuddyList.count())
               else
                 if tBuddy.getProp(#char, 1) > the key then
                   tScrollRange = tElem.getProperty(#scrollrange)
-                  tElem.setScrollOffset(((tScrollRange * i - 2) / tBuddyList.count()))
+                  tElem.setScrollOffset(tScrollRange * i - 2 / tBuddyList.count())
                 else
                   if i = tBuddyList.count() then
                     tScrollRange = tElem.getProperty(#scrollrange)
-                    tElem.setScrollOffset(((tScrollRange * i - 1) / tBuddyList.count()))
+                    tElem.setScrollOffset(tScrollRange * i - 1 / tBuddyList.count())
                   else
                     i = 1 + i
                   end if
                   if tEvent = #mouseWithin then
-                    if tElemID = "console_friends_friendlist" then
+                    if me = "console_friends_friendlist" then
                       if tParm.ilk <> #point then
                         return(0)
                       end if
@@ -1015,7 +1049,7 @@ on eventProcMessenger me, tEvent, tElemID, tParm
                     end if
                   else
                     if tEvent = #mouseLeave then
-                      if tElemID = "console_friends_friendlist" then
+                      if me = "console_friends_friendlist" then
                         tWindowRef = getWindow(pWindowTitle)
                         tElemRef = tWindowRef.getElement(tElemID)
                         tElemRef.setProperty(#cursor, 0)
@@ -1024,6 +1058,7 @@ on eventProcMessenger me, tEvent, tElemID, tParm
                       end if
                     end if
                   end if
+                  exit
                 end if
               end if
             end repeat

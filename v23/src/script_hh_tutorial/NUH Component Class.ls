@@ -1,7 +1,5 @@
-property pHelpStatusData, pOpenHelps, pPostponedHelps
-
-on construct me 
-  pHelpStatusData = [:]
+on construct(me)
+  pHelpStatusData = []
   pPostponedHelps = []
   pOpenHelps = []
   registerMessage(#roomReady, me.getID(), #initHelpOnRoomEntry)
@@ -9,41 +7,43 @@ on construct me
   registerMessage(#changeRoom, me.getID(), #removeHelp)
   registerMessage(#enterRoom, me.getID(), #removeHelp)
   registerMessage(#roomInterfaceHidden, me.getID(), #removeHelp)
-  return TRUE
+  return(1)
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   unregisterMessage(#roomReady, me.getID())
   unregisterMessage(#leaveReady, me.getID())
   unregisterMessage(#changeReady, me.getID())
   unregisterMessage(#enterReady, me.getID())
   unregisterMessage(#roomInterfaceHidden, me.getID())
-  return TRUE
+  return(1)
+  exit
 end
 
-on setHelpItemClosed me, tHelpItemId 
+on setHelpItemClosed(me, tHelpItemId)
   if pHelpStatusData.getaProp(tHelpItemId) <> 1 then
-    return FALSE
+    return(0)
   end if
   pHelpStatusData.setAt(tHelpItemId, 0)
   tConn = getConnection(getVariableValue("connection.info.id"))
   tKey = ""
-  if (tHelpItemId = "own_user") then
+  if me = "own_user" then
     tKey = 1
   else
-    if (tHelpItemId = "messenger") then
+    if me = "messenger" then
       tKey = 2
     else
-      if (tHelpItemId = "navigator") then
+      if me = "navigator" then
         tKey = 3
       else
-        if (tHelpItemId = "chat") then
+        if me = "chat" then
           tKey = 4
         else
-          if (tHelpItemId = "hand") then
+          if me = "hand" then
             tKey = 5
           else
-            if (tHelpItemId = "invite") then
+            if me = "invite" then
               tKey = 6
             end if
           end if
@@ -64,24 +64,28 @@ on setHelpItemClosed me, tHelpItemId
     tTimeoutID = "NUH_help_" & tHelpId & "_postponed"
     createTimeout(tTimeoutID, 3000, #tryToShowHelp, me.getID(), tHelpId, 1)
   end if
+  exit
 end
 
-on setHelpStatusData me, tdata 
+on setHelpStatusData(me, tdata)
   pHelpStatusData = tdata
+  exit
 end
 
-on isChatHelpOn me 
+on isChatHelpOn(me)
   if not voidp(pHelpStatusData.getAt("chat")) then
     return(pHelpStatusData.getAt("chat"))
   end if
-  return FALSE
+  return(0)
+  exit
 end
 
-on initHelpOnRoomEntry me 
+on initHelpOnRoomEntry(me)
   me.showNewUserHelpItems()
+  exit
 end
 
-on removeHelp me 
+on removeHelp(me)
   tItemNo = 1
   repeat while tItemNo <= pHelpStatusData.count
     tItem = pHelpStatusData.getPropAt(tItemNo)
@@ -90,14 +94,15 @@ on removeHelp me
     if timeoutExists(tTimeoutID) then
       removeTimeout(tTimeoutID)
     end if
-    tItemNo = (1 + tItemNo)
+    tItemNo = 1 + tItemNo
   end repeat
   me.getInterface().removeAll()
   pPostponedHelps = []
   pOpenHelps = []
+  exit
 end
 
-on showNewUserHelpItems me 
+on showNewUserHelpItems(me)
   tItemNo = 1
   repeat while tItemNo <= pHelpStatusData.count
     tItem = pHelpStatusData.getPropAt(tItemNo)
@@ -116,26 +121,27 @@ on showNewUserHelpItems me
       tTimeoutID = "NUH_help_" & tItem
       createTimeout(tTimeoutID, tTimeout, #tryToShowHelp, me.getID(), tItem, 1)
     end if
-    tItemNo = (1 + tItemNo)
+    tItemNo = 1 + tItemNo
   end repeat
+  exit
 end
 
-on tryToShowHelp me, tHelpId 
+on tryToShowHelp(me, tHelpId)
   if pOpenHelps.count > 1 then
     tPos = pPostponedHelps.findPos(tHelpId)
     if tPos > 0 then
-      return TRUE
+      return(1)
     end if
     pPostponedHelps.add(tHelpId)
-    return TRUE
+    return(1)
   end if
-  if (tHelpId = "messenger") then
+  if me = "messenger" then
     if not threadExists(#friend_list) then
-      return FALSE
+      return(0)
     end if
     tFriendListComponent = getThread(#friend_list).getComponent()
     tRequests = tFriendListComponent.getPendingFriendRequests()
-    if (ilk(tRequests) = #propList) then
+    if ilk(tRequests) = #propList then
       tRequestCount = tRequests.count
       if tRequestCount > 0 then
         me.getInterface().showGenericHelp(tHelpId)
@@ -143,55 +149,61 @@ on tryToShowHelp me, tHelpId
       end if
     end if
   else
-    if (tHelpId = "navigator") then
+    if me = "navigator" then
       me.getInterface().showGenericHelp(tHelpId)
       pOpenHelps.add(tHelpId)
     else
-      if (tHelpId = "own_user") then
+      if me = "own_user" then
         me.getInterface().showOwnUserHelp(tHelpId)
         pOpenHelps.add(tHelpId)
       else
-        if (tHelpId = "hand") then
+        if me = "hand" then
           towner = getObject(#session).GET(#room_owner)
           if towner then
             me.getInterface().showGenericHelp(tHelpId)
             pOpenHelps.add(tHelpId)
           end if
         else
-          if (tHelpId = "invite") then
+          if me = "invite" then
             me.checkHelpers()
           end if
         end if
       end if
     end if
   end if
+  exit
 end
 
-on checkHelpers me 
+on checkHelpers(me)
   tConn = getConnection(getVariable("connection.info.id"))
   if voidp(tConn) then
     return(error(me, "Connection not found.", #checkHelpers, #major))
   end if
   tConn.send("MSG_GET_TUTORS_AVAILABLE")
+  exit
 end
 
-on showInviteWindow me 
-  me.pOpenHelps.add("invite")
+on showInviteWindow(me)
+  me.add("invite")
   me.getInterface().showInviteWindow()
+  exit
 end
 
-on sendInvitations me 
+on sendInvitations(me)
   tConn = getConnection(getVariable("connection.info.id"))
   if voidp(tConn) then
     return(error(me, "Connection not found.", #sendInvitations, #major))
   end if
   tConn.send("MSG_INVITE_TUTORS")
+  exit
 end
 
-on invitationExpired me 
+on invitationExpired(me)
   executeMessage(#alert, "invitation_expired")
+  exit
 end
 
-on invitationExists me 
+on invitationExists(me)
   executeMessage(#alert, "invitation_exists")
+  exit
 end

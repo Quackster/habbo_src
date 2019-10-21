@@ -1,16 +1,16 @@
-property pWndObj
-
-on construct me 
+on construct(me)
   pWndObj = void()
   return(1)
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   me.destroy()
   return(1)
+  exit
 end
 
-on createWithContent me, aWindow, atargetRect, aPreferSide 
+on createWithContent(me, aWindow, atargetRect, aPreferSide)
   if not stringp(aWindow) then
     return(error(me, "Invalid window content!", #createWithContent, #minor))
   end if
@@ -30,32 +30,35 @@ on createWithContent me, aWindow, atargetRect, aPreferSide
   pWndObj = getWindow(tWindowName)
   pWndObj.merge(aWindow)
   me.shapeAndPosition(atargetRect, aPreferSide)
+  exit
 end
 
-on destroy me 
+on destroy(me)
   if objectp(pWndObj) then
     tWindowName = pWndObj.getID()
     if windowExists(tWindowName) then
       removeWindow(tWindowName)
     end if
   end if
+  exit
 end
 
-on getWindowObj me 
+on getWindowObj(me)
   return(pWndObj)
+  exit
 end
 
-on shapeAndPosition me, atargetRect, aPreferSide 
+on shapeAndPosition(me, atargetRect, aPreferSide)
   tWidth = pWndObj.getProperty(#width)
   tHeight = pWndObj.getProperty(#height)
   tLockPos = me.getLockPos(atargetRect, aPreferSide)
-  if aPreferSide = #left then
+  if me = #left then
     if tLockPos.locH - tWidth < 0 then
       aPreferSide = #right
       tLockPos = me.getLockPos(atargetRect, aPreferSide)
     end if
   else
-    if aPreferSide = #right then
+    if me = #right then
       if image.width - tLockPos.locH < tWidth then
         aPreferSide = #left
         tLockPos = me.getLockPos(atargetRect, aPreferSide)
@@ -72,18 +75,18 @@ on shapeAndPosition me, atargetRect, aPreferSide
   if the stage > image.height then
     tVerticalPos = image.height - tHeight
   end if
-  if aPreferSide = #left then
+  if me = #left then
     pWndObj.getElement("details.info.arrow.left").hide()
     pWndObj.getElement("details.info.arrow.right").show()
     tArrowElement = pWndObj.getElement("details.info.arrow.right")
   else
-    if aPreferSide = #right then
+    if me = #right then
       pWndObj.getElement("details.info.arrow.left").show()
       pWndObj.getElement("details.info.arrow.right").hide()
       tArrowElement = pWndObj.getElement("details.info.arrow.left")
     end if
   end if
-  tArrowPos = tLockPos.locV - (tArrowElement.getProperty(#height) / 2) - tVerticalPos
+  tArrowPos = tLockPos.locV - tArrowElement.getProperty(#height) / 2 - tVerticalPos
   if tArrowPos < 3 then
     tArrowPos = 3
   end if
@@ -92,15 +95,17 @@ on shapeAndPosition me, atargetRect, aPreferSide
   end if
   tArrowElement.setProperty(#locY, tArrowPos)
   pWndObj.moveTo(tLockPos.locH, tVerticalPos)
+  exit
 end
 
-on getLockPos me, atargetRect, aPreferSide 
-  if aPreferSide = #left then
-    tLockPos = point(atargetRect.left, (atargetRect.top + atargetRect.bottom / 2))
+on getLockPos(me, atargetRect, aPreferSide)
+  if me = #left then
+    tLockPos = point(atargetRect.left, atargetRect.top + atargetRect.bottom / 2)
   else
-    if aPreferSide = #right then
-      tLockPos = point(atargetRect.right, (atargetRect.top + atargetRect.bottom / 2))
+    if me = #right then
+      tLockPos = point(atargetRect.right, atargetRect.top + atargetRect.bottom / 2)
     end if
   end if
   return(tLockPos)
+  exit
 end

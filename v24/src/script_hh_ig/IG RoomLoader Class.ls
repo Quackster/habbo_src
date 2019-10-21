@@ -1,26 +1,28 @@
-on construct me 
-  return TRUE
+on construct(me)
+  return(1)
+  exit
 end
 
-on deconstruct me 
-  return(me.ancestor.deconstruct())
+on deconstruct(me)
+  return(me.deconstruct())
+  exit
 end
 
-on constructArena me, tdata, tMsg 
+on constructArena(me, tdata, tMsg)
   tConn = tMsg.connection
   tMainThread = me.getMainThread()
-  if (tMainThread = 0) then
-    return FALSE
+  if tMainThread = 0 then
+    return(0)
   end if
   tRoomThread = getThread(#room)
-  if (tRoomThread = 0) then
-    return FALSE
+  if tRoomThread = 0 then
+    return(0)
   end if
   tRoomComponent = tRoomThread.getComponent()
   executeMessage(#hide_navigator, #Remove)
   tMarker = tdata.getaProp(#room_marker)
   tRoomComponent.pRoomId = #game
-  tSaveData = [:]
+  tSaveData = []
   tSaveData.setaProp(#type, #game)
   tSaveData.setaProp(#id, tMarker)
   tSaveData.setaProp(#marker, tMarker)
@@ -29,23 +31,25 @@ on constructArena me, tdata, tMsg
   me.roomConnected(tdata.getaProp(#room_program_class), tMarker)
   executeMessage(#gamesystem_sendevent, #msgstruct_gamereset, tMsg)
   me.updateProcess()
-  return TRUE
+  return(1)
+  exit
 end
 
-on exitArena me 
+on exitArena(me)
   tRoomThread = getThread(#room)
-  if (tRoomThread = 0) then
-    return FALSE
+  if tRoomThread = 0 then
+    return(0)
   end if
   tComponent = tRoomThread.getComponent()
   tComponent.roomDisconnected()
-  return TRUE
+  return(1)
+  exit
 end
 
-on roomConnected me, tClass, tMarker, tstate 
+on roomConnected(me, tClass, tMarker, tstate)
   tRoomThread = getThread(#room)
-  if (tRoomThread = 0) then
-    return FALSE
+  if tRoomThread = 0 then
+    return(0)
   end if
   tComponent = tRoomThread.getComponent()
   if voidp(tMarker) then
@@ -62,13 +66,14 @@ on roomConnected me, tClass, tMarker, tstate
   end if
   tShadowManager = tComponent.getShadowManager()
   tShadowManager.define("roomShadow")
-  return TRUE
+  return(1)
+  exit
 end
 
-on updateProcess me, tKey, tValue 
+on updateProcess(me, tKey, tValue)
   tRoomThread = getThread(#room)
-  if (tRoomThread = 0) then
-    return FALSE
+  if tRoomThread = 0 then
+    return(0)
   end if
   tComponent = tRoomThread.getComponent()
   tComponent.getInterface().hideLoaderBar()
@@ -79,4 +84,5 @@ on updateProcess me, tKey, tValue
   call(#prepare, [tComponent.getRoomPrg()])
   executeMessage(#roomReady)
   return(receivePrepare(tComponent.getID()))
+  exit
 end

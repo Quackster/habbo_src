@@ -1,2 +1,3 @@
-on mouseUp me 
+on mouseUp(me)
+  exit
 end

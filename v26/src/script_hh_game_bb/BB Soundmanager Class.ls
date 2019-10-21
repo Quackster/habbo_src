@@ -1,42 +1,43 @@
-property pGameMusic, pGameFX, pMusicChannel
-
-on construct me 
+on construct(me)
   pGameFX = getSoundState()
   pGameMusic = getSoundState()
   pMusicChannel = 0
   return(1)
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   me.setGameMusic(0)
   return(1)
+  exit
 end
 
-on Refresh me, tTopic, tdata 
-  if tTopic = #setfx then
+on Refresh(me, tTopic, tdata)
+  if me = #setfx then
     return(me.setGameFxState(tdata))
   else
-    if tTopic = #setmusic then
+    if me = #setmusic then
       return(me.setGameMusicState(tdata))
     else
-      if tTopic = #soundeffect then
+      if me = #soundeffect then
         return(me.playGameSound(tdata))
       else
-        if tTopic <> #musicstart then
-          if tTopic = #gamestart then
+        if me <> #musicstart then
+          if me = #gamestart then
             return(me.setGameMusic(pGameMusic))
           else
-            if tTopic = #gameend then
+            if me = #gameend then
               return(me.setGameMusic(0))
             end if
           end if
+          exit
         end if
       end if
     end if
   end if
 end
 
-on setGameFxState me, tstate 
+on setGameFxState(me, tstate)
   if not integerp(tstate) then
     tstate = not pGameFX
   end if
@@ -47,9 +48,10 @@ on setGameFxState me, tstate
     setSoundState(1)
   end if
   return(me.sendGameSystemEvent(#setfxicon, pGameFX))
+  exit
 end
 
-on setGameMusicState me, tstate 
+on setGameMusicState(me, tstate)
   if not integerp(tstate) then
     tstate = not pGameMusic
   end if
@@ -61,16 +63,18 @@ on setGameMusicState me, tstate
     setSoundState(1)
   end if
   return(me.sendGameSystemEvent(#setmusicicon, pGameMusic))
+  exit
 end
 
-on playGameSound me, tdata 
+on playGameSound(me, tdata)
   if not pGameFX then
     return(1)
   end if
   return(playSound(tdata))
+  exit
 end
 
-on setGameMusic me, tstate 
+on setGameMusic(me, tstate)
   if tstate then
     if me.getGameSystem().getGamestatus() <> #game_started then
       return(1)
@@ -86,4 +90,5 @@ on setGameMusic me, tstate
     pMusicChannel = 0
   end if
   return(1)
+  exit
 end

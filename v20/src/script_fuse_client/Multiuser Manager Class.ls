@@ -1,4 +1,5 @@
-on construct me 
+on construct(me)
   me.pClassString = "multiuser.instance.class"
-  return TRUE
+  return(1)
+  exit
 end

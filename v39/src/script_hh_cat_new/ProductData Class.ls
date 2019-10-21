@@ -1,6 +1,4 @@
-property pType, pClassid, pExtraParam, pProductcount, pExpiration
-
-on Initialize me, tdata 
+on Initialize(me, tdata)
   if ilk(tdata) <> #propList then
     return(error(me, "Invalid input format", #Initialize, #major))
   end if
@@ -9,9 +7,10 @@ on Initialize me, tdata
   pExtraParam = tdata.getaProp(#extra_param)
   pProductcount = tdata.getaProp(#productcount)
   pExpiration = tdata.getaProp(#expiration)
+  exit
 end
 
-on copy me, tAnother 
+on copy(me, tAnother)
   if not objectp(tAnother) then
     return(error(me, "Invalid input format", #copy, #major))
   end if
@@ -20,28 +19,35 @@ on copy me, tAnother
   pExtraParam = tAnother.getExtraParam()
   pProductcount = tAnother.getProductCount()
   pExpiration = tAnother.getExpiration()
+  exit
 end
 
-on setExtraParam me, tExtraParam 
+on setExtraParam(me, tExtraParam)
   pExtraParam = tExtraParam
+  exit
 end
 
-on getType me 
+on getType(me)
   return(pType)
+  exit
 end
 
-on getClassId me 
+on getClassId(me)
   return(pClassid)
+  exit
 end
 
-on getExtraParam me 
+on getExtraParam(me)
   return(pExtraParam)
+  exit
 end
 
-on getProductCount me 
+on getProductCount(me)
   return(pProductcount)
+  exit
 end
 
-on getExpiration me 
+on getExpiration(me)
   return(pExpiration)
+  exit
 end

@@ -1,4 +1,4 @@
-on showprogram me, tMsg 
+on showprogram(me, tMsg)
   if voidp(tMsg) then
     return(0)
   end if
@@ -6,4 +6,5 @@ on showprogram me, tMsg
   tCmd = tMsg.getAt(#show_command)
   tPar = tMsg.getAt(#show_params)
   put(tDst, tCmd, tPar)
+  exit
 end

@@ -1,22 +1,24 @@
-on getLevelHighscore me 
+on getLevelHighscore(me)
   tScoreData = me.getProperty(#top_level_scores)
   if listp(tScoreData) then
     return(tScoreData)
   end if
   me.requestHallOfFame()
   return(0)
+  exit
 end
 
-on getLevelTeamHighscore me 
+on getLevelTeamHighscore(me)
   tScoreData = me.getProperty(#level_team_scores)
   if listp(tScoreData) then
     return(tScoreData)
   end if
   me.requestHallOfFame()
   return(0)
+  exit
 end
 
-on requestHallOfFame me 
+on requestHallOfFame(me)
   if me.getProperty(#score_data_pending) then
     return(0)
   end if
@@ -26,4 +28,5 @@ on requestHallOfFame me
     return(0)
   end if
   return(tService.getHandler().send_GET_LEVEL_HALL_OF_FAME(me.getProperty(#id)))
+  exit
 end

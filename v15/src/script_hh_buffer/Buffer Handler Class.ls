@@ -1,23 +1,25 @@
-on construct me 
+on construct(me)
   return(me.regMsgList(1))
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   return(me.regMsgList(0))
+  exit
 end
 
-on parseActiveObject me, tConn 
+on parseActiveObject(me, tConn)
   if not tConn then
-    return FALSE
+    return(0)
   end if
-  tObj = [:]
+  tObj = []
   tObj.setAt(#id, tConn.GetStrFrom())
   tObj.setAt(#class, tConn.GetStrFrom())
   tObj.setAt(#x, tConn.GetIntFrom())
   tObj.setAt(#y, tConn.GetIntFrom())
   tWidth = tConn.GetIntFrom()
   tHeight = tConn.GetIntFrom()
-  tDirection = (tConn.GetIntFrom() mod 8)
+  tDirection = tConn.GetIntFrom() mod 8
   tObj.setAt(#direction, [tDirection, tDirection, tDirection])
   tObj.setAt(#dimensions, [tWidth, tHeight])
   tObj.setAt(#altitude, getLocalFloat(tConn.GetStrFrom()))
@@ -25,75 +27,81 @@ on parseActiveObject me, tConn
   tRuntimeData = tConn.GetStrFrom()
   tExtra = tConn.GetIntFrom()
   tStuffData = tConn.GetStrFrom()
-  if (tObj.getAt(#colors) = "") then
+  if tObj.getAt(#colors) = "" then
     tObj.setAt(#colors, "0")
   end if
   tObj.setAt(#props, [#runtimedata:tRuntimeData, #extra:tExtra, #stuffdata:tStuffData])
   return(tObj)
+  exit
 end
 
-on handle_stuffdataupdate me, tMsg 
+on handle_stuffdataupdate(me, tMsg)
   tConn = tMsg.connection
   if not tConn then
-    return FALSE
+    return(0)
   end if
-  tMsgTemp = [:]
+  tMsgTemp = []
   tIndex = 1
   repeat while tIndex <= tMsg.count
     tProp = tMsg.getPropAt(tIndex)
     tValue = tMsg.getAt(tIndex)
     tMsgTemp.setAt(tProp, tValue)
-    tIndex = (1 + tIndex)
+    tIndex = 1 + tIndex
   end repeat
   tTargetID = tConn.GetStrFrom()
   return(me.getComponent().bufferMessage(tMsgTemp, tTargetID, "active"))
+  exit
 end
 
-on handle_activeobject_remove me, tMsg 
-  return(me.getComponent().removeObject(tMsg.content.getProp(#word, 1), "active"))
+on handle_activeobject_remove(me, tMsg)
+  return(tMsg.removeObject(content.getProp(#word, 1), "active"))
+  exit
 end
 
-on handle_activeobject_update me, tMsg 
+on handle_activeobject_update(me, tMsg)
   if ilk(tMsg) <> #propList then
-    return FALSE
+    return(0)
   end if
   tConn = tMsg.connection
   if not tConn then
-    return FALSE
+    return(0)
   end if
-  tMsgTemp = [:]
+  tMsgTemp = []
   tIndex = 1
   repeat while tIndex <= tMsg.count
     tProp = tMsg.getPropAt(tIndex)
     tValue = tMsg.getAt(tIndex)
     tMsgTemp.setAt(tProp, tValue)
-    tIndex = (1 + tIndex)
+    tIndex = 1 + tIndex
   end repeat
   tObj = me.parseActiveObject(tConn)
   if not listp(tObj) then
-    return FALSE
+    return(0)
   end if
   tid = tObj.getAt(#id)
   return(me.getComponent().bufferMessage(tMsgTemp, tid, "active"))
+  exit
 end
 
-on handle_removeitem me, tMsg 
-  return(me.getComponent().removeObject(tMsg.content.getProp(#word, 1), "item"))
+on handle_removeitem(me, tMsg)
+  return(tMsg.removeObject(content.getProp(#word, 1), "item"))
+  exit
 end
 
-on handle_updateitem me, tMsg 
-  tid = tMsg.content.getProp(#word, 1)
+on handle_updateitem(me, tMsg)
+  tid = content.getProp(#word, 1)
   return(me.getComponent().bufferMessage(tMsg, tid, "item"))
+  exit
 end
 
-on regMsgList me, tBool 
-  tMsgs = [:]
+on regMsgList(me, tBool)
+  tMsgs = []
   tMsgs.setaProp(88, #handle_stuffdataupdate)
   tMsgs.setaProp(94, #handle_activeobject_remove)
   tMsgs.setaProp(95, #handle_activeobject_update)
   tMsgs.setaProp(84, #handle_removeitem)
   tMsgs.setaProp(85, #handle_updateitem)
-  tCmds = [:]
+  tCmds = []
   if tBool then
     registerListener(getVariable("connection.room.id"), me.getID(), tMsgs)
     registerCommands(getVariable("connection.room.id"), me.getID(), tCmds)
@@ -101,5 +109,6 @@ on regMsgList me, tBool
     unregisterListener(getVariable("connection.room.id"), me.getID(), tMsgs)
     unregisterCommands(getVariable("connection.room.id"), me.getID(), tCmds)
   end if
-  return TRUE
+  return(1)
+  exit
 end

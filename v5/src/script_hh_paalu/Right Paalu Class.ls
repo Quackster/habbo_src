@@ -1,12 +1,12 @@
-property pTrgLoc
-
-on construct me 
+on construct(me)
   pTrgLoc = getVariableValue("paalu.start.right", [21, 7])
-  return TRUE
+  return(1)
+  exit
 end
 
-on select me 
+on select(me)
   if threadExists(#room) then
     return(getThread(#room).getComponent().getRoomConnection().send(#room, "Move" && pTrgLoc.getAt(1) && pTrgLoc.getAt(2)))
   end if
+  exit
 end

@@ -1,20 +1,20 @@
-on select me 
+on select(me)
   tUserObj = getThread(#room).getComponent().getOwnUser()
   if tUserObj = 0 then
     return(0)
   end if
   tLocUser = [tUserObj.pLocX, tUserObj.pLocY]
   tLocDoor = [me.pLocX, me.pLocY]
-  if me.getProp(#pDirection, 1) = 0 then
+  if me = 0 then
     tLocWanted = tLocDoor + [0, -1]
   else
-    if me.getProp(#pDirection, 1) = 2 then
+    if me = 2 then
       tLocWanted = tLocDoor + [1, 0]
     else
-      if me.getProp(#pDirection, 1) = 4 then
+      if me = 4 then
         tLocWanted = tLocDoor + [0, 1]
       else
-        if me.getProp(#pDirection, 1) = 6 then
+        if me = 6 then
           tLocWanted = tLocDoor + [-1, 0]
         else
           return(0)
@@ -35,14 +35,15 @@ on select me
     tConnection.send("MOVE", [#integer:tLocWanted.getAt(1), #integer:tLocWanted.getAt(2)])
   end if
   return(1)
+  exit
 end
 
-on setDoor me, tStatus 
+on setDoor(me, tStatus)
   if not tStatus = 1 or tStatus = 0 then
     error(me, "Invalid door status:" && tStatus, #setDoor, #minor)
     return(0)
   end if
-  repeat while me.pSprList <= undefined
+  repeat while me <= undefined
     tsprite = getAt(undefined, tStatus)
     tCurName = member.name
     tNewName = tCurName.getProp(#char, 1, length(tCurName) - 1) & tStatus
@@ -53,4 +54,5 @@ on setDoor me, tStatus
       tsprite.height = tMem.height
     end if
   end repeat
+  exit
 end

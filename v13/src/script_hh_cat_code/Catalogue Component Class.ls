@@ -1,10 +1,8 @@
-property pCatalogProps, pProductOrderData, pImageLibraryURL, pLoadingProps, pLastSelectedPageID
-
-on construct me 
+on construct(me)
   pOrderInfoList = []
-  pCatalogProps = [:]
-  pProductOrderData = [:]
-  pLoadingProps = [:]
+  pCatalogProps = []
+  pProductOrderData = []
+  pLoadingProps = []
   pLastSelectedPageID = void()
   if variableExists("ctlg.editmode") then
     pCatalogProps.setAt("editmode", getVariable("ctlg.editmode"))
@@ -13,37 +11,41 @@ on construct me
   end if
   pImageLibraryURL = getVariable("image.library.url", "http://images.habbohotel.com/c_images/")
   registerMessage(#edit_catalogue, me.getID(), #editModeOn)
-  return TRUE
+  return(1)
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   pOrderInfoList = []
-  pCatalogProps = [:]
-  pLoadingProps = [:]
+  pCatalogProps = []
+  pLoadingProps = []
   unregisterMessage(#edit_catalogue, me.getID())
-  return TRUE
+  return(1)
+  exit
 end
 
-on editModeOn me 
+on editModeOn(me)
   setVariable("ctlg.editmode", "develop")
   pCatalogProps.setAt("editmode", getVariable("ctlg.editmode"))
+  exit
 end
 
-on getLanguage me 
+on getLanguage(me)
   if variableExists("language") then
     tLanguage = getVariable("language")
   else
     tLanguage = "en"
   end if
   return(tLanguage)
+  exit
 end
 
-on checkProductOrder me, tProductProps 
+on checkProductOrder(me, tProductProps)
   if tProductProps.ilk <> #propList then
     return(error(me, "Incorrect SelectedProduct proplist", #buySelectedProduct))
   end if
   if not voidp(tProductProps.getAt("purchaseCode")) then
-    tProps = [:]
+    tProps = []
     tstate = "OK"
     if not voidp(tProductProps.getAt("name")) then
       tProps.setAt(#name, tProductProps.getAt("name"))
@@ -65,14 +67,15 @@ on checkProductOrder me, tProductProps
     end if
     pProductOrderData = tProductProps.duplicate()
     me.getInterface().showOrderInfo(tstate, tProps)
-    return TRUE
+    return(1)
   else
-    pProductOrderData = [:]
-    return FALSE
+    pProductOrderData = []
+    return(0)
   end if
+  exit
 end
 
-on purchaseProduct me, tGiftProps 
+on purchaseProduct(me, tGiftProps)
   if pProductOrderData.ilk <> #propList then
     return(error(me, "Incorrect Product data", #purchaseProduct))
   end if
@@ -121,12 +124,13 @@ on purchaseProduct me, tGiftProps
   tOrderStr = tOrderStr & tExtra & "\r"
   tOrderStr = tOrderStr & tGift
   if not connectionExists(getVariable("connection.info.id")) then
-    return FALSE
+    return(0)
   end if
   return(getConnection(getVariable("connection.info.id")).send("GPRC", tOrderStr))
+  exit
 end
 
-on retrieveCatalogueIndex me 
+on retrieveCatalogueIndex(me)
   if not voidp(pCatalogProps.getAt("editmode")) then
     tEditmode = pCatalogProps.getAt("editmode")
   else
@@ -139,12 +143,13 @@ on retrieveCatalogueIndex me
     if connectionExists(getVariable("connection.info.id")) then
       return(getConnection(getVariable("connection.info.id")).send("GCIX", tEditmode & "/" & tLanguage))
     else
-      return FALSE
+      return(0)
     end if
   end if
+  exit
 end
 
-on retrieveCataloguePage me, tPageID 
+on retrieveCataloguePage(me, tPageID)
   if not voidp(pCatalogProps.getAt("editmode")) then
     tEditmode = pCatalogProps.getAt("editmode")
   else
@@ -160,46 +165,49 @@ on retrieveCataloguePage me, tPageID
     if connectionExists(getVariable("connection.info.id")) then
       return(getConnection(getVariable("connection.info.id")).send("GCAP", tEditmode & "/" & tPageID & "/" & tLanguage))
     else
-      return FALSE
+      return(0)
     end if
   end if
-  return FALSE
+  return(0)
+  exit
 end
 
-on purchaseReady me, tStatus, tMsg 
-  if (tStatus = "OK") then
+on purchaseReady(me, tStatus, tMsg)
+  if me = "OK" then
     me.getInterface().showPurchaseOk()
   else
-    if (tStatus = "NOBALANCE") then
+    if me = "NOBALANCE" then
       me.getInterface().showNoBalance(void(), 1)
     else
-      if (tStatus = "ERROR") then
+      if me = "ERROR" then
         error(me, "Purchase error:" && tMsg, #purchaseReady)
       else
         error(me, "Unsupported purchase result:" && tStatus && tMsg, #purchaseReady)
       end if
     end if
   end if
-  return TRUE
+  return(1)
+  exit
 end
 
-on saveCatalogueIndex me, tdata 
+on saveCatalogueIndex(me, tdata)
   if tdata.ilk <> #propList then
     return(error(me, "Incorrect Catalogue Format", #saveCatalogueIndex))
   end if
-  if (tdata.count = 0) then
-    return FALSE
+  if tdata.count = 0 then
+    return(0)
   end if
   pCatalogProps.setAt("catalogueIndex", tdata)
   me.getInterface().saveCatalogueIndex(tdata)
+  exit
 end
 
-on saveCataloguePage me, tdata 
+on saveCataloguePage(me, tdata)
   if tdata.ilk <> #propList then
     return(error(me, "Incorrect Catalogue Page Format", #saveCataloguePage))
   end if
-  if (tdata.count = 0) then
-    return FALSE
+  if tdata.count = 0 then
+    return(0)
   end if
   if not voidp(tdata.getAt("id")) then
     if me.processCataloguePage(tdata) then
@@ -212,9 +220,10 @@ on saveCataloguePage me, tdata
   else
     return(error(me, "Catalogue Page ID missing", #saveCataloguePage))
   end if
+  exit
 end
 
-on solveCatalogueMembers me, tdata 
+on solveCatalogueMembers(me, tdata)
   tLanguage = me.getLanguage()
   if not voidp(tdata.getAt("headerImage")) then
     if memberExists(tdata.getAt("headerImage")) then
@@ -227,7 +236,7 @@ on solveCatalogueMembers me, tdata
     tImageNameList = tdata.getAt("teaserImgList")
     tMemList = []
     if tImageNameList.count > 0 then
-      repeat while tImageNameList <= undefined
+      repeat while me <= undefined
         tImg = getAt(undefined, tdata)
         if memberExists(tImg) then
           tMemList.add(getmemnum(tImg))
@@ -262,7 +271,7 @@ on solveCatalogueMembers me, tdata
         tClass = tProductData.getAt("class")
         if tClass contains "*" then
           tSmallMem = tClass & "_small"
-          tClass = tClass.getProp(#char, 1, (offset("*", tClass) - 1))
+          tClass = tClass.getProp(#char, 1, offset("*", tClass) - 1)
           if not memberExists(tSmallMem) then
             tSmallMem = tClass & "_small"
           else
@@ -271,7 +280,7 @@ on solveCatalogueMembers me, tdata
         else
           tSmallMem = tClass & "_small"
         end if
-        if (tdata.getAt("productList").getAt(f).getAt("smallPrewImg") = 0) then
+        if tdata.getAt("productList").getAt(f).getAt("smallPrewImg") = 0 then
           if memberExists(tSmallMem) then
             tdata.getAt("productList").getAt(f).setAt("smallPrewImg", getmemnum(tSmallMem))
           else
@@ -282,21 +291,22 @@ on solveCatalogueMembers me, tdata
       if not voidp(tDealNumber) then
         tdata.getAt("productList").getAt(f).setAt("smallPrewImg", 0)
       end if
-      f = (1 + f)
+      f = 1 + f
     end repeat
   end if
   return(tdata)
+  exit
 end
 
-on processCataloguePage me, tdata 
+on processCataloguePage(me, tdata)
   tPageID = tdata.getAt("id")
   tObjectLoadList = []
   if not voidp(tdata.getAt("productList")) and not voidp(tPageID) then
-    repeat while tdata.getAt("productList") <= undefined
+    repeat while me <= undefined
       tProduct = getAt(undefined, tdata)
       tClass = me.getClassName(tProduct.getAt("class"))
       if not voidp(tClass) and tClass <> "" then
-        if (tObjectLoadList.findPos(tClass) = 0) then
+        if tObjectLoadList.findPos(tClass) = 0 then
           tObjectLoadList.add(tClass)
         end if
       else
@@ -304,11 +314,11 @@ on processCataloguePage me, tdata
       end if
       tDeal = tProduct.getAt("dealList")
       if not voidp(tDeal) then
-        repeat while tdata.getAt("productList") <= undefined
+        repeat while me <= undefined
           tDealProduct = getAt(undefined, tdata)
           tClass = me.getClassName(tDealProduct.getAt("class"))
           if not voidp(tClass) and tClass <> "" then
-            if (tObjectLoadList.findPos(tClass) = 0) then
+            if tObjectLoadList.findPos(tClass) = 0 then
               tObjectLoadList.add(tClass)
             end if
           else
@@ -320,7 +330,7 @@ on processCataloguePage me, tdata
     tIndex = tObjectLoadList.count
     repeat while tIndex >= 1
       tClass = tObjectLoadList.getAt(tIndex)
-      if (getThread(#dynamicdownloader) = 0) then
+      if getThread(#dynamicdownloader) = 0 then
         tObjectLoadList.deleteAt(tIndex)
       else
         if getThread(#dynamicdownloader).getComponent().isAssetDownloaded(tClass) then
@@ -330,7 +340,7 @@ on processCataloguePage me, tdata
           getThread(#dynamicdownloader).getComponent().downloadCastDynamically(tClass, ttype, me.getID(), #objectDownloadCompleted, 1)
         end if
       end if
-      tIndex = (255 + tIndex)
+      tIndex = 255 + tIndex
     end repeat
   end if
   tHeaderImgName = tdata.getAt(#headerImage)
@@ -340,20 +350,20 @@ on processCataloguePage me, tdata
       tSourceURL = pImageLibraryURL & "catalogue/" & tHeaderImgName & "_" & me.getLanguage() & ".gif"
       tHeaderMemNum = queueDownload(tSourceURL, tHeaderImgName, #bitmap, 1)
       registerDownloadCallback(tHeaderMemNum, #catalogImgDownloaded, me.getID(), tHeaderImgName)
-      if (tObjectLoadList.findPos(tHeaderImgName) = 0) then
+      if tObjectLoadList.findPos(tHeaderImgName) = 0 then
         tObjectLoadList.add(tHeaderImgName)
       end if
     end if
   end if
-  if (ilk(tTeaserImgList) = #list) then
-    repeat while tdata.getAt("productList") <= undefined
+  if ilk(tTeaserImgList) = #list then
+    repeat while me <= undefined
       tTeaserImg = getAt(undefined, tdata)
       if string(tTeaserImg).length > 0 then
         if not memberExists(tTeaserImg) then
           tSourceURL = pImageLibraryURL & "catalogue/" & tTeaserImg & "_" & me.getLanguage() & ".gif"
           tTeaserMemNum = queueDownload(tSourceURL, tTeaserImg, #bitmap, 1)
           registerDownloadCallback(tTeaserMemNum, #catalogImgDownloaded, me.getID(), tTeaserImg)
-          if (tObjectLoadList.findPos(tTeaserImg) = 0) then
+          if tObjectLoadList.findPos(tTeaserImg) = 0 then
             tObjectLoadList.add(tTeaserImg)
           end if
         end if
@@ -362,13 +372,14 @@ on processCataloguePage me, tdata
   end if
   if tObjectLoadList.count > 0 then
     pLoadingProps.setAt(tPageID, ["loadList":tObjectLoadList, "data":tdata.duplicate()])
-    return FALSE
+    return(0)
   else
-    return TRUE
+    return(1)
   end if
+  exit
 end
 
-on getClassName me, tClass 
+on getClassName(me, tClass)
   tName = tClass
   if voidp(tName) then
     return(tName)
@@ -380,18 +391,20 @@ on getClassName me, tClass
     the itemDelimiter = tDelim
   end if
   return(tName)
+  exit
 end
 
-on objectDownloadCompleted me, tClass, tSuccess 
+on objectDownloadCompleted(me, tClass, tSuccess)
   me.downloadCompleted(tClass, tSuccess)
+  exit
 end
 
-on catalogImgDownloaded me, tImgId 
+on catalogImgDownloaded(me, tImgId)
   tSuccess = 0
   if memberExists(tImgId) then
-    if (member(getmemnum(tImgId)).type = #bitmap) then
+    if member(getmemnum(tImgId)).type = #bitmap then
       tImage = member(getmemnum(tImgId)).image
-      if (tImage.width = 0) or (tImage.height = 0) then
+      if tImage.width = 0 or tImage.height = 0 then
         member(getmemnum(tImgId)).image = member(getmemnum("loading_icon")).image
       else
         tSuccess = 1
@@ -399,9 +412,10 @@ on catalogImgDownloaded me, tImgId
     end if
   end if
   me.downloadCompleted(tImgId, tSuccess)
+  exit
 end
 
-on downloadCompleted me, tClassID, tSuccess 
+on downloadCompleted(me, tClassID, tSuccess)
   if not tSuccess then
     nothing()
   end if
@@ -414,18 +428,19 @@ on downloadCompleted me, tClassID, tSuccess
     if tPos > 0 then
       tDownloadList.deleteAt(tPos)
     end if
-    if (tDownloadList.count = 0) then
+    if tDownloadList.count = 0 then
       tdata = pLoadingProps.getAt(tIndex).getAt("data").duplicate()
       tdata = me.solveCatalogueMembers(tdata)
       tPageID = tdata.getAt("id")
       pCatalogProps.setAt(tPageID, tdata)
-      if (tPageID = pLastSelectedPageID) then
+      if tPageID = pLastSelectedPageID then
         pCatalogProps.setAt("lastPageID", tPageID)
         tInterfaceId = me.getInterface().getID()
         createTimeout(#catalogpagedata, 10, #cataloguePageData, tInterfaceId, tdata, 1)
       end if
       pLoadingProps.deleteAt(tIndex)
     end if
-    tIndex = (255 + tIndex)
+    tIndex = 255 + tIndex
   end repeat
+  exit
 end

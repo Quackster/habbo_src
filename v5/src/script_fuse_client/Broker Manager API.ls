@@ -1,47 +1,58 @@
-on constructBrokerManager  
+on constructBrokerManager()
   return(createManager(#broker_manager, getClassVariable("broker.manager.class")))
+  exit
 end
 
-on deconstructBrokerManager  
+on deconstructBrokerManager()
   return(removeManager(#broker_manager))
+  exit
 end
 
-on getBrokerManager  
-  tMgr = getObjectManager()
-  if not tMgr.managerExists(#broker_manager) then
+on getBrokerManager()
+  tObjMngr = getObjectManager()
+  if not tObjMngr.managerExists(#broker_manager) then
     return(constructBrokerManager())
   end if
-  return(tMgr.getManager(#broker_manager))
+  return(tObjMngr.getManager(#broker_manager))
+  exit
 end
 
-on createBroker tMessage 
+on createBroker(tMessage)
   return(getBrokerManager().create(tMessage))
+  exit
 end
 
-on removeBroker tMessage 
+on removeBroker(tMessage)
   return(getBrokerManager().remove(tMessage))
+  exit
 end
 
-on getBroker tMessage 
+on getBroker(tMessage)
   return(getBrokerManager().get(tMessage))
+  exit
 end
 
-on brokerExists tMessage 
+on brokerExists(tMessage)
   return(getBrokerManager().exists(tMessage))
+  exit
 end
 
-on printBrokers  
+on printBrokers()
   return(getBrokerManager().print())
+  exit
 end
 
-on registerMessage tMessage, tClientID, tMethod 
+on registerMessage(tMessage, tClientID, tMethod)
   return(getBrokerManager().register(tMessage, tClientID, tMethod))
+  exit
 end
 
-on unregisterMessage tMessage, tClientID 
+on unregisterMessage(tMessage, tClientID)
   return(getBrokerManager().unregister(tMessage, tClientID))
+  exit
 end
 
-on executeMessage tMessage, tArgA, tArgB, tArgC 
+on executeMessage(tMessage, tArgA, tArgB, tArgC)
   return(getBrokerManager().execute(tMessage, tArgA, tArgB, tArgC))
+  exit
 end

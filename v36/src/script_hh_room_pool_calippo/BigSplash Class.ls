@@ -1,17 +1,21 @@
-on deconstruct me 
+on deconstruct(me)
   return(removeUpdate(me.getID()))
+  exit
 end
 
-on StartUpdateBigSplash me 
+on StartUpdateBigSplash(me)
   return(receiveUpdate(me.getID()))
+  exit
 end
 
-on HideBigSplash me 
+on HideBigSplash(me)
   me.setVisible(0)
+  exit
 end
 
-on update me 
+on update(me)
   if me.pVisible = 1 then
     me.updateSplashs()
   end if
+  exit
 end

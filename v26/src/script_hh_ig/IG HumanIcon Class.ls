@@ -1,21 +1,21 @@
-property pSprite, pMemberName, pUserId, pGameId, pGameType, pAnimCounter, pSelfCheckCounter, pAnimFrame, pLastLoc, pLastDir, pSize, pOwnGame
-
-on construct me 
+on construct(me)
   pLastLoc = void()
   pLastDir = void()
   pUserId = ""
   pOwnGame = 0
   return(1)
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   if pSprite.ilk = #sprite then
     releaseSprite(pSprite.spriteNum)
   end if
   return(1)
+  exit
 end
 
-on show_ig_icon me, tParams 
+on show_ig_icon(me, tParams)
   tXFactor = getThread(#room).getInterface().getGeometry().pXFactor
   if integer(tXFactor) > 32 then
     pSize = "h"
@@ -53,18 +53,21 @@ on show_ig_icon me, tParams
   end if
   me.update()
   return(1)
+  exit
 end
 
-on hide me 
+on hide(me)
   pSprite.loc = point(-1000, -1000)
   return(1)
+  exit
 end
 
-on Refresh me 
+on Refresh(me)
   return(1)
+  exit
 end
 
-on update me 
+on update(me)
   pAnimCounter = pAnimCounter + 1
   if pAnimCounter > 2 then
     pAnimCounter = 0
@@ -114,29 +117,29 @@ on update me
   pLastDir = tHumanDir
   if pSize = "h" then
     tLocV = tHumanLoc.getAt(2) - 65
-    if tHumanDir = 7 then
-      pSprite.loc = point(tHumanLoc.getAt(1) - (pSprite.width / 2) - 2, tLocV)
+    if me = 7 then
+      pSprite.loc = point(tHumanLoc.getAt(1) - pSprite.width / 2 - 2, tLocV)
     else
-      if tHumanDir = 6 then
-        pSprite.loc = point(tHumanLoc.getAt(1) - (pSprite.width / 2) + 1, tLocV)
+      if me = 6 then
+        pSprite.loc = point(tHumanLoc.getAt(1) - pSprite.width / 2 + 1, tLocV)
       else
-        if tHumanDir = 5 then
-          pSprite.loc = point(tHumanLoc.getAt(1) - (pSprite.width / 2) + 2, tLocV)
+        if me = 5 then
+          pSprite.loc = point(tHumanLoc.getAt(1) - pSprite.width / 2 + 2, tLocV)
         else
-          if tHumanDir = 4 then
-            pSprite.loc = point(tHumanLoc.getAt(1) - (pSprite.width / 2) - 1, tLocV)
+          if me = 4 then
+            pSprite.loc = point(tHumanLoc.getAt(1) - pSprite.width / 2 - 1, tLocV)
           else
-            if tHumanDir = 3 then
-              pSprite.loc = point(tHumanLoc.getAt(1) - (pSprite.width / 2) - 2, tLocV)
+            if me = 3 then
+              pSprite.loc = point(tHumanLoc.getAt(1) - pSprite.width / 2 - 2, tLocV)
             else
-              if tHumanDir = 2 then
-                pSprite.loc = point(tHumanLoc.getAt(1) - (pSprite.width / 2) - 2, tLocV)
+              if me = 2 then
+                pSprite.loc = point(tHumanLoc.getAt(1) - pSprite.width / 2 - 2, tLocV)
               else
-                if tHumanDir = 1 then
-                  pSprite.loc = point(tHumanLoc.getAt(1) - (pSprite.width / 2), tLocV)
+                if me = 1 then
+                  pSprite.loc = point(tHumanLoc.getAt(1) - pSprite.width / 2, tLocV)
                 else
-                  if tHumanDir = 0 then
-                    pSprite.loc = point(tHumanLoc.getAt(1) - (pSprite.width / 2) - 1, tLocV)
+                  if me = 0 then
+                    pSprite.loc = point(tHumanLoc.getAt(1) - pSprite.width / 2 - 1, tLocV)
                   end if
                 end if
               end if
@@ -147,29 +150,29 @@ on update me
     end if
   else
     tLocV = tHumanLoc.getAt(2) - 44
-    if tHumanDir = 7 then
-      pSprite.loc = point(tHumanLoc.getAt(1) - (pSprite.width / 2) - 2, tLocV)
+    if me = 7 then
+      pSprite.loc = point(tHumanLoc.getAt(1) - pSprite.width / 2 - 2, tLocV)
     else
-      if tHumanDir = 6 then
-        pSprite.loc = point(tHumanLoc.getAt(1) - (pSprite.width / 2) - 1, tLocV)
+      if me = 6 then
+        pSprite.loc = point(tHumanLoc.getAt(1) - pSprite.width / 2 - 1, tLocV)
       else
-        if tHumanDir = 5 then
-          pSprite.loc = point(tHumanLoc.getAt(1) - (pSprite.width / 2) - 1, tLocV)
+        if me = 5 then
+          pSprite.loc = point(tHumanLoc.getAt(1) - pSprite.width / 2 - 1, tLocV)
         else
-          if tHumanDir = 4 then
-            pSprite.loc = point(tHumanLoc.getAt(1) - (pSprite.width / 2) + 1, tLocV)
+          if me = 4 then
+            pSprite.loc = point(tHumanLoc.getAt(1) - pSprite.width / 2 + 1, tLocV)
           else
-            if tHumanDir = 3 then
-              pSprite.loc = point(tHumanLoc.getAt(1) - (pSprite.width / 2) - 2, tLocV)
+            if me = 3 then
+              pSprite.loc = point(tHumanLoc.getAt(1) - pSprite.width / 2 - 2, tLocV)
             else
-              if tHumanDir = 2 then
-                pSprite.loc = point(tHumanLoc.getAt(1) - (pSprite.width / 2) - 2, tLocV)
+              if me = 2 then
+                pSprite.loc = point(tHumanLoc.getAt(1) - pSprite.width / 2 - 2, tLocV)
               else
-                if tHumanDir = 1 then
-                  pSprite.loc = point(tHumanLoc.getAt(1) - (pSprite.width / 2) - 1, tLocV)
+                if me = 1 then
+                  pSprite.loc = point(tHumanLoc.getAt(1) - pSprite.width / 2 - 1, tLocV)
                 else
-                  if tHumanDir = 0 then
-                    pSprite.loc = point(tHumanLoc.getAt(1) - (pSprite.width / 2) - 2, tLocV)
+                  if me = 0 then
+                    pSprite.loc = point(tHumanLoc.getAt(1) - pSprite.width / 2 - 2, tLocV)
                   end if
                 end if
               end if
@@ -179,9 +182,10 @@ on update me
       end if
     end if
   end if
+  exit
 end
 
-on checkMemberName me 
+on checkMemberName(me)
   tThread = getThread(#ig)
   if tThread = 0 then
     return(0)
@@ -201,4 +205,5 @@ on checkMemberName me
     pMemberName = "s_" & pMemberName
   end if
   return(1)
+  exit
 end

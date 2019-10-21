@@ -1,23 +1,24 @@
-property pDateFormat
-
-on construct me 
+on construct(me)
   pDateFormat = "dd-mm-yyyy"
   pUseAMPM = 0
   return(1)
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   return(1)
+  exit
 end
 
-on define me, tDateFormat 
+on define(me, tDateFormat)
   if voidp(tDateFormat) then
     tDateType = "dd-mm-yyyy"
   end if
   pDateFormat = tDateFormat
+  exit
 end
 
-on getLocalDateFromStr me, tDateStr 
+on getLocalDateFromStr(me, tDateStr)
   if not stringp(tDateStr) then
     return(0)
   end if
@@ -29,9 +30,10 @@ on getLocalDateFromStr me, tDateStr
   tLocalDate = me.getLocalDate(tDateStr.getProp(#item, 1), tDateStr.getProp(#item, 2), tDateStr.getProp(#item, 3))
   the itemDelimiter = tItemDeLim
   return(tLocalDate)
+  exit
 end
 
-on getLocalDate me, tDay, tMonth, tYear 
+on getLocalDate(me, tDay, tMonth, tYear)
   if voidp(tDay) or voidp(tMonth) or voidp(tYear) then
     return(pDateFormat)
   end if
@@ -40,4 +42,5 @@ on getLocalDate me, tDay, tMonth, tYear
   tDate = replaceChunks(tDate, "mm", integer(tMonth))
   tDate = replaceChunks(tDate, "yyyy", integer(tYear))
   return(tDate)
+  exit
 end

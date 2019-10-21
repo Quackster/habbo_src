@@ -1,69 +1,72 @@
-property pPlaylistManager, pTimelineList, pInitialized, pSongControllerID, pFurniOn, pPlayStackIndex, pSongList, pLoopPlaylist, pProcessSongTimer
-
-on construct me 
+on construct(me)
   pPlaylistManager = createObject(#temp, getClassVariable("soundmachine.songlist.manager"))
   pSongControllerID = "song controller"
   pProcessSongTimer = "sound machine instance timer"
   pLoopPlaylist = 0
   pSongList = []
-  pTimelineList = [:]
+  pTimelineList = []
   pInitialized = 0
   pPlayStackIndex = void()
-  return TRUE
+  return(1)
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   pPlaylistManager.deconstruct()
-  repeat while pTimelineList <= undefined
+  repeat while me <= undefined
     tTimeline = getAt(undefined, undefined)
     tTimeline.deconstruct()
   end repeat
-  return TRUE
+  return(1)
+  exit
 end
 
-on Initialize me 
+on Initialize(me)
   if pInitialized then
-    return FALSE
+    return(0)
   end if
   pInitialized = 1
-  return TRUE
+  return(1)
+  exit
 end
 
-on playSong me 
+on playSong(me)
   tSongController = getObject(pSongControllerID)
   if pFurniOn then
     if tSongController <> 0 and not voidp(pPlayStackIndex) then
       me.updatePlaylist()
       tSongController.initPlaylist(pPlayStackIndex, pSongList.duplicate(), pPlaylistManager.getPlayTime(), pLoopPlaylist)
       me.processSongData()
-      return TRUE
+      return(1)
     end if
   end if
-  return FALSE
+  return(0)
+  exit
 end
 
-on stopSong me 
+on stopSong(me)
   if voidp(pPlayStackIndex) then
-    return FALSE
+    return(0)
   end if
   if not pLoopPlaylist then
-    repeat while pTimelineList <= undefined
+    repeat while me <= undefined
       tTimeline = getAt(undefined, undefined)
       tTimeline.deconstruct()
     end repeat
-    pTimelineList = [:]
+    pTimelineList = []
     pSongList = []
   end if
   tSongController = getObject(pSongControllerID)
   if tSongController <> 0 then
     tSongController.stopSong(pPlayStackIndex)
   end if
-  return TRUE
+  return(1)
+  exit
 end
 
-on setState me, tFurniOn 
-  if (tFurniOn = pFurniOn) then
-    return FALSE
+on setState(me, tFurniOn)
+  if tFurniOn = pFurniOn then
+    return(0)
   end if
   pFurniOn = tFurniOn
   pPlaylistManager.resetPlayTime()
@@ -76,41 +79,47 @@ on setState me, tFurniOn
   else
     me.stopSong()
   end if
-  return TRUE
+  return(1)
+  exit
 end
 
-on getState me 
+on getState(me)
   return(pFurniOn)
+  exit
 end
 
-on setLooping me, tLoop 
+on setLooping(me, tLoop)
   pLoopPlaylist = tLoop
+  exit
 end
 
-on getLooping me 
+on getLooping(me)
   return(pLoopPlaylist)
+  exit
 end
 
-on setPlayStackIndex me, tStackIndex 
+on setPlayStackIndex(me, tStackIndex)
   pPlayStackIndex = tStackIndex
+  exit
 end
 
-on getPlaylistManager me 
+on getPlaylistManager(me)
   me.updatePlaylist()
   return(pPlaylistManager)
+  exit
 end
 
-on parsePlaylist me, tMsg 
+on parsePlaylist(me, tMsg)
   if voidp(pPlayStackIndex) then
-    return FALSE
+    return(0)
   end if
   tRetVal = pPlaylistManager.parsePlaylist(tMsg)
   tCount = pPlaylistManager.getPlaylistCount()
-  repeat while pTimelineList <= undefined
+  repeat while me <= undefined
     tTimeline = getAt(undefined, tMsg)
     tTimeline.deconstruct()
   end repeat
-  pTimelineList = [:]
+  pTimelineList = []
   pSongList = []
   i = 1
   repeat while i <= tCount
@@ -120,112 +129,116 @@ on parsePlaylist me, tMsg
         return(error(me, "Problems with playlist", #parsePlaylist, #major))
       end if
     end if
-    i = (1 + i)
+    i = 1 + i
   end repeat
-  if (pTimelineList.count = 0) then
-    return FALSE
+  if pTimelineList.count = 0 then
+    return(0)
   end if
   tTimeline = pTimelineList.getAt(1)
   tstart = 1
-  tTotalLength = ((pPlaylistManager.getPlaylistLength() * tTimeline.getSlotDuration()) / 100)
+  tTotalLength = pPlaylistManager.getPlaylistLength() * tTimeline.getSlotDuration() / 100
   if tTotalLength > 0 then
-    tOffset = (pPlaylistManager.getPlayTime() mod tTotalLength)
+    tOffset = pPlaylistManager.getPlayTime() mod tTotalLength
     tPos = 0
     i = 1
     repeat while i <= pSongList.count
-      tPos = (tPos + (pSongList.getAt(i).getAt(#length) / 100))
-      if tPos > (tOffset + 50) then
+      tPos = tPos + pSongList.getAt(i).getAt(#length) / 100
+      if tPos > tOffset + 50 then
         tstart = i
       else
-        i = (1 + i)
+        i = 1 + i
       end if
     end repeat
   end if
   tDownloadList = []
   i = 0
-  repeat while i <= (pTimelineList.count - 1)
-    tIndex = ((tstart + i) mod tCount)
-    if (tIndex = 0) then
+  repeat while i <= pTimelineList.count - 1
+    tIndex = tstart + i mod tCount
+    if tIndex = 0 then
       tIndex = tCount
     end if
     tid = pTimelineList.getPropAt(tIndex)
-    if (tDownloadList.findPos(tid) = 0) then
+    if tDownloadList.findPos(tid) = 0 then
       tDownloadList.add(tid)
       pPlaylistManager.downloadSong(tid)
     end if
-    i = (1 + i)
+    i = 1 + i
   end repeat
   tSongController = getObject(pSongControllerID)
   if tSongController <> 0 then
     tSongController.initPlaylist(pPlayStackIndex, pSongList.duplicate(), pPlaylistManager.getPlayTime(), pLoopPlaylist)
   end if
   return(tRetVal)
+  exit
 end
 
-on updatePlaylist me 
+on updatePlaylist(me)
   if not pLoopPlaylist and pFurniOn then
     tPlayTime = pPlaylistManager.getPlayTime()
     tEndTime = 0
     tRemove = 0
     i = 1
     repeat while i <= pSongList.count
-      tEndTime = (tEndTime + (pSongList.getAt(i).getAt(#length) / 100))
+      tEndTime = tEndTime + pSongList.getAt(i).getAt(#length) / 100
       if tEndTime <= tPlayTime then
         tRemove = i
       else
       end if
-      i = (1 + i)
+      i = 1 + i
     end repeat
     i = 1
     repeat while i <= tRemove
-      tLength = (pSongList.getAt(1).getAt(#length) / 100)
+      tLength = pSongList.getAt(1).getAt(#length) / 100
       pSongList.deleteAt(1)
       pTimelineList.getAt(1).deconstruct()
       pTimelineList.deleteAt(1)
       pPlaylistManager.changePlayTime(-tLength)
       pPlaylistManager.removePlaylistSong(1)
-      i = (1 + i)
+      i = 1 + i
     end repeat
   end if
+  exit
 end
 
-on insertPlaylistSong me, tid, tLength, tName, tAuthor 
+on insertPlaylistSong(me, tid, tLength, tName, tAuthor)
   if voidp(pPlayStackIndex) then
-    return FALSE
+    return(0)
   end if
   if pLoopPlaylist then
-    return FALSE
+    return(0)
   end if
   me.updatePlaylist()
   if not pPlaylistManager.insertPlaylistSong(tid, tLength, tName, tAuthor) then
-    return FALSE
+    return(0)
   end if
   me.createTimelineInstance([#id:tid, #length:tLength])
-  if (pTimelineList.count = 0) then
-    return FALSE
+  if pTimelineList.count = 0 then
+    return(0)
   end if
   tTimeline = pTimelineList.getAt(1)
   pPlaylistManager.downloadSong(tid)
   tSongController = getObject(pSongControllerID)
   if tSongController <> 0 then
-    return(tSongController.addPlaylistSong(pPlayStackIndex, tid, (tLength * tTimeline.getSlotDuration())))
+    return(tSongController.addPlaylistSong(pPlayStackIndex, tid, tLength * tTimeline.getSlotDuration()))
   end if
-  return FALSE
+  return(0)
+  exit
 end
 
-on parseSongData me, tdata, tSongID, tSongName 
+on parseSongData(me, tdata, tSongID, tSongName)
   i = 1
   repeat while i <= pTimelineList.count
     tid = pTimelineList.getPropAt(i)
-    if (tSongID = tid) then
+    if tSongID = tid then
       tTimeline = pTimelineList.getAt(i)
       tTimeline.parseSongData(tdata, tSongID, tSongName)
     end if
-    i = (1 + i)
+    i = 1 + i
   end repeat
+  exit
 end
 
-on processSongData me 
+on processSongData(me)
   tReady = 1
   tSongController = getObject(pSongControllerID)
   me.updatePlaylist()
@@ -244,16 +257,17 @@ on processSongData me
         end if
       end if
     end if
-    i = (1 + i)
+    i = 1 + i
   end repeat
   if not tReady then
     if not timeoutExists(pProcessSongTimer) then
       createTimeout(pProcessSongTimer, 500, #processSongData, me.getID(), void(), 1)
     end if
   end if
+  exit
 end
 
-on createTimelineInstance me, tSong 
+on createTimelineInstance(me, tSong)
   if ilk(tSong) <> #propList then
     return(error(me, "Problems with playlist", #createTimelineInstance, #major))
   end if
@@ -261,17 +275,18 @@ on createTimelineInstance me, tSong
     return(error(me, "Problems with playlist", #createTimelineInstance, #major))
   end if
   tTimeline = createObject("timeline instance", getClassVariable("soundmachine.song.timeline"))
-  if (tTimeline = 0) then
+  if tTimeline = 0 then
     return(error(me, "Couldn't create timeline instance", #createTimelineInstance, #major))
   end if
   unregisterObject("timeline instance")
   tTimeline.reset(1)
   pTimelineList.addProp(tSong.getAt(#id), tTimeline)
-  tSongLength = (tSong.getAt(#length) * tTimeline.getSlotDuration())
+  tSongLength = tSong.getAt(#length) * tTimeline.getSlotDuration()
   if tSongLength < 0 then
     error(me, "Invalid song length - sync will not work", #createTimelineInstance, #minor)
     tSongLength = tTimeline.getSlotDuration()
   end if
   pSongList.add([#length:tSongLength, #id:tSong.getAt(#id)])
-  return TRUE
+  return(1)
+  exit
 end

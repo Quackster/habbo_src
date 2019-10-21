@@ -1,12 +1,14 @@
-on construct me 
+on construct(me)
   me.regMessageListener(1)
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   me.regMessageListener(0)
+  exit
 end
 
-on changeStatus me, tMsg 
+on changeStatus(me, tMsg)
   tConnection = tMsg.getaProp(#connection)
   if voidp(tConnection) then
     return(0)
@@ -31,12 +33,13 @@ on changeStatus me, tMsg
     tActiveObject.setDoor(tStatus)
   end if
   return(1)
+  exit
 end
 
-on regMessageListener me, tBool 
-  tMsgs = [:]
+on regMessageListener(me, tBool)
+  tMsgs = []
   tMsgs.setaProp(312, #changeStatus)
-  tCmds = [:]
+  tCmds = []
   tCmds.setaProp("ENTER_ONEWAY_DOOR", 232)
   if tBool then
     registerListener(getVariable("connection.info.id"), me.getID(), tMsgs)
@@ -46,4 +49,5 @@ on regMessageListener me, tBool
     unregisterCommands(getVariable("connection.info.id"), me.getID(), tCmds)
   end if
   return(1)
+  exit
 end

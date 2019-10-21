@@ -1,6 +1,4 @@
-property pColorlist, pAvailable, pID, pAnimFrame, pMaxFrame, pTargetImg, pLastPoint, pPointList, pDrawProps, pTargetPoint
-
-on construct me 
+on construct(me)
   pID = void()
   pAvailable = 1
   pDrawProps = [#shapeType:#oval, #color:rgb("009C9C")]
@@ -11,37 +9,42 @@ on construct me
   pTargetPoint = point(0, 0)
   pLastPoint = point(0, 0)
   pTargetImg = void()
-  return TRUE
+  return(1)
+  exit
 end
 
-on define me, tProps 
+on define(me, tProps)
   pID = tProps.getAt(#id)
   pTargetImg = tProps.getAt(#buffer)
-  return TRUE
+  return(1)
+  exit
 end
 
-on getAvailableRipple me 
+on getAvailableRipple(me)
   if pAvailable then
     return(pID)
   end if
+  exit
 end
 
-on setTargetPoint me, tTargetPoint 
+on setTargetPoint(me, tTargetPoint)
   pAvailable = 0
   pAnimFrame = 1
   pTargetPoint = tTargetPoint
+  exit
 end
 
-on update me 
+on update(me)
   if pAnimFrame < pMaxFrame then
-    pTargetImg.draw(pLastPoint, (pLastPoint + pPointList.getAt(pAnimFrame)), pDrawProps)
-    pAnimFrame = (pAnimFrame + 1)
-    pTargetImg.draw(pTargetPoint, (pTargetPoint + pPointList.getAt(pAnimFrame)), [#shapeType:#oval, #color:pColorlist.getAt(pAnimFrame)])
+    pTargetImg.draw(pLastPoint, pLastPoint + pPointList.getAt(pAnimFrame), pDrawProps)
+    pAnimFrame = pAnimFrame + 1
+    pTargetImg.draw(pTargetPoint, pTargetPoint + pPointList.getAt(pAnimFrame), [#shapeType:#oval, #color:pColorlist.getAt(pAnimFrame)])
     pLastPoint = pTargetPoint
   else
-    if (pAnimFrame = pMaxFrame) then
-      pTargetImg.draw(pLastPoint, (pLastPoint + pPointList.getAt(pAnimFrame)), pDrawProps)
+    if pAnimFrame = pMaxFrame then
+      pTargetImg.draw(pLastPoint, pLastPoint + pPointList.getAt(pAnimFrame), pDrawProps)
       pAvailable = 1
     end if
   end if
+  exit
 end

@@ -1,95 +1,101 @@
-property pListData, pListIndex
-
-on construct me 
+on construct(me)
   me.pListIndex = []
-  me.pListData = [:]
-  return(me.ancestor.construct())
+  me.pListData = []
+  return(me.construct())
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   me.pListIndex = []
-  me.pListData = [:]
-  return(me.ancestor.deconstruct())
+  me.pListData = []
+  return(me.deconstruct())
+  exit
 end
 
-on storeNewList me, tdata, tOverwrite 
+on storeNewList(me, tdata, tOverwrite)
   if not listp(tdata) then
-    return FALSE
+    return(0)
   end if
-  tPurgeList = me.pListIndex.duplicate()
+  tPurgeList = me.duplicate()
   i = 1
   repeat while i <= tdata.count
     tPurgeList.deleteOne(tdata.getAt(i).getaProp(#id))
-    i = (1 + i)
+    i = 1 + i
   end repeat
-  repeat while tPurgeList <= tOverwrite
+  repeat while me <= tOverwrite
     tID = getAt(tOverwrite, tdata)
     me.removeListEntry(tID)
   end repeat
   me.pListIndex = []
-  repeat while tPurgeList <= tOverwrite
+  repeat while me <= tOverwrite
     tInstanceData = getAt(tOverwrite, tdata)
     tItemID = tInstanceData.getaProp(#id)
-    if (me.pListIndex.findPos(tItemID) = 0) then
-      me.pListIndex.append(tItemID)
+    if me.findPos(tItemID) = 0 then
+      me.append(tItemID)
     end if
-    if (me.pListData.findPos(tItemID) = 0) or tOverwrite then
+    if me.findPos(tItemID) = 0 or tOverwrite then
       me.updateListItemObject(tInstanceData)
     end if
   end repeat
   me.setUpdateTimestamp()
   return(me.announceUpdate(me.pListIndex))
+  exit
 end
 
-on updateEntry me, tdata 
+on updateEntry(me, tdata)
   tObject = me.updateListItemObject(tdata)
   if tObject <> 0 then
     me.announceUpdate(tdata.getaProp(#id))
   end if
   return(tObject)
+  exit
 end
 
-on getListEntry me, tID 
+on getListEntry(me, tID)
   if voidp(tID) then
-    return FALSE
+    return(0)
   end if
   return(pListData.getaProp(tID))
+  exit
 end
 
-on getListCount me 
+on getListCount(me)
   return(pListData.count)
+  exit
 end
 
-on dump me 
+on dump(me)
   return(me.pListData)
+  exit
 end
 
-on updateListItemObject me, tInstanceData 
+on updateListItemObject(me, tInstanceData)
   if not listp(tInstanceData) then
-    return FALSE
+    return(0)
   end if
   if not tInstanceData.findPos(#id) then
     return(error(me, "List instance struct must contain id!" && tInstanceData, #updateListItemObject))
   end if
   tID = tInstanceData.getaProp(#id)
-  tObject = me.pListData.getaProp(tID)
-  if (tObject = 0) then
+  tObject = me.getaProp(tID)
+  if tObject = 0 then
     tObject = me.getNewListItemObject()
-    if (tObject = 0) then
-      return FALSE
+    if tObject = 0 then
+      return(0)
     end if
     tObject.define(tInstanceData)
-    me.pListData.setaProp(tID, tObject)
-    if (me.pListIndex.findPos(tID) = 0) then
-      me.pListIndex.append(tID)
+    me.setaProp(tID, tObject)
+    if me.findPos(tID) = 0 then
+      me.append(tID)
     end if
   else
     tObject.Refresh(tInstanceData)
   end if
   return(tObject)
+  exit
 end
 
-on getListIdByIndex me, tIndex 
+on getListIdByIndex(me, tIndex)
   if tIndex < 1 then
     return(-1)
   end if
@@ -97,22 +103,25 @@ on getListIdByIndex me, tIndex
     return(-1)
   end if
   return(pListIndex.getAt(tIndex))
+  exit
 end
 
-on removeListEntry me, tID 
-  tObject = me.pListData.getaProp(tID)
+on removeListEntry(me, tID)
+  tObject = me.getaProp(tID)
   if objectp(tObject) then
     tObject.deconstruct()
   end if
-  me.pListIndex.deleteOne(tID)
-  me.pListData.deleteProp(tID)
+  me.deleteOne(tID)
+  me.deleteProp(tID)
+  exit
 end
 
-on getNewListItemObject me 
+on getNewListItemObject(me)
   tObject = createObject(#temp, me.pListItemContainerClass)
-  if (tObject = 0) then
-    return FALSE
+  if tObject = 0 then
+    return(0)
   end if
   tObject.pIGComponentId = me.getID()
   return(tObject)
+  exit
 end

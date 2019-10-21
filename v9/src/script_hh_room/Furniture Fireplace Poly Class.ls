@@ -1,26 +1,26 @@
-property pTiming, pChanges, pActive
-
-on prepare me, tdata 
+on prepare(me, tdata)
   pChanges = 1
   pTiming = 1
-  if (tdata.getAt(#stuffdata) = "ON") then
+  if tdata.getAt(#stuffdata) = "ON" then
     me.setOn()
   else
     me.setOff()
   end if
-  return TRUE
+  return(1)
+  exit
 end
 
-on updateStuffdata me, tValue 
-  if (tValue = "ON") then
+on updateStuffdata(me, tValue)
+  if tValue = "ON" then
     me.setOn()
   else
     me.setOff()
   end if
   pChanges = 1
+  exit
 end
 
-on update me 
+on update(me)
   pTiming = not pTiming
   if not pChanges then
     return()
@@ -31,7 +31,7 @@ on update me
   if me.count(#pSprList) < 3 then
     return()
   end if
-  if (me.pXFactor = 32) then
+  if me.pXFactor = 32 then
     tClass = "s_fireplace_polyfon"
   else
     tClass = "fireplace_polyfon"
@@ -45,17 +45,20 @@ on update me
   me.getPropRef(#pSprList, 3).castNum = tmember.number
   me.getPropRef(#pSprList, 3).width = tmember.width
   me.getPropRef(#pSprList, 3).height = tmember.height
+  exit
 end
 
-on setOn me 
+on setOn(me)
   pActive = 1
+  exit
 end
 
-on setOff me 
+on setOff(me)
   pActive = 0
+  exit
 end
 
-on select me 
+on select(me)
   if the doubleClick then
     if pActive then
       tStr = "OFF"
@@ -64,5 +67,6 @@ on select me
     end if
     getThread(#room).getComponent().getRoomConnection().send("SETSTUFFDATA", [#string:string(me.getID()), #string:tStr])
   end if
-  return TRUE
+  return(1)
+  exit
 end

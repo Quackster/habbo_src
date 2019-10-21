@@ -1,48 +1,50 @@
-property pIgnoreList, pUserNamesPending
-
-on construct me 
+on construct(me)
   pUserNamesPending = []
   registerMessage(#userlogin, me.getID(), #initIgnoreList)
   registerMessage(#ignore_user_result, me.getID(), #saveIgnoreResult)
   registerMessage(#save_ignore_list, me.getID(), #saveIgnoreList)
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   unregisterMessage(#userlogin, me.getID())
   unregisterMessage(#ignore_user_result, me.getID())
   unregisterMessage(#save_ignore_list, me.getID())
+  exit
 end
 
-on initIgnoreList me 
+on initIgnoreList(me)
   tConnection = getConnection(#info)
-  if (tConnection = 0) then
+  if tConnection = 0 then
     return(error(me, "Info connection not available.", #construct))
   end if
   tConnection.send("GET_IGNORE_LIST")
   unregisterMessage(#userlogin, me.getID())
-  return TRUE
+  return(1)
+  exit
 end
 
-on getIgnoreStatus me, tUserName 
+on getIgnoreStatus(me, tUserName)
   if voidp(pIgnoreList) then
     me.reset()
   end if
-  if (pIgnoreList = []) then
-    return FALSE
+  if pIgnoreList = [] then
+    return(0)
   end if
   return(pIgnoreList.findPos(tUserName))
+  exit
 end
 
-on setIgnoreStatus me, tUserName, tStatus 
+on setIgnoreStatus(me, tUserName, tStatus)
   if voidp(pIgnoreList) then
     me.reset()
   end if
   tConnection = getConnection(#info)
-  if (tConnection = 0) then
+  if tConnection = 0 then
     return(error(me, "Info connection not available.", #construct))
   end if
-  if (tUserName = void()) then
-    return FALSE
+  if tUserName = void() then
+    return(0)
   end if
   pUserNamesPending.append(tUserName)
   if tStatus then
@@ -50,31 +52,33 @@ on setIgnoreStatus me, tUserName, tStatus
   else
     tConnection.send("UNIGNORE_USER", [#string:tUserName])
   end if
-  return TRUE
+  return(1)
+  exit
 end
 
-on saveIgnoreList me, tList 
+on saveIgnoreList(me, tList)
   pIgnoreList = tList
-  return TRUE
+  return(1)
+  exit
 end
 
-on saveIgnoreResult me, tResult 
-  if (pUserNamesPending.count = 0) then
-    return FALSE
+on saveIgnoreResult(me, tResult)
+  if pUserNamesPending.count = 0 then
+    return(0)
   end if
   tUserName = pUserNamesPending.getAt(1)
   pUserNamesPending.deleteAt(1)
-  if (tResult = 0) then
+  if me = 0 then
     return(error(me, "Ignore user failed.", #saveIgnoreResult))
   else
-    if (tResult = 1) then
+    if me = 1 then
       me.addUserToIgnoreList(tUserName)
     else
-      if (tResult = 2) then
+      if me = 2 then
         me.addUserToIgnoreList(tUserName)
         me.removeOldestIgnore()
       else
-        if (tResult = 3) then
+        if me = 3 then
           me.removeUserFromIgnoreList(tUserName)
         else
           return(error(me, "Unsupported result for ignore user:" && tResult, #saveIgnoreResult))
@@ -82,28 +86,33 @@ on saveIgnoreResult me, tResult
       end if
     end if
   end if
-  return TRUE
+  return(1)
+  exit
 end
 
-on addUserToIgnoreList me, tUserName 
+on addUserToIgnoreList(me, tUserName)
   if not pIgnoreList.findPos(tUserName) then
     pIgnoreList.add(tUserName)
   end if
+  exit
 end
 
-on removeUserFromIgnoreList me, tUserName 
+on removeUserFromIgnoreList(me, tUserName)
   pIgnoreList.deleteOne(tUserName)
+  exit
 end
 
-on removeOldestIgnore me 
+on removeOldestIgnore(me)
   if voidp(pIgnoreList) then
-    return FALSE
+    return(0)
   end if
   pIgnoreList.deleteAt(1)
-  return TRUE
+  return(1)
+  exit
 end
 
-on reset me 
+on reset(me)
   pIgnoreList = []
-  return TRUE
+  return(1)
+  exit
 end

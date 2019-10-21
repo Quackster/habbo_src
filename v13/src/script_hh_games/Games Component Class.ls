@@ -1,47 +1,49 @@
-property pOpenGameProps
-
-on construct me 
-  pOpenGameProps = [:]
-  return TRUE
+on construct(me)
+  pOpenGameProps = []
+  return(1)
+  exit
 end
 
-on deconstruct me 
-  pOpenGameProps = [:]
-  return TRUE
+on deconstruct(me)
+  pOpenGameProps = []
+  return(1)
+  exit
 end
 
-on sendGameOpen me 
+on sendGameOpen(me)
   if voidp(pOpenGameProps) then
-    return FALSE
+    return(0)
   end if
   if voidp(pOpenGameProps.getAt(#id)) then
-    return FALSE
+    return(0)
   end if
   if not connectionExists(getVariable("connection.room.id")) then
-    return FALSE
+    return(0)
   end if
   getConnection(getVariable("connection.room.id")).send("IIM", pOpenGameProps.getAt(#id) && "OPEN")
-  return TRUE
+  return(1)
+  exit
 end
 
-on sendGameClose me 
+on sendGameClose(me)
   if voidp(pOpenGameProps) then
-    return FALSE
+    return(0)
   end if
   if voidp(pOpenGameProps.getAt(#id)) then
-    return FALSE
+    return(0)
   end if
   if not connectionExists(getVariable("connection.room.id")) then
-    return FALSE
+    return(0)
   end if
   getConnection(getVariable("connection.room.id")).send("IIM", pOpenGameProps.getAt(#id) && "CLOSE")
-  pOpenGameProps = [:]
-  return TRUE
+  pOpenGameProps = []
+  return(1)
+  exit
 end
 
-on openGameBoard me, tMsg 
+on openGameBoard(me, tMsg)
   pOpenGameProps = tMsg
-  if (pOpenGameProps.getAt(#name) = "TicTacToe") then
+  if me = "TicTacToe" then
     pOpenGameProps.setAt(#bothTypeChosen, 0)
     pOpenGameProps.setAt(#player1, [#type:"", #name:""])
     pOpenGameProps.setAt(#player2, [#type:"", #name:""])
@@ -49,18 +51,18 @@ on openGameBoard me, tMsg
       me.openTicTacToe(pOpenGameProps)
     end if
   else
-    if (pOpenGameProps.getAt(#name) = "Chess") then
+    if me = "Chess" then
       if me.sendGameOpen() then
         me.openChess(pOpenGameProps)
       end if
     else
-      if (pOpenGameProps.getAt(#name) = "BattleShip") then
+      if me = "BattleShip" then
         pOpenGameProps.setAt(#gameend, 0)
         if me.sendGameOpen() then
           me.openBattleShip(pOpenGameProps)
         end if
       else
-        if (pOpenGameProps.getAt(#name) = "poker") then
+        if me = "poker" then
           if me.sendGameOpen() then
             me.openPoker(pOpenGameProps)
           end if
@@ -70,33 +72,35 @@ on openGameBoard me, tMsg
       end if
     end if
   end if
+  exit
 end
 
-on closeGameBoard me, tMsg 
+on closeGameBoard(me, tMsg)
   tCloseGameProps = tMsg
-  if (tCloseGameProps.getAt(#name) = "TicTacToe") then
+  if me = "TicTacToe" then
     me.getInterface().closeGame()
   else
-    if (tCloseGameProps.getAt(#name) = "Chess") then
+    if me = "Chess" then
       me.getInterface().closeGame()
     else
-      if (tCloseGameProps.getAt(#name) = "BattleShip") then
+      if me = "BattleShip" then
         me.getInterface().closeGame()
       else
-        if (tCloseGameProps.getAt(#name) = "Poker") then
+        if me = "Poker" then
           me.getInterface().closeGame()
         end if
       end if
     end if
   end if
   me.sendGameClose()
+  exit
 end
 
-on processItemMessage me, tMsg 
+on processItemMessage(me, tMsg)
   if voidp(pOpenGameProps) then
-    return FALSE
+    return(0)
   end if
-  if (pOpenGameProps.getAt(#name) = "TicTacToe") then
+  if me = "TicTacToe" then
     if tMsg.getAt(#command) contains "BOARDDATA" then
       pOpenGameProps.setAt(#player1, [#type:tMsg.getAt(#data).getPropRef(#line, 1).getProp(#word, 1), #name:tMsg.getAt(#data).getPropRef(#line, 1).getProp(#word, 2)])
       pOpenGameProps.setAt(#player2, [#type:tMsg.getAt(#data).getPropRef(#line, 2).getProp(#word, 1), #name:tMsg.getAt(#data).getPropRef(#line, 2).getProp(#word, 2)])
@@ -132,14 +136,14 @@ on processItemMessage me, tMsg
       end if
     end if
   else
-    if (pOpenGameProps.getAt(#name) = "Chess") then
+    if me = "Chess" then
       if tMsg.getAt(#command) contains "SELECTTYPE" then
         pOpenGameProps.setAt(#mySelectedType, tMsg.getAt(#command).getProp(#word, 2))
         me.getInterface().startChess(pOpenGameProps)
       else
         if tMsg.getAt(#command) contains "PIECEDATA" then
           if voidp(pOpenGameProps.getAt(#mySelectedType)) then
-            return FALSE
+            return(0)
           end if
           pOpenGameProps.setAt(#player1, [#type:tMsg.getAt(#data).getPropRef(#line, 1).getProp(#word, 1), #name:tMsg.getAt(#data).getPropRef(#line, 1).getProp(#word, 2)])
           pOpenGameProps.setAt(#player2, [#type:tMsg.getAt(#data).getPropRef(#line, 2).getProp(#word, 1), #name:tMsg.getAt(#data).getPropRef(#line, 2).getProp(#word, 2)])
@@ -152,29 +156,29 @@ on processItemMessage me, tMsg
         end if
       end if
     else
-      if (pOpenGameProps.getAt(#name) = "BattleShip") then
+      if me = "BattleShip" then
         if not voidp(pOpenGameProps.getAt(#gameend)) then
-          if (pOpenGameProps.getAt(#gameend) = 1) then
+          if pOpenGameProps.getAt(#gameend) = 1 then
             tText = getText("game_bs_won", "WON!") && pOpenGameProps.getAt(#winner)
             me.getInterface().battleShipGameEnd(tText)
-            return TRUE
+            return(1)
           end if
         end if
         if tMsg.getAt(#command) contains "TURN" then
           if voidp(pOpenGameProps.getAt(#myTurnNum)) then
-            return FALSE
+            return(0)
           end if
           if not voidp(pOpenGameProps.getAt(#gameend)) then
-            if (pOpenGameProps.getAt(#gameend) = 1) then
-              return FALSE
+            if pOpenGameProps.getAt(#gameend) = 1 then
+              return(0)
             end if
           end if
           if not voidp(pOpenGameProps.getAt(#shootstatus)) then
-            if (pOpenGameProps.getAt(#shootstatus) = "HIT") then
-              return FALSE
+            if pOpenGameProps.getAt(#shootstatus) = "HIT" then
+              return(0)
             end if
           end if
-          if (tMsg.getAt(#data).getProp(#char, 1) = pOpenGameProps.getAt(#myTurnNum)) then
+          if tMsg.getAt(#data).getProp(#char, 1) = pOpenGameProps.getAt(#myTurnNum) then
             pOpenGameProps.setAt(#myturn, 1)
             me.getInterface().battleShipMyTurn()
             if not voidp(pOpenGameProps.getAt(#player1Data)) then
@@ -192,10 +196,10 @@ on processItemMessage me, tMsg
             i = 1
             repeat while i <= tMsg.getAt(#data).count(#line)
               tLine = tMsg.getAt(#data).getProp(#line, i)
-              if (tLine.getProp(#word, 2) = getObject(#session).get("user_name")) then
+              if tLine.getProp(#word, 2) = getObject(#session).get("user_name") then
                 pOpenGameProps.setAt(#myTurnNum, tLine.getProp(#word, 1))
               end if
-              i = (1 + i)
+              i = 1 + i
             end repeat
             exit repeat
           end if
@@ -207,7 +211,7 @@ on processItemMessage me, tMsg
               if pOpenGameProps.getAt(#myturn) then
                 pOpenGameProps.setAt(#shootstatus, "HIT")
               end if
-              if (pOpenGameProps.getAt(#shootstatus) = "HIT") then
+              if pOpenGameProps.getAt(#shootstatus) = "HIT" then
                 tText = getText("game_bs_hit", "A Hit!!!")
               else
                 tText = getText("game_bs_toast", "Toast!!!")
@@ -237,46 +241,46 @@ on processItemMessage me, tMsg
                       tOpponent2Data = tMsg.getAt(#data).getProp(#line, 4)
                       pOpenGameProps.setAt(#player1Data, [])
                       pOpenGameProps.setAt(#player2Data, [])
-                      repeat while pOpenGameProps.getAt(#name) <= undefined
+                      repeat while me <= undefined
                         j = getAt(undefined, tMsg)
-                        if (j = 1) then
+                        if j = 1 then
                           s = tOpponent1Data
                         else
                           s = tOpponent2Data
                         end if
                         i = 1
                         repeat while i <= s.length
-                          ay = ((i - 1) / 13)
-                          ax = ((i - 1) mod 13)
-                          if j <> (value(pOpenGameProps.getAt(#myTurnNum)) + 1) then
-                            if (pOpenGameProps.getAt(#name) = "O") then
+                          ay = i - 1 / 13
+                          ax = i - 1 mod 13
+                          if j <> value(pOpenGameProps.getAt(#myTurnNum)) + 1 then
+                            if me = "O" then
                               add(pOpenGameProps.getAt(#player1Data), [ax, ay, #miss])
                             else
-                              if (pOpenGameProps.getAt(#name) = "X") then
+                              if me = "X" then
                                 add(pOpenGameProps.getAt(#player1Data), [ax, ay, #hit])
                               else
-                                if (pOpenGameProps.getAt(#name) = "S") then
+                                if me = "S" then
                                   add(pOpenGameProps.getAt(#player1Data), [ax, ay, #sink])
                                 end if
                               end if
                             end if
                           else
-                            if (pOpenGameProps.getAt(#name) = "O") then
+                            if me = "O" then
                               add(pOpenGameProps.getAt(#player2Data), [ax, ay, #miss])
                             else
-                              if (pOpenGameProps.getAt(#name) = "X") then
+                              if me = "X" then
                                 add(pOpenGameProps.getAt(#player2Data), [ax, ay, #hit])
                               else
-                                if (pOpenGameProps.getAt(#name) = "S") then
+                                if me = "S" then
                                   add(pOpenGameProps.getAt(#player2Data), [ax, ay, #sink])
                                 end if
                               end if
                             end if
                           end if
-                          i = (1 + i)
+                          i = 1 + i
                         end repeat
                       end repeat
-                      if (pOpenGameProps.getAt(#myturn) = 1) then
+                      if pOpenGameProps.getAt(#myturn) = 1 then
                         me.getInterface().updateBattleShipBoard(pOpenGameProps.getAt(#player1Data))
                       else
                         me.getInterface().updateBattleShipBoard(pOpenGameProps.getAt(#player2Data))
@@ -289,20 +293,20 @@ on processItemMessage me, tMsg
           end if
         end if
       else
-        if (pOpenGameProps.getAt(#name) = "Poker") then
-          if (pOpenGameProps.getAt(#name) = tMsg.getAt(#command) contains "YOURCARDS") then
+        if me = "Poker" then
+          if me = tMsg.getAt(#command) contains "YOURCARDS" then
             return(me.getInterface().PokerListMyCards(tMsg.getAt(#command)))
           else
-            if (pOpenGameProps.getAt(#name) = tMsg.getAt(#command) contains "OPPONENTS") then
+            if me = tMsg.getAt(#command) contains "OPPONENTS" then
               return(me.getInterface().PokerHandleOpponents(tMsg.getAt(#data)))
             else
-              if (pOpenGameProps.getAt(#name) = tMsg.getAt(#command) contains "CHANGED") then
+              if me = tMsg.getAt(#command) contains "CHANGED" then
                 return(me.getInterface().pokerChangeCards(tMsg.getAt(#data)))
               else
-                if (pOpenGameProps.getAt(#name) = tMsg.getAt(#command) contains "REVEALCARDS") then
+                if me = tMsg.getAt(#command) contains "REVEALCARDS" then
                   return(me.getInterface().PokerRevealCards(tMsg.getAt(#data)))
                 else
-                  if (pOpenGameProps.getAt(#name) = tMsg.getAt(#command) contains "OPPONENT_LOGOUT") then
+                  if me = tMsg.getAt(#command) contains "OPPONENT_LOGOUT" then
                     return(me.getInterface().PokerOpponentLeaves(tMsg.getAt(#data).getProp(#item, 1)))
                   end if
                 end if
@@ -315,189 +319,208 @@ on processItemMessage me, tMsg
       end if
     end if
   end if
+  exit
 end
 
-on openTicTacToe me, tProps 
+on openTicTacToe(me, tProps)
   me.getInterface().openGameWindow("TicTacToe", tProps)
+  exit
 end
 
-on chooseSideTicTacToe me, tside 
+on chooseSideTicTacToe(me, tside)
   tid = pOpenGameProps.getAt(#id)
   if voidp(tid) or voidp(tside) then
-    return FALSE
+    return(0)
   end if
   if not connectionExists(getVariable("connection.room.id")) then
-    return FALSE
+    return(0)
   end if
   getConnection(getVariable("connection.room.id")).send("IIM", tid && "CHOOSETYPE" && tside)
+  exit
 end
 
-on makeMoveTicTacToe me, tX, tY 
+on makeMoveTicTacToe(me, tX, tY)
   tid = pOpenGameProps.getAt(#id)
   if voidp(tid) then
-    return FALSE
+    return(0)
   end if
   if voidp(pOpenGameProps.getAt(#mySelectedType)) then
-    return FALSE
+    return(0)
   end if
   if not connectionExists(getVariable("connection.room.id")) then
-    return FALSE
+    return(0)
   end if
   getConnection(getVariable("connection.room.id")).send("IIM", tid && "SETSECTOR" && pOpenGameProps.getAt(#mySelectedType) && tX && tY)
+  exit
 end
 
-on restartTicTacToe me 
+on restartTicTacToe(me)
   tid = pOpenGameProps.getAt(#id)
   if voidp(tid) then
-    return FALSE
+    return(0)
   end if
   if not connectionExists(getVariable("connection.room.id")) then
-    return FALSE
+    return(0)
   end if
   getConnection(getVariable("connection.room.id")).send("IIM", tid && "RESTART")
+  exit
 end
 
-on openChess me, tProps 
+on openChess(me, tProps)
   me.getInterface().openGameWindow("Chess", tProps)
+  exit
 end
 
-on makeMoveChess me, tMove 
+on makeMoveChess(me, tMove)
   tid = pOpenGameProps.getAt(#id)
   if voidp(tid) then
-    return FALSE
+    return(0)
   end if
   if not connectionExists(getVariable("connection.room.id")) then
-    return FALSE
+    return(0)
   end if
   getConnection(getVariable("connection.room.id")).send("IIM", tid && "MOVEPIECE" && tMove)
+  exit
 end
 
-on sendChessByEmail me 
+on sendChessByEmail(me)
   tid = pOpenGameProps.getAt(#id)
   if voidp(tid) then
-    return FALSE
+    return(0)
   end if
   if not connectionExists(getVariable("connection.room.id")) then
-    return FALSE
+    return(0)
   end if
   getConnection(getVariable("connection.room.id")).send("IIM", tid && "SENDHISTORY")
+  exit
 end
 
-on restartChess me 
+on restartChess(me)
   tid = pOpenGameProps.getAt(#id)
   if voidp(tid) then
-    return FALSE
+    return(0)
   end if
   if not connectionExists(getVariable("connection.room.id")) then
-    return FALSE
+    return(0)
   end if
   me.getInterface().startChess(pOpenGameProps)
   getConnection(getVariable("connection.room.id")).send("IIM", tid && "RESTART")
+  exit
 end
 
-on notRestartChess me 
+on notRestartChess(me)
   me.getInterface().startChess(pOpenGameProps)
   me.getInterface().updateChess(pOpenGameProps)
+  exit
 end
 
-on getMySideChess me 
+on getMySideChess(me)
   tid = pOpenGameProps.getAt(#id)
   if voidp(tid) then
-    return FALSE
+    return(0)
   end if
   if voidp(pOpenGameProps.getAt(#mySelectedType)) then
-    return FALSE
+    return(0)
   end if
   return(pOpenGameProps.getAt(#mySelectedType))
+  exit
 end
 
-on openBattleShip me, tProps 
+on openBattleShip(me, tProps)
   me.getInterface().openGameWindow("BattleShip", tProps)
+  exit
 end
 
-on sendBattleShipPlaceShip me, tMove 
+on sendBattleShipPlaceShip(me, tMove)
   tid = pOpenGameProps.getAt(#id)
   if voidp(tid) then
-    return FALSE
+    return(0)
   end if
   if not connectionExists(getVariable("connection.room.id")) then
-    return FALSE
+    return(0)
   end if
   getConnection(getVariable("connection.room.id")).send("IIM", tid && "PLACESHIP" && tMove)
+  exit
 end
 
-on restartBattleShip me 
+on restartBattleShip(me)
   tid = pOpenGameProps.getAt(#id)
   if voidp(tid) then
-    return FALSE
+    return(0)
   end if
   if not connectionExists(getVariable("connection.room.id")) then
-    return FALSE
+    return(0)
   end if
-  tTemp = [:]
+  tTemp = []
   tTemp.setAt(#id, pOpenGameProps.getAt(#id))
   tTemp.setAt(#name, pOpenGameProps.getAt(#name))
   me.sendGameClose()
   me.openGameBoard(tTemp)
+  exit
 end
 
-on sendBattleShipShoot me, tX, tY 
+on sendBattleShipShoot(me, tX, tY)
   if pOpenGameProps.getAt(#myturn) <> 1 then
-    return FALSE
+    return(0)
   end if
   tid = pOpenGameProps.getAt(#id)
   if voidp(tid) then
-    return FALSE
+    return(0)
   end if
   if not connectionExists(getVariable("connection.room.id")) then
-    return FALSE
+    return(0)
   end if
   if not voidp(pOpenGameProps.getAt(#gameend)) then
-    if (pOpenGameProps.getAt(#gameend) = 1) then
-      return FALSE
+    if pOpenGameProps.getAt(#gameend) = 1 then
+      return(0)
     end if
   end if
   getConnection(getVariable("connection.room.id")).send("IIM", tid && "SHOOT" && tX && tY)
-  return TRUE
+  return(1)
+  exit
 end
 
-on openPoker me, tProps 
+on openPoker(me, tProps)
   me.getInterface().openGameWindow("Poker", tProps)
+  exit
 end
 
-on startPoker me 
+on startPoker(me)
   tid = pOpenGameProps.getAt(#id)
   if voidp(tid) then
-    return FALSE
+    return(0)
   end if
   if not connectionExists(getVariable("connection.room.id")) then
-    return FALSE
+    return(0)
   end if
   getConnection(getVariable("connection.room.id")).send("IIM", tid && "STARTOVER")
+  exit
 end
 
-on restartPoker me 
+on restartPoker(me)
   tid = pOpenGameProps.getAt(#id)
   if voidp(tid) then
-    return FALSE
+    return(0)
   end if
   if not connectionExists(getVariable("connection.room.id")) then
-    return FALSE
+    return(0)
   end if
-  tTemp = [:]
+  tTemp = []
   tTemp.setAt(#id, pOpenGameProps.getAt(#id))
   tTemp.setAt(#name, pOpenGameProps.getAt(#name))
   me.sendGameClose()
   me.openGameBoard(tTemp)
+  exit
 end
 
-on pokerChangeCards me, tCards 
+on pokerChangeCards(me, tCards)
   tid = pOpenGameProps.getAt(#id)
   if voidp(tid) then
-    return FALSE
+    return(0)
   end if
   if not connectionExists(getVariable("connection.room.id")) then
-    return FALSE
+    return(0)
   end if
   getConnection(getVariable("connection.room.id")).send("IIM", tid && "CHANGE" && tCards)
+  exit
 end

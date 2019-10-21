@@ -1,29 +1,31 @@
-property pREquiresUpdate, pMask, pMaskList, pMaskImage
-
-on construct me 
-  pMaskList = [:]
+on construct(me)
+  pMaskList = []
   me.initMask()
   return(1)
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   return(1)
+  exit
 end
 
-on requiresUpdate me 
+on requiresUpdate(me)
   return(pREquiresUpdate)
+  exit
 end
 
-on getMask me 
+on getMask(me)
   if pREquiresUpdate then
     me.renderMask()
   end if
   pREquiresUpdate = 0
   return(pMask)
+  exit
 end
 
-on insertWallMaskItem me, tID, tClassID, tloc, tdir, tSize 
-  tMaskProps = [:]
+on insertWallMaskItem(me, tID, tClassID, tloc, tdir, tSize)
+  tMaskProps = []
   tMaskProps.setaProp(#id, tID)
   tMaskProps.setaProp(#class, tClassID)
   tMaskProps.setaProp(#loc, tloc)
@@ -31,28 +33,32 @@ on insertWallMaskItem me, tID, tClassID, tloc, tdir, tSize
   tMaskProps.setaProp(#size, tSize)
   pMaskList.setaProp(tID, tMaskProps)
   pREquiresUpdate = 1
+  exit
 end
 
-on removeWallMaskItem me, tID 
+on removeWallMaskItem(me, tID)
   pMaskList.deleteProp(tID)
   pREquiresUpdate = 1
+  exit
 end
 
-on getItemCount me 
+on getItemCount(me)
   return(pMaskList.count)
+  exit
 end
 
-on initMask me 
+on initMask(me)
   tWidth = rect.width
   tHeight = rect.height
   pMaskImage = image(tWidth, tHeight, 8)
   pMaskImage.fill(pMaskImage.rect, rgb("FFFFFF"))
   pIsChanged = 1
+  exit
 end
 
-on renderMask me 
+on renderMask(me)
   pMaskImage.fill(pMaskImage.rect, rgb("FFFFFF"))
-  repeat while pMaskList <= undefined
+  repeat while me <= undefined
     tMask = getAt(undefined, undefined)
     tloc = tMask.getAt(#loc)
     tClass = tMask.getAt(#class)
@@ -86,4 +92,5 @@ on renderMask me
   if ilk(pMaskImage) = #image then
     pMask = pMaskImage.createMask()
   end if
+  exit
 end

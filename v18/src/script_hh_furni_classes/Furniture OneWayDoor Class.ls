@@ -1,23 +1,23 @@
-on select me 
+on select(me)
   tUserObj = getThread(#room).getComponent().getOwnUser()
-  if (tUserObj = 0) then
-    return FALSE
+  if tUserObj = 0 then
+    return(0)
   end if
   tLocUser = [tUserObj.pLocX, tUserObj.pLocY]
   tLocDoor = [me.pLocX, me.pLocY]
-  if (me.getProp(#pDirection, 1) = 0) then
-    tLocWanted = (tLocDoor + [0, -1])
+  if me = 0 then
+    tLocWanted = tLocDoor + [0, -1]
   else
-    if (me.getProp(#pDirection, 1) = 2) then
-      tLocWanted = (tLocDoor + [1, 0])
+    if me = 2 then
+      tLocWanted = tLocDoor + [1, 0]
     else
-      if (me.getProp(#pDirection, 1) = 4) then
-        tLocWanted = (tLocDoor + [0, 1])
+      if me = 4 then
+        tLocWanted = tLocDoor + [0, 1]
       else
-        if (me.getProp(#pDirection, 1) = 6) then
-          tLocWanted = (tLocDoor + [-1, 0])
+        if me = 6 then
+          tLocWanted = tLocDoor + [-1, 0]
         else
-          return FALSE
+          return(0)
         end if
       end if
     end if
@@ -25,27 +25,28 @@ on select me
   tConnection = getConnection(getVariable("connection.info.id", #info))
   if voidp(tConnection) then
     error(me, "No connection available.", me.getID(), #select, #major)
-    return FALSE
+    return(0)
   end if
-  if (tLocUser = tLocWanted) then
+  if tLocUser = tLocWanted then
     if the doubleClick then
       tConnection.send("ENTER_ONEWAY_DOOR", [#integer:integer(me.getID())])
     end if
   else
     tConnection.send("MOVE", [#short:tLocWanted.getAt(1), #short:tLocWanted.getAt(2)])
   end if
-  return TRUE
+  return(1)
+  exit
 end
 
-on setDoor me, tStatus 
-  if not (tStatus = 1) or (tStatus = 0) then
+on setDoor(me, tStatus)
+  if not tStatus = 1 or tStatus = 0 then
     error(me, "Invalid door status:" && tStatus, #setDoor, #minor)
-    return FALSE
+    return(0)
   end if
-  repeat while me.pSprList <= undefined
+  repeat while me <= undefined
     tsprite = getAt(undefined, tStatus)
-    tCurName = tsprite.member.name
-    tNewName = tCurName.getProp(#char, 1, (length(tCurName) - 1)) & tStatus
+    tCurName = member.name
+    tNewName = tCurName.getProp(#char, 1, length(tCurName) - 1) & tStatus
     if memberExists(tNewName) then
       tMem = member(getmemnum(tNewName))
       tsprite.member = tMem
@@ -53,4 +54,5 @@ on setDoor me, tStatus
       tsprite.height = tMem.height
     end if
   end repeat
+  exit
 end

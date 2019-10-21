@@ -1,6 +1,4 @@
-property pUpperFrameOffs, pLowerFrameOffs, pWindowObj, pUpperJawElement, pLowerJawElement, pUpperElementDefaultPos, pLowerElementDefaultPos, pCurrentSkipCounter, pCurrentFrame, pMaxFrames
-
-on construct me 
+on construct(me)
   pWindowObj = void()
   pAnimating = 0
   pUpperJawElement = void()
@@ -12,37 +10,40 @@ on construct me
   pCurrentFrame = 1
   pCurrentSkipCounter = 0
   pMaxFrames = min([pUpperFrameOffs.count, pLowerFrameOffs.count])
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   pWindowObj = void()
   pAnimating = 0
+  exit
 end
 
-on startAnimation me, tWindowObj 
+on startAnimation(me, tWindowObj)
   if voidp(tWindowObj) then
-    return FALSE
+    return(0)
   end if
   pWindowObj = tWindowObj
   if pWindowObj.elementExists("rec_jaw_upper") then
     pUpperJawElement = pWindowObj.getElement("rec_jaw_upper")
     pUpperElementDefaultPos = [pUpperJawElement.getProperty(#locH), pUpperJawElement.getProperty(#locV)]
   else
-    return FALSE
+    return(0)
   end if
   if pWindowObj.elementExists("rec_jaw_lower") then
     pLowerJawElement = pWindowObj.getElement("rec_jaw_lower")
     pLowerElementDefaultPos = [pLowerJawElement.getProperty(#locH), pLowerJawElement.getProperty(#locV)]
   else
-    return FALSE
+    return(0)
   end if
   pCurrentFrame = 1
   pCurrentSkipCounter = 0
   pAnimating = 1
   receivePrepare(me.getID())
+  exit
 end
 
-on stopAnimation me 
+on stopAnimation(me)
   pAnimating = 0
   removePrepare(me.getID())
   if not voidp(pWindowObj) then
@@ -55,33 +56,35 @@ on stopAnimation me
       pWindowObj.getElement("rec_jaw_lower").setProperty(#locH, pLowerElementDefaultPos.getAt(2))
     end if
   end if
+  exit
 end
 
-on getElementPosition me, tElementType, tFrame 
+on getElementPosition(me, tElementType, tFrame)
   tOffsetList = [[0, 0]]
   tDefaultPos = [0, 0]
-  if (tElementType = #upper) then
+  if me = #upper then
     tOffsetList = pUpperFrameOffs
     tDefaultPos = pUpperElementDefaultPos
   else
-    if (tElementType = #lower) then
+    if me = #lower then
       tOffsetList = pLowerFrameOffs
       tDefaultPos = pLowerElementDefaultPos
     end if
   end if
   tOffset = [tOffsetList.getAt(tFrame).getAt(1), tOffsetList.getAt(tFrame).getAt(2)]
-  tPosition = (tDefaultPos + tOffset)
+  tPosition = tDefaultPos + tOffset
   return(tPosition)
+  exit
 end
 
-on prepare me 
+on prepare(me)
   if pCurrentSkipCounter <= 0 then
     pCurrentSkipCounter = 4
   else
-    pCurrentSkipCounter = (pCurrentSkipCounter - 1)
-    return FALSE
+    pCurrentSkipCounter = pCurrentSkipCounter - 1
+    return(0)
   end if
-  pCurrentFrame = (pCurrentFrame + 1)
+  pCurrentFrame = pCurrentFrame + 1
   if pCurrentFrame > pMaxFrames then
     pCurrentFrame = 1
   end if
@@ -97,4 +100,5 @@ on prepare me
       pLowerJawElement.setProperty(#locV, tPos.getAt(2))
     end if
   end if
+  exit
 end

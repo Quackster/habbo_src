@@ -1,14 +1,13 @@
-property pSprite, pLastLoc, pGeometry, pLastCrd
-
-on construct me 
+on construct(me)
   pGeometry = void()
   pSprite = void()
   pLastLoc = point(0, 0)
   pLastCrd = void()
   return(1)
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   pGeometry = void()
   if ilk(pSprite) = #sprite then
     pSprite.visible = 0
@@ -16,15 +15,17 @@ on deconstruct me
   pSprite = void()
   pLastLoc = void()
   return(1)
+  exit
 end
 
-on define me, tdata 
+on define(me, tdata)
   pGeometry = getObject(tdata.getAt(#geometry))
   pSprite = tdata.getAt(#sprite)
   return(1)
+  exit
 end
 
-on update me 
+on update(me)
   if the mouseLoc = pLastLoc then
     return()
   end if
@@ -44,10 +45,12 @@ on update me
     pSprite.locH = tScreenCoord.getAt(1)
     pSprite.locV = tScreenCoord.getAt(2)
   end if
+  exit
 end
 
-on redirectEvent me, tEvent, tSprID, tParam 
+on redirectEvent(me, tEvent, tSprID, tParam)
   pSprite.visible = 0
   call(tEvent, [sprite(the rollover)])
   pSprite.visible = 1
+  exit
 end

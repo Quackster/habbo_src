@@ -1,4 +1,4 @@
-on constructErrorManager  
+on constructErrorManager()
   if objectp(gError) then
     return(gError)
   end if
@@ -9,36 +9,48 @@ on constructErrorManager
   createObject(#error_manager, gError)
   catch()
   return(gError)
+  exit
 end
 
-on deconstructErrorManager  
+on deconstructErrorManager()
   if not objectp(gError) then
-    return FALSE
+    return(0)
   end if
   gError.deconstruct()
   gError = void()
-  return TRUE
+  return(1)
+  exit
 end
 
-on getErrorManager  
+on getErrorManager()
   if not objectp(gError) then
     return(constructErrorManager())
   end if
   return(gError)
+  exit
 end
 
-on error tObject, tMsg, tMethod 
+on error(tObject, tMsg, tMethod)
   return(getErrorManager().error(tObject, tMsg, tMethod))
+  exit
 end
 
-on SystemAlert tObject, tMsg, tMethod 
+on SystemAlert(tObject, tMsg, tMethod)
   return(getErrorManager().SystemAlert(tObject, tMsg, tMethod))
+  exit
 end
 
-on setDebugLevel tLevel 
+on setDebugLevel(tLevel)
   return(getErrorManager().setDebugLevel(tLevel))
+  exit
 end
 
-on printErrors  
+on setErrorEmailAddress(tAddress)
+  return(getErrorManager().setErrorEmailAddress(tAddress))
+  exit
+end
+
+on printErrors()
   return(getErrorManager().print())
+  exit
 end

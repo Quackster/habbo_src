@@ -1,14 +1,12 @@
-property pTutorWindowID, pPose, pTutorWindow
-
-on construct me 
+on construct(me)
   me.pTutorWindowID = "Tutor_character"
   createWindow(pTutorWindowID, "guide_character.window")
   me.pTutorWindow = getWindow(pTutorWindowID)
   me.pBubble = createObject(getUniqueID(), ["Bubble Class", "Link Bubble Class"])
   me.hide()
-  me.pBubble.setProperty(#targetID, "guide_image")
-  me.pBubble.setProperty([#offsetx:50])
-  me.pBubble.update()
+  me.setProperty(#targetID, "guide_image")
+  me.setProperty([#offsetx:50])
+  me.update()
   if variableExists("tutorial.tutor.default.x") then
     me.pDefPosX = getVariable("tutorial.tutor.default.x")
   else
@@ -20,89 +18,96 @@ on construct me
     me.pDefPosY = 250
   end if
   me.pPose = 1
-  return TRUE
+  return(1)
+  exit
 end
 
-on deconstruct me 
-  removeObject(me.pBubble.getID())
-  removeWindow(me.pTutorWindow.getProperty(#id))
+on deconstruct(me)
+  removeObject(me.getID())
+  removeWindow(me.getProperty(#id))
+  exit
 end
 
-on hideLinks me 
-  me.pBubble.setLinks(void())
+on hideLinks(me)
+  me.setLinks(void())
+  exit
 end
 
-on update me 
-  me.pBubble.update()
-  return([me.pTutorWindowID, me.pBubble.getProperty(#windowId)])
+on update(me)
+  me.update()
+  return([me.pTutorWindowID, me.getProperty(#windowId)])
+  exit
 end
 
-on setProperties me, tProperties 
+on setProperties(me, tProperties)
   if not listp(tProperties) then
-    return FALSE
+    return(0)
   end if
   i = 1
   repeat while i <= tProperties.count
     me.setProperty(tProperties.getPropAt(i), tProperties.getAt(i))
-    i = (1 + i)
+    i = 1 + i
   end repeat
+  exit
 end
 
-on getProperty me, tProp 
-  if (tProp = #sex) then
+on getProperty(me, tProp)
+  if me = #sex then
     return(me.pSex)
   end if
+  exit
 end
 
-on setProperty me, tProperty, tValue 
-  if (tProperty = #textKey) then
+on setProperty(me, tProperty, tValue)
+  if me = #textKey then
     tText = getText(tValue)
     tText = replaceChunks(tText, "\\n", "\r" & "\r")
-    me.pBubble.setText(tText)
+    me.setText(tText)
   else
-    if (tProperty = #offsetx) then
+    if me = #offsetx then
       tValue = value(tValue)
       if not tValue then
         me.pPosX = me.pDefPosX
       else
         me.pPosX = tValue
       end if
-      me.pTutorWindow.moveTo(me.pPosX, me.pPosY)
+      me.moveTo(me.pPosX, me.pPosY)
     else
-      if (tProperty = #offsety) then
+      if me = #offsety then
         tValue = value(tValue)
         if not tValue then
           me.pPosY = me.pDefPosY
         else
           me.pPosY = tValue
         end if
-        me.pTutorWindow.moveTo(me.pPosX, me.pPosY)
+        me.moveTo(me.pPosX, me.pPosY)
       else
-        if (tProperty = #links) then
-          me.pBubble.setLinks(tValue)
-          if (tValue.ilk = #propList) then
+        if me = #links then
+          me.setLinks(tValue)
+          if tValue.ilk = #propList then
             if not voidp(tValue.getaProp(#menu)) then
-              me.pBubble.addText("tutorial_next")
+              me.addText("tutorial_next")
             end if
           end if
         else
-          if (tProperty = #sex) then
+          if me = #sex then
             me.pSex = tValue
             me.updateImage()
           else
-            if tProperty <> #pose then
-              if (tProperty = #direction) then
+            if me <> #pose then
+              if me = #direction then
                 me.pPose = tValue
                 me.updateImage()
               else
-                if (tProperty = #topics) then
+                if me = #topics then
                   me.pTopicList = tValue
                 else
-                  if (tProperty = #statuses) then
-                    me.pBubble.setCheckmarks(tValue)
+                  if me = #statuses then
+                    me.setCheckmarks(tValue)
                   end if
                 end if
               end if
+              exit
             end if
           end if
         end if
@@ -111,35 +116,38 @@ on setProperty me, tProperty, tValue
   end if
 end
 
-on moveTo me, tX, tY 
+on moveTo(me, tX, tY)
   me.pPosX = tX
   me.pPosY = tY
-  me.pTutorWindow.moveTo(me.pPosX, me.pPosY)
-  me.pBubble.update()
+  me.moveTo(me.pPosX, me.pPosY)
+  me.update()
+  exit
 end
 
-on hide me 
-  me.pTutorWindow.hide()
-  me.pBubble.hide()
+on hide(me)
+  me.hide()
+  me.hide()
+  exit
 end
 
-on show me 
+on show(me)
   if voidp(me.pimage) then
-    return FALSE
+    return(0)
   end if
   me.updateImage()
-  me.pTutorWindow.show()
-  me.pBubble.show()
+  me.show()
+  me.show()
+  exit
 end
 
-on updateImage me 
+on updateImage(me)
   if voidp(me.pSex) or voidp(pPose) then
-    return FALSE
+    return(0)
   end if
   tPose = integer(me.pPose)
   me.pFlipped = 0
   if tPose > 10 then
-    return FALSE
+    return(0)
   end if
   tImageElem = pTutorWindow.getElement("guide_image")
   if tPose < 0 then
@@ -149,27 +157,29 @@ on updateImage me
   tMemberName = "tutor_" & me.pSex & "_" & string(tPose)
   me.pimage = member(getmemnum(tMemberName)).image
   if voidp(me.pimage) then
-    return FALSE
+    return(0)
   end if
   tImageElem.feedImage(me.pimage)
   if me.pFlipped then
     tImageElem.flipH()
     tImageElem.render()
   end if
-  tImageElem.resizeTo(me.pimage.width, me.pimage.height, 1)
+  tImageElem.resizeTo(me.width, me.height, 1)
   me.updateShadow()
+  exit
 end
 
-on updateShadow me 
-  tShadow = image(me.pimage.width, me.pimage.height, 8)
-  tBlack = image(me.pimage.width, me.pimage.height, 8)
+on updateShadow(me)
+  tShadow = image(me.width, me.height, 8)
+  tBlack = image(me.width, me.height, 8)
   tBlack.fill(tBlack.rect, rgb("#000000"))
-  tShadow.copyPixels(tBlack, tShadow.rect, tBlack.rect, [#maskImage:me.pimage.createMatte()])
-  tElem = me.pTutorWindow.getElement("guide_shadow")
+  tShadow.copyPixels(tBlack, tShadow.rect, tBlack.rect, [#maskImage:me.createMatte()])
+  tElem = me.getElement("guide_shadow")
   tElem.feedImage(tShadow)
   tElem.resizeTo(tShadow.width, tShadow.height, 1)
   if me.pFlipped then
     tElem.flipH()
     tElem.render()
   end if
+  exit
 end

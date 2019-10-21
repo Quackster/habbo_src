@@ -1,3 +1,4 @@
-on mouseDown me 
+on mouseDown(me)
   startOver(gPoker)
+  exit
 end

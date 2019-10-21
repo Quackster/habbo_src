@@ -1,6 +1,4 @@
-property pBottomBarId, pCarriedPowerupType, pCarriedPowerupId, pUpdateCounter, pCarriedPowerupTimeToLive
-
-on construct me 
+on construct(me)
   pUpdateCounter = 0
   pCarriedPowerupId = 0
   pCarriedPowerupType = 0
@@ -9,17 +7,19 @@ on construct me
   registerMessage(#roomReady, me.getID(), #replaceRoomBar)
   registerMessage(#updateInfostandAvatar, me.getID(), #updateRoomBarFigure)
   return(1)
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   unregisterMessage(#roomReady, me.getID())
   unregisterMessage(#updateInfostandAvatar, me.getID())
   removeWindow(pBottomBarId)
   return(1)
+  exit
 end
 
-on Refresh me, tTopic, tdata 
-  if tTopic = #bb_event_1 then
+on Refresh(me, tTopic, tdata)
+  if me = #bb_event_1 then
     if pCarriedPowerupType = 0 then
       return(1)
     end if
@@ -27,7 +27,7 @@ on Refresh me, tTopic, tdata
       return(me.clearBottomBarPowerup())
     end if
   else
-    if tTopic = #bb_event_3 then
+    if me = #bb_event_3 then
       tGameSystem = me.getGameSystem()
       if tGameSystem = 0 then
         return(0)
@@ -44,7 +44,7 @@ on Refresh me, tTopic, tdata
       receiveUpdate(me.getID())
       me.setActivateButton(pCarriedPowerupType)
     else
-      if tTopic = #bb_event_5 then
+      if me = #bb_event_5 then
         tGameSystem = me.getGameSystem()
         if tGameSystem = 0 then
           return(0)
@@ -57,13 +57,13 @@ on Refresh me, tTopic, tdata
         end if
         return(me.clearBottomBarPowerup())
       else
-        if tTopic = #gameend then
+        if me = #gameend then
           return(me.clearBottomBarPowerup())
         else
-          if tTopic = #setfxicon then
+          if me = #setfxicon then
             return(me.setfxicon(tdata))
           else
-            if tTopic = #setmusicicon then
+            if me = #setmusicicon then
               return(me.setmusicicon(tdata))
             end if
           end if
@@ -72,9 +72,10 @@ on Refresh me, tTopic, tdata
     end if
   end if
   return(1)
+  exit
 end
 
-on update me 
+on update(me)
   pUpdateCounter = pUpdateCounter + 1
   if pUpdateCounter < 2 then
     return(1)
@@ -83,27 +84,30 @@ on update me
   if pCarriedPowerupTimeToLive > 0 then
     me.animatePowerupTimer()
   end if
+  exit
 end
 
-on animatePowerupTimer me 
+on animatePowerupTimer(me)
   tObjectTimeToLive = me.getGameSystem().getGameObjectProperty(pCarriedPowerupId, #timetolive)
   if tObjectTimeToLive = pCarriedPowerupTimeToLive then
     return(1)
   end if
   pCarriedPowerupTimeToLive = tObjectTimeToLive
   me.updatePowerupTimer(pCarriedPowerupTimeToLive)
+  exit
 end
 
-on clearBottomBarPowerup me 
+on clearBottomBarPowerup(me)
   removeUpdate(me.getID())
   pCarriedPowerupType = 0
   pCarriedPowerupTimeToLive = 0
   me.setActivateButton(0)
   me.updatePowerupTimer(-1)
   return(1)
+  exit
 end
 
-on activateButtonPressed me 
+on activateButtonPressed(me)
   if pCarriedPowerupType = 0 then
     return(1)
   end if
@@ -113,9 +117,10 @@ on activateButtonPressed me
   end if
   tGameSystem.sendGameEventMessage([#integer:4, #integer:pCarriedPowerupId])
   return(me.clearBottomBarPowerup())
+  exit
 end
 
-on setActivateButton me, tstate 
+on setActivateButton(me, tstate)
   if me.getGameSystem().getSpectatorModeFlag() then
     return(1)
   end if
@@ -147,9 +152,10 @@ on setActivateButton me, tstate
     tsprite.setcursor(0)
   end if
   return(1)
+  exit
 end
 
-on updatePowerupTimer me, tstate 
+on updatePowerupTimer(me, tstate)
   tWndObj = getWindow(pBottomBarId)
   if tWndObj = 0 then
     return(0)
@@ -170,9 +176,10 @@ on updatePowerupTimer me, tstate
   end if
   tMemNum = getmemnum("bb2_timer_pwrup_" & tstate)
   return(tsprite.setMember(member(tMemNum)))
+  exit
 end
 
-on setfxicon me, tstate 
+on setfxicon(me, tstate)
   tWndObj = getWindow(pBottomBarId)
   if tWndObj = 0 then
     return(0)
@@ -191,9 +198,10 @@ on setfxicon me, tstate
     tElem.setProperty(#image, tmember.image)
   end if
   return(1)
+  exit
 end
 
-on setmusicicon me, tstate 
+on setmusicicon(me, tstate)
   tWndObj = getWindow(pBottomBarId)
   if tWndObj = 0 then
     return(0)
@@ -212,9 +220,10 @@ on setmusicicon me, tstate
     tElem.setProperty(#image, tmember.image)
   end if
   return(1)
+  exit
 end
 
-on replaceRoomBar me 
+on replaceRoomBar(me)
   if me.getGameSystem().getSpectatorModeFlag() then
     return(1)
   end if
@@ -247,17 +256,18 @@ on replaceRoomBar me
   tElem.setEdit(1)
   return(tElem.setFocus(1))
   return(1)
+  exit
 end
 
-on eventProcRoomBar me, tEvent, tSprID, tParam 
+on eventProcRoomBar(me, tEvent, tSprID, tParam)
   if tEvent = #mouseUp then
-    if tSprID = "bb2_button_powerup" then
+    if me = "bb2_button_powerup" then
       return(me.activateButtonPressed())
     else
-      if tSprID = "gs_int_fx_image" then
+      if me = "gs_int_fx_image" then
         return(me.sendGameSystemEvent(#setfx))
       else
-        if tSprID = "gs_int_music_image" then
+        if me = "gs_int_music_image" then
           return(me.sendGameSystemEvent(#setmusic))
         end if
       end if
@@ -273,18 +283,21 @@ on eventProcRoomBar me, tEvent, tSprID, tParam
     return(0)
   end if
   return(tRoomInt.eventProcRoomBar(tEvent, tSprID, tParam))
+  exit
 end
 
-on getOwnGameIndex me 
+on getOwnGameIndex(me)
   tSession = getObject(#session)
   if not tSession.exists("user_game_index") then
     return(0)
   end if
   return(tSession.GET("user_game_index"))
+  exit
 end
 
-on updateRoomBarFigure me 
+on updateRoomBarFigure(me)
   if objectExists("Figure_Preview") then
     getObject("Figure_Preview").createHumanPartPreview(pBottomBarId, "bb2_avatar_face", #head)
   end if
+  exit
 end

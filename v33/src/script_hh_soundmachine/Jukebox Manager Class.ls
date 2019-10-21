@@ -1,6 +1,4 @@
-property pWriterID, pPlaylistWriterID, pPlaylistLimit, pOwner, pDiskListImage, pDiskListRenderList, pSelectedDisk, pPlaylistWidth, pPlaylistHeight, pDiskList, pDiskArrayWidth, pDiskArrayHeight, pSelectedEject, pItemWidth, pItemMarginX, pItemHeight, pItemMarginY, pEjectNameSelected, pConnectionId, pItemName, pItemNameSelected, pItemNameEmpty, pItemNameEmptySelected, pEjectName, pTextEmpty, pTextLoadTrax, pSelectedLoad
-
-on construct me 
+on construct(me)
   pConnectionId = getVariable("connection.info.id", #info)
   pWriterID = getUniqueID()
   tBold = getStructVariable("struct.font.plain")
@@ -21,7 +19,7 @@ on construct me
   pDiskArrayHeight = 5
   pPlaylistLimit = 9
   pPlaylistWidth = 122
-  pPlaylistHeight = (14 * pPlaylistLimit)
+  pPlaylistHeight = 14 * pPlaylistLimit
   pItemName = "Jukebox slot"
   pItemNameSelected = "Jukebox slot2"
   pItemNameEmpty = "Jukebox slot empty"
@@ -33,26 +31,30 @@ on construct me
   pOwner = 1
   pDiskListImage = void()
   pEditorSongID = 0
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   if writerExists(pWriterID) then
     removeWriter(pWriterID)
   end if
   if writerExists(pPlaylistWriterID) then
     removeWriter(pPlaylistWriterID)
   end if
+  exit
 end
 
-on setOwner me, towner 
+on setOwner(me, towner)
   pOwner = towner
+  exit
 end
 
-on getOwner me 
+on getOwner(me)
   return(pOwner)
+  exit
 end
 
-on renderDiskList me 
+on renderDiskList(me)
   if voidp(pDiskListImage) then
     pDiskListRenderList = void()
   else
@@ -66,16 +68,17 @@ on renderDiskList me
   end if
   pDiskListRenderList = []
   return(tRetVal)
+  exit
 end
 
-on renderPlaylist me, tSongList 
+on renderPlaylist(me, tSongList)
   if ilk(tSongList) <> #list then
     return(0)
   end if
   tImg = image(pPlaylistWidth, pPlaylistHeight, 32)
   tWriterObj = getWriter(pPlaylistWriterID)
   if tWriterObj <> 0 then
-    tLineSpace = (pPlaylistHeight / pPlaylistLimit)
+    tLineSpace = pPlaylistHeight / pPlaylistLimit
     i = min(tSongList.count, pPlaylistLimit)
     repeat while i >= 1
       tTextImg = tWriterObj.render(tSongList.getAt(i)).duplicate()
@@ -87,19 +90,20 @@ on renderPlaylist me, tSongList
         tSourceRect.setAt(3, pPlaylistWidth)
       end if
       tTargetRect = tSourceRect.duplicate()
-      tTargetRect.setAt(2, tTargetRect.getAt(2) + (tLineSpace * i - 1))
-      tTargetRect.setAt(4, tTargetRect.getAt(4) + (tLineSpace * i - 1))
+      tTargetRect.setAt(2, tTargetRect.getAt(2) + tLineSpace * i - 1)
+      tTargetRect.setAt(4, tTargetRect.getAt(4) + tLineSpace * i - 1)
       tImg.copyPixels(tTextImg, tTargetRect, tSourceRect, [#ink:36, #maskImage:tTextImg.createMatte()])
       i = 255 + i
     end repeat
   end if
   return(tImg)
+  exit
 end
 
-on diskListMouseClick me, tX, tY 
+on diskListMouseClick(me, tX, tY)
   tEmpty = 0
   if pSelectedDisk < 1 or pSelectedDisk > pDiskList.count then
-    if pSelectedDisk > pDiskList.count and pSelectedDisk <= (pDiskArrayWidth * pDiskArrayHeight) then
+    if pSelectedDisk > pDiskList.count and pSelectedDisk <= pDiskArrayWidth * pDiskArrayHeight then
       tEmpty = 1
     else
       return(0)
@@ -119,12 +123,13 @@ on diskListMouseClick me, tX, tY
     end if
   end if
   return(0)
+  exit
 end
 
-on diskListMouseOver me, tX, tY 
-  tItemX = 1 + (tX / pItemWidth + pItemMarginX)
-  tItemY = 1 + (tY / pItemHeight + pItemMarginY)
-  tItem = tItemX + (tItemY - 1 * pDiskArrayWidth)
+on diskListMouseOver(me, tX, tY)
+  tItemX = 1 + tX / pItemWidth + pItemMarginX
+  tItemY = 1 + tY / pItemHeight + pItemMarginY
+  tItem = tItemX + tItemY - 1 * pDiskArrayWidth
   if tItem >= 1 and tItem <= pDiskList.count then
     tRetVal = 0
     tmember = getMember(pEjectNameSelected)
@@ -133,10 +138,10 @@ on diskListMouseOver me, tX, tY
       tRect = tSourceImg.rect
       tImgWd = tRect.getAt(3) - tRect.getAt(1)
       tImgHt = tRect.getAt(4) - tRect.getAt(2)
-      tRect.setAt(1, tRect.getAt(1) + (pItemWidth + pItemMarginX * tItemX - 1) + pItemWidth - tImgWd)
-      tRect.setAt(2, tRect.getAt(2) + (pItemHeight + pItemMarginY * tItemY - 1) + pItemHeight - tImgHt)
-      tRect.setAt(3, tRect.getAt(3) + (pItemWidth + pItemMarginX * tItemX - 1) + pItemWidth - tImgWd)
-      tRect.setAt(4, tRect.getAt(4) + (pItemHeight + pItemMarginY * tItemY - 1) + pItemHeight - tImgHt)
+      tRect.setAt(1, tRect.getAt(1) + pItemWidth + pItemMarginX * tItemX - 1 + pItemWidth - tImgWd)
+      tRect.setAt(2, tRect.getAt(2) + pItemHeight + pItemMarginY * tItemY - 1 + pItemHeight - tImgHt)
+      tRect.setAt(3, tRect.getAt(3) + pItemWidth + pItemMarginX * tItemX - 1 + pItemWidth - tImgWd)
+      tRect.setAt(4, tRect.getAt(4) + pItemHeight + pItemMarginY * tItemY - 1 + pItemHeight - tImgHt)
       if tX >= tRect.getAt(1) and tX <= tRect.getAt(3) and tY >= tRect.getAt(2) and tY <= tRect.getAt(4) then
         if not pSelectedEject then
           tRetVal = 1
@@ -158,9 +163,10 @@ on diskListMouseOver me, tX, tY
     return(1)
   end if
   return(tRetVal)
+  exit
 end
 
-on getJukeboxDisks me 
+on getJukeboxDisks(me)
   pDiskList = []
   pSelectedDisk = 0
   pSelectedEject = 0
@@ -168,14 +174,15 @@ on getJukeboxDisks me
     return(getConnection(pConnectionId).send("GET_JUKEBOX_DISCS"))
   end if
   return(0)
+  exit
 end
 
-on renderList me, tImg 
+on renderList(me, tImg)
   if ilk(pDiskList) <> #list then
     return(0)
   end if
-  tWidth = (pItemWidth + pItemMarginX * pDiskArrayWidth) - pItemMarginX
-  tHeight = (pItemHeight + pItemMarginY * pDiskArrayHeight) - pItemMarginY
+  tWidth = pItemWidth + pItemMarginX * pDiskArrayWidth - pItemMarginX
+  tHeight = pItemHeight + pItemMarginY * pDiskArrayHeight - pItemMarginY
   if voidp(tImg) then
     tImg = image(tWidth, tHeight, 32)
   end if
@@ -188,7 +195,7 @@ on renderList me, tImg
   repeat while tY <= pDiskArrayHeight - 1
     tX = 0
     repeat while tX <= pDiskArrayWidth - 1
-      tIndex = 1 + tX + (tY * pDiskArrayWidth)
+      tIndex = 1 + tX + tY * pDiskArrayWidth
       tRender = 1
       if not voidp(pDiskListRenderList) then
         if pDiskListRenderList.findPos(tIndex) = 0 then
@@ -216,10 +223,10 @@ on renderList me, tImg
         tRect = tSourceImg.rect
         tImgWd = tRect.getAt(3) - tRect.getAt(1)
         tImgHt = tRect.getAt(4) - tRect.getAt(2)
-        tRect.setAt(1, tRect.getAt(1) + (pItemWidth + pItemMarginX * tX))
-        tRect.setAt(2, tRect.getAt(2) + (pItemHeight + pItemMarginY * tY))
-        tRect.setAt(3, tRect.getAt(3) + (pItemWidth + pItemMarginX * tX))
-        tRect.setAt(4, tRect.getAt(4) + (pItemHeight + pItemMarginY * tY))
+        tRect.setAt(1, tRect.getAt(1) + pItemWidth + pItemMarginX * tX)
+        tRect.setAt(2, tRect.getAt(2) + pItemHeight + pItemMarginY * tY)
+        tRect.setAt(3, tRect.getAt(3) + pItemWidth + pItemMarginX * tX)
+        tRect.setAt(4, tRect.getAt(4) + pItemHeight + pItemMarginY * tY)
         tImg.copyPixels(tSourceImg, tRect, tSourceImg.rect, [#ink:8, #maskImage:tSourceImg.createMatte()])
         if tWriterObj <> 0 then
           tDiskName = me.getDiskName(tIndex)
@@ -235,18 +242,18 @@ on renderList me, tImg
             tTextImgTrimmed.copyPixels(tTextImg, tTextImg.rect, tTextImg.rect, [#ink:8, #maskImage:tTextImg.createMatte()])
             tTextImg = tTextImgTrimmed.trimWhiteSpace()
             tSourceRect = tTextImg.rect
-            if tSourceRect.getAt(3) > pItemWidth - (tTextMarginX * 2) then
-              tSourceRect.setAt(3, pItemWidth - (tTextMarginX * 2))
+            if tSourceRect.getAt(3) > pItemWidth - tTextMarginX * 2 then
+              tSourceRect.setAt(3, pItemWidth - tTextMarginX * 2)
             end if
             tTargetRect = tSourceRect.duplicate()
             tImgWd = tTargetRect.getAt(3) - tTargetRect.getAt(1)
             tImgHt = tTargetRect.getAt(4) - tTargetRect.getAt(2)
-            tTargetRect.setAt(1, tTargetRect.getAt(1) + (pItemWidth + pItemMarginX * tX) + (pItemWidth - tImgWd / 2))
-            tTargetRect.setAt(2, tTargetRect.getAt(2) + (pItemHeight + pItemMarginY * tY) + tTextMarginY)
-            tTargetRect.setAt(3, tTargetRect.getAt(3) + (pItemWidth + pItemMarginX * tX) + (pItemWidth - tImgWd / 2))
-            tTargetRect.setAt(4, tTargetRect.getAt(4) + (pItemHeight + pItemMarginY * tY) + tTextMarginY)
-            tTargetRect.setAt(2, tTargetRect.getAt(2) + (tLineSpace * i - 1))
-            tTargetRect.setAt(4, tTargetRect.getAt(4) + (tLineSpace * i - 1))
+            tTargetRect.setAt(1, tTargetRect.getAt(1) + pItemWidth + pItemMarginX * tX + pItemWidth - tImgWd / 2)
+            tTargetRect.setAt(2, tTargetRect.getAt(2) + pItemHeight + pItemMarginY * tY + tTextMarginY)
+            tTargetRect.setAt(3, tTargetRect.getAt(3) + pItemWidth + pItemMarginX * tX + pItemWidth - tImgWd / 2)
+            tTargetRect.setAt(4, tTargetRect.getAt(4) + pItemHeight + pItemMarginY * tY + tTextMarginY)
+            tTargetRect.setAt(2, tTargetRect.getAt(2) + tLineSpace * i - 1)
+            tTargetRect.setAt(4, tTargetRect.getAt(4) + tLineSpace * i - 1)
             tImg.copyPixels(tTextImg, tTargetRect, tSourceRect, [#ink:36, #maskImage:tTextImg.createMatte()])
             i = 1 + i
           end repeat
@@ -260,11 +267,12 @@ on renderList me, tImg
     tImg = me.renderEjectImage(tImg)
   end if
   return(tImg)
+  exit
 end
 
-on renderEjectImage me, tImg 
-  tWidth = (pItemWidth + pItemMarginX * pDiskArrayWidth) - pItemMarginX
-  tHeight = (pItemHeight + pItemMarginY * pDiskArrayHeight) - pItemMarginY
+on renderEjectImage(me, tImg)
+  tWidth = pItemWidth + pItemMarginX * pDiskArrayWidth - pItemMarginX
+  tHeight = pItemHeight + pItemMarginY * pDiskArrayHeight - pItemMarginY
   if voidp(tImg) then
     tImg = image(tWidth, tHeight, 32)
   end if
@@ -279,23 +287,24 @@ on renderEjectImage me, tImg
   if voidp(pDiskList.getAt(pSelectedDisk)) then
     return(tImg)
   end if
-  tY = (pSelectedDisk - 1 / pDiskArrayWidth)
-  tX = (pSelectedDisk - 1 mod pDiskArrayWidth)
+  tY = pSelectedDisk - 1 / pDiskArrayWidth
+  tX = pSelectedDisk - 1 mod pDiskArrayWidth
   if tmember <> 0 then
     tSourceImg = tmember.image
     tRect = tSourceImg.rect
     tImgWd = tRect.getAt(3) - tRect.getAt(1)
     tImgHt = tRect.getAt(4) - tRect.getAt(2)
-    tRect.setAt(1, tRect.getAt(1) + (pItemWidth + pItemMarginX * tX) + pItemWidth - tImgWd)
-    tRect.setAt(2, tRect.getAt(2) + (pItemHeight + pItemMarginY * tY) + pItemHeight - tImgHt)
-    tRect.setAt(3, tRect.getAt(3) + (pItemWidth + pItemMarginX * tX) + pItemWidth - tImgWd)
-    tRect.setAt(4, tRect.getAt(4) + (pItemHeight + pItemMarginY * tY) + pItemHeight - tImgHt)
+    tRect.setAt(1, tRect.getAt(1) + pItemWidth + pItemMarginX * tX + pItemWidth - tImgWd)
+    tRect.setAt(2, tRect.getAt(2) + pItemHeight + pItemMarginY * tY + pItemHeight - tImgHt)
+    tRect.setAt(3, tRect.getAt(3) + pItemWidth + pItemMarginX * tX + pItemWidth - tImgWd)
+    tRect.setAt(4, tRect.getAt(4) + pItemHeight + pItemMarginY * tY + pItemHeight - tImgHt)
     tImg.copyPixels(tSourceImg, tRect, tSourceImg.rect, [#ink:8, #maskImage:tSourceImg.createMatte()])
   end if
   return(tImg)
+  exit
 end
 
-on getDiskName me, tIndex 
+on getDiskName(me, tIndex)
   if tIndex < 1 or tIndex > pDiskList.count then
     return(pTextEmpty)
   end if
@@ -305,9 +314,10 @@ on getDiskName me, tIndex
     end if
   end if
   return(pTextEmpty)
+  exit
 end
 
-on getDiskAuthor me, tIndex 
+on getDiskAuthor(me, tIndex)
   tLoad = 0
   if tIndex < 1 or tIndex > pDiskList.count then
     tLoad = 1
@@ -324,9 +334,10 @@ on getDiskAuthor me, tIndex
     return(pTextLoadTrax)
   end if
   return("")
+  exit
 end
 
-on parseDiskList me, tMsg 
+on parseDiskList(me, tMsg)
   if voidp(tMsg.connection) then
     return(0)
   end if
@@ -355,16 +366,18 @@ on parseDiskList me, tMsg
   end repeat
   pDiskListImage = void()
   return(1)
+  exit
 end
 
-on showLoadDisk me 
+on showLoadDisk(me)
   if pOwner then
     pSelectedLoad = pSelectedDisk
     executeMessage(#show_select_disk)
   end if
+  exit
 end
 
-on insertDisk me, tID 
+on insertDisk(me, tID)
   if pSelectedLoad < 1 or pSelectedLoad > pDiskList.count then
     return(0)
   end if
@@ -375,9 +388,10 @@ on insertDisk me, tID
     return(getConnection(pConnectionId).send("ADD_JUKEBOX_DISC", [#integer:tID, #integer:pSelectedLoad]))
   end if
   return(0)
+  exit
 end
 
-on removeDisk me 
+on removeDisk(me)
   if pSelectedDisk < 1 or pSelectedDisk > pDiskList.count then
     return(0)
   end if
@@ -389,9 +403,10 @@ on removeDisk me
     return(getConnection(pConnectionId).send("REMOVE_JUKEBOX_DISC", [#integer:pSelectedDisk]))
   end if
   return(0)
+  exit
 end
 
-on addPlaylistDisk me 
+on addPlaylistDisk(me)
   if pSelectedDisk < 1 or pSelectedDisk > pDiskList.count then
     return(0)
   end if
@@ -403,4 +418,5 @@ on addPlaylistDisk me
     return(getConnection(pConnectionId).send("JUKEBOX_PLAYLIST_ADD", [#integer:tID]))
   end if
   return(0)
+  exit
 end

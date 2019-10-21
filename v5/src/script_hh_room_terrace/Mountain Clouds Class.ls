@@ -1,6 +1,4 @@
-property pCloudList
-
-on construct me 
+on construct(me)
   pCloudList = []
   f = 1
   repeat while f <= 4
@@ -9,17 +7,20 @@ on construct me
     tStartPointX = [200, 330, 490, 630].getAt(f)
     tCloud.prepare(tSprite, tStartPointX)
     pCloudList.add(tCloud)
-    f = (1 + f)
+    f = 1 + f
   end repeat
   return(receivePrepare(me.getID()))
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   pCloudList = void()
   removePrepare(me.getID())
-  return TRUE
+  return(1)
+  exit
 end
 
-on prepare me 
+on prepare(me)
   call(#update, pCloudList)
+  exit
 end

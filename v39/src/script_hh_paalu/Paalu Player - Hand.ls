@@ -1,6 +1,4 @@
-property pPart, pAction, pAnimFrm, pCounter, pBalance, pDirection, pBodyColor
-
-on define me, tPart, tProps 
+on define(me, tPart, tProps)
   pAction = "std"
   pBalance = 2
   pAnimFrm = 0
@@ -13,16 +11,18 @@ on define me, tPart, tProps
   end if
   pCounter = 0
   return(1)
+  exit
 end
 
-on status me, tAction, tBalance 
+on status(me, tAction, tBalance)
   pAction = tAction
   pBalance = tBalance
   pAnimFrm = 0
   pCounter = 0
+  exit
 end
 
-on prepare me 
+on prepare(me)
   if pAction = "hit1" or pAction = "hit2" then
     pAnimFrm = not pAnimFrm
     pCounter = pCounter + 1
@@ -32,9 +32,10 @@ on prepare me
       pAction = "std"
     end if
   end if
+  exit
 end
 
-on render me, tBuffer 
+on render(me, tBuffer)
   tMemName = "shp_" & pAction & "_" & pBalance & "_" & pPart & "_" & "s01" & "_" & pDirection & "_" & pAnimFrm
   tMemNum = getmemnum(tMemName)
   if tMemNum > 0 then
@@ -48,4 +49,5 @@ on render me, tBuffer
     tMaskImg = tImage.createMatte()
     tBuffer.copyPixels(tImage, tDstRect, tSrcRect, [#maskImage:tMaskImg, #ink:41, #bgColor:pBodyColor])
   end if
+  exit
 end

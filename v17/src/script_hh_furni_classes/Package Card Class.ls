@@ -1,6 +1,4 @@
-property pCardWndID, pMessage, pPackageID, pIconColor, pIconType, pIconCode, pNoIconPlaceholderName
-
-on construct me 
+on construct(me)
   pMessage = ""
   pPackageID = ""
   pCardWndID = "Card" && getUniqueID()
@@ -10,40 +8,43 @@ on construct me
   pIconType = void()
   pIconCode = void()
   pIconColor = void()
-  return TRUE
+  return(1)
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   if windowExists(pCardWndID) then
     removeWindow(pCardWndID)
   end if
   unregisterMessage(#leaveRoom, me.getID())
   unregisterMessage(#changeRoom, me.getID())
-  return TRUE
+  return(1)
+  exit
 end
 
-on define me, tProps 
+on define(me, tProps)
   pPackageID = tProps.getAt(#id)
   pMessage = tProps.getAt(#Msg)
-  me.showCard((tProps.getAt(#loc) + [0, -220]))
-  return TRUE
+  me.showCard(tProps.getAt(#loc) + [0, -220])
+  return(1)
+  exit
 end
 
-on showCard me, tloc 
+on showCard(me, tloc)
   if windowExists(pCardWndID) then
     removeWindow(pCardWndID)
   end if
   if voidp(tloc) then
     tloc = [100, 100]
   end if
-  if tloc.getAt(1) > (the stage.rect.width - 260) then
-    tloc.setAt(1, (the stage.rect.width - 260))
+  if the stage > rect.width - 260 then
+    1.setAt(the stage, rect.width - 260)
   end if
   if tloc.getAt(2) < 2 then
     tloc.setAt(2, 2)
   end if
   if not createWindow(pCardWndID, "package_card.window", tloc.getAt(1), tloc.getAt(2)) then
-    return FALSE
+    return(0)
   end if
   tWndObj = getWindow(pCardWndID)
   tUserRights = getObject(#session).GET("user_rights")
@@ -54,29 +55,32 @@ on showCard me, tloc
   tWndObj.registerClient(me.getID())
   tWndObj.registerProcedure(#eventProcCard, me.getID(), #mouseUp)
   tWndObj.getElement("package_msg").setText(pMessage)
-  return TRUE
+  return(1)
+  exit
 end
 
-on hideCard me 
+on hideCard(me)
   if windowExists(pCardWndID) then
     removeWindow(pCardWndID)
   end if
-  return TRUE
+  return(1)
+  exit
 end
 
-on openPresent me 
+on openPresent(me)
   return(getThread(#room).getComponent().getRoomConnection().send("PRESENTOPEN", pPackageID))
+  exit
 end
 
-on showContent me, tdata 
+on showContent(me, tdata)
   if not windowExists(pCardWndID) then
-    return FALSE
+    return(0)
   end if
   pIconType = tdata.getAt(#type)
   pIconCode = tdata.getAt(#code)
   pIconColor = tdata.getAt(#color)
   tMemNum = void()
-  if (pIconColor = "") then
+  if pIconColor = "" then
     pIconColor = void()
   end if
   if pIconType contains "*" then
@@ -92,9 +96,9 @@ on showContent me, tdata
       tMemNum = getmemnum("ctlg_pic_small_" & pIconCode)
     end if
   end if
-  if (tMemNum = 0) then
+  if tMemNum = 0 then
     tDynThread = getThread(#dynamicdownloader)
-    if (tDynThread = 0) then
+    if tDynThread = 0 then
       tImg = getObject("Preview_renderer").renderPreviewImage(void(), void(), pIconColor, pIconType)
     else
       tDownloadIdName = ""
@@ -108,7 +112,7 @@ on showContent me, tdata
       tRoomThread = getThread(#room)
       if tRoomThread <> 0 then
         tTileSize = tRoomThread.getInterface().getGeometry().getTileWidth()
-        if (tTileSize = 32) then
+        if tTileSize = 32 then
           tRoomSizePrefix = "s_"
         end if
       end if
@@ -121,21 +125,23 @@ on showContent me, tdata
       end if
     end if
   else
-    tImg = member(tMemNum).image.duplicate()
+    tImg = image.duplicate()
   end if
   me.feedIconToCard(tImg)
+  exit
 end
 
-on packetIconDownloadCallback me, tDownloadedClass 
+on packetIconDownloadCallback(me, tDownloadedClass)
   if tDownloadedClass contains "poster" then
     tImg = getObject("Preview_renderer").renderPreviewImage(void(), void(), pIconColor, pIconCode)
   else
     tImg = getObject("Preview_renderer").renderPreviewImage(void(), void(), pIconColor, pIconType)
   end if
   me.feedIconToCard(tImg)
+  exit
 end
 
-on feedIconToCard me, tImg 
+on feedIconToCard(me, tImg)
   if ilk(tImg) <> #image then
     return(error(me, "tImg is not an #image", #feedIconToCard, #major))
   end if
@@ -145,25 +151,27 @@ on feedIconToCard me, tImg
   tHei = tElem.getProperty(#height)
   tCenteredImage = image(tWid, tHei, 32)
   tMatte = tImg.createMatte()
-  tXchange = ((tCenteredImage.width - tImg.width) / 2)
-  tYchange = ((tCenteredImage.height - tImg.height) / 2)
-  tRect1 = (tImg.rect + rect(tXchange, tYchange, tXchange, tYchange))
+  tXchange = tCenteredImage.width - tImg.width / 2
+  tYchange = tCenteredImage.height - tImg.height / 2
+  tRect1 = tImg.rect + rect(tXchange, tYchange, tXchange, tYchange)
   tCenteredImage.copyPixels(tImg, tRect1, tImg.rect, [#maskImage:tMatte, #ink:41])
   tElem.feedImage(tCenteredImage)
   tWndObj.getElement("card_icon").hide()
   tWndObj.getElement("small_img").setProperty(#blend, 100)
   tWndObj.getElement("open_package").hide()
+  exit
 end
 
-on eventProcCard me, tEvent, tElemID, tParam 
+on eventProcCard(me, tEvent, tElemID, tParam)
   if tEvent <> #mouseUp then
-    return FALSE
+    return(0)
   end if
-  if (tElemID = "close") then
+  if me = "close" then
     return(me.hideCard())
   else
-    if (tElemID = "open_package") then
+    if me = "open_package" then
       return(me.openPresent())
     end if
   end if
+  exit
 end

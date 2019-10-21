@@ -1,7 +1,5 @@
-property pTutorialStructName, pOpenHelps, pHelpStatusData, pPostponedHelps, pAskingForSkip, pInviting, pInvitationRoomID, pGuidesFoundCount, pGuidelist, pAutoSelectGuide
-
-on construct me 
-  pHelpStatusData = [:]
+on construct(me)
+  pHelpStatusData = []
   pPostponedHelps = []
   pOpenHelps = []
   pGuidelist = []
@@ -17,9 +15,10 @@ on construct me
   registerMessage(#roomInterfaceHidden, me.getID(), #removeHelp)
   registerMessage(#NUH_close, me.getID(), #setHelpItemClosed)
   return(1)
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   unregisterMessage(#roomReady, me.getID())
   unregisterMessage(#leaveReady, me.getID())
   unregisterMessage(#changeReady, me.getID())
@@ -27,9 +26,10 @@ on deconstruct me
   unregisterMessage(#roomInterfaceHidden, me.getID())
   unregisterMessage(#NUH_close, me.getID())
   return(1)
+  exit
 end
 
-on getHelpItemKeyId me, tHelpItemName 
+on getHelpItemKeyId(me, tHelpItemName)
   if variableExists(pTutorialStructName) then
     tKeys = getVariableValue(pTutorialStructName)
     if ilk(tKeys) = #propList then
@@ -37,9 +37,10 @@ on getHelpItemKeyId me, tHelpItemName
       return(tKey)
     end if
   end if
+  exit
 end
 
-on getHelpItemName me, tKeyId 
+on getHelpItemName(me, tKeyId)
   if variableExists(pTutorialStructName) then
     tKeys = getVariableValue(pTutorialStructName)
     if ilk(tKeys) = #propList then
@@ -47,9 +48,10 @@ on getHelpItemName me, tKeyId
       return(tName)
     end if
   end if
+  exit
 end
 
-on setHelpItemClosed me, tHelpItemName 
+on setHelpItemClosed(me, tHelpItemName)
   if pOpenHelps.getPos(tHelpItemName) = 0 then
     return(0)
   end if
@@ -67,35 +69,38 @@ on setHelpItemClosed me, tHelpItemName
   me.getInterface().removeHelpBubble(tHelpItemName)
   if pPostponedHelps.count > 0 then
     i = 0
-    repeat while pPostponedHelps <= undefined
+    repeat while me <= undefined
       tHelpId = getAt(undefined, tHelpItemName)
       tTimeoutID = "NUH_help_" & tHelpId & "_postponed"
-      createTimeout(tTimeoutID, 1000 + (100 * i), #tryToShowHelp, me.getID(), tHelpId, 1)
+      createTimeout(tTimeoutID, 1000 + 100 * i, #tryToShowHelp, me.getID(), tHelpId, 1)
       i = i + 1
     end repeat
     pPostponedHelps = []
   end if
+  exit
 end
 
-on removeOpenHelp me, tHelpId 
+on removeOpenHelp(me, tHelpId)
   tPos = pOpenHelps.findPos(tHelpId)
   if tPos > 0 then
     pOpenHelps.deleteAt(tPos)
   end if
+  exit
 end
 
-on setHelpStatusData me, tdata 
+on setHelpStatusData(me, tdata)
   pHelpStatusData = tdata
+  exit
 end
 
-on closeInvitation me, tResult 
-  if tResult = #yes then
+on closeInvitation(me, tResult)
+  if me = #yes then
     me.sendInvitations()
   else
-    if tResult = #no then
+    if me = #no then
       nothing()
     else
-      if tResult = #never then
+      if me = #never then
         me.setHelpItemClosed("invite")
       else
         return(0)
@@ -104,16 +109,18 @@ on closeInvitation me, tResult
   end if
   me.removeOpenHelp("invite")
   me.getInterface().hideInvitationWindow()
+  exit
 end
 
-on isChatHelpOn me 
+on isChatHelpOn(me)
   if not voidp(pHelpStatusData.getAt("chat")) then
     return(pHelpStatusData.getAt("chat"))
   end if
   return(0)
+  exit
 end
 
-on initHelpOnRoomEntry me 
+on initHelpOnRoomEntry(me)
   tRoomData = getThread(#room).getComponent().pSaveData
   tUserName = getObject(#session).GET(#userName)
   if tRoomData.getAt(#owner) = tUserName then
@@ -121,9 +128,10 @@ on initHelpOnRoomEntry me
   end if
   getThread("infofeed").getComponent().registerButtonCallback(#next, #nextInfofeedItemCallback, me)
   getThread("infofeed").getComponent().registerButtonCallback(#prev, #prevInfofeedItemCallback, me)
+  exit
 end
 
-on removeHelp me 
+on removeHelp(me)
   tItemNo = 1
   repeat while tItemNo <= pHelpStatusData.count
     tItem = pHelpStatusData.getPropAt(tItemNo)
@@ -140,9 +148,10 @@ on removeHelp me
   unregisterMessage(#create_user, me.getID())
   getThread("infofeed").getComponent().removeButtonCallback(#next, #nextInfofeedItemCallback, me)
   getThread("infofeed").getComponent().registerButtonCallback(#prev, #prevInfofeedItemCallback, me)
+  exit
 end
 
-on showNewUserHelpItems me 
+on showNewUserHelpItems(me)
   tItemNo = 1
   repeat while tItemNo <= pHelpStatusData.count
     tItem = pHelpStatusData.getPropAt(tItemNo)
@@ -167,30 +176,31 @@ on showNewUserHelpItems me
     end if
     tItemNo = 1 + tItemNo
   end repeat
+  exit
 end
 
-on tryToShowHelp me, tHelpId 
+on tryToShowHelp(me, tHelpId)
   if pAskingForSkip or pInviting or pOpenHelps.getPos("own_user") then
     me.postponeHelp(tHelpId)
     return(1)
   end if
-  if tHelpId = "asktoshowhelp" then
+  if me = "asktoshowhelp" then
     me.getInterface().showSkipOrNotWindow(tHelpId)
     pAskingForSkip = 1
     pOpenHelps.add(tHelpId)
   else
-    if tHelpId = "own_user" then
+    if me = "own_user" then
       me.getInterface().showOwnUserHelp(tHelpId)
       pOpenHelps.add(tHelpId)
     else
-      if tHelpId = "hand" then
+      if me = "hand" then
         towner = getObject(#session).GET(#room_owner)
         if towner then
           me.getInterface().showGenericHelp(tHelpId)
           pOpenHelps.add(tHelpId)
         end if
       else
-        if tHelpId = "invite" then
+        if me = "invite" then
           towner = getObject(#session).GET(#room_owner)
           if towner then
             me.checkHelpers()
@@ -218,43 +228,49 @@ on tryToShowHelp me, tHelpId
       me.handleAchievementsSelection()
     end if
   end if
+  exit
 end
 
-on postponeHelp me, tHelpId 
+on postponeHelp(me, tHelpId)
   tPos = pPostponedHelps.findPos(tHelpId)
   if tPos > 0 then
     return(1)
   end if
   pPostponedHelps.add(tHelpId)
   return(1)
+  exit
 end
 
-on checkHelpers me 
+on checkHelpers(me)
   tConn = getConnection(getVariable("connection.info.id"))
   if voidp(tConn) then
     return(error(me, "Connection not found.", #checkHelpers, #major))
   end if
   tConn.send("MSG_GET_TUTORS_AVAILABLE")
+  exit
 end
 
-on showInviteWindow me 
+on showInviteWindow(me)
   pOpenHelps.add("invite")
   me.getInterface().showInviteWindow()
+  exit
 end
 
-on inviterLeftRoom me, tRoomID 
+on inviterLeftRoom(me, tRoomID)
   pInviting = 0
   pInvitationRoomID = tRoomID
   me.getInterface().showInvitationStatusWindow(#room_left)
+  exit
 end
 
-on goToInvitationRoom me 
+on goToInvitationRoom(me)
   if pInvitationRoomID > 0 then
     executeMessage(#roomForward, pInvitationRoomID, #private)
   end if
+  exit
 end
 
-on sendInvitations me 
+on sendInvitations(me)
   tConn = getConnection(getVariable("connection.info.id"))
   if voidp(tConn) then
     return(error(me, "Connection not found.", #sendInvitations, #major))
@@ -263,24 +279,27 @@ on sendInvitations me
   if towner then
     tConn.send("MSG_INVITE_TUTORS")
   end if
+  exit
 end
 
-on cancelInvitations me 
+on cancelInvitations(me)
   tConn = getConnection(getVariable("connection.info.id"))
   if voidp(tConn) then
     return(error(me, "Connection not found.", #sendInvitations, #major))
   end if
   tConn.send("MSG_CANCEL_TUTOR_INVITATIONS")
   pInviting = 0
+  exit
 end
 
-on invitingStarted me 
+on invitingStarted(me)
   pInviting = 1
   pGuidesFoundCount = 0
   me.getInterface().showInvitationStatusWindow(#search)
+  exit
 end
 
-on invitingCompleted me, tAcceptCount 
+on invitingCompleted(me, tAcceptCount)
   pInviting = 0
   if tAcceptCount = 0 then
     tstate = #failure
@@ -289,23 +308,27 @@ on invitingCompleted me, tAcceptCount
   end if
   me.getInterface().showInvitationStatusWindow(tstate)
   unregisterMessage(#create_user, me.getID())
+  exit
 end
 
-on invitationExists me 
+on invitationExists(me)
   executeMessage(#alert, "invitation_exists")
+  exit
 end
 
-on getGuideCount me 
+on getGuideCount(me)
   return(pGuidesFoundCount)
+  exit
 end
 
-on guideFound me, tAccountID 
+on guideFound(me, tAccountID)
   pGuidesFoundCount = pGuidesFoundCount + 1
   pGuidelist.add(tAccountID)
   registerMessage(#create_user, me.getID(), #createUserListerner)
+  exit
 end
 
-on selectUserInRoom me, tUserObj 
+on selectUserInRoom(me, tUserObj)
   tRoomInterface = getThread(#room).getInterface()
   tUserObj.select()
   tRoomInterface.setSelectedObject(tUserObj.getID())
@@ -313,9 +336,10 @@ on selectUserInRoom me, tUserObj
   tSelectedType = tUserObj.getClass()
   executeMessage(#showObjectInfo, tSelectedType)
   executeMessage(#updateInfostandAvatar)
+  exit
 end
 
-on createUserListerner me, tName, tID 
+on createUserListerner(me, tName, tID)
   tRoomComponent = getThread("room").getComponent()
   tUserObj = tRoomComponent.getUserObject(tID)
   if tUserObj = 0 then
@@ -336,9 +360,10 @@ on createUserListerner me, tName, tID
     end if
     i = i + 1
   end repeat
+  exit
 end
 
-on nextInfofeedItemCallback me, tItemObj 
+on nextInfofeedItemCallback(me, tItemObj)
   me.getInterface().hideHighlighters()
   tHelpId = tItemObj.getData().getaProp(#helpId)
   if not voidp(tHelpId) then
@@ -360,9 +385,10 @@ on nextInfofeedItemCallback me, tItemObj
   if getThread("infofeed").getComponent().getItemPos(tID) = tLastItem then
     me.setTutorialFinished()
   end if
+  exit
 end
 
-on prevInfofeedItemCallback me, tItemObj 
+on prevInfofeedItemCallback(me, tItemObj)
   me.getInterface().hideHighlighters()
   tItemPointer = getThread("infofeed").getInterface().getItemPointer()
   tID = getThread("infofeed").getComponent().getPreviousFrom(tItemPointer)
@@ -375,24 +401,27 @@ on prevInfofeedItemCallback me, tItemObj
   if tHelpId = "achievements" then
     me.handleAchievementsSelection()
   end if
+  exit
 end
 
-on handleAchievementsSelection me 
+on handleAchievementsSelection(me)
   tRoomComponent = getThread("room").getComponent()
   tUserObj = tRoomComponent.getUserObject(getObject(#session).GET("own_user_id"))
   if objectp(tUserObj) then
     me.selectUserInRoom(tUserObj)
   end if
+  exit
 end
 
-on setAskingSkip me, tVal 
+on setAskingSkip(me, tVal)
   pAskingForSkip = tVal
   if tVal = 0 then
     me.setHelpItemClosed("asktoshowhelp")
   end if
+  exit
 end
 
-on setTutorialFinished me 
+on setTutorialFinished(me)
   if pTutorialStructName = "NUH.finish" then
     return()
   end if
@@ -412,7 +441,7 @@ on setTutorialFinished me
     i = 1 + i
   end repeat
   pTutorialStructName = "NUH.finish"
-  pHelpStatusData = [:]
+  pHelpStatusData = []
   tKeys = getStructVariable(pTutorialStructName)
   i = 1
   repeat while i <= tKeys.count
@@ -420,4 +449,5 @@ on setTutorialFinished me
     i = 1 + i
   end repeat
   me.showNewUserHelpItems()
+  exit
 end

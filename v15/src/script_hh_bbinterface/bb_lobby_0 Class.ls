@@ -1,28 +1,31 @@
-on construct me 
+on construct(me)
   me.setLoungePalette("0")
   executeMessage(#gamesystem_getfacade, getVariable("bb.loungesystem.id"))
-  return TRUE
+  return(1)
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   executeMessage(#gamesystem_removefacade, getVariable("bb.loungesystem.id"))
-  return TRUE
+  return(1)
+  exit
 end
 
-on setLoungePalette me, tid 
+on setLoungePalette(me, tid)
   tExcludeList = ["adframe_bb_game_right", "bb_spot_blue", "bb_spot_yellow", "bb_spot_red", "bb_spot_green"]
   tCastLib = "hh_room_bb_game"
   tMemberCount = the number of castMembers
-  if (getmemnum("bb_colors_" & tid) = 0) then
+  if getmemnum("bb_colors_" & tid) = 0 then
     return(error(me, "Cannot determine palette for lounge" && tid, #setLoungePalette))
   end if
   tPaletteMem = member(getmemnum("bb_colors_" & tid))
   i = 1
   repeat while i <= tMemberCount
     tmember = member(i, tCastLib)
-    if (tmember.type = #bitmap) and (tExcludeList.getPos(tmember.name) = 0) then
+    if tmember.type = #bitmap and tExcludeList.getPos(tmember.name) = 0 then
       tmember.paletteRef = tPaletteMem
     end if
-    i = (1 + i)
+    i = 1 + i
   end repeat
+  exit
 end

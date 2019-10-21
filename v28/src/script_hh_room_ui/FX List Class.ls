@@ -1,8 +1,6 @@
-property pColumns, pMinRows, pGridSize, pBg, pBgHilite, pBadges, pWriterIdPlain, pWriterIdBold
-
-on construct me 
+on construct(me)
   pBadges = []
-  pRects = [:]
+  pRects = []
   pColumns = 3
   pMinRows = 4
   pGridSize = 47
@@ -24,30 +22,32 @@ on construct me
     pBgHilite = image(1, 1, 8)
   end if
   return(1)
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   me.removeWriters()
   return(1)
+  exit
 end
 
-on render me, tBadges, tSelectedBadges, tNewBadges, tActiveBadge 
+on render(me, tBadges, tSelectedBadges, tNewBadges, tActiveBadge)
   if voidp(tSelectedBadges) then
     tSelectedBadges = []
   end if
   pBadges = tBadges
-  tRows = (tBadges.count / pColumns)
-  if (tBadges.count mod pColumns) > 0 then
+  tRows = tBadges.count / pColumns
+  if tBadges.count mod pColumns > 0 then
     tRows = tRows + 1
   end if
   tRows = max(tRows, pMinRows)
-  tListImage = image((pColumns * pGridSize), (tRows * pGridSize), 32)
+  tListImage = image(pColumns * pGridSize, tRows * pGridSize, 32)
   tRow = 0
   tCol = 0
-  tLastIndex = (tRows * pColumns)
+  tLastIndex = tRows * pColumns
   tIndex = 1
   repeat while tIndex <= tLastIndex
-    tTargetRect = rect((tCol * pGridSize), (tRow * pGridSize), (tCol + 1 * pGridSize), (tRow + 1 * pGridSize))
+    tTargetRect = rect(tCol * pGridSize, tRow * pGridSize, tCol + 1 * pGridSize, tRow + 1 * pGridSize)
     tListImage.copyPixels(pBg, tTargetRect, pBg.rect)
     if tIndex <= tBadges.count then
       tBadgeID = tBadges.getAt(tIndex)
@@ -71,34 +71,37 @@ on render me, tBadges, tSelectedBadges, tNewBadges, tActiveBadge
     tIndex = 1 + tIndex
   end repeat
   return(tListImage)
+  exit
 end
 
-on getBadgeAt me, tpoint 
+on getBadgeAt(me, tpoint)
   if tpoint.ilk <> #point then
     return(error(me, "Point expected.", #getBadgeAt, #major))
   end if
-  tCol = (tpoint.getAt(1) / pGridSize) + 1
+  tCol = tpoint.getAt(1) / pGridSize + 1
   if tCol > pColumns then
     return(0)
   end if
-  tRow = (tpoint.getAt(2) / pGridSize) + 1
-  tIndex = (tRow - 1 * pColumns) + tCol
+  tRow = tpoint.getAt(2) / pGridSize + 1
+  tIndex = tRow - 1 * pColumns + tCol
   if tIndex > 0 and tIndex <= pBadges.count then
     return(pBadges.getAt(tIndex))
   end if
   return(0)
+  exit
 end
 
-on centerImage me, tImage, tRect 
+on centerImage(me, tImage, tRect)
   tCentered = image(tRect.width, tRect.height, tImage.depth)
-  tOffH = (tRect.width - tImage.width / 2)
-  tOffV = (tRect.height - tImage.height / 2)
+  tOffH = tRect.width - tImage.width / 2
+  tOffV = tRect.height - tImage.height / 2
   tTargetRect = tImage.rect + rect(tOffH, tOffV, tOffH, tOffV)
   tCentered.copyPixels(tImage, tTargetRect, tImage.rect)
   return(tCentered)
+  exit
 end
 
-on getPlainWriter me 
+on getPlainWriter(me)
   if writerExists(pWriterIdPlain) then
     return(getWriter(pWriterIdPlain))
   end if
@@ -107,22 +110,25 @@ on getPlainWriter me
   tWriter = getWriter(pWriterIdPlain)
   tWriter.setProperty(#wordWrap, 1)
   return(getWriter(pWriterIdPlain))
+  exit
 end
 
-on getBoldWriter me 
+on getBoldWriter(me)
   if writerExists(pWriterIdBold) then
     return(getWriter(pWriterIdBold))
   end if
   tBoldStruct = getStructVariable("struct.font.bold")
   createWriter(pWriterIdBold, tBoldStruct)
   return(getWriter(pWriterIdBold))
+  exit
 end
 
-on removeWriters me 
+on removeWriters(me)
   if writerExists(pWriterIdPlain) then
     removeWriter(pWriterIdPlain)
   end if
   if writerExists(pWriterIdBold) then
     removeWriter(pWriterIdBold)
   end if
+  exit
 end

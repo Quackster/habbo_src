@@ -1,6 +1,4 @@
-property pMsgStruct, pHost, pPort, pConnectionTries, pXtra, pLogMode, pConnectionOk, pConnectionSecured, pDecoder, pEncoder, pConnectionShouldBeKilled, pEncryptionOn, pUnicodeDirector, pCommandsPntr, pListenersPntr, pDecipherOn, pLastError, pConnectionEstablishing, pConnectionRetryCount, pConnectionRetryDelay, pLastContent, pD, pLogfield
-
-on construct me 
+on construct(me)
   if value(_player.productVersion) >= 11 then
     pUnicodeDirector = 1
   else
@@ -25,13 +23,15 @@ on construct me
   pHost = void()
   pPort = void()
   return(1)
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   return(me.disconnect(1))
+  exit
 end
 
-on connect me, tHost, tPort 
+on connect(me, tHost, tPort)
   if voidp(pHost) and voidp(pPort) then
     sendProcessTracking(30)
     pHost = tHost
@@ -45,7 +45,7 @@ on connect me, tHost, tPort
     return(fatalError(["error":"mus_xtra_not_found"]))
   end if
   pXtra = new(xtra("Multiuser"))
-  pXtra.setNetBufferLimits((16 * 1024), (100 * 1024), 100)
+  pXtra.setNetBufferLimits(16 * 1024, 100 * 1024, 100)
   tErrCode = pXtra.setNetMessageHandler(#xtraMsgHandler, me)
   if tErrCode = 0 then
     tConnectErrorCode = pXtra.connectToNetServer("*", "*", pHost, pPort, "*", 1)
@@ -60,9 +60,10 @@ on connect me, tHost, tPort
     me.log("Connection initialized:" && me.getID() && pHost && pPort)
   end if
   return(1)
+  exit
 end
 
-on disconnect me, tControlled 
+on disconnect(me, tControlled)
   if tControlled <> 1 then
     me.forwardMsg(-1)
   end if
@@ -76,39 +77,45 @@ on disconnect me, tControlled
     error(me, "Connection disconnected:" && me.getID(), #disconnect, #minor)
   end if
   return(1)
+  exit
 end
 
-on connectionReady me 
+on connectionReady(me)
   return(pConnectionOk and pConnectionSecured)
+  exit
 end
 
-on setDecoder me, tDecoder 
+on setDecoder(me, tDecoder)
   if not objectp(tDecoder) then
     return(error(me, "Decoder object expected:" && tDecoder, #setDecoder, #major))
   else
     pDecoder = tDecoder
     return(1)
   end if
+  exit
 end
 
-on getDecoder me 
+on getDecoder(me)
   return(pDecoder)
+  exit
 end
 
-on setEncoder me, tEncoder 
+on setEncoder(me, tEncoder)
   if not objectp(tEncoder) then
     return(error(me, "Encoder object expected:" && tEncoder, #setEncoder, #major))
   else
     pEncoder = tEncoder
     return(1)
   end if
+  exit
 end
 
-on getEncoder me 
+on getEncoder(me)
   return(pEncoder)
+  exit
 end
 
-on setLogMode me, tMode 
+on setLogMode(me, tMode)
   if tMode.ilk <> #integer then
     return(error(me, "Invalid argument:" && tMode, #setLogMode, #minor))
   end if
@@ -122,19 +129,22 @@ on setLogMode me, tMode
     end if
   end if
   return(1)
+  exit
 end
 
-on getLogMode me 
+on getLogMode(me)
   return(pLogMode)
+  exit
 end
 
-on setEncryption me, tBoolean 
+on setEncryption(me, tBoolean)
   pEncryptionOn = tBoolean
   pConnectionSecured = 1
   return(1)
+  exit
 end
 
-on send me, tCmd, tMsg 
+on send(me, tCmd, tMsg)
   if pConnectionShouldBeKilled then
     return(0)
   end if
@@ -172,21 +182,22 @@ on send me, tCmd, tMsg
   tChar = 1
   repeat while tChar <= length(tMsg)
     tCharNum = charToNum(tMsg.char[tChar])
-    tLength = tLength + 1 + tCharNum > 255 and (tCharNum mod 256)
+    tLength = tLength + 1 + tCharNum > 255 and tCharNum mod 256
     tChar = 1 + tChar
   end repeat
   tL1 = numToChar(bitOr(bitAnd(tLength, 63), 64))
-  tL2 = numToChar(bitOr(bitAnd((tLength / 64), 63), 64))
-  tL3 = numToChar(bitOr(bitAnd((tLength / 4096), 63), 64))
+  tL2 = numToChar(bitOr(bitAnd(tLength / 64, 63), 64))
+  tL3 = numToChar(bitOr(bitAnd(tLength / 4096, 63), 64))
   tMsg = tL3 & tL2 & tL1 & tMsg
   if pEncryptionOn and objectp(pEncoder) then
     tMsg = pEncoder.lzNP3UFWUtBTs1stvSHGgk(tMsg)
   end if
   pXtra.sendNetMessage(0, 0, tMsg)
   return(1)
+  exit
 end
 
-on sendNew me, tCmd, tParmArr 
+on sendNew(me, tCmd, tParmArr)
   if not pConnectionOk and objectp(pXtra) then
     return(error(me, "Connection not ready:" && me.getID(), #send, #major))
   end if
@@ -197,27 +208,27 @@ on sendNew me, tCmd, tParmArr
     repeat while i <= tParmArr.count
       ttype = tParmArr.getPropAt(i)
       tParm = tParmArr.getAt(i)
-      if ttype = #string then
+      if me = #string then
         tParm = encodeUTF8(tParm)
         tLen = 0
         tChar = 1
         repeat while tChar <= length(tParm)
           tNum = charToNum(tParm.char[tChar])
-          tLen = tLen + 1 + tNum > 255 and (tNum mod 256)
+          tLen = tLen + 1 + tNum > 255 and tNum mod 256
           tChar = 1 + tChar
         end repeat
-        tBy1 = numToChar(bitOr(64, (tLen / 64)))
+        tBy1 = numToChar(bitOr(64, tLen / 64))
         tBy2 = numToChar(bitOr(64, bitAnd(63, tLen)))
         tMsg = tMsg & tBy1 & tBy2 & tParm
         tLength = tLength + tLen + 2
       else
-        if ttype = #short then
-          tBy1 = numToChar(bitOr(64, (tParm / 64)))
+        if me = #short then
+          tBy1 = numToChar(bitOr(64, tParm / 64))
           tBy2 = numToChar(bitOr(64, bitAnd(63, tParm)))
           tMsg = tMsg & tBy1 & tBy2
           tLength = tLength + 2
         else
-          if ttype = #integer then
+          if me = #integer then
             if tParm < 0 then
               tNegMask = 4
               tParm = -tParm
@@ -226,14 +237,14 @@ on sendNew me, tCmd, tParmArr
             end if
             tStr = numToChar(64 + bitAnd(tParm, 3))
             tBytes = 1
-            tParm = (tParm / 4)
+            tParm = tParm / 4
             repeat while tParm <> 0
               tBytes = tBytes + 1
-              tParm = (tParm / 64)
+              tParm = tParm / 64
             end repeat
             tLength = tLength + tBytes
           else
-            if ttype = #boolean then
+            if me = #boolean then
               tParm = tParm <> 0
               tBy1 = numToChar(bitOr(64, bitAnd(63, tParm)))
               tMsg = tMsg & tBy1
@@ -259,56 +270,59 @@ on sendNew me, tCmd, tParmArr
   end if
   tMsg = tCmd & tMsg
   tL1 = numToChar(bitOr(bitAnd(tLength, 63), 64))
-  tL2 = numToChar(bitOr(bitAnd((tLength / 64), 63), 64))
-  tL3 = numToChar(bitOr(bitAnd((tLength / 4096), 63), 64))
+  tL2 = numToChar(bitOr(bitAnd(tLength / 64, 63), 64))
+  tL3 = numToChar(bitOr(bitAnd(tLength / 4096, 63), 64))
   tMsg = tL3 & tL2 & tL1 & tMsg
   if pEncryptionOn and objectp(pEncoder) then
     tMsg = pEncoder.lzNP3UFWUtBTs1stvSHGgk(tMsg)
   end if
   pXtra.sendNetMessage(0, 0, tMsg)
   return(1)
+  exit
 end
 
-on getWaitingMessagesCount me 
+on getWaitingMessagesCount(me)
   return(pXtra.getNumberWaitingNetMessages())
+  exit
 end
 
-on processWaitingMessages me, tCount 
+on processWaitingMessages(me, tCount)
   if voidp(tCount) then
     tCount = 1
   end if
   return(pXtra.checkNetMessages(tCount))
+  exit
 end
 
-on getProperty me, tProp 
-  if tProp = #xtra then
+on getProperty(me, tProp)
+  if me = #xtra then
     return(pXtra)
   else
-    if tProp = #host then
+    if me = #host then
       return(pHost)
     else
-      if tProp = #port then
+      if me = #port then
         return(pPort)
       else
-        if tProp = #decoder then
+        if me = #decoder then
           return(me.getDecoder())
         else
-          if tProp = #encoder then
+          if me = #encoder then
             return(me.getEncoder())
           else
-            if tProp = #logmode then
+            if me = #logmode then
               return(me.getLogMode())
             else
-              if tProp = #listener then
+              if me = #listener then
                 return(pListenersPntr)
               else
-                if tProp = #commands then
+                if me = #commands then
                   return(pCommandsPntr)
                 else
-                  if tProp = #message then
+                  if me = #message then
                     return(pMsgStruct)
                   else
-                    if tProp = #deciphering then
+                    if me = #deciphering then
                       return(pDecipherOn)
                     end if
                   end if
@@ -321,19 +335,20 @@ on getProperty me, tProp
     end if
   end if
   return(0)
+  exit
 end
 
-on setProperty me, tProp, tValue 
-  if tProp = #decoder then
+on setProperty(me, tProp, tValue)
+  if me = #decoder then
     return(me.setDecoder(tValue))
   else
-    if tProp = #encoder then
+    if me = #encoder then
       return(me.setEncoder(tValue))
     else
-      if tProp = #logmode then
+      if me = #logmode then
         return(me.setLogMode(tValue))
       else
-        if tProp = #listener then
+        if me = #listener then
           if tValue.ilk = #struct then
             pListenersPntr = tValue
             return(1)
@@ -341,7 +356,7 @@ on setProperty me, tProp, tValue
             return(0)
           end if
         else
-          if tProp = #commands then
+          if me = #commands then
             if tValue.ilk = #struct then
               pCommandsPntr = tValue
               return(1)
@@ -349,7 +364,7 @@ on setProperty me, tProp, tValue
               return(0)
             end if
           else
-            if tProp = #deciphering then
+            if me = #deciphering then
               pDecipherOn = tValue
             end if
           end if
@@ -358,34 +373,37 @@ on setProperty me, tProp, tValue
     end if
   end if
   return(0)
+  exit
 end
 
-on GetBoolFrom me 
+on GetBoolFrom(me)
   tByteStr = pMsgStruct.getaProp(#content)
   tByte = bitAnd(charToNum(tByteStr.char[1]), 63)
   pMsgStruct.setaProp(#content, tByteStr.getProp(#char, 2, length(tByteStr)))
   return(tByte <> 0)
+  exit
 end
 
-on GetByteFrom me 
+on GetByteFrom(me)
   tByteStr = pMsgStruct.getaProp(#content)
   tByte = bitAnd(charToNum(tByteStr.char[1]), 63)
   pMsgStruct.setaProp(#content, tByteStr.getProp(#char, 2, length(tByteStr)))
   return(tByte)
+  exit
 end
 
-on GetIntFrom me 
+on GetIntFrom(me)
   tByteStr = pMsgStruct.getaProp(#content)
   tByte = bitAnd(charToNum(tByteStr.char[1]), 63)
-  tByCnt = bitOr((bitAnd(tByte, 56) / 8), 0)
+  tByCnt = bitOr(bitAnd(tByte, 56) / 8, 0)
   tNeg = bitAnd(tByte, 4)
   tInt = bitAnd(tByte, 3)
   if tByCnt > 1 then
-    tPowTbl = [4, 256, 16384, 1048576, 67108864]
+    tPowTbl = [256, 0]
     i = 2
     repeat while i <= tByCnt
       tByte = bitAnd(charToNum(tByteStr.char[i]), 63)
-      tInt = bitOr((tByte * tPowTbl.getAt(i - 1)), tInt)
+      tInt = bitOr(tByte * tPowTbl.getAt(i - 1), tInt)
       i = 1 + i
     end repeat
   end if
@@ -394,9 +412,10 @@ on GetIntFrom me
   end if
   pMsgStruct.setaProp(#content, tByteStr.getProp(#char, tByCnt + 1, length(tByteStr)))
   return(tInt)
+  exit
 end
 
-on GetStrFrom me 
+on GetStrFrom(me)
   tArr = pMsgStruct.getaProp(#content)
   tLen = offset(numToChar(2), tArr)
   if tLen > 1 then
@@ -406,9 +425,10 @@ on GetStrFrom me
   end if
   pMsgStruct.setaProp(#content, tArr.char[tLen + 1..length(tArr)])
   return(tStr)
+  exit
 end
 
-on print me 
+on print(me)
   tStr = ""
   if symbolp(me.getID()) then
   end if
@@ -417,7 +437,7 @@ on print me
     i = 1
     repeat while i <= count(tMsgsList)
       tCallbackList = tMsgsList.getAt(i)
-      repeat while "#" <= undefined
+      repeat while me <= undefined
         tCallback = getAt(undefined, undefined)
       end repeat
       i = 1 + i
@@ -425,13 +445,15 @@ on print me
   end if
   put(tStr & "\r")
   return(1)
+  exit
 end
 
-on GetLastError me 
+on GetLastError(me)
   return(pLastError)
+  exit
 end
 
-on xtraMsgHandler me 
+on xtraMsgHandler(me)
   if pConnectionShouldBeKilled <> 0 then
     return(0)
   end if
@@ -474,9 +496,10 @@ on xtraMsgHandler me
     tContent = pDecoder.TTF97D0LvibV6X(tContent)
   end if
   me.msghandler(tContent)
+  exit
 end
 
-on msghandler me, tContent 
+on msghandler(me, tContent)
   if tContent.ilk <> #string then
     return(0)
   end if
@@ -491,13 +514,13 @@ on msghandler me, tContent
     end if
     tByte1 = bitAnd(charToNum(tContent.char[2]), 63)
     tByte2 = bitAnd(charToNum(tContent.char[1]), 63)
-    tMsgType = bitOr((tByte2 * 64), tByte1)
+    tMsgType = bitOr(tByte2 * 64, tByte1)
     tLength = offset(numToChar(1), tContent)
     if tLength = 0 and not pUnicodeDirector then
       i = 3
       repeat while i <= tContent.length
         tCharVal = charToNum(tContent.getProp(#char, i))
-        if (tCharVal mod 256) = 1 then
+        if tCharVal mod 256 = 1 then
           tContent = tContent.getProp(#char, 1, i - 1) & numToChar(tCharVal - 1) & numToChar(1) & tContent.getProp(#char, i + 1, tContent.length)
           tLength = i + 1
         else
@@ -514,9 +537,10 @@ on msghandler me, tContent
     tParams = decodeUTF8(tParams)
     me.forwardMsg(tMsgType, tParams)
   end repeat
+  exit
 end
 
-on forwardMsg me, tSubject, tParams 
+on forwardMsg(me, tSubject, tParams)
   if pLogMode > 0 then
     me.log("-->" && tSubject & "\r" & tParams)
   end if
@@ -542,32 +566,35 @@ on forwardMsg me, tSubject, tParams
     end if
     i = 1 + i
   end repeat
+  exit
 end
 
-on log me, tMsg 
+on log(me, tMsg)
   if not pD then
     the debugPlaybackEnabled = 0
     if not the runMode contains "Author" then
       return(1)
     end if
   end if
-  if pLogMode = 1 then
+  if me = 1 then
     put("[Connection" && me.getID() & "] :" && tMsg)
   else
-    if pLogMode = 2 then
+    if me = 2 then
       if not the runMode contains "Author" then
         return(1)
       end if
       if ilk(pLogfield, #member) then
       end if
     else
-      if pLogMode = 3 then
+      if me = 3 then
         executeMessage(#logdata, tMsg)
       end if
     end if
   end if
+  exit
 end
 
-on handlers me 
+on handlers(me)
   return([])
+  exit
 end

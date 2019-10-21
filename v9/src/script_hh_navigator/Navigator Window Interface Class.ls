@@ -1,8 +1,6 @@
-property pWindowTitle, pOpenWindow, pProps, pHistoryItemHeight, pWriterPlainBoldLeft, pWriterPlainNormWrap, pResourcesReady, pWriterPlainBoldCent, pWriterPrivPlain, pListItemHeight, pWriterBackTabs, pWriterUnderNormLeft, pHideFullLinkImages, pRoomBackImages, pCatBackImages, pWriterPlainNormLeft, pRoomInfoHeight, pBufferDepth
-
-on construct me 
+on construct(me)
   pWindowTitle = getText("navigator", "Hotel Navigator")
-  pProps = [:]
+  pProps = []
   pRoomInfoHeight = 96
   pListAreaWidth = 311
   pListItemHeight = 18
@@ -12,9 +10,10 @@ on construct me
   pResourcesReady = 0
   pLastWindowName = ""
   return(me.createImgResources())
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   if windowExists(#login_a) then
     removeWindow(#login_a)
   end if
@@ -25,34 +24,36 @@ on deconstruct me
     removeWindow(pWindowTitle)
   end if
   return(me.removeImgResources())
+  exit
 end
 
-on getNaviView me 
-  if (pOpenWindow = "nav_pr") then
+on getNaviView(me)
+  if me = "nav_pr" then
     return(#unit)
   else
-    if (pOpenWindow = "nav_gr0") then
+    if me = "nav_gr0" then
       return(#flat)
     else
-      if (pOpenWindow = "nav_gr_own") then
+      if me = "nav_gr_own" then
         return(#own)
       else
-        if (pOpenWindow = "nav_gr_src") then
+        if me = "nav_gr_src" then
           return(#src)
         else
-          if (pOpenWindow = "nav_gr_fav") then
+          if me = "nav_gr_fav" then
             return(#fav)
           else
-            if pOpenWindow <> "nav_gr_mod" then
-              if pOpenWindow <> "nav_gr_mod_b" then
-                if pOpenWindow <> "nav_gr_modify_delete1" then
-                  if pOpenWindow <> "nav_gr_modify_delete2" then
-                    if pOpenWindow <> "nav_gr_modify_delete3" then
-                      if (pOpenWindow = "nav_modify_removerights") then
+            if me <> "nav_gr_mod" then
+              if me <> "nav_gr_mod_b" then
+                if me <> "nav_gr_modify_delete1" then
+                  if me <> "nav_gr_modify_delete2" then
+                    if me <> "nav_gr_modify_delete3" then
+                      if me = "nav_modify_removerights" then
                         return(#mod)
                       else
                         return(#none)
                       end if
+                      exit
                     end if
                   end if
                 end if
@@ -65,17 +66,17 @@ on getNaviView me
   end if
 end
 
-on getProperty me, tProp, tView 
-  if (tView = void()) then
+on getProperty(me, tProp, tView)
+  if tView = void() then
     tView = me.getNaviView()
   end if
-  if (tView = #mod) then
+  if tView = #mod then
     tView = #own
   end if
-  if (tView = 0) then
+  if tView = 0 then
     return(void())
   end if
-  if (pProps.getAt(tView) = void()) then
+  if pProps.getAt(tView) = void() then
     return(void())
   end if
   if not voidp(pProps.getAt(tView).getAt(tProp)) then
@@ -83,48 +84,52 @@ on getProperty me, tProp, tView
   else
     return(void())
   end if
+  exit
 end
 
-on setProperty me, tProp, tValue, tView 
-  if (tView = void()) then
+on setProperty(me, tProp, tValue, tView)
+  if tView = void() then
     tView = me.getNaviView()
   end if
-  if (tView = 0) then
-    return FALSE
+  if tView = 0 then
+    return(0)
   end if
-  if (pProps.getAt(tView) = void()) then
-    pProps.setAt(tView, [:])
+  if pProps.getAt(tView) = void() then
+    pProps.setAt(tView, [])
   end if
   pProps.getAt(tView).setAt(tProp, tValue)
-  return TRUE
+  return(1)
+  exit
 end
 
-on showNavigator me 
+on showNavigator(me)
   me.getInterface().setUpdates(1)
   if windowExists(pWindowTitle) then
     getWindow(pWindowTitle).show()
   else
     return(me.ChangeWindowView(pOpenWindow))
   end if
-  return FALSE
+  return(0)
+  exit
 end
 
-on hideNavigator me, tHideOrRemove 
+on hideNavigator(me, tHideOrRemove)
   me.getInterface().setUpdates(0)
   if voidp(tHideOrRemove) then
     tHideOrRemove = #Remove
   end if
   if windowExists(pWindowTitle) then
-    if (tHideOrRemove = #Remove) then
+    if tHideOrRemove = #Remove then
       removeWindow(pWindowTitle)
     else
       getWindow(pWindowTitle).hide()
     end if
   end if
-  return TRUE
+  return(1)
+  exit
 end
 
-on showhidenavigator me, tHideOrRemove 
+on showhidenavigator(me, tHideOrRemove)
   if voidp(tHideOrRemove) then
     tHideOrRemove = #Remove
   end if
@@ -137,9 +142,10 @@ on showhidenavigator me, tHideOrRemove
   else
     me.showNavigator()
   end if
+  exit
 end
 
-on ChangeWindowView me, tWindowName 
+on ChangeWindowView(me, tWindowName)
   tWndObj = getWindow(pWindowTitle)
   tScrollOffset = 0
   if tWndObj <> 0 then
@@ -158,16 +164,16 @@ on ChangeWindowView me, tWindowName
     return(tWndObj.close())
   end if
   pLastWindowName = tWindowName
-  if tWindowName <> "nav_gr_password" then
-    if tWindowName <> "nav_gr_trypassword" then
-      if (tWindowName = "nav_gr_passwordincorrect") then
+  if me <> "nav_gr_password" then
+    if me <> "nav_gr_trypassword" then
+      if me = "nav_gr_passwordincorrect" then
         tName = me.getComponent().getNodeProperty(me.getProperty(#viewedNodeId), #name)
         if not stringp(tName) then
           tName = ""
         end if
         getWindow(me.pWindowTitle).getElement("nav_roomname_text").setText(tName)
       else
-        if (tWindowName = "nav_remove_rights") then
+        if me = "nav_remove_rights" then
           nothing()
         else
           pOpenWindow = tWindowName
@@ -179,42 +185,42 @@ on ChangeWindowView me, tWindowName
       tCategoryId = me.getProperty(#categoryId)
       tRoomInfoState = me.getProperty(#roomInfoState)
       tNaviView = me.getNaviView()
-      if (tWindowName = #unit) then
+      if me = #unit then
         tWndObj.registerProcedure(#eventProcNavigatorPublic, me.getID(), #mouseDown)
         tWndObj.registerProcedure(#eventProcNavigatorPublic, me.getID(), #mouseUp)
         tWndObj.registerProcedure(#eventProcNavigatorPublic, me.getID(), #keyDown)
         me.getComponent().createNaviHistory(tCategoryId)
         me.updateRoomList(tCategoryId, void())
-        if (tRoomInfoState = #hide) then
+        if tRoomInfoState = #hide then
           me.setProperty(#roomInfoState, #show)
           me.setRoomInfoArea(#hide)
         else
           me.showNodeInfo(me.getProperty(#viewedNodeId))
         end if
-        return TRUE
+        return(1)
       else
-        if tWindowName <> #flat then
-          if tWindowName <> #src then
-            if tWindowName <> #own then
-              if (tWindowName = #fav) then
+        if me <> #flat then
+          if me <> #src then
+            if me <> #own then
+              if me = #fav then
                 tWndObj.registerProcedure(#eventProcNavigatorPrivate, me.getID(), #mouseDown)
                 tWndObj.registerProcedure(#eventProcNavigatorPrivate, me.getID(), #mouseUp)
                 tWndObj.registerProcedure(#eventProcNavigatorPrivate, me.getID(), #keyDown)
-                if (tNaviView = #flat) then
+                if tNaviView = #flat then
                   me.getComponent().createNaviHistory(tCategoryId)
                   me.updateRoomList(tCategoryId, void())
                 else
                   me.getComponent().updateInterface(tCategoryId)
                 end if
-                if (tRoomInfoState = #hide) then
+                if tRoomInfoState = #hide then
                   me.setProperty(#roomInfoState, #show)
                   me.setRoomInfoArea(#hide)
                 else
                   me.showNodeInfo(me.getProperty(#viewedNodeId))
                 end if
-                return TRUE
+                return(1)
               else
-                if (tWindowName = #mod) then
+                if me = #mod then
                   tWndObj.registerProcedure(#eventProcNavigatorModify, me.getID(), #mouseDown)
                   tWndObj.registerProcedure(#eventProcNavigatorModify, me.getID(), #mouseUp)
                   tWndObj.registerProcedure(#eventProcNavigatorModify, me.getID(), #keyDown)
@@ -223,7 +229,8 @@ on ChangeWindowView me, tWindowName
                   end if
                 end if
               end if
-              return TRUE
+              return(1)
+              exit
             end if
           end if
         end if
@@ -232,57 +239,58 @@ on ChangeWindowView me, tWindowName
   end if
 end
 
-on updateRoomList me, tNodeId, tRoomList 
+on updateRoomList(me, tNodeId, tRoomList)
   me.setLoadingCursor(0)
   if listp(tRoomList) then
     tImage = me.renderRoomList(tRoomList)
-    if (tNodeId = me.getProperty(#categoryId, #unit)) then
+    if tNodeId = me.getProperty(#categoryId, #unit) then
       me.setProperty(#cacheImg, tImage, #unit)
     end if
-    if (tNodeId = me.getProperty(#categoryId, #flat)) then
+    if tNodeId = me.getProperty(#categoryId, #flat) then
       me.setProperty(#cacheImg, tImage, #flat)
     end if
     if tNodeId <> me.getProperty(#categoryId) and tNodeId <> me.getNaviView() then
-      return TRUE
+      return(1)
     end if
   else
-    if (tNodeId = me.getProperty(#categoryId)) and not voidp(me.getProperty(#cacheImg)) then
+    if tNodeId = me.getProperty(#categoryId) and not voidp(me.getProperty(#cacheImg)) then
       tImage = me.getProperty(#cacheImg)
       me.getComponent().updateInterface(tNodeId)
     else
-      return FALSE
+      return(0)
     end if
   end if
   tWndObj = getWindow(pWindowTitle)
-  if (tWndObj = 0) then
-    return FALSE
+  if tWndObj = 0 then
+    return(0)
   end if
   tName = me.getComponent().getNodeProperty(tNodeId, #name)
   if tName <> 0 and tWndObj.elementExists("nav_roomlist_hd") then
-    tHeaderImage = me.pWriterPlainBoldLeft.render(tName)
+    tHeaderImage = pWriterPlainBoldLeft.render(tName)
     tWndObj.getElement("nav_roomlist_hd").feedImage(tHeaderImage)
   end if
   tLstElement = tWndObj.getElement("nav_roomlist")
-  if (tLstElement = 0) then
-    return FALSE
+  if tLstElement = 0 then
+    return(0)
   end if
   tLstElement.feedImage(tImage)
   me.setHideFullRoomsLink()
   tBarElement = tWndObj.getElement("nav_scrollbar")
-  if (tBarElement = 0) then
-    return TRUE
+  if tBarElement = 0 then
+    return(1)
   end if
   if tBarElement.getScrollOffset() > tImage.height then
-    tBarElement.setScrollOffset((tImage.height - tLstElement.getProperty(#height)))
+    tBarElement.setScrollOffset(tImage.height - tLstElement.getProperty(#height))
   end if
-  return TRUE
+  return(1)
+  exit
 end
 
-on setUpdates me, tBoolean 
+on setUpdates(me, tBoolean)
   if tBoolean then
     me.getComponent().updateInterface(me.getProperty(#categoryId))
     if timeoutExists(#navigator_update) then
-      return TRUE
+      return(1)
     end if
     tUpdateInterval = getIntVariable("navigator.updatetime")
     return(createTimeout(#navigator_update, tUpdateInterval, #setUpdates, me.getID(), 1, 0))
@@ -290,14 +298,15 @@ on setUpdates me, tBoolean
     if timeoutExists(#navigator_update) then
       removeTimeout(#navigator_update)
     end if
-    return TRUE
+    return(1)
   end if
+  exit
 end
 
-on clearRoomList me 
+on clearRoomList(me)
   tWndObj = getWindow(me.pWindowTitle)
-  if (tWndObj = 0) then
-    return FALSE
+  if tWndObj = 0 then
+    return(0)
   end if
   if tWndObj.elementExists("nav_roomlist") then
     tWndObj.getElement("nav_roomlist").clearImage()
@@ -314,58 +323,60 @@ on clearRoomList me
   if tWndObj.elementExists("nav_scrollbar") then
     tWndObj.getElement("nav_scrollbar").setScrollOffset(0)
   end if
-  return TRUE
+  return(1)
+  exit
 end
 
-on renderHistory me, tNodeId, tHistoryTxt 
-  if not (tNodeId = me.getProperty(#categoryId)) then
-    return FALSE
+on renderHistory(me, tNodeId, tHistoryTxt)
+  if not tNodeId = me.getProperty(#categoryId) then
+    return(0)
   end if
   tWndObj = getWindow(me.pWindowTitle)
-  if (tWndObj = 0) then
-    return FALSE
+  if tWndObj = 0 then
+    return(0)
   end if
   tElem = tWndObj.getElement("nav_roomlistBackTabs")
-  if (tElem = 0) then
-    return FALSE
+  if tElem = 0 then
+    return(0)
   end if
   tOffset = me.getProperty(#historyOrigV)
-  if (tOffset = void()) then
+  if tOffset = void() then
     tOffset = tWndObj.getElement("nav_roomlist").getProperty(#locV)
     me.setProperty(#historyOrigV, tOffset)
   end if
   tItemCount = tHistoryTxt.count(#line)
-  if (tHistoryTxt = "") then
+  if tHistoryTxt = "" then
     tItemCount = 0
   end if
-  tOffset = (tOffset - tWndObj.getElement("nav_roomlist").getProperty(#locV))
-  tOffset = ((tItemCount * pHistoryItemHeight) + tOffset)
-  if (me.getNaviView() = #flat) and tItemCount > 0 then
-    tOffset = (tOffset + 7)
+  tOffset = tOffset - tWndObj.getElement("nav_roomlist").getProperty(#locV)
+  tOffset = tItemCount * pHistoryItemHeight + tOffset
+  if me.getNaviView() = #flat and tItemCount > 0 then
+    tOffset = tOffset + 7
   end if
   tWndObj.getElement("nav_roomlist_hd").moveBy(0, tOffset)
   tScaleList = [tWndObj.getElement("nav_roomlist"), tWndObj.getElement("nav_scrollbar"), tWndObj.getElement("nav_roomlistArea")]
   call(#moveBy, tScaleList, 0, tOffset)
   call(#resizeBy, tScaleList, 0, -tOffset)
-  tTextImg = me.pWriterBackTabs.render(tHistoryTxt)
+  tTextImg = pWriterBackTabs.render(tHistoryTxt)
   if variableExists("nav_roomlist_marginv") then
     tMargin = getVariable("nav_roomlist_marginv")
-    tTempImg = image(tTextImg.width, (tTextImg.height + tMargin), me.pBufferDepth)
-    tTempImg.copyPixels(tTextImg, (tTextImg.rect + rect(0, tMargin, 0, tMargin)), tTextImg.rect)
+    tTempImg = image(tTextImg.width, tTextImg.height + tMargin, me.pBufferDepth)
+    tTempImg.copyPixels(tTextImg, tTextImg.rect + rect(0, tMargin, 0, tMargin), tTextImg.rect)
     tTextImg = tTempImg
   end if
   tWndObj.getElement("nav_roomlistBackLinks").feedImage(tTextImg)
+  exit
 end
 
-on showNodeInfo me, tNodeId 
+on showNodeInfo(me, tNodeId)
   me.setLoadingCursor(0)
   if not windowExists(pWindowTitle) then
-    return FALSE
+    return(0)
   end if
   tWndObj = getWindow(pWindowTitle)
   tElem = tWndObj.getElement("nav_roomnfo_hd")
-  if (tElem = 0) then
-    return FALSE
+  if tElem = 0 then
+    return(0)
   end if
   if not voidp(tNodeId) then
     tNodeInfo = me.getComponent().getNodeInfo(tNodeId, me.getProperty(#categoryId))
@@ -373,29 +384,29 @@ on showNodeInfo me, tNodeId
   if not listp(tNodeInfo) then
     tNodeInfo = 0
   else
-    if (tNodeInfo.getAt(#nodeType) = 0) then
+    if tNodeInfo.getAt(#nodeType) = 0 then
       tNodeInfo = 0
     end if
   end if
   me.setRoomInfoArea(#show)
   tView = me.getNaviView()
-  if (tNodeInfo = 0) then
-    if (tView = #unit) then
+  if tNodeInfo = 0 then
+    if me = #unit then
       tIconName = "nav_ico_def_pr"
       tRoomDesc = getText("nav_public_helptext")
       tHeaderTxt = getText("nav_public_helptext_hd")
     else
-      if (tView = #src) then
+      if me = #src then
         tIconName = "nav_ico_def_src"
         tRoomDesc = getText("nav_search_helptext")
         tHeaderTxt = getText("nav_private_helptext_hd")
       else
-        if (tView = #fav) then
+        if me = #fav then
           tIconName = "nav_ico_def_fav"
           tRoomDesc = getText("nav_favourites_helptext")
           tHeaderTxt = getText("nav_private_helptext_hd")
         else
-          if (tView = #own) then
+          if me = #own then
             tIconName = "nav_ico_def_own"
             tRoomDesc = getText("nav_ownrooms_helptext")
             tHeaderTxt = getText("nav_private_helptext_hd")
@@ -418,12 +429,12 @@ on showNodeInfo me, tNodeId
     end if
     tWndObj.getElement("nav_go_button").hide()
   else
-    if (tView = #unit) then
+    if me = #unit then
       tTextId = "nav_venue_" & tNodeInfo.getAt(#unitStrId) & "/" & tNodeInfo.getAt(#door) & "_desc"
       if not textExists(tTextId) then
         tDelim = the itemDelimiter
         the itemDelimiter = "_"
-        tTextId = "nav_venue_" & tNodeInfo.getAt(#unitStrId).getProp(#item, 1, (tNodeInfo.getAt(#unitStrId).count(#item) - 1)) & "_desc"
+        tTextId = "nav_venue_" & tNodeInfo.getAt(#unitStrId).getProp(#item, 1, tNodeInfo.getAt(#unitStrId).count(#item) - 1) & "_desc"
         the itemDelimiter = tDelim
       end if
       tRoomDesc = getText(tTextId)
@@ -431,7 +442,7 @@ on showNodeInfo me, tNodeId
       if not memberExists(tIconName) then
         tDelim = the itemDelimiter
         the itemDelimiter = "_"
-        tIconName = tIconName.getProp(#item, 1, (tIconName.count(#item) - 1))
+        tIconName = tIconName.getProp(#item, 1, tIconName.count(#item) - 1)
         the itemDelimiter = tDelim
       end if
       if not memberExists(tIconName) then
@@ -472,13 +483,13 @@ on showNodeInfo me, tNodeId
       tHeaderTxt = tNameTxt & "\r" & "(" & tNodeInfo.getAt(#usercount) & "/" & tNodeInfo.getAt(#maxUsers) & ") "
       tHeaderTxt = tHeaderTxt & getText("nav_owner") & ":" && tNodeInfo.getAt(#owner)
       tRoomDesc = tNodeInfo.getAt(#description)
-      if (tView = "open") then
+      if me = "open" then
         tIconName = "door_open"
       else
-        if (tView = "closed") then
+        if me = "closed" then
           tIconName = "door_closed"
         else
-          if (tView = "password") then
+          if me = "password" then
             tIconName = "door_password"
           else
             tNodeInfo.setAt(#door, "open")
@@ -505,10 +516,10 @@ on showNodeInfo me, tNodeId
   pWriterPlainNormWrap.define([#rect:rect(0, 0, tWidth, 0)])
   tImage = pWriterPlainNormWrap.render(tRoomDesc)
   tMargin = 2
-  tDataImage = image(tWidth, ((tHeaderImage.height + tMargin) + tImage.height), 8)
+  tDataImage = image(tWidth, tHeaderImage.height + tMargin + tImage.height, 8)
   tDataImage.copyPixels(tHeaderImage, tHeaderImage.rect, tHeaderImage.rect)
   tSourceRect = rect(0, 0, tImage.width, tImage.height)
-  tTargetRect = rect(0, (tHeaderImage.height + tMargin), tImage.width, ((tImage.height + tHeaderImage.height) + tMargin))
+  tTargetRect = rect(0, tHeaderImage.height + tMargin, tImage.width, tImage.height + tHeaderImage.height + tMargin)
   tDataImage.copyPixels(tImage, tTargetRect, tSourceRect)
   tElem.feedImage(tDataImage)
   if memberExists(tIconName) and tWndObj.elementExists("nav_roomnfo_icon") then
@@ -520,18 +531,19 @@ on showNodeInfo me, tNodeId
     tHeight = tElement.getProperty(#height)
     tDepth = tElement.getProperty(#depth)
     tPrewImg = image(tWidth, tHeight, tDepth)
-    tdestrect = (tPrewImg.rect - tTempImg.rect)
-    tdestrect = rect((tdestrect.width / 2), (tdestrect.height / 2), (tTempImg.width + (tdestrect.width / 2)), ((tdestrect.height / 2) + tTempImg.height))
+    tdestrect = tPrewImg.rect - tTempImg.rect
+    tdestrect = rect(tdestrect.width / 2, tdestrect.height / 2, tTempImg.width + tdestrect.width / 2, tdestrect.height / 2 + tTempImg.height)
     tPrewImg.copyPixels(tTempImg, tdestrect, tTempImg.rect, [#ink:8])
     tElement.clearImage()
     tElement.feedImage(tPrewImg)
   end if
-  return TRUE
+  return(1)
+  exit
 end
 
-on createImgResources me 
+on createImgResources(me)
   if pResourcesReady then
-    return FALSE
+    return(0)
   end if
   tPlain = getStructVariable("struct.font.plain")
   tBold = getStructVariable("struct.font.bold")
@@ -562,7 +574,7 @@ on createImgResources me
   createWriter("nav_showfull", getStructVariable("struct.font.link"))
   tWriter = getWriter("nav_showfull")
   tWriter.define([#wordWrap:0, #color:rgb("#7B9498"), #alignment:#right])
-  pHideFullLinkImages = [:]
+  pHideFullLinkImages = []
   pHideFullLinkImages.setAt(#show, tWriter.render(getText("nav_showfull")).duplicate())
   pHideFullLinkImages.setAt(#hide, tWriter.render(getText("nav_hidefull")).duplicate())
   removeWriter("nav_showfull")
@@ -582,12 +594,13 @@ on createImgResources me
   pCatBackImages.add(createCatItemImage(4, paletteIndex(130)))
   removeWindow("naviTempWindow")
   pResourcesReady = 1
-  return TRUE
+  return(1)
+  exit
 end
 
-on removeImgResources me 
+on removeImgResources(me)
   if not pResourcesReady then
-    return FALSE
+    return(0)
   end if
   removeWriter(pWriterPlainNormLeft.getID())
   pWriterPlainNormLeft = void()
@@ -605,10 +618,11 @@ on removeImgResources me
   pWriterBackTabs = void()
   pHideFullLinkImages = void()
   pResourcesReady = 0
-  return TRUE
+  return(1)
+  exit
 end
 
-on createCatItemImage tNum, tColor 
+on createCatItemImage(tNum, tColor)
   tImg = image(311, 16, 8, member("nav_ui_palette"))
   tSrc = member("nav_rw_lf" & tNum).image
   tImg.copyPixels(tSrc, tSrc.rect, tSrc.rect)
@@ -622,9 +636,10 @@ on createCatItemImage tNum, tColor
   tImg.copyPixels(tSrc, rect(293, 4, 300, 12), tSrc.rect, [#ink:36])
   tImg.copyPixels(tSrc, rect(300, 4, 307, 12), tSrc.rect, [#ink:36])
   return(tImg)
+  exit
 end
 
-on createRoomItemImage tNum, tColor 
+on createRoomItemImage(tNum, tColor)
   tImg = image(311, 16, 8, member("nav_ui_palette"))
   tSrc = member("nav_rw_lf").image
   tImg.copyPixels(tSrc, tSrc.rect, tSrc.rect)
@@ -639,14 +654,15 @@ on createRoomItemImage tNum, tColor
   tSrc = member("nav_rw_arr").image
   tImg.copyPixels(tSrc, rect(300, 4, 307, 12), tSrc.rect, [#ink:36])
   return(tImg)
+  exit
 end
 
-on renderRoomList me, tList 
+on renderRoomList(me, tList)
   if not listp(tList) then
-    return FALSE
+    return(0)
   end if
   tCount = tList.count
-  tListHeight = (tCount * me.pListItemHeight)
+  tListHeight = tCount * me.pListItemHeight
   tTargetImg = image(me.pListAreaWidth, tListHeight, me.pBufferDepth)
   tLockMemImgA = member(getmemnum("lock1")).image
   tLockMemImgB = member(getmemnum("lock2")).image
@@ -659,16 +675,16 @@ on renderRoomList me, tList
     if tItem.getAt(#maxUsers) < 1 then
       tItem.setAt(#maxUsers, 25)
     end if
-    tUserStatus = (float(tItem.getAt(#usercount)) / tItem.getAt(#maxUsers))
-    if (tItem.getAt(#nodeType) = 0) then
+    tUserStatus = float(tItem.getAt(#usercount)) / tItem.getAt(#maxUsers)
+    if tItem.getAt(#nodeType) = 0 then
       me.renderRoomListItem(#cat, i, tTargetImg, tUserStatus)
     else
       me.renderRoomListItem(#room, i, tTargetImg, tUserStatus, tItem.getAt(#nodeType))
     end if
-    if (tItem.getAt(#door) = "closed") then
+    if me = "closed" then
       tLockImg = tLockMemImgA
     else
-      if (tItem.getAt(#door) = "password") then
+      if me = "password" then
         tLockImg = tLockMemImgB
       else
         tLockImg = 0
@@ -676,25 +692,26 @@ on renderRoomList me, tList
     end if
     if tLockImg <> 0 then
       tSrcRect = tLockImg.rect
-      tLocV = ((i - 1) * me.pListItemHeight)
-      tdestrect = (tSrcRect + rect(7, (tLocV + 5), 7, (tLocV + 5)))
+      tLocV = i - 1 * me.pListItemHeight
+      tdestrect = tSrcRect + rect(7, tLocV + 5, 7, tLocV + 5)
       tTargetImg.copyPixels(tLockImg, tdestrect, tSrcRect, [#ink:36])
     end if
-    i = (1 + i)
+    i = 1 + i
   end repeat
   if variableExists("nav_roomlist_marginv") then
     tNameVertMargin = getVariable("nav_roomlist_marginv")
   else
     tNameVertMargin = 0
   end if
-  tNameImage = me.pWriterPrivPlain.render(tNameTxt)
-  tTargetImg.copyPixels(tNameImage, (tNameImage.rect + rect(17, (-5 + tNameVertMargin), 17, (-5 + tNameVertMargin))), tNameImage.rect)
+  tNameImage = pWriterPrivPlain.render(tNameTxt)
+  tTargetImg.copyPixels(tNameImage, tNameImage.rect + rect(17, -5 + tNameVertMargin, 17, -5 + tNameVertMargin), tNameImage.rect)
   return(tTargetImg)
+  exit
 end
 
-on renderRoomListItem me, ttype, tNum, tTargetImg, tUserStatus, tNodeType 
-  if (tNodeType = 1) then
-    if (tUserStatus = 0) then
+on renderRoomListItem(me, ttype, tNum, tTargetImg, tUserStatus, tNodeType)
+  if tNodeType = 1 then
+    if tUserStatus = 0 then
       tBackImgId = 1
     else
       if tUserStatus < 0.34 then
@@ -712,7 +729,7 @@ on renderRoomListItem me, ttype, tNum, tTargetImg, tUserStatus, tNodeType
       end if
     end if
   else
-    if (tUserStatus = 0) then
+    if tUserStatus = 0 then
       tBackImgId = 1
     else
       if tUserStatus < 0.34 then
@@ -721,7 +738,7 @@ on renderRoomListItem me, ttype, tNum, tTargetImg, tUserStatus, tNodeType
         if tUserStatus < 0.76 then
           tBackImgId = 3
         else
-          if tUserStatus < 0.99 or (ttype = #cat) then
+          if tUserStatus < 0.99 or ttype = #cat then
             tBackImgId = 4
           else
             tBackImgId = 5
@@ -730,16 +747,16 @@ on renderRoomListItem me, ttype, tNum, tTargetImg, tUserStatus, tNodeType
       end if
     end if
   end if
-  if (ttype = #room) then
+  if ttype = #room then
     tBackImg = me.getProp(#pRoomBackImages, tBackImgId)
   else
     tBackImg = me.getProp(#pCatBackImages, tBackImgId)
   end if
-  tLocV = ((tNum - 1) * me.pListItemHeight)
-  tdestrect = (tBackImg.rect + rect(0, tLocV, 0, tLocV))
+  tLocV = tNum - 1 * me.pListItemHeight
+  tdestrect = tBackImg.rect + rect(0, tLocV, 0, tLocV)
   tTargetImg.copyPixels(tBackImg, tdestrect, tBackImg.rect)
-  if (ttype = #room) then
-    if (tBackImgId = 5) then
+  if ttype = #room then
+    if tBackImgId = 5 then
       tLinkImage = me.pFullLinkTextImg
     else
       tLinkImage = me.pGoLinkTextImg
@@ -748,31 +765,32 @@ on renderRoomListItem me, ttype, tNum, tTargetImg, tUserStatus, tNodeType
     if variableExists("nav_golink_voffset") then
       tAddOffset = getVariable("nav_golink_voffset")
     end if
-    tX1 = ((tBackImg.width - tLinkImage.width) - 12)
-    tX2 = (tX1 + tLinkImage.width)
-    tY1 = ((3 + tLocV) + tAddOffset)
-    tY2 = (tY1 + tLinkImage.height)
+    tX1 = tBackImg.width - tLinkImage.width - 12
+    tX2 = tX1 + tLinkImage.width
+    tY1 = 3 + tLocV + tAddOffset
+    tY2 = tY1 + tLinkImage.height
     tdestrect = rect(tX1, tY1, tX2, tY2)
     tTargetImg.copyPixels(tLinkImage, tdestrect, tLinkImage.rect, [#bgColor:rgb("#DDDDDD"), #ink:36])
   else
-    tX1 = ((tBackImg.width - me.pOpenLinkTextImg.width) - 27)
-    tX2 = (tX1 + me.pOpenLinkTextImg.width)
-    tY1 = ((tLocV + ((me.pListItemHeight - me.pGoLinkTextImg.height) / 2)) - 1)
-    tY2 = (tY1 + me.pOpenLinkTextImg.height)
+    tX1 = me - pOpenLinkTextImg.width - 27
+    tX2 = me + pOpenLinkTextImg.width
+    tY1 = me.pListItemHeight + me - pGoLinkTextImg.height / 2 - 1
+    tY2 = me + pOpenLinkTextImg.height
     tdestrect = rect(tX1, tY1, tX2, tY2)
-    tTargetImg.copyPixels(me.pOpenLinkTextImg, tdestrect, me.pOpenLinkTextImg.rect, [#bgColor:rgb("#DDDDDD"), #ink:36])
+    me.pOpenLinkTextImg.copyPixels(tdestrect, me, pOpenLinkTextImg.rect, [#bgColor:rgb("#DDDDDD"), #ink:36])
   end if
-  return TRUE
+  return(1)
+  exit
 end
 
-on setHideFullRoomsLink me 
+on setHideFullRoomsLink(me)
   if not windowExists(pWindowTitle) then
-    return FALSE
+    return(0)
   end if
   tWndObj = getWindow(pWindowTitle)
   tElem = tWndObj.getElement("nav_hidefull")
-  if (tElem = 0) then
-    return FALSE
+  if tElem = 0 then
+    return(0)
   end if
   tstate = me.getComponent().getCurrentNodeMask()
   if tstate then
@@ -780,64 +798,69 @@ on setHideFullRoomsLink me
   else
     tImage = pHideFullLinkImages.getAt(#hide)
   end if
-  tOffX = (tImage.width - tElem.getProperty(#width))
+  tOffX = tImage.width - tElem.getProperty(#width)
   tElem.feedImage(tImage)
   tElem.adjustOffsetTo(tOffX, 0)
-  return TRUE
+  return(1)
+  exit
 end
 
-on setRoomInfoArea me, tstate 
+on setRoomInfoArea(me, tstate)
   if not windowExists(me.pWindowTitle) then
-    return FALSE
+    return(0)
   end if
-  if (me.getProperty(#roomInfoState) = void()) then
+  if me.getProperty(#roomInfoState) = void() then
     me.setProperty(#roomInfoState, #show)
   end if
-  if (tstate = me.getProperty(#roomInfoState)) then
-    return FALSE
+  if tstate = me.getProperty(#roomInfoState) then
+    return(0)
   end if
   me.setProperty(#roomInfoState, tstate)
-  if (tstate = #hide) then
+  if tstate = #hide then
     me.setProperty(#viewedNodeId, void())
   end if
   tWndObj = getWindow(me.pWindowTitle)
   tScaleElemList = [tWndObj.getElement("nav_roomlist"), tWndObj.getElement("nav_scrollbar"), tWndObj.getElement("nav_roomlistArea")]
   tOffset = pRoomInfoHeight
-  if (tstate = #show) then
+  if tstate = #show then
     tOffset = -tOffset
   end if
   call(#resizeBy, tScaleElemList, 0, tOffset)
-  return TRUE
+  return(1)
+  exit
 end
 
-on setLoadingCursor me, tstate 
+on setLoadingCursor(me, tstate)
   if tstate then
     setcursor(#timer)
   else
     setcursor(#arrow)
   end if
+  exit
 end
 
-on renderLoadingText me, tTempElementId 
+on renderLoadingText(me, tTempElementId)
   if voidp(tTempElementId) then
-    return FALSE
+    return(0)
   end if
   tElem = getWindow(me.pWindowTitle).getElement(tTempElementId)
   tWidth = tElem.getProperty(#width)
   tHeight = tElem.getProperty(#height)
   tTempImg = image(tWidth, tHeight, pBufferDepth)
   tTextImg = pWriterPlainBoldCent.render(getText("loading"))
-  tOffX = ((tWidth - tTextImg.width) / 2)
-  tOffY = ((tHeight - tTextImg.height) / 2)
-  tDstRect = (tTextImg.rect + rect(tOffX, tOffY, tOffX, tOffY))
+  tOffX = tWidth - tTextImg.width / 2
+  tOffY = tHeight - tTextImg.height / 2
+  tDstRect = tTextImg.rect + rect(tOffX, tOffY, tOffX, tOffY)
   tTempImg.copyPixels(tTextImg, tDstRect, tTextImg.rect)
   tElem.feedImage(tTempImg)
-  return TRUE
+  return(1)
+  exit
 end
 
-on flipImage me, tImg_a 
+on flipImage(me, tImg_a)
   tImg_b = image(tImg_a.width, tImg_a.height, tImg_a.depth)
   tQuad = [point(tImg_a.width, 0), point(0, 0), point(0, tImg_a.height), point(tImg_a.width, tImg_a.height)]
   tImg_b.copyPixels(tImg_a, tQuad, tImg_a.rect)
   return(tImg_b)
+  exit
 end

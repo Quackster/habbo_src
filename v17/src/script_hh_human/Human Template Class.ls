@@ -1,15 +1,14 @@
-property pCanvasName, pValid
-
-on deconstruct me 
+on deconstruct(me)
   callAncestor(#deconstruct, [me])
   pValid = 0
   if memberExists(pCanvasName) and pCanvasName <> void() then
     removeMember(pCanvasName)
   end if
-  return TRUE
+  return(1)
+  exit
 end
 
-on define me, tdata 
+on define(me, tdata)
   pValid = 1
   me.pName = "template"
   me.pClass = tdata.getAt(#class)
@@ -31,9 +30,9 @@ on define me, tdata
   end if
   tSize = me.getProp(#pCanvasSize, #std)
   me.pMember = member(getmemnum(pCanvasName))
-  me.pMember.image = image(tSize.getAt(1), tSize.getAt(2), tSize.getAt(3))
-  me.pMember.regPoint = point(0, (me.pMember.image.height + tSize.getAt(4)))
-  me.pBuffer = me.pMember.image
+  pMember.image = image(tSize.getAt(1), tSize.getAt(2), tSize.getAt(3))
+  me.regPoint = point(pMember, image.height + tSize.getAt(4))
+  me.pBuffer = pMember.image
   tPartSymbols = tdata.getAt(#parts)
   if not me.setPartLists(tdata.getAt(#figure)) then
     return(error(me, "Couldn't create part lists!", #define, #major))
@@ -41,13 +40,15 @@ on define me, tdata
   me.arrangeParts()
   me.simulateUpdate()
   return(me.pMember)
+  exit
 end
 
-on getMember me 
+on getMember(me)
   return(me.pMember)
+  exit
 end
 
-on resetTemplateHuman me 
+on resetTemplateHuman(me)
   me.pMoving = 0
   me.pDancing = 0
   me.pTalking = 0
@@ -59,9 +60,10 @@ on resetTemplateHuman me
   me.resetAction()
   me.arrangeParts()
   me.pChanges = 1
+  exit
 end
 
-on simulateUpdate me 
+on simulateUpdate(me)
   if pValid then
     me.pSync = not me.pSync
     if me.pSync then
@@ -69,11 +71,12 @@ on simulateUpdate me
     else
       me.render()
     end if
-    me.delay((1000 / the frameTempo), #simulateUpdate)
+    me.delay(1000 / the frameTempo, #simulateUpdate)
   end if
+  exit
 end
 
-on Refresh me, tX, tY, tH, tDirHead, tDirBody 
+on Refresh(me, tX, tY, tH, tDirHead, tDirBody)
   me.pMoving = 0
   me.pDancing = 0
   me.pTalking = 0
@@ -96,14 +99,16 @@ on Refresh me, tX, tY, tH, tDirHead, tDirBody
   me.pDirection = tDirBody
   me.arrangeParts()
   me.pChanges = 1
+  exit
 end
 
-on render me 
+on render(me)
   if not me.pChanges then
     return()
   end if
   me.pChanges = 0
   me.pUpdateRect = rect(0, 0, 0, 0)
-  me.pBuffer.fill(me.pBuffer.rect, me.pAlphaColor)
+  me.fill(pBuffer.rect, me.pAlphaColor)
   call(#update, me.pPartList)
+  exit
 end

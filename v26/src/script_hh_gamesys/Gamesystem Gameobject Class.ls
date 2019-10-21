@@ -1,15 +1,15 @@
-property pObjectId, pGameObjectSyncValues, pKilled, pGameObjectLocation, pGameObjectNextTarget, pGameObjectFinalTarget, pGameSystem
-
-on setObjectId me, tID 
-  pGameObjectSyncValues = [:]
+on setObjectId(me, tID)
+  pGameObjectSyncValues = []
   pObjectId = tID
+  exit
 end
 
-on getObjectId me 
+on getObjectId(me)
   return(pObjectId)
+  exit
 end
 
-on setGameObjectProperty me, tProp, tValue 
+on setGameObjectProperty(me, tProp, tValue)
   if listp(tProp) then
     i = 1
     repeat while i <= tProp.count
@@ -19,34 +19,39 @@ on setGameObjectProperty me, tProp, tValue
     return(1)
   end if
   return(me.setaProp(tProp, tValue))
+  exit
 end
 
-on getGameObjectProperty me, tProp 
+on getGameObjectProperty(me, tProp)
   if pGameObjectSyncValues = void() then
-    pGameObjectSyncValues = [:]
+    pGameObjectSyncValues = []
   end if
   if pGameObjectSyncValues.findPos(tProp) > 0 then
     return(pGameObjectSyncValues.getAt(tProp))
   else
     return(me.getaProp(tProp))
   end if
+  exit
 end
 
-on getActive me 
+on getActive(me)
   return(not pKilled)
+  exit
 end
 
-on setLocation me, tX, tY, tZ 
+on setLocation(me, tX, tY, tZ)
   return(pGameObjectLocation.setLocation(tX, tY, tZ))
+  exit
 end
 
-on setGameSystemReference me, tObject 
+on setGameSystemReference(me, tObject)
   pGameSystem = tObject
+  exit
 end
 
-on setGameObjectSyncProperty me, tList, tdata 
+on setGameObjectSyncProperty(me, tList, tdata)
   if pGameObjectSyncValues = void() then
-    pGameObjectSyncValues = [:]
+    pGameObjectSyncValues = []
   end if
   if listp(tList) then
     i = 1
@@ -58,71 +63,82 @@ on setGameObjectSyncProperty me, tList, tdata
   end if
   me.setaProp(tList, tdata)
   return(1)
+  exit
 end
 
-on executeGameObjectEvent me, tEvent, tdata 
-  if tEvent = #set_target then
+on executeGameObjectEvent(me, tEvent, tdata)
+  if me = #set_target then
     me.setLoc(tdata.x, tdata.y, tdata.z)
   else
-    if tEvent = #set_target_tile then
+    if me = #set_target_tile then
       me.setTileLoc(tdata.x, tdata.y, tdata.z)
     else
       put("* Standard UNDEFINED EVENT:" && tEvent && tdata)
     end if
   end if
+  exit
 end
 
-on addChecksum me 
+on addChecksum(me)
   tCheckSum = 0
   tCounter = 1
   if pGameObjectSyncValues = void() then
-    pGameObjectSyncValues = [:]
+    pGameObjectSyncValues = []
   end if
   i = 1
   repeat while i <= pGameObjectSyncValues.count
     if ilk(pGameObjectSyncValues.getAt(i)) = #integer then
-      tCheckSum = tCheckSum + (pGameObjectSyncValues.getAt(i) * tCounter)
+      tCheckSum = tCheckSum + pGameObjectSyncValues.getAt(i) * tCounter
       tCounter = tCounter + 1
     end if
     i = 1 + i
   end repeat
   return(tCheckSum)
+  exit
 end
 
-on define me 
+on define(me)
   return(1)
+  exit
 end
 
-on gameObjectRefreshLocation me 
+on gameObjectRefreshLocation(me)
   return(0)
+  exit
 end
 
-on gameObjectNewMoveTarget me 
+on gameObjectNewMoveTarget(me)
   return(0)
+  exit
 end
 
-on calculateFrameMovement me 
+on calculateFrameMovement(me)
   return(0)
+  exit
 end
 
-on getLocation me 
+on getLocation(me)
   return(pGameObjectLocation)
+  exit
 end
 
-on getNextTarget me 
+on getNextTarget(me)
   return(pGameObjectNextTarget)
+  exit
 end
 
-on getFinalTarget me 
+on getFinalTarget(me)
   return(pGameObjectFinalTarget)
+  exit
 end
 
-on resetTargets me 
+on resetTargets(me)
   pGameObjectNextTarget.setLoc(pGameObjectLocation.x, pGameObjectLocation.y, pGameObjectLocation.z)
   pGameObjectFinalTarget.setLoc(pGameObjectLocation.x, pGameObjectLocation.y, pGameObjectLocation.z)
+  exit
 end
 
-on existsFinalTarget me 
+on existsFinalTarget(me)
   if not objectp(pGameObjectFinalTarget) then
     return(0)
   end if
@@ -130,9 +146,10 @@ on existsFinalTarget me
     return(0)
   end if
   return(pGameObjectLocation.getLocation() <> pGameObjectFinalTarget.getLocation())
+  exit
 end
 
-on existsNextTarget me 
+on existsNextTarget(me)
   if not objectp(pGameObjectNextTarget) then
     return(0)
   end if
@@ -140,12 +157,13 @@ on existsNextTarget me
     return(0)
   end if
   return(pGameObjectLocation.getLocation() <> pGameObjectNextTarget.getLocation())
+  exit
 end
 
-on dump me 
+on dump(me)
   tDumpList = []
   if pGameObjectSyncValues = void() then
-    pGameObjectSyncValues = [:]
+    pGameObjectSyncValues = []
   end if
   i = 1
   repeat while i <= pGameObjectSyncValues.count
@@ -155,12 +173,15 @@ on dump me
     i = 1 + i
   end repeat
   return(tDumpList)
+  exit
 end
 
-on getGameSystem me 
+on getGameSystem(me)
   return(pGameSystem)
+  exit
 end
 
-on Remove me 
+on Remove(me)
   me.pKilled = 1
+  exit
 end

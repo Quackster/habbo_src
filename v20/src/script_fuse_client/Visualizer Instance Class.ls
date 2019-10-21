@@ -1,6 +1,4 @@
-property pSpriteList, pWrappedParts, pLayout, pLocX, pLocY, pBoundary, pwidth, pheight, pActSprList, pVisible, pDragFlag, pLocZ, pSpriteData, pTitle, pSwapAnimList, pDragOffset
-
-on construct me 
+on construct(me)
   pTitle = me.getID()
   pLayout = []
   pLocX = 0
@@ -11,37 +9,39 @@ on construct me
   pVisible = 1
   pSpriteList = []
   pSpriteData = []
-  pActSprList = [:]
+  pActSprList = []
   pDragFlag = 0
   pDragOffset = [0, 0]
-  pBoundary = (rect(0, 0, the stage.rect.width, the stage.rect.height) + [-1000, -1000, 1000, 1000])
-  pWrappedParts = [:]
-  pSwapAnimList = [:]
-  return TRUE
+  pBoundary = rect(0, 0, undefined.width, undefined.height) + [-1000, -1000, 1000, 1000]
+  pWrappedParts = []
+  pSwapAnimList = []
+  return(1)
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   removeUpdate(me.getID())
   i = 1
   repeat while i <= pSpriteList.count
     releaseSprite(pSpriteList.getAt(i).spriteNum)
-    i = (1 + i)
+    i = 1 + i
   end repeat
   pSpriteList = []
   pSpriteData = []
-  pActSprList = [:]
+  pActSprList = []
   pBoundary = []
-  repeat while pWrappedParts <= undefined
+  repeat while me <= undefined
     tWrapper = getAt(undefined, undefined)
     tWrapper.deconstruct()
   end repeat
-  pWrappedParts = [:]
-  return TRUE
+  pWrappedParts = []
+  return(1)
+  exit
 end
 
-on define me, tProps 
+on define(me, tProps)
   if voidp(tProps) then
-    return FALSE
+    return(0)
   end if
   if not voidp(tProps.getAt(#locX)) then
     pLocX = tProps.getAt(#locX)
@@ -59,9 +59,10 @@ on define me, tProps
     pBoundary = tProps.getAt(#boundary)
   end if
   return(me.open(pLayout))
+  exit
 end
 
-on open me, tLayout 
+on open(me, tLayout)
   if voidp(tLayout) then
     tLayout = pLayout
   end if
@@ -70,170 +71,186 @@ on open me, tLayout
     i = 1
     repeat while i <= pSpriteList.count
       releaseSprite(pSpriteList.getAt(i).spriteNum)
-      i = (1 + i)
+      i = 1 + i
     end repeat
     pSpriteList = []
   end if
   return(me.buildVisual(pLayout))
+  exit
 end
 
-on close me 
+on close(me)
   return(me.Remove(me.getID))
+  exit
 end
 
-on moveTo me, tX, tY 
-  me.moveBy((tX - pLocX), (tY - pLocY))
+on moveTo(me, tX, tY)
+  me.moveBy(tX - pLocX, tY - pLocY)
+  exit
 end
 
-on moveBy me, tOffX, tOffY 
-  if (pLocX + tOffX) < pBoundary.getAt(1) then
-    tOffX = (pBoundary.getAt(1) - pLocX)
+on moveBy(me, tOffX, tOffY)
+  if pLocX + tOffX < pBoundary.getAt(1) then
+    tOffX = pBoundary.getAt(1) - pLocX
   end if
-  if (pLocY + tOffY) < pBoundary.getAt(2) then
-    tOffY = (pBoundary.getAt(2) - pLocY)
+  if pLocY + tOffY < pBoundary.getAt(2) then
+    tOffY = pBoundary.getAt(2) - pLocY
   end if
-  if ((pLocX + pwidth) + tOffX) > pBoundary.getAt(3) then
-    tOffX = ((pBoundary.getAt(3) - pLocX) - pwidth)
+  if pLocX + pwidth + tOffX > pBoundary.getAt(3) then
+    tOffX = pBoundary.getAt(3) - pLocX - pwidth
   end if
-  if ((pLocY + pheight) + tOffY) > pBoundary.getAt(4) then
-    tOffY = ((pBoundary.getAt(4) - pLocY) - pheight)
+  if pLocY + pheight + tOffY > pBoundary.getAt(4) then
+    tOffY = pBoundary.getAt(4) - pLocY - pheight
   end if
-  pLocX = (pLocX + tOffX)
-  pLocY = (pLocY + tOffY)
+  pLocX = pLocX + tOffX
+  pLocY = pLocY + tOffY
   me.moveXY(tOffX, tOffY)
+  exit
 end
 
-on moveZ me, tZ 
+on moveZ(me, tZ)
   if not integerp(tZ) then
     return(error(me, "Integer expected:" && tZ, #moveZ, #minor))
   end if
   i = 1
   repeat while i <= pSpriteList.count
-    pSpriteList.getAt(i).locZ = ((tZ + i) - 1)
-    i = (1 + i)
+    pSpriteList.getAt(i).locZ = tZ + i - 1
+    i = 1 + i
   end repeat
-  repeat while pWrappedParts <= undefined
+  repeat while me <= undefined
     tPart = getAt(undefined, tZ)
     tPart.setProperty(#visLocZ, tZ)
   end repeat
   pLocZ = tZ
+  exit
 end
 
-on getSprite me, tID 
+on getSprite(me, tID)
   return(pActSprList.getAt(tID))
+  exit
 end
 
-on getSprById me, tID 
+on getSprById(me, tID)
   return(pActSprList.getAt(tID))
+  exit
 end
 
-on getSpriteByID me, tID 
+on getSpriteByID(me, tID)
   return(pActSprList.getAt(tID))
+  exit
 end
 
-on spriteExists me, tID 
+on spriteExists(me, tID)
   return(not voidp(pActSprList.getAt(tID)))
+  exit
 end
 
-on moveSprBy me, tID, tX, tY 
+on moveSprBy(me, tID, tX, tY)
   tsprite = pActSprList.getAt(tID)
   if voidp(tsprite) then
     return(error(me, "Sprite not found:" && tID, #moveSprBy, #minor))
   end if
-  tsprite.loc = (tsprite.loc + [tX, tY])
+  tsprite.loc = tsprite.loc + [tX, tY]
   return(me.Refresh())
+  exit
 end
 
-on moveSprTo me, tID, tX, tY 
+on moveSprTo(me, tID, tX, tY)
   tsprite = pActSprList.getAt(tID)
   if voidp(tsprite) then
     return(error(me, "Sprite not found:" && tID, #moveSprTo, #minor))
   end if
   tsprite.loc = point(tX, tY)
   return(me.Refresh())
+  exit
 end
 
-on setActive me 
-  return TRUE
+on setActive(me)
+  return(1)
+  exit
 end
 
-on setDeactive me 
-  return TRUE
+on setDeactive(me)
+  return(1)
+  exit
 end
 
-on hide me 
-  if (pVisible = 1) then
+on hide(me)
+  if pVisible = 1 then
     pVisible = 0
     me.moveX(10000)
-    return TRUE
+    return(1)
   end if
-  return FALSE
+  return(0)
+  exit
 end
 
-on show me 
-  if (pVisible = 0) then
+on show(me)
+  if pVisible = 0 then
     pVisible = 1
     me.moveX(-10000)
-    return TRUE
+    return(1)
   end if
-  return FALSE
+  return(0)
+  exit
 end
 
-on drag me, tBoolean 
-  if (tBoolean = 1) and (pDragFlag = 0) then
-    pDragOffset = (the mouseLoc - [pLocX, pLocY])
+on drag(me, tBoolean)
+  if tBoolean = 1 and pDragFlag = 0 then
+    pDragOffset = the mouseLoc - [pLocX, pLocY]
     receiveUpdate(me.getID())
     pDragFlag = 1
   else
-    if (tBoolean = 0) and (pDragFlag = 1) then
+    if tBoolean = 0 and pDragFlag = 1 then
       removeUpdate(me.getID())
       pDragFlag = 0
     end if
   end if
-  return TRUE
+  return(1)
+  exit
 end
 
-on getProperty me, tProp 
-  if (tProp = #layout) then
+on getProperty(me, tProp)
+  if me = #layout then
     return(pLayout)
   else
-    if (tProp = #locX) then
+    if me = #locX then
       return(pLocX)
     else
-      if (tProp = #locY) then
+      if me = #locY then
         return(pLocY)
       else
-        if (tProp = #locZ) then
+        if me = #locZ then
           return(pLocZ)
         else
-          if (tProp = #boundary) then
+          if me = #boundary then
             return(pBoundary)
           else
-            if (tProp = #width) then
+            if me = #width then
               return(pwidth)
             else
-              if (tProp = #height) then
+              if me = #height then
                 return(pheight)
               else
-                if (tProp = #sprCount) then
+                if me = #sprCount then
                   return(pSpriteList.count)
                 else
-                  if (tProp = #spriteList) then
+                  if me = #spriteList then
                     return(pSpriteList)
                   else
-                    if (tProp = #spriteData) then
+                    if me = #spriteData then
                       return(pSpriteData)
                     else
-                      if (tProp = #visible) then
+                      if me = #visible then
                         return(pVisible)
                       else
-                        if (tProp = #title) then
+                        if me = #title then
                           return(pTitle)
                         else
-                          if (tProp = #id) then
+                          if me = #id then
                             return(me.getID())
                           else
-                            if (tProp = #swapAnims) then
+                            if me = #swapAnims then
                               return(pSwapAnimList)
                             end if
                           end if
@@ -249,36 +266,37 @@ on getProperty me, tProp
       end if
     end if
   end if
-  return FALSE
+  return(0)
+  exit
 end
 
-on setProperty me, tProp, tValue 
-  if (tProp = #layout) then
+on setProperty(me, tProp, tValue)
+  if me = #layout then
     return(me.open(tValue))
   else
-    if (tProp = #locX) then
+    if me = #locX then
       return(me.moveX(tValue))
     else
-      if (tProp = #locY) then
+      if me = #locY then
         return(me.moveY(tValue))
       else
-        if (tProp = #locZ) then
+        if me = #locZ then
           return(me.moveZ(tValue))
         else
-          if (tProp = #boundary) then
+          if me = #boundary then
             pBoundary = tValue
-            return TRUE
+            return(1)
           else
-            if (tProp = #visible) then
+            if me = #visible then
               if tValue then
                 return(me.show())
               else
                 return(me.hide())
               end if
             else
-              if (tProp = #title) then
+              if me = #title then
                 pTitle = tValue
-                return TRUE
+                return(1)
               end if
             end if
           end if
@@ -286,48 +304,52 @@ on setProperty me, tProp, tValue
       end if
     end if
   end if
-  return FALSE
+  return(0)
+  exit
 end
 
-on getWrappedParts me, tWrapTypes 
+on getWrappedParts(me, tWrapTypes)
   if voidp(tWrapTypes) or ilk(tWrapTypes) <> #list then
     tWrapTypes = [#all]
   end if
   if tWrapTypes.getPos(#all) > 0 then
     return(pWrappedParts)
   end if
-  tWrappedParts = [:]
-  repeat while pWrappedParts <= undefined
+  tWrappedParts = []
+  repeat while me <= undefined
     tWrap = getAt(undefined, tWrapTypes)
     if tWrapTypes.getPos(tWrap.getProperty(#type)) > 0 then
       tWrappedParts.setAt(tWrap.getProperty(#id), tWrap)
     end if
   end repeat
   return(tWrappedParts)
+  exit
 end
 
-on activateWrap me, tWrapper 
+on activateWrap(me, tWrapper)
   tSpr = tWrapper.getProperty(#sprite)
   getSpriteManager().setEventBroker(tSpr.spriteNum, me.getID())
+  exit
 end
 
-on getPartAtLocation me, tLocX, tLocY, tWrapperTypes 
-  if not (ilk(tWrapperTypes) = #list) then
+on getPartAtLocation(me, tLocX, tLocY, tWrapperTypes)
+  if not ilk(tWrapperTypes) = #list then
     tWrapperTypes = [tWrapperTypes]
   end if
-  repeat while pWrappedParts <= tLocY
+  repeat while me <= tLocY
     tWrap = getAt(tLocY, tLocX)
     if tWrapperTypes.getOne(tWrap.getProperty(#type)) then
       tPart = tWrap.getPartAt(tLocX, tLocY)
-      if (ilk(tPart) = #propList) then
+      if ilk(tPart) = #propList then
         return(tPart)
       end if
     end if
   end repeat
-  return FALSE
+  return(0)
+  exit
 end
 
-on createWrapper me, tWrapID 
+on createWrapper(me, tWrapID)
   if not voidp(getaProp(pWrappedParts, tWrapID)) then
     return(error(me, "Duplicate wrap id:" && tWrapID, #createWrapper))
   end if
@@ -337,76 +359,89 @@ on createWrapper me, tWrapID
   tSpr = sprite(getSpriteManager().reserveSprite(me.getID()))
   tWrap.setProperty(#sprite, tSpr)
   pSpriteList.append(tSpr)
-  pSpriteData.append([:])
+  pSpriteData.append([])
   return(tWrap)
+  exit
 end
 
-on getWallPartUnderRect me, tRect, tSlope 
-  repeat while pWrappedParts <= tSlope
+on getWallPartUnderRect(me, tRect, tSlope)
+  repeat while me <= tSlope
     tWrap = getAt(tSlope, tRect)
     tWrapType = tWrap.getProperty(#type)
-    if (tWrapType = #wallleft) or (tWrapType = #wallright) then
+    if tWrapType = #wallleft or tWrapType = #wallright then
       tPart = tWrap.fitRectToWall(tRect, tSlope)
-      if (tPart.getAt(#insideWall) = 1) then
+      if tPart.getAt(#insideWall) = 1 then
         return(tPart)
       end if
     end if
   end repeat
   return([#insideWall:0])
+  exit
 end
 
-on renderWrappedParts me, tColor 
-  repeat while pWrappedParts <= undefined
+on renderWrappedParts(me, tColor)
+  repeat while me <= undefined
     tWrapper = getAt(undefined, tColor)
     tWrapper.renderWithColor(tColor)
   end repeat
+  exit
 end
 
-on setDimmerColor me, tColor 
+on setDimmerColor(me, tColor)
   if ilk(tColor) <> #color then
     return()
   end if
-  tColor = rgb((255 - tColor.red), (255 - tColor.green), (255 - tColor.blue))
-  if (member("room_dimmer_image").name = "room_dimmer_image") then
-    member("room_dimmer_image").image.setPixel(0, 0, tColor)
+  tColor = rgb(255 - tColor.red, 255 - tColor.green, 255 - tColor.blue)
+  if member("room_dimmer_image").name = "room_dimmer_image" then
+    undefined.setPixel(0, 0, tColor)
   end if
+  exit
 end
 
-on moveX me, tOffX 
+on moveX(me, tOffX)
   i = 1
   repeat while i <= pSpriteList.count
-    pSpriteList.getAt(i).locH = (pSpriteList.getAt(i).locH + tOffX)
-    i = (1 + i)
+    pSpriteList.getAt(i).locH = pSpriteList.getAt(i).locH + tOffX
+    i = 1 + i
   end repeat
+  exit
 end
 
-on moveY me, tOffY 
+on moveY(me, tOffY)
   i = 1
   repeat while i <= pSpriteList.count
-    pSpriteList.getAt(i).locV = (pSpriteList.getAt(i).locV + tOffY)
-    i = (1 + i)
+    pSpriteList.getAt(i).locV = pSpriteList.getAt(i).locV + tOffY
+    i = 1 + i
   end repeat
+  exit
 end
 
-on moveXY me, tOffX, tOffY 
+on moveXY(me, tOffX, tOffY)
   i = 1
   repeat while i <= pSpriteList.count
-    pSpriteList.getAt(i).loc = (pSpriteList.getAt(i).loc + [tOffX, tOffY])
-    i = (1 + i)
+    pSpriteList.getAt(i).loc = pSpriteList.getAt(i).loc + [tOffX, tOffY]
+    i = 1 + i
   end repeat
+  exit
 end
 
-on update me 
-  me.moveTo((the mouseH - pDragOffset.getAt(1)), (the mouseV - pDragOffset.getAt(2)))
+on update(me)
+  me.moveTo(the mouseH - pDragOffset.getAt(1), the mouseV - pDragOffset.getAt(2))
+  exit
 end
 
-on Refresh me 
-  tRect = rect(100000, 100000, -100000, -100000)
-  repeat while pWrappedParts <= undefined
+on Refresh(me)
+  the undefined = ERROR.deconstructWriterManager
+  exit
+  exit
+  the undefined = undefined.deconstructWriterManager
+  rect
+  tRect = ERROR
+  repeat while me <= undefined
     tWrapper = getAt(undefined, undefined)
     tWrapper.updateWrap()
   end repeat
-  repeat while pWrappedParts <= undefined
+  repeat while me <= undefined
     tSpr = getAt(undefined, undefined)
     if tSpr.locH < tRect.getAt(1) then
       tRect.setAt(1, tSpr.locH)
@@ -414,11 +449,11 @@ on Refresh me
     if tSpr.locV < tRect.getAt(2) then
       tRect.setAt(2, tSpr.locV)
     end if
-    if (tSpr.locH + tSpr.width) > tRect.getAt(3) then
-      tRect.setAt(3, (tSpr.locH + tSpr.width))
+    if tSpr.locH + tSpr.width > tRect.getAt(3) then
+      tRect.setAt(3, tSpr.locH + tSpr.width)
     end if
-    if (tSpr.locV + tSpr.height) > tRect.getAt(4) then
-      tRect.setAt(4, (tSpr.locV + tSpr.height))
+    if tSpr.locV + tSpr.height > tRect.getAt(4) then
+      tRect.setAt(4, tSpr.locV + tSpr.height)
     end if
   end repeat
   pLocX = tRect.getAt(1)
@@ -429,21 +464,22 @@ on Refresh me
     i = 1
     repeat while i <= pSpriteList.count
       if listp(pSpriteData.getAt(i)) then
-        pSpriteData.getAt(i).setAt(#loc, (pSpriteList.getAt(i).loc - [tRect.getAt(1), tRect.getAt(2)]))
+        pSpriteData.getAt(i).setAt(#loc, pSpriteList.getAt(i).loc - [tRect.getAt(1), tRect.getAt(2)])
       end if
-      i = (1 + i)
+      i = 1 + i
     end repeat
   end if
-  return TRUE
+  return(1)
+  exit
 end
 
-on buildVisual me, tLayout 
+on buildVisual(me, tLayout)
   tLayoutName = tLayout
   tPrivate = 0
   if tLayoutName.length >= 7 then
     -- UNK_21
     ERROR.setContents()
-    if (tLayoutName = "model_x.room") then
+    if tLayoutName = "model_x.room" then
       tPrivate = 1
     end if
   end if
@@ -453,13 +489,13 @@ on buildVisual me, tLayout
   end if
   if not voidp(tLayout.getAt(#rect)) then
     if tLayout.getAt(#rect).count > 0 then
-      pLocX = (pLocX + tLayout.getAt(#rect).getAt(1).getAt(1))
-      pLocY = (pLocY + tLayout.getAt(#rect).getAt(1).getAt(2))
+      pLocX = pLocX + tLayout.getAt(#rect).getAt(1).getAt(1)
+      pLocY = pLocY + tLayout.getAt(#rect).getAt(1).getAt(2)
     end if
   end if
   tLayout = tLayout.getAt(#elements)
   tSpriteList = []
-  tSpriteCollections = [:]
+  tSpriteCollections = []
   i = 1
   repeat while i <= tLayout.count
     tMemNum = getResourceManager().getmemnum(tLayout.getAt(i).getAt(#member))
@@ -471,7 +507,7 @@ on buildVisual me, tLayout
         tWrapID = tElem.getAt(#wrapperID)
         if voidp(pWrappedParts.getAt(tWrapID)) then
           tPartWrapper = me.createWrapper(tWrapID)
-          tProps = [:]
+          tProps = []
           tProps.setAt(#id, tWrapID)
           tProps.setAt(#palette, tElem.getAt(#palette))
           tProps.setAt(#offsetx, pLocX)
@@ -486,17 +522,17 @@ on buildVisual me, tLayout
       else
         tSpr = sprite(getSpriteManager().reserveSprite(me.getID()))
         if tSpr.spriteNum < 1 then
-          repeat while tSpriteList <= undefined
+          repeat while me <= undefined
             t_rSpr = getAt(undefined, tLayout)
             releaseSprite(t_rSpr.spriteNum, me.getID())
           end repeat
-          tSpriteList = [:]
+          tSpriteList = []
           return(error(me, "Failed to build visual. System out of sprites!", #buildVisual, #major))
         end if
         tSpr.castNum = tMemNum
         tSpr.ink = tElem.getAt(#ink)
-        tSpr.locH = (tElem.getAt(#locH) + pLocX)
-        tSpr.locV = (tElem.getAt(#locV) + pLocY)
+        tSpr.locH = tElem.getAt(#locH) + pLocX
+        tSpr.locV = tElem.getAt(#locV) + pLocY
         tSpr.width = tElem.getAt(#width)
         tSpr.height = tElem.getAt(#height)
         tSpr.blend = tElem.getAt(#blend)
@@ -506,7 +542,7 @@ on buildVisual me, tLayout
         tSpr.flipV = tElem.getAt(#flipV)
         tSpr.color = rgb(tElem.getAt(#color))
         tSpr.bgColor = rgb(tElem.getAt(#bgColor))
-        if (tElem.getAt(#media) = #text) or (tElem.getAt(#media) = #field) then
+        if tElem.getAt(#media) = #text or tElem.getAt(#media) = #field then
           tTxtMem = member(tMemNum)
           if not voidp(tElem.getAt(#txtColor)) then
             tTxtMem.color = rgb(tElem.getAt(#txtColor))
@@ -523,12 +559,12 @@ on buildVisual me, tLayout
           if tTxtMem.fontStyle <> tElem.getAt(#fontStyle) then
             tTxtMem.fontStyle = tElem.getAt(#fontStyle)
           end if
-          if (tElem.getAt(#media) = #text) then
+          if tElem.getAt(#media) = #text then
             if tTxtMem.fixedLineSpace <> tElem.getAt(#fixedLineSpace) then
               tTxtMem.fixedLineSpace = tElem.getAt(#fixedLineSpace)
             end if
           else
-            if (tElem.getAt(#media) = #field) then
+            if tElem.getAt(#media) = #field then
               if tTxtMem.lineHeight <> tElem.getAt(#lineHeight) then
                 tTxtMem.lineHeight = tElem.getAt(#lineHeight)
               end if
@@ -536,12 +572,12 @@ on buildVisual me, tLayout
           end if
         end if
         if voidp(tElem.getAt(#locZ)) then
-          tSpr.locZ = ((pLocZ + i) - 1)
+          tSpr.locZ = pLocZ + i - 1
         else
-          tSpr.locZ = (integer(tElem.getAt(#locZ)) + pLocZ)
+          tSpr.locZ = integer(tElem.getAt(#locZ)) + pLocZ
         end if
         if not voidp(tElem.getAt(#id)) then
-          if (tElem.getAt(#Active) = 1) or voidp(tElem.getAt(#Active)) and voidp(tElem.getAt(#type)) then
+          if tElem.getAt(#Active) = 1 or voidp(tElem.getAt(#Active)) and voidp(tElem.getAt(#type)) then
             getSpriteManager().setEventBroker(tSpr.spriteNum, tElem.getAt(#id))
             if not voidp(tElem.getAt(#cursor)) then
               tSpr.setcursor(tElem.getAt(#cursor))
@@ -552,11 +588,11 @@ on buildVisual me, tLayout
           end if
           pActSprList.setAt(tLayout.getAt(i).getAt(#id), tSpr)
         end if
-        pSpriteData.append([:])
+        pSpriteData.append([])
         tSpriteList.append(tSpr)
       end if
       if not voidp(tElem.getAt(#swapAnimType)) then
-        tAnimProps = [:]
+        tAnimProps = []
         tAnimProps.setAt(#sprite, tSpr)
         tAnimProps.setAt(#animType, tElem.getAt(#swapAnimType))
         tAnimProps.setAt(#initDelayType, tElem.getAt(#swapInitDelayType))
@@ -572,7 +608,7 @@ on buildVisual me, tLayout
         end if
       end if
     end if
-    i = (1 + i)
+    i = 1 + i
   end repeat
   if tPrivate then
     tThread = getThread(#room)
@@ -587,20 +623,21 @@ on buildVisual me, tLayout
       tSpr.blend = 100
       tGeometry = tThread.getInterface().getGeometry()
       tScreenLoc = tGeometry.getScreenCoordinate(2, 2, 0)
-      tSpr.locZ = (tSpriteList.getAt(tSpriteList.count).locZ + (100 * 1000))
+      tSpr.locZ = tSpriteList.getAt(tSpriteList.count).locZ + 100 * 1000
       tSpriteList.append(tSpr)
-      pSpriteData.append([:])
+      pSpriteData.append([])
     end if
   end if
-  repeat while tSpriteList <= undefined
+  repeat while me <= undefined
     tSpr = getAt(undefined, tLayout)
     pSpriteList.append(tSpr)
   end repeat
-  repeat while tSpriteList <= undefined
+  repeat while me <= undefined
     tWrapper = getAt(undefined, tLayout)
     if tWrapper.getProperty(#Active) then
       me.activateWrap(tWrapper)
     end if
   end repeat
   return(me.Refresh())
+  exit
 end

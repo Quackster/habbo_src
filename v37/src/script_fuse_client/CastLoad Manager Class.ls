@@ -1,12 +1,10 @@
-property pTempWaitList, pWaitList, pTaskList, pCastLibCount, pSysCastNum, pBinCastNum, pNullCastName, pFileExtension, pLoadedCasts, pLatestTaskID, pCurrentDownLoads, pLastError, pDontProfile, pAvailableDynCasts, pPermanentLevelList
-
-on construct me 
+on construct(me)
   if the runMode = "Author" then
     pFileExtension = ".cst"
   else
     pFileExtension = ".cct"
   end if
-  pLoadedCasts = [:]
+  pLoadedCasts = []
   pTempWaitList = []
   pCastLibCount = 0
   pNullCastName = "empty"
@@ -16,9 +14,10 @@ on construct me
   pDontProfile = 1
   me.verifyReset()
   return(1)
+  exit
 end
 
-on startCastLoad me, tCasts, tPermanentFlag, tAdd, tDoIndexing, tDoTracking 
+on startCastLoad(me, tCasts, tPermanentFlag, tAdd, tDoIndexing, tDoTracking)
   if voidp(tPermanentFlag) then
     tPermanentFlag = 0
   end if
@@ -42,7 +41,7 @@ on startCastLoad me, tCasts, tPermanentFlag, tAdd, tDoIndexing, tDoTracking
   end if
   pTempWaitList = []
   tCastList = []
-  if tCasts.ilk = #propList then
+  if me = #propList then
     f = 1
     repeat while f <= tCasts.count
       tPermanentLevel = tCasts.getPropAt(f)
@@ -53,15 +52,15 @@ on startCastLoad me, tCasts, tPermanentFlag, tAdd, tDoIndexing, tDoTracking
     end repeat
     exit repeat
   end if
-  if tCasts.ilk = #list then
-    repeat while tCasts.ilk <= tPermanentFlag
+  if me = #list then
+    repeat while me <= tPermanentFlag
       tCastName = getAt(tPermanentFlag, tCasts)
       tCastList.add(tCastName)
       me.addOneCastToWaitList(tCastName, tPermanentFlag)
     end repeat
   else
     tCasts = list(tCasts)
-    repeat while tCasts.ilk <= tPermanentFlag
+    repeat while me <= tPermanentFlag
       tCastName = getAt(tPermanentFlag, tCasts)
       tCastList.add(tCastName)
       me.addOneCastToWaitList(tCastName, tPermanentFlag)
@@ -80,13 +79,13 @@ on startCastLoad me, tCasts, tPermanentFlag, tAdd, tDoIndexing, tDoTracking
   end if
   if pWaitList.count = 0 then
     tStatus = #ready
-    tPercent = 1
+    tPercent = 0
   else
     tStatus = #LOADING
     tPercent = 0
   end if
   pTaskList.setAt(tID, createObject(#temp, getClassVariable("castload.task.class")))
-  tProps = [:]
+  tProps = []
   tProps.setAt(#id, tID)
   tProps.setAt(#status, tStatus)
   tProps.setAt(#Percent, tPercent)
@@ -102,17 +101,19 @@ on startCastLoad me, tCasts, tPermanentFlag, tAdd, tDoIndexing, tDoTracking
     i = 1 + i
   end repeat
   return(tID)
+  exit
 end
 
-on registerCallback me, tID, tMethod, tClientID, tArgument 
+on registerCallback(me, tID, tMethod, tClientID, tArgument)
   if voidp(pTaskList.findPos(tID)) then
     return(0)
   else
     return(call(#addCallBack, pTaskList.getAt(tID), tID, tMethod, tClientID, tArgument))
   end if
+  exit
 end
 
-on resetCastLibs me, tClean, tForced 
+on resetCastLibs(me, tClean, tForced)
   if tClean <> 1 then
     tClean = 0
   end if
@@ -150,24 +151,26 @@ on resetCastLibs me, tClean, tForced
     tCastNum = 1 + tCastNum
   end repeat
   return(me.InitPreloader())
+  exit
 end
 
-on getLoadPercent me, tID 
+on getLoadPercent(me, tID)
   if voidp(tID) then
     tID = pLatestTaskID
   end if
   if not voidp(pTaskList.getaProp(tID)) then
     if pTaskList.getaProp(tID).getTaskState() = #ready then
-      return(1)
+      return(0)
     else
       return(pTaskList.getaProp(tID).getTaskPercent())
     end if
   else
-    return(1)
+    return(0)
   end if
+  exit
 end
 
-on FindCastNumber me, tCast 
+on FindCastNumber(me, tCast)
   j = 1
   repeat while j <= the number of undefineds
     tFileName = castLib(j).fileName
@@ -179,11 +182,12 @@ on FindCastNumber me, tCast
         j = 1 + j
       end if
       return(0)
+      exit
     end if
   end repeat
 end
 
-on exists me, tCastName 
+on exists(me, tCastName)
   if tCastName = "internal" then
     return(1)
   end if
@@ -192,25 +196,28 @@ on exists me, tCastName
   else
     return(1)
   end if
+  exit
 end
 
-on print me 
+on print(me)
   i = 1
   repeat while i <= the number of undefineds
     put(castLib(i).name)
     i = 1 + i
   end repeat
-  repeat while pCurrentDownLoads <= undefined
+  repeat while me <= undefined
     tObj = getAt(undefined, undefined)
     put(tObj.getAt(#pFile) && tObj.getAt(#pPercent))
   end repeat
+  exit
 end
 
-on GetLastError me 
+on GetLastError(me)
   return(pLastError)
+  exit
 end
 
-on prepare me 
+on prepare(me)
   if count(pTaskList) > 0 then
     if getObjectManager().managerExists(#variable_manager) then
       if variableExists("profile.core.enabled") then
@@ -233,14 +240,15 @@ on prepare me
       end repeat
     end if
   end if
+  exit
 end
 
-on InitPreloader me 
-  pWaitList = [:]
-  pTaskList = [:]
-  pAvailableDynCasts = [:]
-  pPermanentLevelList = [:]
-  pCurrentDownLoads = [:]
+on InitPreloader(me)
+  pWaitList = []
+  pTaskList = []
+  pAvailableDynCasts = []
+  pPermanentLevelList = []
+  pCurrentDownLoads = []
   pLatestTaskID = ""
   f = 1
   repeat while f <= the number of undefineds
@@ -251,9 +259,10 @@ on InitPreloader me
     f = 1 + f
   end repeat
   return(1)
+  exit
 end
 
-on AddNextpreloadNetThing me 
+on AddNextpreloadNetThing(me)
   if pCurrentDownLoads.count < getIntVariable("net.operation.count", 2) then
     if pWaitList.count > 0 then
       if count(pWaitList.getAt(1)) > 0 then
@@ -304,9 +313,10 @@ on AddNextpreloadNetThing me
     end if
   end if
   return(0)
+  exit
 end
 
-on getDomainAndTld me, tURL 
+on getDomainAndTld(me, tURL)
   if ilk(tURL) <> #string then
     return(tURL)
   end if
@@ -342,9 +352,10 @@ on getDomainAndTld me, tURL
   end if
   the itemDelimiter = tDelim
   return(tDomain)
+  exit
 end
 
-on DoneCurrentDownLoad me, tFile, tURL, tID, tstate 
+on DoneCurrentDownLoad(me, tFile, tURL, tID, tstate)
   if voidp(pCurrentDownLoads.getAt(tFile)) then
     return(error(me, "CastLoad task was lost!" && tFile && tID, #DoneCurrentDownLoad, #major))
   end if
@@ -369,9 +380,10 @@ on DoneCurrentDownLoad me, tFile, tURL, tID, tstate
   me.delay(50, #removeCastLoadInstance, tFile)
   me.removeCastLoadTask(tID, tstate)
   return(1)
+  exit
 end
 
-on removeCastLoadInstance me, tFile 
+on removeCastLoadInstance(me, tFile)
   if tFile.ilk <> #string then
     return(0)
   end if
@@ -380,9 +392,10 @@ on removeCastLoadInstance me, tFile
   else
     return(pCurrentDownLoads.deleteProp(tFile))
   end if
+  exit
 end
 
-on removeCastLoadTask me, tID, tstate 
+on removeCastLoadTask(me, tID, tstate)
   tTask = pTaskList.getaProp(tID)
   if tstate = #failed then
     tTask.setFailed()
@@ -398,9 +411,10 @@ on removeCastLoadTask me, tID, tstate
       removePrepare(me.getID())
     end if
   end if
+  exit
 end
 
-on TellStreamState me, tFileName, tstate, tPercent, tID 
+on TellStreamState(me, tFileName, tstate, tPercent, tID)
   startProfilingTask("CastLoad Manager::tellStreamState")
   tObject = pTaskList.getaProp(tID)
   if tObject <> void() then
@@ -409,9 +423,10 @@ on TellStreamState me, tFileName, tstate, tPercent, tID
     return(error(me, "Task list instance was lost!" && tFileName && tID, #TellStreamState, #major))
   end if
   finishProfilingTask("CastLoad Manager::tellStreamState")
+  exit
 end
 
-on setImportedCast me, tCastNum, tCastName, tFileName, tDoIndexing 
+on setImportedCast(me, tCastNum, tCastName, tFileName, tDoIndexing)
   startProfilingTask("CastLoad Manager::setImportedCast " & tCastName)
   tCastLib = castLib(tCastNum)
   if voidp(tDoIndexing) then
@@ -428,9 +443,10 @@ on setImportedCast me, tCastNum, tCastName, tFileName, tDoIndexing
   end if
   me.verifyReset()
   finishProfilingTask("CastLoad Manager::setImportedCast " & tCastName)
+  exit
 end
 
-on getAvailableEmptyCast me 
+on getAvailableEmptyCast(me)
   if pAvailableDynCasts.count > 0 then
     tCastNum = pAvailableDynCasts.getLast()
     pAvailableDynCasts.deleteAt(pAvailableDynCasts.count)
@@ -439,9 +455,10 @@ on getAvailableEmptyCast me
     SystemAlert(me, "Out of free cast entries! CastLoad failed.")
     return(0)
   end if
+  exit
 end
 
-on removeTemporaryCast me, tNewLoadListOfcasts 
+on removeTemporaryCast(me, tNewLoadListOfcasts)
   tTempList = pPermanentLevelList.duplicate()
   f = 1
   repeat while f <= tTempList.count
@@ -462,9 +479,10 @@ on removeTemporaryCast me, tNewLoadListOfcasts
     end if
     f = 1 + f
   end repeat
+  exit
 end
 
-on addOneCastToWaitList me, tCastName, tPermanentOrNot 
+on addOneCastToWaitList(me, tCastName, tPermanentOrNot)
   if not me.FindCastNumber(tCastName) and not pWaitList.getOne(tCastName) then
     pTempWaitList.add(tCastName)
     tOffset = offset("?", tCastName)
@@ -479,9 +497,10 @@ on addOneCastToWaitList me, tCastName, tPermanentOrNot
       pLoadedCasts.setAt(tCastName, string(me.FindCastNumber(tCastName)))
     end if
   end if
+  exit
 end
 
-on ResetOneDynamicCast me, tCastNum 
+on ResetOneDynamicCast(me, tCastNum)
   if pLoadedCasts.getOne(string(tCastNum)) <> 0 then
     pLoadedCasts.deleteProp(pLoadedCasts.getOne(string(tCastNum)))
   else
@@ -493,9 +512,10 @@ on ResetOneDynamicCast me, tCastNum
   castLib(pNullCastName && tCastNum - 2).fileName = getMoviePath() & pNullCastName & pFileExtension
   pAvailableDynCasts.addProp(pNullCastName & tCastNum - 2, tCastNum)
   return(1)
+  exit
 end
 
-on verifyReset me 
+on verifyReset(me)
   tEmptyCastNum = 1
   repeat while tEmptyCastNum <= the number of undefineds
     if castLib(tEmptyCastNum).fileName contains pNullCastName then
@@ -506,118 +526,119 @@ on verifyReset me
     end if
     tEmptyCastNum = 1 + tEmptyCastNum
   end repeat
+  exit
 end
 
-on solveNetErrorMsg me, tErrorCode 
-  if tErrorCode = "" then
+on solveNetErrorMsg(me, tErrorCode)
+  if me = "" then
     return("Unknown error.")
   else
-    if tErrorCode = "OK" then
+    if me = "OK" then
       return("OK")
     else
-      if tErrorCode = -128 then
+      if me = -128 then
         return("Operation was cancelled.")
       else
-        if tErrorCode = 0 then
+        if me = 0 then
           return("OK")
         else
-          if tErrorCode = 4 then
+          if me = 4 then
             return("Bad MOA Class. Network Xtras may be improperly installed.")
           else
-            if tErrorCode = 5 then
+            if me = 5 then
               return("Bad MOA Interface. Network Xtras may be improperly installed.")
             else
-              if tErrorCode = 6 then
+              if me = 6 then
                 return("General transfer error.")
               else
-                if tErrorCode = 20 then
+                if me = 20 then
                   return("Internal error.")
                 else
-                  if tErrorCode = 900 then
+                  if me = 900 then
                     return("Failed attempt to write to locked media.")
                   else
-                    if tErrorCode = 903 then
+                    if me = 903 then
                       return("Disk is full.")
                     else
-                      if tErrorCode = 905 then
+                      if me = 905 then
                         return("Bad URL.")
                       else
-                        if tErrorCode = 4144 then
+                        if me = 4144 then
                           return("Failed network operation.")
                         else
-                          if tErrorCode = 4145 then
+                          if me = 4145 then
                             return("Failed network operation.")
                           else
-                            if tErrorCode = 4146 then
+                            if me = 4146 then
                               return("Connection could not be established with the remote host.")
                             else
-                              if tErrorCode = 4147 then
+                              if me = 4147 then
                                 return("Failed network operation.")
                               else
-                                if tErrorCode = 4148 then
+                                if me = 4148 then
                                   return("Failed network operation.")
                                 else
-                                  if tErrorCode = 4149 then
+                                  if me = 4149 then
                                     return("Data supplied by the server was in an unexpected format.")
                                   else
-                                    if tErrorCode = 4150 then
+                                    if me = 4150 then
                                       return("Unexpected early closing of connection.")
                                     else
-                                      if tErrorCode = 4151 then
+                                      if me = 4151 then
                                         return("Failed network operation.")
                                       else
-                                        if tErrorCode = 4152 then
+                                        if me = 4152 then
                                           return("Data returned is truncated.")
                                         else
-                                          if tErrorCode = 4153 then
+                                          if me = 4153 then
                                             return("Failed network operation.")
                                           else
-                                            if tErrorCode = 4154 then
+                                            if me = 4154 then
                                               return("Operation could not be completed due to timeout.")
                                             else
-                                              if tErrorCode = 4155 then
+                                              if me = 4155 then
                                                 return("Not enough memory available to complete the transaction.")
                                               else
-                                                if tErrorCode = 4156 then
+                                                if me = 4156 then
                                                   return("Protocol reply to request indicates an error in the reply.")
                                                 else
-                                                  if tErrorCode = 4157 then
+                                                  if me = 4157 then
                                                     return("Transaction failed to be authenticated.")
                                                   else
-                                                    if tErrorCode = 4159 then
+                                                    if me = 4159 then
                                                       return("Invalid URL.")
                                                     else
-                                                      if tErrorCode = 4160 then
+                                                      if me = 4160 then
                                                         return("Failed network operation.")
                                                       else
-                                                        if tErrorCode = 4161 then
+                                                        if me = 4161 then
                                                           return("Failed network operation.")
                                                         else
-                                                          if tErrorCode = 4162 then
+                                                          if me = 4162 then
                                                             return("Failed network operation.")
                                                           else
-                                                            if tErrorCode = 4163 then
+                                                            if me = 4163 then
                                                               return("Failed network operation.")
                                                             else
-                                                              if tErrorCode = 4164 then
+                                                              if me = 4164 then
                                                                 return("Could not create a socket")
                                                               else
-                                                                if tErrorCode = 4165 then
+                                                                if me = 4165 then
                                                                   return("Requested Object could not be found (URL may be incorrect).")
                                                                 else
-                                                                  if tErrorCode = 4166 then
+                                                                  if me = 4166 then
                                                                     return("Generic proxy failure.")
                                                                   else
-                                                                    if tErrorCode = 4167 then
+                                                                    if me = 4167 then
                                                                       return("Transfer was intentionally interrupted by client.")
                                                                     else
-                                                                      if tErrorCode = 4168 then
+                                                                      if me = 4168 then
                                                                         return("Failed network operation.")
                                                                       else
-                                                                        if tErrorCode = 4242 then
+                                                                        if me = 4242 then
                                                                           return("Download stopped by netAbort(url).")
                                                                         else
-                                                                          if tErrorCode = 4836 then
+                                                                          if me = 4836 then
                                                                             return("Cache download stopped for an unknown reason.")
                                                                           else
                                                                             return("Other network error:" && tErrorCode)
@@ -658,8 +679,10 @@ on solveNetErrorMsg me, tErrorCode
       end if
     end if
   end if
+  exit
 end
 
-on handlers  
+on handlers()
   return([])
+  exit
 end

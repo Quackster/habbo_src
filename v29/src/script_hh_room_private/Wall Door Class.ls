@@ -1,4 +1,4 @@
-on prepare me 
+on prepare(me)
   tCount = me.count(#pSprList)
   i = 1
   repeat while i <= tCount
@@ -17,12 +17,14 @@ on prepare me
     i = 1 + i
   end repeat
   return(1)
+  exit
 end
 
-on getInfo me 
-  tInfo = [:]
+on getInfo(me)
+  tInfo = []
   tInfo.setAt(#name, "wall door")
   tInfo.setAt(#class, me.pClass)
   tInfo.setAt(#custom, me.pCustom)
   return(tInfo)
+  exit
 end

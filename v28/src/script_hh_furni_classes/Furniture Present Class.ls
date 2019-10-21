@@ -1,6 +1,4 @@
-property pCardObj, pMessage
-
-on prepare me, tdata 
+on prepare(me, tdata)
   pCardObj = "PackageCardObj"
   tdata = tdata.getAt(#stuffdata)
   if not voidp(tdata) then
@@ -14,19 +12,22 @@ on prepare me, tdata
     end if
   end if
   return(1)
+  exit
 end
 
-on select me 
+on select(me)
   if the doubleClick then
     me.showCard()
   end if
   return(1)
+  exit
 end
 
-on showCard me 
+on showCard(me)
   if not objectExists(pCardObj) then
     createObject(pCardObj, "Package Card Class")
   end if
   getObject(pCardObj).define([#id:me.getID(), #Msg:pMessage, #loc:me.getPropRef(#pSprList, 1).loc])
   return(1)
+  exit
 end

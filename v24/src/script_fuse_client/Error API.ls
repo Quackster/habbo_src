@@ -1,4 +1,4 @@
-on constructErrorManager  
+on constructErrorManager()
   if objectp(gError) then
     return(gError)
   end if
@@ -9,52 +9,63 @@ on constructErrorManager
   createObject(#error_manager, gError)
   catch()
   return(gError)
+  exit
 end
 
-on deconstructErrorManager  
+on deconstructErrorManager()
   if not objectp(gError) then
-    return FALSE
+    return(0)
   end if
   gError.deconstruct()
   gError = void()
-  return TRUE
+  return(1)
+  exit
 end
 
-on getErrorManager  
+on getErrorManager()
   if not objectp(gError) then
     return(constructErrorManager())
   end if
   return(gError)
+  exit
 end
 
-on error tObject, tMsg, tMethod, tErrorLevel 
+on error(tObject, tMsg, tMethod, tErrorLevel)
   return(getErrorManager().error(tObject, tMsg, tMethod, tErrorLevel))
+  exit
 end
 
-on serverError tErrorList 
+on serverError(tErrorList)
   return(getErrorManager().serverError(tErrorList))
+  exit
 end
 
-on getClientErrors  
+on getClientErrors()
   return(getErrorManager().getClientErrors())
+  exit
 end
 
-on getServerErrors  
+on getServerErrors()
   return(getErrorManager().getServerErrors())
+  exit
 end
 
-on fatalError tErrorData 
+on fatalError(tErrorData)
   return(getErrorManager().fatalError(tErrorData))
+  exit
 end
 
-on SystemAlert tObject, tMsg, tMethod 
+on SystemAlert(tObject, tMsg, tMethod)
   return(getErrorManager().SystemAlert(tObject, tMsg, tMethod))
+  exit
 end
 
-on setDebugLevel tLevel 
+on setDebugLevel(tLevel)
   return(getErrorManager().setDebugLevel(tLevel))
+  exit
 end
 
-on printErrors  
+on printErrors()
   return(getErrorManager().print())
+  exit
 end

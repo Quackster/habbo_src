@@ -1,19 +1,20 @@
-property pObjectId
-
-on construct me 
+on construct(me)
   return(1)
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   me.removeRoomObject()
   return(1)
+  exit
 end
 
-on define me, tdata 
+on define(me, tdata)
   return(me.createRoomObject(tdata))
+  exit
 end
 
-on createRoomObject me, tdata 
+on createRoomObject(me, tdata)
   tdata.setAt(#id, tdata.getAt(#class) & "_" & tdata.getAt(#id))
   pObjectId = tdata.getAt(#id)
   tdata.setAt(#direction, [0, 0])
@@ -29,17 +30,19 @@ on createRoomObject me, tdata
   end if
   tClassContainer.set(tdata.getAt("class"), getClassVariable(tdata.getAt(#classID)))
   return(tRoomComponent.validateActiveObjects(tdata))
+  exit
 end
 
-on getRoomObject me 
+on getRoomObject(me)
   tRoomComponentObj = getObject(#room_component)
   if tRoomComponentObj = 0 then
     return(error(me, "Room component unavailable!", #getRoomObject))
   end if
   return(tRoomComponentObj.getActiveObject(pObjectId))
+  exit
 end
 
-on removeRoomObject me 
+on removeRoomObject(me)
   tRoomComponentObj = getObject(#room_component)
   if tRoomComponentObj = 0 then
     return(error(me, "Room component unavailable!", #removeRoomObject))
@@ -51,12 +54,14 @@ on removeRoomObject me
     return(1)
   end if
   return(tRoomComponentObj.removeActiveObject(pObjectId))
+  exit
 end
 
-on roomObjectAction me, tAction, tdata 
+on roomObjectAction(me, tAction, tdata)
   tRoomObject = me.getRoomObject()
   if tRoomObject = 0 then
     return(0)
   end if
   return(tRoomObject.roomObjectAction(tAction, tdata))
+  exit
 end

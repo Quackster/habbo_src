@@ -1,7 +1,5 @@
-property pwidth, pheight, pData, pCustomText, pOnline, pLocation, pLastTime, pMsgCount, pCacheImage, pSelected, pName, pID, pWebLinkRect, pMsgLinkRect, pFollowLinkRect, pNeedUpdate, pNameNeedUpdate, pWriterName, pLeftMarg, pCacheNameImg, pTopMarg, pFriendNameOffset, pMsgsNeedUpdate, pWriterMsgs, pLastNeedUpdate, pLocationNeedUpdate, pWriterLast, pLineHeight, pFriendLastOffset, pCacheOnlineImg, pCacheWebLinkImg, pMissNeedUpdate, pWriterText, pFriendPerMsgOffset, pDotLineImg
-
-on construct me 
-  pData = [:]
+on construct(me)
+  pData = []
   pID = ""
   pCustomText = ""
   pOnline = 0
@@ -36,9 +34,10 @@ on construct me
     pFriendPerMsgOffset = getVariable("messenger_friend_permsg_offset")
   end if
   return(1)
+  exit
 end
 
-on define me, tdata, tProps 
+on define(me, tdata, tProps)
   pData = tdata
   pID = tdata.id
   pName = tdata.name
@@ -52,9 +51,10 @@ on define me, tdata, tProps
   pWriterText = getWriter(tProps.writer_text)
   pNeedUpdate = 1
   me.update()
+  exit
 end
 
-on update me 
+on update(me)
   pOnline = pData.online
   if pData.customText <> pCustomText then
     pCustomText = pData.customText
@@ -79,10 +79,11 @@ on update me
     pMsgsNeedUpdate = 1
     pNeedUpdate = 1
   end if
+  exit
 end
 
-on select me, tClickPoint, tBuffer, tPosition 
-  tPos = (tPosition * pheight)
+on select(me, tClickPoint, tBuffer, tPosition)
+  tPos = tPosition * pheight
   tRect = pCacheImage.rect + rect(0, 1, -4, -2) + [0, tPos, 0, tPos]
   if pSelected then
     pSelected = 0
@@ -93,13 +94,15 @@ on select me, tClickPoint, tBuffer, tPosition
   end if
   getThread(#messenger).getInterface().buddySelectOrNot(pName, pID, pSelected)
   return(1)
+  exit
 end
 
-on unselect me 
+on unselect(me)
   pSelected = 0
+  exit
 end
 
-on clickAt me, tpoint, tBuffer, tPosition 
+on clickAt(me, tpoint, tBuffer, tPosition)
   if me.checkLink(tpoint, #messages) then
     tMsgStruct = getThread(#messenger).getComponent().getMessageBySenderId(pID)
     getThread(#messenger).getInterface().renderMessage(tMsgStruct)
@@ -120,51 +123,54 @@ on clickAt me, tpoint, tBuffer, tPosition
   end if
   me.select(tpoint, tBuffer, tPosition)
   return(1)
+  exit
 end
 
-on checkLinks me, tpoint 
+on checkLinks(me, tpoint)
   tLinks = [#home, #messages, #follow]
-  repeat while tLinks <= undefined
+  repeat while me <= undefined
     tLink = getAt(undefined, tpoint)
     if me.checkLink(tpoint, tLink) then
       return(1)
     end if
   end repeat
   return(0)
+  exit
 end
 
-on checkLink me, tpoint, tLink 
+on checkLink(me, tpoint, tLink)
   if tpoint.ilk <> #point then
     return(error(me, "Invalid point", #checkLink, #major))
   end if
   if getThread(#messenger).getInterface().getSelectedBuddiesCount() > 1 then
     return(0)
   end if
-  if tLink = #home then
+  if me = #home then
     return(tpoint.inside(pWebLinkRect))
   else
-    if tLink = #messages then
+    if me = #messages then
       if pMsgCount = 0 then
         return(0)
       end if
       return(tpoint.inside(pMsgLinkRect))
     else
-      if tLink = #follow then
+      if me = #follow then
         return(tpoint.inside(pFollowLinkRect))
       else
         return(error(me, "Unknown link:" && tLink, #checkLink, #major))
       end if
     end if
   end if
+  exit
 end
 
-on render me, tBuffer, tPosition 
+on render(me, tBuffer, tPosition)
   tPosition = tPosition - 1
   if pData.update then
     pNeedUpdate = 1
   end if
   if not pNeedUpdate then
-    tDstRect = pCacheImage.rect + rect(0, (tPosition * pheight), 0, (tPosition * pheight))
+    tDstRect = pCacheImage.rect + rect(0, tPosition * pheight, 0, tPosition * pheight)
     tBuffer.copyPixels(pCacheImage, tDstRect, pCacheImage.rect)
   else
     pNeedUpdate = 0
@@ -239,7 +245,7 @@ on render me, tBuffer, tPosition
       tMissionImg = pWriterText.render("\"" & pCustomText & "\"")
       tX1 = pLeftMarg
       tX2 = tX1 + tMissionImg.width
-      tY1 = (pLineHeight * 2) + pTopMarg + pFriendPerMsgOffset
+      tY1 = pLineHeight * 2 + pTopMarg + pFriendPerMsgOffset
       tY2 = tY1 + tMissionImg.height
       tDstRect = rect(tX1, tY1, tX2, tY2)
       pCacheImage.fill(rect(tX1, tY1, tX1 + pwidth, tY2), rgb(255, 255, 255))
@@ -253,7 +259,7 @@ on render me, tBuffer, tPosition
         tGotoImg = pWriterMsgs.render(getText("console_follow_friend"))
         tX1 = pLeftMarg
         tX2 = tX1 + tGotoImg.width
-        tY1 = (pLineHeight * 3) + pTopMarg + pFriendPerMsgOffset
+        tY1 = pLineHeight * 3 + pTopMarg + pFriendPerMsgOffset
         tY2 = tY1 + tGotoImg.height
         tDstRect = rect(tX1, tY1, tX2, tY2)
         pFollowLinkRect = tDstRect
@@ -270,8 +276,9 @@ on render me, tBuffer, tPosition
     tY2 = tY1 + 1
     tDstRect = rect(tX1, tY1, tX2, tY2)
     pCacheImage.copyPixels(pDotLineImg, tDstRect, pDotLineImg.rect)
-    tDstRect = pCacheImage.rect + rect(0, (tPosition * pheight), 0, (tPosition * pheight))
+    tDstRect = pCacheImage.rect + rect(0, tPosition * pheight, 0, tPosition * pheight)
     tBuffer.copyPixels(pCacheImage, tDstRect, pCacheImage.rect)
     pData.update = 0
   end if
+  exit
 end

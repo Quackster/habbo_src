@@ -1,6 +1,4 @@
-property pEffects, pAppliedEffectID, pPresets, pFurniID, pPresetID, pTransitionTime, pIsOn, pTargetColor, pAppliedColor, pTargetLightness, pAppliedLightness, pTargetTime, pApplyTime, pEffectID
-
-on construct me 
+on construct(me)
   pcolor = rgb(255, 255, 255)
   pLightness = 1
   pEffectID = 1
@@ -8,7 +6,7 @@ on construct me
   pAppliedColor = rgb(255, 255, 255)
   pAppliedLightness = 255
   pTransitionTime = 1500
-  pEffects = [:]
+  pEffects = []
   pEffects.setaProp(1, #setDimmerColor)
   pEffects.setaProp(2, #colorizeRoom)
   registerMessage(#roomdimmer_defined, me.getID(), #roomdimmerDefined)
@@ -16,38 +14,43 @@ on construct me
   registerMessage(#roomdimmer_removed, me.getID(), #Remove)
   registerMessage(#roomdimmer_set_state, me.getID(), #setState)
   return(1)
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   unregisterMessage(#roomdimmer_selected, me.getID())
   unregisterMessage(#roomdimmer_removed, me.getID())
   return(1)
+  exit
 end
 
-on turnOff me 
+on turnOff(me)
   if pAppliedEffectID > 0 then
     me.removeEffect(pAppliedEffectID)
   end if
   pAppliedColor = rgb(255, 255, 255)
   pAppliedLightness = 255
+  exit
 end
 
-on roomdimmerDefined me, tFurniID 
+on roomdimmerDefined(me, tFurniID)
   pFurniID = tFurniID
   if connectionExists(getVariable("connection.info.id", #info)) then
     tConn = getConnection(getVariable("connection.info.id", #info))
     tConn.send("MSG_ROOMDIMMER_GET_PRESETS")
   end if
+  exit
 end
 
-on select me 
+on select(me)
   if voidp(pPresets) then
     return(0)
   end if
   me.getInterface().showControlPanel()
+  exit
 end
 
-on Remove me, tID 
+on Remove(me, tID)
   if tID <> pFurniID then
     return(0)
   end if
@@ -55,14 +58,16 @@ on Remove me, tID
   if pAppliedEffectID <> 0 then
     me.removeEffect(pAppliedEffectID)
   end if
+  exit
 end
 
-on applyPreset me 
+on applyPreset(me)
   me.savePreset(1)
+  exit
 end
 
-on savePreset me, tPreset 
-  tPresetData = [:]
+on savePreset(me, tPreset)
+  tPresetData = []
   tPresetData.addProp(#integer, tPreset.getaProp(#presetID))
   tPresetData.addProp(#integer, tPreset.getaProp(#effectID))
   tColor = tPreset.getaProp(#color)
@@ -78,13 +83,15 @@ on savePreset me, tPreset
     tConn.send("MSG_ROOMDIMMER_SET_PRESET", tPresetData)
   end if
   pPresets.setaProp(tPreset.getaProp(#presetID), tPreset)
+  exit
 end
 
-on getCurrentPreset me 
+on getCurrentPreset(me)
   return(pPresetID)
+  exit
 end
 
-on setState me, tStateData 
+on setState(me, tStateData)
   pDimmerID = tStateData.getaProp(#dimmerID)
   pIsOn = tStateData.getaProp(#isOn)
   pPresetID = tStateData.getaProp(#presetID)
@@ -102,9 +109,10 @@ on setState me, tStateData
     me.turnOff()
   end if
   me.getInterface().updateInterface()
+  exit
 end
 
-on update me 
+on update(me)
   tDiffR = pTargetColor.red - pAppliedColor.red
   tDiffG = pTargetColor.green - pAppliedColor.green
   tDiffB = pTargetColor.blue - pAppliedColor.blue
@@ -115,38 +123,43 @@ on update me
     tNewColor = pTargetColor
     tNewLightness = pTargetLightness
   else
-    tRatio = (tCurrentTime - pApplyTime / float(pTargetTime - pApplyTime))
-    tNewR = pAppliedColor.red + (tRatio * tDiffR)
-    tNewG = pAppliedColor.green + (tRatio * tDiffG)
-    tNewB = pAppliedColor.blue + (tRatio * tDiffB)
-    tNewLightness = pAppliedLightness + (tRatio * tDiffL)
+    tRatio = tCurrentTime - pApplyTime / float(pTargetTime - pApplyTime)
+    tNewR = pAppliedColor.red + tRatio * tDiffR
+    tNewG = pAppliedColor.green + tRatio * tDiffG
+    tNewB = pAppliedColor.blue + tRatio * tDiffB
+    tNewLightness = pAppliedLightness + tRatio * tDiffL
     tNewColor = rgb(tNewR, tNewG, tNewB)
   end if
   me.applyEffect(pEffectID, tNewColor, tNewLightness)
+  exit
 end
 
-on getPreset me, tPresetID 
+on getPreset(me, tPresetID)
   return(pPresets.getaProp(tPresetID))
+  exit
 end
 
-on getPresetID me 
+on getPresetID(me)
   return(pPresetID)
+  exit
 end
 
-on setPresets me, tPresets 
+on setPresets(me, tPresets)
   pPresets = tPresets
+  exit
 end
 
-on removeEffect me, tEffectID 
+on removeEffect(me, tEffectID)
   tEffect = pEffects.getaProp(pAppliedEffectID)
   if voidp(tEffect) then
     return(0)
   end if
   executeMessage(tEffect, rgb(255, 255, 255))
   pAppliedEffectID = 0
+  exit
 end
 
-on applyEffect me, tEffectID, tColor, tLightness 
+on applyEffect(me, tEffectID, tColor, tLightness)
   if pAppliedEffectID <> tEffectID and pAppliedEffectID <> 0 then
     me.removeEffect(pAppliedEffectID)
   end if
@@ -161,17 +174,20 @@ on applyEffect me, tEffectID, tColor, tLightness
   pAppliedColor = tColor
   pAppliedLightness = tLightness
   pApplyTime = the milliSeconds
+  exit
 end
 
-on toggleOnoff me 
+on toggleOnoff(me)
   tConn = getConnection(getVariable("connection.info.id", #info))
   if not tConn then
     return(0)
   end if
   tConn.send("MSG_ROOMDIMMER_CHANGE_STATE")
   return(1)
+  exit
 end
 
-on isOn me 
+on isOn(me)
   return(pIsOn)
+  exit
 end

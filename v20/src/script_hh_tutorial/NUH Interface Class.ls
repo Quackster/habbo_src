@@ -1,42 +1,43 @@
-property pBubbles, pInvitationWindowID
-
-on construct me 
-  pBubbles = [:]
+on construct(me)
+  pBubbles = []
   pUpdateOwnUserHelp = 0
   pInvitationWindowID = #NUH_invite_window_ID
-  return TRUE
+  return(1)
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   me.removeAll()
-  return TRUE
+  return(1)
+  exit
 end
 
-on removeAll me 
+on removeAll(me)
   tItemNo = 1
   repeat while tItemNo <= pBubbles.count
     tBubble = pBubbles.getAt(tItemNo)
     tBubble.deconstruct()
-    tItemNo = (1 + tItemNo)
+    tItemNo = 1 + tItemNo
   end repeat
-  pBubbles = [:]
+  pBubbles = []
   me.hideInvitationWindow()
+  exit
 end
 
-on showOwnUserHelp me 
+on showOwnUserHelp(me)
   tRoomComponent = getThread("room").getComponent()
   tOwnRoomId = tRoomComponent.getUsersRoomId(getObject(#session).GET("user_name"))
   tHumanObj = tRoomComponent.getUserObject(tOwnRoomId)
-  if (tHumanObj = 0) then
-    return FALSE
+  if tHumanObj = 0 then
+    return(0)
   end if
   tRoomComponent = getThread("room").getComponent()
-  if (tRoomComponent = 0) then
-    return FALSE
+  if tRoomComponent = 0 then
+    return(0)
   end if
   tBubble = createObject(#random, getVariableValue("update.bubble.class"))
-  if (tBubble = 0) then
-    return FALSE
+  if tBubble = 0 then
+    return(0)
   end if
   tHelpId = "own_user"
   tPointer = 7
@@ -50,9 +51,10 @@ on showOwnUserHelp me
     tPreviousBubble.deconstruct()
   end if
   pBubbles.setAt(tHelpId, tBubble)
+  exit
 end
 
-on showGenericHelp me, tHelpId, tTargetLoc, tPointerIndex 
+on showGenericHelp(me, tHelpId, tTargetLoc, tPointerIndex)
   tLocX = 0
   tLocY = 0
   tText = ""
@@ -73,8 +75,8 @@ on showGenericHelp me, tHelpId, tTargetLoc, tPointerIndex
   end if
   tText = getText("NUH_" & tHelpId)
   tBubble = createObject(#random, getVariableValue("static.bubble.class"))
-  if (tBubble = 0) then
-    return FALSE
+  if tBubble = 0 then
+    return(0)
   end if
   tBubble.setProperty(#bubbleId, tHelpId)
   tBubble.setText(tText)
@@ -87,9 +89,10 @@ on showGenericHelp me, tHelpId, tTargetLoc, tPointerIndex
     tPreviousBubble.deconstruct()
   end if
   pBubbles.setAt(tHelpId, tBubble)
+  exit
 end
 
-on showInviteWindow me 
+on showInviteWindow(me)
   me.hideInvitationWindow()
   createWindow(pInvitationWindowID, "popup_bg_white.window")
   tWindow = getWindow(pInvitationWindowID)
@@ -106,29 +109,32 @@ on showInviteWindow me
   tWindow.getElement("invitation_button_deny_text").setText(tNo)
   tWindow.moveTo(tLocX, tLocY)
   tWindow.registerProcedure(#eventProcInvitation, me.getID(), #mouseUp)
+  exit
 end
 
-on hideInvitationWindow me 
+on hideInvitationWindow(me)
   if windowExists(pInvitationWindowID) then
     removeWindow(pInvitationWindowID)
   end if
+  exit
 end
 
-on eventProcInvitation me, tEvent, tSprID 
-  if tSprID <> "invitation_button_accept" then
-    if (tSprID = "invitation_button_accept_text") then
+on eventProcInvitation(me, tEvent, tSprID)
+  if me <> "invitation_button_accept" then
+    if me = "invitation_button_accept_text" then
       me.getComponent().sendInvitations()
       me.hideInvitationWindow()
     else
-      if tSprID <> "invitation_button_deny" then
-        if (tSprID = "invitation_button_deny_text") then
+      if me <> "invitation_button_deny" then
+        if me = "invitation_button_deny_text" then
           me.hideInvitationWindow()
         else
-          if (tSprID = "popup_button_close") then
+          if me = "popup_button_close" then
             me.hideInvitationWindow()
             me.getComponent().setHelpItemClosed("invite")
           end if
         end if
+        exit
       end if
     end if
   end if

@@ -1,29 +1,30 @@
-property pHotelClosingID, pLoginFailedID
-
-on construct me 
+on construct(me)
   pHotelClosingID = getText("opening_hours_title")
   pLoginFailedID = "opening_hours_login_failed"
-  return TRUE
+  return(1)
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   return(me.hideAll())
+  exit
 end
 
-on hideAll me 
+on hideAll(me)
   me.hideHotelClosingAlert()
   me.hideHotelClosingNotice()
   me.hideHotelClosedNotice()
   me.hideHotelClosedDisconnectNotice()
-  return TRUE
+  return(1)
+  exit
 end
 
-on showHotelClosingAlert me, tTimeDelta 
+on showHotelClosingAlert(me, tTimeDelta)
   if not windowExists(pHotelClosingID) then
     createWindow(pHotelClosingID, "habbo_basic.window", 0, 0, #modal)
     tWndObj = getWindow(pHotelClosingID)
-    if (tWndObj = 0) then
-      return FALSE
+    if tWndObj = 0 then
+      return(0)
     end if
   else
     tWndObj = getWindow(pHotelClosingID)
@@ -44,14 +45,15 @@ on showHotelClosingAlert me, tTimeDelta
   tWndObj.center()
   tWndObj.registerClient(me.getID())
   tWndObj.registerProcedure(#eventProcStatus, me.getID(), #mouseUp)
+  exit
 end
 
-on showHotelClosingNotice me 
+on showHotelClosingNotice(me)
   if not windowExists(pHotelClosingID) then
     createWindow(pHotelClosingID, "habbo_basic.window", 0, 0, #modal)
     tWndObj = getWindow(pHotelClosingID)
-    if (tWndObj = 0) then
-      return FALSE
+    if tWndObj = 0 then
+      return(0)
     end if
   else
     tWndObj = getWindow(pHotelClosingID)
@@ -65,23 +67,24 @@ on showHotelClosingNotice me
   tWndObj.getElement("openhrs_txt").setText(tText)
   tWndObj.registerClient(me.getID())
   tWndObj.registerProcedure(#eventProcNotice, me.getID(), #mouseUp)
+  exit
 end
 
-on showHotelClosedDisconnectNotice me, tOpenHour, tOpenMinute 
+on showHotelClosedDisconnectNotice(me, tOpenHour, tOpenMinute)
   if not windowExists(pLoginFailedID) then
     createWindow(pLoginFailedID, "error.window", 0, 0, #modal)
     tWndObj = getWindow(pLoginFailedID)
-    if (tWndObj = 0) then
-      return FALSE
+    if tWndObj = 0 then
+      return(0)
     end if
     tWndObj.center()
     tText = getText("opening_hours_text_opening_time")
     tHour = string(tOpenHour)
-    if (tHour.length = 1) then
+    if tHour.length = 1 then
       tHour = "0" & tHour
     end if
     tMinute = string(tOpenMinute)
-    if (tMinute.length = 1) then
+    if tMinute.length = 1 then
       tMinute = "0" & tMinute
     end if
     tText = replaceChunks(tText, "%h%", tHour)
@@ -92,15 +95,16 @@ on showHotelClosedDisconnectNotice me, tOpenHour, tOpenMinute
     tWndObj.registerClient(me.getID())
     tWndObj.registerProcedure(#eventProcLoginFailed, me.getID(), #mouseUp)
   end if
-  return TRUE
+  return(1)
+  exit
 end
 
-on showHotelClosedNotice me, tOpenHour, tOpenMinute 
+on showHotelClosedNotice(me, tOpenHour, tOpenMinute)
   if not windowExists(pHotelClosingID) then
     createWindow(pHotelClosingID, "habbo_basic.window", 0, 0, #modal)
     tWndObj = getWindow(pHotelClosingID)
-    if (tWndObj = 0) then
-      return FALSE
+    if tWndObj = 0 then
+      return(0)
     end if
   else
     tWndObj = getWindow(pHotelClosingID)
@@ -112,11 +116,11 @@ on showHotelClosedNotice me, tOpenHour, tOpenMinute
   tWndObj.center()
   tText = getText("opening_hours_text_closed")
   tHour = string(tOpenHour)
-  if (tHour.length = 1) then
+  if tHour.length = 1 then
     tHour = "0" & tHour
   end if
   tMinute = string(tOpenMinute)
-  if (tMinute.length = 1) then
+  if tMinute.length = 1 then
     tMinute = "0" & tMinute
   end if
   tText = replaceChunks(tText, "%h%", tHour)
@@ -124,84 +128,93 @@ on showHotelClosedNotice me, tOpenHour, tOpenMinute
   tWndObj.getElement("openhrs_txt").setText(tText)
   tWndObj.registerClient(me.getID())
   tWndObj.registerProcedure(#eventProcClosed, me.getID(), #mouseUp)
+  exit
 end
 
-on hideHotelClosingAlert me 
+on hideHotelClosingAlert(me)
   if windowExists(pHotelClosingID) then
     return(removeWindow(pHotelClosingID))
   end if
-  return FALSE
+  return(0)
+  exit
 end
 
-on hideHotelClosingNotice me 
+on hideHotelClosingNotice(me)
   if windowExists(pHotelClosingID) then
     return(removeWindow(pHotelClosingID))
   end if
-  return FALSE
+  return(0)
+  exit
 end
 
-on hideHotelClosedDisconnectNotice me 
+on hideHotelClosedDisconnectNotice(me)
   if windowExists(pLoginFailedID) then
     return(removeWindow(pLoginFailedID))
   end if
-  return FALSE
+  return(0)
+  exit
 end
 
-on hideHotelClosedNotice me 
+on hideHotelClosedNotice(me)
   if windowExists(pHotelClosingID) then
     return(removeWindow(pHotelClosingID))
   end if
-  return FALSE
+  return(0)
+  exit
 end
 
-on eventProcStatus me, tEvent, tElemID, tParam 
-  if (tEvent = #mouseUp) then
-    if (tElemID = "close") then
+on eventProcStatus(me, tEvent, tElemID, tParam)
+  if tEvent = #mouseUp then
+    if me = "close" then
       return(me.hideHotelClosingAlert())
     else
-      if (tElemID = "openhrs_ok") then
+      if me = "openhrs_ok" then
         return(me.hideHotelClosingAlert())
       else
-        return FALSE
+        return(0)
       end if
     end if
   end if
-  return TRUE
+  return(1)
+  exit
 end
 
-on eventProcNotice me, tEvent, tElemID, tParam 
-  if (tEvent = #mouseUp) then
-    if (tElemID = "close") then
+on eventProcNotice(me, tEvent, tElemID, tParam)
+  if tEvent = #mouseUp then
+    if me = "close" then
       return(me.hideHotelClosingNotice())
     else
-      if (tElemID = "openhrs_ok") then
+      if me = "openhrs_ok" then
         return(me.hideHotelClosingNotice())
       else
-        return FALSE
+        return(0)
       end if
     end if
   end if
-  return TRUE
+  return(1)
+  exit
 end
 
-on eventProcLoginFailed me, tEvent, tElemID, tParam 
-  if (tEvent = #mouseUp) then
-    return FALSE
+on eventProcLoginFailed(me, tEvent, tElemID, tParam)
+  if tEvent = #mouseUp then
+    return(0)
   end if
-  return TRUE
+  return(1)
+  exit
 end
 
-on eventProcClosed me, tEvent, tElemID, tParam 
-  if (tEvent = #mouseUp) then
-    if (tElemID = "close") then
+on eventProcClosed(me, tEvent, tElemID, tParam)
+  if tEvent = #mouseUp then
+    if me = "close" then
       return(me.hideHotelClosingNotice())
     else
-      if (tElemID = "openhrs_ok") then
+      if me = "openhrs_ok" then
         return(me.hideHotelClosingNotice())
       else
-        return FALSE
+        return(0)
       end if
     end if
   end if
-  return TRUE
+  return(1)
+  exit
 end

@@ -1,6 +1,4 @@
-property pState, pAnimate, pFrameCounter, pMaxSkipFrames, pAnimFrame, pAnimStartTime, pAnimationTime
-
-on prepare me, tdata 
+on prepare(me, tdata)
   pAnimationTime = 600
   pMaxSkipFrames = 1
   pAnimFrame = 0
@@ -11,41 +9,43 @@ on prepare me, tdata
   else
     pState = 2
   end if
-  if (pState = 3) then
+  if pState = 3 then
     pAnimStartTime = the milliSeconds
   end if
   tSpriteNo = 2
   repeat while tSpriteNo <= count(me.pSprList)
     removeEventBroker(me.getPropRef(#pSprList, tSpriteNo).spriteNum)
-    tSpriteNo = (1 + tSpriteNo)
+    tSpriteNo = 1 + tSpriteNo
   end repeat
-  return TRUE
+  return(1)
+  exit
 end
 
-on updateStuffdata me, tProp, tValue 
+on updateStuffdata(me, tProp, tValue)
   if not voidp(tProp) or voidp(tValue) then
-    if (tProp = "state") then
+    if me = "state" then
       pState = tValue
     else
-      if (tProp = "animate") then
+      if me = "animate" then
         pAnimate = 1
         pAnimStartTime = the milliSeconds
       end if
     end if
   end if
+  exit
 end
 
-on update me 
+on update(me)
   if pState < 2 then
-    return TRUE
+    return(1)
   else
     if pAnimate <> 1 then
-      return TRUE
+      return(1)
     else
-      pFrameCounter = (pFrameCounter + 1)
+      pFrameCounter = pFrameCounter + 1
       if pFrameCounter > pMaxSkipFrames then
         pFrameCounter = 0
-        pAnimFrame = (pAnimFrame + 1)
+        pAnimFrame = pAnimFrame + 1
         if pAnimFrame > 2 then
           pAnimFrame = 0
         end if
@@ -55,12 +55,13 @@ on update me
             me.getPropRef(#pSprList, 4).castNum = abs(getmemnum(tNewName))
           end if
         end if
-        if (pState = 2) then
-          if (the milliSeconds - pAnimStartTime) > pAnimationTime then
+        if pState = 2 then
+          if the milliSeconds - pAnimStartTime > pAnimationTime then
             pAnimate = 0
           end if
         end if
       end if
     end if
   end if
+  exit
 end

@@ -1,26 +1,28 @@
-on construct me 
+on construct(me)
   return(me.regMsgList(1))
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   return(me.regMsgList(0))
+  exit
 end
 
-on handle_song_info me, tMsg 
-  tSongID = tMsg.connection.GetIntFrom()
-  tName = tMsg.connection.GetStrFrom()
+on handle_song_info(me, tMsg)
+  tSongID = tMsg.GetIntFrom()
+  tName = tMsg.GetStrFrom()
   tName = convertSpecialChars(tName, 0)
   tdata = []
-  tStr = tMsg.connection.GetStrFrom()
+  tStr = tMsg.GetStrFrom()
   tDelim = the itemDelimiter
   the itemDelimiter = ":"
   i = 1
-  repeat while i <= (tStr.count(#item) / 2)
-    tChannelNumber = tStr.getProp(#item, (1 + ((i - 1) * 2)))
-    tChannelData = tStr.getProp(#item, (2 + ((i - 1) * 2)))
-    if (ilk(value(tChannelNumber)) = #integer) then
+  repeat while i <= tStr.count(#item) / 2
+    tChannelNumber = tStr.getProp(#item, 1 + i - 1 * 2)
+    tChannelData = tStr.getProp(#item, 2 + i - 1 * 2)
+    if ilk(value(tChannelNumber)) = #integer then
       tChannelNumber = value(tChannelNumber)
-      if (tChannelNumber = (tdata.count + 1)) then
+      if tChannelNumber = tdata.count + 1 then
         tdata.setAt(tChannelNumber, [])
         the itemDelimiter = ";"
         j = 1
@@ -30,139 +32,156 @@ on handle_song_info me, tMsg
           if tSample.count(#item) >= 2 then
             tid = value(tSample.getProp(#item, 1))
             tCount = value(tSample.getProp(#item, 2))
-            tdata.getAt(tChannelNumber).setAt((tdata.getAt(tChannelNumber).count + 1), [#id:tid, #length:tCount])
+            tdata.getAt(tChannelNumber).setAt(tdata.getAt(tChannelNumber).count + 1, [#id:tid, #length:tCount])
           end if
           the itemDelimiter = ";"
-          j = (1 + j)
+          j = 1 + j
         end repeat
       end if
     end if
     the itemDelimiter = ":"
-    i = (1 + i)
+    i = 1 + i
   end repeat
   the itemDelimiter = tDelim
   me.getComponent().parseSongData(tdata, tSongID, tName)
+  exit
 end
 
-on handle_machine_sound_packages me, tMsg 
+on handle_machine_sound_packages(me, tMsg)
   if voidp(tMsg.connection) then
-    return FALSE
+    return(0)
   end if
-  tSlotCount = tMsg.connection.GetIntFrom()
-  tFilledSlots = tMsg.connection.GetIntFrom()
+  tSlotCount = tMsg.GetIntFrom()
+  tFilledSlots = tMsg.GetIntFrom()
   me.getComponent().clearSoundSets()
   i = 1
   repeat while i <= tFilledSlots
-    tSlotIndex = tMsg.connection.GetIntFrom()
-    tid = tMsg.connection.GetIntFrom()
+    tSlotIndex = tMsg.GetIntFrom()
+    tid = tMsg.GetIntFrom()
     tSampleList = []
-    tSampleCount = tMsg.connection.GetIntFrom()
+    tSampleCount = tMsg.GetIntFrom()
     j = 1
     repeat while j <= tSampleCount
-      tSampleID = tMsg.connection.GetIntFrom()
+      tSampleID = tMsg.GetIntFrom()
       tSampleList.add(tSampleID)
-      j = (1 + j)
+      j = 1 + j
     end repeat
     me.getComponent().updateSoundSet(tSlotIndex, tid, tSampleList)
-    i = (1 + i)
+    i = 1 + i
   end repeat
   me.getComponent().setSoundSetCount(tFilledSlots)
   me.getComponent().removeSoundSetInsertLock()
-  return TRUE
+  return(1)
+  exit
 end
 
-on handle_user_sound_packages me, tMsg 
+on handle_user_sound_packages(me, tMsg)
   if voidp(tMsg.connection) then
-    return FALSE
+    return(0)
   end if
-  tCount = tMsg.connection.GetIntFrom()
+  tCount = tMsg.GetIntFrom()
   tList = []
   i = 1
   repeat while i <= tCount
-    tid = tMsg.connection.GetIntFrom()
+    tid = tMsg.GetIntFrom()
     tList.append(tid)
-    i = (1 + i)
+    i = 1 + i
   end repeat
   return(me.getComponent().updateSetList(tList))
+  exit
 end
 
-on handle_invalid_song_name me, tMsg 
+on handle_invalid_song_name(me, tMsg)
   return(me.getComponent().handleInvalidSongName())
+  exit
 end
 
-on handle_song_list me, tMsg 
+on handle_song_list(me, tMsg)
   return(me.getComponent().parseSongList(tMsg))
+  exit
 end
 
-on handle_play_list me, tMsg 
+on handle_play_list(me, tMsg)
   return(me.getComponent().parsePlaylist(tMsg))
+  exit
 end
 
-on handle_song_missing_packages me, tMsg 
-  tCount = tMsg.connection.GetIntFrom()
+on handle_song_missing_packages(me, tMsg)
+  tCount = tMsg.GetIntFrom()
   tList = []
   i = 1
   repeat while i <= tCount
-    tid = tMsg.connection.GetIntFrom()
+    tid = tMsg.GetIntFrom()
     tList.append(tid)
-    i = (1 + i)
+    i = 1 + i
   end repeat
   return(me.getComponent().handleMissingPackages(tList))
+  exit
 end
 
-on handle_play_list_invalid me, tMsg 
-  tCount = tMsg.connection.GetIntFrom()
+on handle_play_list_invalid(me, tMsg)
+  tCount = tMsg.GetIntFrom()
   return(me.getComponent().handleListFull(tCount, "playlist"))
+  exit
 end
 
-on handle_song_list_full me, tMsg 
-  tCount = tMsg.connection.GetIntFrom()
+on handle_song_list_full(me, tMsg)
+  tCount = tMsg.GetIntFrom()
   return(me.getComponent().handleListFull(tCount, "songlist"))
+  exit
 end
 
-on handle_new_song me, tMsg 
-  tid = tMsg.connection.GetIntFrom()
-  tName = tMsg.connection.GetStrFrom()
+on handle_new_song(me, tMsg)
+  tid = tMsg.GetIntFrom()
+  tName = tMsg.GetStrFrom()
   tName = convertSpecialChars(tName, 0)
   return(me.getComponent().updateEditorSong(tid, tName))
+  exit
 end
 
-on handle_user_song_disks me, tMsg 
+on handle_user_song_disks(me, tMsg)
   return(me.getComponent().parseUserDisks(tMsg))
+  exit
 end
 
-on handle_jukebox_disks me, tMsg 
+on handle_jukebox_disks(me, tMsg)
   return(me.getComponent().parseJukeboxDisks(tMsg))
+  exit
 end
 
-on handle_jukebox_song_added me, tMsg 
-  tid = tMsg.connection.GetIntFrom()
-  tLength = tMsg.connection.GetIntFrom()
-  tName = tMsg.connection.GetStrFrom()
-  tAuthor = tMsg.connection.GetStrFrom()
+on handle_jukebox_song_added(me, tMsg)
+  tid = tMsg.GetIntFrom()
+  tLength = tMsg.GetIntFrom()
+  tName = tMsg.GetStrFrom()
+  tAuthor = tMsg.GetStrFrom()
   tName = convertSpecialChars(tName, 0)
   tAuthor = convertSpecialChars(tAuthor, 0)
   return(me.getComponent().insertPlaylistSong(tid, tLength, tName, tAuthor))
+  exit
 end
 
-on handle_song_locked me, tMsg 
+on handle_song_locked(me, tMsg)
   return(me.getComponent().handleSongLocked())
+  exit
 end
 
-on handle_jukebox_playlist_full me, tMsg 
+on handle_jukebox_playlist_full(me, tMsg)
   return(me.getComponent().handleJukeBoxPlaylistFull())
+  exit
 end
 
-on handle_invalid_song_length me, tMsg 
+on handle_invalid_song_length(me, tMsg)
   return(me.getComponent().handleInvalidSongLength())
+  exit
 end
 
-on handle_song_saved me, tMsg 
+on handle_song_saved(me, tMsg)
   return(me.getComponent().updateEditorSong(void(), void()))
+  exit
 end
 
-on regMsgList me, tBool 
-  tMsgs = [:]
+on regMsgList(me, tBool)
+  tMsgs = []
   tMsgs.setaProp(300, #handle_song_info)
   tMsgs.setaProp(301, #handle_machine_sound_packages)
   tMsgs.setaProp(302, #handle_user_sound_packages)
@@ -180,7 +199,7 @@ on regMsgList me, tBool
   tMsgs.setaProp(337, #handle_jukebox_playlist_full)
   tMsgs.setaProp(338, #handle_invalid_song_length)
   tMsgs.setaProp(339, #handle_song_saved)
-  tCmds = [:]
+  tCmds = []
   tCmds.setaProp("INSERT_SOUND_PACKAGE", 219)
   tCmds.setaProp("EJECT_SOUND_PACKAGE", 220)
   tCmds.setaProp("GET_SONG_INFO", 221)
@@ -207,5 +226,6 @@ on regMsgList me, tBool
     unregisterListener(getVariable("connection.info.id"), me.getID(), tMsgs)
     unregisterCommands(getVariable("connection.info.id"), me.getID(), tCmds)
   end if
-  return TRUE
+  return(1)
+  exit
 end

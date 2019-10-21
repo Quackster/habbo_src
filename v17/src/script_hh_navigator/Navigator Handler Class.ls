@@ -1,18 +1,18 @@
-property pLastRoomForwardTimeStamp
-
-on construct me 
+on construct(me)
   pLastRoomForwardTimeStamp = 0
   return(me.regMsgList(1))
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   pLastRoomForwardTimeStamp = 0
   return(me.regMsgList(0))
+  exit
 end
 
-on handle_flatinfo me, tMsg 
+on handle_flatinfo(me, tMsg)
   tConn = tMsg.connection
-  tFlat = [:]
+  tFlat = []
   tFlat.setAt(#ableothersmovefurniture, tConn.GetIntFrom())
   tFlat.setAt(#door, tConn.GetIntFrom())
   tFlat.setAt(#flatId, string(tConn.GetIntFrom()))
@@ -27,13 +27,13 @@ on handle_flatinfo me, tMsg
   tFlat.setAt(#maxVisitors, tConn.GetIntFrom())
   tFlat.setAt(#absoluteMaxVisitors, tConn.GetIntFrom())
   tFlat.setAt(#nodeType, 2)
-  if (tFlat.getAt(#door) = 0) then
+  if me = 0 then
     tFlat.setAt(#door, "open")
   else
-    if (tFlat.getAt(#door) = 1) then
+    if me = 1 then
       tFlat.setAt(#door, "closed")
     else
-      if (tFlat.getAt(#door) = 2) then
+      if me = 2 then
         tFlat.setAt(#door, "password")
       end if
     end if
@@ -44,17 +44,18 @@ on handle_flatinfo me, tMsg
   if tFlat.getAt(#absoluteMaxVisitors) < 1 then
     tFlat.setAt(#absoluteMaxVisitors, 50)
   end if
-  if (tFlat.getAt(#alert) = 1) and (tFlat.getAt(#owner) = getObject(#session).GET(#user_name)) then
+  if tFlat.getAt(#alert) = 1 and tFlat.getAt(#owner) = getObject(#session).GET(#user_name) then
     executeMessage(#setEnterRoomAlert, "alert_no_category")
   end if
   me.getComponent().updateSingleSubNodeInfo(tFlat)
   me.getComponent().getInfoBroker().processNavigatorData(tFlat)
-  return TRUE
+  return(1)
+  exit
 end
 
-on handle_flat_results me, tMsg 
-  tResult = [:]
-  tList = [:]
+on handle_flat_results(me, tMsg)
+  tResult = []
+  tList = []
   tDelim = the itemDelimiter
   the itemDelimiter = "\t"
   tContent = tMsg.content
@@ -64,9 +65,9 @@ on handle_flat_results me, tMsg
     if tLine.count(#item) > 0 and tLine.count(#item) < 9 then
       nothing()
     else
-      if (tLine = "") then
+      if tLine = "" then
       else
-        tFlat = [:]
+        tFlat = []
         tFlat.setAt(#id, "f_" & tLine.getProp(#item, 1))
         tFlat.setAt(#flatId, tLine.getProp(#item, 1))
         tFlat.setAt(#name, tLine.getProp(#item, 2))
@@ -79,30 +80,31 @@ on handle_flat_results me, tMsg
         tFlat.setAt(#description, tLine.getProp(#item, 9))
         tFlat.setAt(#nodeType, 2)
         tList.setAt(tFlat.getAt(#id), tFlat)
-        i = (1 + i)
+        i = 1 + i
       end if
       tResult.addProp(#children, tList)
-      if (tMsg.subject = 16) then
+      if me = 16 then
         tResult.setAt(#id, #own)
       else
-        if (tMsg.subject = 55) then
+        if me = 55 then
           tResult.setAt(#id, #src)
         end if
       end if
       the itemDelimiter = tDelim
       me.getComponent().saveNodeInfo(tResult)
+      exit
     end if
   end repeat
 end
 
-on handle_favouriteroomresults me, tMsg 
+on handle_favouriteroomresults(me, tMsg)
   tConn = tMsg.connection
   tNodeMask = tConn.GetIntFrom()
   tNodeId = tConn.GetIntFrom()
   tNodeType = tConn.GetIntFrom()
   tNodeInfo = [#id:string(tNodeId), #nodeType:tNodeType, #name:tConn.GetStrFrom(), #usercount:tConn.GetIntFrom(), #maxUsers:tConn.GetIntFrom(), #parentid:string(tConn.GetIntFrom())]
-  tResult = [#id:#fav, #children:[:]]
-  if (tNodeType = 2) then
+  tResult = [#id:#fav, #children:[]]
+  if tNodeType = 2 then
     tResult.setAt(#children, me.parseFlatCategoryNode(tMsg))
   end if
   repeat while tConn <> void()
@@ -113,44 +115,48 @@ on handle_favouriteroomresults me, tMsg
     end if
   end repeat
   return(me.getComponent().saveNodeInfo(tResult))
+  exit
 end
 
-on handle_noflatsforuser me, tMsg 
+on handle_noflatsforuser(me, tMsg)
   me.getComponent().noflatsforuser()
+  exit
 end
 
-on handle_noflats me, tMsg 
+on handle_noflats(me, tMsg)
   me.getComponent().noflats()
+  exit
 end
 
-on handle_flatpassword_ok me, tMsg 
+on handle_flatpassword_ok(me, tMsg)
   me.getComponent().flatAccessResult("flatpassword_ok")
+  exit
 end
 
-on handle_navnodeinfo me, tMsg 
+on handle_navnodeinfo(me, tMsg)
   tConn = tMsg.connection
-  tCategoryIndex = [:]
+  tCategoryIndex = []
   tNodeMask = tConn.GetIntFrom()
   tNodeInfo = me.parseNode(tMsg)
-  if (tNodeInfo = 0) then
-    return FALSE
+  if tNodeInfo = 0 then
+    return(0)
   end if
   tNodeInfo.addProp(#nodeMask, tNodeMask)
   tCategoryId = tNodeInfo.getAt(#id)
   tCategoryIndex.setaProp(tCategoryId, [#name:tNodeInfo.getAt(#name), #parentid:tNodeInfo.getAt(#parentid), #children:[]])
   repeat while tConn <> void()
     tNode = me.parseNode(tMsg)
-    if (tNode = 0) then
+    if tNode = 0 then
     else
       tNodeId = tNode.getAt(#id)
       tParentId = tNode.getAt(#parentid)
-      if (tParentId = tCategoryId) then
+      if tParentId = tCategoryId then
         tNodeInfo.getAt(#children).setaProp(tNodeId, tNode)
       end if
       if tCategoryIndex.getAt(tParentId) <> 0 then
         tCategoryIndex.getAt(tParentId).getAt(#children).add(tNodeId)
       end if
-      if (tNode.getAt(#nodeType) = 0) or (tNode.getAt(#nodeType) = 1) and (tCategoryIndex.getAt(tNodeId) = 0) then
+      if tNode.getAt(#nodeType) = 0 or tNode.getAt(#nodeType) = 1 and tCategoryIndex.getAt(tNodeId) = 0 then
         tCategoryIndex.setaProp(tNodeId, [#name:tNode.getAt(#name), #parentid:tParentId, #children:[]])
       end if
     end if
@@ -158,32 +164,34 @@ on handle_navnodeinfo me, tMsg
   me.getComponent().updateCategoryIndex(tCategoryIndex)
   me.getComponent().saveNodeInfo(tNodeInfo)
   me.getComponent().getInfoBroker().processNavigatorData(tNodeInfo)
-  return TRUE
+  return(1)
+  exit
 end
 
-on handle_error me, tMsg 
+on handle_error(me, tMsg)
   tErr = tMsg.content
-  error(me, tMsg.connection.getID() & ":" && tErr, #handle_error, #dummy)
-  if tErr <> "Only 10 favorite rooms allowed!" then
-    if (tErr = "nav_error_toomanyfavrooms") then
+  error(me, tMsg.getID() & ":" && tErr, #handle_error, #dummy)
+  if me <> "Only 10 favorite rooms allowed!" then
+    if me = "nav_error_toomanyfavrooms" then
       executeMessage(#alert, [#Msg:getText("nav_error_toomanyfavrooms")])
     end if
-    return TRUE
+    return(1)
+    exit
   end if
 end
 
-on parseNode me, tMsg 
+on parseNode(me, tMsg)
   tConn = tMsg.connection
   tNodeId = tConn.GetIntFrom()
   if tNodeId <= 0 then
-    return FALSE
+    return(0)
   end if
   tNodeType = tConn.GetIntFrom()
   tNodeInfo = [#id:string(tNodeId), #nodeType:tNodeType, #name:tConn.GetStrFrom(), #usercount:tConn.GetIntFrom(), #maxUsers:tConn.GetIntFrom(), #parentid:string(tConn.GetIntFrom())]
-  if (tNodeType = 0) then
-    tNodeInfo.addProp(#children, [:])
+  if me = 0 then
+    tNodeInfo.addProp(#children, [])
   else
-    if (tNodeType = 1) then
+    if me = 1 then
       tNodeInfo.addProp(#unitStrId, tConn.GetStrFrom())
       tNodeInfo.addProp(#port, tConn.GetIntFrom())
       tNodeInfo.addProp(#door, tConn.GetIntFrom())
@@ -194,13 +202,13 @@ on parseNode me, tMsg
       c = 1
       repeat while c <= tCasts.count(#item)
         tNodeInfo.getAt(#casts).add(tCasts.getProp(#item, c))
-        c = (1 + c)
+        c = 1 + c
       end repeat
       the itemDelimiter = tDelim
       tNodeInfo.addProp(#usersInQueue, tConn.GetIntFrom())
       tNodeInfo.addProp(#isVisible, tConn.GetBoolFrom())
     else
-      if (tNodeType = 2) then
+      if me = 2 then
         tNodeInfo.setAt(#nodeType, 0)
         tFlatList = me.parseFlatCategoryNode(tMsg)
         tNodeInfo.addProp(#children, tFlatList)
@@ -208,16 +216,17 @@ on parseNode me, tMsg
     end if
   end if
   return(tNodeInfo)
+  exit
 end
 
-on parseFlatCategoryNode me, tMsg 
+on parseFlatCategoryNode(me, tMsg)
   tConn = tMsg.connection
   tFlatCount = tConn.GetIntFrom()
-  tFlatList = [:]
+  tFlatList = []
   i = 1
   repeat while i <= tFlatCount
     tFlatID = string(tConn.GetIntFrom())
-    tFlatInfo = [:]
+    tFlatInfo = []
     tFlatInfo.setAt(#id, "f_" & tFlatID)
     tFlatInfo.setAt(#flatId, tFlatID)
     tFlatInfo.setAt(#name, tConn.GetStrFrom())
@@ -228,13 +237,14 @@ on parseFlatCategoryNode me, tMsg
     tFlatInfo.setAt(#description, tConn.GetStrFrom())
     tFlatInfo.setAt(#nodeType, 2)
     tFlatList.addProp("f_" & tFlatID, tFlatInfo)
-    i = (1 + i)
+    i = 1 + i
   end repeat
   return(tFlatList)
+  exit
 end
 
-on handle_userflatcats me, tMsg 
-  tList = [:]
+on handle_userflatcats(me, tMsg)
+  tList = []
   tConn = tMsg.getaProp(#connection)
   tItemCount = tConn.GetIntFrom()
   t = 1
@@ -242,22 +252,24 @@ on handle_userflatcats me, tMsg
     tNodeId = tConn.GetIntFrom()
     tNodeName = tConn.GetStrFrom()
     tList.addProp(string(tNodeId), tNodeName)
-    t = (1 + t)
+    t = 1 + t
   end repeat
   getObject(#session).set("user_flat_cats", tList)
-  return TRUE
+  return(1)
+  exit
 end
 
-on handle_flatcat me, tMsg 
+on handle_flatcat(me, tMsg)
   tConn = tMsg.getaProp(#connection)
   tFlatID = tConn.GetIntFrom()
   tCategoryId = tConn.GetIntFrom()
   me.getComponent().setNodeProperty("f_" & tFlatID, #parentid, tCategoryId)
   executeMessage(#flatcat_received, [#flatId:tFlatID, #id:"f_" & tFlatID, #parentid:tCategoryId])
-  return TRUE
+  return(1)
+  exit
 end
 
-on handle_spacenodeusers me, tMsg 
+on handle_spacenodeusers(me, tMsg)
   tConn = tMsg.getaProp(#connection)
   tNodeId = string(tConn.GetIntFrom())
   tUserCount = tConn.GetIntFrom()
@@ -265,51 +277,55 @@ on handle_spacenodeusers me, tMsg
   i = 1
   repeat while i <= tUserCount
     tUserList.append(tConn.GetStrFrom())
-    i = (1 + i)
+    i = 1 + i
   end repeat
   me.getInterface().showSpaceNodeUsers(tNodeId, tUserList)
-  return TRUE
+  return(1)
+  exit
 end
 
-on handle_cantconnect me, tMsg 
+on handle_cantconnect(me, tMsg)
   tConn = tMsg.getaProp(#connection)
   tError = tConn.GetIntFrom()
   executeMessage(#leaveRoom)
-  if (tError = 1) then
+  if me = 1 then
     tError = "nav_error_room_full"
   else
-    if (tError = 2) then
+    if me = 2 then
       tError = "nav_error_room_closed"
     else
-      if (tError = 3) then
+      if me = 3 then
         tError = "queue_set." & tConn.GetStrFrom() & ".alert"
       end if
     end if
   end if
   return(executeMessage(#alert, [#id:"nav_error", #Msg:tError]))
+  exit
 end
 
-on handle_success me, tMsg 
+on handle_success(me, tMsg)
   tConn = tMsg.getaProp(#connection)
   tMsgId = tConn.GetIntFrom()
-  return TRUE
+  return(1)
+  exit
 end
 
-on handle_failure me, tMsg 
+on handle_failure(me, tMsg)
   tConn = tMsg.getaProp(#connection)
   tMsgId = tConn.GetIntFrom()
   tErrorTxt = tConn.GetStrFrom()
   if tErrorTxt <> "" then
     executeMessage(#alert, [#Msg:tErrorTxt])
   end if
-  return TRUE
+  return(1)
+  exit
 end
 
-on handle_parentchain me, tMsg 
+on handle_parentchain(me, tMsg)
   tConn = tMsg.getaProp(#connection)
   tChildId = string(tConn.GetIntFrom())
   tNodeName = tConn.GetStrFrom()
-  tCategoryIndex = [:]
+  tCategoryIndex = []
   repeat while tConn <> void()
     tID = tConn.GetIntFrom()
     if tID <= 0 then
@@ -324,13 +340,14 @@ on handle_parentchain me, tMsg
     end if
   end repeat
   return(me.getComponent().updateCategoryIndex(tCategoryIndex))
+  exit
 end
 
-on handle_roomforward me, tMsg 
-  tTimeSinceLast = (the milliSeconds - pLastRoomForwardTimeStamp)
+on handle_roomforward(me, tMsg)
+  tTimeSinceLast = the milliSeconds - pLastRoomForwardTimeStamp
   tTimeout = getVariable("navigator.room.forward.timeout")
   if tTimeSinceLast < tTimeout then
-    return FALSE
+    return(0)
   else
     pLastRoomForwardTimeStamp = the milliSeconds
   end if
@@ -343,15 +360,16 @@ on handle_roomforward me, tMsg
   end if
   tStrRoomId = string(tConn.GetIntFrom())
   return(executeMessage(#roomForward, tStrRoomId, tStrRoomType))
+  exit
 end
 
-on handle_recommended_room_list me, tMsg 
+on handle_recommended_room_list(me, tMsg)
   tConn = tMsg.getaProp(#connection)
-  tNodeInfo = [#children:[:], #id:#recom]
+  tNodeInfo = [#children:[], #id:#recom]
   tNumOfRooms = tConn.GetIntFrom()
   tRoomNum = 1
   repeat while tRoomNum <= tNumOfRooms
-    tRoomData = [:]
+    tRoomData = []
     tID = tConn.GetIntFrom()
     tRoomData.setaProp(#id, "f_" & tID)
     tRoomData.setaProp(#flatId, tID)
@@ -363,14 +381,15 @@ on handle_recommended_room_list me, tMsg
     tRoomData.setaProp(#description, tConn.GetStrFrom())
     tRoomData.setaProp(#nodeType, 2)
     tNodeInfo.getAt(#children).setaProp(tRoomData.getAt(#id), tRoomData)
-    tRoomNum = (1 + tRoomNum)
+    tRoomNum = 1 + tRoomNum
   end repeat
   me.getComponent().saveRecomNodeInfo(tNodeInfo)
-  return TRUE
+  return(1)
+  exit
 end
 
-on regMsgList me, tBool 
-  tMsgs = [:]
+on regMsgList(me, tBool)
+  tMsgs = []
   tMsgs.setaProp(16, #handle_flat_results)
   tMsgs.setaProp(33, #handle_error)
   tMsgs.setaProp(54, #handle_flatinfo)
@@ -389,7 +408,7 @@ on regMsgList me, tBool
   tMsgs.setaProp(227, #handle_parentchain)
   tMsgs.setaProp(286, #handle_roomforward)
   tMsgs.setaProp(351, #handle_recommended_room_list)
-  tCmds = [:]
+  tCmds = []
   tCmds.setaProp("SBUSYF", 13)
   tCmds.setaProp("SUSERF", 16)
   tCmds.setaProp("SRCHF", 17)
@@ -415,5 +434,6 @@ on regMsgList me, tBool
     unregisterListener(getVariable("connection.info.id", #info), me.getID(), tMsgs)
     unregisterCommands(getVariable("connection.info.id", #info), me.getID(), tCmds)
   end if
-  return TRUE
+  return(1)
+  exit
 end

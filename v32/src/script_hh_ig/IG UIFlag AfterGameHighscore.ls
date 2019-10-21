@@ -1,4 +1,4 @@
-on showInfo me, tWindowList, tdata, tMode 
+on showInfo(me, tWindowList, tdata, tMode)
   if not tMode then
     return(1)
   end if
@@ -51,17 +51,20 @@ on showInfo me, tWindowList, tdata, tMode
     i = 1 + i
   end repeat
   return(1)
+  exit
 end
 
-on getTitleText me 
+on getTitleText(me)
   return(getText("ig_ag_flag_high_title"))
+  exit
 end
 
-on getLayout me, tMode 
+on getLayout(me, tMode)
   if tMode then
     tLayout = ["ig_ag_tip_title_exp.window", "ig_ag_highscores_btm.window"]
   else
     tLayout = ["ig_ag_tip_title.window"]
   end if
   return(tLayout)
+  exit
 end

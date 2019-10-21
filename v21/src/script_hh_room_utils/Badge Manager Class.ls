@@ -1,30 +1,30 @@
-property pActiveDownloads, pChosenBadge, pChosenVisibility, pUpdatedBadges, pImageLibraryURL
-
-on construct me 
+on construct(me)
   pChosenBadge = 1
   pChosenVisibility = 1
   pImageLibraryURL = getVariable("image.library.url")
   pActiveDownloads = []
-  pUpdatedBadges = [:]
-  return TRUE
+  pUpdatedBadges = []
+  return(1)
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   if windowExists("badge_choice_window") then
     removeWindow("badge_choice_window")
   end if
   i = 1
   repeat while i <= pActiveDownloads.count
     abortDownLoad(pActiveDownloads.getAt(i))
-    i = (1 + i)
+    i = 1 + i
   end repeat
-  return TRUE
+  return(1)
+  exit
 end
 
-on openBadgeWindow me 
+on openBadgeWindow(me)
   tBadgeList = getObject("session").GET("available_badges", [])
   if tBadgeList.count < 1 then
-    return FALSE
+    return(0)
   end if
   if not createWindow("badge_choice_window", void(), 360, 195) then
     return(error(me, "Badge choice window not found!", #openBadgeWindow, #major))
@@ -49,32 +49,34 @@ on openBadgeWindow me
   end if
   me.updateBadgeVisibleButtons()
   me.updateBadgeImage()
-  if (tBadgeList.count = 1) then
+  if tBadgeList.count = 1 then
     me.hideBadgeBrowseButtons(tWndObj)
   end if
+  exit
 end
 
-on closeBadgeWindow me 
+on closeBadgeWindow(me)
   tWndObj = getWindow("badge_choice_window")
-  if (tWndObj = 0) then
-    return FALSE
+  if tWndObj = 0 then
+    return(0)
   end if
   unregisterMessage(#leaveRoom, tWndObj.getID())
   unregisterMessage(#changeRoom, tWndObj.getID())
   tWndObj.close()
+  exit
 end
 
-on updateBadgeVisibleButtons me 
+on updateBadgeVisibleButtons(me)
   tWndObj = getWindow("badge_choice_window")
-  if (tWndObj = 0) then
-    return FALSE
+  if tWndObj = 0 then
+    return(0)
   end if
   if getmemnum("button.radio.on") < 1 or getmemnum("button.radio.off") < 1 then
-    return FALSE
+    return(0)
   end if
   tRadioButtonOnImg = member(getmemnum("button.radio.on")).image
   tRadioButtonOffImg = member(getmemnum("button.radio.off")).image
-  if (pChosenVisibility = 1) then
+  if pChosenVisibility = 1 then
     if tWndObj.elementExists("badge.visible.radio") then
       tWndObj.getElement("badge.visible.radio").feedImage(tRadioButtonOnImg)
     end if
@@ -89,79 +91,83 @@ on updateBadgeVisibleButtons me
       tWndObj.getElement("badge.visible.radio").feedImage(tRadioButtonOffImg)
     end if
   end if
+  exit
 end
 
-on hideBadgeBrowseButtons me, tWndObj 
+on hideBadgeBrowseButtons(me, tWndObj)
   if tWndObj.elementExists("badge.next.button") then
     tWndObj.getElement("badge.next.button").hide()
   end if
   if tWndObj.elementExists("badge.prev.button") then
     tWndObj.getElement("badge.prev.button").hide()
   end if
+  exit
 end
 
-on updateBadgeImage me 
+on updateBadgeImage(me)
   if not windowExists("badge_choice_window") then
-    return FALSE
+    return(0)
   end if
   tWndObj = getWindow("badge_choice_window")
   tBadgeList = getObject("session").GET("available_badges", [])
   if pChosenBadge > tBadgeList.count or pChosenBadge < 1 then
-    return FALSE
+    return(0)
   end if
   tBadgeName = tBadgeList.getAt(pChosenBadge)
   tMemNum = getmemnum("badge" && tBadgeName)
-  if tMemNum < 1 or (pUpdatedBadges.getAt(tBadgeName) = 0) then
+  if tMemNum < 1 or pUpdatedBadges.getAt(tBadgeName) = 0 then
     tWndObj.getElement("badge_preview").clearImage()
     me.startBadgeDownload(tBadgeName)
-    return FALSE
+    return(0)
   end if
   tWidth = tWndObj.getElement("badge_preview").getProperty(#width)
   tHeight = tWndObj.getElement("badge_preview").getProperty(#height)
   tBadgeImage = member(tMemNum).image
   tCenteredImage = image(tWidth, tHeight, 32)
-  tXchange = ((tCenteredImage.width - tBadgeImage.width) / 2)
-  tYchange = ((tCenteredImage.height - tBadgeImage.height) / 2)
-  tRect1 = (tBadgeImage.rect + rect(tXchange, tYchange, tXchange, tYchange))
+  tXchange = tCenteredImage.width - tBadgeImage.width / 2
+  tYchange = tCenteredImage.height - tBadgeImage.height / 2
+  tRect1 = tBadgeImage.rect + rect(tXchange, tYchange, tXchange, tYchange)
   tCenteredImage.copyPixels(tBadgeImage, tRect1, tBadgeImage.rect)
   tWndObj.getElement("badge_preview").feedImage(tCenteredImage)
-  return TRUE
+  return(1)
+  exit
 end
 
-on badgeNextPrev me, tdir 
+on badgeNextPrev(me, tdir)
   tBadgeList = getObject("session").GET("available_badges", [])
-  if (tBadgeList.count = 0) then
+  if tBadgeList.count = 0 then
     me.closeBadgeWindow()
-    return FALSE
+    return(0)
   end if
-  if (tdir = "next") then
-    pChosenBadge = (pChosenBadge + 1)
+  if tdir = "next" then
+    pChosenBadge = pChosenBadge + 1
     if pChosenBadge > tBadgeList.count then
       pChosenBadge = 1
     end if
   else
-    pChosenBadge = (pChosenBadge - 1)
+    pChosenBadge = pChosenBadge - 1
     if pChosenBadge < 1 then
       pChosenBadge = tBadgeList.count
     end if
   end if
   me.updateBadgeImage()
+  exit
 end
 
-on eventProcBadgeChooser me, tEvent, tSprID, tParam 
-  if (tSprID = "badge.hidden.radio") then
+on eventProcBadgeChooser(me, tEvent, tSprID, tParam)
+  if me = "badge.hidden.radio" then
     pChosenVisibility = 0
     me.updateBadgeVisibleButtons()
   else
-    if (tSprID = "badge.visible.radio") then
+    if me = "badge.visible.radio" then
       pChosenVisibility = 1
       me.updateBadgeVisibleButtons()
     else
-      if (tSprID = "badge.ok") then
+      if me = "badge.ok" then
         tBadgeList = getObject("session").GET("available_badges")
         if pChosenBadge > tBadgeList.count then
           me.closeBadgeWindow()
-          return FALSE
+          return(0)
         end if
         tVisible = integer(pChosenVisibility)
         tMsg = [#string:tBadgeList.getAt(pChosenBadge), #integer:tVisible]
@@ -171,13 +177,13 @@ on eventProcBadgeChooser me, tEvent, tSprID, tParam
         executeMessage(#udateInfoStandeBadge)
         me.closeBadgeWindow()
       else
-        if (tSprID = "badge.cancel") then
+        if me = "badge.cancel" then
           me.closeBadgeWindow()
         else
-          if (tSprID = "badge.next.button") then
+          if me = "badge.next.button" then
             me.badgeNextPrev("next")
           else
-            if (tSprID = "badge.prev.button") then
+            if me = "badge.prev.button" then
               me.badgeNextPrev("prev")
             end if
           end if
@@ -185,17 +191,18 @@ on eventProcBadgeChooser me, tEvent, tSprID, tParam
       end if
     end if
   end if
+  exit
 end
 
-on startBadgeDownload me, tBadgeName 
-  if (tBadgeName = "") or (tBadgeName = " ") or voidp(tBadgeName) then
-    return FALSE
+on startBadgeDownload(me, tBadgeName)
+  if tBadgeName = "" or tBadgeName = " " or voidp(tBadgeName) then
+    return(0)
   end if
   if downloadExists("badge" && tBadgeName) then
-    return FALSE
+    return(0)
   end if
   if downloadExists("badge localized" && tBadgeName) then
-    return FALSE
+    return(0)
   end if
   tSourceURL = pImageLibraryURL & "Badges/" & tBadgeName & ".gif"
   if getmemnum("badge" && tBadgeName) <> 0 then
@@ -203,21 +210,22 @@ on startBadgeDownload me, tBadgeName
   else
     tBadgeMemNum = queueDownload(tSourceURL, "badge" && tBadgeName, #bitmap, 1)
   end if
-  if (tBadgeMemNum = 0) then
-    return FALSE
+  if tBadgeMemNum = 0 then
+    return(0)
   end if
   member(tBadgeMemNum).image = image(1, 1, 32)
   member(tBadgeMemNum).trimWhiteSpace = 0
   registerDownloadCallback(tBadgeMemNum, #badgeLoaded, me.getID(), tBadgeName)
   pActiveDownloads.add("badge" && tBadgeName)
-  return TRUE
+  return(1)
+  exit
 end
 
-on badgeLoaded me, tBadgeName 
+on badgeLoaded(me, tBadgeName)
   pUpdatedBadges.setAt(tBadgeName, 1)
   tLoadedBadgeNum = getmemnum("badge localized" && tBadgeName)
   if tLoadedBadgeNum <> 0 then
-    if member(tLoadedBadgeNum).image.rect <> rect(0, 0, 1, 1) then
+    if image.rect <> rect(0, 0, 1, 1) then
       tBadgeNum = getmemnum("badge" && tBadgeName)
       if tBadgeNum <> 0 then
         member(tBadgeNum).image = member(tLoadedBadgeNum).image
@@ -227,9 +235,10 @@ on badgeLoaded me, tBadgeName
   me.updateBadgeImage()
   executeMessage(#updateInfoStandBadge, tBadgeName)
   pActiveDownloads.deleteOne("badge" && tBadgeName)
+  exit
 end
 
-on getMyBadgeInfo me 
+on getMyBadgeInfo(me)
   tBadge = " "
   tSession = getObject("session")
   tChosenBadgeNum = tSession.GET("chosen_badge_index")
@@ -239,19 +248,20 @@ on getMyBadgeInfo me
   else
     tVisibility = 1
   end if
-  if (tAvailableBadges.ilk = #list) then
+  if tAvailableBadges.ilk = #list then
     if tChosenBadgeNum > 0 and tAvailableBadges.count >= tChosenBadgeNum then
       tBadge = tAvailableBadges.getAt(tChosenBadgeNum)
     end if
   end if
   return([tBadge, tVisibility])
+  exit
 end
 
-on toggleOwnBadgeVisibility me 
+on toggleOwnBadgeVisibility(me)
   tMyBadgeInfo = me.getMyBadgeInfo()
   tVisibilityNow = tMyBadgeInfo.getAt(2)
-  if (tMyBadgeInfo.getAt(1) = " ") then
-    return FALSE
+  if tMyBadgeInfo.getAt(1) = " " then
+    return(0)
   end if
   if tVisibilityNow then
     tUpdatedVisibility = 0
@@ -262,38 +272,39 @@ on toggleOwnBadgeVisibility me
   getObject("session").set("badge_visible", tUpdatedVisibility)
   executeMessage(#updateInfoStandBadge)
   getThread(#room).getComponent().getRoomConnection().send("SETBADGE", tMsg)
-  return TRUE
+  return(1)
+  exit
 end
 
-on updateInfoStandBadge me, tInfoStandID, tSelectedObj, tBadgeID, tUserID 
+on updateInfoStandBadge(me, tInfoStandID, tSelectedObj, tBadgeID, tUserID)
   tWndObj = getWindow(tInfoStandID)
   if not tWndObj then
-    return FALSE
+    return(0)
   end if
   tElem = tWndObj.getElement("info_badge")
   tElem.clearImage()
   me.removeBadgeEffect()
-  tOwnCharacter = (tSelectedObj = getObject("session").GET("user_index"))
-  if (tOwnCharacter = 0) then
+  tOwnCharacter = tSelectedObj = getObject("session").GET("user_index")
+  if tOwnCharacter = 0 then
     if tUserID <> void() then
       if tUserID <> tSelectedObj then
-        return FALSE
+        return(0)
       end if
     end if
     tUserObj = getThread(#room).getComponent().getUserObject(tSelectedObj)
     if not objectp(tUserObj) then
-      return FALSE
+      return(0)
     end if
     if tUserObj.getClass() <> "user" then
-      return FALSE
+      return(0)
     end if
     if tUserObj.pBadge <> tBadgeID then
-      return FALSE
+      return(0)
     end if
   end if
-  if (tBadgeID = " ") or (tBadgeID = "") or voidp(tBadgeID) then
+  if tBadgeID = " " or tBadgeID = "" or voidp(tBadgeID) then
     if not tOwnCharacter then
-      return TRUE
+      return(1)
     end if
   end if
   if tOwnCharacter then
@@ -314,38 +325,41 @@ on updateInfoStandBadge me, tInfoStandID, tSelectedObj, tBadgeID, tUserID
   end if
   if memberExists("badge" && tBadgeID && "localized") then
     tBadgeMember = member(getmemnum("badge" && tBadgeID && "localized"))
-    if (tBadgeMember.type = #bitmap) then
+    if tBadgeMember.type = #bitmap then
       tElem.feedImage(tBadgeMember.image)
     end if
   else
     if memberExists("badge" && tBadgeID) then
       tBadgeMember = member(getmemnum("badge" && tBadgeID))
-      if (tBadgeMember.type = #bitmap) then
+      if tBadgeMember.type = #bitmap then
         tElem.feedImage(tBadgeMember.image)
       end if
     else
       me.startBadgeDownload(tBadgeID)
-      return FALSE
+      return(0)
     end if
   end if
-  if (tBadgeID = "HC2") then
+  if tBadgeID = "HC2" then
     me.createBadgeEffect(tElem)
   else
     me.removeBadgeEffect()
   end if
+  exit
 end
 
-on createBadgeEffect me, tElem 
+on createBadgeEffect(me, tElem)
   if objectExists("BadgeEffect") then
-    return FALSE
+    return(0)
   end if
   if createObject("BadgeEffect", "Badge Effect Class") <> 0 then
     return(getObject("BadgeEffect").Init(tElem))
   end if
+  exit
 end
 
-on removeBadgeEffect me 
+on removeBadgeEffect(me)
   if objectExists("BadgeEffect") then
     return(removeObject("BadgeEffect"))
   end if
+  exit
 end

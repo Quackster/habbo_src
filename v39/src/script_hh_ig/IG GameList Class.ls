@@ -1,6 +1,4 @@
-property pPendingObservedGameId, pObservedGameObj, pJoinedGameObj, pListMaxCount
-
-on construct me 
+on construct(me)
   pListMaxCount = 50
   pObservedGameObj = void()
   pJoinedGameObj = void()
@@ -9,20 +7,23 @@ on construct me
   me.pTimeoutUpdates = 1
   me.pHiddenUpdates = 0
   return(1)
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   pObservedGameObj = void()
   pJoinedGameObj = void()
   return(me.deconstruct())
+  exit
 end
 
-on Initialize me 
+on Initialize(me)
   me.pollContentUpdate()
   return(me.registerForIGComponentUpdates("LevelList"))
+  exit
 end
 
-on storeGameInstance me, tInstanceData 
+on storeGameInstance(me, tInstanceData)
   if not listp(tInstanceData) then
     return(0)
   end if
@@ -39,9 +40,10 @@ on storeGameInstance me, tInstanceData
     pPendingObservedGameId = -1
   end if
   return(1)
+  exit
 end
 
-on storeObservedGameInstance me, tdata 
+on storeObservedGameInstance(me, tdata)
   if not listp(tdata) then
     return(me.setObservedGameId(-1))
   end if
@@ -68,9 +70,10 @@ on storeObservedGameInstance me, tdata
     end if
   end if
   return(1)
+  exit
 end
 
-on addUserToGame me, tdata 
+on addUserToGame(me, tdata)
   tGameId = tdata.getaProp(#game_id)
   tGameRef = me.getGameEntry(tGameId)
   if tGameRef = 0 then
@@ -82,9 +85,10 @@ on addUserToGame me, tdata
     end if
   end if
   return(1)
+  exit
 end
 
-on storeJoinedGameInstance me, tdata 
+on storeJoinedGameInstance(me, tdata)
   if objectp(pJoinedGameObj) then
     tNotOwnerAlready = not pJoinedGameObj.checkIfOwnerOfGame()
   end if
@@ -122,9 +126,10 @@ on storeJoinedGameInstance me, tdata
     end if
   end if
   return(1)
+  exit
 end
 
-on removeGameInstance me, tGameId 
+on removeGameInstance(me, tGameId)
   if voidp(tGameId) then
     return(0)
   end if
@@ -147,9 +152,10 @@ on removeGameInstance me, tGameId
     end if
   end if
   return(1)
+  exit
 end
 
-on storeGameList me, tdata 
+on storeGameList(me, tdata)
   tdata = tdata.getaProp(#list)
   if not listp(tdata) then
     return(0)
@@ -160,12 +166,12 @@ on storeGameList me, tdata
     tPurgeList.deleteOne(tdata.getAt(i).getaProp(#id))
     i = 1 + i
   end repeat
-  repeat while tPurgeList <= undefined
+  repeat while me <= undefined
     tID = getAt(undefined, tdata)
     me.removeListEntry(tID)
   end repeat
   me.pListIndex = []
-  repeat while tPurgeList <= undefined
+  repeat while me <= undefined
     tInstanceData = getAt(undefined, tdata)
     tItemID = tInstanceData.getaProp(#id)
     if me.findPos(tItemID) = 0 then
@@ -191,9 +197,10 @@ on storeGameList me, tdata
     me.setObservedGameId(-1)
   end if
   return(me.renderUI("List"))
+  exit
 end
 
-on removeUserFromGame me, tdata 
+on removeUserFromGame(me, tdata)
   tGameId = tdata.getaProp(#game_id)
   tPlayerId = tdata.getaProp(#id)
   tGameRef = me.getGameEntry(tGameId)
@@ -217,29 +224,33 @@ on removeUserFromGame me, tdata
     end if
   end if
   return(1)
+  exit
 end
 
-on getJoinedGame me 
+on getJoinedGame(me)
   return(pJoinedGameObj)
+  exit
 end
 
-on getJoinedGameId me 
+on getJoinedGameId(me)
   if pJoinedGameObj = 0 then
     return(-1)
   end if
   return(pJoinedGameObj.getItemId())
+  exit
 end
 
-on joinTeamWithLeastMembers me, tGameId 
+on joinTeamWithLeastMembers(me, tGameId)
   if me.getHandler().send_JOIN_GAME(tGameId, -1) then
     pJoinedGameObj = me.getGameEntry(tGameId)
     return(1)
   else
     return(0)
   end if
+  exit
 end
 
-on leaveJoinedGame me, tKeepObserving 
+on leaveJoinedGame(me, tKeepObserving)
   if not tKeepObserving then
     me.getInterface().resetToDefaultAndHide()
   end if
@@ -253,9 +264,10 @@ on leaveJoinedGame me, tKeepObserving
     me.getHandler().send_LEAVE_GAME()
   end if
   return(1)
+  exit
 end
 
-on setJoinedGameId me, tGameId, tTeamIndex 
+on setJoinedGameId(me, tGameId, tTeamIndex)
   if voidp(tGameId) or tGameId = -1 then
     return(0)
   end if
@@ -265,9 +277,10 @@ on setJoinedGameId me, tGameId, tTeamIndex
   else
     return(0)
   end if
+  exit
 end
 
-on setNextTeamInJoinedGame me 
+on setNextTeamInJoinedGame(me)
   tGameRef = me.getJoinedGame()
   if tGameRef = 0 then
     return(0)
@@ -280,20 +293,23 @@ on setNextTeamInJoinedGame me
     tTeamIndex = 1
   end if
   return(me.getHandler().send_JOIN_GAME(tGameRef.getItemId(), tTeamIndex))
+  exit
 end
 
-on getObservedGame me 
+on getObservedGame(me)
   return(pObservedGameObj)
+  exit
 end
 
-on getObservedGameId me 
+on getObservedGameId(me)
   if pObservedGameObj = 0 then
     return(-1)
   end if
   return(pObservedGameObj.getItemId())
+  exit
 end
 
-on setObservedGameId me, tGameId 
+on setObservedGameId(me, tGameId)
   tCurrentId = me.getObservedGameId()
   if voidp(tGameId) or tGameId = -1 then
     pObservedGameObj = 0
@@ -324,9 +340,10 @@ on setObservedGameId me, tGameId
     pPendingObservedGameId = tGameId
     return(me.getHandler().send_START_OBSERVING_GAME(tGameId, 1))
   end if
+  exit
 end
 
-on setObservedGameIdExplicit me, tGameId 
+on setObservedGameIdExplicit(me, tGameId)
   tCurrentId = me.getObservedGameId()
   if tGameId = tCurrentId then
     return(1)
@@ -337,9 +354,10 @@ on setObservedGameIdExplicit me, tGameId
   pObservedGameObj = me.getGameEntry(tGameId)
   pPendingObservedGameId = tGameId
   return(me.getHandler().send_START_OBSERVING_GAME(tGameId, 1))
+  exit
 end
 
-on pollContentUpdate me, tForced 
+on pollContentUpdate(me, tForced)
   tMainThread = me.getMainThread()
   if tMainThread = 0 then
     return(0)
@@ -349,10 +367,11 @@ on pollContentUpdate me, tForced
   end if
   me.setUpdateTimestamp()
   return(tMainThread.getHandler().send_GET_GAME_LIST(0, pListMaxCount))
+  exit
 end
 
-on handleUpdate me, tUpdateId, tSenderId 
-  if tSenderId = "LevelList" then
+on handleUpdate(me, tUpdateId, tSenderId)
+  if me = "LevelList" then
     tItemRef = me.getObservedGame()
     if tItemRef <> 0 then
       if tUpdateId = tItemRef.getProperty(#level_id) then
@@ -360,7 +379,7 @@ on handleUpdate me, tUpdateId, tSenderId
       end if
     end if
   else
-    if tSenderId = "GameList" then
+    if me = "GameList" then
       if tUpdateId = me.getObservedGameId() then
         return(me.resetSubComponent("Details"))
       else
@@ -369,9 +388,10 @@ on handleUpdate me, tUpdateId, tSenderId
     end if
   end if
   return(1)
+  exit
 end
 
-on setActiveFlag me, tstate, tHoldUpdates 
+on setActiveFlag(me, tstate, tHoldUpdates)
   me.setActiveFlag(tstate, tHoldUpdates)
   if me.getActiveFlag() then
     me.setObservedGameId(me.getObservedGameId())
@@ -379,9 +399,10 @@ on setActiveFlag me, tstate, tHoldUpdates
     me.setObservedGameId(-1)
   end if
   return(1)
+  exit
 end
 
-on getGameEntry me, tID 
+on getGameEntry(me, tID)
   tItemRef = me.getListEntry(tID)
   if tItemRef <> 0 then
     return(tItemRef)
@@ -393,17 +414,19 @@ on getGameEntry me, tID
     return(me.getObservedGame())
   end if
   return(0)
+  exit
 end
 
-on getObservedGameDefault me 
+on getObservedGameDefault(me)
   if me.getJoinedGameId() = -1 then
     return(me.getListIdByIndex(1))
   else
     return(me.getJoinedGameId())
   end if
+  exit
 end
 
-on getMainListIds me, tPageSize 
+on getMainListIds(me, tPageSize)
   tJoinedGameId = me.getJoinedGameId()
   tFirst = 1
   tLast = tFirst + tPageSize - 1
@@ -425,4 +448,5 @@ on getMainListIds me, tPageSize
     i = 1 + i
   end repeat
   return(tList)
+  exit
 end

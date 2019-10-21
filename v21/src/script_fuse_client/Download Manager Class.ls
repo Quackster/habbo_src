@@ -1,37 +1,40 @@
-property pTaskQueue, pActiveTasks, pReceivedTasks, pCompleteTasks, pTypeDefList
-
-on construct me 
-  pTaskQueue = [:]
-  pActiveTasks = [:]
+on construct(me)
+  pTaskQueue = []
+  pActiveTasks = []
   pReceivedTasks = []
   pCompleteTasks = []
-  pTypeDefList = [:]
+  pTypeDefList = []
   me.emptyCookies()
   pOwnDomain = getDomainPart(getMoviePath())
-  return TRUE
+  return(1)
+  exit
 end
 
-on deconstruct me 
-  pTaskQueue = [:]
-  pActiveTasks = [:]
+on deconstruct(me)
+  pTaskQueue = []
+  pActiveTasks = []
   pReceivedTasks = []
   pCompleteTasks = []
-  return TRUE
+  return(1)
+  exit
 end
 
-on create me, tURL, tMemName, ttype, tForceFlag 
+on create(me, tURL, tMemName, ttype, tForceFlag)
   return(queue(me, tURL, tMemName, ttype, tForceFlag))
+  exit
 end
 
-on Remove me, tMemNameOrNum 
+on Remove(me, tMemNameOrNum)
   return(me.abort(tMemNameOrNum))
+  exit
 end
 
-on exists me, tMemName 
+on exists(me, tMemName)
   return(not voidp(pTaskQueue.getAt(tMemName)) or not voidp(pActiveTasks.getAt(tMemName)))
+  exit
 end
 
-on queue me, tURL, tMemName, ttype, tForceFlag, tDownloadMethod, tRedirectType, tTarget 
+on queue(me, tURL, tMemName, ttype, tForceFlag, tDownloadMethod, tRedirectType, tTarget)
   if not ilk(tURL, #string) then
     return(error(me, "Missing or invalid URL:" && tURL, #queue, #major))
   end if
@@ -77,7 +80,7 @@ on queue me, tURL, tMemName, ttype, tForceFlag, tDownloadMethod, tRedirectType, 
   if tMemNum < 1 then
     return(error(me, "Failed to create member!", #queue, #major))
   else
-    if (member(tMemNum).type = #bitmap) then
+    if member(tMemNum).type = #bitmap then
       member(tMemNum).image = image(1, 1, 8)
     end if
   end if
@@ -89,18 +92,19 @@ on queue me, tURL, tMemName, ttype, tForceFlag, tDownloadMethod, tRedirectType, 
   pTaskQueue.setAt(tMemName, tTempTask)
   me.updateQueue()
   return(tMemNum)
+  exit
 end
 
-on registerCallback me, tMemNameOrNum, tMethod, tClientID, tArgument 
+on registerCallback(me, tMemNameOrNum, tMethod, tClientID, tArgument)
   tTaskData = me.searchTask(tMemNameOrNum)
   if not tTaskData then
     if stringp(tMemNameOrNum) then
-      if (getmemnum(tMemNameOrNum) = 0) then
+      if getmemnum(tMemNameOrNum) = 0 then
         return(error(me, "Task doesn't exist:" && tMemNameOrNum, #registerCallback, #major))
       end if
     else
       if integerp(tMemNameOrNum) then
-        if (member(tMemNameOrNum).type = #empty) then
+        if member(tMemNameOrNum).type = #empty then
           return(error(me, "Task doesn't exist:" && tMemNameOrNum, #registerCallback, #major))
         end if
       else
@@ -118,21 +122,22 @@ on registerCallback me, tMemNameOrNum, tMethod, tClientID, tArgument
   if not getObject(tClientID).handler(tMethod) then
     return(error(me, "Handler not found in object:" && tMethod, tClientID, #registerCallback, #major))
   end if
-  if (tTaskData.getAt(#status) = #complete) then
+  if me = #complete then
     call(tMethod, getObject(tClientID), tArgument)
   else
-    if (tTaskData.getAt(#status) = #queue) then
+    if me = #queue then
       pTaskQueue.getAt(tTaskData.getAt(#name)).setAt(#callback, [#method:tMethod, #client:tClientID, #argument:tArgument])
     else
-      if (tTaskData.getAt(#status) = #Active) then
+      if me = #Active then
         call(#addCallBack, pActiveTasks, tTaskData.getAt(#name), [#method:tMethod, #client:tClientID, #argument:tArgument])
       end if
     end if
   end if
-  return TRUE
+  return(1)
+  exit
 end
 
-on getLoadPercent me, tMemNameOrNum 
+on getLoadPercent(me, tMemNameOrNum)
   if integerp(tMemNameOrNum) then
     tMemName = member(tMemNameOrNum).name
   else
@@ -142,100 +147,103 @@ on getLoadPercent me, tMemNameOrNum
       return(error(me, "Member's name or number expected:" && tMemNameOrNum, #getLoadPercent, #minor))
     end if
   end if
-  if (pReceivedTasks.getOne(tMemName) = 0) then
+  if pReceivedTasks.getOne(tMemName) = 0 then
     return(error(me, "Downloaded file not found:" && tMemName, #getLoadPercent, #minor))
   end if
   if not voidp(pActiveTasks.getAt(tMemName)) then
     return(pActiveTasks.getAt(tMemName).getProperty(#Percent))
   else
     if not voidp(pTaskQueue.getAt(tMemName)) then
-      return FALSE
+      return(0)
     else
       if pCompleteTasks.getOne(tMemName) then
-        return TRUE
+        return(0)
       end if
     end if
   end if
-  return TRUE
+  return(0)
+  exit
 end
 
-on getProperty me, tPropID 
-  if (tPropID = #curTaskCount) then
-    return((pTaskQueue.count + pActiveTasks.count))
+on getProperty(me, tPropID)
+  if me = #curTaskCount then
+    return(pTaskQueue.count + pActiveTasks.count)
   else
-    if (tPropID = #actTaskCount) then
+    if me = #actTaskCount then
       return(pActiveTasks.count)
     else
-      if (tPropID = #maxTaskCount) then
+      if me = #maxTaskCount then
         return(getIntVariable("net.operation.count"))
       else
-        if (tPropID = #defaultURL) then
+        if me = #defaultURL then
           return(getMoviePath())
         else
-          return FALSE
+          return(0)
         end if
       end if
     end if
   end if
+  exit
 end
 
-on setProperty me, tPropID, tValue 
-  return FALSE
+on setProperty(me, tPropID, tValue)
+  return(0)
+  exit
 end
 
-on solveNetErrorMsg me, tErrorCode 
-  if (tErrorCode = 4) then
+on solveNetErrorMsg(me, tErrorCode)
+  if me = 4 then
     return("Bad MOA class. The required network or nonnetwork Xtras are improperly installed or not installed at all.")
   else
-    if (tErrorCode = 5) then
+    if me = 5 then
       return("Bad MOA Interface. The required network or nonnetwork Xtras are improperly installed or not installed at all.")
     else
-      if (tErrorCode = 6) then
+      if me = 6 then
         return("Bad URL or Bad MOA class. The required network or nonnetwork Xtras are improperly installed or not installed at all.")
       else
-        if (tErrorCode = 20) then
+        if me = 20 then
           return("Internal error. Returned by netError() in the Netscape browser if the browser detected a network or internal error.")
         else
-          if (tErrorCode = 4146) then
+          if me = 4146 then
             return("Connection could not be established with the remote host.")
           else
-            if (tErrorCode = 4149) then
+            if me = 4149 then
               return("Data supplied by the server was in an unexpected format.")
             else
-              if (tErrorCode = 4150) then
+              if me = 4150 then
                 return("Unexpected early closing of connection.")
               else
-                if (tErrorCode = 4154) then
+                if me = 4154 then
                   return("Operation could not be completed due to timeout.")
                 else
-                  if (tErrorCode = 4155) then
+                  if me = 4155 then
                     return("Not enough memory available to complete the transaction.")
                   else
-                    if (tErrorCode = 4156) then
+                    if me = 4156 then
                       return("Protocol reply to request indicates an error in the reply.")
                     else
-                      if (tErrorCode = 4157) then
+                      if me = 4157 then
                         return("Transaction failed to be authenticated.")
                       else
-                        if (tErrorCode = 4159) then
+                        if me = 4159 then
                           return("Invalid URL.")
                         else
-                          if (tErrorCode = 4164) then
+                          if me = 4164 then
                             return("Could not create a socket.")
                           else
-                            if (tErrorCode = 4165) then
+                            if me = 4165 then
                               return("Requested object could not be found (URL may be incorrect).")
                             else
-                              if (tErrorCode = 4166) then
+                              if me = 4166 then
                                 return("Generic proxy failure.")
                               else
-                                if (tErrorCode = 4167) then
+                                if me = 4167 then
                                   return("Transfer was intentionally interrupted by client.")
                                 else
-                                  if (tErrorCode = 4242) then
+                                  if me = 4242 then
                                     return("Download stopped by netAbort(url).")
                                   else
-                                    if (tErrorCode = 4836) then
+                                    if me = 4836 then
                                       return("Download stopped for an unknown reason, possibly a network error, or the download was abandoned.")
                                     else
                                       return("Unknown error!")
@@ -257,16 +265,17 @@ on solveNetErrorMsg me, tErrorCode
       end if
     end if
   end if
+  exit
 end
 
-on print me 
+on print(me)
   tListList = [pActiveTasks, pTaskQueue, pReceivedTasks]
-  repeat while tListList <= undefined
+  repeat while me <= undefined
     tList = getAt(undefined, undefined)
     tListMode = ilk(tList)
     i = 1
     repeat while i <= tList.count
-      if (tListMode = #list) then
+      if tListMode = #list then
         tID = i
       else
         tID = tList.getPropAt(i)
@@ -275,20 +284,22 @@ on print me
         tID = "#" & tID
       end if
       put(tID && ":" && tList.getAt(i))
-      i = (1 + i)
+      i = 1 + i
     end repeat
   end repeat
-  return TRUE
+  return(1)
+  exit
 end
 
-on update me 
+on update(me)
   call(#update, pActiveTasks)
+  exit
 end
 
-on searchTask me, tMemNameOrNum 
+on searchTask(me, tMemNameOrNum)
   if stringp(tMemNameOrNum) then
     if pReceivedTasks.getPos(tMemNameOrNum) < 1 then
-      return FALSE
+      return(0)
     end if
     tTaskData = [#name:tMemNameOrNum, #number:getmemnum(tMemNameOrNum), #status:void()]
     tResource = pTaskQueue.getAt(tMemNameOrNum)
@@ -313,15 +324,16 @@ on searchTask me, tMemNameOrNum
     end if
   end if
   return(error(me, "Member's name or number expected:" && tMemNameOrNum, #searchTask, #minor))
+  exit
 end
 
-on updateQueue me 
+on updateQueue(me)
   if pActiveTasks.count < getIntVariable("net.operation.count") then
     if pTaskQueue.count > 0 then
       tTaskName = pTaskQueue.getPropAt(1)
       tTaskData = pTaskQueue.getAt(tTaskName)
       pTaskQueue.deleteProp(tTaskName)
-      if (tTaskData.getAt(#downloadMethod) = #httpcookie) then
+      if tTaskData.getAt(#downloadMethod) = #httpcookie then
         pActiveTasks.setAt(tTaskName, createObject(#temp, getClassVariable("httpcookie.instance.class")))
       else
         pActiveTasks.setAt(tTaskName, createObject(#temp, getClassVariable("download.instance.class")))
@@ -330,25 +342,26 @@ on updateQueue me
       receiveUpdate(me.getID())
     end if
   end if
-  if (pActiveTasks.count = 0) then
+  if pActiveTasks.count = 0 then
     removeUpdate(me.getID())
   end if
-  return TRUE
+  return(1)
+  exit
 end
 
-on removeActiveTask me, tMemName, tCallback, tSuccess 
+on removeActiveTask(me, tMemName, tCallback, tSuccess)
   if voidp(tSuccess) then
     tSuccess = 1
   end if
   i = 1
   repeat while i <= pActiveTasks.count
-    if (pActiveTasks.getAt(i).pMemName = tMemName) then
+    if pActiveTasks.getAt(i).pMemName = tMemName then
       pActiveTasks.getAt(i).deconstruct()
       pActiveTasks.deleteAt(i)
       pCompleteTasks.add(tMemName)
       me.updateQueue()
     else
-      i = (1 + i)
+      i = 1 + i
     end if
   end repeat
   if not voidp(tCallback) then
@@ -356,24 +369,26 @@ on removeActiveTask me, tMemName, tCallback, tSuccess
       call(tCallback.getAt(#method), getObject(tCallback.getAt(#client)), tCallback.getAt(#argument), tSuccess)
     end if
   end if
-  return FALSE
+  return(0)
+  exit
 end
 
-on eraseDownloadedItems me 
+on eraseDownloadedItems(me)
   i = 1
   repeat while i <= pReceivedTasks.count
     removeMember(pReceivedTasks.getAt(i))
-    i = (1 + i)
+    i = 1 + i
   end repeat
-  return TRUE
+  return(1)
+  exit
 end
 
-on recognizeMemberType me, tURL 
-  if (pTypeDefList.count = 0) then
+on recognizeMemberType(me, tURL)
+  if pTypeDefList.count = 0 then
     me.fillTypeDefinitions()
   end if
-  tFileType = tURL.getProp(#char, (length(tURL) - 5), length(tURL))
-  tFileType = tFileType.getProp(#char, (offset(".", tFileType) + 1), length(tFileType))
+  tFileType = tURL.getProp(#char, length(tURL) - 5, length(tURL))
+  tFileType = tFileType.getProp(#char, offset(".", tFileType) + 1, length(tFileType))
   tFileType = pTypeDefList.getAt(tFileType)
   if not symbolp(tFileType) then
     error(me, "Couldn't recognize member's type:" && tURL, #recognizeMemberType, #minor)
@@ -381,15 +396,17 @@ on recognizeMemberType me, tURL
   else
     return(tFileType)
   end if
+  exit
 end
 
-on emptyCookies me 
+on emptyCookies(me)
   tCookiePrefLoc = getVariable("httpcookie.pref.name")
   setPref(tCookiePrefLoc, "")
+  exit
 end
 
-on fillTypeDefinitions me 
-  pTypeDefList = [:]
+on fillTypeDefinitions(me)
+  pTypeDefList = []
   pTypeDefList.setAt("gif", #bitmap)
   pTypeDefList.setAt("jpg", #bitmap)
   pTypeDefList.setAt("bmp", #bitmap)
@@ -416,5 +433,6 @@ on fillTypeDefinitions me
   pTypeDefList.setAt("fnt", #font)
   pTypeDefList.setAt("ttf", #font)
   pTypeDefList.setAt("cur", #cursor)
-  return TRUE
+  return(1)
+  exit
 end

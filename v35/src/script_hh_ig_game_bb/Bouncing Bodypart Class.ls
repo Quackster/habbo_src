@@ -1,4 +1,4 @@
-on update me 
+on update(me)
   tAnimCntr = 0
   tAction = me.pAction
   tPart = me.pPart
@@ -37,4 +37,5 @@ on update me
     end if
     i = 1 + i
   end repeat
+  exit
 end

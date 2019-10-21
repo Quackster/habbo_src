@@ -1,6 +1,4 @@
-property pMember2D, pMember3D, pQuadLeft, pQuadRight, pScrollFrmsMem, pscrollDescMem, pInitFlag, pLastUpdate, pStepForward, pShowStep, pStepAction, pStepVariable, pScrollPhase, pLastPauseStart
-
-on construct me 
+on construct(me)
   pMember2D = member(getmemnum("screen2d"))
   pMember3D = member(getmemnum("screen3d"))
   pScrollFrmsMem = void()
@@ -19,9 +17,10 @@ on construct me
   image.copyPixels(pMember2D.image, pQuadLeft, rect(0, 0, 52, 23), [#ink:0])
   image.copyPixels(pMember2D.image, pQuadRight, rect(52, 0, 104, 23), [#ink:0])
   return(me.loadResources())
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   if not voidp(pScrollFrmsMem) then
     removeMember(pScrollFrmsMem.name)
   end if
@@ -29,12 +28,14 @@ on deconstruct me
     removeMember(pscrollDescMem.name)
   end if
   return(1)
+  exit
 end
 
-on define me 
+on define(me)
+  exit
 end
 
-on loadResources me 
+on loadResources(me)
   if not variableExists("entry.scroll.frms") then
     return(0)
   end if
@@ -50,9 +51,10 @@ on loadResources me
   tMemNum = queueDownload(tTxtUrl, tTxtMemName, #field)
   pscrollDescMem = member(tMemNum)
   return(1)
+  exit
 end
 
-on update me 
+on update(me)
   if not pInitFlag then
     if voidp(pScrollFrmsMem) then
       return(0)
@@ -60,10 +62,10 @@ on update me
     if voidp(pscrollDescMem) then
       return(0)
     end if
-    if getDownLoadPercent(pScrollFrmsMem.name) < 1 then
+    if getDownLoadPercent(pScrollFrmsMem.name) < 0 then
       return(0)
     end if
-    if getDownLoadPercent(pscrollDescMem.name) < 1 then
+    if getDownLoadPercent(pscrollDescMem.name) < 0 then
       return(0)
     end if
     pInitFlag = 1
@@ -85,14 +87,14 @@ on update me
       end if
       pStepForward = 0
     end if
-    if pShowStep = "show" then
-      tTemp = (pStepVariable - 1 * 104)
+    if me = "show" then
+      tTemp = pStepVariable - 1 * 104
       image.copyPixels(pScrollFrmsMem.image, rect(0, 0, 104, 23), rect(tTemp, 0, tTemp + 104, 23), [#ink:0])
       pStepForward = 1
     else
-      if pShowStep = "scroll" then
+      if me = "scroll" then
         image.copyPixels(pMember2D.image, rect(0, 0, 102, 23), rect(2, 0, 104, 23), [#ink:0])
-        tTemp = (pStepVariable - 1 * 104) + pScrollPhase
+        tTemp = pStepVariable - 1 * 104 + pScrollPhase
         image.copyPixels(pScrollFrmsMem.image, rect(102, 0, 104, 23), rect(tTemp, 0, tTemp + 2, 23), [#ink:0])
         pScrollPhase = pScrollPhase + 2
         if pScrollPhase > 103 then
@@ -100,16 +102,16 @@ on update me
           pStepForward = 1
         end if
       else
-        if pShowStep = "pause" then
-          if the milliSeconds > pLastPauseStart + (pStepVariable * 1000) then
+        if me = "pause" then
+          if the milliSeconds > pLastPauseStart + pStepVariable * 1000 then
             pStepForward = 1
           end if
         else
-          if pShowStep = "wipe" then
+          if me = "wipe" then
             tTempImage = image(104, 23, 8)
             tTempImage.copyPixels(pMember2D.image, rect(0, 0, 104, 23), rect(0, 0, 104, 23), [#ink:0])
             image.copyPixels(tTempImage, rect(0, 1, 104, 23), rect(0, 0, 104, 22), [#ink:0])
-            tTemp = (pStepVariable - 1 * 104)
+            tTemp = pStepVariable - 1 * 104
             image.copyPixels(pScrollFrmsMem.image, rect(0, 0, 104, 1), rect(tTemp, 22 - pScrollPhase, tTemp + 104, 23 - pScrollPhase), [#ink:0])
             pScrollPhase = pScrollPhase + 1
             if pScrollPhase > 22 then
@@ -126,4 +128,5 @@ on update me
     image.copyPixels(pMember2D.image, pQuadRight, rect(52, 0, 104, 23), [#ink:0])
     pLastUpdate = the milliSeconds
   end if
+  exit
 end

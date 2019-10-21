@@ -1,4 +1,4 @@
-on get me, tKey, tDefault 
+on get(me, tKey, tDefault)
   tText = me.getProp(#pItemList, tKey)
   if voidp(tText) then
     tError = "Text not found:" && tKey
@@ -11,9 +11,10 @@ on get me, tKey, tDefault
     error(me, tError, #get)
   end if
   return(tText)
+  exit
 end
 
-on dump me, tField, tDelimiter 
+on dump(me, tField, tDelimiter)
   if not memberExists(tField) then
     return(error(me, "Field member expected:" && tField, #dump))
   end if
@@ -40,13 +41,14 @@ on dump me, tField, tDelimiter
         if tValue contains tMark then
           tValue = tStrServices.replaceChunks(tValue, tMark, tSpecialChunks.getAt(k))
         end if
-        k = (1 + k)
+        k = 1 + k
       end repeat
       me.setProp(#pItemList, tProp, tValue)
     end if
     the itemDelimiter = tDelimiter
-    i = (1 + i)
+    i = 1 + i
   end repeat
   the itemDelimiter = tDelim
-  return TRUE
+  return(1)
+  exit
 end

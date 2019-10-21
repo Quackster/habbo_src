@@ -1,86 +1,100 @@
-property pContent, pLocX, pLocY, pType, x, y, z
-
-on construct me 
-  pContent = [:]
-  return TRUE
+on construct(me)
+  pContent = []
+  return(1)
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   pContent = void()
-  return TRUE
+  return(1)
+  exit
 end
 
-on define me, tLocX, tLocY, tWorldX, tWorldY, ttype 
+on define(me, tLocX, tLocY, tWorldX, tWorldY, ttype)
   pLocX = tLocX
   pLocY = tLocY
   x = tWorldX
   y = tWorldY
   z = 0
   pType = ttype
-  pContent = [:]
-  return TRUE
+  pContent = []
+  return(1)
+  exit
 end
 
-on addContent me, tItemID, tItemProps 
+on addContent(me, tItemID, tItemProps)
   pContent.addProp(tItemID, tItemProps)
-  return TRUE
+  return(1)
+  exit
 end
 
-on removeContent me, tItemID 
+on removeContent(me, tItemID)
   pContent.deleteProp(tItemID)
-  return TRUE
+  return(1)
+  exit
 end
 
-on getX me 
+on getX(me)
   return(pLocX)
+  exit
 end
 
-on getY me 
+on getY(me)
   return(pLocY)
+  exit
 end
 
-on getType me 
+on getType(me)
   return(pType)
+  exit
 end
 
-on getWorldCoordinate me 
+on getWorldCoordinate(me)
   return([#x:x, #y:y, #z:z])
+  exit
 end
 
-on getLocation me 
+on getLocation(me)
   return([#x:pLocX, #y:pLocY])
+  exit
 end
 
-on locationIsInTileRange me, tLocX, tLocY 
-  return(abs((pLocX - tLocX)) <= 1 and abs((pLocY - tLocY)) <= 1)
+on locationIsInTileRange(me, tLocX, tLocY)
+  return(abs(pLocX - tLocX) <= 1 and abs(pLocY - tLocY) <= 1)
+  exit
 end
 
-on isAvailable me 
+on isAvailable(me)
   return(not me.isOccupied() and me.isFloorTile())
+  exit
 end
 
-on isOccupied me 
+on isOccupied(me)
   return(pContent.count > 0)
+  exit
 end
 
-on getOccupiedHeight me 
-  if (pContent.count = 0) then
-    return FALSE
+on getOccupiedHeight(me)
+  if pContent.count = 0 then
+    return(0)
   end if
   tMaxHeight = 0
-  repeat while pContent <= undefined
+  repeat while me <= undefined
     tItem = getAt(undefined, undefined)
     if tItem.getAt(#height) > tMaxHeight then
       tMaxHeight = tItem.getAt(#height)
     end if
   end repeat
   return(tMaxHeight)
+  exit
 end
 
-on isFloorTile me 
+on isFloorTile(me)
   return(integerp(integer(pType)))
+  exit
 end
 
-on dump me 
+on dump(me)
   return("Tile:" && pLocX & "," & pLocY & ":" && me.isAvailable() && me.getOccupiedHeight())
+  exit
 end

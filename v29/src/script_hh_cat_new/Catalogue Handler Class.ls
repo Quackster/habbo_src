@@ -1,21 +1,25 @@
-on construct me 
+on construct(me)
   me.regMsgList(1)
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   me.regMsgList(0)
+  exit
 end
 
-on requestPage me, tPageID 
+on requestPage(me, tPageID)
   getConnection(getVariable("connection.info.id", #info)).send("GET_CATALOG_PAGE", [#integer:tPageID])
+  exit
 end
 
-on requestCatalogIndex me 
+on requestCatalogIndex(me)
   getConnection(getVariable("connection.info.id", #info)).send("GET_CATALOG_INDEX")
+  exit
 end
 
-on sendPurchaseFromCatalog me, tPageID, tOfferCode, tExtraParam, tAsGift, tGiftReceiver, tGiftMessage 
-  tMsg = [:]
+on sendPurchaseFromCatalog(me, tPageID, tOfferCode, tExtraParam, tAsGift, tGiftReceiver, tGiftMessage)
+  tMsg = []
   tMsg.addProp(#integer, tPageID)
   tMsg.addProp(#integer, tOfferCode)
   tMsg.addProp(#string, string(tExtraParam))
@@ -25,24 +29,27 @@ on sendPurchaseFromCatalog me, tPageID, tOfferCode, tExtraParam, tAsGift, tGiftR
     tMsg.addProp(#string, tGiftMessage)
   end if
   getConnection(getVariable("connection.info.id", #info)).send("PURCHASE_FROM_CATALOG", tMsg)
+  exit
 end
 
-on sendPurchaseAndWear me, tPageID, tOfferCode 
-  tMsg = [:]
+on sendPurchaseAndWear(me, tPageID, tOfferCode)
+  tMsg = []
   tMsg.addProp(#integer, tPageID)
   tMsg.addProp(#integer, tOfferCode)
   getConnection(getVariable("connection.info.id", #info)).send("PURCHASE_AND_WEAR", tMsg)
+  exit
 end
 
-on sendRedeemVoucher me, tCode 
-  tMsg = [:]
+on sendRedeemVoucher(me, tCode)
+  tMsg = []
   tMsg.addProp(#string, tCode)
   getConnection(getVariable("connection.info.id", #info)).send("REDEEM_VOUCHER", tMsg)
+  exit
 end
 
-on parseIndexNode me, tMsg 
+on parseIndexNode(me, tMsg)
   tConn = tMsg.getaProp(#connection)
-  tNodeProps = [:]
+  tNodeProps = []
   tNodeProps.setAt(#navigateable, tConn.GetIntFrom())
   tNodeProps.setAt(#color, tConn.GetIntFrom())
   tNodeProps.setAt(#icon, tConn.GetIntFrom())
@@ -58,25 +65,27 @@ on parseIndexNode me, tMsg
     end repeat
   end if
   return(tNodeProps)
+  exit
 end
 
-on parseProductData me, tMsg 
+on parseProductData(me, tMsg)
   tConn = tMsg.getaProp(#connection)
-  tProductData = [:]
+  tProductData = []
   tProductData.setAt(#type, tConn.GetStrFrom())
   tProductData.setAt(#classID, tConn.GetIntFrom())
   tProductData.setAt(#extra_param, tConn.GetStrFrom())
   tProductData.setAt(#productcount, tConn.GetIntFrom())
   tProductData.setAt(#expiration, tConn.GetIntFrom())
   return(tProductData)
+  exit
 end
 
-on parseOffer me, tMsg 
+on parseOffer(me, tMsg)
   tConn = tMsg.getaProp(#connection)
-  tOfferData = [:]
+  tOfferData = []
   tOfferData.setAt(#offercode, tConn.GetIntFrom())
   tOfferData.setAt(#offername, tConn.GetStrFrom())
-  tOfferData.setAt(#price, [:])
+  tOfferData.setAt(#price, [])
   tOfferData.getAt(#price).setAt(#credits, tConn.GetIntFrom())
   tOfferData.getAt(#price).setAt(#pixels, tConn.GetIntFrom())
   tOfferData.setAt(#content, [])
@@ -89,16 +98,18 @@ on parseOffer me, tMsg
     end repeat
   end if
   return(tOfferData)
+  exit
 end
 
-on handle_catalogindex me, tMsg 
+on handle_catalogindex(me, tMsg)
   tNodes = me.parseIndexNode(tMsg)
   me.getComponent().updateCatalogIndex(tNodes)
+  exit
 end
 
-on handle_catalogpage me, tMsg 
+on handle_catalogpage(me, tMsg)
   tConn = tMsg.getaProp(#connection)
-  tPageData = [:]
+  tPageData = []
   tPageData.setAt(#pageid, tConn.GetIntFrom())
   tPageData.setAt(#layout, tConn.GetStrFrom())
   tPageData.setAt(#localization, [#images:[], #texts:[]])
@@ -124,23 +135,25 @@ on handle_catalogpage me, tMsg
     i = 1 + i
   end repeat
   me.getComponent().updatePageData(tPageData.getAt(#pageid), tPageData)
+  exit
 end
 
-on handle_purchasenotallowed me, tMsg 
+on handle_purchasenotallowed(me, tMsg)
   if voidp(tMsg.connection) then
     return(0)
   end if
   tCode = tMsg.GetIntFrom(tMsg)
-  if tCode = 0 then
+  if me = 0 then
   else
-    if tCode = 1 then
+    if me = 1 then
       return(executeMessage(#alert, [#Msg:"catalog_purchase_not_allowed_hc", #modal:1]))
     end if
   end if
   return(0)
+  exit
 end
 
-on handle_purse me, tMsg 
+on handle_purse(me, tMsg)
   tPlaySnd = getObject(#session).exists("user_walletbalance")
   tCredits = integer(getLocalFloat(tMsg.getProp(#word, 1)))
   getObject(#session).set("user_walletbalance", tCredits)
@@ -150,23 +163,27 @@ on handle_purse me, tMsg
     playSound("naw_snd_cash_cat", #cut, [#loopCount:1, #infiniteloop:0, #volume:255])
   end if
   return(1)
+  exit
 end
 
-on handle_purchase_error me, tMsg 
+on handle_purchase_error(me, tMsg)
   error(me, "Purchase error:" && tMsg, #purchaseReady, #major)
+  exit
 end
 
-on handle_purchase_ok me, tMsg 
+on handle_purchase_ok(me, tMsg)
   me.getInterface().showPurchaseOk()
+  exit
 end
 
-on handle_purchase_nobalance me, tMsg 
+on handle_purchase_nobalance(me, tMsg)
   tNotEnoughCredits = tMsg.GetIntFrom()
   tNotEnoughPixels = tMsg.GetIntFrom()
   me.getInterface().showNoBalance(tNotEnoughCredits, tNotEnoughPixels)
+  exit
 end
 
-on handle_tickets me, tMsg 
+on handle_tickets(me, tMsg)
   tNum = integer(tMsg.getPropRef(#line, 1).getProp(#word, 1))
   if not integerp(tNum) then
     return(0)
@@ -174,25 +191,29 @@ on handle_tickets me, tMsg
   getObject(#session).set("user_ph_tickets", tNum)
   executeMessage(#updateTicketCount, tNum)
   return(1)
+  exit
 end
 
-on handle_voucher_redeem_ok me, tMsg 
+on handle_voucher_redeem_ok(me, tMsg)
   tProductName = tMsg.GetStrFrom()
   tProductDesc = tMsg.GetStrFrom()
   me.getInterface().showVoucherRedeemOk(tProductName, tProductDesc)
+  exit
 end
 
-on handle_voucher_redeem_error me, tMsg 
+on handle_voucher_redeem_error(me, tMsg)
   tError = tMsg.GetStrFrom()
   me.getInterface().showVoucherRedeemError(tError)
+  exit
 end
 
-on handle_refresh_catalogue me, tMsg 
+on handle_refresh_catalogue(me, tMsg)
   me.getComponent().refreshCatalogue()
+  exit
 end
 
-on regMsgList me, tBool 
-  tMsgs = [:]
+on regMsgList(me, tBool)
+  tMsgs = []
   tMsgs.setaProp(6, #handle_purse)
   tMsgs.setaProp(65, #handle_purchase_error)
   tMsgs.setaProp(67, #handle_purchase_ok)
@@ -205,7 +226,7 @@ on regMsgList me, tBool
   tMsgs.setaProp(212, #handle_voucher_redeem_ok)
   tMsgs.setaProp(213, #handle_voucher_redeem_error)
   tMsgs.setaProp(441, #handle_refresh_catalogue)
-  tCmds = [:]
+  tCmds = []
   tCmds.setaProp("PURCHASE_FROM_CATALOG", 100)
   tCmds.setaProp("GET_CATALOG_INDEX", 101)
   tCmds.setaProp("GET_CATALOG_PAGE", 102)
@@ -219,4 +240,5 @@ on regMsgList me, tBool
     unregisterCommands(getVariable("connection.info.id"), me.getID(), tCmds)
   end if
   return(1)
+  exit
 end

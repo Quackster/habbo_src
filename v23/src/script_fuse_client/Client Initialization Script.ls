@@ -1,6 +1,6 @@
-on initCore  
+on initCore()
   if not constructObjectManager() then
-    return FALSE
+    return(0)
   end if
   if not dumpVariableField("System Props") then
     return(stopClient())
@@ -17,13 +17,14 @@ on initCore
   if not getThreadManager().create(#core, #core) then
     return(stopClient())
   end if
-  return TRUE
+  return(1)
+  exit
 end
 
-on stopClient  
+on stopClient()
   if the runMode contains "Author" then
     if voidp(gCore) then
-      return FALSE
+      return(0)
     end if
     if the runMode contains "Author" then
       deconstructConnectionManager()
@@ -31,10 +32,11 @@ on stopClient
       deconstructErrorManager()
     end if
   end if
-  return FALSE
+  return(0)
+  exit
 end
 
-on resetClient  
+on resetClient()
   if the runMode contains "Author" then
     stopClient()
   else
@@ -46,5 +48,6 @@ on resetClient
     end if
     gotoNetPage(tURL)
   end if
-  return TRUE
+  return(1)
+  exit
 end

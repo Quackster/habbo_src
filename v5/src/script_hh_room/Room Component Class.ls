@@ -1,24 +1,22 @@
-property pChatProps, pClassContId, pBalloonId, pRoomConnID, pUserObjList, pActiveObjList, pPassiveObjList, pItemObjList, pRoomPrgID, pActiveFlag, pRoomId, pSaveData, pTrgDoorID, pCacheFlag, pCacheKey, pProcessList, pRoomPollerID
-
-on construct me 
+on construct(me)
   pInfoConnID = getVariable("connection.info.id")
   pRoomConnID = getVariable("connection.room.id")
   pRoomId = ""
   pActiveFlag = 0
-  pProcessList = [:]
+  pProcessList = []
   pSaveData = void()
   pCacheKey = ""
   pCacheFlag = getVariableValue("room.map.cache", 0)
   pTrgDoorID = void()
-  pUserObjList = [:]
-  pActiveObjList = [:]
-  pPassiveObjList = [:]
-  pItemObjList = [:]
+  pUserObjList = []
+  pActiveObjList = []
+  pPassiveObjList = []
+  pItemObjList = []
   pBalloonId = "Room Balloon"
   pClassContId = "Room Classes"
   pRoomPrgID = "Room Program"
   pRoomPollerID = "Room Poller"
-  pChatProps = [:]
+  pChatProps = []
   pChatProps.setAt("returnCount", 0)
   pChatProps.setAt("timerStart", 0)
   pChatProps.setAt("timerDelay", 0)
@@ -30,10 +28,11 @@ on construct me
   registerMessage(#enterRoom, me.getID(), #enterRoom)
   registerMessage(#leaveRoom, me.getID(), #leaveRoom)
   registerMessage(#changeRoom, me.getID(), #leaveRoom)
-  return TRUE
+  return(1)
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   removeUpdate(me.getID())
   unregisterMessage(#enterRoom, me.getID())
   unregisterMessage(#leaveRoom, me.getID())
@@ -61,21 +60,23 @@ on deconstruct me
     removeObject(pRoomPrgID)
   end if
   pRoomId = ""
-  pUserObjList = [:]
-  pActiveObjList = [:]
-  pPassiveObjList = [:]
-  pItemObjList = [:]
-  return TRUE
+  pUserObjList = []
+  pActiveObjList = []
+  pPassiveObjList = []
+  pItemObjList = []
+  return(1)
+  exit
 end
 
-on prepare me 
+on prepare(me)
   if pActiveFlag then
     call(#update, pUserObjList)
     call(#update, pActiveObjList)
   end if
+  exit
 end
 
-on enterRoom me, tRoomDataStruct 
+on enterRoom(me, tRoomDataStruct)
   if not listp(tRoomDataStruct) then
     error(me, "Invalid room data struct!", #enterRoom)
     return(executeMessage(#leaveRoom))
@@ -91,7 +92,7 @@ on enterRoom me, tRoomDataStruct
   getObject(#session).set("room_owner", 0)
   getObject(#session).set("room_controller", 0)
   getObject(#session).set("moderator", 0)
-  if (tdata.getAt(#type) = #private) then
+  if tdata.getAt(#type) = #private then
     pRoomId = "private"
   else
     pRoomId = tdata.getAt(#id)
@@ -99,10 +100,11 @@ on enterRoom me, tRoomDataStruct
   pTrgDoorID = void()
   pSaveData = tdata
   me.loadRoomCasts()
-  return TRUE
+  return(1)
+  exit
 end
 
-on enterDoor me, tdata 
+on enterDoor(me, tdata)
   if not listp(tdata) then
     return(error(me, "Room data struct expected!", #enterDoor))
   end if
@@ -123,11 +125,12 @@ on enterDoor me, tdata
   else
     return(me.getRoomConnection().send(#room, "GOVIADOOR /" & pTrgDoorID & "/" & pSaveData.getAt(#teleport)))
   end if
+  exit
 end
 
-on leaveRoom me, tJumpingToSubUnit 
-  if (pRoomId = "") then
-    return FALSE
+on leaveRoom(me, tJumpingToSubUnit)
+  if pRoomId = "" then
+    return(0)
   end if
   removePrepare(me.getID())
   if objectExists(pRoomPrgID) then
@@ -152,10 +155,10 @@ on leaveRoom me, tJumpingToSubUnit
   if listp(pItemObjList) then
     call(#deconstruct, pItemObjList)
   end if
-  pUserObjList = [:]
-  pActiveObjList = [:]
-  pPassiveObjList = [:]
-  pItemObjList = [:]
+  pUserObjList = []
+  pActiveObjList = []
+  pPassiveObjList = []
+  pItemObjList = []
   if objectExists(pBalloonId) then
     getObject(pBalloonId).removeBalloons()
   end if
@@ -163,147 +166,171 @@ on leaveRoom me, tJumpingToSubUnit
   getObject(#session).set("room_owner", 0)
   getObject(#session).set("room_controller", 0)
   getObject(#session).set("moderator", 0)
-  return TRUE
+  return(1)
+  exit
 end
 
-on createUserObject me, tdata 
+on createUserObject(me, tdata)
   if me.userObjectExists(tdata.getAt(#id)) then
     me.removeUserObject(tdata.getAt(#id))
   end if
   executeMessage(#create_user, tdata.getAt(#id))
   return(me.createRoomObject(tdata, pUserObjList, "user"))
+  exit
 end
 
-on removeUserObject me, tid 
+on removeUserObject(me, tid)
   executeMessage(#remove_user, tid)
   return(me.removeRoomObject(tid, pUserObjList))
+  exit
 end
 
-on getUserObject me, tid 
+on getUserObject(me, tid)
   return(me.getRoomObject(tid, pUserObjList))
+  exit
 end
 
-on userObjectExists me, tid 
+on userObjectExists(me, tid)
   return(me.roomObjectExists(tid, pUserObjList))
+  exit
 end
 
-on createActiveObject me, tdata 
+on createActiveObject(me, tdata)
   if me.activeObjectExists(tdata.getAt(#id)) then
     me.removeActiveObject(tdata.getAt(#id))
   end if
   return(me.createRoomObject(tdata, pActiveObjList, "active"))
+  exit
 end
 
-on removeActiveObject me, tid 
+on removeActiveObject(me, tid)
   return(me.removeRoomObject(tid, pActiveObjList))
+  exit
 end
 
-on getActiveObject me, tid 
+on getActiveObject(me, tid)
   return(me.getRoomObject(tid, pActiveObjList))
+  exit
 end
 
-on activeObjectExists me, tid 
+on activeObjectExists(me, tid)
   return(me.roomObjectExists(tid, pActiveObjList))
+  exit
 end
 
-on createPassiveObject me, tdata 
+on createPassiveObject(me, tdata)
   if me.passiveObjectExists(tdata.getAt(#id)) then
     me.removePassiveObject(tdata.getAt(#id))
   end if
   return(me.createRoomObject(tdata, pPassiveObjList, "passive"))
+  exit
 end
 
-on removePassiveObject me, tid 
+on removePassiveObject(me, tid)
   return(me.removeRoomObject(tid, pPassiveObjList))
+  exit
 end
 
-on getPassiveObject me, tid 
+on getPassiveObject(me, tid)
   return(me.getRoomObject(tid, pPassiveObjList))
+  exit
 end
 
-on passiveObjectExists me, tid 
+on passiveObjectExists(me, tid)
   return(me.roomObjectExists(tid, pPassiveObjList))
+  exit
 end
 
-on createItemObject me, tdata 
+on createItemObject(me, tdata)
   if me.itemObjectExists(tdata.getAt(#id)) then
     me.removeItemObject(tdata.getAt(#id))
   end if
   return(me.createRoomObject(tdata, pItemObjList, "item"))
+  exit
 end
 
-on removeItemObject me, tid 
+on removeItemObject(me, tid)
   return(me.removeRoomObject(tid, pItemObjList))
+  exit
 end
 
-on getItemObject me, tid 
+on getItemObject(me, tid)
   return(me.getRoomObject(tid, pItemObjList))
+  exit
 end
 
-on itemObjectExists me, tid 
+on itemObjectExists(me, tid)
   return(me.roomObjectExists(tid, pItemObjList))
+  exit
 end
 
-on getRoomPrg me 
+on getRoomPrg(me)
   return(getObject(pRoomPrgID))
+  exit
 end
 
-on getRoomID me 
+on getRoomID(me)
   return(pRoomId)
+  exit
 end
 
-on getRoomData me 
+on getRoomData(me)
   if voidp(pSaveData) then
-    return FALSE
+    return(0)
   else
     return(pSaveData)
   end if
+  exit
 end
 
-on getRoomConnection me 
+on getRoomConnection(me)
   return(getConnection(pRoomConnID))
+  exit
 end
 
-on getBalloon me 
+on getBalloon(me)
   return(getObject(pBalloonId))
+  exit
 end
 
-on getClassContainer me 
+on getClassContainer(me)
   return(getObject(pClassContId))
+  exit
 end
 
-on roomExists me, tRoomId 
+on roomExists(me, tRoomId)
   if voidp(tRoomId) then
     return(pActiveFlag)
   else
-    return((pRoomId = tRoomId))
+    return(pRoomId = tRoomId)
   end if
+  exit
 end
 
-on sendChat me, tChat 
+on sendChat(me, tChat)
   if voidp(tChat) then
-    return FALSE
+    return(0)
   end if
-  if (tChat = "") then
-    return FALSE
+  if tChat = "" then
+    return(0)
   end if
-  if (tChat.getProp(#word, 1) = ":chooser") then
+  if me = ":chooser" then
     if getObject(#session).get("moderator") <> 0 then
       return(createObject(#chooser, "User Chooser Class"))
     end if
   else
-    if (tChat.getProp(#word, 1) = ":performance") then
+    if me = ":performance" then
       return(performance())
     else
-      if (tChat.getProp(#word, 1) = ":debug") then
+      if me = ":debug" then
         if getObject(#session).get("moderator") <> 0 then
-          if float(the productVersion.getProp(#char, 1, 3)) >= 8.5 then
+          if float(the productVersion.getProp(#char, 1, 3)) >= 0 then
             the debugPlaybackEnabled = 1
-            return TRUE
+            return(1)
           end if
         end if
       else
-        if (tChat.getProp(#word, 1) = ":editcatalogue") then
+        if me = ":editcatalogue" then
           return(executeMessage("edit_catalogue"))
         end if
       end if
@@ -324,7 +351,7 @@ on sendChat me, tChat
       tChat = replaceChunks(tChat, "x", tSelected)
     end if
   else
-    if (tMode = "WHISPER") then
+    if tMode = "WHISPER" then
       tChat = tSelected && tChat
     end if
   end if
@@ -334,45 +361,48 @@ on sendChat me, tChat
   tChat = tStrSrvcs.replaceChunks(tChat, "�", "&AUML;")
   tChat = tStrSrvcs.replaceChunks(tChat, "�", "&OUML;")
   return(me.getRoomConnection().send(#room, tMode && tChat))
+  exit
 end
 
-on setChatMode me, tMode 
-  if (tMode = "whisper") then
+on setChatMode(me, tMode)
+  if tMode = "whisper" then
     pChatProps.setAt("mode", "WHISPER")
   else
-    if (tMode = "shout") then
+    if tMode = "shout" then
       pChatProps.setAt("mode", "SHOUT")
     else
       pChatProps.setAt("mode", "CHAT")
     end if
   end if
-  return TRUE
+  return(1)
+  exit
 end
 
-on print me 
+on print(me)
   put("\r" & "User objects:" & "\r")
   i = 1
   repeat while i <= pUserObjList.count
     put(pUserObjList.getPropAt(i) & ":" && pUserObjList.getAt(i))
-    i = (1 + i)
+    i = 1 + i
   end repeat
   put("\r" & "Active objects:" & "\r")
   i = 1
   repeat while i <= pActiveObjList.count
     put(pActiveObjList.getPropAt(i) & ":" && pActiveObjList.getAt(i))
-    i = (1 + i)
+    i = 1 + i
   end repeat
   put("\r" & "Passive objects:" & "\r")
   i = 1
   repeat while i <= pPassiveObjList.count
     put(pPassiveObjList.getPropAt(i) & ":" && pPassiveObjList.getAt(i))
-    i = (1 + i)
+    i = 1 + i
   end repeat
+  exit
 end
 
-on loadRoomCasts me 
-  if (pRoomId = "") then
-    return FALSE
+on loadRoomCasts(me)
+  if pRoomId = "" then
+    return(0)
   end if
   tCastList = []
   i = 1
@@ -384,13 +414,13 @@ on loadRoomCasts me
       end if
     else
     end if
-    i = (i + 1)
+    i = i + 1
   end repeat
   if tCastList.count > 0 then
     tCastLoadId = startCastLoad(tCastList, 1)
     registerCastloadCallback(tCastLoadId, #loadRoomCasts, me.getID())
     me.getInterface().showLoaderBar(tCastLoadId, getText("room_hold", getText("room_loading", "Hold on...")))
-    return TRUE
+    return(1)
   end if
   if not variableExists("room.cast." & pRoomId) then
     error(me, "Cast for room not defined:" && pRoomId, #loadRoomCasts)
@@ -399,19 +429,20 @@ on loadRoomCasts me
   tCastLoadId = startCastLoad(getVariableValue("room.cast." & pRoomId), 0)
   registerCastloadCallback(tCastLoadId, #roomCastLoaded, me.getID())
   me.getInterface().showLoaderBar(tCastLoadId, getText("room_loading", "Loading room") & "\r" & "\"" & pSaveData.getAt(#name) & "\"")
-  return TRUE
+  return(1)
+  exit
 end
 
-on roomCastLoaded me 
-  if (pRoomId = "") then
+on roomCastLoaded(me)
+  if pRoomId = "" then
     pRoomId = "null"
     executeMessage(#leaveRoom)
     return(error(me, "Room building process is aborted!", #roomCastLoaded))
   end if
   if voidp(pTrgDoorID) then
     tTxt = getText("room_preparing", "...preparing room.")
-    if (pSaveData.getAt(#type) = #private) then
-      if (pSaveData.getAt(#door) = "closed") then
+    if pSaveData.getAt(#type) = #private then
+      if pSaveData.getAt(#door) = "closed" then
         if pSaveData.getAt(#owner) <> getObject(#session).get("user_name") then
           tTxt = getText("room_waiting", "...waiting.")
         end if
@@ -419,7 +450,7 @@ on roomCastLoaded me
     end if
     me.getInterface().showLoaderBar(void(), "\"" & pSaveData.getAt(#name) & "\"" & "\r" & tTxt)
     tRoomCasts = getVariableValue("room.cast." & pRoomId)
-    repeat while tRoomCasts <= undefined
+    repeat while me <= undefined
       tCast = getAt(undefined, undefined)
       if not castExists(tCast) then
         error(me, "Cast required by room not found:" && tCast, #roomCastLoaded)
@@ -427,7 +458,7 @@ on roomCastLoaded me
       end if
     end repeat
   end if
-  if (pSaveData.getAt(#type) = #private) then
+  if pSaveData.getAt(#type) = #private then
     tRoomId = integer(pSaveData.getAt(#id))
     tDoorID = 0
     tTypeID = numToChar(128)
@@ -436,35 +467,36 @@ on roomCastLoaded me
     tDoorID = integer(pSaveData.getAt(#door))
     tTypeID = numToChar(129)
   end if
-  if (tDoorID.ilk = #void) then
+  if tDoorID.ilk = #void then
     tDoorID = 0
   end if
   tL1 = numToChar(bitOr(bitAnd(tRoomId, 127), 128))
-  tL2 = numToChar(bitOr(bitAnd((tRoomId / 128), 127), 128))
-  tL3 = numToChar(bitOr(bitAnd((tRoomId / 16384), 127), 128))
-  tL4 = numToChar(bitOr(bitAnd((tRoomId / integer(power(2, 21))), 127), 128))
+  tL2 = numToChar(bitOr(bitAnd(tRoomId / 128, 127), 128))
+  tL3 = numToChar(bitOr(bitAnd(tRoomId / 16384, 127), 128))
+  tL4 = numToChar(bitOr(bitAnd(tRoomId / integer(power(2, 21)), 127), 128))
   tL5 = numToChar(bitOr(bitAnd(tDoorID, 127), 128))
-  tL6 = numToChar(bitOr(bitAnd((tDoorID / 128), 127), 128))
-  tL7 = numToChar(bitOr(bitAnd((tDoorID / 16384), 127), 128))
-  tL8 = numToChar(bitOr(bitAnd((tDoorID / integer(power(2, 21))), 127), 128))
+  tL6 = numToChar(bitOr(bitAnd(tDoorID / 128, 127), 128))
+  tL7 = numToChar(bitOr(bitAnd(tDoorID / 16384, 127), 128))
+  tL8 = numToChar(bitOr(bitAnd(tDoorID / integer(power(2, 21)), 127), 128))
   return(getConnection(pRoomConnID).send(#room_directory, tTypeID & tL4 & tL3 & tL2 & tL1 & tL8 & tL7 & tL6 & tL5))
+  exit
 end
 
-on roomConnected me, tMarker, tstate 
-  if (pRoomId = "") then
+on roomConnected(me, tMarker, tstate)
+  if pRoomId = "" then
     pRoomId = "null"
     executeMessage(#leaveRoom)
     return(error(me, "Room building process is aborted!", #roomCastLoaded))
   end if
   if not voidp(pTrgDoorID) then
-    if (tstate = "OPC_OK") then
+    if tstate = "OPC_OK" then
       tValue = me.getRoomConnection().send(#room, "GOVIADOOR /" & pTrgDoorID & "/" & pSaveData.getAt(#teleport))
       pTrgDoorID = void()
       return(tValue)
     end if
   end if
-  if (pSaveData.getAt(#type) = #private) then
-    if (tstate = "OPC_OK") then
+  if pSaveData.getAt(#type) = #private then
+    if tstate = "OPC_OK" then
       tStr = "TRYFLAT /" & pSaveData.getAt(#id)
       if threadExists(#navigator) then
         tPassword = getThread(#navigator).getComponent().getFlatPassword(pSaveData.getAt(#id))
@@ -474,7 +506,7 @@ on roomConnected me, tMarker, tstate
       end if
       return(me.getRoomConnection().send(#room, tStr))
     else
-      if (tstate = "FLAT_LETIN") then
+      if tstate = "FLAT_LETIN" then
         return(me.getRoomConnection().send(#room, "GOTOFLAT /" & pSaveData.getAt(#id)))
       end if
     end if
@@ -490,14 +522,14 @@ on roomConnected me, tMarker, tstate
   if memberExists(pSaveData.getAt(#marker) && "Class") then
     createObject(pRoomPrgID, pSaveData.getAt(#marker) && "Class")
   end if
-  if (pSaveData.getAt(#type) = #private) then
+  if pSaveData.getAt(#type) = #private then
     pProcessList = [#passive:0, #Active:0, #users:0, #items:0, #heightmap:0]
   else
     pProcessList = [#passive:0, #Active:0, #users:0, #items:1, #heightmap:0]
   end if
   pCacheKey = "room_data_" & pRoomId & "_" & pSaveData.getAt(#marker)
   if not getObject(#cache).exists(pCacheKey) then
-    getObject(#cache).set(pCacheKey, [:])
+    getObject(#cache).set(pCacheKey, [])
   end if
   tCache = getObject(#cache).get(pCacheKey)
   if voidp(tCache.getAt(#heightmap)) and not pProcessList.getAt(#heightmap) then
@@ -535,14 +567,16 @@ on roomConnected me, tMarker, tstate
     me.validateItemObjects(0)
   end if
   createTimeout(pRoomPollerID, 1000, #pollRoomMessages, me.getID(), void(), 0)
-  return TRUE
+  return(1)
+  exit
 end
 
-on roomDisconnected me 
+on roomDisconnected(me)
   return(executeMessage(#leaveRoom))
+  exit
 end
 
-on validateHeightMap me, tdata 
+on validateHeightMap(me, tdata)
   if not getObject(#cache).exists(pCacheKey) then
     return(error(me, "Data not expected yet!", #validateHeightMap))
   end if
@@ -551,10 +585,11 @@ on validateHeightMap me, tdata
     getObject(#cache).get(pCacheKey).setaProp(#heightmap, tdata)
     me.updateProcess(#heightmap, 1)
   end if
-  return FALSE
+  return(0)
+  exit
 end
 
-on validateUserObjects me, tdata 
+on validateUserObjects(me, tdata)
   if not getObject(#cache).exists(pCacheKey) then
     return(error(me, "Data not expected yet!", #validateUserObjects))
   end if
@@ -566,10 +601,11 @@ on validateUserObjects me, tdata
   else
     me.updateProcess(#users, 1)
   end if
-  return TRUE
+  return(1)
+  exit
 end
 
-on validateActiveObjects me, tdata 
+on validateActiveObjects(me, tdata)
   if not getObject(#cache).exists(pCacheKey) then
     return(error(me, "Data not expected yet!", #validateActiveObjects))
   end if
@@ -581,10 +617,11 @@ on validateActiveObjects me, tdata
   else
     me.updateProcess(#Active, 1)
   end if
-  return TRUE
+  return(1)
+  exit
 end
 
-on validatePassiveObjects me, tdata 
+on validatePassiveObjects(me, tdata)
   if not getObject(#cache).exists(pCacheKey) then
     return(error(me, "Data not expected yet!", #validatePassiveObjects))
   end if
@@ -596,10 +633,11 @@ on validatePassiveObjects me, tdata
   else
     me.updateProcess(#passive, 1)
   end if
-  return TRUE
+  return(1)
+  exit
 end
 
-on validateItemObjects me, tdata 
+on validateItemObjects(me, tdata)
   if not getObject(#cache).exists(pCacheKey) then
     return(error(me, "Data not expected yet!", #validateItemObjects))
   end if
@@ -611,49 +649,51 @@ on validateItemObjects me, tdata
   else
     me.updateProcess(#items, 1)
   end if
-  return TRUE
+  return(1)
+  exit
 end
 
-on pollRoomMessages me 
+on pollRoomMessages(me)
   if not me.getRoomConnection() and timeoutExists(pRoomPollerID) then
     return(removeTimeout(pRoomPollerID))
   end if
   if me.getRoomConnection().getWaitingMessagesCount() > 0 then
     me.getRoomConnection().processWaitingMessages()
   end if
+  exit
 end
 
-on updateProcess me, tKey, tValue 
+on updateProcess(me, tKey, tValue)
   if pActiveFlag then
     return(error(me, "Attempted to remake room!", #updateProcess))
   end if
-  if (pProcessList.getAt(tKey) = 0) then
+  if pProcessList.getAt(tKey) = 0 then
     pProcessList.setAt(tKey, tValue)
   end if
-  repeat while pProcessList <= tValue
+  repeat while me <= tValue
     tProcess = getAt(tValue, tKey)
     if not tProcess then
     else
     end if
   end repeat
-  if (tProcess = 1) then
+  if tProcess = 1 then
     if timeoutExists(pRoomPollerID) then
       removeTimeout(pRoomPollerID)
     end if
     tCache = getObject(#cache).get(pCacheKey)
-    repeat while pProcessList <= tValue
+    repeat while me <= tValue
       tdata = getAt(tValue, tKey)
       me.createPassiveObject(tdata)
     end repeat
-    repeat while pProcessList <= tValue
+    repeat while me <= tValue
       tdata = getAt(tValue, tKey)
       me.createActiveObject(tdata)
     end repeat
-    repeat while pProcessList <= tValue
+    repeat while me <= tValue
       tdata = getAt(tValue, tKey)
       me.createItemObject(tdata)
     end repeat
-    repeat while pProcessList <= tValue
+    repeat while me <= tValue
       tdata = getAt(tValue, tKey)
       me.createUserObject(tdata)
     end repeat
@@ -675,12 +715,13 @@ on updateProcess me, tKey, tValue
     executeMessage(#roomStatistic, pRoomId)
     return(receivePrepare(me.getID()))
   end if
-  return FALSE
+  return(0)
+  exit
 end
 
-on createRoomObject me, tdata, tList, tClass 
-  if (tdata = 0) then
-    return FALSE
+on createRoomObject(me, tdata, tList, tClass)
+  if tdata = 0 then
+    return(0)
   end if
   if voidp(tdata.getAt(#id)) or not listp(tList) then
     return(error(me, "Invalid arguments in object creation!", #createRoomObject))
@@ -709,33 +750,37 @@ on createRoomObject me, tdata, tList, tClass
   end if
   tObject.setID(tdata.getAt(#id))
   tObject.define(tdata.duplicate())
-  if (the result = 0) then
-    return TRUE
+  if the result = 0 then
+    return(1)
   end if
   tList.setAt(tObject.getID(), tObject)
-  return TRUE
+  return(1)
+  exit
 end
 
-on removeRoomObject me, tid, tList 
+on removeRoomObject(me, tid, tList)
   if voidp(tList.getAt(tid)) then
     return(error(me, "Object not found:" && tid, #removeRoomObject))
   end if
   tList.getAt(tid).deconstruct()
   tList.deleteProp(tid)
-  return TRUE
+  return(1)
+  exit
 end
 
-on getRoomObject me, tid, tList 
-  if (tid = #list) then
+on getRoomObject(me, tid, tList)
+  if tid = #list then
     return(tList)
   end if
   if voidp(tList.getAt(tid)) then
-    return FALSE
+    return(0)
   else
     return(tList.getAt(tid))
   end if
+  exit
 end
 
-on roomObjectExists me, tid, tList 
+on roomObjectExists(me, tid, tList)
   return(not voidp(tList.getAt(tid)))
+  exit
 end

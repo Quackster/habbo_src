@@ -1,29 +1,34 @@
-on construct me 
+on construct(me)
   return(me.regMsgList(1))
+  exit
 end
 
-on deconsturct me 
+on deconsturct(me)
   return(me.regMsgList(0))
+  exit
 end
 
-on handle_open_uimakoppi me, tMsg 
+on handle_open_uimakoppi(me, tMsg)
   me.getInterface().openPukukoppi()
+  exit
 end
 
-on handle_close_uimakoppi me, tMsg 
+on handle_close_uimakoppi(me, tMsg)
   me.getInterface().closePukukoppi()
+  exit
 end
 
-on handle_md_exit me, tMsg 
+on handle_md_exit(me, tMsg)
   me.getInterface().doTheDew(tMsg.content)
+  exit
 end
 
-on regMsgList me, tBool 
-  tMsgs = [:]
+on regMsgList(me, tBool)
+  tMsgs = []
   tMsgs.setaProp(96, #handle_open_uimakoppi)
   tMsgs.setaProp(97, #handle_close_uimakoppi)
   tMsgs.setaProp(121, #handle_md_exit)
-  tCmds = [:]
+  tCmds = []
   tCmds.setaProp("CLOSE_UIMAKOPPI", 108)
   tCmds.setaProp("CHANGESHRT", 109)
   tCmds.setaProp("REFRESHFIGURE", 110)
@@ -35,5 +40,6 @@ on regMsgList me, tBool
     unregisterListener(getVariable("connection.room.id"), me.getID(), tMsgs)
     unregisterCommands(getVariable("connection.room.id"), me.getID(), tCmds)
   end if
-  return TRUE
+  return(1)
+  exit
 end

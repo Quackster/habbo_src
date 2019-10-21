@@ -1,6 +1,4 @@
-property pXtra, pHost, pPort, pConnectionOk, pLogMode, pUnicodeDirector, pBinDataCallback, pListenersPntr, pCommandsPntr, pMsgStruct, pConnectionShouldBeKilled, pLogfield
-
-on construct me 
+on construct(me)
   if value(undefined.productVersion) >= 11 then
     pUnicodeDirector = 1
   else
@@ -13,28 +11,31 @@ on construct me
   pListenersPntr = getStructVariable("struct.pointer")
   me.setLogMode(getIntVariable("connection.log.level", 0))
   pMsgStruct = getStructVariable("struct.message")
-  return TRUE
+  return(1)
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   return(me.disconnect(1))
+  exit
 end
 
-on connect me, tHost, tPort 
+on connect(me, tHost, tPort)
   pHost = tHost
   pPort = tPort
   pXtra = new(xtra("Multiuser"))
-  pXtra.setNetBufferLimits((16 * 1024), (100 * 1024), 100)
+  pXtra.setNetBufferLimits(16 * 1024, 100 * 1024, 100)
   tErrCode = pXtra.setNetMessageHandler(#xtraMsgHandler, me)
-  if (tErrCode = 0) then
+  if tErrCode = 0 then
     pXtra.connectToNetServer("*", "*", pHost, pPort, "*", 0)
   else
     return(error(me, "Creation of callback failed:" && tErrCode, #connect, #major))
   end if
-  return TRUE
+  return(1)
+  exit
 end
 
-on disconnect me, tControlled 
+on disconnect(me, tControlled)
   if tControlled <> 1 then
     me.forwardMsg("DISCONNECT")
   else
@@ -48,14 +49,16 @@ on disconnect me, tControlled
   if not tControlled then
     error(me, "Connection disconnected:" && me.getID(), #disconnect, #minor)
   end if
-  return TRUE
+  return(1)
+  exit
 end
 
-on connectionReady me 
+on connectionReady(me)
   return(pConnectionOk)
+  exit
 end
 
-on send me, tMsg 
+on send(me, tMsg)
   if pConnectionOk and objectp(pXtra) then
     if pLogMode > 0 then
       me.log("<--" && tMsg)
@@ -74,84 +77,91 @@ on send me, tMsg
   else
     return(error(me, "Connection not ready:" && me.getID(), #send, #major))
   end if
-  return TRUE
+  return(1)
+  exit
 end
 
-on sendBinary me, tObject 
+on sendBinary(me, tObject)
   if pConnectionOk and objectp(pXtra) then
     return(pXtra.sendNetMessage("*", "BINDATA", tObject))
   end if
+  exit
 end
 
-on registerBinaryDataHandler me, tObjID, tMethod 
+on registerBinaryDataHandler(me, tObjID, tMethod)
   pBinDataCallback.client = tObjID
   pBinDataCallback.method = tMethod
-  return TRUE
+  return(1)
+  exit
 end
 
-on getWaitingMessagesCount me 
+on getWaitingMessagesCount(me)
   return(pXtra.getNumberWaitingNetMessages())
+  exit
 end
 
-on processWaitingMessages me, tCount 
+on processWaitingMessages(me, tCount)
   if voidp(tCount) then
     tCount = 1
   end if
   return(pXtra.checkNetMessages(tCount))
+  exit
 end
 
-on getProperty me, tProp 
-  if (tProp = #host) then
+on getProperty(me, tProp)
+  if me = #host then
     return(pHost)
   else
-    if (tProp = #port) then
+    if me = #port then
       return(pPort)
     else
-      if (tProp = #listener) then
+      if me = #listener then
         return(pListenersPntr)
       else
-        if (tProp = #commands) then
+        if me = #commands then
           return(pCommandsPntr)
         else
-          if (tProp = #message) then
+          if me = #message then
             return(pMsgStruct)
           end if
         end if
       end if
     end if
   end if
-  return FALSE
+  return(0)
+  exit
 end
 
-on setProperty me, tProp, tValue 
-  if (tProp = #listener) then
-    if (tValue.ilk = #struct) then
+on setProperty(me, tProp, tValue)
+  if me = #listener then
+    if tValue.ilk = #struct then
       pListenersPntr = tValue
-      return TRUE
+      return(1)
     else
-      return FALSE
+      return(0)
     end if
   else
-    if (tProp = #commands) then
-      if (tValue.ilk = #struct) then
+    if me = #commands then
+      if tValue.ilk = #struct then
         pCommandsPntr = tValue
-        return TRUE
+        return(1)
       else
-        return FALSE
+        return(0)
       end if
     else
-      return FALSE
+      return(0)
     end if
   end if
-  return FALSE
+  return(0)
+  exit
 end
 
-on setLogMode me, tMode 
+on setLogMode(me, tMode)
   if tMode.ilk <> #integer then
     return(error(me, "Invalid argument:" && tMode, #setLogMode, #minor))
   end if
   pLogMode = tMode
-  if (pLogMode = 2) then
+  if pLogMode = 2 then
     if memberExists("connectionLog.text") then
       pLogfield = member(getmemnum("connectionLog.text"))
     else
@@ -159,16 +169,17 @@ on setLogMode me, tMode
       pLogMode = 1
     end if
   end if
-  return TRUE
+  return(1)
+  exit
 end
 
-on xtraMsgHandler me 
+on xtraMsgHandler(me)
   if pConnectionShouldBeKilled <> 0 then
-    return FALSE
+    return(0)
   end if
   pConnectionOk = 1
   tNewMsg = pXtra.getNetMessage()
-  if (tNewMsg = void()) then
+  if tNewMsg = void() then
     me.disconnect()
     return(error(me, "getNetMessage() returned VOID.", #xtraMsgHandler, #major))
   end if
@@ -177,15 +188,15 @@ on xtraMsgHandler me
   tSubject = tNewMsg.getaProp(#subject)
   if tErrCode <> 0 then
     me.disconnect()
-    return FALSE
+    return(0)
   end if
   if pLogMode > 0 then
     me.log("-->" && tNewMsg.subject & "\r" && tContent)
   end if
-  if (tContent.ilk = #string) then
+  if me = #string then
     me.forwardMsg(tNewMsg.subject & "\r" & tContent)
   else
-    if (tContent.ilk = #void) then
+    if me = #void then
       if tSubject <> "ConnectToNetServer" then
         error(me, "Message content is VOID!!!", #xtraMsgHandler, #major)
       end if
@@ -199,11 +210,12 @@ on xtraMsgHandler me
       call(pBinDataCallback.method, getObject(pBinDataCallback.client), tContent)
     end if
   end if
+  exit
 end
 
-on forwardMsg me, tMessage 
-  if (pConnectionShouldBeKilled = 1) then
-    return FALSE
+on forwardMsg(me, tMessage)
+  if pConnectionShouldBeKilled = 1 then
+    return(0)
   end if
   tMessage = getStringServices().convertSpecialChars(tMessage)
   tSubject = tMessage.getProp(#word, 1)
@@ -227,25 +239,27 @@ on forwardMsg me, tMessage
       else
         error(me, "Listening obj not found, removed:" && tCallback.getAt(1), #forwardMsg, #minor)
         tCallbackList.deleteAt(1)
-        i = (i - 1)
+        i = i - 1
       end if
-      i = (1 + i)
+      i = 1 + i
     end repeat
     exit repeat
   end if
   error(me, "Listener not found:" && tSubject && "/" && me.getID(), #forwardMsg, #minor)
+  exit
 end
 
-on log me, tMsg 
+on log(me, tMsg)
   if not the runMode contains "Author" then
-    return TRUE
+    return(1)
   end if
-  if (pLogMode = 1) then
+  if me = 1 then
     put("[Connection" && me.getID() & "] :" && tMsg)
   else
-    if (pLogMode = 2) then
+    if me = 2 then
       if ilk(pLogfield, #member) then
       end if
     end if
   end if
+  exit
 end

@@ -1,10 +1,9 @@
-property pDoFlashing, pSleep, pFlashCount, pNumber
-
-on select me 
+on select(me)
   return(0)
+  exit
 end
 
-on setState me, tNewState 
+on setState(me, tNewState)
   tNewState = integer(tNewState)
   if tNewState < -1 then
     tNewState = -1
@@ -22,9 +21,10 @@ on setState me, tNewState
     pNumber = tNewState
   end if
   return(1)
+  exit
 end
 
-on update me 
+on update(me)
   if not pDoFlashing then
     return(1)
   end if
@@ -33,7 +33,7 @@ on update me
     return(1)
   end if
   pSleep = 10
-  if (pFlashCount mod 2) = 0 then
+  if pFlashCount mod 2 = 0 then
     me.setNumber(pNumber)
   else
     me.setNumber(-1)
@@ -45,9 +45,10 @@ on update me
     pNumber = -1
   end if
   return(1)
+  exit
 end
 
-on setFloor me, tOn 
+on setFloor(me, tOn)
   tLayerData = me.getProp(#pLayerDataList, "e")
   if tLayerData.ilk <> #list then
     return(0)
@@ -77,14 +78,15 @@ on setFloor me, tOn
   end if
   tStateData.setaProp(#frames, [tFrame])
   callAncestor(#setState, [me], me.pState - 1)
+  exit
 end
 
-on setNumber me, tNumber 
+on setNumber(me, tNumber)
   if not integerp(tNumber) then
     return(0)
   end if
-  tFirstDigit = (tNumber / 10)
-  tSecondDigit = (tNumber mod 10)
+  tFirstDigit = tNumber / 10
+  tSecondDigit = tNumber mod 10
   if tFirstDigit > 9 then
     tFirstDigit = 9
     tSecondDigit = 9
@@ -115,4 +117,5 @@ on setNumber me, tNumber
   end if
   tStateData.setaProp(#frames, [tSecondDigit])
   callAncestor(#setState, [me], me.pState - 1)
+  exit
 end

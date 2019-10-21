@@ -1,6 +1,4 @@
-property pAnimFrameDuration, pUpdateCount, pProgramOn, pAnimLoop, pAnimFrameCounter, pAnimFrame, pTotalFrameCount, pTotalLoopCount, pUpdatesToWaitOnLastFrame
-
-on prepare me, tdata 
+on prepare(me, tdata)
   pUpdateCount = 0
   pAnimFrame = 0
   pAnimLoop = 1
@@ -20,17 +18,19 @@ on prepare me, tdata
     me.setOff()
   end if
   return(1)
+  exit
 end
 
-on updateStuffdata me, tValue 
+on updateStuffdata(me, tValue)
   if tValue = "ON" then
     me.setOn()
   else
     me.setOff()
   end if
+  exit
 end
 
-on update me 
+on update(me)
   if me.count(#pSprList) < 4 then
     return(0)
   end if
@@ -88,9 +88,10 @@ on update me
     me.getPropRef(#pSprList, 4).height = tmember.height
   end if
   me.getPropRef(#pSprList, 4).locZ = me.getPropRef(#pSprList, 1).locZ + 2
+  exit
 end
 
-on setOn me 
+on setOn(me)
   pFramesToWaitOnLastFrame = 0
   pAnimFrameCounter = pAnimFrameDuration
   if me.pXFactor = 32 then
@@ -101,13 +102,15 @@ on setOn me
   pAnimLoop = 1
   pAnimFrame = 1
   pProgramOn = 1
+  exit
 end
 
-on setOff me 
+on setOff(me)
   pProgramOn = 0
+  exit
 end
 
-on select me 
+on select(me)
   if the doubleClick then
     if pProgramOn then
       tOnString = "OFF"
@@ -116,4 +119,5 @@ on select me
     end if
     getThread(#room).getComponent().getRoomConnection().send("SETSTUFFDATA", [#string:string(me.getID()), #string:tOnString])
   end if
+  exit
 end

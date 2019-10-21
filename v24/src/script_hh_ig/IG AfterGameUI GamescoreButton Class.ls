@@ -1,9 +1,10 @@
-on addWindows me 
+on addWindows(me)
   me.pWindowID = "gb"
   tWrapObjRef = me.getWindowWrapper()
-  if (tWrapObjRef = 0) then
-    return FALSE
+  if tWrapObjRef = 0 then
+    return(0)
   end if
   tWrapObjRef.addOneWindow(me.getWindowId(), "ig_ag_hide_highscores.window", me.pWindowSetId, [#scrollFromLocX:-450])
-  return TRUE
+  return(1)
+  exit
 end

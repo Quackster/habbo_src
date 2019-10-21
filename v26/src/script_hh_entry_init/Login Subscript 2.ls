@@ -1,161 +1,161 @@
-on findPrimes  
+on findPrimes()
 end
 
-on millerRabin  
+on millerRabin()
 end
 
-on bitSize  
+on bitSize()
 end
 
-on expand  
+on expand()
 end
 
-on randTruePrime  
+on randTruePrime()
 end
 
-on mod  
+on mod()
 end
 
-on addInt  
+on addInt()
 end
 
-on mult  
+on mult()
 end
 
-on powMod  
+on powMod()
 end
 
-on sub  
+on sub()
 end
 
-on add  
+on add()
 end
 
-on inverseMod  
+on inverseMod()
 end
 
-on multMod  
+on multMod()
 end
 
-on randTruePrime_  
+on randTruePrime_()
 end
 
-on rand  
+on rand()
 end
 
-on GCD_  
+on GCD_()
 end
 
-on inverseMod_  
+on inverseMod_()
 end
 
-on inverseModInt_  
+on inverseModInt_()
 end
 
-on eGCD_  
+on eGCD_()
 end
 
-on negative  
+on negative()
 end
 
-on greaterShift  
+on greaterShift()
 end
 
-on greater  
+on greater()
 end
 
-on divide_  
+on divide_()
 end
 
-on carry_  
+on carry_()
 end
 
-on modInt  
+on modInt()
 end
 
-on int2bigInt  
+on int2bigInt()
 end
 
-on str2bigInt  
+on str2bigInt()
 end
 
-on equalsInt  
+on equalsInt()
 end
 
-on equals  
+on equals()
 end
 
-on isZero  
+on isZero()
 end
 
-on bigInt2str  
+on bigInt2str()
 end
 
-on dup  
+on dup()
 end
 
-on copy_  
+on copy_()
 end
 
-on copyInt_  
+on copyInt_()
 end
 
-on addInt_  
+on addInt_()
 end
 
-on rightShift_  
+on rightShift_()
 end
 
-on halve_  
+on halve_()
 end
 
-on leftShift_  
+on leftShift_()
 end
 
-on multInt_  
+on multInt_()
 end
 
-on divInt_  
+on divInt_()
 end
 
-on linComb_  
+on linComb_()
 end
 
-on linCombShift_  
+on linCombShift_()
 end
 
-on addShift_  
+on addShift_()
 end
 
-on subShift_  
+on subShift_()
 end
 
-on sub_  
+on sub_()
 end
 
-on add_  
+on add_()
 end
 
-on mult_  
+on mult_()
 end
 
-on mod_  
+on mod_()
 end
 
-on multMod_  
+on multMod_()
 end
 
-on squareMod_  
+on squareMod_()
 end
 
-on trim  
+on trim()
 end
 
-on powMod_  
+on powMod_()
 end
 
-on mont_  
+on mont_()
 end
 
-on handlers  
+on handlers()
 end

@@ -1,14 +1,13 @@
-property pShowSymbol, pTargetBlend
-
-on define me, tProps 
+on define(me, tProps)
   pShowSymbol = 0
   pBlend = 100
   tReturnValue = callAncestor(#define, [me], tProps)
   pTargetBlend = me.getProp(#pBlendList, 6)
   return(tReturnValue)
+  exit
 end
 
-on select me 
+on select(me)
   if not the doubleClick then
     return(0)
   end if
@@ -34,9 +33,10 @@ on select me
   tConn = getThread(#room).getComponent().getRoomConnection()
   tConn.send("SET_RANDOM_STATE", [#integer:integer(me.getID())])
   return(1)
+  exit
 end
 
-on update me 
+on update(me)
   if pShowSymbol then
     tsprite = me.getProp(#pSprList, 6)
     tBlend = tsprite.blend
@@ -49,9 +49,10 @@ on update me
     end if
   end if
   return(callAncestor(#update, [me]))
+  exit
 end
 
-on setState me, tNewState 
+on setState(me, tNewState)
   tNewState = value(tNewState)
   if tNewState.ilk <> #integer then
     tNewState = 2
@@ -63,4 +64,5 @@ on setState me, tNewState
     pShowSymbol = 1
   end if
   callAncestor(#setState, [me], tNewState)
+  exit
 end

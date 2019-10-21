@@ -1,19 +1,21 @@
-property pErrorLists
-
-on construct me 
+on construct(me)
   pErrorLists = []
-  return TRUE
+  return(1)
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   pErrorLists = []
-  return TRUE
+  return(1)
+  exit
 end
 
-on storeErrorReport me, tErrorList 
+on storeErrorReport(me, tErrorList)
   pErrorLists.add(tErrorList)
+  exit
 end
 
-on getErrorLists me 
+on getErrorLists(me)
   return(pErrorLists)
+  exit
 end

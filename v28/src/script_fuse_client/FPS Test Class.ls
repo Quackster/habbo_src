@@ -1,6 +1,4 @@
-property pWndID, pFrames, pTimerA, pTimerB, pCurrMs
-
-on construct me 
+on construct(me)
   pWndID = "PerfTest"
   pTimerA = the milliSeconds
   pTimerB = the milliSeconds
@@ -19,16 +17,18 @@ on construct me
   tWndObj.getElement("close").setEdit(0)
   tWndObj.getElement("close").setText("x")
   return(receiveUpdate(me.getID()))
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   removeUpdate(me.getID())
   removeWindow(pWndID)
   return(1)
+  exit
 end
 
-on update me 
-  pFrames = (pFrames + 1 mod the frameTempo)
+on update(me)
+  pFrames = pFrames + 1 mod the frameTempo
   tTime = the milliSeconds - pTimerA
   tWndObj = getWindow(pWndID)
   tWndObj.getElement("perf_per_frm").setText(tTime && "ms.")
@@ -41,12 +41,14 @@ on update me
     pTimerB = the milliSeconds
   end if
   pTimerA = the milliSeconds
+  exit
 end
 
-on eventProc me, tEvent, tElemID, tParam 
+on eventProc(me, tEvent, tElemID, tParam)
   if tElemID = "close" then
     return(removeObject(me.getID()))
   else
     return(0)
   end if
+  exit
 end

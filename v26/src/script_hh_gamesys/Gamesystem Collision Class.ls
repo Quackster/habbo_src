@@ -1,50 +1,52 @@
-on construct me 
+on construct(me)
   return(1)
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   return(1)
+  exit
 end
 
-on testForObjectToObjectCollision me, tThisObject, tOtherObject, tDump 
+on testForObjectToObjectCollision(me, tThisObject, tOtherObject, tDump)
   if tThisObject = tOtherObject then
     return(0)
   end if
-  if tOtherObject.getGameObjectProperty(#gameobject_collisionshape_type) = #none then
+  if me = #none then
     return(0)
   else
-    if tOtherObject.getGameObjectProperty(#gameobject_collisionshape_type) = #point then
-      if tOtherObject.getGameObjectProperty(#gameobject_collisionshape_type) = #none then
+    if me = #point then
+      if me = #none then
         return(0)
       else
-        if tOtherObject.getGameObjectProperty(#gameobject_collisionshape_type) = #point then
+        if me = #point then
           return(0)
         else
-          if tOtherObject.getGameObjectProperty(#gameobject_collisionshape_type) = #circle then
+          if me = #circle then
             return(me.TestPointToCircleCollision(tOtherObject, tThisObject))
           else
-            if tOtherObject.getGameObjectProperty(#gameobject_collisionshape_type) = #triplecircle then
+            if me = #triplecircle then
             else
-              if tOtherObject.getGameObjectProperty(#gameobject_collisionshape_type) = #box then
+              if me = #box then
               end if
             end if
           end if
         end if
       end if
     else
-      if tOtherObject.getGameObjectProperty(#gameobject_collisionshape_type) = #circle then
-        if tOtherObject.getGameObjectProperty(#gameobject_collisionshape_type) = #none then
+      if me = #circle then
+        if me = #none then
           return(0)
         else
-          if tOtherObject.getGameObjectProperty(#gameobject_collisionshape_type) = #point then
+          if me = #point then
             return(me.TestPointToCircleCollision(tThisObject, tOtherObject))
           else
-            if tOtherObject.getGameObjectProperty(#gameobject_collisionshape_type) = #circle then
+            if me = #circle then
               return(me.TestCircleToCircleCollision(tThisObject, tOtherObject, tDump))
             else
-              if tOtherObject.getGameObjectProperty(#gameobject_collisionshape_type) = #triplecircle then
+              if me = #triplecircle then
               else
-                if tOtherObject.getGameObjectProperty(#gameobject_collisionshape_type) = #box then
+                if me = #box then
                   return(0)
                 end if
               end if
@@ -52,28 +54,28 @@ on testForObjectToObjectCollision me, tThisObject, tOtherObject, tDump
           end if
         end if
       else
-        if tOtherObject.getGameObjectProperty(#gameobject_collisionshape_type) = #triplecircle then
-          if tOtherObject.getGameObjectProperty(#gameobject_collisionshape_type) = #none then
+        if me = #triplecircle then
+          if me = #none then
             return(0)
           else
-            if tOtherObject.getGameObjectProperty(#gameobject_collisionshape_type) = #box then
+            if me = #box then
               return(0)
             end if
           end if
         else
-          if tOtherObject.getGameObjectProperty(#gameobject_collisionshape_type) = #box then
-            if tOtherObject.getGameObjectProperty(#gameobject_collisionshape_type) = #none then
+          if me = #box then
+            if me = #none then
               return(0)
             else
-              if tOtherObject.getGameObjectProperty(#gameobject_collisionshape_type) = #point then
+              if me = #point then
               else
-                if tOtherObject.getGameObjectProperty(#gameobject_collisionshape_type) = #circle then
+                if me = #circle then
                   return(0)
                 else
-                  if tOtherObject.getGameObjectProperty(#gameobject_collisionshape_type) = #triplecircle then
+                  if me = #triplecircle then
                     return(0)
                   else
-                    if tOtherObject.getGameObjectProperty(#gameobject_collisionshape_type) = #box then
+                    if me = #box then
                       return(0)
                     end if
                   end if
@@ -86,9 +88,10 @@ on testForObjectToObjectCollision me, tThisObject, tOtherObject, tDump
     end if
   end if
   return(0)
+  exit
 end
 
-on TestPointToCircleCollision me, tThisObject, tOtherObject 
+on TestPointToCircleCollision(me, tThisObject, tOtherObject)
   distanceX = tOtherObject.getLocation().x - tThisObject.getLocation().x
   if distanceX < 0 then
     distanceX = -distanceX
@@ -97,14 +100,15 @@ on TestPointToCircleCollision me, tThisObject, tOtherObject
   if distanceY < 0 then
     distanceY = -distanceY
   end if
-  if sqrt((distanceX * distanceX) + (distanceY * distanceY)) < tOtherObject.getGameObjectProperty(#gameobject_collisionshape_radius) then
+  if sqrt(distanceX * distanceX + distanceY * distanceY) < tOtherObject.getGameObjectProperty(#gameobject_collisionshape_radius) then
     return(1)
   else
     return(0)
   end if
+  exit
 end
 
-on TestCircleToCircleCollision me, tThisObject, tOtherObject, tDump 
+on TestCircleToCircleCollision(me, tThisObject, tOtherObject, tDump)
   distanceX = tOtherObject.getLocation().x - tThisObject.getLocation().x
   if distanceX < 0 then
     distanceX = -distanceX
@@ -115,22 +119,24 @@ on TestCircleToCircleCollision me, tThisObject, tOtherObject, tDump
   end if
   collisionDistance = tOtherObject.getGameObjectProperty(#gameobject_collisionshape_radius) + tThisObject.getGameObjectProperty(#gameobject_collisionshape_radius)
   if distanceY < collisionDistance and distanceX < collisionDistance then
-    if (distanceX * distanceX) + (distanceY * distanceY) < (collisionDistance * collisionDistance) then
+    if distanceX * distanceX + distanceY * distanceY < collisionDistance * collisionDistance then
       return(1)
     end if
   end if
   return(0)
+  exit
 end
 
-on testDistance me, i_pos1X, i_pos1Y, i_pos2X, i_pos2Y, i_distance 
+on testDistance(me, i_pos1X, i_pos1Y, i_pos2X, i_pos2Y, i_distance)
   distX = abs(i_pos2X - i_pos1X)
   distY = abs(i_pos2Y - i_pos1Y)
   if distX > i_distance or distY > i_distance then
     return(0)
   else
-    if (distX * distX) + (distY * distY) < (i_distance * i_distance) then
+    if distX * distX + distY * distY < i_distance * i_distance then
       return(1)
     end if
   end if
   return(0)
+  exit
 end

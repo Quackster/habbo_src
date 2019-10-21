@@ -1,6 +1,4 @@
-property pTextList2
-
-on mouseDown me 
+on mouseDown(me)
   if me.blend < 100 then
     return(0)
   end if
@@ -15,15 +13,17 @@ on mouseDown me
     me.updateDropImgFX(pTextList2, 1, #up, me.pimage)
   end if
   me.render()
+  exit
 end
 
-on updateData me, tTextList, tTextKeys, tChosenIndex, tChosenValue, tTextList2 
+on updateData(me, tTextList, tTextKeys, tChosenIndex, tChosenValue, tTextList2)
   me.pDropDownType = #default
   pTextList2 = tTextList2
   return(me.updateData(tTextList, tTextKeys, tChosenIndex, tChosenValue))
+  exit
 end
 
-on updateDropImgFX me, tItemsList, tListOfAllItemsOrNot, tstate, tNewImg 
+on updateDropImgFX(me, tItemsList, tListOfAllItemsOrNot, tstate, tNewImg)
   tStr = ""
   if tItemsList.count > 0 then
     if not tListOfAllItemsOrNot then
@@ -61,4 +61,5 @@ on updateDropImgFX me, tItemsList, tListOfAllItemsOrNot, tstate, tNewImg
   end if
   tNewImg.copyPixels(tTextImg, tdestrect, tTextImg.rect)
   return(tNewImg)
+  exit
 end

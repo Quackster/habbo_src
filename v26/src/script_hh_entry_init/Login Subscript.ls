@@ -1,8 +1,8 @@
-on doPowmodMathCs  
+on doPowmodMathCs()
 end
 
-on doPowmodMathSc  
+on doPowmodMathSc()
 end
 
-on handlers  
+on handlers()
 end

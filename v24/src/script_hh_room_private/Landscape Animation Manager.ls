@@ -1,6 +1,4 @@
-property pwidth, pAnimInstanceList, pTurnPoint, pREquiresUpdate, pheight, pMaxItemAmount, pAnimTop, pAnimBottom, pStopped, pSkip, pSkippedFrames, pAnimImage, pMember
-
-on construct me 
+on construct(me)
   tMemberName = "anim_frame_test"
   if memberExists(tMemberName) then
     pMember = getMember(tMemberName)
@@ -13,30 +11,32 @@ on construct me
   pAnimBottom = 400
   pAnimTop = 200
   pSkip = 0
-  pTurnPoint = (pwidth / 2)
-  pAnimInstanceList = [:]
+  pTurnPoint = pwidth / 2
+  pAnimInstanceList = []
   pAnimImage = image(1, 1, 8)
   pMaxItemAmount = 15
   pSkippedFrames = 20
   pREquiresUpdate = 1
   pStopped = 1
   return(1)
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   tMemberName = "anim_frame_test"
   if memberExists(tMemberName) then
     removeMember(tMemberName)
   end if
-  repeat while pAnimInstanceList <= undefined
+  repeat while me <= undefined
     pAnimInstance = getAt(undefined, undefined)
     removeObject(pAnimInstance.getID())
   end repeat
   removeUpdate(me.getID())
   return(1)
+  exit
 end
 
-on define me, tdata 
+on define(me, tdata)
   pwidth = tdata.getAt(#width)
   pheight = tdata.getAt(#height)
   pAnimID = tdata.getAt(#id)
@@ -50,17 +50,19 @@ on define me, tdata
   pTurnPoint = pTurnPoint + tdata.getAt(#offset)
   me.initAnimation()
   receiveUpdate(me.getID())
+  exit
 end
 
-on requiresUpdate me 
+on requiresUpdate(me)
   return(pREquiresUpdate)
+  exit
 end
 
-on initAnimation me 
+on initAnimation(me)
   pAnimImage = image(pwidth, pheight, 8)
   i = 1
   repeat while i <= pMaxItemAmount
-    tProps = [:]
+    tProps = []
     tProps.setaProp(#type, random(3) - 1)
     tProps.setaProp(#turnpoint, pTurnPoint)
     tProps.setaProp(#initminv, pAnimTop)
@@ -71,13 +73,15 @@ on initAnimation me
     i = 1 + i
   end repeat
   me.renderFrame()
+  exit
 end
 
-on setStopped me, tStopped 
+on setStopped(me, tStopped)
   pStopped = tStopped
+  exit
 end
 
-on update me 
+on update(me)
   if pStopped then
     return(0)
   end if
@@ -88,20 +92,23 @@ on update me
     return(0)
   end if
   me.renderFrame()
+  exit
 end
 
-on renderFrame me 
+on renderFrame(me)
   pAnimImage.fill(pAnimImage.rect, rgb(255, 51, 255))
-  repeat while pAnimInstanceList <= undefined
+  repeat while me <= undefined
     tAnimInstance = getAt(undefined, undefined)
     tAnimInstance.updateAnim()
     tAnimInstance.render(pAnimImage)
   end repeat
   pMember.image = pAnimImage
   pREquiresUpdate = 1
+  exit
 end
 
-on getImage me 
+on getImage(me)
   pREquiresUpdate = 0
   return(pAnimImage)
+  exit
 end

@@ -1,18 +1,20 @@
-on deconstruct me 
+on deconstruct(me)
   callAncestor(#deconstruct, [me])
   executeMessage(#roomdimmer_removed, me.getID())
-  return TRUE
+  return(1)
+  exit
 end
 
-on define me, tProps 
+on define(me, tProps)
   callAncestor(#define, [me], tProps)
   if voidp(tProps.getAt(#stripId)) then
     executeMessage(#roomdimmer_defined, me.getID())
   end if
-  return TRUE
+  return(1)
+  exit
 end
 
-on select me 
+on select(me)
   towner = 0
   tSession = getObject(#session)
   if tSession <> 0 then
@@ -22,23 +24,24 @@ on select me
   end if
   if the doubleClick and towner then
     tStateOn = 0
-    if (me.pState = 2) then
+    if me.pState = 2 then
       tStateOn = 1
     end if
     executeMessage(#roomdimmer_selected, [#id:me.getID(), #furniOn:tStateOn])
   else
     return(callAncestor(#select, [me]))
   end if
-  return TRUE
+  return(1)
+  exit
 end
 
-on setState me, tNewState 
+on setState(me, tNewState)
   tNewState = string(tNewState)
   tDelim = the itemDelimiter
   the itemDelimiter = ","
   if tNewState.count(#item) < 5 then
     callAncestor(#setState, [me], 1)
-    return FALSE
+    return(0)
   end if
   tstate = tNewState.getProp(#item, 1)
   tPresetID = tNewState.getProp(#item, 2)
@@ -47,12 +50,13 @@ on setState me, tNewState
   tLightness = tNewState.getProp(#item, 5)
   the itemDelimiter = tDelim
   callAncestor(#setState, [me], tstate)
-  tStateData = [:]
+  tStateData = []
   tStateData.setaProp(#dimmerID, me.getID())
-  tStateData.setaProp(#isOn, (tstate = 2))
+  tStateData.setaProp(#isOn, tstate = 2)
   tStateData.setaProp(#presetID, value(tPresetID))
   tStateData.setaProp(#effectID, value(tEffectId))
   tStateData.setaProp(#color, rgb(tColor))
   tStateData.setaProp(#lightness, value(tLightness))
   executeMessage(#roomdimmer_set_state, tStateData)
+  exit
 end

@@ -1,6 +1,4 @@
-property pChannelCount, pChannelList, pMuted
-
-on construct me 
+on construct(me)
   pMuted = 0
   pChannelCount = 5
   pChannelList = []
@@ -11,12 +9,13 @@ on construct me
     if tObject.define(i) then
       pChannelList.add(tObject)
     end if
-    i = (1 + i)
+    i = 1 + i
   end repeat
   registerMessage(#set_all_sounds, me.getID(), #setSoundState)
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   unregisterMessage(#set_all_sounds, me.getID())
   i = 1
   repeat while i <= pChannelCount
@@ -24,85 +23,90 @@ on deconstruct me
     if tObject <> 0 then
       tObject.reset()
     end if
-    i = (1 + i)
+    i = 1 + i
   end repeat
   pChannelList = void()
   pChannelCount = void()
-  return TRUE
+  return(1)
+  exit
 end
 
-on getProperty me, tPropID 
-  if (tPropID = #channelCount) then
+on getProperty(me, tPropID)
+  if me = #channelCount then
     return(pChannelList.count)
   else
-    return FALSE
+    return(0)
   end if
+  exit
 end
 
-on setProperty me, tPropID, tValue 
-  return FALSE
+on setProperty(me, tPropID, tValue)
+  return(0)
+  exit
 end
 
-on getChannel me, tNum 
+on getChannel(me, tNum)
   if tNum < 0 or tNum > pChannelList.count then
-    return FALSE
+    return(0)
   end if
   return(pChannelList.getAt(tNum))
+  exit
 end
 
-on print me, tCount 
+on print(me, tCount)
   if integerp(tCount) then
   end if
+  exit
 end
 
-on play me, tMemName, tPriority, tProps 
+on play(me, tMemName, tPriority, tProps)
   tObject = me.createSoundInstance(tMemName, tPriority, tProps)
-  if tPriority <> #pass then
-    if (tPriority = void()) then
+  if me <> #pass then
+    if me = void() then
       i = 1
       repeat while i <= pChannelCount
         tStatus = pChannelList.getAt(i).getTimeRemaining()
-        if (tStatus = 0) then
+        if tStatus = 0 then
           return(pChannelList.getAt(i).play(tObject))
         end if
-        i = (1 + i)
+        i = 1 + i
       end repeat
-      return FALSE
+      return(0)
     else
-      if (tPriority = #cut) then
-        tStatusList = [:]
+      if me = #cut then
+        tStatusList = []
         i = 1
         repeat while i <= pChannelCount
           tStatus = pChannelList.getAt(i).getTimeRemaining()
-          if (tStatus = 0) then
+          if tStatus = 0 then
             return(pChannelList.getAt(i).play(tObject))
           end if
           if not pChannelList.getAt(i).getIsReserved() then
             tStatusList.addProp(tStatus, i)
           end if
-          i = (1 + i)
+          i = 1 + i
         end repeat
-        if (tStatusList.count = 0) then
-          return FALSE
+        if tStatusList.count = 0 then
+          return(0)
         end if
         tStatusList.sort()
         return(pChannelList.getAt(tStatusList.getAt(1)).play(tObject))
       else
-        if (tPriority = #queue) then
-          tStatusList = [:]
+        if me = #queue then
+          tStatusList = []
           i = 1
           repeat while i <= pChannelCount
             tStatus = pChannelList.getAt(i).getTimeRemaining()
-            if (tStatus = 0) then
+            if tStatus = 0 then
               return(pChannelList.getAt(i).play(tObject))
             end if
             if not pChannelList.getAt(i).getIsReserved() then
               tStatusList.addProp(tStatus, i)
             end if
-            i = (1 + i)
+            i = 1 + i
           end repeat
-          if (tStatusList.count = 0) then
-            return FALSE
+          if tStatusList.count = 0 then
+            return(0)
           end if
           tStatusList.sort()
           return(pChannelList.getAt(tStatusList.getAt(1)).queue(tObject))
@@ -110,23 +114,25 @@ on play me, tMemName, tPriority, tProps
       end if
     end if
     tObject = void()
-    return FALSE
+    return(0)
+    exit
   end if
 end
 
-on playInChannel me, tMemName, tChannelNum 
+on playInChannel(me, tMemName, tChannelNum)
   tChannel = me.getChannel(tChannelNum)
-  if (tChannel = 0) then
+  if tChannel = 0 then
     return(error(void(), "Invalid sound channel:" && tChannelNum, #playInChannel))
   end if
   tObject = me.createSoundInstance(tMemName, void(), void())
   tChannel.reset()
   return(tChannel.play(tObject))
+  exit
 end
 
-on queue me, tMemName, tChannelNum, tProps 
+on queue(me, tMemName, tChannelNum, tProps)
   tChannel = me.getChannel(tChannelNum)
-  if (tChannel = 0) then
+  if tChannel = 0 then
     return(error(void(), "Invalid sound channel:" && tChannelNum, #queue))
   end if
   tObject = me.createSoundInstance(tMemName, void(), tProps)
@@ -134,38 +140,42 @@ on queue me, tMemName, tChannelNum, tProps
   if tRetVal then
     tChannel.setReserved()
   end if
+  exit
 end
 
-on stopChannel me, tNum 
-  if (tNum = void()) then
-    return FALSE
+on stopChannel(me, tNum)
+  if tNum = void() then
+    return(0)
   end if
   if tNum < 1 or tNum > pChannelList.count then
-    return FALSE
+    return(0)
   end if
   return(pChannelList.getAt(tNum).reset())
+  exit
 end
 
-on playChannel me, tNum 
-  if (tNum = void()) then
-    return FALSE
+on playChannel(me, tNum)
+  if tNum = void() then
+    return(0)
   end if
   if tNum < 1 or tNum > pChannelList.count then
-    return FALSE
+    return(0)
   end if
   return(pChannelList.getAt(tNum).startPlaying())
+  exit
 end
 
-on stopAllSounds me 
+on stopAllSounds(me)
   i = 1
   repeat while i <= pChannelCount
     pChannelList.getAt(i).reset()
-    i = (1 + i)
+    i = 1 + i
   end repeat
-  return TRUE
+  return(1)
+  exit
 end
 
-on setSoundState me, tValue 
+on setSoundState(me, tValue)
   if tValue then
     pMuted = 0
   else
@@ -174,20 +184,23 @@ on setSoundState me, tValue
   i = 1
   repeat while i <= pChannelCount
     pChannelList.getAt(i).setSoundState(tValue)
-    i = (1 + i)
+    i = 1 + i
   end repeat
-  return TRUE
+  return(1)
+  exit
 end
 
-on getSoundState me 
+on getSoundState(me)
   return(not pMuted)
+  exit
 end
 
-on createSoundInstance me, tMemName, tPriority, tProps 
+on createSoundInstance(me, tMemName, tPriority, tProps)
   tObject = createObject(#temp, "Sound Instance Class")
-  if (tObject = 0) then
-    return FALSE
+  if tObject = 0 then
+    return(0)
   end if
   tObject.define(tMemName, tPriority, tProps)
   return(tObject)
+  exit
 end

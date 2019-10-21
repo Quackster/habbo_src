@@ -1,21 +1,21 @@
-property pTipID, pTipWidth
-
-on construct me 
+on construct(me)
   pTipID = "help_tooltip"
   pTipWidth = 150
   registerMessage(#helptooltip, me.getID(), #createHelpTooltip)
   return(1)
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   unregisterMessage(#tooltip, me.getID())
   if windowExists(pTipID) then
     removeWindow(pTipID)
   end if
   return(1)
+  exit
 end
 
-on createHelpTooltip me, tParams 
+on createHelpTooltip(me, tParams)
   if ilk(tParams) <> #propList then
     return(error(me, "Wrong param format", #createHelpTooltip, #major))
   end if
@@ -34,9 +34,10 @@ on createHelpTooltip me, tParams
       me.createTooltipToRect(tMsg, tPos)
     end if
   end if
+  exit
 end
 
-on createTooltipToRect me, tMsg, tRect 
+on createTooltipToRect(me, tMsg, tRect)
   if voidp(tMsg) then
     return(0)
   end if
@@ -60,9 +61,10 @@ on createTooltipToRect me, tMsg, tRect
   if tWndObj.pLocX + tWndObj.pwidth > tStageWidth then
     tWndObj.moveTo(tStageWidth - tWndObj.pwidth, tWndObj.pLocY)
   end if
+  exit
 end
 
-on createTooltipToPoint me, tMsg, tloc 
+on createTooltipToPoint(me, tMsg, tloc)
   if ilk(tloc) <> #point then
     return(error(me, "No point", #createTooltipToPoint, #major))
   end if
@@ -82,7 +84,7 @@ on createTooltipToPoint me, tMsg, tloc
   tmember.text = tMsg & " "
   tmember.lineHeight = tFontStruct.getaProp(#fontSize)
   tLineCount = tmember.lineCount
-  tHelpHeight = (2 * 11) + (tLineCount * tFontStruct.getaProp(#fontSize))
+  tHelpHeight = 2 * 11 + tLineCount * tFontStruct.getaProp(#fontSize)
   if tHelpHeight < 40 then
     tHelpHeight = 40
   end if
@@ -94,27 +96,29 @@ on createTooltipToPoint me, tMsg, tloc
   if tWndObj.elementExists("tt_text") then
     tWndObj.getElement("tt_text").setText(tMsg)
   end if
-  repeat while tWndObj.pSpriteList <= tloc
+  repeat while me <= tloc
     tSpr = getAt(tloc, tMsg)
     tSpr.locZ = tSpr.locZ + 1000
   end repeat
-  tTimeOutList = [2500, (tMsg.length * 100), 10000]
+  tTimeOutList = [2500, tMsg.length * 100, 10000]
   tTimeOutList.sort()
   me.createTipTimeout(tTimeOutList.getAt(2))
   tWndObj.registerProcedure(#eventProcHelpTooltip, me.getID(), #mouseUp)
   return(1)
+  exit
 end
 
-on removeTip me, tTipID 
+on removeTip(me, tTipID)
   if objectExists(#tipTimeout) then
     removeTimeout(#tipTimeout)
   end if
   if windowExists(tTipID) then
     removeWindow(tTipID)
   end if
+  exit
 end
 
-on createTipTimeout me, tTime 
+on createTipTimeout(me, tTime)
   if voidp(tTime) then
     tTime = 4000
   end if
@@ -122,8 +126,10 @@ on createTipTimeout me, tTime
     removeTimeout(#tipTimeout)
   end if
   createTimeout(#tipTimeout, tTime, #removeTip, me.getID(), pTipID)
+  exit
 end
 
-on eventProcHelpTooltip me 
+on eventProcHelpTooltip(me)
   me.removeTip(pTipID)
+  exit
 end

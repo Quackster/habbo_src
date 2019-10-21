@@ -1,18 +1,17 @@
-property pWindowTitle, pPropsToServer, pOpenWindow, pMode, pOldFigure, pOldSex, pBodyPartObjects, pPartChangeButtons, pLastNameCheck, pTempPassword, pErrorMsg, pNameChecked
-
-on construct me 
-  pTempPassword = [:]
-  pPropsToServer = [:]
-  pPartChangeButtons = [:]
+on construct(me)
+  pTempPassword = []
+  pPropsToServer = []
+  pPartChangeButtons = []
   pLastNameCheck = ""
   pWindowTitle = getText("win_figurecreator", "Your own Habbo")
   if not variableExists("permitted.name.chars") then
     setVariable("permitted.name.chars", "1234567890qwertyuiopasdfghjklzxcvbnm_-=+?!@<>:.,")
   end if
-  return TRUE
+  return(1)
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   pBodyPartObjects = void()
   if windowExists(pWindowTitle) then
     removeWindow(pWindowTitle)
@@ -23,60 +22,66 @@ on deconstruct me
   if objectExists("CountryMngr") then
     removeObject("CountryMngr")
   end if
-  return TRUE
+  return(1)
+  exit
 end
 
-on showHideFigureCreator me, tNewOrUpdate 
+on showHideFigureCreator(me, tNewOrUpdate)
   if windowExists(pWindowTitle) then
     me.closeFigureCreator()
   else
     me.openFigureCreator(tNewOrUpdate)
   end if
+  exit
 end
 
-on openFigureCreator me, tNewOrUpdate 
-  pPropsToServer = [:]
+on openFigureCreator(me, tNewOrUpdate)
+  pPropsToServer = []
   me.ChangeWindowView("figure_namepage.window")
   if not voidp(tNewOrUpdate) then
     me.defineModes(tNewOrUpdate)
   end if
+  exit
 end
 
-on closeFigureCreator me 
-  pPropsToServer = [:]
+on closeFigureCreator(me)
+  pPropsToServer = []
   pBodyPartObjects = void()
   if windowExists(pWindowTitle) then
     removeWindow(pWindowTitle)
   end if
-  return TRUE
+  return(1)
+  exit
 end
 
-on showLoadingWindow me 
+on showLoadingWindow(me)
   me.ChangeWindowView("figure_loading.window")
   me.blinkLoading()
-  return TRUE
+  return(1)
+  exit
 end
 
-on blinkLoading me 
+on blinkLoading(me)
   tWndObj = getWindow(pWindowTitle)
-  if (tWndObj = 0) then
-    return FALSE
+  if tWndObj = 0 then
+    return(0)
   end if
   tElem = tWndObj.getElement("reg_loading")
-  if (tElem = 0) then
-    return FALSE
+  if tElem = 0 then
+    return(0)
   end if
   tElem.setProperty(#visible, not tElem.getProperty(#visible))
   me.delay(500, #blinkLoading)
-  return TRUE
+  return(1)
+  exit
 end
 
-on defineModes me, tMode 
-  pTempPassword = [:]
-  pPartChangeButtons = [:]
+on defineModes(me, tMode)
+  pTempPassword = []
+  pPartChangeButtons = []
   pLastNameCheck = ""
   pMode = tMode
-  if (tMode = "update") then
+  if tMode = "update" then
     tUserName = getObject(#session).get(#userName)
     pNameChecked = 1
     me.NewFigureInformation()
@@ -97,11 +102,12 @@ on defineModes me, tMode
   me.updateSexRadioButtons()
   me.updateFigurePreview()
   me.updateAllPrewIcons()
+  exit
 end
 
-on NewFigureInformation me 
+on NewFigureInformation(me)
   pPropsToServer.setAt("name", "")
-  pPropsToServer.setAt("figure", [:])
+  pPropsToServer.setAt("figure", [])
   pPropsToServer.setAt("sex", "M")
   pPropsToServer.setAt("customData", "")
   pPropsToServer.setAt("email", "")
@@ -110,9 +116,10 @@ on NewFigureInformation me
   pPropsToServer.setAt("phoneNumber", "")
   pPropsToServer.setAt("directMail", "0")
   pPropsToServer.setAt("has_read_agreement", "0")
+  exit
 end
 
-on ChangeWindowView me, tWindowName 
+on ChangeWindowView(me, tWindowName)
   if not windowExists(pWindowTitle) then
     createWindow(pWindowTitle, "habbo_basic.window", 381, 73)
     tWndObj = getWindow(pWindowTitle)
@@ -126,12 +133,13 @@ on ChangeWindowView me, tWindowName
   end if
   tWndObj.merge(tWindowName)
   pOpenWindow = tWindowName
+  exit
 end
 
-on getMyInformation me 
-  pPropsToServer = [:]
+on getMyInformation(me)
+  pPropsToServer = []
   tTempProps = ["name", "password", "figure", "sex", "customData", "email", "birthday", "country", "region", "phoneNumber", "directMail", "has_read_agreement"]
-  repeat while tTempProps <= undefined
+  repeat while me <= undefined
     tProp = getAt(undefined, undefined)
     if getObject(#session).exists("user_" & tProp) then
       pPropsToServer.setAt(tProp, getObject(#session).get("user_" & tProp))
@@ -142,19 +150,20 @@ on getMyInformation me
   pPropsToServer.getAt("figure").deleteProp("li")
   pPropsToServer.getAt("figure").deleteProp("ri")
   pOldFigure = pPropsToServer.getAt("figure").duplicate()
-  if (pPropsToServer.getAt("sex").getProp(#char, 1) = "f") or (pPropsToServer.getAt("sex").getProp(#char, 1) = "F") then
+  if pPropsToServer.getAt("sex").getProp(#char, 1) = "f" or pPropsToServer.getAt("sex").getProp(#char, 1) = "F" then
     pPropsToServer.setAt("sex", "F")
   else
     pPropsToServer.setAt("sex", "M")
   end if
   pOldSex = pPropsToServer.getAt("sex")
+  exit
 end
 
-on setMyDataToFields me 
+on setMyDataToFields(me)
   tWndObj = getWindow(pWindowTitle)
-  tTempProps = [:]
-  if (pOpenWindow = "figure_namepage.window") then
-    if (pMode = "update") then
+  tTempProps = []
+  if me = "figure_namepage.window" then
+    if pMode = "update" then
       tWndObj.getElement("char_mission_field").setFocus(1)
       tWndObj.getElement("char_name_field").setProperty(#blend, 30)
       tWndObj.getElement("char_name_field").setEdit(0)
@@ -166,9 +175,9 @@ on setMyDataToFields me
     end if
     tTempProps = ["name":"char_name_field", "customData":"char_mission_field"]
   else
-    if (pOpenWindow = "figure_infopage.window") then
+    if me = "figure_infopage.window" then
       tTempProps = ["email":"char_email_field", "phoneNumber":"char_mobile_field"]
-      pTempPassword = [:]
+      pTempPassword = []
       tDelim = the itemDelimiter
       the itemDelimiter = "."
       tWndObj.getElement("char_birth_dd_field").setText(pPropsToServer.getAt("birthday").getProp(#item, 1))
@@ -182,8 +191,8 @@ on setMyDataToFields me
         tWndObj.getElement("char_page_number").setText("2/3")
       end if
     else
-      if (pOpenWindow = "figure_areapage.window") then
-        tTempProps = [:]
+      if me = "figure_areapage.window" then
+        tTempProps = []
         tSelection = tWndObj.getElement("char_continent_drop").getSelection()
         tCountryListImg = getObject("CountryMngr").getCountryListImg(tSelection)
         tWndObj.getElement("char_country_field").feedImage(tCountryListImg)
@@ -200,31 +209,32 @@ on setMyDataToFields me
     if tWndObj.elementExists(tElem) then
       tWndObj.getElement(tElem).setText(pPropsToServer.getAt(tProp))
     end if
-    f = (1 + f)
+    f = 1 + f
   end repeat
+  exit
 end
 
-on getMyDataFromFields me 
+on getMyDataFromFields(me)
   tWndObj = getWindow(pWindowTitle)
-  tTempProps = [:]
-  if (pOpenWindow = "figure_namepage.window") then
+  tTempProps = []
+  if me = "figure_namepage.window" then
     tTempProps = ["name":"char_name_field", "customData":"char_mission_field"]
   else
-    if (pOpenWindow = "figure_infopage.window") then
+    if me = "figure_infopage.window" then
       tDay = tWndObj.getElement("char_birth_dd_field").getText()
       tMonth = tWndObj.getElement("char_birth_mm_field").getText()
       tYear = tWndObj.getElement("char_birth_yyyy_field").getText()
       pPropsToServer.setAt("birthday", tDay & "." & tMonth & "." & tYear)
       tTempProps = ["email":"char_email_field", "phoneNumber":"char_mobile_field"]
     else
-      if (pOpenWindow = "figure_areapage.window") then
+      if me = "figure_areapage.window" then
         tSelection = tWndObj.getElement("char_continent_drop").getSelection(#text)
         if voidp(tSelection) then
           error(me, "Drop selection returns VOID!!!", #getMyDataFromFields)
         end if
         tContinent = getObject("CountryMngr").getContinentData(tSelection)
         if not voidp(tContinent) then
-          if (tContinent.type = #country) then
+          if tContinent.type = #country then
             pPropsToServer.setAt("region", getObject("CountryMngr").getSelectedCountryID())
             pPropsToServer.setAt("country", "0")
           else
@@ -245,12 +255,13 @@ on getMyDataFromFields me
     if tWndObj.elementExists(tElem) then
       pPropsToServer.setAt(tProp, tWndObj.getElement(tElem).getText())
     end if
-    f = (1 + f)
+    f = 1 + f
   end repeat
-  return TRUE
+  return(1)
+  exit
 end
 
-on updateSexRadioButtons me 
+on updateSexRadioButtons(me)
   tRadioButtonOnImg = member(getmemnum("button.radio.on")).image
   tRadioButtonOffImg = member(getmemnum("button.radio.off")).image
   if voidp(pPropsToServer.getAt("sex")) then
@@ -272,9 +283,10 @@ on updateSexRadioButtons me
       tWndObj.getElement("char_sex_f").feedImage(tRadioButtonOffImg)
     end if
   end if
+  exit
 end
 
-on updateCheckButton me, tElement, tProp, tChangeMode 
+on updateCheckButton(me, tElement, tProp, tChangeMode)
   tOnImg = member(getmemnum("button.checkbox.on")).image
   tOffImg = member(getmemnum("button.checkbox.off")).image
   tWndObj = getWindow(pWindowTitle)
@@ -285,13 +297,13 @@ on updateCheckButton me, tElement, tProp, tChangeMode
     tChangeMode = 0
   end if
   if tChangeMode then
-    if (pPropsToServer.getAt(tProp) = "1") then
+    if pPropsToServer.getAt(tProp) = "1" then
       pPropsToServer.setAt(tProp, "0")
     else
       pPropsToServer.setAt(tProp, "1")
     end if
   end if
-  if (pPropsToServer.getAt(tProp) = "1") then
+  if pPropsToServer.getAt(tProp) = "1" then
     if tWndObj.elementExists(tElement) then
       tWndObj.getElement(tElement).feedImage(tOnImg)
     end if
@@ -300,13 +312,14 @@ on updateCheckButton me, tElement, tProp, tChangeMode
       tWndObj.getElement(tElement).feedImage(tOffImg)
     end if
   end if
+  exit
 end
 
-on createDefaultFigure me, tRandom 
-  pPropsToServer.setAt("figure", [:])
-  if not voidp(pOldFigure) and (pOldSex = pPropsToServer.getAt("sex")) then
+on createDefaultFigure(me, tRandom)
+  pPropsToServer.setAt("figure", [])
+  if not voidp(pOldFigure) and pOldSex = pPropsToServer.getAt("sex") then
     pPropsToServer.setAt("figure", pOldFigure)
-    repeat while ["lh", "ls", "bd", "sh", "lg", "ch", "hd", "fc", "ey", "hr", "rh", "rs"] <= undefined
+    repeat while me <= undefined
       tPart = getAt(undefined, tRandom)
       tmodel = pPropsToServer.getAt("figure").getAt(tPart).getAt("model")
       tColor = pPropsToServer.getAt("figure").getAt(tPart).getAt("color")
@@ -317,7 +330,7 @@ on createDefaultFigure me, tRandom
     me.updateAllPrewIcons()
     return()
   end if
-  repeat while ["lh", "ls", "bd", "sh", "lg", "ch", "hd", "fc", "ey", "hr", "rh", "rs"] <= undefined
+  repeat while me <= undefined
     tPart = getAt(undefined, tRandom)
     if voidp(tRandom) then
       tRandom = 0
@@ -329,7 +342,7 @@ on createDefaultFigure me, tRandom
       tNumber = 1
     end if
     tPartProps = me.getComponent().getModelOfPartByOrderNum(tPart, tNumber, pPropsToServer.getAt("sex"))
-    if (tPartProps.ilk = #propList) then
+    if tPartProps.ilk = #propList then
       tColorList = tPartProps.getAt("firstcolor")
       tSetID = tPartProps.getAt("setid")
       tColorId = 1
@@ -340,10 +353,10 @@ on createDefaultFigure me, tRandom
       repeat while f <= tPartProps.getAt("changeparts").count
         tMultiPart = tPartProps.getAt("changeparts").getPropAt(f)
         tmodel = string(tPartProps.getAt("changeparts").getAt(tMultiPart))
-        if (tmodel.count(#char) = 1) then
+        if tmodel.count(#char) = 1 then
           tmodel = "00" & tmodel
         else
-          if (tmodel.count(#char) = 2) then
+          if tmodel.count(#char) = 2 then
             tmodel = "0" & tmodel
           end if
         end if
@@ -356,24 +369,25 @@ on createDefaultFigure me, tRandom
         me.setPartColor(tMultiPart, tColor)
         pPropsToServer.getAt("figure").setAt(tMultiPart, ["model":tmodel, "color":tColor, "setid":tSetID, "colorid":tColorId])
         me.setIndexNumOfPartOrColor("partcolor", tMultiPart, 0)
-        f = (1 + f)
+        f = 1 + f
       end repeat
     end if
   end repeat
   me.updateFigurePreview()
   me.updateAllPrewIcons()
+  exit
 end
 
-on createTemplateHuman me 
+on createTemplateHuman(me)
   if not voidp(pBodyPartObjects) then
-    return FALSE
+    return(0)
   end if
   tProps = pPropsToServer
   pPeopleSize = "h"
   pBuffer = image(1, 1, 8)
   pFlipList = [0, 1, 2, 3, 2, 1, 0, 7]
-  pBodyPartObjects = [:]
-  repeat while ["lh", "ls", "bd", "sh", "lg", "ch", "hd", "fc", "ey", "hr", "rh", "rs"] <= undefined
+  pBodyPartObjects = []
+  repeat while me <= undefined
     tPart = getAt(undefined, undefined)
     tmodel = pPropsToServer.getAt("figure").getAt(tPart).getAt("model")
     tColor = pPropsToServer.getAt("figure").getAt(tPart).getAt("color")
@@ -384,9 +398,10 @@ on createTemplateHuman me
     tTempPartObj.define(tPart, tmodel, tColor, tDirection, tAction, tAncestor)
     pBodyPartObjects.addProp(tPart, tTempPartObj)
   end repeat
+  exit
 end
 
-on getSetID me, tPart 
+on getSetID(me, tPart)
   if voidp(pPropsToServer.getAt("figure").getAt(tPart)) then
     return(error(me, "Part missing:" && tPart, #getSetID))
   end if
@@ -394,9 +409,10 @@ on getSetID me, tPart
     return(error(me, "Part setid missing:" && tPart, #getSetID))
   end if
   return(pPropsToServer.getAt("figure").getAt(tPart).getAt("setid"))
+  exit
 end
 
-on updateFigurePreview me 
+on updateFigurePreview(me)
   if not voidp(pBodyPartObjects) and windowExists(pWindowTitle) then
     tWndObj = getWindow(pWindowTitle)
     tHumanImg = image(64, 102, 16)
@@ -405,67 +421,69 @@ on updateFigurePreview me
     tWidth = tWndObj.getElement("human.preview.img").getProperty(#width)
     tHeight = tWndObj.getElement("human.preview.img").getProperty(#height)
     tPrewImg = image(tWidth, tHeight, 16)
-    tdestrect = (tPrewImg.rect - (tHumanImg.rect * 2))
+    tdestrect = tPrewImg.rect - tHumanImg.rect * 2
     tMargins = rect(-11, -6, -11, -6)
-    tdestrect = (rect(0, tdestrect.bottom, (tHumanImg.width * 2), tPrewImg.rect.bottom) + tMargins)
+    tdestrect = rect(tdestrect.bottom, tHumanImg.width * 2, tPrewImg, rect.bottom) + tMargins
     tPrewImg.copyPixels(tHumanImg, tdestrect, tHumanImg.rect)
     if tWndObj.elementExists("human.preview.img") then
       tWndObj.getElement("human.preview.img").feedImage(tPrewImg)
     end if
   end if
+  exit
 end
 
-on updateAllPrewIcons me 
-  repeat while ["hr", "hd", "ch", "lg", "sh"] <= undefined
+on updateAllPrewIcons(me)
+  repeat while me <= undefined
     tPart = getAt(undefined, undefined)
     me.setIndexNumOfPartOrColor("partcolor", tPart, 0)
     me.setIndexNumOfPartOrColor("partmodel", tPart, 0)
     if not voidp(pPropsToServer.getAt("figure").getAt(tPart).getAt("color")) then
       me.updatePartColorPreview(tPart, pPropsToServer.getAt("figure").getAt(tPart).getAt("color"))
-      if (["hr", "hd", "ch", "lg", "sh"] = "hd") then
+      if me = "hd" then
         tTemp = ["hd":pPropsToServer.getAt("figure").getAt("hd").getAt("model"), "ey":pPropsToServer.getAt("figure").getAt("ey").getAt("model"), "fc":pPropsToServer.getAt("figure").getAt("fc").getAt("model")]
         me.updatePartPreview(tPart, tTemp)
       else
-        if (["hr", "hd", "ch", "lg", "sh"] = "ch") then
+        if me = "ch" then
           tTemp = ["ls":pPropsToServer.getAt("figure").getAt("ls").getAt("model"), "ch":pPropsToServer.getAt("figure").getAt("ch").getAt("model"), "rs":pPropsToServer.getAt("figure").getAt("rs").getAt("model")]
           me.updatePartPreview(tPart, tTemp)
         else
-          tTemp = [:]
+          tTemp = []
           tTemp.addProp(tPart, pPropsToServer.getAt("figure").getAt(tPart).getAt("model"))
           me.updatePartPreview(tPart, tTemp)
         end if
       end if
     end if
   end repeat
+  exit
 end
 
-on updatePartPreview me, tPart, tChangingPartPropList 
+on updatePartPreview(me, tPart, tChangingPartPropList)
   tElemID = "part." & tPart & ".preview"
   tWndObj = getWindow(pWindowTitle)
   tElem = tWndObj.getElement(tElemID)
   if not voidp(pBodyPartObjects) and tElem <> 0 then
     tTempPartImg = image(64, 102, 16)
     tPartList = []
-    if (tPart = "hd") then
+    if me = "hd" then
       tTempChangingParts = ["hd", "ey", "fc"]
     else
-      if (tPart = "ch") then
+      if me = "ch" then
         tTempChangingParts = ["ls", "ch", "rs"]
       else
         tTempChangingParts = [tPart]
       end if
     end if
-    repeat while tPart <= tChangingPartPropList
+    repeat while me <= tChangingPartPropList
       tChancePart = getAt(tChangingPartPropList, tPart)
       tMultiPart = tChancePart
       tTempChangeParts = ["hr", "hd", "ch", "lg", "sh", "ey", "fc", "ls", "rs", "ls", "rs"]
       if tTempChangeParts.getOne(tMultiPart) > 0 then
         tmodel = string(tChangingPartPropList.getAt(tMultiPart))
         tPartList.add(tMultiPart)
-        if (length(tmodel) = 1) then
+        if length(tmodel) = 1 then
           tmodel = "00" & tmodel
         else
-          if (length(tmodel) = 2) then
+          if length(tmodel) = 2 then
             tmodel = "0" & tmodel
           end if
         end if
@@ -477,16 +495,17 @@ on updatePartPreview me, tPart, tChangingPartPropList
     tWidth = tElem.getProperty(#width)
     tHeight = tElem.getProperty(#height)
     tPrewImg = image(tWidth, tHeight, 16)
-    tdestrect = (tPrewImg.rect - tTempPartImg.rect)
-    tMarginH = ((tPrewImg.width / 2) - (tTempPartImg.width / 2))
-    tMarginV = ((tPrewImg.height / 2) - (tTempPartImg.height / 2))
-    tdestrect = (tTempPartImg.rect + rect(tMarginH, tMarginV, tMarginH, tMarginV))
+    tdestrect = tPrewImg.rect - tTempPartImg.rect
+    tMarginH = tPrewImg.width / 2 - tTempPartImg.width / 2
+    tMarginV = tPrewImg.height / 2 - tTempPartImg.height / 2
+    tdestrect = tTempPartImg.rect + rect(tMarginH, tMarginV, tMarginH, tMarginV)
     tPrewImg.copyPixels(tTempPartImg, tdestrect, tTempPartImg.rect)
     tElem.feedImage(tPrewImg)
   end if
+  exit
 end
 
-on updatePartColorPreview me, tPart, tColor 
+on updatePartColorPreview(me, tPart, tColor)
   tElemID = "part.color." & tPart & ".preview"
   if voidp(tColor) then
     tColor = rgb(255, 255, 255)
@@ -495,62 +514,67 @@ on updatePartColorPreview me, tPart, tColor
   if tWndObj.elementExists(tElemID) then
     tWndObj.getElement(tElemID).getProperty(#sprite).bgColor = tColor
   end if
+  exit
 end
 
-on getPartImg me, tPartList, tImg 
+on getPartImg(me, tPartList, tImg)
   if tPartList.ilk <> #list then
     tPartList = [tPartList]
   end if
-  repeat while tPartList <= tImg
+  repeat while me <= tImg
     tPart = getAt(tImg, tPartList)
     call(#copyPicture, [pBodyPartObjects.getAt(tPart)], tImg)
   end repeat
+  exit
 end
 
-on setPartColor me, tPart, tColor 
+on setPartColor(me, tPart, tColor)
   if not voidp(pBodyPartObjects) then
     call(#setColor, [pBodyPartObjects.getAt(tPart)], tColor)
   end if
+  exit
 end
 
-on setPartModel me, tPart, tmodel 
+on setPartModel(me, tPart, tmodel)
   if not voidp(pBodyPartObjects) then
     call(#setModel, [pBodyPartObjects.getAt(tPart)], tmodel)
   end if
+  exit
 end
 
-on setIndexNumOfPartOrColor me, tChange, tPart, tOrderNum, tMaxValue 
+on setIndexNumOfPartOrColor(me, tChange, tPart, tOrderNum, tMaxValue)
   if voidp(pPartChangeButtons.getAt(tChange)) then
-    pPartChangeButtons.setAt(tChange, [:])
+    pPartChangeButtons.setAt(tChange, [])
   end if
   if voidp(pPartChangeButtons.getAt(tChange).getAt(tPart)) then
-    pPartChangeButtons.getAt(tChange).setAt(tPart, [:])
+    pPartChangeButtons.getAt(tChange).setAt(tPart, [])
   end if
-  if (tOrderNum = 0) then
+  if tOrderNum = 0 then
     pPartChangeButtons.getAt(tChange).setAt(tPart, 1)
   else
-    if (pPartChangeButtons.getAt(tChange).getAt(tPart) + tOrderNum) > tMaxValue then
+    if pPartChangeButtons.getAt(tChange).getAt(tPart) + tOrderNum > tMaxValue then
       pPartChangeButtons.getAt(tChange).setAt(tPart, 1)
     else
-      if (pPartChangeButtons.getAt(tChange).getAt(tPart) + tOrderNum) < 1 then
+      if pPartChangeButtons.getAt(tChange).getAt(tPart) + tOrderNum < 1 then
         pPartChangeButtons.getAt(tChange).setAt(tPart, tMaxValue)
       else
-        pPartChangeButtons.getAt(tChange).setAt(tPart, (pPartChangeButtons.getAt(tChange).getAt(tPart) + tOrderNum))
+        pPartChangeButtons.getAt(tChange).setAt(tPart, pPartChangeButtons.getAt(tChange).getAt(tPart) + tOrderNum)
       end if
     end if
   end if
   return(pPartChangeButtons.getAt(tChange).getAt(tPart))
+  exit
 end
 
-on changePart me, tPart, tButtonDir 
+on changePart(me, tPart, tButtonDir)
   tSetID = me.getSetID(tPart)
-  if (tSetID = 0) then
+  if tSetID = 0 then
     return(error(me, "Incorrect part data", #changePart))
   end if
   tMaxValue = me.getComponent().getCountOfPart(tPart, pPropsToServer.getAt("sex"))
   tPartIndexNum = me.setIndexNumOfPartOrColor("partmodel", tPart, tButtonDir, tMaxValue)
   tPartProps = me.getComponent().getModelOfPartByOrderNum(tPart, tPartIndexNum, pPropsToServer.getAt("sex"))
-  if (tPartProps.ilk = #propList) then
+  if tPartProps.ilk = #propList then
     tColorList = tPartProps.getAt("firstcolor")
     tSetID = tPartProps.getAt("setid")
     tColorId = 1
@@ -561,10 +585,10 @@ on changePart me, tPart, tButtonDir
     repeat while f <= tPartProps.getAt("changeparts").count
       tMultiPart = tPartProps.getAt("changeparts").getPropAt(f)
       tmodel = string(tPartProps.getAt("changeparts").getAt(tMultiPart))
-      if (tmodel.count(#char) = 1) then
+      if tmodel.count(#char) = 1 then
         tmodel = "00" & tmodel
       else
-        if (tmodel.count(#char) = 2) then
+        if tmodel.count(#char) = 2 then
           tmodel = "0" & tmodel
         end if
       end if
@@ -577,7 +601,7 @@ on changePart me, tPart, tButtonDir
       me.setPartColor(tMultiPart, tColor)
       pPropsToServer.getAt("figure").setAt(tMultiPart, ["model":tmodel, "color":tColor, "setid":tSetID, "colorid":tColorId])
       me.setIndexNumOfPartOrColor("partcolor", tMultiPart, 0)
-      f = (1 + f)
+      f = 1 + f
     end repeat
     if not voidp(pPropsToServer.getAt("figure").getAt(tPart)) then
       if not voidp(pPropsToServer.getAt("figure").getAt(tPart).getAt("color")) then
@@ -588,17 +612,18 @@ on changePart me, tPart, tButtonDir
     me.updatePartColorPreview(tPart, tColor)
     me.updatePartPreview(tPart, tPartProps.getAt("changeparts"))
   end if
+  exit
 end
 
-on changePartColor me, tPart, tButtonDir 
+on changePartColor(me, tPart, tButtonDir)
   tSetID = me.getSetID(tPart)
-  if (tSetID = 0) then
+  if tSetID = 0 then
     return(error(me, "Incorrect part data", #changePartColor))
   end if
   tMaxValue = me.getComponent().getCountOfPartColors(tPart, tSetID, pPropsToServer.getAt("sex"))
   tColorIndexNum = me.setIndexNumOfPartOrColor("partcolor", tPart, tButtonDir, tMaxValue)
   tPartProps = me.getComponent().getColorOfPartByOrderNum(tPart, tColorIndexNum, tSetID, pPropsToServer.getAt("sex"))
-  if (tPartProps.ilk = #propList) then
+  if tPartProps.ilk = #propList then
     tColorList = tPartProps.getAt("color")
     if not listp(tColorList) then
       tColorList = list(tColorList)
@@ -614,7 +639,7 @@ on changePartColor me, tPart, tButtonDir
       me.setPartColor(tMultiPart, tColor)
       pPropsToServer.getAt("figure").getAt(tMultiPart).setAt("color", tColor)
       pPropsToServer.getAt("figure").getAt(tMultiPart).setAt("colorid", tColorIndexNum)
-      f = (1 + f)
+      f = 1 + f
     end repeat
     if not voidp(pPropsToServer.getAt("figure").getAt(tPart)) then
       if not voidp(pPropsToServer.getAt("figure").getAt(tPart).getAt("color")) then
@@ -625,42 +650,45 @@ on changePartColor me, tPart, tButtonDir
     me.updatePartColorPreview(tPart, tColor)
     me.updatePartPreview(tPart, tPartProps.getAt("changeparts"))
   end if
+  exit
 end
 
-on focusKeyboardToSprite me, tElemID 
+on focusKeyboardToSprite(me, tElemID)
   getWindow(pWindowTitle).getElement(tElemID).setFocus(1)
+  exit
 end
 
-on checkName me 
+on checkName(me)
   if pMode <> "update" then
     tField = getWindow(pWindowTitle).getElement("char_name_field")
-    if (tField = 0) then
+    if tField = 0 then
       return(error(me, "Couldn't perform name check!", #checkName))
     end if
     tName = tField.getText().getProp(#word, 1)
     tField.setText(tName)
-    if (length(tName) = 0) then
+    if length(tName) = 0 then
       executeMessage(#alert, [#msg:"Alert_NoNameSet", #id:"nonameset"])
-      return FALSE
+      return(0)
     else
       if length(tName) < getIntVariable("name.length.min", 3) then
         executeMessage(#alert, [#msg:"Alert_YourNameIstooShort", #id:"name2short"])
         me.focusKeyboardToSprite("char_name_field")
-        return FALSE
+        return(0)
       else
         if pLastNameCheck <> tName then
-          if (me.getComponent().checkUserName(tName) = 0) then
-            return FALSE
+          if me.getComponent().checkUserName(tName) = 0 then
+            return(0)
           end if
         end if
       end if
     end if
   end if
   pNameChecked = 1
-  return TRUE
+  return(1)
+  exit
 end
 
-on checkPassword me 
+on checkPassword(me)
   if voidp(pTempPassword.getAt("char_pw_field")) then
     tPw1 = []
   else
@@ -671,24 +699,25 @@ on checkPassword me
   else
     tPw2 = pTempPassword.getAt("char_pwagain_field")
   end if
-  if (tPw1.count = 0) then
+  if tPw1.count = 0 then
     pErrorMsg = pErrorMsg & getText("Alert_ForgotSetPassword") & "\r"
-    return FALSE
+    return(0)
   end if
   if tPw1.count < getIntVariable("pass.length.min", 3) then
     pErrorMsg = pErrorMsg & getText("Alert_YourPasswordIsTooShort") & "\r"
     me.ClearPasswordFields()
-    return FALSE
+    return(0)
   end if
   if tPw1 <> tPw2 then
     pErrorMsg = pErrorMsg & getText("Alert_WrongPassword") & "\r"
     me.ClearPasswordFields()
-    return FALSE
+    return(0)
   end if
-  return TRUE
+  return(1)
+  exit
 end
 
-on BirthdayANDemailcheck me 
+on BirthdayANDemailcheck(me)
   tWndObj = getWindow(pWindowTitle)
   tDay = integer(tWndObj.getElement("char_birth_dd_field").getText())
   tMonth = integer(tWndObj.getElement("char_birth_mm_field").getText())
@@ -707,15 +736,15 @@ on BirthdayANDemailcheck me
   end if
   tEmailOK = 0
   if length(tEmail) > 6 and tEmail contains "@" then
-    f = (offset("@", tEmail) + 1)
+    f = offset("@", tEmail) + 1
     repeat while f <= length(tEmail)
-      if (tEmail.getProp(#char, f) = ".") then
+      if tEmail.getProp(#char, f) = "." then
         tEmailOK = 1
       end if
-      if (tEmail.getProp(#char, f) = "@") then
+      if tEmail.getProp(#char, f) = "@" then
         tEmailOK = 0
       else
-        f = (1 + f)
+        f = 1 + f
       end if
     end repeat
   end if
@@ -726,73 +755,81 @@ on BirthdayANDemailcheck me
     pErrorMsg = pErrorMsg & getText("Alert_Char_Email") & "\r"
   end if
   if not tEmailOK or not tBirthOK then
-    return FALSE
+    return(0)
   else
-    return TRUE
+    return(1)
   end if
+  exit
 end
 
-on checkAgreeTerms me 
+on checkAgreeTerms(me)
   if pPropsToServer.getAt("has_read_agreement") <> "1" then
     pErrorMsg = pErrorMsg & getText("Alert_Char_Terms") & "\r"
-    return FALSE
+    return(0)
   else
-    return TRUE
+    return(1)
   end if
+  exit
 end
 
-on userNameUnacceptable me 
+on userNameUnacceptable(me)
   executeMessage(#alert, [#msg:"Alert_unacceptableName", #id:"namenogood"])
   me.clearUserNameField()
+  exit
 end
 
-on userNameAlreadyReserved me 
+on userNameAlreadyReserved(me)
   executeMessage(#alert, [#msg:"Alert_NameAlreadyUse", #id:"namereserved"])
   me.clearUserNameField()
+  exit
 end
 
-on clearUserNameField me 
+on clearUserNameField(me)
   pNameChecked = 0
   tElem = getWindow(pWindowTitle).getElement("char_name_field")
-  if (tElem = 0) then
-    return FALSE
+  if tElem = 0 then
+    return(0)
   end if
   tElem.setText("")
   tElem.setFocus(1)
+  exit
 end
 
-on ClearPasswordFields me 
+on ClearPasswordFields(me)
   tWndObj = getWindow(pWindowTitle)
   tWndObj.getElement("char_pw_field").setText("")
   tWndObj.getElement("char_pwagain_field").setText("")
   pTempPassword.setAt("char_pw_field", [])
   pTempPassword.setAt("char_pwagain_field", [])
   tWndObj.getElement("char_pw_field").setFocus(1)
+  exit
 end
 
-on getPassword me 
+on getPassword(me)
   tPw = ""
-  repeat while pTempPassword.getAt("char_pw_field") <= undefined
+  repeat while me <= undefined
     f = getAt(undefined, undefined)
     tPw = tPw & f
   end repeat
   return(tPw)
+  exit
 end
 
-on flipImage me, tImg_a 
+on flipImage(me, tImg_a)
   tImg_b = image(tImg_a.width, tImg_a.height, tImg_a.depth)
   tQuad = [point(tImg_a.width, 0), point(0, 0), point(0, tImg_a.height), point(tImg_a.width, tImg_a.height)]
   tImg_b.copyPixels(tImg_a, tQuad, tImg_a.rect)
   return(tImg_b)
+  exit
 end
 
-on eventProcFigurecreator me, tEvent, tSprID, tParm, tWndID 
-  if (tEvent = #mouseUp) then
-    if tSprID <> "close" then
-      if (tSprID = "char_namepage_back_button") then
+on eventProcFigurecreator(me, tEvent, tSprID, tParm, tWndID)
+  if tEvent = #mouseUp then
+    if me <> "close" then
+      if me = "char_namepage_back_button" then
         me.getComponent().closeFigureCreator()
         me.getComponent().updateState("start")
-        if (getObject(#session).get(#userName) = "") then
+        if getObject(#session).get(#userName) = "" then
           if threadExists(#navigator) then
             getThread(#navigator).getInterface().getLogin().showLogin()
           end if
@@ -801,16 +838,16 @@ on eventProcFigurecreator me, tEvent, tSprID, tParm, tWndID
           end if
         end if
       else
-        if (tSprID = "char_namepage_done_button") then
+        if me = "char_namepage_done_button" then
           me.getMyDataFromFields()
           getObject(#session).set("user_figure", pPropsToServer.getAt("figure").duplicate())
           me.getComponent().sendFigureUpdateToServer(pPropsToServer)
           return(me.closeFigureCreator())
         else
-          if (tSprID = "char_namepage_next_button") then
-            if (pNameChecked = 0) then
-              if (me.checkName() = 0) then
-                return TRUE
+          if me = "char_namepage_next_button" then
+            if pNameChecked = 0 then
+              if me.checkName() = 0 then
+                return(1)
               end if
             end if
             me.getMyDataFromFields()
@@ -818,18 +855,18 @@ on eventProcFigurecreator me, tEvent, tSprID, tParm, tWndID
             me.setMyDataToFields()
             me.updateCheckButton("char_spam_checkbox", "directMail")
             me.updateCheckButton("char_terms_checkbox", "has_read_agreement")
-            if (pMode = "update") then
+            if pMode = "update" then
               executeMessage(#alert, [#title:"char_note_title", #msg:"char_note_text", #id:"pwnote"])
             end if
           else
-            if (tSprID = "char_infopage_back_button") then
+            if me = "char_infopage_back_button" then
               me.getMyDataFromFields()
               me.ChangeWindowView("figure_namepage.window")
               me.setMyDataToFields()
               me.defineModes(pMode)
             else
-              if tSprID <> "char_infopage_next_button" then
-                if (tSprID = "char_infopage_done_button") then
+              if me <> "char_infopage_next_button" then
+                if me = "char_infopage_done_button" then
                   if not objectExists("CountryMngr") then
                     createObject("CountryMngr", "Country Selection Manager")
                   end if
@@ -841,14 +878,14 @@ on eventProcFigurecreator me, tEvent, tSprID, tParm, tWndID
                   if tProceed then
                     pPropsToServer.setAt("password", getPassword())
                     me.getMyDataFromFields()
-                    if (tSprID = "char_infopage_done_button") then
+                    if tSprID = "char_infopage_done_button" then
                       getObject(#session).set(#userName, pPropsToServer.getAt("name"))
                       getObject(#session).set(#password, pPropsToServer.getAt("password"))
                       getObject(#session).set("user_figure", pPropsToServer.getAt("figure").duplicate())
                       me.getComponent().sendFigureUpdateToServer(pPropsToServer)
                       return(me.closeFigureCreator())
                     else
-                      if (tSprID = "char_infopage_next_button") then
+                      if tSprID = "char_infopage_next_button" then
                         me.ChangeWindowView("figure_areapage.window")
                         return(me.setMyDataToFields())
                       end if
@@ -857,64 +894,64 @@ on eventProcFigurecreator me, tEvent, tSprID, tParm, tWndID
                     executeMessage(#alert, [#title:"Alert_Char_T", #msg:pErrorMsg, #id:"problems"])
                   end if
                 else
-                  if (tSprID = "char_areapage_back_button") then
+                  if me = "char_areapage_back_button" then
                     me.getMyDataFromFields()
                     me.ChangeWindowView("figure_infopage.window")
                     me.setMyDataToFields()
                     me.updateCheckButton("char_spam_checkbox", "directMail")
                     me.updateCheckButton("char_terms_checkbox", "has_read_agreement")
                   else
-                    if (tSprID = "char_areapage_done_button") then
+                    if me = "char_areapage_done_button" then
                       me.getMyDataFromFields()
                       getObject(#session).set(#userName, pPropsToServer.getAt("name"))
                       getObject(#session).set(#password, pPropsToServer.getAt("password"))
                       getObject(#session).set("user_figure", pPropsToServer.getAt("figure").duplicate())
-                      if (pMode = "update") then
+                      if pMode = "update" then
                         me.getComponent().sendFigureUpdateToServer(pPropsToServer)
                       else
                         me.getComponent().sendNewFigureDataToServer(pPropsToServer)
                       end if
                       return(me.getComponent().closeFigureCreator())
                     else
-                      if (tSprID = "char_sex_m") then
+                      if me = "char_sex_m" then
                         pPropsToServer.setAt("sex", "M")
                         me.createDefaultFigure(1)
                         me.updateSexRadioButtons()
                       else
-                        if (tSprID = "char_sex_f") then
+                        if me = "char_sex_f" then
                           pPropsToServer.setAt("sex", "F")
                           me.createDefaultFigure(1)
                           me.updateSexRadioButtons()
                         else
-                          if (tSprID = "char_spam_checkbox") then
+                          if me = "char_spam_checkbox" then
                             me.updateCheckButton("char_spam_checkbox", "directMail", 1)
                           else
-                            if (tSprID = "char_terms_checkbox") then
+                            if me = "char_terms_checkbox" then
                               me.updateCheckButton("char_terms_checkbox", "has_read_agreement", 1)
                             else
-                              if (tSprID = "char_name_field") then
-                                if pMode <> "update" and (pNameChecked = 1) then
+                              if me = "char_name_field" then
+                                if pMode <> "update" and pNameChecked = 1 then
                                   pNameChecked = 0
                                 end if
                               else
-                                if (tSprID = "char_continent_drop") then
+                                if me = "char_continent_drop" then
                                   tCountryListImg = getObject("CountryMngr").getCountryListImg(tParm)
                                   getWindow(pWindowTitle).getElement("char_country_field").feedImage(tCountryListImg)
                                 else
-                                  if (tSprID = "char_terms_linktext") then
+                                  if me = "char_terms_linktext" then
                                     openNetPage("url_helpterms")
                                   else
-                                    if (tSprID = "char_pledge_linktext") then
+                                    if me = "char_pledge_linktext" then
                                       openNetPage("url_helppledge")
                                     else
-                                      if (tSprID = "char_country_field") then
+                                      if me = "char_country_field" then
                                         tWndObj = getWindow(pWindowTitle)
                                         tCntryMngr = getObject("CountryMngr")
                                         tCont = tWndObj.getElement("char_continent_drop").getSelection()
                                         tLine = tCntryMngr.getClickedLineNum(tParm)
                                         tName = tCntryMngr.getNthCountryName(tLine, tCont)
-                                        if (tName = 0) then
-                                          return TRUE
+                                        if tName = 0 then
+                                          return(1)
                                         end if
                                         tCntryMngr.selectCountry(tName, tCont)
                                         tWndObj.getElement("char_country_field").feedImage(tCntryMngr.getCountryListImg(tCont))
@@ -923,7 +960,7 @@ on eventProcFigurecreator me, tEvent, tSprID, tParm, tWndID
                                           tTempDelim = the itemDelimiter
                                           the itemDelimiter = "."
                                           tPart = tSprID.getProp(#item, 2)
-                                          tButtonType = tSprID.getProp(#item, (tSprID.count(#item) - 1))
+                                          tButtonType = tSprID.getProp(#item, tSprID.count(#item) - 1)
                                           the itemDelimiter = tTempDelim
                                           if tButtonType contains "left" then
                                             tButtonType = -1
@@ -948,69 +985,69 @@ on eventProcFigurecreator me, tEvent, tSprID, tParm, tWndID
                     end if
                   end if
                 end if
-                if (tEvent = #keyDown) then
-                  if (tSprID = "char_name_field") then
-                    if (charToNum(the key) = 0) then
-                      return FALSE
+                if tEvent = #keyDown then
+                  if me = "char_name_field" then
+                    if charToNum(the key) = 0 then
+                      return(0)
                     end if
                     tValidKeys = getVariable("permitted.name.chars")
                     if not tValidKeys contains the key then
-                      if (tSprID = 48) then
+                      if me = 48 then
                         me.checkName()
-                        return FALSE
+                        return(0)
                       else
-                        if (tSprID = 49) then
-                          return TRUE
+                        if me = 49 then
+                          return(1)
                         else
-                          if (tSprID = 51) then
-                            return FALSE
+                          if me = 51 then
+                            return(0)
                           else
-                            if (tSprID = 117) then
+                            if me = 117 then
                               getWindow(pWindowTitle).getElement(tSprID).setText("")
-                              return FALSE
+                              return(0)
                             else
-                              if (tValidKeys = "") then
-                                return FALSE
+                              if tValidKeys = "" then
+                                return(0)
                               else
-                                return TRUE
+                                return(1)
                               end if
                             end if
                           end if
                         end if
                       end if
                     else
-                      return FALSE
+                      return(0)
                     end if
                   else
-                    if tSprID <> "char_pw_field" then
-                      if (tSprID = "char_pwagain_field") then
-                        if (pNameChecked = 0) then
+                    if me <> "char_pw_field" then
+                      if me = "char_pwagain_field" then
+                        if pNameChecked = 0 then
                           if not me.checkName() then
-                            return TRUE
+                            return(1)
                           end if
                         end if
                         if voidp(pTempPassword.getAt(tSprID)) then
                           pTempPassword.setAt(tSprID, [])
                         end if
-                        if (tSprID = 48) then
-                          return FALSE
+                        if me = 48 then
+                          return(0)
                         else
-                          if (tSprID = 49) then
-                            return TRUE
+                          if me = 49 then
+                            return(1)
                           else
-                            if (tSprID = 51) then
+                            if me = 51 then
                               if pTempPassword.getAt(tSprID).count > 0 then
                                 pTempPassword.getAt(tSprID).deleteAt(pTempPassword.getAt(tSprID).count)
                               end if
                             else
-                              if (tSprID = 117) then
+                              if me = 117 then
                                 pTempPassword.setAt(tSprID, [])
                               else
                                 tValidKeys = getVariable("permitted.name.chars")
                                 tTheKey = the key
                                 tASCII = charToNum(tTheKey)
                                 if tASCII > 31 and tASCII < 128 then
-                                  if tValidKeys contains tTheKey or (tValidKeys = "") then
+                                  if tValidKeys contains tTheKey or tValidKeys = "" then
                                     if pTempPassword.getAt(tSprID).count < getIntVariable("pass.length.max", 16) then
                                       pTempPassword.getAt(tSprID).append(tTheKey)
                                     else
@@ -1023,64 +1060,65 @@ on eventProcFigurecreator me, tEvent, tSprID, tParm, tWndID
                           end if
                         end if
                         tStr = ""
-                        repeat while tSprID <= tSprID
+                        repeat while me <= tSprID
                           tChar = getAt(tSprID, tEvent)
                         end repeat
                         getWindow(pWindowTitle).getElement(tSprID).setText(tStr)
                         the selStart = pTempPassword.getAt(tSprID).count
                         the selEnd = pTempPassword.getAt(tSprID).count
-                        return TRUE
+                        return(1)
                       else
-                        if (tSprID = "char_mission_field") then
-                          if (pNameChecked = 0) then
+                        if me = "char_mission_field" then
+                          if pNameChecked = 0 then
                             if not me.checkName() then
-                              return TRUE
+                              return(1)
                             end if
                           end if
                         else
-                          if (tSprID = "char_email_field") then
-                            return FALSE
+                          if me = "char_email_field" then
+                            return(0)
                           else
-                            if tSprID <> "char_birth_dd_field" then
-                              if (tSprID = "char_birth_mm_field") then
-                                if (tSprID = 48) then
-                                  return FALSE
+                            if me <> "char_birth_dd_field" then
+                              if me = "char_birth_mm_field" then
+                                if me = 48 then
+                                  return(0)
                                 else
-                                  if (tSprID = 51) then
-                                    return FALSE
+                                  if me = 51 then
+                                    return(0)
                                   else
-                                    if (tSprID = 117) then
-                                      return FALSE
+                                    if me = 117 then
+                                      return(0)
                                     else
                                       if getWindow(tWndID).getElement(tSprID).getText().length < 2 then
-                                        return FALSE
+                                        return(0)
                                       else
-                                        return TRUE
+                                        return(1)
                                       end if
                                     end if
                                   end if
                                 end if
                               else
-                                if (tSprID = "char_birth_yyyy_field") then
-                                  if (tSprID = 48) then
-                                    return FALSE
+                                if me = "char_birth_yyyy_field" then
+                                  if me = 48 then
+                                    return(0)
                                   else
-                                    if (tSprID = 51) then
-                                      return FALSE
+                                    if me = 51 then
+                                      return(0)
                                     else
-                                      if (tSprID = 117) then
-                                        return FALSE
+                                      if me = 117 then
+                                        return(0)
                                       else
                                         if getWindow(tWndID).getElement(tSprID).getText().length < 4 then
-                                          return FALSE
+                                          return(0)
                                         else
-                                          return TRUE
+                                          return(1)
                                         end if
                                       end if
                                     end if
                                   end if
                                 end if
                               end if
+                              exit
                             end if
                           end if
                         end if

@@ -1,10 +1,8 @@
-property pProcessActive, pTargetData, pKickMe, pAnimCounter, pKickCounter, pResetStateCounter
-
-on prepare me, tdata 
+on prepare(me, tdata)
   if pProcessActive then
     me.delay(50, #doorLogin)
   else
-    pTargetData = [:]
+    pTargetData = []
   end if
   pProcessActive = 0
   pAnimCounter = 0
@@ -25,14 +23,16 @@ on prepare me, tdata
     end if
   end if
   return(1)
+  exit
 end
 
-on updateStuffdata me, tValue 
+on updateStuffdata(me, tValue)
   tValue = integer(tValue)
   me.setState(tValue)
+  exit
 end
 
-on select me 
+on select(me)
   if the doubleClick then
     tRoom = getThread(#room).getComponent()
     tUserObj = tRoom.getOwnUser()
@@ -58,9 +58,10 @@ on select me
     end if
   end if
   return(1)
+  exit
 end
 
-on tryDoor me 
+on tryDoor(me)
   if getObject(#session).exists("target_door_ID") then
     tTargetDoorID = getObject(#session).GET("target_door_ID")
     if tTargetDoorID <> 0 then
@@ -72,31 +73,35 @@ on tryDoor me
     getConnection(getVariable("connection.info.id")).send("GETDOORFLAT", [#integer:integer(me.getID())])
   end if
   return(1)
+  exit
 end
 
-on startTeleport me, tDataList 
+on startTeleport(me, tDataList)
   pTargetData = tDataList
   pProcessActive = 1
   me.animate(50)
   getThread(#room).getComponent().getRoomConnection().send("DOORGOIN", [#integer:integer(me.getID())])
+  exit
 end
 
-on doorLogin me 
+on doorLogin(me)
   pProcessActive = 0
   getObject(#session).set("target_door_ID", pTargetData.getAt(#teleport))
   return(getThread(#room).getComponent().enterDoor(pTargetData))
+  exit
 end
 
-on prepareToKick me, tIncomer 
+on prepareToKick(me, tIncomer)
   if tIncomer = getObject(#session).GET("user_name") then
     pKickMe = 1
   else
     pKickMe = 0
   end if
   pKickCounter = 20
+  exit
 end
 
-on kickOut me 
+on kickOut(me)
   tRoom = getThread(#room).getComponent()
   me.setState(1)
   pResetStateCounter = 20
@@ -108,16 +113,18 @@ on kickOut me
       tRoom.getRoomConnection().send("MOVE", [#integer:me.pLocX + tDelta.getAt(1), #integer:me.pLocY + tDelta.getAt(2)])
     end if
   end if
+  exit
 end
 
-on animate me, tTime 
+on animate(me, tTime)
   if voidp(tTime) then
     tTime = 25
   end if
   pAnimCounter = tTime
+  exit
 end
 
-on update me 
+on update(me)
   callAncestor(#update, [me])
   if pAnimCounter > 0 then
     pAnimCounter = pAnimCounter - 1
@@ -143,4 +150,5 @@ on update me
       me.setState(0)
     end if
   end if
+  exit
 end

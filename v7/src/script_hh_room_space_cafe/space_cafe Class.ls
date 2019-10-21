@@ -1,14 +1,14 @@
-on showprogram me, tMsg 
+on showprogram(me, tMsg)
   if voidp(tMsg) then
-    return FALSE
+    return(0)
   end if
   tThread = getThread(#room)
-  if (tThread = 0) then
-    return FALSE
+  if tThread = 0 then
+    return(0)
   end if
   tRoomVis = tThread.getInterface().getRoomVisualizer()
-  if (tRoomVis = 0) then
-    return FALSE
+  if tRoomVis = 0 then
+    return(0)
   end if
   tDst = tMsg.getAt(#show_dest)
   tCmd = tMsg.getAt(#show_command)
@@ -17,16 +17,17 @@ on showprogram me, tMsg
   if not tSpr then
     return(error(me, "Sprite not found:" && "show_" & tDst, #showprogram))
   else
-    if (tCmd = "visible") then
-      tSpr.member.paletteRef = member(getmemnum("flipboard" & tNum))
+    if me = "visible" then
+      member.paletteRef = member(getmemnum("flipboard" & tNum))
     else
-      if (tCmd = "litecol") then
-        tSpr.member.paletteRef = member(getmemnum("maglit" & tNum))
+      if me = "litecol" then
+        member.paletteRef = member(getmemnum("maglit" & tNum))
       else
-        if (tCmd = "ufol") then
-          tSpr.member.paletteRef = member(getmemnum("ufolamp" & tNum))
+        if me = "ufol" then
+          member.paletteRef = member(getmemnum("ufolamp" & tNum))
         end if
       end if
     end if
   end if
+  exit
 end

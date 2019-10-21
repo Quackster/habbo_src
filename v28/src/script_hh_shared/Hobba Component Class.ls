@@ -1,51 +1,55 @@
-property pCryDataBase
-
-on construct me 
-  pCryDataBase = [:]
+on construct(me)
+  pCryDataBase = []
   registerMessage(#sendCallForHelp, me.getID(), #send_cryForHelp)
   return(1)
+  exit
 end
 
-on deconstruct me 
-  pCryDataBase = [:]
+on deconstruct(me)
+  pCryDataBase = []
   unregisterMessage(#sendCallForHelp, me.getID())
   return(1)
+  exit
 end
 
-on getPendingCFHs me 
+on getPendingCFHs(me)
   tConnection = getConnection(getVariable("connection.info.id"))
   if not tConnection then
     error(me, "Connection not found.", #showDialog, #major)
   end if
   tConnection.send("GET_PENDING_CALLS_FOR_HELP")
+  exit
 end
 
-on receive_cryforhelp me, tMsg 
+on receive_cryforhelp(me, tMsg)
   pCryDataBase.setAt(tMsg.getAt(#cry_id), tMsg)
   me.getInterface().ShowAlert()
   me.getInterface().updateCryWnd()
   return(1)
+  exit
 end
 
-on receive_pickedCry me, tMsg 
+on receive_pickedCry(me, tMsg)
   if voidp(pCryDataBase.getAt(tMsg.getAt(#cry_id))) then
     return(0)
   end if
   pCryDataBase.getAt(tMsg.getAt(#cry_id)).picker = tMsg.getAt(#picker)
   me.getInterface().updateCryWnd()
   return(1)
+  exit
 end
 
-on deleteCry me, tID 
+on deleteCry(me, tID)
   pCryDataBase.deleteProp(tID)
   if pCryDataBase.count = 0 then
     me.getInterface().hideAlert()
   end if
   me.getInterface().updateCryWnd()
   return(1)
+  exit
 end
 
-on send_changeCfhType me, tCryID, tCategoryNum 
+on send_changeCfhType(me, tCryID, tCategoryNum)
   if not connectionExists(getVariable("connection.info.id")) then
     return(0)
   end if
@@ -62,9 +66,10 @@ on send_changeCfhType me, tCryID, tCategoryNum
   end if
   getConnection(getVariable("connection.info.id")).send("CHANGECALLCATEGORY", [#string:tCryID, #integer:tNewCategory])
   return(1)
+  exit
 end
 
-on send_cryPick me, tCryID, tGoHelp 
+on send_cryPick(me, tCryID, tGoHelp)
   if not connectionExists(getVariable("connection.info.id")) then
     return(0)
   end if
@@ -115,9 +120,10 @@ on send_cryPick me, tCryID, tGoHelp
     getConnection(getVariable("connection.info.id")).send("FOLLOW_CRYFORHELP", [#string:tCryID])
   end if
   return(1)
+  exit
 end
 
-on send_cryForHelp me, tMsg, ttype 
+on send_cryForHelp(me, tMsg, ttype)
   tMsg = replaceChars(tMsg, "/", space())
   tMsg = replaceChunks(tMsg, "\r", "<br>")
   tMsg = convertSpecialChars(tMsg, 1)
@@ -136,9 +142,10 @@ on send_cryForHelp me, tMsg, ttype
   else
     return(error(me, "Failed to access room connection!", #send_cryForHelp, #major))
   end if
+  exit
 end
 
-on send_CfhReply me, tCryID, tMsg 
+on send_CfhReply(me, tCryID, tMsg)
   if not connectionExists(getVariable("connection.info.id")) then
     return(0)
   end if
@@ -157,13 +164,16 @@ on send_CfhReply me, tCryID, tMsg
   tMsg = convertSpecialChars(tMsg, 1)
   getConnection(getVariable("connection.info.id")).send("MESSAGETOCALLER", [#string:tCryID, #string:tMsg])
   return(1)
+  exit
 end
 
-on getCryDataBase me 
+on getCryDataBase(me)
   return(pCryDataBase)
+  exit
 end
 
-on clearCryDataBase me 
-  pCryDataBase = [:]
+on clearCryDataBase(me)
+  pCryDataBase = []
   return(1)
+  exit
 end

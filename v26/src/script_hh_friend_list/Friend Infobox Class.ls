@@ -1,20 +1,20 @@
-property pCurrentFriendId, pTargetRect, pFriendInfo, pBubbleObjectId, pPopupTimeoutId, pBubbleWindowId
-
-on construct me 
+on construct(me)
   pBubbleObjectId = "fr_popup_bubble_obj"
   pBubbleWindowId = "fr_popup_bubble_win"
   pPopupTimeoutId = "fr_popup_timer"
   return(1)
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   me.removePopupTimeout()
   me.removeBubbleObject()
   pFriendInfo = void()
   return(1)
+  exit
 end
 
-on showInfoPopup me, tEventData, tWndX, tWndY, tContentElem 
+on showInfoPopup(me, tEventData, tWndX, tWndY, tContentElem)
   if not listp(tEventData) then
     return(me.removePopupTimeout())
   end if
@@ -42,16 +42,18 @@ on showInfoPopup me, tEventData, tWndX, tWndY, tContentElem
   pFriendInfo = tFriend.duplicate()
   me.removeBubbleObject()
   me.createDetailsBubble(pTargetRect)
+  exit
 end
 
-on removeInfoPopup me 
+on removeInfoPopup(me)
   me.removePopupTimeout()
   me.removeBubbleObject()
   pFriendInfo = void()
   pCurrentFriendId = void()
+  exit
 end
 
-on createDetailsBubble me, tTargetRect 
+on createDetailsBubble(me, tTargetRect)
   if pFriendInfo = void() then
     return(0)
   end if
@@ -94,31 +96,35 @@ on createDetailsBubble me, tTargetRect
       tElem.setText(getText("friend_info_lastvisit") && pFriendInfo.getaProp(#lastAccess))
     end if
   end if
+  exit
 end
 
-on removePopupTimeout me 
+on removePopupTimeout(me)
   if timeoutExists(pPopupTimeoutId) then
     removeTimeout(pPopupTimeoutId)
   end if
+  exit
 end
 
-on getBubbleObject me 
+on getBubbleObject(me)
   if not objectExists(pBubbleObjectId) then
     createObject(pBubbleObjectId, "Details Bubble Class")
   end if
   return(getObject(pBubbleObjectId))
+  exit
 end
 
-on removeBubbleObject me 
+on removeBubbleObject(me)
   if objectExists(pBubbleObjectId) then
     removeObject(pBubbleObjectId)
   end if
   if windowExists(pBubbleWindowId) then
     removeWindow(pBubbleWindowId)
   end if
+  exit
 end
 
-on getHumanImage me, tFigure, tsex, tWidth, tHeight 
+on getHumanImage(me, tFigure, tsex, tWidth, tHeight)
   tParserObj = getObject("Figure_System")
   if tParserObj = 0 then
     return(0)
@@ -132,15 +138,17 @@ on getHumanImage me, tFigure, tsex, tWidth, tHeight
   tImage = me.alignIconImage(tImage, tWidth, tHeight)
   tImage = me.alignIconImage(tImage, tWidth, tHeight)
   return(tImage)
+  exit
 end
 
-on alignIconImage me, tImage, tWidth, tHeight 
+on alignIconImage(me, tImage, tWidth, tHeight)
   if tImage.ilk <> #image then
     return(0)
   end if
   tNewImage = image(tWidth, tHeight, tImage.depth)
-  tOffsetX = (tWidth - tImage.width / 2)
+  tOffsetX = tWidth - tImage.width / 2
   tOffsetY = 0
   tNewImage.copyPixels(tImage, tImage.rect + rect(tOffsetX, tOffsetY, tOffsetX, tOffsetY), tImage.rect)
   return(tNewImage)
+  exit
 end

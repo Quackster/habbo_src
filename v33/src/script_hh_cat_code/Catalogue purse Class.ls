@@ -1,18 +1,20 @@
-on construct me 
+on construct(me)
   me.updatePurseSaldo()
   me.updatePurseTickets()
   me.updatePurseFilm()
   registerMessage(#updateCreditCount, me.getID(), #updatePurseSaldo)
   registerMessage(#updateTicketCount, me.getID(), #updatePurseTickets)
   return(1)
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   unregisterMessage(#updateCreditCount, me.getID())
   unregisterMessage(#updateTicketCount, me.getID())
+  exit
 end
 
-on updatePurseSaldo me 
+on updatePurseSaldo(me)
   if not threadExists(#catalogue) then
     return(0)
   end if
@@ -27,9 +29,10 @@ on updatePurseSaldo me
       tWndObj.getElement("purse_amount").setText(tSaldo)
     end if
   end if
+  exit
 end
 
-on updatePurseTickets me 
+on updatePurseTickets(me)
   tWndObj = getThread(#catalogue).getInterface().getCatalogWindow()
   if objectp(tWndObj) then
     if tWndObj.elementExists("purse_info_tickets") then
@@ -38,9 +41,10 @@ on updatePurseTickets me
     end if
     return(1)
   end if
+  exit
 end
 
-on updatePurseFilm me 
+on updatePurseFilm(me)
   tWndObj = getThread(#catalogue).getInterface().getCatalogWindow()
   if objectp(tWndObj) then
     if tWndObj.elementExists("purse_info_film") then
@@ -49,9 +53,10 @@ on updatePurseFilm me
     end if
     return(1)
   end if
+  exit
 end
 
-on eventProc me, tEvent, tSprID, tProp 
+on eventProc(me, tEvent, tSprID, tProp)
   if tEvent = #mouseUp then
     if tSprID = "close" then
       return(0)
@@ -59,11 +64,11 @@ on eventProc me, tEvent, tSprID, tProp
   end if
   if tEvent = #mouseDown then
     tloc = the mouseLoc
-    if tSprID = "coins_btn" then
+    if me = "coins_btn" then
       executeMessage(#externalLinkClick, tloc)
       openNetPage(getText("url_purselink"))
     else
-      if tSprID = "vouchers_btn" then
+      if me = "vouchers_btn" then
         executeMessage(#externalLinkClick, tloc)
         openNetPage(getText("purse_vouchers_helpurl"))
       else
@@ -72,4 +77,5 @@ on eventProc me, tEvent, tSprID, tProp
     end if
   end if
   return(1)
+  exit
 end

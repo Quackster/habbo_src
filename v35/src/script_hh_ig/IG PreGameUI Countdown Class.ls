@@ -1,13 +1,12 @@
-property pState, pUpdateCounter, pCurrentIndex
-
-on deconstruct me 
+on deconstruct(me)
   if windowExists(me.getWindowId()) then
     removeWindow(me.getWindowId())
   end if
   return(me.deconstruct())
+  exit
 end
 
-on addWindows me 
+on addWindows(me)
   tTimeLeftSec = me.getTimeLeftSec()
   if tTimeLeftSec <= 0 or tTimeLeftSec > 5 then
     return(0)
@@ -36,9 +35,10 @@ on addWindows me
   end if
   tWndObj.moveTo(370, 200)
   return(1)
+  exit
 end
 
-on render me 
+on render(me)
   pUpdateCounter = pUpdateCounter + 1
   if pState < 2 and pUpdateCounter < 4 then
     return(1)
@@ -87,9 +87,10 @@ on render me
   end if
   tElement.setProperty(#member, member(tMemNum))
   return(1)
+  exit
 end
 
-on getTimeLeftSec me 
+on getTimeLeftSec(me)
   tService = me.getIGComponent("PreGame")
   if tService = 0 then
     return(0)
@@ -98,9 +99,10 @@ on getTimeLeftSec me
   if tGameRef = 0 then
     return(0)
   end if
-  tTimeLeftSec = integer((tService.getMsecAtNextState() - the milliSeconds / 1000))
+  tTimeLeftSec = integer(tService.getMsecAtNextState() - the milliSeconds / 1000)
   if tTimeLeftSec < 0 then
     return(0)
   end if
   return(tTimeLeftSec)
+  exit
 end

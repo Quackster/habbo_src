@@ -1,4 +1,4 @@
-on render me 
+on render(me)
   tService = me.getIGComponent("LevelList")
   if tService = 0 then
     return(0)
@@ -29,16 +29,18 @@ on render me
   tWrapObjRef.render()
   me.render()
   return(1)
+  exit
 end
 
-on renderProperty me, tKey, tValue 
-  if tKey = #bb_pups then
+on renderProperty(me, tKey, tValue)
+  if me = #bb_pups then
     return(me.renderBBPowerups(tValue))
   end if
   return(me.renderProperty(tKey, tValue))
+  exit
 end
 
-on renderBBPowerups me, tPupList 
+on renderBBPowerups(me, tPupList)
   if tPupList = 0 then
     return(error(me, "Invalid powerup list for BB game", #render))
   end if
@@ -67,20 +69,22 @@ on renderBBPowerups me, tPupList
     i = 1 + i
   end repeat
   return(1)
+  exit
 end
 
-on eventProcMouseDown me, tEvent, tSprID, tParam, tWndID, tIntParam 
+on eventProcMouseDown(me, tEvent, tSprID, tParam, tWndID, tIntParam)
   tService = me.getIGComponent("LevelList")
   if tService = 0 then
     return(0)
   end if
-  if tSprID = "ig_icon_powerup" then
+  if me = "ig_icon_powerup" then
     return(tService.setProperty(#bb_pups, tIntParam))
   end if
   return(0)
+  exit
 end
 
-on eventProcMouseHover me, tEvent, tSprID, tParam, tWndID 
+on eventProcMouseHover(me, tEvent, tSprID, tParam, tWndID)
   if not tSprID contains "ig_icon_powerup" then
     return(0)
   end if
@@ -93,4 +97,5 @@ on eventProcMouseHover me, tEvent, tSprID, tParam, tWndID
     return(0)
   end if
   return(tObject.handleEvent(#mouseEnter, tSprID, tWndID, "bb_powerup_desc_" & tIndex))
+  exit
 end

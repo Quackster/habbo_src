@@ -1,6 +1,4 @@
-property pToolTipSpr, pToolTipMem, pSavedHook, pCatchFlag, pToolTipAct, pToolTipDel, pToolTipID, pLastCursor, pCurrCursor, pUniqueSeed, pProcessList, pSessionHash
-
-on construct me 
+on construct(me)
   pCatchFlag = 0
   pSavedHook = 0
   pToolTipAct = getIntVariable("tooltip.active", 0)
@@ -19,9 +17,10 @@ on construct me
   _player.traceScript = 0
   _player.traceScript = 0
   return(1)
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   if not voidp(pToolTipSpr) then
     releaseSprite(pToolTipSpr.spriteNum)
   end if
@@ -29,29 +28,33 @@ on deconstruct me
     removeMember(pToolTipMem.name)
   end if
   return(1)
+  exit
 end
 
-on try me 
+on try(me)
   pCatchFlag = 0
   pSavedHook = the alertHook
   the alertHook = me
   return(1)
+  exit
 end
 
-on catch me 
+on catch(me)
   the alertHook = pSavedHook
   return(pCatchFlag)
   return(0)
+  exit
 end
 
-on callJavaScriptFunction me, tCallString, tdata 
+on callJavaScriptFunction(me, tCallString, tdata)
   if the runMode = "Author" then
     return(0)
   end if
   script("JavaScript Proxy").callJavaScript("\"" & tCallString & "\"", "\"" & tdata & "\"")
+  exit
 end
 
-on createToolTip me, tText 
+on createToolTip(me, tText)
   if pToolTipAct then
     if voidp(pToolTipMem) then
       me.prepareToolTip()
@@ -63,14 +66,15 @@ on createToolTip me, tText
       tText = "..."
     end if
     pToolTipSpr.visible = 0
-    pToolTipMem.rect = rect(0, 0, (length(tText.getProp(#line, 1)) * 8), 20)
+    pToolTipMem.rect = rect(0, 0, length(tText.getProp(#line, 1)) * 8, 20)
     pToolTipMem.text = tText
     pToolTipID = the milliSeconds
     return(me.delay(pToolTipDel, #renderToolTip, pToolTipID))
   end if
+  exit
 end
 
-on removeToolTip me, tNextID 
+on removeToolTip(me, tNextID)
   if pToolTipAct then
     if voidp(tNextID) or pToolTipID = tNextID then
       pToolTipID = void()
@@ -78,39 +82,41 @@ on removeToolTip me, tNextID
       return(1)
     end if
   end if
+  exit
 end
 
-on renderToolTip me, tNextID 
+on renderToolTip(me, tNextID)
   if pToolTipAct then
     if tNextID <> pToolTipID or voidp(pToolTipID) then
       return(0)
     end if
     pToolTipSpr.loc = the mouseLoc + [-2, 15]
     pToolTipSpr.visible = 1
-    me.delay((pToolTipDel * 2), #removeToolTip, pToolTipID)
+    me.delay(pToolTipDel * 2, #removeToolTip, pToolTipID)
   end if
+  exit
 end
 
-on setcursor me, ttype 
-  if ttype = void() then
+on setcursor(me, ttype)
+  if me = void() then
     ttype = 0
   else
-    if ttype = #arrow then
+    if me = #arrow then
       ttype = 0
     else
-      if ttype = #ibeam then
+      if me = #ibeam then
         ttype = 1
       else
-        if ttype = #crosshair then
+        if me = #crosshair then
           ttype = 2
         else
-          if ttype = #crossbar then
+          if me = #crossbar then
             ttype = 3
           else
-            if ttype = #timer then
+            if me = #timer then
               ttype = 4
             else
-              if ttype = #previous then
+              if me = #previous then
                 ttype = pLastCursor
               end if
             end if
@@ -123,9 +129,10 @@ on setcursor me, ttype
   pLastCursor = pCurrCursor
   pCurrCursor = ttype
   return(1)
+  exit
 end
 
-on openNetPage me, tURL_key, tTarget 
+on openNetPage(me, tURL_key, tTarget)
   if not stringp(tURL_key) then
     return(0)
   end if
@@ -176,9 +183,10 @@ on openNetPage me, tURL_key, tTarget
   gotoNetPage(tURL, tResolvedTarget)
   put("Open page:" && tURL && "target:" && tResolvedTarget)
   return(1)
+  exit
 end
 
-on showLoadingBar me, tLoadID, tProps 
+on showLoadingBar(me, tLoadID, tProps)
   tObj = createObject(#random, getClassVariable("loading.bar.class"))
   if tObj = 0 then
     return(error(me, "Couldn't create loading bar instance!", #showLoadingBar, #major))
@@ -188,31 +196,36 @@ on showLoadingBar me, tLoadID, tProps
     return(error(me, "Couldn't initialize loading bar instance!", #showLoadingBar, #major))
   end if
   return(tObj.getID())
+  exit
 end
 
-on getUniqueID me 
+on getUniqueID(me)
   pUniqueSeed = pUniqueSeed + 1
   return("uid:" & pUniqueSeed & ":" & the milliSeconds)
+  exit
 end
 
-on setMachineId me, tString 
+on setMachineId(me, tString)
   setPref(getVariable("pref.value.id"), tString)
+  exit
 end
 
-on getMachineID me 
+on getMachineID(me)
   tStoredMachineID = string(getPref(getVariable("pref.value.id")))
   return(tStoredMachineID)
+  exit
 end
 
-on getMoviePath me 
+on getMoviePath(me)
   tVariableID = "system.v1"
   if not variableExists(tVariableID) then
     setVariable(tVariableID, obfuscate(the moviePath))
   end if
   return(deobfuscate(getVariable(tVariableID)))
+  exit
 end
 
-on getDomainPart me, tPath 
+on getDomainPart(me, tPath)
   if voidp(tPath) then
     return("")
   end if
@@ -236,9 +249,10 @@ on getDomainPart me, tPath
   tPath = tPath.getProp(#item, 1)
   the itemDelimiter = tDelim
   return(tPath)
+  exit
 end
 
-on getPredefinedURL me, tURL 
+on getPredefinedURL(me, tURL)
   if tURL contains "http://%predefined%/" then
     if variableExists("url.prefix") then
       tReplace = "http://%predefined%"
@@ -252,17 +266,19 @@ on getPredefinedURL me, tURL
     end if
   end if
   return(tURL)
+  exit
 end
 
-on getExtVarPath me 
+on getExtVarPath(me)
   tVariableID = "system.v2"
   if not variableExists(tVariableID) then
     return(getVariableManager().GET("external.variables.txt"))
   end if
   return(deobfuscate(getVariable(tVariableID)))
+  exit
 end
 
-on sendProcessTracking me, tStepValue 
+on sendProcessTracking(me, tStepValue)
   pProcessList.add(tStepValue)
   if the runMode contains "Author" then
   end if
@@ -280,41 +296,44 @@ on sendProcessTracking me, tStepValue
       end if
     end if
   end if
+  exit
 end
 
-on getProcessTrackingList me 
+on getProcessTrackingList(me)
   return(pProcessList)
+  exit
 end
 
-on secretDecode me, tKey 
+on secretDecode(me, tKey)
   tLength = tKey.length
-  if (tLength mod 2) = 1 then
+  if tLength mod 2 = 1 then
     tLength = tLength - 1
   end if
-  tTable = tKey.getProp(#char, 1, (tKey.length / 2))
-  tKey = tKey.getProp(#char, 1 + (tKey.length / 2), tLength)
+  tTable = tKey.getProp(#char, 1, tKey.length / 2)
+  tKey = tKey.getProp(#char, 1 + tKey.length / 2, tLength)
   tCheckSum = 0
   i = 1
   repeat while i <= tKey.length
     c = tKey.getProp(#char, i)
     a = offset(c, tTable) - 1
-    if (a mod 2) = 0 then
-      a = (a * 2)
+    if a mod 2 = 0 then
+      a = a * 2
     end if
-    if (i - 1 mod 3) = 0 then
-      a = (a * 3)
+    if i - 1 mod 3 = 0 then
+      a = a * 3
     end if
     if a < 0 then
-      a = (tKey.length mod 2)
+      a = tKey.length mod 2
     end if
     tCheckSum = tCheckSum + a
-    tCheckSum = bitXor(tCheckSum, (a * power(2, ((i - 1 mod 3) * 8))))
+    tCheckSum = bitXor(tCheckSum, a * power(2, i - 1 mod 3 * 8))
     i = 1 + i
   end repeat
   return(tCheckSum)
+  exit
 end
 
-on readValueFromField me, tField, tDelimiter, tSearchedKey 
+on readValueFromField(me, tField, tDelimiter, tSearchedKey)
   tStr = field(0)
   tDelim = the itemDelimiter
   if voidp(tDelimiter) then
@@ -354,9 +373,10 @@ on readValueFromField me, tField, tDelimiter, tSearchedKey
   end repeat
   the itemDelimiter = tDelim
   return(0)
+  exit
 end
 
-on addRandomParamToURL me, tURL 
+on addRandomParamToURL(me, tURL)
   tRandomParamName = "randp"
   tSeparator = "?"
   if tURL contains "?" then
@@ -364,11 +384,12 @@ on addRandomParamToURL me, tURL
   end if
   tURL = tURL & tSeparator & tRandomParamName & random(999) & "=1"
   return(tURL)
+  exit
 end
 
-on checkForXtra me, tXtraName 
+on checkForXtra(me, tXtraName)
   tList = the xtraList
-  repeat while tList <= undefined
+  repeat while me <= undefined
     tXtra = getAt(undefined, tXtraName)
     tXtraListName = ""
     if not voidp(tXtra.getAt(#name)) then
@@ -385,16 +406,18 @@ on checkForXtra me, tXtraName
     end if
   end repeat
   return(0)
+  exit
 end
 
-on print me, tObj, tMsg 
+on print(me, tObj, tMsg)
   tObj = string(tObj)
   tObj = tObj.getProp(#word, 2, tObj.count(#word) - 2)
   tObj = tObj.getProp(#char, 2, length(tObj))
   put("Print:" & "\r" & "\t" && "Object: " && tObj & "\r" & "\t" && "Message:" && tMsg)
+  exit
 end
 
-on generateMachineId me, tMaxLength 
+on generateMachineId(me, tMaxLength)
   tWhiteList = string(getVariable("machine.id.white.list"))
   tRawMachineId = string(the milliSeconds) & string(the time) & string(the date)
   tMachineID = ""
@@ -413,31 +436,35 @@ on generateMachineId me, tMaxLength
   tMaxLength = getVariable("machine.id.max.length")
   tMachineID = chars(tMachineID, 1, tMaxLength)
   return(tMachineID)
+  exit
 end
 
-on generateMachineId_ me, tMaxLength 
+on generateMachineId_(me, tMaxLength)
   tMachineID = string(the milliSeconds) & string(the time) & string(the date)
   tLocaleDelimiters = [".", ",", ":", ";", "/", "\\", "am", "pm", " ", "-", "AM", "PM", numToChar(10), numToChar(13)]
-  repeat while tLocaleDelimiters <= undefined
+  repeat while me <= undefined
     tDelimiter = getAt(undefined, tMaxLength)
     tMachineID = replaceChunks(tMachineID, tDelimiter, "")
   end repeat
   tMachineID = chars(tMachineID, 1, tMaxLength)
   return(tMachineID)
+  exit
 end
 
-on setExtVarPath me, tURL 
+on setExtVarPath(me, tURL)
   if tURL contains "hash=" then
     pSessionHash = chars(tURL, offset("hash=", tURL) + 5, tURL.length)
   end if
   return(setVariable("system.v2", obfuscate(tURL)))
+  exit
 end
 
-on getSessionHash me 
+on getSessionHash(me)
   return(pSessionHash)
+  exit
 end
 
-on prepareToolTip me 
+on prepareToolTip(me)
   if pToolTipAct then
     tFontStruct = getStructVariable("struct.font.tooltip")
     pToolTipMem = member(createMember("ToolTip Text", #field))
@@ -453,32 +480,34 @@ on prepareToolTip me
     pToolTipSpr = sprite(reserveSprite(me.getID()))
     pToolTipSpr.member = pToolTipMem
     pToolTipSpr.visible = 0
-    pToolTipSpr.locZ = 200000000
+    ERROR.locZ = 0
     pToolTipID = void()
     pToolTipDel = getIntVariable("tooltip.delay", 2000)
   end if
+  exit
 end
 
-on alertHook me 
+on alertHook(me)
   pCatchFlag = 1
   the alertHook = pSavedHook
   return(1)
+  exit
 end
 
-on getReceipt me, tStamp 
+on getReceipt(me, tStamp)
   tReceipt = []
   tCharNo = 1
   repeat while tCharNo <= tStamp.length
     tChar = chars(tStamp, tCharNo, tCharNo)
     tChar = charToNum(tChar)
-    tChar = (tChar * tCharNo) + 309203
     tReceipt.setAt(tCharNo, tChar)
     tCharNo = 1 + tCharNo
   end repeat
   return(tReceipt)
+  exit
 end
 
-on getClientUpTime me 
+on getClientUpTime(me)
   tTimeNow = the long time
   tDateNow = the date
   if not objectExists(#session) then
@@ -490,14 +519,15 @@ on getClientUpTime me
   tTimeDelimiter = me.getDelimiter(tTimeNow)
   if tDateNow <> tDateStart then
     tDays = 1
-    tSeconds = (((tDays * 24) * 60) * 60) + me.calculateTimeDifference(tTimeStart, tTimeNow, tTimeDelimiter)
+    tSeconds = tDays * 24 * 60 * 60 + me.calculateTimeDifference(tTimeStart, tTimeNow, tTimeDelimiter)
   else
     tSeconds = me.calculateTimeDifference(tTimeStart, tTimeNow, tTimeDelimiter)
   end if
   return(tSeconds)
+  exit
 end
 
-on calculateTimeDifference me, a_from, a_to, a_delimiter 
+on calculateTimeDifference(me, a_from, a_to, a_delimiter)
   tItemDeLim = the itemDelimiter
   the itemDelimiter = a_delimiter
   tHours = integer(a_to.getProp(#item, 1)) - integer(a_from.getProp(#item, 1))
@@ -506,17 +536,18 @@ on calculateTimeDifference me, a_from, a_to, a_delimiter
   tAmPmMod = 0
   if a_from contains "am" or a_from contains "pm" then
     if a_from contains "am" and a_to contains "pm" then
-      tAmPmMod = ((12 * 60) * 60)
+      tAmPmMod = 12 * 60 * 60
     end if
     if a_to contains "am" and a_from contains "pm" then
-      tAmPmMod = ((12 * 60) * 60)
+      tAmPmMod = 12 * 60 * 60
     end if
   end if
   the itemDelimiter = tItemDeLim
-  return(((tHours * 60) * 60) + (tMinutes * 60) + tSeconds + tAmPmMod)
+  return(tHours * 60 * 60 + tMinutes * 60 + tSeconds + tAmPmMod)
+  exit
 end
 
-on getDelimiter me, a_string 
+on getDelimiter(me, a_string)
   tLocaleDelimiters = [".", ",", ":", ";", "/", "\\", " ", "-", numToChar(10), numToChar(13)]
   i = 1
   repeat while i <= tLocaleDelimiters.count
@@ -528,8 +559,10 @@ on getDelimiter me, a_string
     i = 1 + i
   end repeat
   return(":")
+  exit
 end
 
-on handlers me 
+on handlers(me)
   return([])
+  exit
 end

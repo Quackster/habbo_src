@@ -1,48 +1,49 @@
-property pScore
-
-on prepare me, tdata 
+on prepare(me, tdata)
   pScore = 0
   tTemp = tdata.getaProp(#stuffdata)
   me.setScore(tTemp, me.pSprList)
-  return TRUE
+  return(1)
+  exit
 end
 
-on relocate me, tSpriteList 
+on relocate(me, tSpriteList)
   me.setScore(pScore, tSpriteList)
+  exit
 end
 
-on updateStuffdata me, tValue 
+on updateStuffdata(me, tValue)
   me.setScore(tValue, me.pSprList)
+  exit
 end
 
-on setScore me, tScore, tSpriteList 
+on setScore(me, tScore, tSpriteList)
   if tSpriteList.count < 4 then
-    return FALSE
+    return(0)
   end if
-  if (me.pXFactor = 32) then
+  if me.pXFactor = 32 then
     tClass = "s_hockey_score"
-    if (me.getProp(#pDirection, 1) = 2) then
-      tLoc3 = (tSpriteList.getAt(1).loc + [26, -100])
-      tLoc4 = (tSpriteList.getAt(1).loc + [32, -103])
+    if me.getProp(#pDirection, 1) = 2 then
+      tLoc3 = tSpriteList.getAt(1).loc + [26, -100]
+      tLoc4 = tSpriteList.getAt(1).loc + [32, -103]
     else
-      tLoc3 = (tSpriteList.getAt(1).loc + [-44, -105])
-      tLoc4 = (tSpriteList.getAt(1).loc + [-38, -102])
+      tLoc3 = tSpriteList.getAt(1).loc + [-44, -105]
+      tLoc4 = tSpriteList.getAt(1).loc + [-38, -102]
     end if
   else
     tClass = "hockey_score"
-    if (me.getProp(#pDirection, 1) = 2) then
-      tLoc3 = (tSpriteList.getAt(1).loc + [26, -100])
-      tLoc4 = (tSpriteList.getAt(1).loc + [36, -105])
+    if me.getProp(#pDirection, 1) = 2 then
+      tLoc3 = tSpriteList.getAt(1).loc + [26, -100]
+      tLoc4 = tSpriteList.getAt(1).loc + [36, -105]
     else
-      tLoc3 = (tSpriteList.getAt(1).loc + [-44, -105])
-      tLoc4 = (tSpriteList.getAt(1).loc + [-34, -100])
+      tLoc3 = tSpriteList.getAt(1).loc + [-44, -105]
+      tLoc4 = tSpriteList.getAt(1).loc + [-34, -100]
     end if
   end if
-  if (tScore = "x") then
+  if tScore = "x" then
     pScore = "x"
     tSpriteList.getAt(3).blend = 0
     tSpriteList.getAt(4).blend = 0
-    return TRUE
+    return(1)
   end if
   pScore = integer(tScore)
   if pScore.ilk <> #integer then
@@ -55,30 +56,31 @@ on setScore me, tScore, tSpriteList
     pScore = 0
   end if
   tString = string(pScore)
-  if (length(tString) = 1) then
+  if length(tString) = 1 then
     tString = "0" & tString
   end if
   tSpriteList.getAt(3).member = member(getmemnum(tClass & "_" & me.getProp(#pDirection, 1) & "_" & tString.getProp(#char, 1)))
   tSpriteList.getAt(4).member = member(getmemnum(tClass & "_" & me.getProp(#pDirection, 1) & "_" & tString.getProp(#char, 2)))
   tSpriteList.getAt(3).loc = tLoc3
   tSpriteList.getAt(4).loc = tLoc4
-  tSpriteList.getAt(3).width = tSpriteList.getAt(3).member.width
-  tSpriteList.getAt(3).height = tSpriteList.getAt(3).member.height
-  tSpriteList.getAt(4).width = tSpriteList.getAt(4).member.width
-  tSpriteList.getAt(4).height = tSpriteList.getAt(4).member.height
+  tSpriteList.getAt(3).width = member.width
+  tSpriteList.getAt(3).height = member.height
+  tSpriteList.getAt(4).width = member.width
+  tSpriteList.getAt(4).height = member.height
   tSpriteList.getAt(3).blend = 100
   tSpriteList.getAt(4).blend = 100
-  return TRUE
+  return(1)
+  exit
 end
 
-on select me 
+on select(me)
   if me.count(#pSprList) < 1 then
-    return FALSE
+    return(0)
   end if
   tUpdate = 0
   tScore = pScore
-  tloc = point((the mouseH - me.getPropRef(#pSprList, 1).left), (the mouseV - me.getPropRef(#pSprList, 1).top))
-  if (me.pXFactor = 32) then
+  tloc = point(the mouseH - me.getPropRef(#pSprList, 1).left, the mouseV - me.getPropRef(#pSprList, 1).top)
+  if me.pXFactor = 32 then
     tRect1 = rect(0, 53, 12, 66)
     tRect2 = rect(13, 53, 23, 66)
   else
@@ -88,23 +90,23 @@ on select me
   if pScore <> "x" then
     if inside(tloc, tRect1) then
       tUpdate = 1
-      tScore = (tScore - 1)
+      tScore = tScore - 1
       if tScore < 0 then
         tScore = 99
       end if
     else
       if inside(tloc, tRect2) then
         tUpdate = 1
-        tScore = (tScore + 1)
+        tScore = tScore + 1
         if tScore > 99 then
           tScore = 0
         end if
       end if
     end if
   end if
-  if (tUpdate = 0) and the doubleClick then
+  if tUpdate = 0 and the doubleClick then
     tUpdate = 1
-    if (pScore = "x") then
+    if pScore = "x" then
       tScore = 0
     else
       tScore = "x"
@@ -113,5 +115,6 @@ on select me
   if tUpdate then
     getThread(#room).getComponent().getRoomConnection().send("SETSTUFFDATA", [#string:string(me.getID()), #string:string(tScore)])
   end if
-  return TRUE
+  return(1)
+  exit
 end

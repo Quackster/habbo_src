@@ -1,4 +1,4 @@
-on addWindows me 
+on addWindows(me)
   me.pWindowID = "list_det"
   tWrapObjRef = me.getWindowWrapper()
   if tWrapObjRef = 0 then
@@ -10,9 +10,10 @@ on addWindows me
   tWrapObjRef.addOneWindow(me.getWindowId("hor"), "ig_divider_hor.window", tSetID, [#scaleV:1])
   me.renderButtons()
   return(1)
+  exit
 end
 
-on render me 
+on render(me)
   tService = me.getIGComponent("GameList")
   if tService = 0 then
     return(0)
@@ -51,7 +52,7 @@ on render me
     tItem = tTeamData.getAt(i)
     tText = ""
     tPlayers = tItem.getaProp(#players)
-    repeat while tPlayers <= undefined
+    repeat while me <= undefined
       tName = getAt(undefined, undefined)
       tText = tText & tName & "\r"
     end repeat
@@ -75,20 +76,22 @@ on render me
   end repeat
   me.renderButtons()
   return(1)
+  exit
 end
 
-on renderProperty me, tKey, tValue 
-  if tKey = #game_type_icon then
+on renderProperty(me, tKey, tValue)
+  if me = #game_type_icon then
     return(1)
   else
-    if tKey = #game_type then
+    if me = #game_type then
       return(me.renderType(tValue))
     end if
   end if
   return(me.renderProperty(tKey, tValue))
+  exit
 end
 
-on renderType me, tValue 
+on renderType(me, tValue)
   tWndObj = getWindow(me.getWindowId())
   if tWndObj = 0 then
     return(0)
@@ -102,4 +105,5 @@ on renderType me, tValue
     tElem.feedImage(member(tMemNum).image)
   end if
   return(1)
+  exit
 end

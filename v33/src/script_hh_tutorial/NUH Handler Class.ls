@@ -1,16 +1,18 @@
-on construct me 
+on construct(me)
   me.registerServerMessages(1)
   return(1)
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   return(1)
+  exit
 end
 
-on handleHelpItems me, tMsg 
+on handleHelpItems(me, tMsg)
   tConn = tMsg.getaProp(#connection)
   tIdCount = tConn.GetIntFrom()
-  tdata = [:]
+  tdata = []
   tNo = 1
   repeat while tNo <= tIdCount
     tKeyId = tConn.GetIntFrom()
@@ -21,9 +23,10 @@ on handleHelpItems me, tMsg
     tNo = 1 + tNo
   end repeat
   me.getComponent().setHelpStatusData(tdata)
+  exit
 end
 
-on handleTutorsAvailable me, tMsg 
+on handleTutorsAvailable(me, tMsg)
   tConn = tMsg.getaProp(#connection)
   tAreAvailable = tConn.GetIntFrom()
   if not tAreAvailable then
@@ -31,36 +34,42 @@ on handleTutorsAvailable me, tMsg
   end if
   me.getComponent().showInviteWindow()
   return(1)
+  exit
 end
 
-on handleInvitingCompleted me, tMsg 
+on handleInvitingCompleted(me, tMsg)
   tConn = tMsg.getaProp(#connection)
   tAcceptCount = tConn.GetIntFrom()
   me.getComponent().invitingCompleted(tAcceptCount)
+  exit
 end
 
-on handleInvitationExists me, tMsg 
+on handleInvitationExists(me, tMsg)
   me.getComponent().invitationExists()
+  exit
 end
 
-on handleInvitationSent me 
+on handleInvitationSent(me)
   me.getComponent().invitingStarted()
+  exit
 end
 
-on handleGuideFound me, tMsg 
+on handleGuideFound(me, tMsg)
   tConn = tMsg.getaProp(#connection)
   tAccountID = tConn.GetIntFrom()
   me.getComponent().guideFound(tAccountID)
+  exit
 end
 
-on handleInviterLeftRoom me, tMsg 
+on handleInviterLeftRoom(me, tMsg)
   tConn = tMsg.getaProp(#connection)
   tRoomID = tConn.GetIntFrom()
   me.getComponent().inviterLeftRoom(string(tRoomID))
+  exit
 end
 
-on registerServerMessages me, tBool 
-  tMsgs = [:]
+on registerServerMessages(me, tBool)
+  tMsgs = []
   tMsgs.setaProp(352, #handleHelpItems)
   tMsgs.setaProp(356, #handleTutorsAvailable)
   tMsgs.setaProp(357, #handleInvitingCompleted)
@@ -68,7 +77,7 @@ on registerServerMessages me, tBool
   tMsgs.setaProp(421, #handleInvitationSent)
   tMsgs.setaProp(423, #handleGuideFound)
   tMsgs.setaProp(424, #handleInviterLeftRoom)
-  tCmds = [:]
+  tCmds = []
   tCmds.setaProp("MSG_REMOVE_ACCOUNT_HELP_TEXT", 313)
   tCmds.setaProp("MSG_GET_TUTORS_AVAILABLE", 355)
   tCmds.setaProp("MSG_INVITE_TUTORS", 356)
@@ -81,4 +90,5 @@ on registerServerMessages me, tBool
     unregisterCommands(getVariable("connection.info.id", #info), me.getID(), tCmds)
   end if
   return(1)
+  exit
 end

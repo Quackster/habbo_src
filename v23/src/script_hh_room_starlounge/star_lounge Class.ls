@@ -1,26 +1,27 @@
-property pGradientObj
-
-on construct me 
+on construct(me)
   tVisualizer = getThread(#room).getInterface().getRoomVisualizer()
   tsprite = tVisualizer.getSprById("starlounge_gr")
-  if (tsprite = 0) then
-    return FALSE
+  if tsprite = 0 then
+    return(0)
   end if
   tObj = createObject(#temp, "Star Lounge Gradient Class")
   tObj.define(tsprite)
   me.pGradientObj = tObj
   receiveUpdate(me.getID())
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   if not voidp(me.pGradientObj) then
-    me.pGradientObj.cleanUp()
+    pGradientObj.cleanUp()
     call(#deconstruct, pGradientObj)
   end if
   pGradientObj = void()
   return(removeUpdate(me.getID()))
+  exit
 end
 
-on update me 
+on update(me)
   call(#update, pGradientObj)
+  exit
 end

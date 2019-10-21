@@ -1,6 +1,4 @@
-property pMember, pSprite, pLandscapeType, pAnimMemberId, pAnimMemberCount, pREquiresUpdate, pMaxItemAmount, pTurnPointList, pWallHeight, pAnimInstanceList, pStopped, pSkip, pSkippedFrames, pwidth, pheight, pAnimImage, pMaskImage
-
-on construct me 
+on construct(me)
   tMemberName = "anim_frame_test"
   if memberExists(tMemberName) then
     pMember = getMember(tMemberName)
@@ -23,9 +21,10 @@ on construct me
   pSprite.member = pMember
   me.resetImage()
   return(1)
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   removeUpdate(me.getID())
   tMemberName = "anim_frame_test"
   if memberExists(tMemberName) then
@@ -36,9 +35,10 @@ on deconstruct me
     releaseSprite(pSprite.spriteNum)
   end if
   return(1)
+  exit
 end
 
-on define me, tdata, tTurnOffsetList 
+on define(me, tdata, tTurnOffsetList)
   pwidth = tdata.getAt(#width)
   pheight = tdata.getAt(#height)
   pAnimID = tdata.getAt(#id)
@@ -59,20 +59,22 @@ on define me, tdata, tTurnOffsetList
   end if
   pTurnPointList = tTurnOffsetList
   me.setStopped(1)
+  exit
 end
 
-on requiresUpdate me 
+on requiresUpdate(me)
   return(pREquiresUpdate)
+  exit
 end
 
-on initAnimation me 
+on initAnimation(me)
   me.resetImage()
   if pAnimMemberCount = 0 then
     return(me.setStopped(1))
   end if
   i = 1
   repeat while i <= pMaxItemAmount
-    tProps = [:]
+    tProps = []
     tProps.setaProp(#type, random(pAnimMemberCount) - 1)
     tProps.setaProp(#memberid, pAnimMemberId)
     tProps.setaProp(#turnPointList, pTurnPointList)
@@ -84,9 +86,10 @@ on initAnimation me
     end if
     i = 1 + i
   end repeat
+  exit
 end
 
-on setStopped me, tStopped 
+on setStopped(me, tStopped)
   pStopped = tStopped
   if pStopped then
     removeUpdate(me.getID())
@@ -97,9 +100,10 @@ on setStopped me, tStopped
     me.initAnimation()
     receiveUpdate(me.getID())
   end if
+  exit
 end
 
-on update me 
+on update(me)
   if pStopped then
     return(0)
   end if
@@ -110,16 +114,18 @@ on update me
     return(0)
   end if
   me.renderFrame()
+  exit
 end
 
-on resetImage me 
+on resetImage(me)
   pMember.image = image(pwidth, pheight, 32)
   pAnimImage = image(pwidth, pheight, 32)
   pAnimImage.fill(0, 0, pwidth, pheight, color(112, 112, 112))
   pAnimInstanceList = []
+  exit
 end
 
-on resetSprite me, tVisSpr, tMaskImage 
+on resetSprite(me, tVisSpr, tMaskImage)
   pMaskImage = tMaskImage
   pMember.regPoint = point(0, 0)
   pSprite.locH = tVisSpr.locH
@@ -129,11 +135,12 @@ on resetSprite me, tVisSpr, tMaskImage
   pSprite.width = tVisSpr.width
   pSprite.height = tVisSpr.height
   pSprite.ink = 36
+  exit
 end
 
-on renderFrame me 
+on renderFrame(me)
   pAnimImage.fill(pAnimImage.rect, rgb(255, 255, 255))
-  repeat while pAnimInstanceList <= undefined
+  repeat while me <= undefined
     tAnimInstance = getAt(undefined, undefined)
     tAnimInstance.updateAnim()
     tAnimInstance.render(pAnimImage)
@@ -142,17 +149,20 @@ on renderFrame me
   image.copyPixels(pAnimImage, pAnimImage.rect, pAnimImage.rect, [#maskImage:pMaskImage])
   pSprite.member = pMember
   pREquiresUpdate = 1
+  exit
 end
 
-on copyToImage me, tImage 
-  repeat while pAnimInstanceList <= undefined
+on copyToImage(me, tImage)
+  repeat while me <= undefined
     tAnimInstance = getAt(undefined, tImage)
     tAnimInstance.render(tImage)
   end repeat
   return(tImage)
+  exit
 end
 
-on getImage me 
+on getImage(me)
   pREquiresUpdate = 0
   return(pAnimImage)
+  exit
 end

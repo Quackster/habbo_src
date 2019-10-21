@@ -1,36 +1,40 @@
-property pFriendRenderQueue, pNeedsRender
-
-on construct me 
+on construct(me)
   pFriendRenderQueue = []
   pTasksPerUpdate = 6
   pNeedsRender = 1
   return(me.construct())
+  exit
 end
 
-on hasQueue me 
+on hasQueue(me)
   return(pFriendRenderQueue.count > 0)
+  exit
 end
 
-on update me, tContentElem 
+on update(me, tContentElem)
   if pFriendRenderQueue.count = 0 then
     return(1)
   end if
   me.renderFromQueue(tContentElem)
+  exit
 end
 
-on renderListImage me 
+on renderListImage(me)
   nothing()
+  exit
 end
 
-on needsRender me 
+on needsRender(me)
   return(pNeedsRender)
+  exit
 end
 
-on resetRenderFlag me 
+on resetRenderFlag(me)
   pNeedsRender = 0
+  exit
 end
 
-on getViewImage me 
+on getViewImage(me)
   if me.count(#pContentList) = 0 then
     tID = getUniqueID()
     createWriter(tID)
@@ -38,7 +42,7 @@ on getViewImage me
     tFont = getStructVariable("struct.font.plain")
     tFont.setaProp(#wordWrap, 1)
     tOffsets = rect(5, 2, 5, 2)
-    tWidth = getVariable("fr.list.panel.width") - (tOffsets.getAt(1) * 2)
+    tWidth = getVariable("fr.list.panel.width") - tOffsets.getAt(1) * 2
     tFont.setaProp(#rect, rect(0, 0, tWidth, 0))
     tWriter.define(tFont)
     tEmptyListTextImg = tWriter.render(me.pEmptyListText)
@@ -49,9 +53,10 @@ on getViewImage me
   tImage = me.renderBackgroundImage()
   tImage.copyPixels(me.pListImg, me.rect, me.rect, [#ink:36])
   return(tImage)
+  exit
 end
 
-on insertImageTo me, tSourceImg, tTargetImg, tPosV 
+on insertImageTo(me, tSourceImg, tTargetImg, tPosV)
   tNewImg = image(tTargetImg.width, tTargetImg.height + tSourceImg.height, 32)
   tTopRect = rect(0, 0, tTargetImg.width, tPosV)
   tNewImg.copyPixels(tTargetImg, tTopRect, tTopRect)
@@ -61,15 +66,17 @@ on insertImageTo me, tSourceImg, tTargetImg, tPosV
   tdestrect = tSourceRect + rect(0, tSourceImg.height, 0, tSourceImg.height)
   tNewImg.copyPixels(tTargetImg, tdestrect, tSourceRect)
   return(tNewImg)
+  exit
 end
 
-on updateImagePart me, tSourceImg, tTargetImg, tPosV 
+on updateImagePart(me, tSourceImg, tTargetImg, tPosV)
   tdestrect = rect(0, tPosV, tSourceImg.width, tPosV + tSourceImg.height)
   tTargetImg.copyPixels(tSourceImg, tdestrect, tSourceImg.rect)
   return(tTargetImg)
+  exit
 end
 
-on removeImagePart me, tImage, tStartPosV, tEndPosV 
+on removeImagePart(me, tImage, tStartPosV, tEndPosV)
   tNewImg = image(me.pItemWidth, tImage.height - tEndPosV - tStartPosV, 32)
   tTopRect = rect(0, 0, tImage.width, tStartPosV)
   tNewImg.copyPixels(tImage, tTopRect, tTopRect)
@@ -77,4 +84,5 @@ on removeImagePart me, tImage, tStartPosV, tEndPosV
   tdestrect = rect(0, tStartPosV, tImage.width, tNewImg.height)
   tNewImg.copyPixels(tImage, tdestrect, tSourceRect)
   return(tNewImg)
+  exit
 end

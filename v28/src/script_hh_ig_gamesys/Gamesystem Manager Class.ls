@@ -1,22 +1,22 @@
-property pSystemThread, pSystemId, pModules
-
-on construct me 
+on construct(me)
   pSystemId = "gamesystem"
   pModules = ["baselogic", "messagesender", "messagehandler", "procmanager", "turnmanager", "world", "component"]
   dumpVariableField("gamesystem.variable.index")
   registerMessage(#gamesystem_getfacade, me.getID(), #getFacade)
   registerMessage(#gamesystem_removefacade, me.getID(), #removeFacade)
   return(1)
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   unregisterMessage(#gamesystem_getfacade, me.getID())
   unregisterMessage(#gamesystem_removefacade, me.getID())
   me.removeGamesystem()
   return(1)
+  exit
 end
 
-on getFacade me, tID 
+on getFacade(me, tID)
   if not objectp(pSystemThread) then
     me.createGamesystem(tID)
   end if
@@ -28,9 +28,10 @@ on getFacade me, tID
     getObject(tID).defineClient(pSystemThread)
   end if
   return(getObject(tID))
+  exit
 end
 
-on removeFacade me, tID 
+on removeFacade(me, tID)
   if getObject(tID) = 0 then
     return(0)
   else
@@ -40,12 +41,13 @@ on removeFacade me, tID
   end if
   me.removeGamesystem()
   return(1)
+  exit
 end
 
-on createGamesystem me, tSystemId 
+on createGamesystem(me, tSystemId)
   pSystemThread = createObject(#temp, getClassVariable(pSystemId & ".subsystem.superclass"))
   pSystemThread.setaProp(#systemid, tSystemId)
-  repeat while pModules <= undefined
+  repeat while me <= undefined
     tModule = getAt(undefined, tSystemId)
     tObjID = symbol(pSystemId & "_" & tModule)
     tClassVarName = pSystemId & "." & tModule & ".class"
@@ -62,10 +64,11 @@ on createGamesystem me, tSystemId
   pSystemThread.setaProp(#variablemanager, tModuleObj)
   executeMessage(#gamesystem_constructed)
   return(1)
+  exit
 end
 
-on removeGamesystem me 
-  repeat while pModules <= undefined
+on removeGamesystem(me)
+  repeat while me <= undefined
     tModule = getAt(undefined, undefined)
     tObjID = symbol(pSystemId & "_" & tModule)
     removeObject(tObjID)
@@ -74,4 +77,5 @@ on removeGamesystem me
   pSystemThread = void()
   executeMessage(#gamesystem_deconstructed)
   return(1)
+  exit
 end

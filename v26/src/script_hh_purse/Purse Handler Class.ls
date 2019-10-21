@@ -1,13 +1,15 @@
-on construct me 
+on construct(me)
   return(me.regMsgList(1))
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   return(me.regMsgList(0))
+  exit
 end
 
-on handle_purse me, tMsg 
-  if tMsg.subject = 6 then
+on handle_purse(me, tMsg)
+  if me = 6 then
     tPlaySnd = getObject(#session).exists("user_walletbalance")
     tCredits = integer(getLocalFloat(tMsg.getProp(#word, 1)))
     getObject(#session).set("user_walletbalance", tCredits)
@@ -18,7 +20,7 @@ on handle_purse me, tMsg
     end if
     return(1)
   else
-    if tMsg.subject = 209 then
+    if me = 209 then
       tPages = [[]]
       tPageNum = 1
       tDelim = the itemDelimiter
@@ -28,7 +30,7 @@ on handle_purse me, tMsg
         tLine = tMsg.getProp(#line, i)
         if tLine = "" then
         else
-          tList = [:]
+          tList = []
           tList.setAt("date", tLine.getProp(#item, 1))
           tList.setAt("time", tLine.getProp(#item, 2))
           tList.setAt("credit_value", tLine.getProp(#item, 3))
@@ -55,7 +57,7 @@ on handle_purse me, tMsg
         return(me.getInterface().showPages())
       end if
     else
-      if tMsg.subject = 212 then
+      if me = 212 then
         me.getInterface().hideVoucherWindow()
         me.getInterface().setVoucherInput(1)
         tConn = tMsg.connection
@@ -75,7 +77,7 @@ on handle_purse me, tMsg
           return(executeMessage(#alert, [#Msg:"purse_vouchers_success"]))
         end if
       else
-        if tMsg.subject = 213 then
+        if me = 213 then
           me.getInterface().setVoucherInput(1)
           tDelim = the itemDelimiter
           the itemDelimiter = "\t"
@@ -86,27 +88,31 @@ on handle_purse me, tMsg
       end if
     end if
   end if
+  exit
 end
 
-on handle_tickets me, tMsg 
+on handle_tickets(me, tMsg)
   getObject(#session).set("user_ph_tickets", integer(tMsg.getProp(#word, 1)))
   me.getInterface().updatePurseTickets()
   return(1)
+  exit
 end
 
-on handle_ticketsbuy me, tMsg 
+on handle_ticketsbuy(me, tMsg)
   getObject(#session).set("user_ph_tickets", integer(tMsg.getProp(#word, 1)))
   me.getInterface().updatePurseTickets()
   return(1)
+  exit
 end
 
-on handle_notickets me, tMsg 
+on handle_notickets(me, tMsg)
   executeMessage(#show_ticketWindow)
   return(1)
+  exit
 end
 
-on regMsgList me, tBool 
-  tMsgs = [:]
+on regMsgList(me, tBool)
+  tMsgs = []
   tMsgs.setaProp(6, #handle_purse)
   tMsgs.setaProp(209, #handle_purse)
   tMsgs.setaProp(212, #handle_purse)
@@ -114,7 +120,7 @@ on regMsgList me, tBool
   tMsgs.setaProp(72, #handle_tickets)
   tMsgs.setaProp(73, #handle_notickets)
   tMsgs.setaProp(124, #handle_ticketsbuy)
-  tCmds = [:]
+  tCmds = []
   tCmds.setaProp("GET_CREDITS", 8)
   tCmds.setaProp("GETUSERCREDITLOG", 127)
   tCmds.setaProp("REDEEM_VOUCHER", 129)
@@ -126,4 +132,5 @@ on regMsgList me, tBool
     unregisterCommands(getVariable("connection.info.id", #info), me.getID(), tCmds)
   end if
   return(1)
+  exit
 end

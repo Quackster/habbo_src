@@ -1,4 +1,4 @@
-on construct me 
+on construct(me)
   pOkToLogin = 0
   if variableExists("stats.tracking.url") then
     createObject(#statsBroker, "Statistics Broker Class")
@@ -42,10 +42,11 @@ on construct me
   registerMessage(#closeConnection, me.getID(), #disconnect)
   registerMessage(#performLogin, me.getID(), #sendLogin)
   registerMessage(#loginIsOk, me.getID(), #setLoginOk)
-  return TRUE
+  return(1)
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   pOkToLogin = 0
   if objectExists("Figure_System") then
     removeObject("Figure_System")
@@ -70,18 +71,20 @@ on deconstruct me
   if connectionExists(getVariable("connection.info.id", #info)) then
     return(me.disconnect())
   else
-    return TRUE
+    return(1)
   end if
+  exit
 end
 
-on initA me 
-  if (getIntVariable("figurepartlist.loaded", 1) = 0) then
+on initA(me)
+  if getIntVariable("figurepartlist.loaded", 1) = 0 then
     return(me.delay(250, #initA))
   end if
   return(me.delay(1000, #initB))
+  exit
 end
 
-on initB me 
+on initB(me)
   tUseSSO = 0
   if variableExists("use.sso.ticket") then
     tUseSSO = getVariable("use.sso.ticket")
@@ -93,14 +96,15 @@ on initB me
       end if
     end if
   end if
-  if (tUseSSO = 0) then
+  if tUseSSO = 0 then
     return(me.getInterface().showLogin())
   else
     executeMessage(#alert, [#Msg:"Alert_generic_login_error"])
   end if
+  exit
 end
 
-on sendLogin me, tConnection 
+on sendLogin(me, tConnection)
   if voidp(tConnection) then
     tConnection = getConnection(getVariable("connection.info.id"))
   end if
@@ -120,21 +124,23 @@ on sendLogin me, tConnection
       if not stringp(tUserName) or not stringp(tPassword) then
         return(removeConnection(tConnection.getID()))
       end if
-      if (tUserName = "") or (tPassword = "") then
+      if tUserName = "" or tPassword = "" then
         return(removeConnection(tConnection.getID()))
       end if
       return(tConnection.send("TRY_LOGIN", [#string:tUserName, #string:tPassword]))
     end if
   end if
-  return TRUE
+  return(1)
+  exit
 end
 
-on openConnection me 
+on openConnection(me)
   me.setaProp(#pOkToLogin, 1)
   me.connect()
+  exit
 end
 
-on connect me 
+on connect(me)
   tHost = getVariable("connection.info.host")
   tPort = getIntVariable("connection.info.port")
   tConn = getVariable("connection.info.id", #info)
@@ -153,22 +159,26 @@ on connect me
   if not threadExists(#hobba) then
     initThread("thread.hobba")
   end if
-  return TRUE
+  return(1)
+  exit
 end
 
-on disconnect me 
+on disconnect(me)
   tConn = getVariable("connection.info.id", #info)
   if connectionExists(tConn) then
     return(removeConnection(tConn))
   else
     return(error(me, "Connection not found!", #disconnect))
   end if
+  exit
 end
 
-on setAllowLogin me 
+on setAllowLogin(me)
   pOkToLogin = 1
+  exit
 end
 
-on isOkToLogin me 
+on isOkToLogin(me)
   return(me.pOkToLogin)
+  exit
 end

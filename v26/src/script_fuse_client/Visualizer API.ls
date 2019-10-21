@@ -1,35 +1,43 @@
-on constructVisualizerManager  
+on constructVisualizerManager()
   return(createManager(#visualizer_manager, getClassVariable("visualizer.manager.class")))
+  exit
 end
 
-on deconstructVisualizerManager  
+on deconstructVisualizerManager()
   return(removeManager(#visualizer_manager))
+  exit
 end
 
-on getVisualizerManager  
+on getVisualizerManager()
   tMgr = getObjectManager()
   if not tMgr.managerExists(#visualizer_manager) then
     return(constructVisualizerManager())
   end if
   return(tMgr.getManager(#visualizer_manager))
+  exit
 end
 
-on createVisualizer tID, tLayout, tLocX, tLocY 
+on createVisualizer(tID, tLayout, tLocX, tLocY)
   return(getVisualizerManager().create(tID, tLayout, tLocX, tLocY))
+  exit
 end
 
-on removeVisualizer tID 
+on removeVisualizer(tID)
   return(getVisualizerManager().Remove(tID))
+  exit
 end
 
-on getVisualizer tID 
+on getVisualizer(tID)
   return(getVisualizerManager().GET(tID))
+  exit
 end
 
-on visualizerExists tID 
+on visualizerExists(tID)
   return(getVisualizerManager().exists(tID))
+  exit
 end
 
-on printVisualizers  
+on printVisualizers()
   return(getVisualizerManager().print())
+  exit
 end

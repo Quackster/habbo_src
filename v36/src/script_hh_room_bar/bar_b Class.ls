@@ -1,19 +1,20 @@
-property pDiscoTimer
-
-on construct me 
+on construct(me)
   pDiscoTimer = 0
   return(1)
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   return(removeUpdate(me.getID()))
+  exit
 end
 
-on prepare me 
+on prepare(me)
   return(receiveUpdate(me.getID()))
+  exit
 end
 
-on update me 
+on update(me)
   if the milliSeconds < pDiscoTimer + 500 then
     return(1)
   end if
@@ -33,17 +34,18 @@ on update me
   if not tSpr then
     return(error(me, "Sprite not found:" && "show_" & tDst, #showprogram))
   else
-    if tCmd = "setfloora" then
+    if me = "setfloora" then
       member.paletteRef = member(getmemnum("clubfloorparta" & tNum))
     else
-      if tCmd = "setfloorb" then
+      if me = "setfloorb" then
         member.paletteRef = member(getmemnum("clubfloorpartb" & tNum))
       end if
     end if
   end if
+  exit
 end
 
-on showprogram me, tMsg 
+on showprogram(me, tMsg)
   if voidp(tMsg) then
     return(0)
   end if
@@ -62,8 +64,9 @@ on showprogram me, tMsg
   if not tSpr then
     return(error(me, "Sprite not found:" && "show_" & tDst, #showprogram))
   else
-    if tCmd = "setlamp" then
+    if me = "setlamp" then
       member.paletteRef = member(getmemnum("lattialamppu" & tNum))
     end if
   end if
+  exit
 end

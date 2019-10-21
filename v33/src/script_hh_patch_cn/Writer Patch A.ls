@@ -1,4 +1,4 @@
-on define me, tMetrics 
+on define(me, tMetrics)
   ancestor.define(tMetrics)
   if the platform contains "windows" then
     if variableExists("win.font.toff") then
@@ -19,9 +19,10 @@ on define me, tMetrics
       pMember.fixedLineSpace = getVariable("mac.fixedLineSpace")
     end if
   end if
+  exit
 end
 
-on construct_old me 
+on construct_old(me)
   me.pDefRect = rect(0, 0, 480, 480)
   me.pTxtRect = void()
   me.pFntStru = void()
@@ -45,4 +46,5 @@ on construct_old me
     pMember.wordWrap = 0
     return(1)
   end if
+  exit
 end

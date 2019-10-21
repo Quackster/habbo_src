@@ -1,87 +1,88 @@
-property pRoomComponentObj, pGoalLocationList, pFigureSystemObj, pCurrentLocationList, pExpectedLocationList
-
-on construct me 
-  pGoalLocationList = [:]
-  pCurrentLocationList = [:]
-  pExpectedLocationList = [:]
+on construct(me)
+  pGoalLocationList = []
+  pCurrentLocationList = []
+  pExpectedLocationList = []
   pRoomComponentObj = getObject(#room_component)
-  if (pRoomComponentObj = 0) then
+  if pRoomComponentObj = 0 then
     return(error(me, "BB: Avatar manager failed to initialize", #construct))
   end if
   tClassContainer = pRoomComponentObj.getClassContainer()
-  if (tClassContainer = 0) then
+  if tClassContainer = 0 then
     return(error(me, "BB: Avatar manager failed to initialize", #construct))
   end if
   tClassContainer.set("bouncing.human.class", ["Human Class EX", "Bouncing Human Class"])
   registerMessage(#create_user, me.getID(), #handleUserCreated)
-  return TRUE
+  return(1)
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   unregisterMessage(#create_user, me.getID())
-  return TRUE
+  return(1)
+  exit
 end
 
-on Refresh me, tTopic, tdata 
-  if (tTopic = #gamestatus_events) then
-    repeat while tTopic <= tdata
+on Refresh(me, tTopic, tdata)
+  if me = #gamestatus_events then
+    repeat while me <= tdata
       tEvent = getAt(tdata, tTopic)
-      if (tTopic = 0) then
+      if me = 0 then
         me.createRoomObject(tEvent.getAt(#data))
       else
-        if (tTopic = 1) then
+        if me = 1 then
           me.deleteRoomObject(tEvent.getAt(#id))
         else
-          if (tTopic = 2) then
+          if me = 2 then
             me.updateRoomObjectGoal(tEvent)
           end if
         end if
       end if
     end repeat
   else
-    if (tTopic = #gamestatus_players) then
+    if me = #gamestatus_players then
       tUpdatedPlayers = []
-      repeat while tTopic <= tdata
+      repeat while me <= tdata
         tPlayer = getAt(tdata, tTopic)
         me.updateRoomObjectLocation(tPlayer)
         tUpdatedPlayers.add(tPlayer.getAt(#id))
       end repeat
     else
-      if (tTopic = #fullgamestatus_players) then
-        repeat while tTopic <= tdata
+      if me = #fullgamestatus_players then
+        repeat while me <= tdata
           tPlayer = getAt(tdata, tTopic)
           me.createRoomObject(tPlayer)
         end repeat
       else
-        if (tTopic = #gamereset) then
-          repeat while tTopic <= tdata
+        if me = #gamereset then
+          repeat while me <= tdata
             tPlayer = getAt(tdata, tTopic)
             pGoalLocationList.deleteProp(string(tPlayer.getAt(#id)))
             me.updateRoomObjectLocation(tPlayer)
           end repeat
         else
-          if (tTopic = #gamestart) then
+          if me = #gamestart then
             me.hideArrowHiliter()
           end if
         end if
       end if
     end if
   end if
-  return TRUE
+  return(1)
+  exit
 end
 
-on createRoomObject me, tdata 
-  if (pRoomComponentObj = 0) then
+on createRoomObject(me, tdata)
+  if pRoomComponentObj = 0 then
     return(error(me, "BB: Room couldn't create avatar!", #createRoomObject))
   end if
-  if (pFigureSystemObj = void()) then
+  if pFigureSystemObj = void() then
     pFigureSystemObj = getObject("Figure_System")
-    if (pFigureSystemObj = void()) then
+    if pFigureSystemObj = void() then
       return(error(me, "BB: Room couldn't create avatar!", #createRoomObject))
     end if
   end if
   tUserStrId = string(tdata.getAt(#id))
-  tAvatarStruct = [:]
+  tAvatarStruct = []
   tAvatarStruct.addProp(#id, tUserStrId)
   tAvatarStruct.addProp(#name, tdata.getAt(#name))
   tAvatarStruct.addProp(#direction, [tdata.getAt(#dirBody), 0])
@@ -92,11 +93,11 @@ on createRoomObject me, tdata
   tAvatarStruct.addProp(#custom, tdata.getAt(#mission))
   tAvatarStruct.addProp(#sex, tdata.getAt(#sex))
   tAvatarStruct.addProp(#teamId, tdata.getAt(#teamId))
-  if (tdata.getAt(#name) = getObject(#session).GET(#userName)) then
+  if tdata.getAt(#name) = getObject(#session).GET(#userName) then
     getObject(#session).set("user_index", tUserStrId)
   end if
   tFigure = pFigureSystemObj.parseFigure(tdata.getAt(#figure), tdata.getAt(#sex), "user")
-  tTeamId = (tdata.getAt(#teamId) + 1)
+  tTeamId = tdata.getAt(#teamId) + 1
   tTeamColors = [rgb("#E73929"), rgb("#217BEF"), rgb("#FFCE21"), rgb("#8CE700")]
   tBallModel = ["model":"001", "color":tTeamColors.getAt(tTeamId)]
   tFigure.addProp("bl", tBallModel)
@@ -106,40 +107,42 @@ on createRoomObject me, tdata
   if not pRoomComponentObj.validateUserObjects(tAvatarStruct) then
     return(error(me, "BB: Room couldn't create avatar!", #createRoomObject))
   else
-    return TRUE
+    return(1)
   end if
+  exit
 end
 
-on deleteRoomObject me, tID 
-  if (pRoomComponentObj = 0) then
-    return FALSE
+on deleteRoomObject(me, tID)
+  if pRoomComponentObj = 0 then
+    return(0)
   end if
   tUserStrId = string(tID)
   pGoalLocationList.deleteProp(tUserStrId)
   pCurrentLocationList.deleteProp(tUserStrId)
   pExpectedLocationList.deleteProp(tUserStrId)
   return(pRoomComponentObj.removeUserObject(tUserStrId))
+  exit
 end
 
-on updateRoomObjectLocation me, tuser 
-  if (pRoomComponentObj = 0) then
-    return FALSE
+on updateRoomObjectLocation(me, tuser)
+  if pRoomComponentObj = 0 then
+    return(0)
   end if
-  if not (ilk(tuser) = #propList) then
-    return FALSE
+  if not ilk(tuser) = #propList then
+    return(0)
   end if
   tUserStrId = string(tuser.getAt(#id))
   tUserObj = pRoomComponentObj.getUserObject(tUserStrId)
-  if (tUserObj = 0) then
+  if tUserObj = 0 then
     return(error(me, "User" && tUserStrId && "not found!", #updateRoomObjectLocation))
   end if
-  if ([tuser.getAt(#locX), tuser.getAt(#locY)] = pGoalLocationList.getAt(tUserStrId)) then
+  if [tuser.getAt(#locX), tuser.getAt(#locY)] = pGoalLocationList.getAt(tUserStrId) then
     pGoalLocationList.deleteProp(tUserStrId)
     pExpectedLocationList.deleteProp(tUserStrId)
   else
     tNextLoc = me.solveNextTile(tUserStrId, [tuser.getAt(#locX), tuser.getAt(#locY)])
   end if
-  if (tNextLoc = 0) then
+  if tNextLoc = 0 then
     tDirBody = tuser.getAt(#dirBody)
   else
     tDirBody = tNextLoc.getAt(3)
@@ -150,7 +153,7 @@ on updateRoomObjectLocation me, tuser
     if [tuser.getAt(#locX), tuser.getAt(#locY)] <> [pExpectedLocationList.getAt(tUserStrId).getAt(1), pExpectedLocationList.getAt(tUserStrId).getAt(2)] and tNextLoc <> 0 then
       pExpectedLocationList.deleteProp(tUserStrId)
       tUserObj.Refresh(tuser.getAt(#locX), tuser.getAt(#locY), 0)
-      return TRUE
+      return(1)
     end if
   end if
   pExpectedLocationList.setAt(tUserStrId, tNextLoc)
@@ -159,43 +162,47 @@ on updateRoomObjectLocation me, tuser
     call(symbol("action_mv"), [tUserObj], tParams)
   end if
   tUserObj.Refresh(tuser.getAt(#locX), tuser.getAt(#locY), 0)
+  exit
 end
 
-on updateRoomObjectGoal me, tuser 
+on updateRoomObjectGoal(me, tuser)
   tUserStrId = string(tuser.getAt(#id))
   pGoalLocationList.setaProp(tUserStrId, [tuser.getAt(#goalx), tuser.getAt(#goaly)])
-  if (pCurrentLocationList.getAt(tUserStrId) = void()) then
-    return FALSE
+  if pCurrentLocationList.getAt(tUserStrId) = void() then
+    return(0)
   end if
   tuser.setAt(#locX, pCurrentLocationList.getAt(tUserStrId).getAt(1))
   tuser.setAt(#locY, pCurrentLocationList.getAt(tUserStrId).getAt(2))
   tuser.setAt(#dirBody, pCurrentLocationList.getAt(tUserStrId).getAt(3))
   pExpectedLocationList.deleteProp(tUserStrId)
   return(me.updateRoomObjectLocation(tuser))
+  exit
 end
 
-on handleUserCreated me, tName, tUserStrId 
+on handleUserCreated(me, tName, tUserStrId)
   if me.getGameSystem().getSpectatorModeFlag() then
-    return TRUE
+    return(1)
   end if
   if tUserStrId <> getObject(#session).GET("user_index") then
-    return FALSE
+    return(0)
   end if
   return(getObject(#room_interface).showArrowHiliter(tUserStrId))
+  exit
 end
 
-on hideArrowHiliter me 
+on hideArrowHiliter(me)
   return(getObject(#room_interface).hideArrowHiliter())
+  exit
 end
 
-on solveNextTile me, tUserStrId, tCurrentLocation 
-  if (pGoalLocationList.getAt(tUserStrId) = void()) then
-    return FALSE
+on solveNextTile(me, tUserStrId, tCurrentLocation)
+  if pGoalLocationList.getAt(tUserStrId) = void() then
+    return(0)
   end if
   tGoalX = pGoalLocationList.getAt(tUserStrId).getAt(1)
   tGoalY = pGoalLocationList.getAt(tUserStrId).getAt(2)
-  tDirX = (tGoalX - tCurrentLocation.getAt(1))
-  tDirY = (tGoalY - tCurrentLocation.getAt(2))
+  tDirX = tGoalX - tCurrentLocation.getAt(1)
+  tDirY = tGoalY - tCurrentLocation.getAt(2)
   if tDirX > 0 then
     tDirX = 1
   else
@@ -207,17 +214,18 @@ on solveNextTile me, tUserStrId, tCurrentLocation
   end if
   if tDirY > 0 then
     tDirY = 1
-    tBodyDir = [5, 4, 3].getAt((tDirX + 2))
+    tBodyDir = [5, 4, 3].getAt(tDirX + 2)
   else
     if tDirY < 0 then
       tDirY = -1
-      tBodyDir = [7, 0, 1].getAt((tDirX + 2))
+      tBodyDir = [7, 0, 1].getAt(tDirX + 2)
     else
       tDirY = 0
-      tBodyDir = [6, 0, 2].getAt((tDirX + 2))
+      tBodyDir = [6, 0, 2].getAt(tDirX + 2)
     end if
   end if
-  tNextX = (tCurrentLocation.getAt(1) + tDirX)
-  tNextY = (tCurrentLocation.getAt(2) + tDirY)
+  tNextX = tCurrentLocation.getAt(1) + tDirX
+  tNextY = tCurrentLocation.getAt(2) + tDirY
   return([tNextX, tNextY, tBodyDir])
+  exit
 end

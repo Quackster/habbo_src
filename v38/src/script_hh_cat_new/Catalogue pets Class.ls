@@ -1,19 +1,17 @@
-property pPetRacesList, pPageData, pSelectedProduct, pPetTemplateObj, pSelectedOrderNum, pLastProductNum, pNameCheckPending
-
-on construct me 
+on construct(me)
   tCataloguePage = getThread(#catalogue).getInterface().getCatalogWindow()
   if not tCataloguePage then
     return(error(me, "Couldn't access catalogue window!", #construct, #major))
   end if
   tPetClass = value(readValueFromField("fuse.object.classes", "\r", "pet"))
   pPetTemplateObj = createObject(#temp, tPetClass)
-  pPageData = [:]
-  pPetRacesList = [:]
+  pPageData = []
+  pPetRacesList = []
   tPetDEfText = member(getmemnum("pet.definitions")).text
   tPetDEfText = replaceChunks(tPetDEfText, "\r", "")
   pPetDefinitions = value(tPetDEfText)
   if ilk(pPetDefinitions) <> #propList then
-    pPetDefinitions = [:]
+    pPetDefinitions = []
     error(me, "Pet definitions has invalid data!", me.getID(), #construct, #major)
   end if
   i = 0
@@ -47,14 +45,16 @@ on construct me
   end repeat
   me.regMsgList(1)
   return(1)
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   me.regMsgList(0)
   return(1)
+  exit
 end
 
-on define me, tPageProps 
+on define(me, tPageProps)
   if tPageProps.ilk <> #propList then
     return(error(me, "Incorrect Catalogue page data", #define, #major))
   end if
@@ -93,24 +93,27 @@ on define me, tPageProps
     end repeat
   end if
   selectProduct(me, 1)
+  exit
 end
 
-on petNameApproved me 
+on petNameApproved(me)
   if pSelectedProduct.ilk = #propList then
     getThread(#catalogue).getComponent().checkProductOrder(pSelectedProduct)
   end if
+  exit
 end
 
-on petNameUnacceptable me 
+on petNameUnacceptable(me)
   tWndObj = getThread(#catalogue).getInterface().getCatalogWindow()
   if tWndObj.elementExists("dedication_text") then
     tWndObj.getElement("dedication_text").setText("")
   end if
   return(executeMessage(#alert, [#Msg:"catalog_pet_unacceptable", #id:"ctlg_petunacceptable"]))
+  exit
 end
 
-on definePet me, tProps 
-  tdata = [:]
+on definePet(me, tProps)
+  tdata = []
   tdata.setAt(#name, "PetTemplate")
   tdata.setAt(#class, "Pet Class")
   tdata.setAt(#direction, [1, 1, 1])
@@ -124,9 +127,10 @@ on definePet me, tProps
   else
     return(0)
   end if
+  exit
 end
 
-on selectProduct me, tOrderNum 
+on selectProduct(me, tOrderNum)
   tCataloguePage = getThread(#catalogue).getInterface().getCatalogWindow()
   if not tCataloguePage then
     return(error(me, "Couldn't access catalogue window!", #selectProduct, #major))
@@ -159,10 +163,10 @@ on selectProduct me, tOrderNum
         tDestImg = tElem.getProperty(#image)
         tSourceImg = tImage
         tDestImg.fill(tDestImg.rect, rgb(255, 255, 255))
-        tSourceRect = (tSourceImg.rect * 2)
+        tSourceRect = tSourceImg.rect * 2
         tdestrect = tDestImg.rect - tSourceRect
         tMargins = rect(14, -7, 14, -7)
-        tdestrect = rect((tdestrect.width / 2), (tdestrect.height / 2), tSourceRect.width + (tdestrect.width / 2), (tdestrect.height / 2) + tSourceRect.height) + tMargins
+        tdestrect = rect(tdestrect.width / 2, tdestrect.height / 2, tSourceRect.width + tdestrect.width / 2, tdestrect.height / 2 + tSourceRect.height) + tMargins
         tDestImg.copyPixels(tSourceImg, tdestrect, tSourceImg.rect, [#ink:36])
         tElem.feedImage(tDestImg)
       end if
@@ -186,9 +190,10 @@ on selectProduct me, tOrderNum
     tWndObj.getElement("ctlg_buy_button").setProperty(#visible, 1)
   end if
   pLastProductNum = pSelectedOrderNum
+  exit
 end
 
-on nextProduct me 
+on nextProduct(me)
   if pPageData.ilk <> #propList then
     return(error(me, "Incorrect data", #nextProduct, #major))
   end if
@@ -198,9 +203,10 @@ on nextProduct me
   end if
   pSelectedOrderNum = tNext
   selectProduct(me, tNext)
+  exit
 end
 
-on prevProduct me 
+on prevProduct(me)
   if pPageData.ilk <> #propList then
     return(error(me, "Incorrect data", #prewProduct, #major))
   end if
@@ -210,9 +216,10 @@ on prevProduct me
   end if
   pSelectedOrderNum = tPrev
   selectProduct(me, tPrev)
+  exit
 end
 
-on eventProc me, tEvent, tSprID, tProp 
+on eventProc(me, tEvent, tSprID, tProp)
   if tEvent = #mouseUp then
     if tSprID = "close" then
       return(0)
@@ -261,9 +268,10 @@ on eventProc me, tEvent, tSprID, tProp
     end if
   end if
   return(1)
+  exit
 end
 
-on handle_nameapproved me, tMsg 
+on handle_nameapproved(me, tMsg)
   if not pNameCheckPending then
     return(1)
   end if
@@ -274,12 +282,13 @@ on handle_nameapproved me, tMsg
   else
     me.petNameUnacceptable()
   end if
+  exit
 end
 
-on regMsgList me, tBool 
-  tMsgs = [:]
+on regMsgList(me, tBool)
+  tMsgs = []
   tMsgs.setaProp(36, #handle_nameapproved)
-  tCmds = [:]
+  tCmds = []
   tCmds.setaProp("APPROVE_PET_NAME", 42)
   if tBool then
     registerListener(getVariable("connection.info.id"), me.getID(), tMsgs)
@@ -289,4 +298,5 @@ on regMsgList me, tBool
     unregisterCommands(getVariable("connection.info.id"), me.getID(), tCmds)
   end if
   return(1)
+  exit
 end

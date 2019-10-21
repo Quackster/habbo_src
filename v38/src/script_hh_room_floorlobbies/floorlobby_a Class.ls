@@ -1,6 +1,4 @@
-property pBubbleList
-
-on construct me 
+on construct(me)
   if not threadExists(#room) then
     return(error(me, "Room thread not found!!!", #construct))
   end if
@@ -46,14 +44,17 @@ on construct me
   end repeat
   receiveUpdate(me.getID())
   return(1)
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   removeUpdate(me.getID())
   pBubbleList = []
   return(1)
+  exit
 end
 
-on update me 
+on update(me)
   call(#update, pBubbleList)
+  exit
 end

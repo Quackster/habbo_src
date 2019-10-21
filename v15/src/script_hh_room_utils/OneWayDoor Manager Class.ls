@@ -1,42 +1,45 @@
-on construct me 
+on construct(me)
   me.regMessageListener(1)
+  exit
 end
 
-on deconstruct me 
+on deconstruct(me)
   me.regMessageListener(0)
+  exit
 end
 
-on changeStatus me, tMsg 
+on changeStatus(me, tMsg)
   tConnection = tMsg.getaProp(#connection)
   if voidp(tConnection) then
-    return FALSE
+    return(0)
   end if
   tid = tConnection.GetIntFrom()
   tStatus = tConnection.GetIntFrom()
   if not threadExists(#room) then
     error(me, "Room thread not found.", #changeStatus, #critical)
-    return FALSE
+    return(0)
   end if
   tComponent = getThread(#room).getComponent()
   if voidp(tComponent) then
     error(me, "Room component not found.", #changeStatus, #critical)
-    return FALSE
+    return(0)
   end if
   tActiveObject = tComponent.getActiveObject(tid)
   if voidp(tActiveObject) then
     error(me, "One way door object" && tid && "not found.", #changeStatus, #major)
-    return FALSE
+    return(0)
   end if
   if tActiveObject.handler(#setDoor) then
     tActiveObject.setDoor(tStatus)
   end if
-  return TRUE
+  return(1)
+  exit
 end
 
-on regMessageListener me, tBool 
-  tMsgs = [:]
+on regMessageListener(me, tBool)
+  tMsgs = []
   tMsgs.setaProp(312, #changeStatus)
-  tCmds = [:]
+  tCmds = []
   tCmds.setaProp("ENTER_ONEWAY_DOOR", 232)
   if tBool then
     registerListener(getVariable("connection.info.id"), me.getID(), tMsgs)
@@ -45,5 +48,6 @@ on regMessageListener me, tBool
     unregisterListener(getVariable("connection.info.id"), me.getID(), tMsgs)
     unregisterCommands(getVariable("connection.info.id"), me.getID(), tCmds)
   end if
-  return TRUE
+  return(1)
+  exit
 end
