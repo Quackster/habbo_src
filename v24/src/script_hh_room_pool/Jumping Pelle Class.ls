@@ -1,4 +1,4 @@
-property pSpr, pInks, pJumpDirection, pStartloc, pModels, pColors, pBgScreenBuffer, pPelleKeys, pStatus, pSpeed, pMyLoc, pScreenUpOrDown, name, pMyName, pBigSplashActive, pPlayerMode, pJumpData, pPelleImg, jumpAction, jumpAnimFrame, AnimListCounter, runAnimList, pnewLocV, pjumpBoardEnd, pJumpSpeed, pVelocityV, pJumpMode, pJumpLoop, plastPressKey, pJumpMaxAnimFrames, pJumpLastDirection, myLocZ, pPelleBgImg, pjumpBoardStart, pRemoveJumperTime
+ property pSpr, pInks, pJumpDirection, pStartloc, pModels, pColors, pBgScreenBuffer, pPelleKeys, pStatus, pSpeed, pMyLoc, pScreenUpOrDown, name, pMyName, pBigSplashActive, pPlayerMode, pJumpData, pPelleImg, jumpAction, jumpAnimFrame, AnimListCounter, runAnimList, pnewLocV, pjumpBoardEnd, pJumpSpeed, pVelocityV, pJumpMode, pJumpLoop, plastPressKey, pJumpMaxAnimFrames, pJumpLastDirection, myLocZ, pPelleBgImg, pjumpBoardStart, pRemoveJumperTime
 
 on deconstruct me 
   if ilk(pSpr, #sprite) then
@@ -80,9 +80,9 @@ on Init me, tName, tMemberModels, tplayerMode, tKeyList
     tPilvi = getAt(tMemberModels, tName)
     tCloud = member(getmemnum("pilvi" & random(5)))
     tRect = tCloud.rect + rect(tPilvi.locH, tPilvi.locV, tPilvi.locH, tPilvi.locV)
-    tCloud.image.copyPixels(tRect, tCloud.rect, #maskImage, [tCloud:image.createMatte(), #ink:8])
+    tCloud.image.copyPixels(tRect, tCloud.rect, #maskImage, [#ink:8, tCloud.image.createMatte()])
   end repeat
-  member(getmemnum("pelle_bg3")).image.copyPixels(pBgScreenBuffer.rect, pBgScreenBuffer.rect, #maskImage, [member(getmemnum("pelle_bg3")):image.createMatte(), #ink:8])
+  member(getmemnum("pelle_bg3")).image.copyPixels(pBgScreenBuffer.rect, pBgScreenBuffer.rect, #maskImage, [#ink:8, member(getmemnum("pelle_bg3")).image.createMatte()])
   pKeyTimerStat = 0
   me.UpdatePelle()
   pPelleKeys = getVariableValue("swimjump.key.list")
@@ -369,7 +369,7 @@ on JumpingExitFrame me
     h = pPelleImg.height - 4
     w = pPelleImg.width - 6
     BgsourceRect = pPelleBgImg.rect + rect(pMyLoc.locH - w, pMyLoc.locV - h, pMyLoc.locH - w, pMyLoc.locV - h)
-    member(getmemnum("pomppulauta_4")).image.copyPixels(rect(393, 131, 523, 199), member(getmemnum("pomppulauta_4")).rect, #maskImage, [member(getmemnum("pomppulauta_4")):image.createMatte(), #ink:8])
+    member(getmemnum("pomppulauta_4")).image.copyPixels(rect(393, 131, 523, 199), member(getmemnum("pomppulauta_4")).rect, #maskImage, [#ink:8, member(getmemnum("pomppulauta_4")).image.createMatte()])
     pPelleBgImg.copyPixels(pBgScreenBuffer, rect(0, 0, 108, 102), BgsourceRect)
   end if
 end
