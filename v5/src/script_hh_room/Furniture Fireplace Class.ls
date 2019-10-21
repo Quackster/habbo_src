@@ -1,7 +1,7 @@
 property pTiming, pChanges, pActive
 
 on prepare me, tdata 
-  if tdata.getAt("FIREON") = "ON" then
+  if (tdata.getAt("FIREON") = "ON") then
     pChanges = 1
     pActive = 1
   else
@@ -9,11 +9,11 @@ on prepare me, tdata
     pActive = 0
   end if
   pTiming = 1
-  return(1)
+  return TRUE
 end
 
 on updateStuffdata me, tProp, tValue 
-  if tValue = "ON" then
+  if (tValue = "ON") then
     pActive = 1
   else
     pActive = 0
@@ -33,15 +33,15 @@ on update me
     return()
   end if
   if pActive then
-    tName = member.name
-    tName = tName.getProp(#char, 1, length(tName) - 1) & random(11) - 1
-    me.getPropRef(#pSprList, 3).locZ = me.getPropRef(#pSprList, 2).locZ + 2
+    tName = me.getPropRef(#pSprList, 3).member.name
+    tName = tName.getProp(#char, 1, (length(tName) - 1)) & (random(11) - 1)
+    me.getPropRef(#pSprList, 3).locZ = (me.getPropRef(#pSprList, 2).locZ + 2)
     tmember = member(getmemnum(tName))
     pChanges = 1
   else
     if not pActive then
-      tName = member.name
-      tmember = member(getmemnum(tName.getProp(#char, 1, length(tName) - 1) & "0"))
+      tName = me.getPropRef(#pSprList, 3).member.name
+      tmember = member(getmemnum(tName.getProp(#char, 1, (length(tName) - 1)) & "0"))
       pChanges = 0
     end if
   end if
@@ -61,5 +61,5 @@ on select me
     end if
     getThread(#room).getComponent().getRoomConnection().send(#room, "SETSTUFFDATA /" & me.getID() & "/" & "FIREON" & "/" & tStr)
   end if
-  return(1)
+  return TRUE
 end

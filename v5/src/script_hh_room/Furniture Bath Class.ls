@@ -1,18 +1,18 @@
 property pChanges, pActive
 
 on prepare me, tdata 
-  if tdata.getAt("SWITCHON") = "ON" then
+  if (tdata.getAt("SWITCHON") = "ON") then
     setOn(me)
     pChanges = 1
   else
     setOff(me)
     pChanges = 0
   end if
-  return(1)
+  return TRUE
 end
 
 on updateStuffdata me, tProp, tValue 
-  if tValue = "ON" then
+  if (tValue = "ON") then
     me.setOn()
   else
     me.setOff()
@@ -71,5 +71,5 @@ on select me
   else
     getThread(#room).getComponent().getRoomConnection().send(#room, "Move" && me.pLocX && me.pLocY)
   end if
-  return(1)
+  return TRUE
 end

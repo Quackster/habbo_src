@@ -7,7 +7,7 @@ on construct me
     tObj = createObject(#temp, "Lobby Bubble Class")
     tObj.define(i)
     pBubbleList.add(tObj)
-    i = 1 + i
+    i = (1 + i)
   end repeat
   return(receiveUpdate(me.getID()))
 end

@@ -7,11 +7,11 @@ on deconstructResourceManager
 end
 
 on getResourceManager  
-  tObjMngr = getObjectManager()
-  if not tObjMngr.managerExists(#resource_manager) then
+  tMgr = getObjectManager()
+  if not tMgr.managerExists(#resource_manager) then
     return(constructResourceManager())
   end if
-  return(tObjMngr.getManager(#resource_manager))
+  return(tMgr.getManager(#resource_manager))
 end
 
 on createMember tMemName, ttype 

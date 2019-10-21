@@ -2,7 +2,7 @@ property pAction, pPart, pDirection, pYFix, pXFix, pActionLh, pActionRh, pCacheR
 
 on deconsturct me 
   ancestor = void()
-  return(1)
+  return TRUE
 end
 
 on define me, tPart, tmodel, tColor, tDirection, tAction, tAncestor 
@@ -27,43 +27,43 @@ on define me, tPart, tmodel, tColor, tDirection, tAction, tAncestor
   pAnimation = 0
   pAnimFrame = 1
   pTotalFrame = 1
-  return(1)
+  return TRUE
 end
 
 on update me 
   tAnimCntr = 0
   tAction = pAction
   tPart = pPart
-  tdir = me.getProp(#pFlipList, pDirection + 1)
+  tdir = me.getProp(#pFlipList, (pDirection + 1))
   pXFix = 0
   pYFix = 0
   if me.pAnimating and me.checkPartNotCarrying() then
     tMemString = me.animate()
-    if me.pDirection = 0 then
-      pYFix = pYFix + (pXFix / 2)
+    if (me.pDirection = 0) then
+      pYFix = (pYFix + (pXFix / 2))
       pXFix = (pXFix / 2)
     else
-      if me.pDirection = 1 then
-        pYFix = pYFix + pXFix
+      if (me.pDirection = 1) then
+        pYFix = (pYFix + pXFix)
         pXFix = 0
       else
-        if me.pDirection = 2 then
-          pYFix = pYFix - (pXFix / 2)
+        if (me.pDirection = 2) then
+          pYFix = (pYFix - (pXFix / 2))
           pXFix = (pXFix / 2)
         else
-          if me.pDirection = 4 then
-            pYFix = pYFix + (pXFix / 2)
+          if (me.pDirection = 4) then
+            pYFix = (pYFix + (pXFix / 2))
             pXFix = (-pXFix / 2)
           else
-            if me.pDirection = 5 then
-              pYFix = pYFix - pXFix
+            if (me.pDirection = 5) then
+              pYFix = (pYFix - pXFix)
               pXFix = 0
             else
-              if me.pDirection = 6 then
-                pYFix = pYFix - (pXFix / 2)
+              if (me.pDirection = 6) then
+                pYFix = (pYFix - (pXFix / 2))
                 pXFix = (-pXFix / 2)
               else
-                if me.pDirection = 7 then
+                if (me.pDirection = 7) then
                   pXFix = -pXFix
                 end if
               end if
@@ -72,7 +72,7 @@ on update me
         end if
       end if
     end if
-    if me.pPeopleSize = "sh" then
+    if (me.pPeopleSize = "sh") then
       tSizeMultiplier = 0.7
     else
       tSizeMultiplier = 1
@@ -82,14 +82,14 @@ on update me
   else
     if me.pDirection <> "bd" then
       if me.pDirection <> "lg" then
-        if me.pDirection = "sh" then
-          if pAction = "wlk" then
+        if (me.pDirection = "sh") then
+          if (pAction = "wlk") then
             tAnimCntr = me.pAnimCounter
           end if
         else
           if me.pDirection <> "lh" then
-            if me.pDirection = "ls" then
-              if pDirection = tdir then
+            if (me.pDirection = "ls") then
+              if (pDirection = tdir) then
                 if not voidp(pActionLh) then
                   tAction = pActionLh
                 end if
@@ -98,10 +98,10 @@ on update me
                   tAction = pActionRh
                 end if
               end if
-              if tAction = "wlk" then
+              if (tAction = "wlk") then
                 tAnimCntr = me.pAnimCounter
               else
-                if tAction = "wav" then
+                if (tAction = "wav") then
                   tAnimCntr = (me.pAnimCounter mod 2)
                 else
                   if ["crr", "drk", "ohd"].getPos(tAction) <> 0 then
@@ -115,8 +115,8 @@ on update me
               end if
             else
               if me.pDirection <> "rh" then
-                if me.pDirection = "rs" then
-                  if pDirection = tdir then
+                if (me.pDirection = "rs") then
+                  if (pDirection = tdir) then
                     if not voidp(pActionRh) then
                       tAction = pActionRh
                     end if
@@ -125,15 +125,15 @@ on update me
                       tAction = pActionLh
                     end if
                   end if
-                  if tAction = "wlk" then
+                  if (tAction = "wlk") then
                     tAnimCntr = me.pAnimCounter
                   else
-                    if tAction = "wav" then
+                    if (tAction = "wav") then
                       tAnimCntr = (me.pAnimCounter mod 2)
                       tPart = "l" & pPart.getProp(#char, 2)
                       tdir = pDirection
                     else
-                      if tAction = "sig" then
+                      if (tAction = "sig") then
                         tAnimCntr = 0
                         tPart = "l" & pPart.getProp(#char, 2)
                         tdir = pDirection
@@ -143,9 +143,9 @@ on update me
                   end if
                 else
                   if me.pDirection <> "hd" then
-                    if me.pDirection = "fc" then
+                    if (me.pDirection = "fc") then
                       if me.pTalking then
-                        if pAction = "lay" then
+                        if (pAction = "lay") then
                           tAction = "lsp"
                         else
                           tAction = "spk"
@@ -153,19 +153,19 @@ on update me
                         tAnimCntr = (me.pAnimCounter mod 2)
                       end if
                     else
-                      if me.pDirection = "ey" then
-                        if me.pTalking and pAction <> "lay" and (me.pAnimCounter mod 2) = 0 then
+                      if (me.pDirection = "ey") then
+                        if me.pTalking and pAction <> "lay" and ((me.pAnimCounter mod 2) = 0) then
                           pYFix = -1
                         end if
                       else
-                        if me.pDirection = "hr" then
-                          if me.pTalking and (me.pAnimCounter mod 2) = 0 then
+                        if (me.pDirection = "hr") then
+                          if me.pTalking and ((me.pAnimCounter mod 2) = 0) then
                             if pAction <> "lay" then
                               tAction = "spk"
                             end if
                           end if
                         else
-                          if me.pDirection = "ri" then
+                          if (me.pDirection = "ri") then
                             if not me.pCarrying then
                               pMemString = ""
                               if pCacheRectA.width > 0 then
@@ -178,7 +178,7 @@ on update me
                               tdir = pDirection
                             end if
                           else
-                            if me.pDirection = "li" then
+                            if (me.pDirection = "li") then
                               tAction = pActionLh
                               tdir = pDirection
                             end if
@@ -197,19 +197,19 @@ on update me
                         tmember = member(tMemNum)
                         tRegPnt = tmember.regPoint
                         tX = -tRegPnt.getAt(1)
-                        tY = rect.height - tRegPnt.getAt(2) - 10
+                        tY = ((me.pBuffer.rect.height - tRegPnt.getAt(2)) - 10)
                         me.pUpdateRect = union(me.pUpdateRect, pCacheRectA)
                         pCacheImage = tmember.image
                         tLocFix = me.pLocFix
                         if pFlipH then
                           pCacheImage = me.flipHorizontal(pCacheImage)
-                          tX = -tX - tmember.width + me.width
+                          tX = ((-tX - tmember.width) + me.pBuffer.width)
                           tLocFix = point(-me.getProp(#pLocFix, 1), me.getProp(#pLocFix, 2))
-                          if me.pPeopleSize = "sh" then
-                            tX = tX - 2
+                          if (me.pPeopleSize = "sh") then
+                            tX = (tX - 2)
                           end if
                         end if
-                        pCacheRectA = rect(tX, tY, tX + pCacheImage.width, tY + pCacheImage.height) + [pXFix, pYFix, pXFix, pYFix] + rect(tLocFix, tLocFix)
+                        pCacheRectA = ((rect(tX, tY, (tX + pCacheImage.width), (tY + pCacheImage.height)) + [pXFix, pYFix, pXFix, pYFix]) + rect(tLocFix, tLocFix))
                         pCacheRectB = pCacheImage.rect
                         pDrawProps.setAt(#maskImage, pCacheImage.createMatte())
                         me.pUpdateRect = union(me.pUpdateRect, pCacheRectA)
@@ -219,7 +219,7 @@ on update me
                         return()
                       end if
                     end if
-                    me.copyPixels(pCacheImage, pCacheRectA, pCacheRectB, pDrawProps)
+                    me.pBuffer.copyPixels(pCacheImage, pCacheRectA, pCacheRectB, pDrawProps)
                   end if
                 end if
               end if
@@ -233,18 +233,18 @@ end
 
 on render me 
   if memberExists(pMemString) then
-    me.copyPixels(pCacheRectB, pCacheRectA, pCacheRectB, pDrawProps)
+    me.pBuffer.copyPixels(pCacheRectB, pCacheRectA, pCacheRectB, pDrawProps)
   end if
 end
 
 on setItemObj me, tmodel 
-  if pPart = "ri" or pPart = "li" then
+  if (pPart = "ri") or (pPart = "li") then
     pmodel = tmodel
   end if
 end
 
 on defineDir me, tdir, tPart 
-  if voidp(tPart) or tPart = pPart then
+  if voidp(tPart) or (tPart = pPart) then
     pDirection = tdir
   end if
 end
@@ -256,17 +256,17 @@ on defineDirMultiple me, tdir, tTargetPartList
 end
 
 on defineAct me, tAct, tTargetPartList 
-  if pAction = "std" then
+  if (pAction = "std") then
     pAction = tAct
   end if
 end
 
 on defineActMultiple me, tAct, tTargetPartList 
   if tTargetPartList.getOne(pPart) then
-    if pAction = "std" then
+    if (pAction = "std") then
       pAction = tAct
     end if
-    if pPart = "ey" and tAct = "std" then
+    if (pPart = "ey") and (tAct = "std") then
       pAction = "std"
     end if
   end if
@@ -274,16 +274,16 @@ end
 
 on defineInk me, tInk 
   if voidp(tInk) then
-    if pPart = "ey" then
+    if (pPart = "ey") then
       tInk = 36
     else
-      if pPart = "sd" then
+      if (pPart = "sd") then
         tInk = 32
       else
-        if pPart = "ri" then
+        if (pPart = "ri") then
           tInk = 8
         else
-          if pPart = "li" then
+          if (pPart = "li") then
             tInk = 8
           else
             tInk = 41
@@ -293,7 +293,7 @@ on defineInk me, tInk
     end if
   end if
   pDrawProps.setAt(#ink, tInk)
-  return(1)
+  return TRUE
 end
 
 on setModel me, tmodel 
@@ -302,32 +302,32 @@ end
 
 on setColor me, tColor 
   if voidp(tColor) then
-    return(0)
+    return FALSE
   end if
-  if tColor = "" then
-    return(0)
+  if (tColor = "") then
+    return FALSE
   end if
-  if tColor.ilk = #color and pDrawProps.getAt(#ink) <> 36 then
+  if (tColor.ilk = #color) and pDrawProps.getAt(#ink) <> 36 then
     pDrawProps.setAt(#bgColor, tColor)
   else
     pDrawProps.setAt(#bgColor, rgb(255, 255, 255))
   end if
-  return(1)
+  return TRUE
 end
 
 on checkPartNotCarrying me 
   if not me.getProperty(#carrying) then
-    return(1)
+    return TRUE
   end if
-  if pDirection = me.getProp(#pFlipList, pDirection + 1) then
+  if (pDirection = me.getProp(#pFlipList, (pDirection + 1))) then
     tHandParts = ["rh", "rs", "ri"]
   else
     tHandParts = ["lh", "ls", "li", "ri"]
   end if
   if tHandParts.getPos(pPart) then
-    return(0)
+    return FALSE
   else
-    return(1)
+    return TRUE
   end if
 end
 
@@ -363,16 +363,16 @@ end
 
 on getLocation me 
   if voidp(pMemString) then
-    return(0)
+    return FALSE
   end if
   if not memberExists(pMemString) then
-    return(0)
+    return FALSE
   end if
   tmember = member(getmemnum(pMemString))
   tImgRect = tmember.rect
   tCntrPoint = point((tImgRect.width / 2), (tImgRect.height / 2))
   tRegPoint = tmember.regPoint
-  return(-tRegPoint + tCntrPoint)
+  return((-tRegPoint + tCntrPoint))
 end
 
 on copyPicture me, tImg, tdir, tHumanSize, tAction, tAnimFrame 
@@ -394,13 +394,13 @@ on copyPicture me, tImg, tdir, tHumanSize, tAction, tAnimFrame
     tImage = tmember.image
     tRegPnt = tmember.regPoint
     tX = -tRegPnt.getAt(1)
-    tY = rect.height - tRegPnt.getAt(2) - 10
-    tRect = rect(tX, tY, tX + tImage.width, tY + tImage.height)
+    tY = ((tImg.rect.height - tRegPnt.getAt(2)) - 10)
+    tRect = rect(tX, tY, (tX + tImage.width), (tY + tImage.height))
     tMatte = tImage.createMatte()
     tImg.copyPixels(tImage, tRect, tImage.rect, [#maskImage:tMatte, #ink:pDrawProps.getAt(#ink), #bgColor:pDrawProps.getAt(#bgColor)])
-    return(1)
+    return TRUE
   end if
-  return(0)
+  return FALSE
 end
 
 on reset me 
@@ -410,11 +410,11 @@ on reset me
 end
 
 on skipAnimationFrame me 
-  pAnimFrame = pAnimFrame + 1
+  pAnimFrame = (pAnimFrame + 1)
   if pAnimFrame > pTotalFrame then
     pAnimFrame = 1
   end if
-  return(1)
+  return TRUE
 end
 
 on setAnimation me, tPart, tAnim 
@@ -433,7 +433,7 @@ on remAnimation me
 end
 
 on animate me 
-  if pPart = "ri" then
+  if (pPart = "ri") then
     if pCacheRectA.width > 0 then
       me.pUpdateRect = union(me.pUpdateRect, pCacheRectA)
       pCacheRectA = rect(0, 0, 0, 0)
@@ -443,16 +443,16 @@ on animate me
   if not pAnimation then
     return("")
   end if
-  tdir = pDirection + pAnimation.getAt(#OffD).getAt(pAnimFrame)
+  tdir = (pDirection + pAnimation.getAt(#OffD).getAt(pAnimFrame))
   if tdir > 7 then
-    tdir = min(tdir - 8, 7)
+    tdir = min((tdir - 8), 7)
   else
     if tdir < 0 then
-      tdir = max(7 + tdir + 1, 0)
+      tdir = max(((7 + tdir) + 1), 0)
     end if
   end if
   if ["hd", "fc", "ey", "hr"].getOne(pPart) <> 0 then
-    if tdir = 4 and pDirection = 3 or tdir = 0 and pDirection = 7 then
+    if (tdir = 4) and (pDirection = 3) or (tdir = 0) and (pDirection = 7) then
       pFlipH = 1
     else
       pFlipH = 0
@@ -460,11 +460,11 @@ on animate me
   else
     pFlipH = 0
   end if
-  tdir = me.getProp(#pFlipList, tdir + 1)
+  tdir = me.getProp(#pFlipList, (tdir + 1))
   pXFix = pAnimation.getAt(#OffX).getAt(pAnimFrame)
   pYFix = pAnimation.getAt(#OffY).getAt(pAnimFrame)
   tMemName = me.pPeopleSize & "_" & pAnimation.getAt(#act).getAt(pAnimFrame) & "_" & pPart & "_" & pmodel & "_" & tdir & "_" & pAnimation.getAt(#frm).getAt(pAnimFrame)
-  pAnimFrame = pAnimFrame + 1
+  pAnimFrame = (pAnimFrame + 1)
   if pAnimFrame > pTotalFrame then
     pAnimFrame = 1
   end if

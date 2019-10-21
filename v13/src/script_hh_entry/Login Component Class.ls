@@ -42,7 +42,7 @@ on construct me
   registerMessage(#closeConnection, me.getID(), #disconnect)
   registerMessage(#performLogin, me.getID(), #sendLogin)
   registerMessage(#loginIsOk, me.getID(), #setLoginOk)
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
@@ -70,12 +70,12 @@ on deconstruct me
   if connectionExists(getVariable("connection.info.id", #info)) then
     return(me.disconnect())
   else
-    return(1)
+    return TRUE
   end if
 end
 
 on initA me 
-  if getIntVariable("figurepartlist.loaded", 1) = 0 then
+  if (getIntVariable("figurepartlist.loaded", 1) = 0) then
     return(me.delay(250, #initA))
   end if
   return(me.delay(1000, #initB))
@@ -93,7 +93,7 @@ on initB me
       end if
     end if
   end if
-  if tUseSSO = 0 then
+  if (tUseSSO = 0) then
     return(me.getInterface().showLogin())
   else
     executeMessage(#alert, [#Msg:"Alert_generic_login_error"])
@@ -120,13 +120,13 @@ on sendLogin me, tConnection
       if not stringp(tUserName) or not stringp(tPassword) then
         return(removeConnection(tConnection.getID()))
       end if
-      if tUserName = "" or tPassword = "" then
+      if (tUserName = "") or (tPassword = "") then
         return(removeConnection(tConnection.getID()))
       end if
       return(tConnection.send("TRY_LOGIN", [#string:tUserName, #string:tPassword]))
     end if
   end if
-  return(1)
+  return TRUE
 end
 
 on openConnection me 
@@ -153,7 +153,7 @@ on connect me
   if not threadExists(#hobba) then
     initThread("thread.hobba")
   end if
-  return(1)
+  return TRUE
 end
 
 on disconnect me 

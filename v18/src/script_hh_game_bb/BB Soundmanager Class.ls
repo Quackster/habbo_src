@@ -4,29 +4,29 @@ on construct me
   pGameFX = getSoundState()
   pGameMusic = getSoundState()
   pMusicChannel = 0
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
   me.setGameMusic(0)
-  return(1)
+  return TRUE
 end
 
 on Refresh me, tTopic, tdata 
-  if tTopic = #setfx then
+  if (tTopic = #setfx) then
     return(me.setGameFxState(tdata))
   else
-    if tTopic = #setmusic then
+    if (tTopic = #setmusic) then
       return(me.setGameMusicState(tdata))
     else
-      if tTopic = #soundeffect then
+      if (tTopic = #soundeffect) then
         return(me.playGameSound(tdata))
       else
         if tTopic <> #musicstart then
-          if tTopic = #gamestart then
+          if (tTopic = #gamestart) then
             return(me.setGameMusic(pGameMusic))
           else
-            if tTopic = #gameend then
+            if (tTopic = #gameend) then
               return(me.setGameMusic(0))
             end if
           end if
@@ -41,7 +41,7 @@ on setGameFxState me, tstate
     tstate = not pGameFX
   end if
   pGameFX = tstate
-  if pGameFX = 0 and pGameMusic = 0 then
+  if (pGameFX = 0) and (pGameMusic = 0) then
     setSoundState(0)
   else
     setSoundState(1)
@@ -55,7 +55,7 @@ on setGameMusicState me, tstate
   end if
   pGameMusic = tstate
   me.setGameMusic(pGameMusic)
-  if pGameFX = 0 and pGameMusic = 0 then
+  if (pGameFX = 0) and (pGameMusic = 0) then
     setSoundState(0)
   else
     setSoundState(1)
@@ -65,7 +65,7 @@ end
 
 on playGameSound me, tdata 
   if not pGameFX then
-    return(1)
+    return TRUE
   end if
   return(playSound(tdata))
 end
@@ -73,10 +73,10 @@ end
 on setGameMusic me, tstate 
   if tstate then
     if me.getGameSystem().getGamestatus() <> #game_started then
-      return(1)
+      return TRUE
     end if
     if pMusicChannel > 0 then
-      return(1)
+      return TRUE
     end if
     pMusicChannel = playSound("BB2-musicloop", #cut, [#infiniteloop:1])
   else
@@ -85,5 +85,5 @@ on setGameMusic me, tstate
     end if
     pMusicChannel = 0
   end if
-  return(1)
+  return TRUE
 end

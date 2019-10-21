@@ -40,13 +40,13 @@ on dump me, tField, tDelimiter
         if tValue contains tMark then
           tValue = tStrServices.replaceChunks(tValue, tMark, tSpecialChunks.getAt(k))
         end if
-        k = 1 + k
+        k = (1 + k)
       end repeat
       me.setProp(#pItemList, tProp, tValue)
     end if
     the itemDelimiter = tDelimiter
-    i = 1 + i
+    i = (1 + i)
   end repeat
   the itemDelimiter = tDelim
-  return(1)
+  return TRUE
 end

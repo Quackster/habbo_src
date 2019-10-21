@@ -10,11 +10,11 @@ end
 
 on deconstructObjectManager  
   if voidp(gCore) then
-    return(0)
+    return FALSE
   end if
   gCore.deconstruct()
   gCore = void()
-  return(1)
+  return TRUE
 end
 
 on getObjectManager  
@@ -37,7 +37,7 @@ on createObject tid
     else
       tClassList.add(tParam)
     end if
-    i = 1 + i
+    i = (1 + i)
   end repeat
   return(getObjectManager().create(tid, tClassList))
 end
@@ -79,7 +79,7 @@ on createManager tid
     else
       tClassList.add(tParam)
     end if
-    i = 1 + i
+    i = (1 + i)
   end repeat
   tObjMngr = getObjectManager()
   tObjInst = tObjMngr.create(tid, tClassList)

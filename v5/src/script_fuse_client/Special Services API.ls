@@ -7,11 +7,11 @@ on deconstructSpecialServices
 end
 
 on getSpecialServices  
-  tObjMngr = getObjectManager()
-  if not tObjMngr.managerExists(#special_services) then
+  tMgr = getObjectManager()
+  if not tMgr.managerExists(#special_services) then
     return(constructSpecialServices())
   end if
-  return(tObjMngr.getManager(#special_services))
+  return(tMgr.getManager(#special_services))
 end
 
 on try  

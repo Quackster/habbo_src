@@ -6,7 +6,7 @@ on prepare me
   me.pOwnW = me.getProp(#pProps, #width)
   me.pOwnH = me.getProp(#pProps, #height)
   me.pScrolls = []
-  if me.getProp(#pProps, #style) = #unique then
+  if (me.getProp(#pProps, #style) = #unique) then
     me.pOwnX = 0
     me.pOwnY = 0
   else
@@ -42,12 +42,12 @@ end
 on setText me, tText 
   tText = string(tText)
   pFontData.setAt(#text, tText)
-  tRect = rect(me.pOwnX, me.pOwnY, me.pOwnX + me.pOwnW, me.pOwnY + me.pOwnH)
-  undefined.fill(tRect, rgb(255, 255, 255))
+  tRect = rect(me.pOwnX, me.pOwnY, (me.pOwnX + me.pOwnW), (me.pOwnY + me.pOwnH))
+  me.pBuffer.image.fill(tRect, rgb(255, 255, 255))
   me.createImgFromTxt()
   me.render()
   me.registerScroll()
-  return(1)
+  return TRUE
 end
 
 on getText me 
@@ -60,12 +60,12 @@ on setFont me, tStruct
   pFontData.fontSize = tStruct.getaProp(#fontSize)
   pFontData.color = tStruct.getaProp(#color)
   pFontData.fixedLineSpace = tStruct.getaProp(#lineHeight)
-  tRect = rect(me.pOwnX, me.pOwnY, me.pOwnX + me.pOwnW, me.pOwnY + me.pOwnH)
-  undefined.fill(tRect, rgb(255, 255, 255))
+  tRect = rect(me.pOwnX, me.pOwnY, (me.pOwnX + me.pOwnW), (me.pOwnY + me.pOwnH))
+  me.pBuffer.image.fill(tRect, rgb(255, 255, 255))
   me.createImgFromTxt()
   me.render()
   me.registerScroll()
-  return(1)
+  return TRUE
 end
 
 on getFont me 
@@ -83,15 +83,15 @@ on registerScroll me, tid
     me.prepare()
   end if
   if not voidp(tid) then
-    if me.getPos(tid) = 0 then
-      me.add(tid)
+    if (me.pScrolls.getPos(tid) = 0) then
+      me.pScrolls.add(tid)
     end if
   else
-    if me.count(#pScrolls) = 0 then
-      return(0)
+    if (me.count(#pScrolls) = 0) then
+      return FALSE
     end if
   end if
-  tSourceRect = rect(me.pOffX, me.pOffY, me.pOffX + me.pOwnW, me.pOffY + me.pOwnH)
+  tSourceRect = rect(me.pOffX, me.pOffY, (me.pOffX + me.pOwnW), (me.pOffY + me.pOwnH))
   tScrollList = []
   tWndObj = getWindowManager().get(me.pMotherId)
   repeat while me.pScrolls <= undefined
@@ -99,19 +99,19 @@ on registerScroll me, tid
     tScrollList.add(tWndObj.getElement(tScrollId))
   end repeat
   me.createImgFromTxt()
-  call(#updateData, tScrollList, tSourceRect, me.rect)
+  call(#updateData, tScrollList, tSourceRect, me.pimage.rect)
 end
 
 on initResources me, tFontProps 
   tMemNum = getResourceManager().getmemnum("visual window text")
-  if tMemNum = 0 then
+  if (tMemNum = 0) then
     tMemNum = getResourceManager().createMember("visual window text", #text)
     pTextMem = member(tMemNum)
     pTextMem.boxType = #adjust
   else
     pTextMem = member(tMemNum)
   end if
-  return(1)
+  return TRUE
 end
 
 on createImgFromTxt me 
@@ -123,7 +123,7 @@ on createImgFromTxt me
     i = 1
     repeat while i <= pFontData.getAt(#fontStyle).count(#item)
       tList.add(symbol(pFontData.getAt(#fontStyle).getProp(#item, i)))
-      i = 1 + i
+      i = (1 + i)
     end repeat
     the itemDelimiter = tDelim
     pFontData.setAt(#fontStyle, tList)
@@ -132,10 +132,10 @@ on createImgFromTxt me
     pTextMem.text = pFontData.getAt(#text)
     pFontData.setAt(#text, void())
   else
-    if pFontData.getAt(#key) = "" then
+    if (pFontData.getAt(#key) = "") then
       pTextMem.text = ""
     else
-      if pFontData.getAt(#key).getProp(#char, 1) = "%" then
+      if (pFontData.getAt(#key).getProp(#char, 1) = "%") then
         tKey = symbol(pFontData.getAt(#key).getProp(#char, 2, length(pFontData.getAt(#key))))
         pTextMem.text = string(getObject(me.pMotherId).getProperty(tKey))
       else
@@ -173,37 +173,40 @@ on createImgFromTxt me
   if pTextMem.fixedLineSpace <> pFontData.getAt(#fixedLineSpace) then
     pTextMem.fixedLineSpace = pFontData.getAt(#fixedLineSpace)
   end if
-  if me.pScaleH = #center then
-    tWidth = pTextMem.charPosToLoc(pTextMem.count(#char)).locH + 16
-    if me.getProp(#pProps, #style) = #unique then
-      me.pLocX = me.pLocX + (me.pwidth - tWidth / 2)
+  if (me.pScaleH = #center) then
+    tWidth = (pTextMem.charPosToLoc(pTextMem.count(#char)).locH + 16)
+    if (me.getProp(#pProps, #style) = #unique) then
+      me.pLocX = (me.pLocX + ((me.pwidth - tWidth) / 2))
       me.pwidth = tWidth
       me.pOwnW = tWidth
     else
-      me.pOwnX = me.pOwnX + (me.pOwnW - tWidth / 2)
+      me.pOwnX = (me.pOwnX + ((me.pOwnW - tWidth) / 2))
       me.pOwnW = tWidth
     end if
     pTextMem.rect = rect(0, 0, tWidth, pTextMem.height)
   else
-    if me.getProp(#pProps, #style) = #unique then
-      me.pwidth = pTextMem.width
+    if (me.getProp(#pProps, #style) = #unique) then
+      me.pwidth = pTextMem.image.width
       me.pOwnW = me.pwidth
     else
-      me.pOwnW = pTextMem.width
+      me.pOwnW = pTextMem.image.width
     end if
   end if
   if me.count(#pScrolls) > 0 then
-    tHeight = pTextMem.height
+    tHeight = pTextMem.rect.height
   else
     tHeight = me.pOwnH
   end if
   me.pimage = image(me.pOwnW, tHeight, me.pDepth, me.pPalette)
-  if me.pimage = void() then
-    return(0)
+  if (me.pimage = void()) then
+    return FALSE
+  end if
+  if (pTextMem = void()) then
+    return FALSE
   end if
   if pNeedFill then
-    me.fill(me.rect, me.getProp(#pFontData, #bgColor))
+    me.pimage.fill(me.pimage.rect, me.getProp(#pFontData, #bgColor))
   end if
-  me.copyPixels(pTextMem.image, me.rect, me.rect, [#ink:8])
-  return(1)
+  me.pimage.copyPixels(pTextMem.image, me.pimage.rect, me.pimage.rect, [#ink:8])
+  return TRUE
 end

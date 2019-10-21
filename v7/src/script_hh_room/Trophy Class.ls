@@ -20,7 +20,7 @@ on prepare me, tdata
       pMsg = tTemp.getProp(#item, 3, tTemp.count(#item))
       pMsg = replaceChunks(pMsg, "\\r", "\r")
     else
-      if tTemp.count(#item) = 2 then
+      if (tTemp.count(#item) = 2) then
         pName = tTemp.getProp(#item, 1)
         pDate = tTemp.getProp(#item, 2)
       else
@@ -28,19 +28,19 @@ on prepare me, tdata
       end if
     end if
     the itemDelimiter = tDelim
-    if me.ilk = #list then
-      if me.count(#pPartColors) = 5 then
-        if me.getProp(#pPartColors, 3) = "#ffffff" then
+    if (me.pPartColors.ilk = #list) then
+      if (me.count(#pPartColors) = 5) then
+        if (me.getProp(#pPartColors, 3) = "#ffffff") then
           pWindowName = "plate_silver.window"
         else
-          if me.getProp(#pPartColors, 3) = "#996600" then
+          if (me.getProp(#pPartColors, 3) = "#996600") then
             pWindowName = "plate_bronze.window"
           end if
         end if
       end if
     end if
   end if
-  return(1)
+  return TRUE
 end
 
 on select me 
@@ -54,5 +54,5 @@ on select me
       tObj.show(pName, pDate, pMsg, pWindowName)
     end if
   end if
-  return(1)
+  return TRUE
 end

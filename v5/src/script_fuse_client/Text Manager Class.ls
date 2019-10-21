@@ -33,19 +33,20 @@ on dump me, tField, tDelimiter
       tProp = tPair.getPropRef(#item, 1).getProp(#word, 1, tPair.getPropRef(#item, 1).count(#word))
       tValue = tPair.getProp(#item, 2, tPair.count(#item))
       tValue = tValue.getProp(#word, 1, tValue.count(#word))
+      tValue = tStrServices.convertSpecialChars(tValue)
       k = 1
       repeat while k <= tSpecialChunks.count
         tMark = tSpecialChunks.getPropAt(k)
         if tValue contains tMark then
           tValue = tStrServices.replaceChunks(tValue, tMark, tSpecialChunks.getAt(k))
         end if
-        k = 1 + k
+        k = (1 + k)
       end repeat
       me.setProp(#pItemList, tProp, tValue)
     end if
     the itemDelimiter = tDelimiter
-    i = 1 + i
+    i = (1 + i)
   end repeat
   the itemDelimiter = tDelim
-  return(1)
+  return TRUE
 end

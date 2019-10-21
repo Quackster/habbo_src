@@ -7,31 +7,31 @@ on deconstruct me
 end
 
 on handle_pt_prepare me, tMsg 
-  tLn1 = tMsg.getProp(#line, 1)
-  tLn2 = tMsg.getProp(#line, 2)
+  tLn1 = tMsg.content.getProp(#line, 1)
+  tLn2 = tMsg.content.getProp(#line, 2)
   tPl0 = tLn1.getProp(#char, 3, length(tLn1))
   tPl1 = tLn2.getProp(#char, 3, length(tLn2))
   me.getComponent().prepareGame(tPl0, tPl1)
 end
 
 on handle_pt_start me, tMsg 
-  tLn1 = tMsg.getProp(#line, 1)
-  tLn2 = tMsg.getProp(#line, 2)
+  tLn1 = tMsg.content.getProp(#line, 1)
+  tLn2 = tMsg.content.getProp(#line, 2)
   tPl1 = tLn1.getProp(#char, 3, length(tLn1))
   tPl2 = tLn2.getProp(#char, 3, length(tLn2))
   me.getComponent().startGame(tPl1, tPl2)
 end
 
 on handle_pt_status me, tMsg 
-  tLn1 = tMsg.getProp(#line, 1)
-  tLn2 = tMsg.getProp(#line, 2)
-  tPl1 = [#loc:value(tLn1.getProp(#word, 1)), #bal:value(tLn1.getProp(#word, 2)), #act:tLn1.getProp(#word, 3), #hit:tLn1.getProp(#word, 4) = "h"]
-  tPl2 = [#loc:value(tLn2.getProp(#word, 1)), #bal:value(tLn2.getProp(#word, 2)), #act:tLn2.getProp(#word, 3), #hit:tLn2.getProp(#word, 4) = "h"]
+  tLn1 = tMsg.content.getProp(#line, 1)
+  tLn2 = tMsg.content.getProp(#line, 2)
+  tPl1 = [#loc:value(tLn1.getProp(#word, 1)), #bal:value(tLn1.getProp(#word, 2)), #act:tLn1.getProp(#word, 3), #hit:(tLn1.getProp(#word, 4) = "h")]
+  tPl2 = [#loc:value(tLn2.getProp(#word, 1)), #bal:value(tLn2.getProp(#word, 2)), #act:tLn2.getProp(#word, 3), #hit:(tLn2.getProp(#word, 4) = "h")]
   me.getComponent().updateGame(tPl1, tPl2)
 end
 
 on handle_pt_win me, tMsg 
-  me.getComponent().endGame(not value(tMsg.getProp(#line, 1)))
+  me.getComponent().endGame(not value(tMsg.content.getProp(#line, 1)))
 end
 
 on handle_pt_bothlose me, tMsg 
@@ -39,7 +39,7 @@ on handle_pt_bothlose me, tMsg
 end
 
 on handle_pt_timeout me, tMsg 
-  me.getComponent().timeout(tMsg.getProp(#line, 1))
+  me.getComponent().timeout(tMsg.content.getProp(#line, 1))
 end
 
 on handle_pt_end me, tMsg 

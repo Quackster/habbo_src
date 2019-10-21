@@ -1,18 +1,18 @@
 property pChanges, pActive
 
 on prepare me, tdata 
-  if tdata.getAt(#stuffdata) = "ON" then
+  if (tdata.getAt(#stuffdata) = "ON") then
     me.setOn()
     pChanges = 1
   else
     me.setOff()
     pChanges = 0
   end if
-  return(1)
+  return TRUE
 end
 
 on updateStuffdata me, tValue 
-  if tValue = "ON" then
+  if (tValue = "ON") then
     me.setOn()
   else
     me.setOff()
@@ -28,8 +28,8 @@ on update me
     return()
   end if
   the itemDelimiter = "_"
-  tMemName = undefined.name
-  tClass = tMemName.getProp(#item, 1, tMemName.count(#item) - 6)
+  tMemName = me.getPropRef(#pSprList, 3).member.name
+  tClass = tMemName.getProp(#item, 1, (tMemName.count(#item) - 6))
   tNewNameA = tClass & "_c_0_1_2_" & me.getProp(#pDirection, 1) & "_" & pActive
   tNewNameB = tClass & "_d_0_1_2_" & me.getProp(#pDirection, 1) & "_" & pActive
   tNewNameC = tClass & "_e_0_1_2_" & me.getProp(#pDirection, 1) & "_" & pActive
@@ -69,5 +69,5 @@ on select me
   else
     getThread(#room).getComponent().getRoomConnection().send("MOVE", [#short:me.pLocX, #short:me.pLocY])
   end if
-  return(1)
+  return TRUE
 end

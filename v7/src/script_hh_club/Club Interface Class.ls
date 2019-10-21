@@ -7,17 +7,17 @@ on construct me
   pConnectionId = getVariable("connection.info.id")
   registerMessage(#show_clubinfo, me.getID(), #show_clubinfo)
   registerMessage(#notify, me.getID(), #notify)
-  return(1)
+  return TRUE
 end
 
 on notify me, ttype 
-  if ttype = 1001 then
+  if (ttype = 1001) then
     executeMessage(#alert, [#msg:"epsnotify_1001"])
     if connectionExists(pConnectionId) then
       removeConnection(pConnectionId)
     end if
   else
-    if ttype = 550 then
+    if (ttype = 550) then
       me.setupWindow()
       tWndObj = getWindow(pDialogId)
       tWndObj.moveTo(200, 200)
@@ -55,12 +55,12 @@ end
 
 on eventProcDialogMousedown me, tEvent, tSprID, tParam 
   tClubInfo = me.getComponent().getStatus()
-  if tSprID = "club_expired_link" then
+  if (tSprID = "club_expired_link") then
     tWndObj = getWindow(pDialogId)
     tWndObj.unmerge()
     tWndObj.merge("habbo_club_activate.window")
   else
-    if tSprID = "club_change_subscription" then
+    if (tSprID = "club_change_subscription") then
       tSession = getObject(#session)
       tURL = getText("club_change_url")
       tURL = tURL & urlEncode(tSession.get("user_name"))
@@ -69,11 +69,11 @@ on eventProcDialogMousedown me, tEvent, tSprID, tParam
       end if
       openNetPage(tURL)
     else
-      if tSprID = "club_link_whatis" then
+      if (tSprID = "club_link_whatis") then
         openNetPage("club_info_url")
       else
         if tSprID <> "button_paycash" then
-          if tSprID = "club_link_paycash" then
+          if (tSprID = "club_link_paycash") then
             tSession = getObject(#session)
             tURL = getText("club_paybycash_url")
             tURL = tURL & urlEncode(tSession.get("user_name"))
@@ -83,43 +83,43 @@ on eventProcDialogMousedown me, tEvent, tSprID, tParam
             openNetPage(tURL, "_new")
           else
             if tSprID <> "button_buy" then
-              if tSprID = "button_paycoins" then
+              if (tSprID = "button_paycoins") then
                 tWndObj = getWindow(pDialogId)
                 tWndObj.unmerge()
                 tWndObj.merge("habbo_club_activate.window")
               else
-                if tSprID = "habboclub_continue" then
+                if (tSprID = "habboclub_continue") then
                   if tClubInfo.getAt(#daysLeft) > 62 then
                     executeMessage(#alert, [#msg:"club_timefull"])
-                    return(1)
+                    return TRUE
                   end if
                   tSession = getObject(#session)
                   if tSession.exists("user_walletbalance") then
                     if tSession.get("user_walletbalance") < pPrice then
                       executeMessage(#alert, [#msg:"club_price"])
-                      return(1)
+                      return TRUE
                     end if
                   end if
-                  if tClubInfo.getAt(#status) = "inactive" then
+                  if (tClubInfo.getAt(#status) = "inactive") then
                     me.getComponent().subscribe(me.pDays)
                   else
                     me.getComponent().extendSubscription(me.pDays)
                     removeWindow(pDialogId)
                   end if
-                  return(1)
+                  return TRUE
                 else
-                  if tSprID = "parent_permission_checkbox" then
+                  if (tSprID = "parent_permission_checkbox") then
                     me.setParentPermission(not pParentPermission)
                   else
                     if tSprID <> "button_cancel" then
-                      if tSprID = "welcom_club_ok" then
+                      if (tSprID = "welcom_club_ok") then
                         removeWindow(me.pDialogId)
                       else
-                        if tSprID = "close" then
+                        if (tSprID = "close") then
                           removeWindow(me.pDialogId)
                         end if
                       end if
-                      return(1)
+                      return TRUE
                     end if
                   end if
                 end if
@@ -137,7 +137,7 @@ on setupWindow me
     removeWindow(pDialogId)
   end if
   if not createWindow(pDialogId) then
-    return(0)
+    return FALSE
   end if
   tWndObj = getWindow(pDialogId)
   tWndObj.setProperty(#title, getText("club_habbo.window.title"))
@@ -153,7 +153,7 @@ on show_clubinfo me
       me.setupWindow()
       tWndObj = getWindow(pDialogId)
       tWndObj.moveTo(200, 200)
-      if tClubInfo.getAt(#status) = "inactive" then
+      if (tClubInfo.getAt(#status) = "inactive") then
         tWndObj.merge("habbo_club_intro.window")
         me.setupInfoWindow()
       else
@@ -169,11 +169,11 @@ on show_clubinfo me
       removeWindow(pDialogId)
     end if
   end if
-  return(1)
+  return TRUE
 end
 
 on updateClubStatus me, tStatus 
-  if tStatus.getAt(#status) = "active" then
+  if (tStatus.getAt(#status) = "active") then
     if windowExists(pDialogId) then
       removeWindow(pDialogId)
       me.show_clubinfo()

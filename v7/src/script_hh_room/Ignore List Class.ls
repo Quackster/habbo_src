@@ -4,8 +4,8 @@ on getIgnoreStatus me, tUserName
   if voidp(pIgnoreList) then
     me.reset()
   end if
-  if pIgnoreList = [] then
-    return(0)
+  if (pIgnoreList = []) then
+    return FALSE
   end if
   return(pIgnoreList.findPos(tUserName))
 end
@@ -21,10 +21,10 @@ on setIgnoreStatus me, tUserName, tStatus
   else
     pIgnoreList.deleteOne(tUserName)
   end if
-  return(1)
+  return TRUE
 end
 
 on reset me 
   pIgnoreList = []
-  return(1)
+  return TRUE
 end

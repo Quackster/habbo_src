@@ -7,18 +7,18 @@ on define me, tSprite
   pSkipPulseCounter = 1
   pSkipPulseAmount = 12
   pPauseTimer = random(20)
-  return(1)
+  return TRUE
 end
 
 on update me 
   if pPauseTimer > 0 then
-    pPauseTimer = pPauseTimer - 1
-    return(1)
+    pPauseTimer = (pPauseTimer - 1)
+    return TRUE
   end if
-  pSkipPulseCounter = pSkipPulseCounter + 1
+  pSkipPulseCounter = (pSkipPulseCounter + 1)
   if pSkipPulseCounter > pSkipPulseAmount then
     pSkipPulseCounter = 1
-    pFrameCounter = pFrameCounter + 1
+    pFrameCounter = (pFrameCounter + 1)
     if pFrameCounter > pAnimCycle.count then
       pFrameCounter = 1
       pPauseTimer = random(100)

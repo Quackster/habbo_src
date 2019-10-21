@@ -16,7 +16,7 @@ on construct me
   pLocalY = 0
   pFormatVer = 0
   pDirection = 0
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
@@ -25,7 +25,7 @@ on deconstruct me
     releaseSprite(tSpr.spriteNum)
   end repeat
   pSprList = []
-  return(1)
+  return TRUE
 end
 
 on define me, tProps 
@@ -45,7 +45,7 @@ on define me, tProps
   me.solveMembers()
   me.updateLocation()
   me.solveDescription()
-  return(1)
+  return TRUE
 end
 
 on getClass me 
@@ -64,7 +64,7 @@ on getInfo me
   if memberExists(pClass & "_small") then
     tInfo.setAt(#image, member(getmemnum(pClass & "_small")).image)
   else
-    #image.setAt(pSprList.getAt(1), member.image)
+    tInfo.setAt(#image, pSprList.getAt(1).member.image)
   end if
   return(tInfo)
 end
@@ -78,18 +78,18 @@ on getSprites me
 end
 
 on select me 
-  return(1)
+  return TRUE
 end
 
 on solveMembers me 
   if pClass <> "post.it" then
-    if pClass = "post.it.vd" then
+    if (pClass = "post.it.vd") then
       tMemName = pDirection && pClass
     else
-      if pClass = "poster" then
+      if (pClass = "poster") then
         tMemName = pDirection && pClass && pType
       else
-        if pClass = "photo" then
+        if (pClass = "photo") then
           tMemName = pDirection && pClass
         else
           return(error(me, "Unknown item class:" && pClass, #solveMembers))
@@ -99,14 +99,14 @@ on solveMembers me
     if memberExists(tMemName) then
       tSpr = sprite(reserveSprite(me.getID()))
       tSpr.ink = 8
-      if pClass = "post.it" then
-        if pType = "" then
+      if (pClass = "post.it") then
+        if (pType = "") then
           pType = "#FFFF33"
         end if
         tSpr.bgColor = rgb(pType)
         tSpr.color = paletteIndex(255)
       else
-        if pClass = "post.it.vd" then
+        if (pClass = "post.it.vd") then
           pType = "FFFFFF"
           tSpr.bgColor = rgb(pType)
           tSpr.color = rgb(0, 0, 0)
@@ -119,14 +119,14 @@ on solveMembers me
       tSpr.registerProcedure(#eventProcItemRollOver, tTargetID, #mouseEnter)
       tSpr.registerProcedure(#eventProcItemRollOver, tTargetID, #mouseLeave)
       pSprList.add(tSpr)
-      return(1)
+      return TRUE
     end if
-    return(0)
+    return FALSE
   end if
 end
 
 on updateLocation me 
-  if pFormatVer = #old then
+  if (pFormatVer = #old) then
     tGeometry = getThread(#room).getInterface().getGeometry()
     tScreenLocs = tGeometry.getScreenCoordinate(pLocX, pLocY, ((pLocH * 18) / 32))
     repeat while pFormatVer <= undefined
@@ -135,16 +135,16 @@ on updateLocation me
       tSpr.locV = tScreenLocs.getAt(2)
     end repeat
   else
-    if pFormatVer = #new then
+    if (pFormatVer = #new) then
       tWallObjs = getThread(#room).getComponent().getPassiveObject(#list)
       repeat while pFormatVer <= undefined
         tWallObj = getAt(undefined, undefined)
-        if tWallObj.getLocation().getAt(1) = pWallX and tWallObj.getLocation().getAt(2) = pWallY then
+        if (tWallObj.getLocation().getAt(1) = pWallX) and (tWallObj.getLocation().getAt(2) = pWallY) then
           tWallSprites = tWallObj.getSprites()
           repeat while pFormatVer <= undefined
             tSpr = getAt(undefined, undefined)
-            tWallSprites.getAt(1).locH.locH = tWallSprites.getAt(1) - member.getProp(#regPoint, 1) + pLocalX
-            tWallSprites.getAt(1).locV.locV = tWallSprites.getAt(1) - member.getProp(#regPoint, 2) + pLocalY
+            tSpr.locH = ((tWallSprites.getAt(1).locH - tWallSprites.getAt(1).member.getProp(#regPoint, 1)) + pLocalX)
+            tSpr.locV = ((tWallSprites.getAt(1).locV - tWallSprites.getAt(1).member.getProp(#regPoint, 2)) + pLocalY)
           end repeat
         else
         end if
@@ -153,8 +153,8 @@ on updateLocation me
   end if
   repeat while pFormatVer <= undefined
     tSpr = getAt(undefined, undefined)
-    tItemRp = member.regPoint
-    tItemR = -tItemRp.getAt(2) + rect(tSpr, member.width - tItemRp.getAt(1), tSpr, member.height - tItemRp.getAt(2))
+    tItemRp = tSpr.member.regPoint
+    tItemR = (rect(tSpr.locH, tSpr.locV, tSpr.locH, tSpr.locV) + rect(-tItemRp.getAt(1), -tItemRp.getAt(2), (tSpr.member.width - tItemRp.getAt(1)), (tSpr.member.height - tItemRp.getAt(2))))
     tPieceUnderSpr = getThread(#room).getInterface().getPassiveObjectIntersectingRect(tItemR).getAt(1)
     if objectp(tPieceUnderSpr) then
       tlocz = tPieceUnderSpr.getSprites().getAt(1).locZ
@@ -163,23 +163,23 @@ on updateLocation me
           tlocz = tPieceUnderSpr.getSprites().getAt(2).locZ
         end if
       end if
-      tSpr.locZ = tlocz + 2
+      tSpr.locZ = (tlocz + 2)
     else
-      tSpr.locZ = getIntVariable("window.default.locz") - 10000
+      tSpr.locZ = (getIntVariable("window.default.locz") - 10000)
     end if
   end repeat
 end
 
 on solveDescription me 
-  if pClass = "poster" then
+  if (pClass = "poster") then
     if threadExists(#item_data_db) then
       tdata = getThread(#item_data_db).getComponent().getPosterData(pType)
       if not tdata then
-        return(0)
+        return FALSE
       end if
       pName = tdata.getAt(#name)
       pCustom = tdata.getAt(#text)
     end if
   end if
-  return(1)
+  return TRUE
 end

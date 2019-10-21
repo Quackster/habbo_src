@@ -8,33 +8,32 @@ on prepare me, tdata
   else
     pValue = 0
   end if
-  return(1)
+  return TRUE
 end
 
 on select me 
   if me.count(#pSprList) < 2 then
-    return(0)
+    return FALSE
   end if
   if rollover(me.getProp(#pSprList, 2)) then
     if the doubleClick then
       tUserObj = getThread(#room).getComponent().getOwnUser()
       if not tUserObj then
-        return(1)
+        return TRUE
       end if
-      if abs(tUserObj.pLocX - me.pLocX) > 1 or abs(tUserObj.pLocY - me.pLocY) > 1 then
-        tX = me.pLocX - 1
-        repeat while tX <= me.pLocX + 1
-          tY = me.pLocY - 1
-          repeat while tY <= me.pLocY + 1
-            if tY = me.pLocY or tX = me.pLocX then
+      if abs((tUserObj.pLocX - me.pLocX)) > 1 or abs((tUserObj.pLocY - me.pLocY)) > 1 then
+        tX = (me.pLocX - 1)
+        repeat while tX <= (me.pLocX + 1)
+          repeat while tY <= (me.pLocY + 1)
+            if (tY = me.pLocY) or (tX = me.pLocX) then
               if getThread(#room).getInterface().getGeometry().emptyTile(tX, tY) then
                 getThread(#room).getComponent().getRoomConnection().send("MOVE", [#short:tX, #move:tY])
-                return(1)
+                return TRUE
               end if
             end if
-            tY = 1 + tY
+            tY = (1 + tY)
           end repeat
-          tX = 1 + tX
+          tX = (1 + tX)
         end repeat
         exit repeat
       end if
@@ -43,10 +42,10 @@ on select me
   else
     if rollover(me.getProp(#pSprList, 1)) and the doubleClick then
       getThread(#room).getComponent().getRoomConnection().send("DICE_OFF", me.getID())
-      return(1)
+      return TRUE
     end if
   end if
-  return(1)
+  return TRUE
 end
 
 on diceThrown me, tValue 
@@ -63,8 +62,8 @@ on update me
       return()
     end if
     tSprite = me.getProp(#pSprList, 2)
-    if the milliSeconds - pAnimStart < 2000 or random(100) = 2 and pValue <> 0 then
-      if tSprite.castNum = getmemnum("edice_b_0_1_1_0_7") then
+    if (the milliSeconds - pAnimStart) < 2000 or (random(100) = 2) and pValue <> 0 then
+      if (tSprite.castNum = getmemnum("edice_b_0_1_1_0_7")) then
         tmember = member(getmemnum("edice_b_0_1_1_0_0"))
       else
         tmember = member(getmemnum("edice_b_0_1_1_0_7"))

@@ -6,7 +6,7 @@ on define me, tSprite
   pMemberBase = "Waterfall."
   pSprite = tSprite
   me.reset()
-  return(1)
+  return TRUE
 end
 
 on reset me 
@@ -17,12 +17,12 @@ on reset me
 end
 
 on update me 
-  pDelayCounter = pDelayCounter + 1
+  pDelayCounter = (pDelayCounter + 1)
   if pDelayCounter < pFrameDelay then
-    return(1)
+    return TRUE
   else
     pDelayCounter = 0
-    pInFrame = pInFrame + 1
+    pInFrame = (pInFrame + 1)
     if pInFrame > pFrames.count then
       pInFrame = 1
       pSprite.blend = 0

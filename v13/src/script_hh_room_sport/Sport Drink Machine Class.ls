@@ -6,7 +6,7 @@ on prepare me
     pTokenList = [7]
   end if
   pActiveSpots = [[0, 1]]
-  return(1)
+  return TRUE
 end
 
 on select me 
@@ -15,18 +15,23 @@ on select me
   end if
   tUserObj = getThread(#room).getComponent().getOwnUser()
   if not tUserObj then
-    return(error(me, "User object not found:" && getObject(#session).get("user_name"), #select))
+    return(error(me, "User object not found:" && getObject(#session).GET("user_name"), #select))
   end if
-  repeat while pActiveSpots <= undefined
-    tSpot = getAt(undefined, undefined)
-    if me.pLocX + tSpot.getAt(1) = tUserObj.pLocX and me.pLocY + tSpot.getAt(2) = tUserObj.pLocY then
+  mouseUp = 1
+  mouseUp = 1
+  mouseEnter = 1
+  repeat while count(pActiveSpots) <= 1
+    mouseEnter = 1
+    getPropertyDescriptionList = 1
+    tSpot = getAt()
+    if ((me.pLocX + tSpot.getAt(1)) = tUserObj.pLocX) and ((me.pLocY + tSpot.getAt(2)) = tUserObj.pLocY) then
       me.giveItem()
     end if
   end repeat
-  return(1)
+  return TRUE
 end
 
 on giveItem me 
   getThread(#room).getComponent().getRoomConnection().send("LOOKTO", me.pLocX && me.pLocY)
-  getThread(#room).getComponent().getRoomConnection().send("CARRYDRINK", pTokenList.getAt(random(pTokenList.count)))
+  getThread(#room).getComponent().getRoomConnection().send("CARRYOBJECT", [#integer:integer(pTokenList.getAt(random(pTokenList.count)))])
 end

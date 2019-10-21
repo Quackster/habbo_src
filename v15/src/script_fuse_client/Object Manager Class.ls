@@ -12,7 +12,7 @@ on construct me
   pBaseClsMem = script("Object Base Class")
   pObjectList.sort()
   pUpdateList.sort()
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
@@ -24,17 +24,17 @@ on deconstruct me
   i = pInstanceList.count
   repeat while i >= 1
     me.Remove(pInstanceList.getAt(i))
-    i = 255 + i
+    i = (255 + i)
   end repeat
   i = pManagerList.count
   repeat while i >= 1
     me.Remove(pManagerList.getAt(i))
-    i = 255 + i
+    i = (255 + i)
   end repeat
   pObjectList = [:]
   pUpdateList = []
   pPrepareList = []
-  return(1)
+  return TRUE
 end
 
 on create me, tid, tClassList 
@@ -44,7 +44,7 @@ on create me, tid, tClassList
   if objectp(pObjectList.getAt(tid)) then
     return(error(me, "Object already exists:" && tid, #create, #major))
   end if
-  if tid = #random then
+  if (tid = #random) then
     tid = getUniqueID()
   end if
   if voidp(tClassList) then
@@ -87,7 +87,7 @@ on create me, tid, tClassList
       tObject.setAt(#ancestor, tTemp)
       tTemp = tObject
     end if
-    if tid <> #temp and tClassList.getLast() = tClass then
+    if tid <> #temp and (tClassList.getLast() = tClass) then
       pObjectList.setAt(tid, tObject)
       pInstanceList.append(tid)
     end if
@@ -101,7 +101,7 @@ end
 on GET me, tid 
   tObj = pObjectList.getAt(tid)
   if voidp(tObj) then
-    return(0)
+    return FALSE
   else
     return(tObj)
   end if
@@ -110,17 +110,17 @@ end
 on Remove me, tid 
   tObj = pObjectList.getAt(tid)
   if voidp(tObj) then
-    return(0)
+    return FALSE
   end if
   if ilk(tObj, #instance) then
     if not tObj.valid then
-      return(0)
+      return FALSE
     end if
     i = 1
     repeat while i <= tObj.count(#delays)
-      tDelayID = tObj.getPropAt(i)
+      tDelayID = tObj.delays.getPropAt(i)
       tObj.Cancel(tDelayID)
-      i = 1 + i
+      i = (1 + i)
     end repeat
     tObj.deconstruct()
     tObj.valid = 0
@@ -133,12 +133,12 @@ on Remove me, tid
     pInstanceList.deleteOne(tid)
     pManagerList.deleteOne(tid)
   end if
-  return(1)
+  return TRUE
 end
 
 on exists me, tid 
   if voidp(tid) then
-    return(0)
+    return FALSE
   end if
   return(objectp(pObjectList.getAt(tid)))
 end
@@ -151,9 +151,9 @@ on print me
       tProp = "#" & tProp
     end if
     put(tProp && ":" && pObjectList.getAt(i))
-    i = 1 + i
+    i = (1 + i)
   end repeat
-  return(1)
+  return TRUE
 end
 
 on registerObject me, tid, tObject 
@@ -165,7 +165,7 @@ on registerObject me, tid, tObject
   end if
   pObjectList.setAt(tid, tObject)
   pInstanceList.append(tid)
-  return(1)
+  return TRUE
 end
 
 on unregisterObject me, tid 
@@ -178,7 +178,7 @@ on unregisterObject me, tid
   pPrepareList.deleteOne(tObj)
   pInstanceList.deleteOne(tid)
   tObj = void()
-  return(1)
+  return TRUE
 end
 
 on registerManager me, tid 
@@ -190,7 +190,7 @@ on registerManager me, tid
   end if
   pInstanceList.deleteOne(tid)
   pManagerList.append(tid)
-  return(1)
+  return TRUE
 end
 
 on unregisterManager me, tid 
@@ -202,7 +202,7 @@ on unregisterManager me, tid
   end if
   pManagerList.deleteOne(tid)
   pInstanceList.append(tid)
-  return(1)
+  return TRUE
 end
 
 on getManager me, tid 
@@ -218,10 +218,10 @@ end
 
 on receivePrepare me, tid 
   if voidp(pObjectList.getAt(tid)) then
-    return(0)
+    return FALSE
   end if
   if pPrepareList.getPos(pObjectList.getAt(tid)) > 0 then
-    return(0)
+    return FALSE
   end if
   pPrepareList.add(pObjectList.getAt(tid))
   if not pUpdatePause then
@@ -229,32 +229,32 @@ on receivePrepare me, tid
       pTimeout = timeout("objectmanager" & the milliSeconds).new(((60 * 1000) * 60), #null, me)
     end if
   end if
-  return(1)
+  return TRUE
 end
 
 on removePrepare me, tid 
   if voidp(pObjectList.getAt(tid)) then
-    return(0)
+    return FALSE
   end if
   if pPrepareList.getOne(pObjectList.getAt(tid)) < 1 then
-    return(0)
+    return FALSE
   end if
   pPrepareList.deleteOne(pObjectList.getAt(tid))
-  if pPrepareList.count = 0 and pUpdateList.count = 0 then
+  if (pPrepareList.count = 0) and (pUpdateList.count = 0) then
     if objectp(pTimeout) then
       pTimeout.forget()
       pTimeout = void()
     end if
   end if
-  return(1)
+  return TRUE
 end
 
 on receiveUpdate me, tid 
   if voidp(pObjectList.getAt(tid)) then
-    return(0)
+    return FALSE
   end if
   if pUpdateList.getPos(pObjectList.getAt(tid)) > 0 then
-    return(0)
+    return FALSE
   end if
   pUpdateList.add(pObjectList.getAt(tid))
   if not pUpdatePause then
@@ -262,24 +262,24 @@ on receiveUpdate me, tid
       pTimeout = timeout("objectmanager" & the milliSeconds).new(((60 * 1000) * 60), #null, me)
     end if
   end if
-  return(1)
+  return TRUE
 end
 
 on removeUpdate me, tid 
   if voidp(pObjectList.getAt(tid)) then
-    return(0)
+    return FALSE
   end if
   if pUpdateList.getOne(pObjectList.getAt(tid)) < 1 then
-    return(0)
+    return FALSE
   end if
   pUpdateList.deleteOne(pObjectList.getAt(tid))
-  if pPrepareList.count = 0 and pUpdateList.count = 0 then
+  if (pPrepareList.count = 0) and (pUpdateList.count = 0) then
     if objectp(pTimeout) then
       pTimeout.forget()
       pTimeout = void()
     end if
   end if
-  return(1)
+  return TRUE
 end
 
 on pauseUpdate me 
@@ -288,7 +288,7 @@ on pauseUpdate me
     pTimeout = void()
   end if
   pUpdatePause = 1
-  return(1)
+  return TRUE
 end
 
 on resumeUpdate me 
@@ -296,7 +296,7 @@ on resumeUpdate me
     pTimeout = timeout("objectmanager" & the milliSeconds).new(((60 * 1000) * 60), #null, me)
   end if
   pUpdatePause = 0
-  return(1)
+  return TRUE
 end
 
 on prepareFrame me 

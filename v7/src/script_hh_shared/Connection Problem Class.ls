@@ -8,8 +8,8 @@ on construct me
   else
     pDelayLength = 20000
   end if
-  registerMessage(#userlogin, me.getID(), #remove)
-  if pDelayLength = 0 then
+  registerMessage(#userlogin, me.getID(), #Remove)
+  if (pDelayLength = 0) then
     return(removeObject(me.getID()))
   else
     return(createTimeout(pTimeOutID, pDelayLength, #showDialog, me.getID(), void(), 1))
@@ -24,10 +24,10 @@ on deconstruct me
     removeWindow(pWindowID)
   end if
   unregisterMessage(#userlogin, me.getID())
-  return(1)
+  return TRUE
 end
 
-on remove me 
+on Remove me 
   return(removeObject(me.getID()))
 end
 
@@ -48,12 +48,12 @@ on showDialog me
 end
 
 on eventProc me, tEvent, tElemID 
-  if tEvent = #mouseUp then
+  if (tEvent = #mouseUp) then
     if tElemID <> "close" then
-      if tElemID = "alert_ok" then
+      if (tElemID = "alert_ok") then
         return(removeObject(me.getID()))
       else
-        if tElemID = "alert_link" then
+        if (tElemID = "alert_link") then
           return(openNetPage(getText("log_problem_url")))
         end if
       end if

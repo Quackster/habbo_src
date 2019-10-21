@@ -21,12 +21,12 @@ on Activate me
   pBytesSoFar = 0
   pPercent = 0
   pState = #LOADING
-  return(1)
+  return TRUE
 end
 
 on update me 
-  if pState = #done then
-    return(1)
+  if (pState = #done) then
+    return TRUE
   end if
   tStreamStatus = getStreamStatus(pNetId)
   if not listp(tStreamStatus) then
@@ -35,7 +35,7 @@ on update me
   if tStreamStatus.bytesSoFar > 0 then
     tBytesSoFar = tStreamStatus.bytesSoFar
     tBytesTotal = tStreamStatus.bytesTotal
-    if tBytesTotal = 0 then
+    if (tBytesTotal = 0) then
       tBytesTotal = tBytesSoFar
     end if
     pPercent = ((1 * tBytesSoFar) / tBytesTotal)
@@ -45,10 +45,10 @@ on update me
     pBytesSoFar = tStreamStatus.bytesSoFar
     pLoadTime = the milliSeconds
   else
-    if the milliSeconds - pLoadTime > getIntVariable("castload.retry.delay", 10000) then
+    if (the milliSeconds - pLoadTime) > getIntVariable("castload.retry.delay", 10000) then
       tErrorMsg = getCastLoadManager().solveNetErrorMsg(netError(pNetId))
       error(me, "Failed network operation:" & "\r" & pURL & "\r" & tErrorMsg, #update)
-      ptryCount = ptryCount + 1
+      ptryCount = (ptryCount + 1)
       if ptryCount >= getIntVariable("castload.retry.count", 10) then
         pPercent = 1
         getCastLoadManager().TellStreamState(pFile, pState, pPercent, pGroupId)

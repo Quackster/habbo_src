@@ -8,7 +8,7 @@ on construct me
     tSprite = getVisualizer(#pooltower).getSprById("pilvi" & f)
     tStartPointX = [711, 888, 515, 318].getAt(f)
     pClouds.getAt("pilvi" & f).prepare(tSprite, tStartPointX)
-    f = 1 + f
+    f = (1 + f)
   end repeat
   return(receivePrepare(me.getID()))
 end
@@ -16,7 +16,7 @@ end
 on deconstruct me 
   pClouds = void()
   removePrepare(me.getID())
-  return(1)
+  return TRUE
 end
 
 on prepare me 

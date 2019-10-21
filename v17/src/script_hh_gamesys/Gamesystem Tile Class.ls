@@ -2,12 +2,12 @@ property pContent, pLocX, pLocY, pType, x, y, z
 
 on construct me 
   pContent = [:]
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
   pContent = void()
-  return(1)
+  return TRUE
 end
 
 on define me, tLocX, tLocY, tWorldX, tWorldY, ttype 
@@ -18,17 +18,17 @@ on define me, tLocX, tLocY, tWorldX, tWorldY, ttype
   z = 0
   pType = ttype
   pContent = [:]
-  return(1)
+  return TRUE
 end
 
 on addContent me, tItemID, tItemProps 
   pContent.addProp(tItemID, tItemProps)
-  return(1)
+  return TRUE
 end
 
 on removeContent me, tItemID 
   pContent.deleteProp(tItemID)
-  return(1)
+  return TRUE
 end
 
 on getX me 
@@ -52,7 +52,7 @@ on getLocation me
 end
 
 on locationIsInTileRange me, tLocX, tLocY 
-  return(abs(pLocX - tLocX) <= 1 and abs(pLocY - tLocY) <= 1)
+  return(abs((pLocX - tLocX)) <= 1 and abs((pLocY - tLocY)) <= 1)
 end
 
 on isAvailable me 
@@ -64,8 +64,8 @@ on isOccupied me
 end
 
 on getOccupiedHeight me 
-  if pContent.count = 0 then
-    return(0)
+  if (pContent.count = 0) then
+    return FALSE
   end if
   tMaxHeight = 0
   repeat while pContent <= undefined

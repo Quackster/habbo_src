@@ -3,16 +3,16 @@ property pTiming, pChanges, pActive
 on prepare me, tdata 
   pChanges = 1
   pTiming = 1
-  if tdata.getAt(#stuffdata) = "ON" then
+  if (tdata.getAt(#stuffdata) = "ON") then
     me.setOn()
   else
     me.setOff()
   end if
-  return(1)
+  return TRUE
 end
 
 on updateStuffdata me, tValue 
-  if tValue = "ON" then
+  if (tValue = "ON") then
     me.setOn()
   else
     me.setOff()
@@ -31,7 +31,7 @@ on update me
   if me.count(#pSprList) < 3 then
     return()
   end if
-  if me.pXFactor = 32 then
+  if (me.pXFactor = 32) then
     tClass = "s_fireplace_polyfon"
   else
     tClass = "fireplace_polyfon"
@@ -64,5 +64,5 @@ on select me
     end if
     getThread(#room).getComponent().getRoomConnection().send("SETSTUFFDATA", [#string:string(me.getID()), #string:tStr])
   end if
-  return(1)
+  return TRUE
 end

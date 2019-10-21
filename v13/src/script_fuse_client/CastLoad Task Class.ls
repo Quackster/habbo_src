@@ -17,19 +17,19 @@ on define me, tdata
     tCast = getAt(undefined, tdata)
     pCastList.setAt(tCast, 0)
   end repeat
-  return(1)
+  return TRUE
 end
 
 on OneCastDone me, tFile 
-  pLoadedSoFar = pLoadedSoFar + 1
-  if integer(pLoadedSoFar) = pCastcount then
+  pLoadedSoFar = (pLoadedSoFar + 1)
+  if (integer(pLoadedSoFar) = pCastcount) then
     pStatus = #ready
   end if
   pCastList.setAt(tFile, 1)
   repeat while 1
-    if count(pCastList) = 0 then
+    if (count(pCastList) = 0) then
     else
-      if pCastList.getAt(1) = 1 then
+      if (pCastList.getAt(1) = 1) then
         tCastName = pCastList.getPropAt(1)
         if getCastLoadManager().exists(tCastName) then
           getThreadManager().initThread(castLib(tCastName).number)
@@ -39,24 +39,24 @@ on OneCastDone me, tFile
       end if
     end if
   end repeat
-  return(1)
+  return TRUE
 end
 
 on changeLoadingCount me, tPosOrNeg 
-  pCurLoadCount = pCurLoadCount + tPosOrNeg
+  pCurLoadCount = (pCurLoadCount + tPosOrNeg)
 end
 
 on resetPercentCounter me 
   pTempPercent = 0
   pTmpLoadCount = 0
-  return(1)
+  return TRUE
 end
 
 on UpdateTaskPercent me, tInstancePercent, tFile 
-  pTmpLoadCount = pTmpLoadCount + 1
-  pTempPercent = pTempPercent + tInstancePercent
-  if pTmpLoadCount = pCurLoadCount then
-    tTemp = ((1 * pTempPercent + pLoadedSoFar) / pCastcount)
+  pTmpLoadCount = (pTmpLoadCount + 1)
+  pTempPercent = (pTempPercent + tInstancePercent)
+  if (pTmpLoadCount = pCurLoadCount) then
+    tTemp = ((1 * (pTempPercent + pLoadedSoFar)) / pCastcount)
     if tTemp <= 1 and pLastPercent <= tTemp then
       pCurrPercent = tTemp
     else
@@ -78,7 +78,7 @@ on getIndexingAllowed me
 end
 
 on DoCallBack me 
-  if pStatus = #ready then
+  if (pStatus = #ready) then
     if listp(pCallBack) then
       repeat while pCallBack <= undefined
         tCall = getAt(undefined, undefined)
@@ -100,11 +100,11 @@ on addCallBack me, tid, tMethod, tClientID, tArgument
   if not getObject(tClientID).handler(tMethod) then
     return(error(me, "Handler not found in object:" && tMethod & "/" & tClientID, #addCallBack))
   end if
-  if pStatus = #ready then
+  if (pStatus = #ready) then
     call(tMethod, getObject(tClientID), tArgument)
     getCastLoadManager().removeCastLoadTask(pGroupId)
   else
-    if pStatus = #LOADING then
+    if (pStatus = #LOADING) then
       if voidp(pCallBack) then
         pCallBack = list([#method:tMethod, #client:tClientID, #argument:tArgument])
       else
@@ -112,5 +112,5 @@ on addCallBack me, tid, tMethod, tClientID, tArgument
       end if
     end if
   end if
-  return(1)
+  return TRUE
 end

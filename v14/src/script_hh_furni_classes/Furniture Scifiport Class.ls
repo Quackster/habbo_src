@@ -1,16 +1,16 @@
 on prepare me, tdata 
-  if tdata.getAt(#stuffdata) = "O" then
+  if (tdata.getAt(#stuffdata) = "O") then
     me.setOn()
     me.pChanges = 1
   else
     me.setOff()
     me.pChanges = 0
   end if
-  return(1)
+  return TRUE
 end
 
 on updateStuffdata me, tValue 
-  if tValue = "O" then
+  if (tValue = "O") then
     me.setOn()
   else
     me.setOff()
@@ -30,7 +30,7 @@ end
 
 on updateScifiPort me 
   if me.count(#pSprList) < 4 then
-    return(0)
+    return FALSE
   end if
   tGateSp1 = me.getProp(#pSprList, 3)
   tGateSp2 = me.getProp(#pSprList, 4)
@@ -42,7 +42,7 @@ on updateScifiPort me
     tGateSp2.visible = 1
   end if
   me.pChanges = 0
-  return(1)
+  return TRUE
 end
 
 on setOn me 
@@ -62,5 +62,5 @@ on select me
     end if
     getThread(#room).getComponent().getRoomConnection().send("SETSTUFFDATA", [#string:string(me.getID()), #string:tStr])
   end if
-  return(1)
+  return TRUE
 end

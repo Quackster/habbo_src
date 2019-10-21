@@ -7,11 +7,11 @@ on deconstructTextManager
 end
 
 on getTextManager  
-  tObjMngr = getObjectManager()
-  if not tObjMngr.managerExists(#text_manager) then
+  tMgr = getObjectManager()
+  if not tMgr.managerExists(#text_manager) then
     return(constructTextManager())
   end if
-  return(tObjMngr.getManager(#text_manager))
+  return(tMgr.getManager(#text_manager))
 end
 
 on createText tid, tValue 

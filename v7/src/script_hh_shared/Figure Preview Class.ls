@@ -2,30 +2,33 @@ property pBodyPartObjects
 
 on createTemplateHuman me, tSize, tdir, tAction, tActionProps 
   tProps = [:]
-  if not objectExists("temp_humanobj") then
-    if not createObject("temp_humanobj", "Human Template Class") then
-      return(error(me, "Failed to init temporary human object!", #createTemplateHuman))
+  tObjectName = "temp_humanobj"
+  if not objectExists(tObjectName) then
+    if not createObject(tObjectName, "Human Template Class") then
+      return(error(me, "Failed to init temporary human object!", #createTemplateHuman, #major))
     end if
     tProps.setAt(#userName, "temp_human_figurecreator")
-    tProps.setAt(#figure, getObject(#session).get("user_figure").duplicate())
+    tProps.setAt(#figure, getObject(#session).GET("user_figure").duplicate())
     tProps.setAt(#direction, [tdir, 1, 1])
     tProps.setAt(#x, 10000)
     tProps.setAt(#y, 10000)
     tProps.setAt(#h, 10000)
-    if tSize = "sh" then
+    if (tSize = "sh") then
       tProps.setAt(#type, 32)
     else
       tProps.setAt(#type, 64)
     end if
-    tmember = getObject("temp_humanobj").define(tProps)
-  end if
-  if tAction = "remove" then
-    removeObject("temp_humanobj")
+    tmember = getObject(tObjectName).define(tProps)
   else
-    if tAction = "reset" then
-      call(#resetTemplateHuman, [getObject("temp_humanobj")])
+    tmember = getObject(tObjectName).getMember()
+  end if
+  if (tAction = "remove") then
+    removeObject(tObjectName)
+  else
+    if (tAction = "reset") then
+      call(#resetTemplateHuman, [getObject(tObjectName)])
     else
-      call(symbol("action_" & tAction), [getObject("temp_humanobj")], tActionProps)
+      call(symbol("action_" & tAction), [getObject(tObjectName)], tActionProps)
     end if
   end if
   return(tmember)
@@ -40,11 +43,11 @@ end
 
 on createHumanPartPreview me, tWindowTitle, tElement, tPartList, tFigure 
   if voidp(tFigure) then
-    tFigure = getObject(#session).get("user_figure")
-    if tFigure.ilk = #propList then
+    tFigure = getObject(#session).GET("user_figure")
+    if (tFigure.ilk = #propList) then
       tFigure = tFigure.duplicate()
     else
-      return(error(me, "Figure data not found!", #createHumanPartPreview))
+      return(error(me, "Figure data not found!", #createHumanPartPreview, #major))
     end if
   end if
   me.createTemplateParts(tFigure, tPartList, 3)
@@ -58,10 +61,10 @@ on setParts me, tFigure, tPartList
     if not tPart contains "it" then
       tmodel = tFigure.getAt(tPart).getAt("model")
       tColor = tFigure.getAt(tPart).getAt("color")
-      if tPartList = 1 then
+      if (tPartList = 1) then
         tmodel = "00" & tmodel
       else
-        if tPartList = 2 then
+        if (tPartList = 2) then
           tmodel = "0" & tmodel
         end if
       end if
@@ -88,10 +91,10 @@ on createTemplateParts me, tFigure, tPartList, tdir, tSize
       tDirection = tdir
       tAction = "std"
       tAncestor = me
-      if tPartList = 1 then
+      if (tPartList = 1) then
         tmodel = "00" & tmodel
       else
-        if tPartList = 2 then
+        if (tPartList = 2) then
           tmodel = "0" & tmodel
         end if
       end if
@@ -109,9 +112,9 @@ on feedHumanPreview me, tWindowTitle, tElemID, tPartList
     me.getPartImg(tPartList, tTempPartImg, 3)
     tTempPartImg = tTempPartImg.trimWhiteSpace()
     tPrewImg = image(tElem.getProperty(#width), tElem.getProperty(#height), 16)
-    tdestrect = tPrewImg.rect - tTempPartImg.rect
+    tdestrect = (tPrewImg.rect - tTempPartImg.rect)
     tMargins = rect(0, 0, 0, 0)
-    tdestrect = rect(tdestrect.width / 2, tdestrect.height / 2, tTempPartImg.width + tdestrect.width / 2, tdestrect.height / 2 + tTempPartImg.height) + tMargins
+    tdestrect = (rect((tdestrect.width / 2), (tdestrect.height / 2), (tTempPartImg.width + (tdestrect.width / 2)), ((tdestrect.height / 2) + tTempPartImg.height)) + tMargins)
     tPrewImg.copyPixels(tTempPartImg, tdestrect, tTempPartImg.rect, [#ink:8])
     tElem.clearImage()
     tElem.feedImage(tPrewImg)

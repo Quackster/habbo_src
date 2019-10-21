@@ -4,7 +4,7 @@ on construct me
   pItemDataDB = [:]
   tItemIndex = getmemnum("Poster Index List")
   if not tItemIndex then
-    return(1)
+    return TRUE
   end if
   tItemIndex = member(tItemIndex).text
   tDelim = the itemDelimiter
@@ -16,16 +16,16 @@ on construct me
     tName = tLine.getProp(#item, 2)
     tDesc = tLine.getProp(#item, 3)
     pItemDataDB.setAt(ttype, [#name:tName, #text:tDesc])
-    i = 1 + i
+    i = (1 + i)
   end repeat
   the itemDelimiter = tDelim
-  return(1)
+  return TRUE
 end
 
 on getPosterData me, ttype 
   tdata = pItemDataDB.getAt(ttype)
   if voidp(tdata) then
-    return(0)
+    return FALSE
   else
     return(tdata)
   end if

@@ -3,13 +3,13 @@ property pErrorLists
 on construct me 
   pErrorLists = []
   registerMessage(#showErrorMessage, me.getID(), #showErrorMessage)
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
   unregisterMessage(#showErrorMessage, me.getID())
   pErrorLists = []
-  return(1)
+  return TRUE
 end
 
 on showErrorMessage me, tErrorID, tErrorMessage 
@@ -33,6 +33,6 @@ on clearErrorLists me, tIndex
   i = 1
   repeat while i <= tIndex
     pErrorLists.deleteAt(1)
-    i = 1 + i
+    i = (1 + i)
   end repeat
 end

@@ -22,7 +22,7 @@ on construct me
   pSync = 1
   pColors = [:]
   pDefShadowMem = member(0)
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
@@ -31,7 +31,7 @@ on deconstruct me
   if memberExists(pCanvasName) and pCanvasName <> void() then
     removeMember(pCanvasName)
   end if
-  return(1)
+  return TRUE
 end
 
 on define me, tdata 
@@ -57,7 +57,7 @@ on define me, tdata
   tSize = pCanvasSize.getAt(#std)
   pMember = member(getmemnum(pCanvasName))
   pMember.image = image(tSize.getAt(1), tSize.getAt(2), tSize.getAt(3))
-  0.regPoint = point(pMember, image.height + tSize.getAt(4))
+  pMember.regPoint = point(0, (pMember.image.height + tSize.getAt(4)))
   pBuffer = pMember.image
   tPartSymbols = tdata.getAt(#parts)
   if not me.setPartLists(tdata.getAt(#figure)) then
@@ -163,7 +163,7 @@ on getPicture me, tImg
 end
 
 on closeEyes me 
-  if pMainAction = "lay" then
+  if (pMainAction = "lay") then
     call(#defineActMultiple, pPartList, "ley", ["ey"])
   else
     call(#defineActMultiple, pPartList, "eyb", ["ey"])
@@ -173,7 +173,7 @@ on closeEyes me
 end
 
 on openEyes me 
-  if pMainAction = "lay" then
+  if (pMainAction = "lay") then
     call(#defineActMultiple, pPartList, "lay", ["ey"])
   else
     call(#defineActMultiple, pPartList, "std", ["ey"])
@@ -183,16 +183,16 @@ on openEyes me
 end
 
 on prepare me 
-  pAnimCounter = (pAnimCounter + 1 mod 4)
+  pAnimCounter = ((pAnimCounter + 1) mod 4)
   if pEyesClosed and not pSleeping then
     me.openEyes()
   else
-    if random(30) = 3 then
+    if (random(30) = 3) then
       me.closeEyes()
     end if
   end if
   if pTalking and random(3) > 1 then
-    if pMainAction = "lay" then
+    if (pMainAction = "lay") then
       call(#defineActMultiple, pPartList, "lsp", ["hd", "hr", "fc"])
     else
       call(#defineActMultiple, pPartList, "spk", ["hd", "hr", "fc"])
@@ -225,7 +225,7 @@ end
 on reDraw me 
   pBuffer.fill(pBuffer.rect, pAlphaColor)
   call(#render, pPartList)
-  image.copyPixels(pBuffer, pBuffer.rect, pBuffer.rect)
+  pMember.image.copyPixels(pBuffer, pBuffer.rect, pBuffer.rect)
 end
 
 on setPartLists me, tmodels 
@@ -253,21 +253,21 @@ on setPartLists me, tmodels
     else
       tColor = tmodels.getAt(tPartSymbol).getAt("color")
     end if
-    if tColor.red + tColor.green + tColor.blue > (238 * 3) then
+    if ((tColor.red + tColor.green) + tColor.blue) > (238 * 3) then
       tColor = rgb("EEEEEE")
     end if
     tPartObj.define(tPartSymbol, tmodels.getAt(tPartSymbol).getAt("model"), tColor, pDirection, tAction, me)
     pPartList.add(tPartObj)
     pColors.setAt(tPartSymbol, tColor)
-    i = 1 + i
+    i = (1 + i)
   end repeat
   pPartIndex = [:]
   i = 1
   repeat while i <= pPartList.count
     pPartIndex.setAt(pPartList.getAt(i).pPart, i)
-    i = 1 + i
+    i = (1 + i)
   end repeat
-  return(1)
+  return TRUE
 end
 
 on arrangeParts me 
@@ -281,8 +281,8 @@ on arrangeParts me
   tLG = pPartList.getAt(pPartIndex.getAt("lg"))
   tSH = pPartList.getAt(pPartIndex.getAt("sh"))
   if pMainAction <> "sit" then
-    if pMainAction = "lay" then
-      if pFlipList.getAt(pDirection + 1) = 0 then
+    if (pMainAction = "lay") then
+      if (pFlipList.getAt((pDirection + 1)) = 0) then
         pPartList.setAt(tIndex1, tSH)
         pPartList.setAt(tIndex2, tLG)
       else
@@ -299,12 +299,12 @@ on arrangeParts me
     pPartList.deleteAt(pPartIndex.getAt("rs"))
     pPartList.deleteAt(pPartIndex.getAt("rh"))
     pPartList.deleteAt(pPartIndex.getAt("ri"))
-    if tRH.pActionRh = "drk" and [0, 6].getPos(pDirection) <> 0 then
+    if (tRH.pActionRh = "drk") and [0, 6].getPos(pDirection) <> 0 then
       pPartList.addAt(8, tRI)
       pPartList.addAt(9, tRH)
       pPartList.addAt(10, tRS)
     else
-      if pDirection = 7 then
+      if (pDirection = 7) then
         pPartList.addAt(1, tRI)
         pPartList.addAt(2, tRH)
         pPartList.addAt(3, tRS)
@@ -317,9 +317,9 @@ on arrangeParts me
     i = 1
     repeat while i <= pPartList.count
       pPartIndex.setAt(pPartList.getAt(i).pPart, i)
-      i = 1 + i
+      i = (1 + i)
     end repeat
-    if pLastDir = pDirection then
+    if (pLastDir = pDirection) then
       return()
     end if
     pLastDir = pDirection
@@ -329,7 +329,7 @@ on arrangeParts me
     pPartList.deleteAt(pPartIndex.getAt("ls"))
     pPartList.deleteAt(pPartIndex.getAt("lh"))
     pPartList.deleteAt(pPartIndex.getAt("li"))
-    if pMainAction = 3 then
+    if (pMainAction = 3) then
       pPartList.addAt(8, tLI)
       pPartList.addAt(9, tLH)
       pPartList.addAt(10, tLS)
@@ -341,7 +341,7 @@ on arrangeParts me
     i = 1
     repeat while i <= pPartList.count
       pPartIndex.setAt(pPartList.getAt(i).pPart, i)
-      i = 1 + i
+      i = (1 + i)
     end repeat
   end if
 end
@@ -370,7 +370,7 @@ on action_lay me, tProps
   pCarrying = 0
   pLocFix = point(30, -10)
   call(#layDown, pPartList)
-  if pDirection = 0 then
+  if (pDirection = 0) then
     pDirection = 4
   end if
   call(#defineDir, pPartList, pDirection)
@@ -439,20 +439,20 @@ on action_talk me, tProps
 end
 
 on action_gest me, tProps 
-  if pPeopleSize = "sh" then
+  if (pPeopleSize = "sh") then
     return()
   end if
   tList = ["ey", "fc"]
   tGesture = tProps.getProp(#word, 2)
-  if tGesture = "spr" then
+  if (tGesture = "spr") then
     tGesture = "srp"
   end if
-  if pMainAction = "lay" then
+  if (pMainAction = "lay") then
     tGesture = "l" & tGesture.getProp(#char, 1, 2)
     call(#defineActMultiple, pPartList, tGesture, tList)
   else
     call(#defineActMultiple, pPartList, tGesture, tList)
-    if tGesture = "ohd" then
+    if (tGesture = "ohd") then
       defineAct(pPartList.getAt(pPartIndex.getAt("hd")), tGesture)
       defineAct(pPartList.getAt(pPartIndex.getAt("hr")), tGesture)
     end if

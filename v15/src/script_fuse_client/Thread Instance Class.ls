@@ -4,14 +4,14 @@ on construct me
   interface = 0
   component = 0
   handler = 0
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
   interface = 0
   component = 0
   handler = 0
-  return(1)
+  return TRUE
 end
 
 on getInterface me 

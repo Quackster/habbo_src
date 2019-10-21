@@ -6,17 +6,17 @@ on define me, tsprite, tCarNo
   pMaxStartDelay = 400
   pSprite = tsprite
   me.reset()
-  if tCarNo = 1 then
+  if (tCarNo = 1) then
     pStartDelay = 0
   end if
-  return(1)
+  return TRUE
 end
 
 on reset me 
   tPos = random(2)
   pModelType = random(2)
-  pStartDelay = random(pMaxStartDelay - pMinStartDelay) + pMinStartDelay
-  if tPos = 1 then
+  pStartDelay = (random((pMaxStartDelay - pMinStartDelay)) + pMinStartDelay)
+  if (tPos = 1) then
     pSprite.member = "car" & pModelType & "_up"
     pSprite.flipH = 1
     pHAdv = 2
@@ -32,16 +32,16 @@ on reset me
     pSprite.locH = 730
   end if
   pSprite.ink = 41
-  pSprite.backColor = random(150) + 20
+  pSprite.backColor = (random(150) + 20)
 end
 
 on update me 
-  pStartDelay = pStartDelay - 1
+  pStartDelay = (pStartDelay - 1)
   if pStartDelay > 0 then
-    return(1)
+    return TRUE
   end if
-  pSprite.locH = pSprite.locH + pHAdv
-  pSprite.locV = pSprite.locV + pVAdv
+  pSprite.locH = (pSprite.locH + pHAdv)
+  pSprite.locV = (pSprite.locV + pVAdv)
   if pTurningPoints.getPos(pSprite.locH) > 0 then
     if pVAdv > 0 then
       pSprite.member = "car" & pModelType & "_up"

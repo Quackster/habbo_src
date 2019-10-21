@@ -3,17 +3,17 @@ property pWindowID, pCurrentErrorIndex
 on construct me 
   pWindowID = getText("error_report")
   pCurrentErrorIndex = 1
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
-  return(1)
+  return TRUE
 end
 
 on showErrors me 
   tReportLists = me.getComponent().getErrorLists()
-  if tReportLists.count = 0 then
-    return(0)
+  if (tReportLists.count = 0) then
+    return FALSE
   end if
   if not windowExists(pWindowID) then
     createWindow(pWindowID, "habbo_full.window")
@@ -29,20 +29,20 @@ on showErrors me
 end
 
 on showPreviousError me 
-  tTriedErrorIndex = pCurrentErrorIndex - 1
+  tTriedErrorIndex = (pCurrentErrorIndex - 1)
   tReportList = me.getComponent().getErrorLists()
-  if tTriedErrorIndex < 1 or tReportList.count = 0 then
-    return(0)
+  if tTriedErrorIndex < 1 or (tReportList.count = 0) then
+    return FALSE
   end if
   pCurrentErrorIndex = tTriedErrorIndex
   me.updateErrorView()
 end
 
 on showNextError me 
-  tTriedErrorIndex = pCurrentErrorIndex + 1
+  tTriedErrorIndex = (pCurrentErrorIndex + 1)
   tReportList = me.getComponent().getErrorLists()
   if tTriedErrorIndex > tReportList.count then
-    return(0)
+    return FALSE
   end if
   pCurrentErrorIndex = tTriedErrorIndex
   me.updateErrorView()
@@ -69,28 +69,28 @@ on updateErrorView me
       tElement = tWndObj.getElement(tElementName)
       tElement.setText(tText)
     end if
-    tIndex = 1 + tIndex
+    tIndex = (1 + tIndex)
   end repeat
 end
 
 on hideErrorReportWindow me 
   if not windowExists(pWindowID) then
-    return(0)
+    return FALSE
   end if
   tWndObj = getWindow(pWindowID)
   tWndObj.close()
 end
 
 on eventProcErrorReport me, tEvent, tElemID, tParams 
-  if tEvent = #mouseUp then
+  if (tEvent = #mouseUp) then
     if tElemID <> "error_report_ok" then
-      if tElemID = "close" then
+      if (tElemID = "close") then
         me.hideErrorReportWindow()
       else
-        if tElemID = "error_report_prev" then
+        if (tElemID = "error_report_prev") then
           me.showPreviousError()
         else
-          if tElemID = "error_report_next" then
+          if (tElemID = "error_report_next") then
             me.showNextError()
           end if
         end if

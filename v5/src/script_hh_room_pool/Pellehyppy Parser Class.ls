@@ -15,11 +15,11 @@ on parse_closeuimakoppi me, tMsg
 end
 
 on parse_phtickets me, tMsg 
-  me.getComponent().setNumOfPhTickets(tMsg.getProp(#word, 2))
+  me.getComponent().setNumOfPhTickets(tMsg.message.getProp(#word, 2))
 end
 
 on parse_phtickets_buy me, tMsg 
-  me.getComponent().setNumOfPhTickets(tMsg.getPropRef(#line, 2).getProp(#word, 1))
+  me.getComponent().setNumOfPhTickets(tMsg.message.getPropRef(#line, 2).getProp(#word, 1))
   me.getInterface().showTicketWnd()
 end
 
@@ -29,7 +29,7 @@ on parse_notickets me, tMsg
 end
 
 on parse_jumpdata me, tMsg 
-  tProps = ["name":tMsg.getProp(#line, 2), "jumpdata":tMsg.getProp(#line, 3)]
+  tProps = ["name":tMsg.message.getProp(#line, 2), "jumpdata":tMsg.message.getProp(#line, 3)]
   me.getComponent().jumpPlayPack(tProps)
 end
 
@@ -62,5 +62,5 @@ on regMsgList me, tBool
     unregisterListener(getVariable("connection.room.id"), me.getID(), tList)
     unregisterListener(getVariable("connection.info.id"), me.getID(), ["PH_TICKETS_BUY":#parse_phtickets_buy])
   end if
-  return(1)
+  return TRUE
 end

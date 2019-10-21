@@ -19,7 +19,7 @@ on handle_phtickets me, tMsg
 end
 
 on handle_phtickets_buy me, tMsg 
-  me.getComponent().setNumOfPhTickets(tMsg.getPropRef(#line, 1).getProp(#word, 1))
+  me.getComponent().setNumOfPhTickets(tMsg.content.getPropRef(#line, 1).getProp(#word, 1))
   me.getInterface().showTicketWnd()
 end
 
@@ -29,7 +29,7 @@ on handle_notickets me, tMsg
 end
 
 on handle_jumpdata me, tMsg 
-  me.getComponent().jumpPlayPack([#index:tMsg.getProp(#line, 1), #jumpdata:tMsg.getProp(#line, 2)])
+  me.getComponent().jumpPlayPack([#index:tMsg.content.getProp(#line, 1), #jumpdata:tMsg.content.getProp(#line, 2)])
 end
 
 on handle_jumpliftdoor_open me, tMsg 
@@ -70,5 +70,5 @@ on regMsgList me, tBool
     unregisterListener(getVariable("connection.room.id"), me.getID(), tMsgs)
     unregisterCommands(getVariable("connection.room.id"), me.getID(), tCmds)
   end if
-  return(1)
+  return TRUE
 end

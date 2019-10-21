@@ -8,7 +8,7 @@ end
 
 on handle_partnerregistration me, tMsg 
   me.getComponent().handlePartnerRegistration(tMsg)
-  return(1)
+  return TRUE
 end
 
 on regMsgList me, tBool 
@@ -22,5 +22,5 @@ on regMsgList me, tBool
     unregisterListener(getVariable("connection.info.id", #info), me.getID(), tMsgs)
     unregisterCommands(getVariable("connection.info.id", #info), me.getID(), tCmds)
   end if
-  return(1)
+  return TRUE
 end

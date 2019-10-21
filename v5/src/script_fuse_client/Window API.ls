@@ -7,11 +7,11 @@ on deconstructWindowManager
 end
 
 on getWindowManager  
-  tObjMngr = getObjectManager()
-  if not tObjMngr.managerExists(#window_manager) then
+  tMgr = getObjectManager()
+  if not tMgr.managerExists(#window_manager) then
     return(constructWindowManager())
   end if
-  return(tObjMngr.getManager(#window_manager))
+  return(tMgr.getManager(#window_manager))
 end
 
 on createWindow tid, tLayout, tLocX, tLocY, tSpecial 
@@ -34,15 +34,21 @@ on mergeWindow tid, tLayout
   if windowExists(tid) then
     return(getWindow(tid).merge(tLayout))
   else
-    return(0)
+    return FALSE
   end if
 end
 
 on activateWindow tid 
+  if voidp(tid) then
+    return FALSE
+  end if
   return(getWindowManager().Activate(tid))
 end
 
 on deactivateWindow tid 
+  if voidp(tid) then
+    return FALSE
+  end if
   return(getWindowManager().deactivate(tid))
 end
 
@@ -50,7 +56,7 @@ on registerClient tid, tClientID
   if windowExists(tid) then
     return(getWindow(tid).registerClient(tClientID))
   else
-    return(0)
+    return FALSE
   end if
 end
 
@@ -58,7 +64,7 @@ on registerProcedure tid, tHandler, tClientID, tEvent
   if windowExists(tid) then
     return(getWindow(tid).registerProcedure(tHandler, tClientID, tEvent))
   else
-    return(0)
+    return FALSE
   end if
 end
 

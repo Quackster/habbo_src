@@ -2,13 +2,13 @@ property pListenerList, pCommandsList, pClassString
 
 on construct me 
   me.pItemList = []
-  me.sort()
+  me.pItemList.sort()
   pListenerList = [:]
   pListenerList.sort()
   pCommandsList = [:]
   pCommandsList.sort()
   pClassString = "connection.instance.class"
-  return(1)
+  return TRUE
 end
 
 on create me, tid, tHost, tPort 
@@ -21,7 +21,7 @@ on create me, tid, tHost, tPort
   if not integerp(tPort) then
     return(error(me, "Integer expected:" && tPort, #create))
   end if
-  if getIntVariable("connection.log.level") = 2 then
+  if (getIntVariable("connection.log.level") = 2) then
     if not memberExists("connectionLog.text") then
       tLogField = member(createMember("connectionLog.text", #field))
       tLogField.boxType = #scroll
@@ -35,7 +35,7 @@ on create me, tid, tHost, tPort
     if not createObject(tid, getClassVariable(pClassString)) then
       return(error(me, "Failed to initialize connection:" && tid, #create))
     end if
-    me.add(tid)
+    me.pItemList.add(tid)
   end if
   if voidp(pListenerList.getAt(tid)) then
     tMsgPtr = getStructVariable("struct.pointer")
@@ -54,7 +54,7 @@ on create me, tid, tHost, tPort
   me.get(tid).setProperty(#listener, tMsgPtr)
   me.get(tid).setProperty(#commands, tCmdPtr)
   me.get(tid).connect(tHost, tPort)
-  return(1)
+  return TRUE
 end
 
 on closeAll me 
@@ -63,7 +63,7 @@ on closeAll me
     if objectExists(me.getProp(#pItemList, i)) then
       removeObject(me.getProp(#pItemList, i))
     end if
-    i = 1 + i
+    i = (1 + i)
   end repeat
   me.pItemList = []
 end
@@ -73,7 +73,7 @@ on registerListener me, tid, tObjID, tMsgList
     return(error(me, "Invalid message header ID:" && tid, #registerListener))
   end if
   tObject = getObject(tObjID)
-  if tObject = 0 then
+  if (tObject = 0) then
     return(error(me, "Object not found:" && tObjID, #registerListener))
   end if
   if voidp(pListenerList.getAt(tid)) then
@@ -94,9 +94,9 @@ on registerListener me, tid, tObjID, tMsgList
       tPtr.getaProp(#value).setaProp(tMsg, [])
     end if
     tPtr.getaProp(#value).getaProp(tMsg).add([tObjID, tMethod])
-    i = 1 + i
+    i = (1 + i)
   end repeat
-  return(1)
+  return TRUE
 end
 
 on unregisterListener me, tid, tObjID, tMsgList 
@@ -105,7 +105,7 @@ on unregisterListener me, tid, tObjID, tMsgList
   end if
   tPtr = pListenerList.getAt(tid)
   if voidp(tPtr) then
-    return(0)
+    return FALSE
   end if
   tList = tPtr.getaProp(#value)
   i = 1
@@ -116,17 +116,17 @@ on unregisterListener me, tid, tObjID, tMsgList
       return(error(me, "No listeners for message:" && tMsg && "/" && tid, #unregisterListener))
     end if
     j = 1
-    repeat while j <= tList.getAt(tMsg).count
-      tCallback = tList.getAt(tMsg).getAt(j)
-      if tCallback.getAt(1) = tObjID and tCallback.getAt(2) = tMethod then
-        tList.getAt(tMsg).deleteAt(j)
+    repeat while j <= tList.getaProp(tMsg).count
+      tCallback = tList.getaProp(tMsg).getAt(j)
+      if (tCallback.getAt(1) = tObjID) and (tCallback.getAt(2) = tMethod) then
+        tList.getaProp(tMsg).deleteAt(j)
       else
-        j = 1 + j
+        j = (1 + j)
       end if
     end repeat
-    i = 1 + i
+    i = (1 + i)
   end repeat
-  return(1)
+  return TRUE
 end
 
 on registerCommands me, tid, tObjID, tCmdList 
@@ -143,11 +143,20 @@ on registerCommands me, tid, tObjID, tCmdList
   i = 1
   repeat while i <= tCmdList.count
     tCmd = tCmdList.getPropAt(i)
-    tCode = tCmdList.getAt(i)
-    tPtr.getaProp(#value).setaProp(tCmd, tCode)
-    i = 1 + i
+    tNum = tCmdList.getAt(i)
+    tOld = tPtr.getaProp(#value).getaProp(tCmd)
+    tBy1 = numToChar(bitOr(64, (tNum / 64)))
+    tBy2 = numToChar(bitOr(64, bitAnd(63, tNum)))
+    tNew = tBy1 & tBy2
+    if tOld <> void() then
+      if tOld <> tNew then
+        error(me, "Registered command override:" && tCmd && "/" && tOld && "->" && tNew)
+      end if
+    end if
+    tPtr.getaProp(#value).setaProp(tCmd, tNew)
+    i = (1 + i)
   end repeat
-  return(1)
+  return TRUE
 end
 
 on unregisterCommands me, tid, tObjID, tCmdList 
@@ -156,7 +165,7 @@ on unregisterCommands me, tid, tObjID, tCmdList
   end if
   tPtr = pCommandsList.getAt(tid)
   if voidp(tPtr) then
-    return(0)
+    return FALSE
   end if
-  return(1)
+  return TRUE
 end

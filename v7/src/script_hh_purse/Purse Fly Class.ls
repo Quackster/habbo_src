@@ -13,7 +13,7 @@ on define me, tSprite, tCount
   pWinRight = 285
   pMyNum = tCount
   pWayCounter = 1
-  return(1)
+  return TRUE
 end
 
 on animateFly me 
@@ -25,32 +25,32 @@ on animateFly me
   pElement.setProperty(#height, tFly.height)
   tLocX = pElement.getProperty(#locX)
   tLocY = pElement.getProperty(#locY)
-  if 1 = tLocX < pWinLeft then
-    if pMyDir = 2 then
+  if (1 = tLocX < pWinLeft) then
+    if (pMyDir = 2) then
       tSpr.flipH = 0
       pMyDir = 1
     else
       pWayCounter = 6
     end if
   else
-    if 1 = tLocX > pWinRight then
-      if pMyDir = 1 then
+    if (1 = tLocX > pWinRight) then
+      if (pMyDir = 1) then
         tSpr.flipH = 1
         pMyDir = 2
       else
         pWayCounter = 1
       end if
     else
-      if 1 = tLocY > pWinBottom then
-        if pMyDir = 4 then
+      if (1 = tLocY > pWinBottom) then
+        if (pMyDir = 4) then
           tSpr.flipV = 0
           pMyDir = 3
         else
           pWayCounter = 11
         end if
       else
-        if 1 = tLocY < pWinTop then
-          if pMyDir = 3 then
+        if (1 = tLocY < pWinTop) then
+          if (pMyDir = 3) then
             tSpr.flipV = 1
             pMyDir = 4
           else
@@ -61,48 +61,48 @@ on animateFly me
     end if
   end if
   if pMyDir < 3 then
-    if 1 = pWayCounter <= 10 then
+    if (1 = pWayCounter <= 10) then
       tY = 2
     else
-      if 1 = pWayCounter > 10 and pWayCounter <= 20 then
+      if (1 = pWayCounter > 10 and pWayCounter <= 20) then
         tY = -2
       else
-        if 1 = pWayCounter > 20 then
+        if (1 = pWayCounter > 20) then
           pWayCounter = 0
         end if
       end if
     end if
-    pFlyMember = 3 + pFlyMember = 3
+    pFlyMember = (3 + (pFlyMember = 3))
   else
-    if 1 = pWayCounter <= 5 then
+    if (1 = pWayCounter <= 5) then
       tX = -5
     else
-      if 1 = pWayCounter > 5 and pWayCounter <= 10 then
+      if (1 = pWayCounter > 5 and pWayCounter <= 10) then
         tX = 5
       else
-        if 1 = pWayCounter > 10 then
+        if (1 = pWayCounter > 10) then
           pWayCounter = 0
         end if
       end if
     end if
-    pFlyMember = 1 + pFlyMember = 1
+    pFlyMember = (1 + (pFlyMember = 1))
   end if
-  if 1 = 1 then
-    pElement.moveTo(tLocX + 7, tLocY + tY)
+  if (1 = 1) then
+    pElement.moveTo((tLocX + 7), (tLocY + tY))
   else
-    if 1 = 2 then
-      pElement.moveTo(tLocX - 7, tLocY + tY)
+    if (1 = 2) then
+      pElement.moveTo((tLocX - 7), (tLocY + tY))
     else
-      if 1 = 3 then
-        pElement.moveTo(tLocX + tX, tLocY - 3)
+      if (1 = 3) then
+        pElement.moveTo((tLocX + tX), (tLocY - 3))
       else
-        if 1 = 4 then
-          pElement.moveTo(tLocX + tX, tLocY + 3)
+        if (1 = 4) then
+          pElement.moveTo((tLocX + tX), (tLocY + 3))
         end if
       end if
     end if
   end if
-  pWayCounter = pWayCounter + 1
+  pWayCounter = (pWayCounter + 1)
 end
 
 on hideFlies me 

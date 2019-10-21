@@ -7,11 +7,11 @@ on deconstructConnectionManager
 end
 
 on getConnectionManager  
-  tObjMngr = getObjectManager()
-  if not tObjMngr.managerExists(#connection_manager) then
+  tMgr = getObjectManager()
+  if not tMgr.managerExists(#connection_manager) then
     return(constructConnectionManager())
   end if
-  return(tObjMngr.getManager(#connection_manager))
+  return(tMgr.getManager(#connection_manager))
 end
 
 on createConnection tid, tHost, tPort 

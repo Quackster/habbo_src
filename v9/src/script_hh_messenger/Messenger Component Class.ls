@@ -23,7 +23,7 @@ on construct me
   pBuddyList.setProp(#value, [#buddies:[:], #online:[], #offline:[], #render:[]])
   me.getInterface().createBuddyList(pBuddyList)
   executeMessage(#messenger_ready, #messenger)
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
@@ -45,7 +45,7 @@ on deconstruct me
   pBuddyList = [:]
   pItemList = [:]
   executeMessage(#messenger_dead, #messenger)
-  return(1)
+  return TRUE
 end
 
 on showMessenger me 
@@ -73,7 +73,7 @@ on deleteAllMessages me
   pItemList.messages = [:]
   pItemList.msgCount = [:]
   me.tellMessageCount()
-  return(1)
+  return TRUE
 end
 
 on receive_MessengerReady me, tMsg 
@@ -84,22 +84,22 @@ end
 
 on receive_BuddyList me, ttype, tList 
   me.getInterface().setMessengerActive()
-  if ttype = #new then
+  if (ttype = #new) then
     pBuddyList.setaProp(#value, tList)
     me.getInterface().createBuddyList(pBuddyList)
   else
-    if ttype = #update then
-      if tList.buddies = void() then
-        return(0)
+    if (ttype = #update) then
+      if (tList.buddies = void()) then
+        return FALSE
       end if
-      if tList.count(#buddies) = 0 then
-        return(0)
+      if (tList.count(#buddies) = 0) then
+        return FALSE
       end if
       tTheBuddyList = pBuddyList.getaProp(#value)
       i = 1
       repeat while i <= tList.count(#buddies)
         tBuddy = tList.getProp(#buddies, i)
-        tCurrData = buddies.getaProp(tBuddy.id)
+        tCurrData = tTheBuddyList.buddies.getaProp(tBuddy.id)
         if voidp(tCurrData) then
           error(me, "Buddy not found:" & tBuddy.getAt(#name) & " - Rejecting update.", #receive_BuddyList)
         else
@@ -108,38 +108,38 @@ on receive_BuddyList me, ttype, tList
             tKey = tBuddy.getPropAt(j)
             tValue = tBuddy.getAt(j)
             tCurrData.setAt(tKey, tValue)
-            j = 1 + j
+            j = (1 + j)
           end repeat
-          tMsgList = messages.getaProp(tBuddy.getAt(#id))
+          tMsgList = pItemList.messages.getaProp(tBuddy.getAt(#id))
           if listp(tMsgList) then
             tCurrData.setAt(#msgs, tMsgList.count)
           end if
           if tBuddy.online then
-            if offline.getOne(tBuddy.name) then
-              offline.deleteOne(tBuddy.name)
+            if tTheBuddyList.offline.getOne(tBuddy.name) then
+              tTheBuddyList.offline.deleteOne(tBuddy.name)
             end if
-            if online.getOne(tBuddy.name) = 0 then
-              online.add(tBuddy.name)
+            if (tTheBuddyList.online.getOne(tBuddy.name) = 0) then
+              tTheBuddyList.online.add(tBuddy.name)
             end if
           else
-            if online.getOne(tBuddy.name) then
-              online.deleteOne(tBuddy.name)
+            if tTheBuddyList.online.getOne(tBuddy.name) then
+              tTheBuddyList.online.deleteOne(tBuddy.name)
             end if
-            if offline.getOne(tBuddy.name) = 0 then
-              offline.add(tBuddy.name)
+            if (tTheBuddyList.offline.getOne(tBuddy.name) = 0) then
+              tTheBuddyList.offline.add(tBuddy.name)
             end if
           end if
         end if
-        i = 1 + i
+        i = (1 + i)
       end repeat
       tTheBuddyList.render = []
       repeat while ttype <= tList
         tName = getAt(tList, ttype)
-        render.add(tName)
+        tTheBuddyList.render.add(tName)
       end repeat
       repeat while ttype <= tList
         tName = getAt(tList, ttype)
-        render.add(tName)
+        tTheBuddyList.render.add(tName)
       end repeat
       me.getInterface().updateBuddyList()
     end if
@@ -148,31 +148,31 @@ end
 
 on receive_AppendBuddy me, tdata 
   if not listp(tdata) then
-    return(0)
+    return FALSE
   end if
   if tdata.count < 1 then
-    return(0)
+    return FALSE
   end if
   tdata = tdata.buddies
   tTheBuddyList = pBuddyList.getaProp(#value)
-  buddies.setaProp(tdata.getAt(#id), tdata)
+  tTheBuddyList.buddies.setaProp(tdata.getAt(#id), tdata)
   if tdata.online then
-    if online.getOne(tdata.name) = 0 then
-      online.add(tdata.name)
+    if (tTheBuddyList.online.getOne(tdata.name) = 0) then
+      tTheBuddyList.online.add(tdata.name)
     end if
   else
-    if offline.getOne(tdata.name) = 0 then
-      offline.add(tdata.name)
+    if (tTheBuddyList.offline.getOne(tdata.name) = 0) then
+      tTheBuddyList.offline.add(tdata.name)
     end if
   end if
   tTheBuddyList.render = []
-  repeat while tTheBuddyList <= undefined
+  repeat while tTheBuddyList.online <= undefined
     tName = getAt(undefined, tdata)
-    render.add(tName)
+    tTheBuddyList.render.add(tName)
   end repeat
-  repeat while tTheBuddyList <= undefined
+  repeat while tTheBuddyList.online <= undefined
     tName = getAt(undefined, tdata)
-    render.add(tName)
+    tTheBuddyList.render.add(tName)
   end repeat
   me.getInterface().appendBuddy(tdata)
 end
@@ -182,25 +182,25 @@ on receive_RemoveBuddies me, tList
     if objectExists("buddy_massremove") then
       getObject("buddy_massremove").confirmationReceived()
     end if
-    return(1)
+    return TRUE
   end if
   repeat while tList <= undefined
     tid = getAt(undefined, tList)
     me.getInterface().removeBuddy(tid)
     tTheBuddyList = pBuddyList.getaProp(#value)
     tTheBuddyList.sort()
-    tBuddy = buddies.getaProp(tid)
+    tBuddy = tTheBuddyList.buddies.getaProp(tid)
     if voidp(tBuddy) then
       return(error(me, "Buddy not found:" && tid, #receive_RemoveBuddies))
     end if
     tBuddyName = tBuddy.name
-    buddies.deleteProp(tid)
-    online.deleteOne(tBuddyName)
-    offline.deleteOne(tBuddyName)
-    render.deleteOne(tBuddyName)
+    tTheBuddyList.buddies.deleteProp(tid)
+    tTheBuddyList.online.deleteOne(tBuddyName)
+    tTheBuddyList.offline.deleteOne(tBuddyName)
+    tTheBuddyList.render.deleteOne(tBuddyName)
     me.eraseMessagesBySenderID(tid)
   end repeat
-  return(1)
+  return TRUE
 end
 
 on receive_PersistentMsg me, tMsg 
@@ -215,17 +215,17 @@ on receive_Message me, tMsg
   if voidp(pItemList.getAt(#msgCount).getAt(#allmsg)) then
     pItemList.getAt(#msgCount).setAt(#allmsg, 1)
   else
-    pItemList.getAt(#msgCount).setAt(#allmsg, pItemList.getAt(#msgCount).getAt(#allmsg) + 1)
+    pItemList.getAt(#msgCount).setAt(#allmsg, (pItemList.getAt(#msgCount).getAt(#allmsg) + 1))
   end if
-  tSender = buddies.getaProp(tMsg.getAt(#senderID))
+  tSender = pBuddyList.getaProp(#value).buddies.getaProp(tMsg.getAt(#senderID))
   if not voidp(tSender) then
-    tSender.setaProp(#msgs, tSender.getaProp(#msgs) + 1)
+    tSender.setaProp(#msgs, (tSender.getaProp(#msgs) + 1))
     tSender.setaProp(#update, 1)
   end if
   if voidp(pItemList.getAt(#msgCount).getaProp(tMsg.getAt(#senderID))) then
     pItemList.getAt(#msgCount).setaProp(tMsg.getAt(#senderID), 1)
   else
-    pItemList.getAt(#msgCount).setaProp(tMsg.getAt(#senderID), pItemList.getAt(#msgCount).getaProp(tMsg.getAt(#senderID)) + 1)
+    pItemList.getAt(#msgCount).setaProp(tMsg.getAt(#senderID), (pItemList.getAt(#msgCount).getaProp(tMsg.getAt(#senderID)) + 1))
   end if
   me.getInterface().updateBuddyList()
   me.tellMessageCount()
@@ -248,14 +248,14 @@ on receive_UserNotFound me, tMsg
 end
 
 on receive_CampaignMsg me, tMsg 
-  if tMsg.getAt(#message).getProp(#char, 1, 12) = "[dialog_msg]" then
+  if (tMsg.getAt(#message).getProp(#char, 1, 12) = "[dialog_msg]") then
     if memberExists(tMsg.getAt(#link) && "Class") then
       tObjID = getUniqueID()
       if not createObject(tObjID, tMsg.getAt(#link) && "Class") then
         return(error(me, "Failed to initialize class:" && tMsg.getAt(#link), #receive_CampaignMsg))
       end if
       call(#assignCampaignID, [getObject(tObjID)], tMsg.getAt(#id))
-      return(1)
+      return TRUE
     end if
   end if
   me.receive_Message(tMsg)
@@ -266,7 +266,7 @@ on send_MessageMarkRead me, tmessageId, tSenderId, tCampaignFlag
   if pItemList.getAt(#messages).count > 0 then
     if not voidp(pItemList.getAt(#messages).getaProp(tSenderId)) then
       pItemList.getAt(#messages).getaProp(tSenderId).deleteProp(tmessageId)
-      if pItemList.getAt(#messages).getaProp(tSenderId).count = 0 then
+      if (pItemList.getAt(#messages).getaProp(tSenderId).count = 0) then
         pItemList.getAt(#messages).deleteProp(tSenderId)
       end if
     end if
@@ -281,7 +281,7 @@ end
 
 on send_Message me, tReceivers, tMsg 
   if not listp(tReceivers) then
-    return(0)
+    return FALSE
   end if
   puppetSound(3, getmemnum("con_message_sent"))
   tMsg = getStringServices().convertSpecialChars(tMsg, 1)
@@ -296,8 +296,8 @@ end
 
 on send_PersistentMsg me, tMsg 
   tMsg = tMsg.getProp(#line, 1)
-  if tMsg = pItemList.getAt(#persistenMsg) then
-    return(0)
+  if (tMsg = pItemList.getAt(#persistenMsg)) then
+    return FALSE
   end if
   pItemList.setAt(#persistenMsg, tMsg)
   tMsg = getStringServices().convertSpecialChars(tMsg, 1)
@@ -318,15 +318,15 @@ end
 
 on send_DeclineBuddy me, ttype 
   if not connectionExists(getVariable("connection.info.id")) then
-    return(0)
+    return FALSE
   end if
-  if ttype = #all then
+  if (ttype = #all) then
     pItemList.setAt(#newBuddyRequest, [])
     me.tellRequestCount()
     me.getInterface().updateFrontPage()
     return(getConnection(getVariable("connection.info.id")).send("MESSENGER_DECLINEBUDDY", [#integer:0]))
   else
-    if ttype = #one and pItemList.getAt(#newBuddyRequest).count > 0 then
+    if (ttype = #one) and pItemList.getAt(#newBuddyRequest).count > 0 then
       tBuddyID = pItemList.getAt(#newBuddyRequest).getAt(1).getAt(#id)
       pItemList.getAt(#newBuddyRequest).deleteAt(1)
       me.tellRequestCount()
@@ -362,11 +362,11 @@ end
 on send_BuddylistUpdate me 
   if not pPaused then
     tWindow = me.getInterface().pOpenWindow
-    if tWindow = "" then
-      return(0)
+    if (tWindow = "") then
+      return FALSE
     end if
-    if pLastBuddiesUpdateTime + pUpdateBuddiesInterval > the milliSeconds then
-      return(0)
+    if (pLastBuddiesUpdateTime + pUpdateBuddiesInterval) > the milliSeconds then
+      return FALSE
     end if
     pLastBuddiesUpdateTime = the milliSeconds
     if connectionExists(getVariable("connection.info.id")) then
@@ -387,7 +387,7 @@ end
 
 on getNumOfMessages me 
   if voidp(pItemList.getAt(#msgCount).getAt(#allmsg)) then
-    return(0)
+    return FALSE
   else
     return(pItemList.getAt(#msgCount).getAt(#allmsg))
   end if
@@ -436,25 +436,25 @@ on eraseMessagesBySenderID me, tSenderId
     end if
   end if
   pItemList.getAt(#msgCount).setAt(tSenderId, 0)
-  pItemList.getAt(#msgCount).setAt(#allmsg, pItemList.getAt(#msgCount).getAt(#allmsg) - tMsgCount)
+  pItemList.getAt(#msgCount).setAt(#allmsg, (pItemList.getAt(#msgCount).getAt(#allmsg) - tMsgCount))
   me.tellMessageCount()
   me.getInterface().updateFrontPage()
 end
 
 on decreaseMsgCount me, tSenderId 
-  pItemList.getAt(#msgCount).setaProp(tSenderId, pItemList.getAt(#msgCount).getaProp(tSenderId) - 1)
+  pItemList.getAt(#msgCount).setaProp(tSenderId, (pItemList.getAt(#msgCount).getaProp(tSenderId) - 1))
   if pItemList.getAt(#msgCount).getaProp(tSenderId) < 0 then
     pItemList.getAt(#msgCount).setaProp(tSenderId, 0)
   end if
-  pItemList.getAt(#msgCount).setAt(#allmsg, pItemList.getAt(#msgCount).getAt(#allmsg) - 1)
+  pItemList.getAt(#msgCount).setAt(#allmsg, (pItemList.getAt(#msgCount).getAt(#allmsg) - 1))
   if pItemList.getAt(#msgCount).getAt(#allmsg) < 0 then
     pItemList.getAt(#msgCount).setAt(#allmsg, 0)
   end if
-  tBuddy = buddies.getaProp(tSenderId)
+  tBuddy = pBuddyList.getaProp(#value).buddies.getaProp(tSenderId)
   if not voidp(tBuddy) then
     tMsgCount = tBuddy.getaProp(#msgs)
     if tMsgCount > 0 then
-      tBuddy.setaProp(#msgs, tMsgCount - 1)
+      tBuddy.setaProp(#msgs, (tMsgCount - 1))
       tBuddy.setaProp(#update, 1)
     end if
   end if
@@ -478,10 +478,10 @@ end
 
 on pause me 
   pPaused = 1
-  return(1)
+  return TRUE
 end
 
 on resume me 
   pPaused = 0
-  return(1)
+  return TRUE
 end

@@ -3,12 +3,12 @@ property pUpdateBrokerList, pProcessorObjList
 on construct me 
   pProcessorObjList = [:]
   pUpdateBrokerList = [:]
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
   me.removeProcessors()
-  return(1)
+  return TRUE
 end
 
 on defineClient me, tid 
@@ -21,7 +21,7 @@ on distributeEvent me, tTopic, tdata
   end if
   tList = pUpdateBrokerList.getAt(tTopic)
   if not listp(tList) then
-    return(0)
+    return FALSE
   end if
   repeat while tList <= tdata
     tListenerId = getAt(tdata, tTopic)
@@ -33,7 +33,7 @@ on distributeEvent me, tTopic, tdata
       pUpdateBrokerList.getAt(tTopic).deleteOne(tListenerId)
     end if
   end repeat
-  return(1)
+  return TRUE
 end
 
 on defineProcessors me, tid 
@@ -68,19 +68,19 @@ on defineProcessors me, tid
     if listp(tProcessorRegList) then
       repeat while tProcIdList <= undefined
         tMsg = getAt(undefined, tid)
-        if tMsg = void() then
+        if (tMsg = void()) then
           return(error(me, "Invalid format in processor message:" && tProcObjId && tMsg, #defineProcessors))
         end if
-        if pUpdateBrokerList.getAt(tMsg) = void() then
+        if (pUpdateBrokerList.getAt(tMsg) = void()) then
           pUpdateBrokerList.addProp(tMsg, [])
         end if
-        if pUpdateBrokerList.getAt(tMsg).getPos(tProcId) = 0 then
+        if (pUpdateBrokerList.getAt(tMsg).getPos(tProcId) = 0) then
           pUpdateBrokerList.getAt(tMsg).add(tProcId)
         end if
       end repeat
     end if
   end repeat
-  return(1)
+  return TRUE
 end
 
 on removeProcessors me 
@@ -90,5 +90,5 @@ on removeProcessors me
   end repeat
   pProcessorObjList = [:]
   pUpdateBrokerList = [:]
-  return(1)
+  return TRUE
 end

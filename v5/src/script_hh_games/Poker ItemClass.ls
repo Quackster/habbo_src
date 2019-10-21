@@ -64,18 +64,18 @@ on register me, oCard
   end if
   setaProp(pCards, cardNum, oCard)
   setCard(oCard, getAt(lCardTypes, cardNum))
-  cardNum = cardNum + 1
+  cardNum = (cardNum + 1)
 end
 
 on registerOtherCard me, oCard 
-  if gGameContext.frame = "card_change" then
+  if (gGameContext.frame = "card_change") then
     setaProp(pOtherCards, oCard.playerNum && oCard.cardNum, oCard)
     sprite(oCard.spriteNum).visible = 0
   else
     l = getaProp(pPlayersCards, oCard.playerNum)
     if listp(l) then
       if count(l) >= 5 then
-        setCard(oCard, l.getAt(6 - oCard.cardNum))
+        setCard(oCard, l.getAt((6 - oCard.cardNum)))
       else
         sprite(oCard.spriteNum).visible = 0
       end if
@@ -100,11 +100,11 @@ on change me
   repeat while i <= count(pCards)
     o = pCards.getAt(i)
     if o.selected then
-      s = s && i - 1
+      s = s && (i - 1)
       sprite(o.spriteNum).member = getmemnum("BACKSIDE")
       select(o, 0)
     end if
-    i = 1 + i
+    i = (1 + i)
   end repeat
   sendItemMessage(me, "CHANGE" && s)
   changed = 1
@@ -119,7 +119,7 @@ on processItemMessage me, content
     member("cards.helptext").text = "Choose the cards to change"
   end if
   if ln1 contains "OPPONENTS" then
-    if gGameContext.frame = "card_change" then
+    if (gGameContext.frame = "card_change") then
       j = 1
       i = 1
       repeat while i <= 4
@@ -127,15 +127,15 @@ on processItemMessage me, content
           member("cards.names." & i).text = ""
           member("cards.ready." & i).text = ""
         end if
-        i = 1 + i
+        i = (1 + i)
       end repeat
       i = 1
       repeat while i <= 4
-        ln = content.line[2 + i]
+        ln = content.line[(2 + i)]
         if ln.length > 0 then
           if ln.word[1] <> gMyName then
             member("cards.names." & j).text = ln.word[1]
-            if ln.word[2] = "0" then
+            if (ln.word[2] = "0") then
               member("cards.ready." & j).text = "NOT READY"
             else
               member("cards.ready." & j).text = "DONE - changed" && ln.word[2]
@@ -146,14 +146,14 @@ on processItemMessage me, content
               if not voidp(oCard) then
                 sprite(oCard.spriteNum).visible = 1
               end if
-              u = 1 + u
+              u = (1 + u)
             end repeat
-            j = j + 1
+            j = (j + 1)
           else
           end if
         else
         end if
-        i = 1 + i
+        i = (1 + i)
       end repeat
     end if
   end if
@@ -165,22 +165,22 @@ on processItemMessage me, content
     the itemDelimiter = ","
     j = 1
     repeat while j <= 3
-      if member("cards.names." & j).text = player then
+      if (member("cards.names." & j).text = player) then
         playerNo = j
       end if
-      j = 1 + j
+      j = (1 + j)
     end repeat
     put(playerNo, "pn")
     if not voidp(playerNo) then
       j = 1
       repeat while j <= the number of word in cardNos
-        oc = getaProp(pOtherCards, playerNo && 6 - integer(1 + cardNos.word[j]))
+        oc = getaProp(pOtherCards, playerNo && (6 - integer((1 + cardNos.word[j]))))
         if not voidp(oc) then
           select(oc, 1)
         else
-          put(playerNo && 6 - integer(1 + cardNos.word[j]), "not found")
+          put(playerNo && (6 - integer((1 + cardNos.word[j]))), "not found")
         end if
-        j = 1 + j
+        j = (1 + j)
       end repeat
     end if
     member("cards.ready." & playerNo).text = "Done" && "- changed " && the number of word in cardNos
@@ -194,12 +194,12 @@ on processItemMessage me, content
       the itemDelimiter = "/"
       ln = content.line[i]
       playerName = ln.item[1]
-      if playerName = gMyName then
+      if (playerName = gMyName) then
         num = 0
         fieldNum = 1
       else
-        j = j + 1
-        num = j - 1
+        j = (j + 1)
+        num = (j - 1)
         fieldNum = j
       end if
       member("cards.names." & fieldNum).text = playerName
@@ -207,11 +207,11 @@ on processItemMessage me, content
       e = 3
       repeat while e <= the number of item in ln
         add(l, ln.item[e])
-        e = 1 + e
+        e = (1 + e)
       end repeat
       addProp(pPlayersCards, num, l)
       the itemDelimiter = ","
-      i = 1 + i
+      i = (1 + i)
     end repeat
     displayFrame(gGameContext, "card_end")
   end if
@@ -224,14 +224,14 @@ on processItemMessage me, content
     repeat while i <= the number of item in sCards
       add(lCardTypes, sCards.item[i])
       if not voidp(pCards) then
-        if count(pCards) = 5 and i - 2 <= 5 then
-          o = pCards.getAt(i - 2)
+        if (count(pCards) = 5) and (i - 2) <= 5 then
+          o = pCards.getAt((i - 2))
           if not voidp(o) then
-            setCard(o, lCardTypes.getAt(i - 2))
+            setCard(o, lCardTypes.getAt((i - 2)))
           end if
         end if
       end if
-      i = 1 + i
+      i = (1 + i)
     end repeat
     the itemDelimiter = ","
     if gGameContext.frame <> "card_change" then

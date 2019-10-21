@@ -4,16 +4,16 @@ on prepare me, tdata
   if me.count(#pSprList) > 1 then
     removeEventBroker(me.getPropRef(#pSprList, 2).spriteNum)
   end if
-  if tdata.getAt("SWITCHON") = "ON" then
+  if (tdata.getAt("SWITCHON") = "ON") then
     me.setOn()
   else
     me.setOff()
   end if
-  return(1)
+  return TRUE
 end
 
 on updateStuffdata me, tProp, tValue 
-  if tValue = "ON" then
+  if (tValue = "ON") then
     me.setOn()
   else
     me.setOff()
@@ -27,14 +27,14 @@ on update me
     end if
     tDelim = the itemDelimiter
     the itemDelimiter = "_"
-    tName = member.name
-    tItem = tName.getProp(#item, 1, tName.count(#item) - 6)
-    tPart = tName.getProp(#item, tName.count(#item) - 5)
-    tdata = tName.getProp(#item, tName.count(#item) - 4, tName.count(#item) - 1)
+    tName = me.getPropRef(#pSprList, 1).member.name
+    tItem = tName.getProp(#item, 1, (tName.count(#item) - 6))
+    tPart = tName.getProp(#item, (tName.count(#item) - 5))
+    tdata = tName.getProp(#item, (tName.count(#item) - 4), (tName.count(#item) - 1))
     tNewNameA = tItem & "_" & "b" & "_" & tdata & "_" & pSwitch
     tNewNameB = tItem & "_" & "c" & "_" & tdata & "_" & pSwitch
     the itemDelimiter = tDelim
-    me.getPropRef(#pSprList, 2).locZ = me.getPropRef(#pSprList, 1).locZ + 2
+    me.getPropRef(#pSprList, 2).locZ = (me.getPropRef(#pSprList, 1).locZ + 2)
     if memberExists(tNewNameA) then
       tmember = member(getmemnum(tNewNameA))
       me.getPropRef(#pSprList, 2).castNum = tmember.number
@@ -64,5 +64,5 @@ on select me
     end if
     getThread(#room).getComponent().getRoomConnection().send("SETSTUFFDATA", me.getID() & "/" & "SWITCHON" & "/" & tStr)
   end if
-  return(1)
+  return TRUE
 end

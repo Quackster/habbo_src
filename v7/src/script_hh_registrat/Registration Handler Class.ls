@@ -7,7 +7,7 @@ on deconstruct me
 end
 
 on handle_ok me, tMsg 
-  if me.getComponent().pState = "openFigureCreator" then
+  if (me.getComponent().pState = "openFigureCreator") then
     me.getComponent().updateState("openFigureCreator")
   end if
 end
@@ -29,15 +29,15 @@ on handle_updateok me, tMsg
 end
 
 on handle_nameapproved me, tMsg 
-  tParm = tMsg.GetIntFrom(tMsg)
-  if tParm = 0 then
+  tParm = tMsg.connection.GetIntFrom(tMsg)
+  if (tParm = 0) then
     me.getComponent().checkIsNameAvailable()
   end if
 end
 
 on handle_nameunacceptable me, tMsg 
-  tParm = tMsg.GetIntFrom(tMsg)
-  if tParm = 0 then
+  tParm = tMsg.connection.GetIntFrom(tMsg)
+  if (tParm = 0) then
     me.getInterface().userNameUnacceptable()
   end if
 end
@@ -60,13 +60,13 @@ on handle_availablesets me, tMsg
 end
 
 on handle_memberinfo me, tMsg 
-  if tMsg.getPropRef(#line, 1).getProp(#word, 1) = "REGNAME" then
+  if (tMsg.content.getPropRef(#line, 1).getProp(#word, 1) = "REGNAME") then
     me.getInterface().userNameAlreadyReserved()
   end if
 end
 
 on handle_nosuchuser me, tMsg 
-  if tMsg.getPropRef(#line, 1).getProp(#word, 1) = "REGNAME" then
+  if (tMsg.content.getPropRef(#line, 1).getProp(#word, 1) = "REGNAME") then
     me.getInterface().userNameOk()
   end if
 end
@@ -80,7 +80,7 @@ on handle_reregistrationrequired me, tMsg
 end
 
 on handle_coppa_checktime me, tMsg 
-  tParm = tMsg.GetIntFrom(tMsg)
+  tParm = tMsg.connection.GetIntFrom(tMsg)
   if tParm then
     me.getComponent().resetBlockTime()
   else
@@ -96,17 +96,17 @@ on handle_coppa_getrealtime me, tMsg
 end
 
 on handle_parent_email_requred me, tMsg 
-  tFlag = tMsg.GetIntFrom(tMsg)
+  tFlag = tMsg.connection.GetIntFrom(tMsg)
   me.getComponent().parentEmailNeedGueryResult(tFlag)
 end
 
 on handle_parent_email_validated me, tMsg 
-  tFlag = tMsg.GetIntFrom(tMsg)
+  tFlag = tMsg.connection.GetIntFrom(tMsg)
   me.getComponent().parentEmailValidated(tFlag)
 end
 
 on handle_update_account me, tMsg 
-  tFlag = tMsg.GetIntFrom(tMsg)
+  tFlag = tMsg.connection.GetIntFrom(tMsg)
   me.getInterface().responseToAccountUpdate(tFlag)
 end
 

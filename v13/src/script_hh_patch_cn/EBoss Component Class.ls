@@ -4,13 +4,13 @@ on construct me
   registerMessage(#partnerRegistrationRequired, me.getID(), #partnerRegistrationRequired)
   registerMessage(#partnerRegistration, me.getID(), #partnerRegistration)
   pUserId = ""
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
   unregisterMessage(#partnerRegistrationRequired, me.getID())
   unregisterMessage(#partnerRegistration, me.getID())
-  return(1)
+  return TRUE
 end
 
 on login me 
@@ -31,7 +31,7 @@ end
 on partnerRegistrationRequired me, tArg 
   tSession = getObject(#session)
   tPartnerRegistration = tSession.get("conf_partner_integration")
-  if ilk(tArg) = #propList then
+  if (ilk(tArg) = #propList) then
     tArg.setAt("retval", tPartnerRegistration)
   end if
   return(tPartnerRegistration)

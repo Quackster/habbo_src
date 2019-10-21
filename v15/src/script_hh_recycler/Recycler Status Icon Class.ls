@@ -10,7 +10,7 @@ end
 
 on deconstruct me 
   removePrepare(me.getID())
-  if ilk(pRecyclerButtonSpr) = #sprite then
+  if (ilk(pRecyclerButtonSpr) = #sprite) then
     pRecyclerButtonSpr.visible = 0
   end if
   pRecyclerButtonSpr = void()
@@ -22,8 +22,8 @@ on showRecyclerButton me, tstate
   end if
   if pRecyclerButtonSpr.ilk <> #sprite then
     pRecyclerButtonSpr = sprite(reserveSprite(me.getID()))
-    if pRecyclerButtonSpr = sprite(0) then
-      return(0)
+    if (pRecyclerButtonSpr = sprite(0)) then
+      return FALSE
     end if
   end if
   pRecyclerButtonSpr.member = pNormalMem
@@ -34,17 +34,17 @@ on showRecyclerButton me, tstate
   setEventBroker(pRecyclerButtonSpr.spriteNum, me.getID() & "_spr")
   pRecyclerButtonSpr.registerProcedure(#eventProcRecyclerButton, me.getID(), #mouseUp)
   pRecyclerButtonSpr.setcursor("cursor.finger")
-  if tstate = "highlight" then
+  if (tstate = "highlight") then
     me.setFlashing(1)
   else
     me.setFlashing(0)
   end if
-  return(1)
+  return TRUE
 end
 
 on hideRecyclerButton me 
   if pRecyclerButtonSpr.ilk <> #sprite then
-    return(0)
+    return FALSE
   end if
   pRecyclerButtonSpr.visible = 0
 end
@@ -57,7 +57,7 @@ on setFlashing me, tFlashingOn
     receivePrepare(me.getID())
   else
     removePrepare(me.getID())
-    if pRecyclerButtonSpr.ilk = #sprite then
+    if (pRecyclerButtonSpr.ilk = #sprite) then
       pRecyclerButtonSpr.member = pNormalMem
     end if
   end if
@@ -72,9 +72,9 @@ on openCloseStatusWindow me
 end
 
 on eventProcRecyclerButton me, tEvent, tSprID, tProp 
-  if tEvent = #mouseUp then
+  if (tEvent = #mouseUp) then
     if tSprID <> "recycler_note_ok" then
-      if tSprID = "rec_status_icon_spr" then
+      if (tSprID = "rec_status_icon_spr") then
         me.openCloseStatusWindow()
       end if
     end if
@@ -95,11 +95,11 @@ on closeStatusWindow me
 end
 
 on prepare me 
-  pSkippedFrames = pSkippedFrames - 1
+  pSkippedFrames = (pSkippedFrames - 1)
   if pSkippedFrames < 0 then
     pSkippedFrames = 15
   else
-    return(0)
+    return FALSE
   end if
   if pFLashOn then
     pRecyclerButtonSpr.member = pNormalMem

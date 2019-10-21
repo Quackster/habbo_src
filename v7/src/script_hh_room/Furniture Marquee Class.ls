@@ -1,7 +1,7 @@
 property pChanges, pActive
 
 on prepare me, tdata 
-  if tdata.getAt("STATUS") = "O" then
+  if (tdata.getAt("STATUS") = "O") then
     me.setOn()
     pChanges = 1
   else
@@ -12,11 +12,11 @@ on prepare me, tdata
     removeEventBroker(me.getPropRef(#pSprList, 1).spriteNum)
     removeEventBroker(me.getPropRef(#pSprList, 2).spriteNum)
   end if
-  return(1)
+  return TRUE
 end
 
 on updateStuffdata me, tProp, tValue 
-  if tValue = "O" then
+  if (tValue = "O") then
     me.setOn()
   else
     me.setOff()
@@ -47,8 +47,8 @@ end
 
 on switchMember me, tPart, tNewMem 
   tSprNum = ["a", "b", "c", "d", "e", "f"].getPos(tPart)
-  tName = member.name
-  tName = tName.getProp(#char, 1, tName.length - 1) & tNewMem
+  tName = me.getPropRef(#pSprList, tSprNum).member.name
+  tName = tName.getProp(#char, 1, (tName.length - 1)) & tNewMem
   if memberExists(tName) then
     tmember = member(getmemnum(tName))
     me.getPropRef(#pSprList, tSprNum).castNum = tmember.number
@@ -74,5 +74,5 @@ on select me
     end if
     getThread(#room).getComponent().getRoomConnection().send("SETSTUFFDATA", me.getID() & "/" & "STATUS" & "/" & tStr)
   end if
-  return(1)
+  return TRUE
 end

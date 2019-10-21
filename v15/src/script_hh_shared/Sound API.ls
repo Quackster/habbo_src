@@ -36,7 +36,7 @@ end
 
 on stopAllSounds tid 
   if not managerExists(#sound_manager) then
-    return(0)
+    return FALSE
   end if
   return(getSoundManager().stopAllSounds(tid))
 end

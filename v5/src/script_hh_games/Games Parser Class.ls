@@ -8,7 +8,7 @@ end
 
 on parse_opengameboard me, tMsg 
   tDelim = the itemDelimiter
-  tLine = message.getProp(#line, 2)
+  tLine = tMsg.message.getProp(#line, 2)
   if tLine contains "\t" then
     the itemDelimiter = "\t"
   else
@@ -17,14 +17,14 @@ on parse_opengameboard me, tMsg
   tProps = [:]
   tProps.setAt(#id, tLine.getProp(#item, 1))
   tProps.setAt(#name, tLine.getProp(#item, 2))
-  tMsg.setAt(message, #line.getProp(2, tMsg, message.count(#line)))
+  tProps.setAt(#data, tMsg.message.getProp(#line, 2, tMsg.message.count(#line)))
   the itemDelimiter = tDelim
   me.getComponent().openGameBoard(tProps)
 end
 
 on parse_closegameboard me, tMsg 
   tDelim = the itemDelimiter
-  tLine = message.getProp(#line, 2)
+  tLine = tMsg.message.getProp(#line, 2)
   if tLine contains "\t" then
     the itemDelimiter = "\t"
   else
@@ -33,16 +33,16 @@ on parse_closegameboard me, tMsg
   tProps = [:]
   tProps.setAt(#id, tLine.getProp(#item, 1))
   tProps.setAt(#name, tLine.getProp(#item, 2))
-  tMsg.setAt(message, #line.getProp(2, tMsg, message.count(#line)))
+  tProps.setAt(#data, tMsg.message.getProp(#line, 2, tMsg.message.count(#line)))
   the itemDelimiter = tDelim
   me.getComponent().closeGameBoard(tProps)
 end
 
 on parse_itemmsg me, tMsg 
   tProps = [:]
-  #id.setAt(tMsg, message.getPropRef(#line, 1).getProp(#word, 2))
-  #command.setAt(tMsg, message.getProp(#line, 2))
-  tMsg.setAt(message, #line.getProp(3, tMsg, message.count(#line)))
+  tProps.setAt(#id, tMsg.message.getPropRef(#line, 1).getProp(#word, 2))
+  tProps.setAt(#command, tMsg.message.getProp(#line, 2))
+  tProps.setAt(#data, tMsg.message.getProp(#line, 3, tMsg.message.count(#line)))
   me.getComponent().processItemMessage(tProps)
 end
 

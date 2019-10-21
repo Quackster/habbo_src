@@ -16,7 +16,7 @@ on construct me
   pWallPreviewIdList.add("catalog_thumb_wall_pattern")
   pWallPreviewIdList.add("catalog_wall_preview_a_left")
   pWallPreviewIdList.add("catalog_wall_preview_b_right")
-  return(1)
+  return TRUE
 end
 
 on define me, tPageProps 
@@ -35,7 +35,7 @@ on define me, tPageProps
       if tWndObj.elementExists("ctlg_buy_floor") then
         tWndObj.getElement("ctlg_buy_floor").setProperty(#visible, 0)
       end if
-      return(0)
+      return FALSE
     end if
     pWallProps = tPageProps.getAt("productList").getAt(1)
     pFloorProps = tPageProps.getAt("productList").getAt(2)
@@ -56,8 +56,8 @@ on define me, tPageProps
 end
 
 on setWallPaper me, ttype, tChange 
-  if ttype = "pattern" then
-    pWallPattern = pWallPattern + tChange
+  if (ttype = "pattern") then
+    pWallPattern = (pWallPattern + tChange)
     if pWallPattern > pWallPatterns.count(#line) then
       pWallPattern = 1
     else
@@ -67,8 +67,8 @@ on setWallPaper me, ttype, tChange
     end if
     pWallModel = 1
   else
-    if ttype = "model" then
-      pWallModel = pWallModel + tChange
+    if (ttype = "model") then
+      pWallModel = (pWallModel + tChange)
       if pWallPatterns.getProp(#line, pWallPattern) > field(0).count(#line) then
         pWallModel = 1
       else
@@ -88,7 +88,7 @@ on setWallPaper me, ttype, tChange
   tG = integer(tPattern.getProp(#item, 4))
   tB = integer(tPattern.getProp(#item, 5))
   tColor = rgb(tR, tG, tB)
-  tColors = ["left":tColor - rgb(16, 16, 16), "right":tColor, "a":tColor - rgb(16, 16, 16), "b":tColor, "pattern":tColor]
+  tColors = ["left":(tColor - rgb(16, 16, 16)), "right":tColor, "a":(tColor - rgb(16, 16, 16)), "b":tColor, "pattern":tColor]
   pWallProps.setAt("extra_parm", tPattern.getProp(#item, 6))
   the itemDelimiter = "_"
   tWndObj = getThread(#catalogue).getInterface().getCatalogWindow()
@@ -116,12 +116,12 @@ on setWallPaper me, ttype, tChange
     end if
   end repeat
   the itemDelimiter = tDelim
-  return(1)
+  return TRUE
 end
 
 on setFloorPattern me, ttype, tChange 
-  if ttype = "pattern" then
-    pFloorPattern = pFloorPattern + tChange
+  if (ttype = "pattern") then
+    pFloorPattern = (pFloorPattern + tChange)
     if pFloorPattern > pFloorPatterns.count(#line) then
       pFloorPattern = 1
     else
@@ -131,8 +131,8 @@ on setFloorPattern me, ttype, tChange
     end if
     pFloorModel = 1
   else
-    if ttype = "model" then
-      pFloorModel = pFloorModel + tChange
+    if (ttype = "model") then
+      pFloorModel = (pFloorModel + tChange)
       if pFloorPatterns.getProp(#line, pFloorPattern) > field(0).count(#line) then
         pFloorModel = 1
       else
@@ -179,47 +179,47 @@ on setFloorPattern me, ttype, tChange
     end if
   end repeat
   the itemDelimiter = tDelim
-  return(1)
+  return TRUE
 end
 
 on eventProc me, tEvent, tSprID, tProp 
-  if tEvent = #mouseUp then
-    if tSprID = "close" then
-      return(0)
+  if (tEvent = #mouseUp) then
+    if (tSprID = "close") then
+      return FALSE
     end if
   end if
-  if tEvent = #mouseDown then
-    if tSprID = "ctlg_wall_pattern_prev" then
+  if (tEvent = #mouseDown) then
+    if (tSprID = "ctlg_wall_pattern_prev") then
       me.setWallPaper("pattern", -1)
     else
-      if tSprID = "ctlg_wall_pattern_next" then
+      if (tSprID = "ctlg_wall_pattern_next") then
         me.setWallPaper("pattern", 1)
       else
-        if tSprID = "ctlg_wall_color_prev" then
+        if (tSprID = "ctlg_wall_color_prev") then
           me.setWallPaper("model", -1)
         else
-          if tSprID = "ctlg_wall_color_next" then
+          if (tSprID = "ctlg_wall_color_next") then
             me.setWallPaper("model", 1)
           else
-            if tSprID = "ctlg_floor_pattern_prev" then
+            if (tSprID = "ctlg_floor_pattern_prev") then
               me.setFloorPattern("pattern", -1)
             else
-              if tSprID = "ctlg_floor_pattern_next" then
+              if (tSprID = "ctlg_floor_pattern_next") then
                 me.setFloorPattern("pattern", 1)
               else
-                if tSprID = "ctlg_floor_color_prev" then
+                if (tSprID = "ctlg_floor_color_prev") then
                   me.setFloorPattern("model", -1)
                 else
-                  if tSprID = "ctlg_floor_color_next" then
+                  if (tSprID = "ctlg_floor_color_next") then
                     me.setFloorPattern("model", 1)
                   else
-                    if tSprID = "ctlg_buy_wall" then
+                    if (tSprID = "ctlg_buy_wall") then
                       getThread(#catalogue).getComponent().checkProductOrder(pWallProps)
                     else
-                      if tSprID = "ctlg_buy_floor" then
+                      if (tSprID = "ctlg_buy_floor") then
                         getThread(#catalogue).getComponent().checkProductOrder(pFloorProps)
                       else
-                        return(0)
+                        return FALSE
                       end if
                     end if
                   end if
@@ -231,5 +231,5 @@ on eventProc me, tEvent, tSprID, tProp
       end if
     end if
   end if
-  return(1)
+  return TRUE
 end

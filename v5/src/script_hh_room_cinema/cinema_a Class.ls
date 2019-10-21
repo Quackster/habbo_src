@@ -7,7 +7,7 @@ on construct me
   receiveUpdate(me.getID())
   tSpr = getThread(#room).getInterface().getRoomVisualizer().getSprById("teleport")
   registerProcedure(tSpr, #eventProc, me.getID(), #mouseUp)
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
@@ -36,10 +36,10 @@ on update me
     tmember = member(getmemnum("fount" & pCurrentFrm))
     tRoomVis = getThread(#room).getInterface().getRoomVisualizer()
     if not tRoomVis then
-      return(0)
+      return FALSE
     end if
     tRoomVis.getSprById("fountain").setMember(tmember)
     pAnimCounter = 0
   end if
-  pAnimCounter = pAnimCounter + 1
+  pAnimCounter = (pAnimCounter + 1)
 end

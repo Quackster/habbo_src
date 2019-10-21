@@ -15,13 +15,13 @@ on construct me
   repeat while f <= 50
     tid = "ctlg_selectcolor_bg_" & f
     if tCataloguePage.elementExists(tid) then
-      pNumOfColorBoxies = pNumOfColorBoxies + 1
+      pNumOfColorBoxies = (pNumOfColorBoxies + 1)
     else
     end if
-    f = 1 + f
+    f = (1 + f)
   end repeat
   tButtonList = []
-  return(1)
+  return TRUE
 end
 
 on define me, tPageProps 
@@ -38,7 +38,7 @@ on define me, tPageProps
       if not voidp(tProducts.getAt(f).getAt("class")) then
         tClass = tProducts.getAt(f).getAt("class")
         if tClass contains "*" then
-          tClass = tClass.getProp(#char, 1, offset("*", tClass) - 1)
+          tClass = tClass.getProp(#char, 1, (offset("*", tClass) - 1))
         end if
         if voidp(pPageData.getAt(tClass)) then
           pPageData.setAt(tClass, [:])
@@ -46,7 +46,7 @@ on define me, tPageProps
         end if
         pPageData.getAt(tClass).addProp(tProducts.getAt(f).getAt("class"), tProducts.getAt(f))
       end if
-      f = 1 + f
+      f = (1 + f)
     end repeat
   end if
   if pPageData.count > 1 then
@@ -64,7 +64,7 @@ on renderSmallIcons me, tstate, tPram
     return(error(me, "Couldn't access catalogue window!", #renderSmallIcons))
   end if
   tWndObj = tCataloguePage
-  if tstate = void() then
+  if (tstate = void()) then
     tFirst = 1
     tLast = pPageData.count
     f = 1
@@ -74,12 +74,12 @@ on renderSmallIcons me, tstate, tPram
         tWndObj.getElement(tid).clearImage()
         tWndObj.getElement(tid).setProperty(#ink, 36)
       end if
-      f = 1 + f
+      f = (1 + f)
     end repeat
     exit repeat
   end if
   if tstate <> #hilite then
-    if tstate = #unhilite then
+    if (tstate = #unhilite) then
       tFirst = tPram
       tLast = tPram
     else
@@ -100,22 +100,22 @@ on renderSmallIcons me, tstate, tPram
           if tWndObj.elementExists(tid) then
             pSmallImg.fill(pSmallImg.rect, rgb(255, 255, 255))
             if not voidp(tstate) then
-              if tstate = #hilite and memberExists("ctlg_small_active2_bg") then
+              if (tstate = #hilite) and memberExists("ctlg_small_active2_bg") then
                 tBgImage = member("ctlg_small_active2_bg").image
                 pSmallImg.copyPixels(tBgImage, tBgImage.rect, pSmallImg.rect)
               end if
             end if
             tTempSmallImg = member(tmember).image
-            tdestrect = pSmallImg.rect - tTempSmallImg.rect
+            tdestrect = (pSmallImg.rect - tTempSmallImg.rect)
             tMargins = rect(0, 0, 0, 0)
-            tdestrect = rect((tdestrect.width / 2), (tdestrect.height / 2), tTempSmallImg.width + (tdestrect.width / 2), (tdestrect.height / 2) + tTempSmallImg.height) + tMargins
+            tdestrect = (rect((tdestrect.width / 2), (tdestrect.height / 2), (tTempSmallImg.width + (tdestrect.width / 2)), ((tdestrect.height / 2) + tTempSmallImg.height)) + tMargins)
             pSmallImg.copyPixels(tTempSmallImg, tdestrect, tTempSmallImg.rect, [#ink:36])
             tWndObj.getElement(tid).clearImage()
             tWndObj.getElement(tid).feedImage(pSmallImg)
           end if
         end if
       end if
-      f = 1 + f
+      f = (1 + f)
     end repeat
   end if
 end
@@ -144,7 +144,7 @@ on renderProductColors me, tOrderNum
     if tCataloguePage.elementExists(tid) then
       tWndObj.getElement(tid).setProperty(#blend, 30)
     end if
-    f = 1 + f
+    f = (1 + f)
   end repeat
   if tOrderNum <= pPageData.count then
     tProducts = pPageData.getAt(tOrderNum)
@@ -155,7 +155,7 @@ on renderProductColors me, tOrderNum
         the itemDelimiter = ","
         tColor = tProducts.getAt(f).getAt("partColors").getProp(#item, tProducts.getAt(f).getAt("partColors").count(#item))
         the itemDelimiter = tItemDeLimiter
-        if tColor.getProp(#char, 1) = "*" then
+        if (tColor.getProp(#char, 1) = "*") then
           tColor = rgb("#" & string(tColor).getProp(#char, 2, string(tColor).length))
         else
           tColor = paletteIndex(integer(tColor))
@@ -170,7 +170,7 @@ on renderProductColors me, tOrderNum
           tWndObj.getElement(tid).setProperty(#blend, 100)
         end if
       end if
-      f = 1 + f
+      f = (1 + f)
     end repeat
   end if
 end
@@ -256,7 +256,7 @@ on selectColor me, tOrderNum
 end
 
 on eventProc me, tEvent, tSprID, tProp 
-  if tEvent = #mouseDown then
+  if (tEvent = #mouseDown) then
     if tSprID contains "ctlg_small_img_" then
       tItemDeLimiter = the itemDelimiter
       the itemDelimiter = "_"
@@ -271,16 +271,16 @@ on eventProc me, tEvent, tSprID, tProp
         the itemDelimiter = tItemDeLimiter
         selectColor(me, tOrderNum)
       else
-        if tSprID = "ctlg_buy_button" then
+        if (tSprID = "ctlg_buy_button") then
           if pSelectedProduct.ilk <> #propList then
             return(error(me, "incorrect Selected Product Data", #eventProc))
           end if
           getThread(#catalogue).getComponent().checkProductOrder(pSelectedProduct)
         else
-          return(0)
+          return FALSE
         end if
       end if
     end if
   end if
-  return(1)
+  return TRUE
 end

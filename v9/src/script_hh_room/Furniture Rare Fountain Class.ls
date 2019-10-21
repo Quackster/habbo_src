@@ -1,7 +1,7 @@
 property pChanges, pActive, pTimer, pNextChange
 
 on prepare me, tdata 
-  if tdata.getAt(#stuffdata) = "ON" then
+  if (tdata.getAt(#stuffdata) = "ON") then
     pActive = 1
   else
     pActive = 0
@@ -9,11 +9,11 @@ on prepare me, tdata
   pChanges = 1
   pTimer = 0
   pNextChange = 6
-  return(1)
+  return TRUE
 end
 
 on updateStuffdata me, tValue 
-  if tValue = "OFF" then
+  if (tValue = "OFF") then
     pActive = 0
   else
     pActive = 1
@@ -23,19 +23,19 @@ on updateStuffdata me, tValue
 end
 
 on update me 
-  if me.count(#pSprList) = 0 then
+  if (me.count(#pSprList) = 0) then
     return()
   end if
   if not pChanges then
     return()
   end if
   if pActive then
-    if me.pXFactor = 32 then
+    if (me.pXFactor = 32) then
       tClass = "s_rare_fountain"
     else
       tClass = "rare_fountain"
     end if
-    pTimer = pTimer + 1
+    pTimer = (pTimer + 1)
     if pTimer < pNextChange then
       return()
     end if
@@ -44,9 +44,9 @@ on update me
     tNewName = tClass & "_b_0_1_1_0_" & random(3)
     if memberExists(tNewName) then
       me.getPropRef(#pSprList, 2).castNum = getmemnum(tNewName)
-      me.getPropRef(#pSprList, 2).width = undefined.width
-      me.getPropRef(#pSprList, 2).height = undefined.height
-      me.getPropRef(#pSprList, 2).locZ = me.getPropRef(#pSprList, 1).locZ + 2
+      me.getPropRef(#pSprList, 2).width = me.getPropRef(#pSprList, 2).member.width
+      me.getPropRef(#pSprList, 2).height = me.getPropRef(#pSprList, 2).member.height
+      me.getPropRef(#pSprList, 2).locZ = (me.getPropRef(#pSprList, 1).locZ + 2)
     end if
   else
     me.getPropRef(#pSprList, 2).castNum = 0
@@ -70,5 +70,5 @@ on select me
       me.setOn()
     end if
   end if
-  return(1)
+  return TRUE
 end

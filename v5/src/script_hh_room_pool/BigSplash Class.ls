@@ -11,7 +11,7 @@ on HideBigSplash me
 end
 
 on update me 
-  if me.pVisible = 1 then
+  if (me.pVisible = 1) then
     me.updateSplashs()
   end if
 end

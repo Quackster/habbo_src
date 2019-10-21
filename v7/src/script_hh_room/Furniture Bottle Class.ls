@@ -16,7 +16,7 @@ on prepare me, tdata
   me.setDir(tdata.getAt("DIR"))
   me.solveMembers()
   me.moveBy(0, 0, 0)
-  return(1)
+  return TRUE
 end
 
 on updateStuffdata me, tProp, tValue 
@@ -47,12 +47,12 @@ on update me
 end
 
 on roll me 
-  if pRolling and the milliSeconds - pRollingStartTime < 3300 then
-    tTime = the milliSeconds - pRollingStartTime
-    f = tTime * 1 / 3200 * 3.14159 * 0.5
-    pRollAnimDir = pRollAnimDir + cos(f) * float(pRollingDirection)
-    me.setProp(#pDirection, 1, abs(integer(pRollAnimDir) mod 8))
-    me.setProp(#pDirection, 2, abs(integer(pRollAnimDir) mod 8))
+  if pRolling and (the milliSeconds - pRollingStartTime) < 3300 then
+    tTime = (the milliSeconds - pRollingStartTime)
+    f = ((((tTime * 1) / 3200) * 3.14159) * 0.5)
+    pRollAnimDir = (pRollAnimDir + (cos(f) * float(pRollingDirection)))
+    me.setProp(#pDirection, 1, abs((integer(pRollAnimDir) mod 8)))
+    me.setProp(#pDirection, 2, abs((integer(pRollAnimDir) mod 8)))
   else
     pRolling = 0
   end if
@@ -66,7 +66,7 @@ on setDir me, tNewDir
   if pRolling then
     pRollingStartTime = the milliSeconds
     pRollAnimDir = me.getProp(#pDirection, 1)
-    if pRollDir mod 2 = 1 then
+    if ((pRollDir mod 2) = 1) then
       pRollingDirection = 1
     else
       pRollingDirection = -1
@@ -76,8 +76,8 @@ end
 
 on select me 
   if the doubleClick then
-    tNewDir = random(8) - 1
+    tNewDir = (random(8) - 1)
     getThread(#room).getComponent().getRoomConnection().send("SETSTUFFDATA", me.getID() & "/" & "DIR" & "/" & tNewDir)
   end if
-  return(1)
+  return TRUE
 end

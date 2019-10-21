@@ -25,7 +25,7 @@ on construct me
   registerMessage(#sound_machine_set_state, me.getID(), #soundMachineSetState)
   registerMessage(#sound_machine_removed, me.getID(), #soundMachineRemoved)
   registerMessage(#sound_machine_created, me.getID(), #soundMachineCreated)
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
@@ -42,7 +42,7 @@ on deconstruct me
   unregisterMessage(#sound_machine_set_state, me.getID())
   unregisterMessage(#sound_machine_removed, me.getID())
   unregisterMessage(#sound_machine_created, me.getID())
-  return(1)
+  return TRUE
 end
 
 on reset me, tInitialReset 
@@ -78,7 +78,7 @@ on closeEdit me, tInitialReset
       return(getConnection(pConnectionId).send("GET_SOUND_DATA"))
     end if
   end if
-  return(1)
+  return TRUE
 end
 
 on closeSelectAction me 
@@ -88,45 +88,45 @@ end
 on confirmAction me, tAction, tParameter 
   pConfirmedAction = tAction
   pConfirmedActionParameter = tParameter
-  if tAction = "eject" then
+  if (tAction = "eject") then
     tReferences = me.checkSoundSetReferences(tParameter)
     if tReferences then
-      return(1)
+      return TRUE
     end if
   else
-    if tAction = "close" then
+    if (tAction = "close") then
       if pSongChanged then
-        return(1)
+        return TRUE
       end if
     else
-      if tAction = "clear" then
-        return(1)
+      if (tAction = "clear") then
+        return TRUE
       else
-        if tAction = "save" then
-          return(1)
+        if (tAction = "save") then
+          return TRUE
         end if
       end if
     end if
   end if
   me.actionConfirmed()
-  return(0)
+  return FALSE
 end
 
 on actionConfirmed me 
-  if pConfirmedAction = "eject" then
+  if (pConfirmedAction = "eject") then
     tRetVal = me.removeSoundSet(pConfirmedActionParameter)
     if tRetVal then
       me.getInterface().renderTimeLine()
     end if
   else
-    if pConfirmedAction = "close" then
+    if (pConfirmedAction = "close") then
       me.getInterface().hideSoundMachine()
     else
-      if pConfirmedAction = "clear" then
+      if (pConfirmedAction = "clear") then
         me.clearTimeLine()
         me.getInterface().renderTimeLine()
       else
-        if pConfirmedAction = "save" then
+        if (pConfirmedAction = "save") then
           me.saveSong()
         end if
       end if
@@ -134,7 +134,7 @@ on actionConfirmed me
   end if
   pConfirmedAction = ""
   pConfirmedActionParameter = ""
-  return(1)
+  return TRUE
 end
 
 on getConfigurationData me 
@@ -145,7 +145,7 @@ on getConfigurationData me
       return(getConnection(pConnectionId).send("GET_SOUND_DATA"))
     end if
   end if
-  return(0)
+  return FALSE
 end
 
 on getSoundSetLimit me 
@@ -158,18 +158,18 @@ end
 
 on getSoundSetID me, tIndex 
   if tIndex < 1 or tIndex > pSoundSetList.count then
-    return(0)
+    return FALSE
   end if
   if voidp(pSoundSetList.getAt(tIndex)) then
-    return(0)
+    return FALSE
   end if
   return(pSoundSetList.getAt(tIndex).getAt(#id))
 end
 
 on getSoundSetListID me, tIndex 
-  tIndex = tIndex + (pSoundSetListPage - 1 * pSoundSetListPageSize)
+  tIndex = (tIndex + ((pSoundSetListPage - 1) * pSoundSetListPageSize))
   if tIndex < 1 or tIndex > pSoundSetInventoryList.count then
-    return(0)
+    return FALSE
   end if
   return(pSoundSetInventoryList.getAt(tIndex).getAt(#id))
 end
@@ -183,7 +183,7 @@ on getSoundListPage me
 end
 
 on getSoundListPageCount me 
-  return(1 + (pSoundSetInventoryList.count() - 1 / pSoundSetListPageSize))
+  return((1 + ((pSoundSetInventoryList.count() - 1) / pSoundSetListPageSize)))
 end
 
 on getHooveredSampleReady me 
@@ -192,10 +192,10 @@ end
 
 on getPlayTime me 
   if not pSongPlaying then
-    return(0)
+    return FALSE
   end if
-  tTime = (the milliSeconds + 30 - pSongStartTime mod (pTimeLineSlotLength * pSongLength))
-  if tTime = 0 then
+  tTime = (((the milliSeconds + 30) - pSongStartTime) mod (pTimeLineSlotLength * pSongLength))
+  if (tTime = 0) then
     tTime = 1
   end if
   return(tTime)
@@ -213,75 +213,75 @@ on getPlayHeadPosition me
   tPlayTime = me.getComponent().getPlayTime()
   tSlotLength = me.getComponent().getTimeLineSlotLength()
   if pSongPlaying then
-    tPos = ((tPlayTime / tSlotLength) + pPlayHeadPosX mod pSongLength)
+    tPos = (((tPlayTime / tSlotLength) + pPlayHeadPosX) mod pSongLength)
   else
-    tPos = ((tPlayTime / tSlotLength) + pPlayHeadPosX mod pTimeLineSlotCount)
+    tPos = (((tPlayTime / tSlotLength) + pPlayHeadPosX) mod pTimeLineSlotCount)
   end if
-  tPos = 1 + tPos - pTimeLineScrollX
+  tPos = ((1 + tPos) - pTimeLineScrollX)
   if tPos < 1 or tPos > pTimeLineViewSlotCount then
-    return(-tPos + pTimeLineScrollX)
+    return(-(tPos + pTimeLineScrollX))
   end if
   return(tPos)
 end
 
 on movePlayHead me, tPos 
   if pSongPlaying then
-    return(0)
+    return FALSE
   end if
-  tPos = tPos - 1
-  if tPos <> pPlayHeadPosX - pTimeLineScrollX then
+  tPos = (tPos - 1)
+  if tPos <> (pPlayHeadPosX - pTimeLineScrollX) then
     if tPos >= 0 and tPos < pTimeLineViewSlotCount then
-      pPlayHeadPosX = tPos + pTimeLineScrollX
-      return(1)
+      pPlayHeadPosX = (tPos + pTimeLineScrollX)
+      return TRUE
     else
       if tPos < 0 then
         me.scrollTimeLine(-1)
         if pPlayHeadPosX <> pTimeLineScrollX then
           pPlayHeadPosX = pTimeLineScrollX
-          return(1)
+          return TRUE
         end if
       else
         me.scrollTimeLine(1)
-        if pPlayHeadPosX <> pTimeLineScrollX + pTimeLineViewSlotCount - 1 then
-          pPlayHeadPosX = pTimeLineScrollX + pTimeLineViewSlotCount - 1
-          return(1)
+        if pPlayHeadPosX <> ((pTimeLineScrollX + pTimeLineViewSlotCount) - 1) then
+          pPlayHeadPosX = ((pTimeLineScrollX + pTimeLineViewSlotCount) - 1)
+          return TRUE
         end if
       end if
     end if
   end if
-  return(0)
+  return FALSE
 end
 
 on scrollTimeLine me, tDX 
-  tScrollX = max(0, min(pTimeLineScrollX + tDX, pTimeLineSlotCount - pTimeLineViewSlotCount))
+  tScrollX = max(0, min((pTimeLineScrollX + tDX), (pTimeLineSlotCount - pTimeLineViewSlotCount)))
   if tScrollX <> pTimeLineScrollX then
     pTimeLineScrollX = tScrollX
-    return(1)
+    return TRUE
   end if
-  return(0)
+  return FALSE
 end
 
 on scrollTimeLineTo me, tX 
-  tScrollX = max(0, min(tX, pTimeLineSlotCount - pTimeLineViewSlotCount))
+  tScrollX = max(0, min(tX, (pTimeLineSlotCount - pTimeLineViewSlotCount)))
   if tScrollX <> pTimeLineScrollX then
     pTimeLineScrollX = tScrollX
-    return(1)
+    return TRUE
   end if
-  return(0)
+  return FALSE
 end
 
 on getScrollPossible me, tDX 
   if tDX < 0 then
     if pTimeLineScrollX > 0 then
-      return(1)
+      return TRUE
     end if
   end if
   if tDX > 0 then
-    if pTimeLineScrollX < pTimeLineSlotCount - pTimeLineViewSlotCount then
-      return(1)
+    if pTimeLineScrollX < (pTimeLineSlotCount - pTimeLineViewSlotCount) then
+      return TRUE
     end if
   end if
-  return(0)
+  return FALSE
 end
 
 on soundMachineSelected me, tdata 
@@ -298,7 +298,7 @@ on soundMachineSetState me, tdata
   tFurniID = tdata.getAt(#id)
   tFurniOn = tdata.getAt(#furniOn)
   tIsEditing = 0
-  if pSoundMachineFurniID = tFurniID then
+  if (pSoundMachineFurniID = tFurniID) then
     tIsEditing = 1
   end if
   pSoundMachineFurniOn = tFurniOn
@@ -333,7 +333,7 @@ on soundMachineCreated me, tFurniID
   if getConnection(pConnectionId) <> 0 then
     return(getConnection(pConnectionId).send("GET_SOUND_DATA"))
   end if
-  return(0)
+  return FALSE
 end
 
 on changeFurniState me 
@@ -369,7 +369,7 @@ on updateSoundSet me, tIndex, tid, tSampleList
     tSampleIndex = 1
     repeat while tSampleIndex <= tMachineSampleList.count
       me.getSampleReady(tSampleIndex, tIndex)
-      tSampleIndex = 1 + tSampleIndex
+      tSampleIndex = (1 + tSampleIndex)
     end repeat
     me.getInterface().updateSoundSetSlots()
   end if
@@ -380,7 +380,7 @@ on removeSoundSetInsertLock me
 end
 
 on changeSetListPage me, tChange 
-  tIndex = pSoundSetListPage + tChange
+  tIndex = (pSoundSetListPage + tChange)
   if tIndex < 1 then
     tIndex = me.getSoundListPageCount()
   else
@@ -388,19 +388,19 @@ on changeSetListPage me, tChange
       tIndex = 1
     end if
   end if
-  if tIndex = pSoundSetListPage then
-    return(0)
+  if (tIndex = pSoundSetListPage) then
+    return FALSE
   end if
   pSoundSetListPage = tIndex
-  return(1)
+  return TRUE
 end
 
 on checkSoundSetReferences me, tIndex 
   if tIndex < 1 then
-    return(0)
+    return FALSE
   end if
   if voidp(pSoundSetList.getAt(tIndex)) then
-    return(0)
+    return FALSE
   end if
   repeat while pTimeLineData <= undefined
     tChannel = getAt(undefined, tIndex)
@@ -411,11 +411,11 @@ on checkSoundSetReferences me, tIndex
         if tSampleID < 0 then
           tSampleID = -tSampleID
         end if
-        if me.getSampleSetNumber(tSampleID) = tIndex then
-          return(1)
+        if (me.getSampleSetNumber(tSampleID) = tIndex) then
+          return TRUE
         end if
       end if
-      tSlot = 1 + tSlot
+      tSlot = (1 + tSlot)
     end repeat
   end repeat
   repeat while pTimeLineData <= undefined
@@ -424,46 +424,46 @@ on checkSoundSetReferences me, tIndex
       tSample = getAt(undefined, tIndex)
       if not voidp(tSample) then
         tSampleID = tSample.getAt(#id)
-        if me.getSampleSetNumber(tSampleID) = tIndex then
-          return(1)
+        if (me.getSampleSetNumber(tSampleID) = tIndex) then
+          return TRUE
         end if
       end if
     end repeat
   end repeat
-  return(0)
+  return FALSE
 end
 
 on getFreeSoundSetCount me 
   tCount = 0
   i = 1
   repeat while i <= pSoundSetList.count
-    if pSoundSetList.getAt(i) = void() then
-      tCount = tCount + 1
+    if (pSoundSetList.getAt(i) = void()) then
+      tCount = (tCount + 1)
     end if
-    i = 1 + i
+    i = (1 + i)
   end repeat
   return(tCount)
 end
 
 on loadSoundSet me, tIndex 
-  tIndex = tIndex + (pSoundSetListPage - 1 * pSoundSetListPageSize)
+  tIndex = (tIndex + ((pSoundSetListPage - 1) * pSoundSetListPageSize))
   if tIndex < 1 or tIndex > pSoundSetInventoryList.count then
-    return(0)
+    return FALSE
   end if
   if pSoundSetInsertLocked then
-    return(0)
+    return FALSE
   end if
   tFreeSlot = 0
   i = 1
   repeat while i <= pSoundSetList.count
-    if pSoundSetList.getAt(i) = void() then
+    if (pSoundSetList.getAt(i) = void()) then
       tFreeSlot = i
     else
-      i = 1 + i
+      i = (1 + i)
     end if
   end repeat
-  if tFreeSlot = 0 then
-    return(0)
+  if (tFreeSlot = 0) then
+    return FALSE
   end if
   tSoundSet = pSoundSetInventoryList.getAt(tIndex)
   tSetID = tSoundSet.getAt(#id)
@@ -472,16 +472,16 @@ on loadSoundSet me, tIndex
     pSoundSetInsertLocked = 1
     return(getConnection(pConnectionId).send("INSERT_SOUND_PACKAGE", [#integer:tSetID, #integer:tFreeSlot]))
   else
-    return(0)
+    return FALSE
   end if
 end
 
 on removeSoundSet me, tIndex 
   if tIndex < 1 then
-    return(0)
+    return FALSE
   end if
   if voidp(pSoundSetList.getAt(tIndex)) then
-    return(0)
+    return FALSE
   end if
   repeat while pTimeLineData <= undefined
     tChannel = getAt(undefined, tIndex)
@@ -492,12 +492,12 @@ on removeSoundSet me, tIndex
         if tSampleID < 0 then
           tSampleID = -tSampleID
         end if
-        if me.getSampleSetNumber(tSampleID) = tIndex then
+        if (me.getSampleSetNumber(tSampleID) = tIndex) then
           pSongChanged = 1
           tChannel.setAt(tSlot, void())
         end if
       end if
-      tSlot = 1 + tSlot
+      tSlot = (1 + tSlot)
     end repeat
   end repeat
   repeat while pTimeLineData <= undefined
@@ -507,15 +507,15 @@ on removeSoundSet me, tIndex
       tSample = tChannel.getAt(tSlot)
       if not voidp(tSample) then
         tSampleID = tSample.getAt(#id)
-        if me.getSampleSetNumber(tSampleID) = tIndex then
+        if (me.getSampleSetNumber(tSampleID) = tIndex) then
           pSongChanged = 1
           tChannel.setAt(tSlot, void())
         end if
       end if
-      tSlot = 1 + tSlot
+      tSlot = (1 + tSlot)
     end repeat
   end repeat
-  if pSelectedSoundSet = tIndex then
+  if (pSelectedSoundSet = tIndex) then
     pSelectedSoundSet = 0
     pSelectedSoundSetSample = 0
   end if
@@ -525,10 +525,10 @@ on removeSoundSet me, tIndex
       pSoundSetList.setAt(tIndex, void())
       return(getConnection(pConnectionId).send("EJECT_SOUND_PACKAGE", [#integer:tIndex, #string:tNewSong]))
     else
-      return(1)
+      return TRUE
     end if
   else
-    return(0)
+    return FALSE
   end if
 end
 
@@ -537,19 +537,19 @@ on clearSoundSets me
   i = 1
   repeat while i <= pSoundSetLimit
     pSoundSetList.setAt(i, void())
-    i = 1 + i
+    i = (1 + i)
   end repeat
   me.getInterface().updateSoundSetSlots()
 end
 
 on soundSetEvent me, tSetID, tX, tY, tEvent 
   if tX >= 1 and tX <= pSampleHorCount and tY >= 1 and tY <= pSampleVerCount and tSetID >= 1 and tSetID <= pSoundSetLimit then
-    if tEvent = #mouseDown then
-      tSampleIndex = tX + (tY - 1 * pSampleHorCount)
+    if (tEvent = #mouseDown) then
+      tSampleIndex = (tX + ((tY - 1) * pSampleHorCount))
       if not me.getSampleReady(tSampleIndex, tSetID) then
-        return(0)
+        return FALSE
       end if
-      if pSelectedSoundSet = tSetID and pSelectedSoundSetSample = tSampleIndex then
+      if (pSelectedSoundSet = tSetID) and (pSelectedSoundSetSample = tSampleIndex) then
         pSelectedSoundSet = 0
         pSelectedSoundSetSample = 0
       else
@@ -557,19 +557,19 @@ on soundSetEvent me, tSetID, tX, tY, tEvent
         pSelectedSoundSetSample = tSampleIndex
       end if
     else
-      if tEvent = #mouseWithin then
-        tSample = tX + (tY - 1 * pSampleHorCount)
-        if pHooveredSoundSet = tSetID and pHooveredSoundSetSample = tSample then
-          return(0)
+      if (tEvent = #mouseWithin) then
+        tSample = (tX + ((tY - 1) * pSampleHorCount))
+        if (pHooveredSoundSet = tSetID) and (pHooveredSoundSetSample = tSample) then
+          return FALSE
         end if
         pHooveredSoundSet = tSetID
-        pHooveredSoundSetSample = tX + (tY - 1 * pSampleHorCount)
+        pHooveredSoundSetSample = (tX + ((tY - 1) * pSampleHorCount))
         pHooveredSampleReady = me.getSampleReady(pHooveredSoundSetSample, pHooveredSoundSet)
         if pHooveredSampleReady then
           me.playSample(pHooveredSoundSetSample, pHooveredSoundSet)
         end if
       else
-        if tEvent = #mouseLeave then
+        if (tEvent = #mouseLeave) then
           pHooveredSoundSet = 0
           pHooveredSoundSetSample = 0
           pHooveredSampleReady = 1
@@ -577,46 +577,46 @@ on soundSetEvent me, tSetID, tX, tY, tEvent
         end if
       end if
     end if
-    return(1)
+    return TRUE
   end if
-  return(0)
+  return FALSE
 end
 
 on soundSetTabEvent me, tSetID, tEvent 
   if tSetID >= 1 and tSetID <= pSoundSetLimit then
-    if tEvent = #mouseDown then
+    if (tEvent = #mouseDown) then
       tConfirm = me.getInterface().confirmAction("eject", tSetID)
       return(not tConfirm)
     else
-      if tEvent = #mouseWithin then
-        if tSetID = pHooveredSoundSetTab then
-          return(0)
+      if (tEvent = #mouseWithin) then
+        if (tSetID = pHooveredSoundSetTab) then
+          return FALSE
         end if
         pHooveredSoundSetTab = tSetID
       else
-        if tEvent = #mouseLeave then
+        if (tEvent = #mouseLeave) then
           pHooveredSoundSetTab = 0
         end if
       end if
     end if
-    return(1)
+    return TRUE
   end if
-  return(0)
+  return FALSE
 end
 
 on timeLineEvent me, tX, tY, tEvent 
-  tX = tX + pTimeLineScrollX
-  if tEvent = #mouseDown then
+  tX = (tX + pTimeLineScrollX)
+  if (tEvent = #mouseDown) then
     tInsert = me.insertSample(tX, tY)
     if tInsert then
       pTimeLineCursorX = 0
       pTimeLineCursorY = 0
-      return(1)
+      return TRUE
     else
       return(me.removeSample(tX, tY))
     end if
   else
-    if tEvent = #mouseWithin then
+    if (tEvent = #mouseWithin) then
       if tX <> pTimeLineCursorX or tY <> pTimeLineCursorY then
         tid = 0
         tSample = me.getSample(pSelectedSoundSetSample, pSelectedSoundSet)
@@ -627,26 +627,26 @@ on timeLineEvent me, tX, tY, tEvent
         if tInsert and pTimeLineCursorX <> tX or pTimeLineCursorY <> tY then
           pTimeLineCursorX = tX
           pTimeLineCursorY = tY
-          return(1)
+          return TRUE
         else
           if pTimeLineCursorX <> 0 and pTimeLineCursorY <> 0 then
             pTimeLineCursorX = 0
             pTimeLineCursorY = 0
-            return(1)
+            return TRUE
           end if
         end if
       end if
     else
-      if tEvent = #mouseLeave then
+      if (tEvent = #mouseLeave) then
         if tX < 1 or tX > pTimeLineSlotCount or tY < 1 or tY > pTimeLineChannelCount then
           pTimeLineCursorX = 0
           pTimeLineCursorY = 0
-          return(1)
+          return TRUE
         end if
       end if
     end if
   end if
-  return(0)
+  return FALSE
 end
 
 on clearTimeLine me 
@@ -659,11 +659,11 @@ on clearTimeLine me
     j = 1
     repeat while j <= pTimeLineSlotCount
       tChannel.setAt(j, void())
-      j = 1 + j
+      j = (1 + j)
     end repeat
     pTimeLineData.setAt(i, tChannel)
     pSongData.setAt(i, tChannel.duplicate())
-    i = 1 + i
+    i = (1 + i)
   end repeat
   pTimeLineReady = 1
   pPlayHeadPosX = 0
@@ -672,27 +672,27 @@ end
 
 on renderSoundSet me, tIndex, tWd, tHt, tMarginWd, tMarginHt, tNameBase, tSampleNameBase 
   if tIndex < 0 or tIndex > pSoundSetList.count then
-    return(0)
+    return FALSE
   end if
   if voidp(pSoundSetList.getAt(tIndex)) then
-    return(0)
+    return FALSE
   end if
-  tImg = image((pSampleHorCount * tWd) + (tMarginWd * pSampleHorCount - 1), (pSampleVerCount * tHt) + (tMarginHt * pSampleVerCount - 1), 32)
+  tImg = image(((pSampleHorCount * tWd) + (tMarginWd * (pSampleHorCount - 1))), ((pSampleVerCount * tHt) + (tMarginHt * (pSampleVerCount - 1))), 32)
   tSampleList = pSoundSetList.getAt(tIndex).getAt(#samples)
   if voidp(tSampleList) then
-    return(0)
+    return FALSE
   end if
   tSample = 1
   repeat while tSample <= tSampleList.count
-    tX = 1 + (tSample - 1 mod pSampleHorCount)
-    tY = 1 + (tSample - 1 / pSampleVerCount)
+    tX = (1 + ((tSample - 1) mod pSampleHorCount))
+    tY = (1 + ((tSample - 1) / pSampleVerCount))
     if tY > pSampleVerCount then
     else
       ttype = 1
-      if tIndex = pSelectedSoundSet and tSample = pSelectedSoundSetSample then
+      if (tIndex = pSelectedSoundSet) and (tSample = pSelectedSoundSetSample) then
         ttype = 3
       else
-        if tIndex = pHooveredSoundSet and tSample = pHooveredSoundSetSample then
+        if (tIndex = pHooveredSoundSet) and (tSample = pHooveredSoundSetSample) then
           ttype = 2
         end if
       end if
@@ -703,46 +703,46 @@ on renderSoundSet me, tIndex, tWd, tHt, tMarginWd, tMarginHt, tNameBase, tSample
         if tmember <> 0 then
           tSourceImg = tmember.image
           tRect = tSourceImg.rect
-          tImgWd = tRect.getAt(3) - tRect.getAt(1)
-          tImgHt = tRect.getAt(4) - tRect.getAt(2)
-          tRect.setAt(1, tRect.getAt(1) + (tX - 1 * tWd + tMarginWd) + (tWd - tImgWd / 2))
-          tRect.setAt(2, tRect.getAt(2) + (tY - 1 * tHt + tMarginHt) + (tHt - tImgHt / 2))
-          tRect.setAt(3, tRect.getAt(3) + (tX - 1 * tWd + tMarginWd) + (tWd - tImgWd / 2))
-          tRect.setAt(4, tRect.getAt(4) + (tY - 1 * tHt + tMarginHt) + (tHt - tImgHt / 2))
+          tImgWd = (tRect.getAt(3) - tRect.getAt(1))
+          tImgHt = (tRect.getAt(4) - tRect.getAt(2))
+          tRect.setAt(1, ((tRect.getAt(1) + ((tX - 1) * (tWd + tMarginWd))) + ((tWd - tImgWd) / 2)))
+          tRect.setAt(2, ((tRect.getAt(2) + ((tY - 1) * (tHt + tMarginHt))) + ((tHt - tImgHt) / 2)))
+          tRect.setAt(3, ((tRect.getAt(3) + ((tX - 1) * (tWd + tMarginWd))) + ((tWd - tImgWd) / 2)))
+          tRect.setAt(4, ((tRect.getAt(4) + ((tY - 1) * (tHt + tMarginHt))) + ((tHt - tImgHt) / 2)))
           tImg.copyPixels(tSourceImg, tRect, tSourceImg.rect, [#ink:8, #maskImage:tSourceImg.createMatte()])
         end if
-        tPart = 1 + tPart
+        tPart = (1 + tPart)
       end repeat
-      tSample = 1 + tSample
+      tSample = (1 + tSample)
     end if
   end repeat
   return(tImg)
 end
 
 on renderTimeLine me, tWd, tHt, tMarginWd, tMarginHt, tNameBaseList, tSampleNameBase, tBgImage 
-  tImg = image((pTimeLineViewSlotCount * tWd) + (tMarginWd * pTimeLineViewSlotCount - 1), (pTimeLineChannelCount * tHt) + (tMarginHt * pTimeLineChannelCount - 1), 32)
+  tImg = image(((pTimeLineViewSlotCount * tWd) + (tMarginWd * (pTimeLineViewSlotCount - 1))), ((pTimeLineChannelCount * tHt) + (tMarginHt * (pTimeLineChannelCount - 1))), 32)
   tmember = getMember(tBgImage)
   if tmember <> 0 then
-    tmember.image.copyPixels(tImg.rect, tmember, image.rect)
+    tImg.copyPixels(tmember.image, tImg.rect, tmember.image.rect)
   end if
   tChannel = 1
   repeat while tChannel <= pTimeLineData.count
     tChannelData = pTimeLineData.getAt(tChannel)
-    tSlot = max(1, pTimeLineScrollX - 10)
-    repeat while tSlot <= min(pTimeLineScrollX + pTimeLineViewSlotCount, tChannelData.count)
+    tSlot = max(1, (pTimeLineScrollX - 10))
+    repeat while tSlot <= min((pTimeLineScrollX + pTimeLineViewSlotCount), tChannelData.count)
       if not voidp(tChannelData.getAt(tSlot)) then
         tSampleNumber = tChannelData.getAt(tSlot)
-        if not me.renderSample(tSampleNumber, tSlot - pTimeLineScrollX, tChannel, tWd, tHt, tMarginWd, tMarginHt, tNameBaseList, tSampleNameBase, tImg) then
+        if not me.renderSample(tSampleNumber, (tSlot - pTimeLineScrollX), tChannel, tWd, tHt, tMarginWd, tMarginHt, tNameBaseList, tSampleNameBase, tImg) then
         end if
       end if
-      tSlot = 1 + tSlot
+      tSlot = (1 + tSlot)
     end repeat
-    tChannel = 1 + tChannel
+    tChannel = (1 + tChannel)
   end repeat
   if pTimeLineCursorX <> 0 and pTimeLineCursorY <> 0 then
     tSample = me.getSample(pSelectedSoundSetSample, pSelectedSoundSet)
     if tSample <> 0 then
-      tCursorX = pTimeLineCursorX - pTimeLineScrollX
+      tCursorX = (pTimeLineCursorX - pTimeLineScrollX)
       tCursorY = pTimeLineCursorY
       if not me.renderSample(tSample.getAt(#id), tCursorX, tCursorY, tWd, tHt, tMarginWd, tMarginHt, tNameBaseList, tSampleNameBase, tImg, 50) then
       end if
@@ -760,76 +760,76 @@ on renderSample me, tSampleNumber, tSlot, tChannel, tWd, tHt, tMarginWd, tMargin
   tSampleSet = me.getSampleSetNumber(tSampleNumber)
   tSampleIndex = me.getSampleIndex(tSampleNumber)
   tSample = me.getSample(tSampleIndex, tSampleSet)
-  if tSample = 0 then
-    return(0)
+  if (tSample = 0) then
+    return FALSE
   end if
   if voidp(tBlend) then
     tBlend = 100
   end if
   if tSampleSet < 1 or tSampleSet > tNameBaseList.count then
-    return(0)
+    return FALSE
   end if
   tNameBase = tNameBaseList.getAt(tSampleSet)
   tName = [tNameBase & "1", tSampleNameBase & tSampleIndex]
   tstart = max(1, tSlot)
-  tEnd = min(pTimeLineViewSlotCount, tSlot + tLength - 1)
+  tEnd = min(pTimeLineViewSlotCount, ((tSlot + tLength) - 1))
   tPart = 1
   repeat while tPart <= tName.count
     tmember = getMember(tName.getAt(tPart))
     if tmember <> 0 then
       tSourceImg = tmember.image
       tRectOrig = tSourceImg.rect
-      tImgWd = tRectOrig.getAt(3) - tRectOrig.getAt(1)
-      tImgHt = tRectOrig.getAt(4) - tRectOrig.getAt(2)
-      tRectOrig.setAt(2, tRectOrig.getAt(2) + (tChannel - 1 * tHt + tMarginHt) + (tHt - tImgHt / 2))
-      tRectOrig.setAt(4, tRectOrig.getAt(4) + (tChannel - 1 * tHt + tMarginHt) + (tHt - tImgHt / 2))
+      tImgWd = (tRectOrig.getAt(3) - tRectOrig.getAt(1))
+      tImgHt = (tRectOrig.getAt(4) - tRectOrig.getAt(2))
+      tRectOrig.setAt(2, ((tRectOrig.getAt(2) + ((tChannel - 1) * (tHt + tMarginHt))) + ((tHt - tImgHt) / 2)))
+      tRectOrig.setAt(4, ((tRectOrig.getAt(4) + ((tChannel - 1) * (tHt + tMarginHt))) + ((tHt - tImgHt) / 2)))
       tPos = tstart
       repeat while tPos <= tEnd
         tRect = tRectOrig.duplicate()
-        tRect.setAt(1, tRect.getAt(1) + (tPos - 1 * tWd + tMarginWd) + (tWd - tImgWd / 2))
-        tRect.setAt(3, tRect.getAt(3) + (tPos - 1 * tWd + tMarginWd) + (tWd - tImgWd / 2))
+        tRect.setAt(1, ((tRect.getAt(1) + ((tPos - 1) * (tWd + tMarginWd))) + ((tWd - tImgWd) / 2)))
+        tRect.setAt(3, ((tRect.getAt(3) + ((tPos - 1) * (tWd + tMarginWd))) + ((tWd - tImgWd) / 2)))
         tProps = [#ink:8, #maskImage:tSourceImg.createMatte(), #blend:tBlend]
         tImg.copyPixels(tSourceImg, tRect, tSourceImg.rect, tProps)
-        tPos = 1 + tPos
+        tPos = (1 + tPos)
       end repeat
     end if
-    tPart = 1 + tPart
+    tPart = (1 + tPart)
   end repeat
   tName = tNameBase & "sp"
   tmember = getMember(tName)
   if tmember <> 0 then
     tSourceImg = tmember.image
     tRectOrig = tSourceImg.rect
-    tImgWd = tRectOrig.getAt(3) - tRectOrig.getAt(1)
-    tImgHt = tRectOrig.getAt(4) - tRectOrig.getAt(2)
-    tRectOrig.setAt(2, tRectOrig.getAt(2) + (tChannel - 1 * tHt + tMarginHt) + (tHt - tImgHt / 2))
-    tRectOrig.setAt(4, tRectOrig.getAt(4) + (tChannel - 1 * tHt + tMarginHt) + (tHt - tImgHt / 2))
+    tImgWd = (tRectOrig.getAt(3) - tRectOrig.getAt(1))
+    tImgHt = (tRectOrig.getAt(4) - tRectOrig.getAt(2))
+    tRectOrig.setAt(2, ((tRectOrig.getAt(2) + ((tChannel - 1) * (tHt + tMarginHt))) + ((tHt - tImgHt) / 2)))
+    tRectOrig.setAt(4, ((tRectOrig.getAt(4) + ((tChannel - 1) * (tHt + tMarginHt))) + ((tHt - tImgHt) / 2)))
     tProps = [#ink:8, #maskImage:tSourceImg.createMatte(), #blend:tBlend]
     tPos = max(0, tSlot)
-    repeat while tPos <= min(pTimeLineViewSlotCount, tSlot + tLength - 2)
+    repeat while tPos <= min(pTimeLineViewSlotCount, ((tSlot + tLength) - 2))
       tRect = tRectOrig.duplicate()
-      tRect.setAt(1, tRect.getAt(1) + (tPos * tWd + tMarginWd) - (tImgWd / 2))
-      tRect.setAt(3, tRect.getAt(3) + (tPos * tWd + tMarginWd) - (tImgWd / 2))
+      tRect.setAt(1, ((tRect.getAt(1) + (tPos * (tWd + tMarginWd))) - (tImgWd / 2)))
+      tRect.setAt(3, ((tRect.getAt(3) + (tPos * (tWd + tMarginWd))) - (tImgWd / 2)))
       tImg.copyPixels(tSourceImg, tRect, tSourceImg.rect, tProps)
-      tPos = 1 + tPos
+      tPos = (1 + tPos)
     end repeat
   end if
-  return(1)
+  return TRUE
 end
 
 on renderTimeLineBar me, tWd, tHt, tMarginWd, tNameBaseList, tSampleNameBase, tBgImage 
-  tImg = image((pTimeLineViewSlotCount * tWd) + (tMarginWd * pTimeLineViewSlotCount - 1), tHt, 32)
-  tImgHt = tImg.getProp(#rect, 4) - tImg.getProp(#rect, 2)
+  tImg = image(((pTimeLineViewSlotCount * tWd) + (tMarginWd * (pTimeLineViewSlotCount - 1))), tHt, 32)
+  tImgHt = (tImg.getProp(#rect, 4) - tImg.getProp(#rect, 2))
   tWriterObj = getWriter(pWriterID)
-  if tWriterObj = 0 then
+  if (tWriterObj = 0) then
     return(tImg)
   end if
-  tstart = max(0, pTimeLineScrollX + 1)
-  tEnd = min(pTimeLineScrollX + pTimeLineViewSlotCount - 1, pTimeLineSlotCount)
+  tstart = max(0, (pTimeLineScrollX + 1))
+  tEnd = min(((pTimeLineScrollX + pTimeLineViewSlotCount) - 1), pTimeLineSlotCount)
   tSlot = tstart
   repeat while tSlot <= tEnd
-    if ((tSlot * pTimeLineSlotLength) mod 10000) = 0 then
-      tOffset = rect((tWd + tMarginWd * tSlot - pTimeLineScrollX), 0, (tWd + tMarginWd * tSlot - pTimeLineScrollX), 0)
+    if (((tSlot * pTimeLineSlotLength) mod 10000) = 0) then
+      tOffset = rect(((tWd + tMarginWd) * (tSlot - pTimeLineScrollX)), 0, ((tWd + tMarginWd) * (tSlot - pTimeLineScrollX)), 0)
       tSeconds = ((tSlot * pTimeLineSlotLength) / 1000)
       if tSeconds < 60 then
         tStr = getText("sound_machine_time_1")
@@ -848,20 +848,20 @@ on renderTimeLineBar me, tWd, tHt, tMarginWd, tNameBaseList, tSampleNameBase, tB
       tStampImgTrimmed = image(tStampImg.getProp(#rect, 3), tStampImg.getProp(#rect, 4), 32)
       tStampImgTrimmed.copyPixels(tStampImg, tStampImg.rect, tStampImg.rect, [#ink:8, #maskImage:tStampImg.createMatte()])
       tStampImg = tStampImgTrimmed.trimWhiteSpace()
-      tOffset.setAt(1, tOffset.getAt(1) - (tStampImg.getProp(#rect, 3) - tStampImg.getProp(#rect, 1) / 2))
+      tOffset.setAt(1, (tOffset.getAt(1) - ((tStampImg.getProp(#rect, 3) - tStampImg.getProp(#rect, 1)) / 2)))
       tOffset.setAt(3, tOffset.getAt(1))
-      tOffset.setAt(2, (tImgHt - tStampImg.getProp(#rect, 4) - tStampImg.getProp(#rect, 2) / 2))
+      tOffset.setAt(2, ((tImgHt - (tStampImg.getProp(#rect, 4) - tStampImg.getProp(#rect, 2))) / 2))
       tOffset.setAt(4, tOffset.getAt(2))
-      tImg.copyPixels(tStampImg, tStampImg.rect + tOffset, tStampImg.rect, [#ink:8, #maskImage:tStampImg.createMatte()])
+      tImg.copyPixels(tStampImg, (tStampImg.rect + tOffset), tStampImg.rect, [#ink:8, #maskImage:tStampImg.createMatte()])
     end if
-    tSlot = 1 + tSlot
+    tSlot = (1 + tSlot)
   end repeat
   return(tImg)
 end
 
 on playSample me, tSampleIndex, tSoundSet 
   if pSongPlaying then
-    return(1)
+    return TRUE
   end if
   tSample = me.getSample(tSampleIndex, tSoundSet)
   if tSample <> 0 then
@@ -872,20 +872,20 @@ on playSample me, tSampleIndex, tSoundSet
     end if
     return(tReady)
   end if
-  return(0)
+  return FALSE
 end
 
 on stopSample me 
   if objectExists(pSongController) then
     return(getObject(pSongController).stopSamplePreview())
   end if
-  return(0)
+  return FALSE
 end
 
 on getSampleReady me, tSampleIndex, tSoundSet 
   tSample = me.getSample(tSampleIndex, tSoundSet)
   if tSample <> 0 then
-    if tSample.getAt(#length) = 0 then
+    if (tSample.getAt(#length) = 0) then
       tReady = 0
       tLength = me.getSampleLength(tSample.getAt(#id))
       if tLength then
@@ -894,15 +894,15 @@ on getSampleReady me, tSampleIndex, tSoundSet
       end if
       return(tReady)
     else
-      return(1)
+      return TRUE
     end if
   end if
-  return(0)
+  return FALSE
 end
 
 on getSampleLength me, tSampleID 
   if tSampleID < 0 then
-    return(1)
+    return TRUE
   end if
   tLength = 0
   tSampleName = me.getSampleName(tSampleID)
@@ -913,7 +913,7 @@ on getSampleLength me, tSampleID
       tSongController.preloadSounds([tSampleName])
     else
       tLength = tSongController.getSampleLength(tSampleName)
-      tLength = (tLength + pTimeLineSlotLength - 1 / pTimeLineSlotLength)
+      tLength = ((tLength + (pTimeLineSlotLength - 1)) / pTimeLineSlotLength)
     end if
   end if
   return(tLength)
@@ -927,7 +927,7 @@ on getSample me, tSampleIndex, tSampleSet
       end if
     end if
   end if
-  return(0)
+  return FALSE
 end
 
 on getSampleName me, tSampleID 
@@ -941,16 +941,16 @@ on insertSample me, tSlot, tChannel
   if tSample <> 0 then
     tid = tSample.getAt(#id)
   else
-    return(0)
+    return FALSE
   end if
   tInsert = me.getCanInsertSample(tSlot, tChannel, tid)
   if tInsert then
     pSongChanged = 1
     pTimeLineData.getAt(tChannel).setAt(tSlot, tid)
     me.stopSong()
-    return(1)
+    return TRUE
   end if
-  return(0)
+  return FALSE
 end
 
 on removeSample me, tSlot, tChannel 
@@ -958,34 +958,34 @@ on removeSample me, tSlot, tChannel
     if tSlot >= 1 and tSlot <= pTimeLineData.getAt(tChannel).count then
       if not voidp(pTimeLineData.getAt(tChannel).getAt(tSlot)) then
         if pTimeLineData.getAt(tChannel).getAt(tSlot) < 0 then
-          return(0)
+          return FALSE
         end if
       else
-        i = tSlot - 1
+        i = (tSlot - 1)
         repeat while i >= 1
           if not voidp(pTimeLineData.getAt(tChannel).getAt(i)) then
             tSampleID = pTimeLineData.getAt(tChannel).getAt(i)
             if tSampleID >= 0 then
               tSampleLength = me.getSampleLength(tSampleID)
               if tSampleLength <> 0 then
-                if i + tSampleLength - 1 >= tSlot then
+                if (i + (tSampleLength - 1)) >= tSlot then
                   tSlot = i
                 else
-                  return(0)
+                  return FALSE
                 end if
               end if
             end if
           end if
-          i = 255 + i
+          i = (255 + i)
         end repeat
       end if
       pSongChanged = 1
       me.stopSong()
       pTimeLineData.getAt(tChannel).setAt(tSlot, void())
-      return(1)
+      return TRUE
     end if
   end if
-  return(0)
+  return FALSE
 end
 
 on getSampleSetNumber me, tSampleID 
@@ -993,7 +993,7 @@ on getSampleSetNumber me, tSampleID
   if tSamplePos <> 0 then
     return(tSamplePos.getAt(#soundset))
   end if
-  return(0)
+  return FALSE
 end
 
 on getSampleIndex me, tSampleID 
@@ -1001,46 +1001,46 @@ on getSampleIndex me, tSampleID
   if tSamplePos <> 0 then
     return(tSamplePos.getAt(#sample))
   end if
-  return(0)
+  return FALSE
 end
 
 on getCanInsertSample me, tX, tY, tid 
   tLength = me.getSampleLength(tid)
   if tLength <> 0 then
-    if tX >= 1 and tX + tLength - 1 <= pTimeLineSlotCount and tY >= 1 and tY <= pTimeLineData.count then
+    if tX >= 1 and (tX + (tLength - 1)) <= pTimeLineSlotCount and tY >= 1 and tY <= pTimeLineData.count then
       tChannel = pTimeLineData.getAt(tY)
       i = tX
-      repeat while i <= tX + tLength - 1
+      repeat while i <= ((tX + tLength) - 1)
         if not voidp(tChannel.getAt(i)) then
-          return(0)
+          return FALSE
         end if
-        i = 1 + i
+        i = (1 + i)
       end repeat
-      i = tX - 1
+      i = (tX - 1)
       repeat while i >= 1
         if not voidp(tChannel.getAt(i)) then
           tNumber = tChannel.getAt(i)
-          if i + me.getSampleLength(tNumber) - 1 >= tX then
-            return(0)
+          if (i + (me.getSampleLength(tNumber) - 1)) >= tX then
+            return FALSE
           else
-            return(1)
+            return TRUE
           end if
         end if
-        i = 255 + i
+        i = (255 + i)
       end repeat
-      return(1)
+      return TRUE
     end if
   end if
-  return(0)
+  return FALSE
 end
 
 on playSong me, tEditor 
   if pSongPlaying then
-    return(1)
+    return TRUE
   end if
   pSongLength = me.resolveSongLength()
-  if pSongLength = 0 then
-    return(0)
+  if (pSongLength = 0) then
+    return FALSE
   end if
   if tEditor then
     if pPlayHeadPosX > pSongLength then
@@ -1061,7 +1061,7 @@ on playSong me, tEditor
       if not voidp(tChannelData.getAt(i)) then
         tEmpty = 0
       else
-        i = 1 + i
+        i = (1 + i)
       end if
     end repeat
     if not tEmpty then
@@ -1072,38 +1072,38 @@ on playSong me, tEditor
           tSampleLength = me.getSampleLength(tSampleID)
           if tSampleLength <> 0 and tSampleID >= 0 then
             tCount = 0
-            repeat while tChannelData.getAt(tSlot) = tSampleID
-              tCount = tCount + 1
-              tSlot = tSlot + tSampleLength
+            repeat while (tChannelData.getAt(tSlot) = tSampleID)
+              tCount = (tCount + 1)
+              tSlot = (tSlot + tSampleLength)
               if tSlot > pSongLength then
               else
               end if
             end repeat
             tSampleName = me.getSampleName(tSampleID)
             tSampleData = [#name:tSampleName, #loops:tCount, #channel:tChannel]
-            tSongData.getAt(#sounds).setAt(tSongData.getAt(#sounds).count + 1, tSampleData)
+            tSongData.getAt(#sounds).setAt((tSongData.getAt(#sounds).count + 1), tSampleData)
           else
             tSampleName = me.getSampleName(0)
             tSampleData = [#name:tSampleName, #loops:1, #channel:tChannel]
-            tSongData.getAt(#sounds).setAt(tSongData.getAt(#sounds).count + 1, tSampleData)
-            tSlot = tSlot + 1
+            tSongData.getAt(#sounds).setAt((tSongData.getAt(#sounds).count + 1), tSampleData)
+            tSlot = (tSlot + 1)
           end if
           next repeat
         end if
         tCount = 0
         repeat while voidp(tChannelData.getAt(tSlot))
-          tCount = tCount + 1
-          tSlot = tSlot + 1
+          tCount = (tCount + 1)
+          tSlot = (tSlot + 1)
           if tSlot > pSongLength then
           else
           end if
         end repeat
         tSampleName = me.getSampleName(0)
         tSampleData = [#name:tSampleName, #loops:tCount, #channel:tChannel]
-        tSongData.getAt(#sounds).setAt(tSongData.getAt(#sounds).count + 1, tSampleData)
+        tSongData.getAt(#sounds).setAt((tSongData.getAt(#sounds).count + 1), tSampleData)
       end repeat
     end if
-    tChannel = 1 + tChannel
+    tChannel = (1 + tChannel)
   end repeat
   tReady = 0
   if objectExists(pSongController) then
@@ -1122,7 +1122,7 @@ on stopSong me
   if pSongPlaying then
     tPlayTime = me.getComponent().getPlayTime()
     tSlotLength = me.getComponent().getTimeLineSlotLength()
-    tPos = ((tPlayTime / tSlotLength) + pPlayHeadPosX mod pSongLength)
+    tPos = (((tPlayTime / tSlotLength) + pPlayHeadPosX) mod pSongLength)
     pPlayHeadPosX = tPos
     pSongPlaying = 0
     pSongLength = 0
@@ -1133,7 +1133,7 @@ on stopSong me
   if objectExists(pSongController) then
     getObject(pSongController).stopSong()
   end if
-  return(1)
+  return TRUE
 end
 
 on saveSong me, tdata 
@@ -1142,10 +1142,10 @@ on saveSong me, tdata
     if getConnection(pConnectionId) <> 0 then
       return(getConnection(pConnectionId).send("SAVE_SOUND_MACHINE_CONFIGURATION", [#string:tNewSong]))
     else
-      return(1)
+      return TRUE
     end if
   else
-    return(0)
+    return FALSE
   end if
 end
 
@@ -1165,13 +1165,13 @@ on parseSongData me, tdata, tPlayTime
         if tSlot <= tSongChannel.count then
           pSongData.getAt(i).setAt(tSlot, tSample.duplicate())
         end if
-        tSlot = tSlot + tLength
+        tSlot = (tSlot + tLength)
       end repeat
     end if
-    i = 1 + i
+    i = (1 + i)
   end repeat
   me.processSongData(tPlayTime)
-  return(1)
+  return TRUE
 end
 
 on processSongData me, tPlayTime 
@@ -1182,9 +1182,9 @@ on processSongData me, tPlayTime
       if pTimeLineData.getAt(i).getAt(j) < 0 then
         pTimeLineData.getAt(i).setAt(j, void())
       end if
-      j = 1 + j
+      j = (1 + j)
     end repeat
-    i = 1 + i
+    i = (1 + i)
   end repeat
   tReady = 1
   i = 1
@@ -1199,7 +1199,7 @@ on processSongData me, tPlayTime
         tLength = tSample.getAt(#length)
         tSampleLength = me.getSampleLength(tid)
         tWasReady = 1
-        if tSampleLength = 0 then
+        if (tSampleLength = 0) then
           tSampleLength = 1
           tid = -tid
           tReady = 0
@@ -1209,19 +1209,19 @@ on processSongData me, tPlayTime
           tRepeats = (tLength / tSampleLength)
           k = 1
           repeat while k <= tRepeats
-            if me.getCanInsertSample(j + (k - 1 * tSampleLength), i, tid) then
-              tTimeLineChannel.setAt(j + (k - 1 * tSampleLength), tid)
+            if me.getCanInsertSample((j + ((k - 1) * tSampleLength)), i, tid) then
+              tTimeLineChannel.setAt((j + ((k - 1) * tSampleLength)), tid)
             end if
-            k = 1 + k
+            k = (1 + k)
           end repeat
         end if
         if tWasReady then
           tSongChannel.setAt(j, void())
         end if
       end if
-      j = 1 + j
+      j = (1 + j)
     end repeat
-    i = 1 + i
+    i = (1 + i)
   end repeat
   pTimeLineReady = tReady
   if not pTimeLineReady then
@@ -1245,7 +1245,7 @@ on processSongData me, tPlayTime
     if pSoundMachineFurniID <> 0 then
       tIsEditing = 1
     end if
-    pPlayTime = (pPlayTime + the milliSeconds - pInitialProcessTime mod (tSongLength * pTimeLineSlotLength))
+    pPlayTime = ((pPlayTime + (the milliSeconds - pInitialProcessTime)) mod (tSongLength * pTimeLineSlotLength))
     pInitialProcessTime = 0
     if not tIsEditing and pSoundMachineFurniOn then
       pSongPlaying = 0
@@ -1264,15 +1264,15 @@ on resolveSamplePosition me, tSampleID
       j = 1
       repeat while j <= tSampleList.count
         tSample = tSampleList.getAt(j)
-        if tSample.getAt(#id) = tSampleID then
+        if (tSample.getAt(#id) = tSampleID) then
           return([#sample:j, #soundset:i])
         end if
-        j = 1 + j
+        j = (1 + j)
       end repeat
     end if
-    i = 1 + i
+    i = (1 + i)
   end repeat
-  return(0)
+  return FALSE
 end
 
 on encodeTimeLineData me 
@@ -1288,30 +1288,30 @@ on encodeTimeLineData me
       repeat while j <= tSongLength
         if voidp(tChannel.getAt(j)) then
           tSample = [#id:0, #length:1]
-          j = j + 1
+          j = (j + 1)
         else
           tSampleID = tChannel.getAt(j)
           tSampleLength = me.getSampleLength(tSampleID)
           if tSampleID < 0 then
             tSampleID = -tSampleID
           end if
-          if tSampleLength = 0 then
+          if (tSampleLength = 0) then
             tSample = [#id:0, #length:1]
           else
             tSample = [#id:tSampleID, #length:tSampleLength]
           end if
-          j = j + tSample.getAt(#length)
+          j = (j + tSample.getAt(#length))
         end if
-        tChannelData.setAt(tChannelData.count + 1, tSample)
+        tChannelData.setAt((tChannelData.count + 1), tSample)
       end repeat
       j = 1
       repeat while j < tChannelData.count
-        if tChannelData.getAt(j).getAt(#id) = tChannelData.getAt(j + 1).getAt(#id) then
-          tChannelData.getAt(j).setAt(#length, tChannelData.getAt(j).getAt(#length) + tChannelData.getAt(j + 1).getAt(#length))
-          tChannelData.deleteAt(j + 1)
+        if (tChannelData.getAt(j).getAt(#id) = tChannelData.getAt((j + 1)).getAt(#id)) then
+          tChannelData.getAt(j).setAt(#length, (tChannelData.getAt(j).getAt(#length) + tChannelData.getAt((j + 1)).getAt(#length)))
+          tChannelData.deleteAt((j + 1))
           next repeat
         end if
-        j = j + 1
+        j = (j + 1)
       end repeat
       tChannelStr = ""
       repeat while tChannelData <= undefined
@@ -1322,7 +1322,7 @@ on encodeTimeLineData me
         tChannelStr = tChannelStr & tSample.getAt(#id) & "," & tSample.getAt(#length)
       end repeat
       tStr = tStr & tChannelStr & ":"
-      i = 1 + i
+      i = (1 + i)
     end repeat
   end if
   return(tStr)
@@ -1339,10 +1339,10 @@ on resolveSongLength me
         tSampleID = tChannelData.getAt(tSlot)
         tSampleLength = me.getSampleLength(tSampleID)
         if tSampleLength <> 0 and tSampleID >= 0 then
-          repeat while tChannelData.getAt(tSlot) = tSampleID
-            tSlot = tSlot + tSampleLength
-            if tSlot - 1 > tLength then
-              tLength = tSlot - 1
+          repeat while (tChannelData.getAt(tSlot) = tSampleID)
+            tSlot = (tSlot + tSampleLength)
+            if (tSlot - 1) > tLength then
+              tLength = (tSlot - 1)
             end if
             if tSlot > tChannelData.count then
             else
@@ -1350,22 +1350,22 @@ on resolveSongLength me
           end repeat
           exit repeat
         end if
-        tSlot = tSlot + 1
+        tSlot = (tSlot + 1)
         if tSampleID < 0 then
-          if tSlot - 1 > tLength then
-            tLength = tSlot - 1
+          if (tSlot - 1) > tLength then
+            tLength = (tSlot - 1)
           end if
         end if
         next repeat
       end if
       repeat while voidp(tChannelData.getAt(tSlot))
-        tSlot = tSlot + 1
+        tSlot = (tSlot + 1)
         if tSlot > tChannelData.count then
           next repeat
         end if
       end repeat
     end repeat
-    tChannel = 1 + tChannel
+    tChannel = (1 + tChannel)
   end repeat
   return(tLength)
 end

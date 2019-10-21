@@ -2,7 +2,7 @@ property pTrgLoc
 
 on construct me 
   pTrgLoc = getVariableValue("paalu.start.left", [21, 19])
-  return(1)
+  return TRUE
 end
 
 on select me 

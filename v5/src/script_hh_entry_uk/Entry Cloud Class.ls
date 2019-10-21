@@ -5,18 +5,18 @@ on define me, tSprite
   pTurnPoint = 332
   pVertDir = -1
   pSprite.flipH = 0
-  return(1)
+  return TRUE
 end
 
 on update me 
-  pSprite.locH = pSprite.locH + 1
-  if (pSprite.locH mod 2) = 0 then
-    pSprite.locV = pSprite.locV + pVertDir
+  pSprite.locH = (pSprite.locH + 1)
+  if ((pSprite.locH mod 2) = 0) then
+    pSprite.locV = (pSprite.locV + pVertDir)
   end if
   if pSprite.locH > pTurnPoint then
     me.turn()
   end if
-  if pSprite.locH > the stageRight - the stageLeft + 30 then
+  if pSprite.locH > ((the stageRight - the stageLeft) + 30) then
     me.initCloud()
   end if
 end
@@ -25,7 +25,7 @@ on initCloud me
   pVertDir = -1
   pSprite.locH = -30
   pSprite.flipH = 0
-  pSprite.locV = random(81) + 150
+  pSprite.locV = (random(81) + 150)
 end
 
 on checkCloud me 

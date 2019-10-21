@@ -8,7 +8,7 @@ on construct me
   createWriter(me.getID() && "Writer", tMetrics)
   pWriterObj = getWriter(me.getID() && "Writer")
   if not createWindow(pWndID, "habbo_system.window", 5, 315) then
-    return(0)
+    return FALSE
   end if
   tWndObj = getWindow(pWndID)
   if not tWndObj.merge("chooser.window") then
@@ -21,7 +21,7 @@ on construct me
   registerMessage(#changeRoom, me.getID(), #close)
   registerMessage(#enterRoom, me.getID(), #update)
   registerMessage(#activeObjectRemoved, me.getID(), #update)
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
@@ -35,7 +35,7 @@ on deconstruct me
   unregisterMessage(#changeRoom, me.getID())
   unregisterMessage(#enterRoom, me.getID())
   unregisterMessage(#activeObjectRemoved, me.getID())
-  return(1)
+  return TRUE
 end
 
 on showList me 
@@ -82,32 +82,32 @@ on update me
   i = 1
   repeat while i <= pObjList.count
     tObjStr = tObjStr && i & "." && pObjList.getAt(i) & "\r"
-    i = 1 + i
+    i = (1 + i)
   end repeat
   tImg = pWriterObj.render(tObjStr)
   tElem = getWindow(pWndID).getElement("list")
   tElem.feedImage(tImg)
   pListHeight = tImg.height
-  return(1)
+  return TRUE
 end
 
 on clear me 
   pObjList = [:]
   pListHeight = 0
   getWindow(pWndID).getElement("list").feedImage(image(1, 1, 8))
-  return(1)
+  return TRUE
 end
 
 on eventProcChooser me, tEvent, tSprID, tParam 
-  if tSprID = "close" then
+  if (tSprID = "close") then
     return(removeObject(me.getID()))
   else
-    if tSprID = "list" then
+    if (tSprID = "list") then
       tCount = count(pObjList)
-      if tCount = 0 then
-        return(0)
+      if (tCount = 0) then
+        return FALSE
       end if
-      tLineNum = tParam.locV / pListHeight / tCount + 1
+      tLineNum = ((tParam.locV / (pListHeight / tCount)) + 1)
       if tLineNum < 1 then
         tLineNum = 1
       end if
@@ -120,16 +120,16 @@ on eventProcChooser me, tEvent, tSprID, tParam
       tObjID = pObjList.getPropAt(tLineNum)
       tRoomInt = getThread(#room).getInterface()
       if not tRoomInt then
-        return(0)
+        return FALSE
       end if
       tRoomComponent = getThread(#room).getComponent()
       if not tRoomComponent then
-        return(0)
+        return FALSE
       end if
       tActiveObj = tRoomComponent.getActiveObject(tObjID)
       tItemObj = tRoomComponent.getItemObject(tObjID)
       if not objectp(tActiveObj) or objectp(tItemObj) then
-        return(0)
+        return FALSE
       end if
       if objectp(tItemObj) then
         ttype = "item"
@@ -141,7 +141,7 @@ on eventProcChooser me, tEvent, tSprID, tParam
       tRoomInt.pSelectedType = ttype
       tRoomInt.showObjectInfo(ttype)
       tRoomInt.hideArrowHiliter()
-      if ttype = "item" then
+      if (ttype = "item") then
         if tItemObj.select() then
           tRoomInt.showInterface(ttype)
         else

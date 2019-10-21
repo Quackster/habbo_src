@@ -1,18 +1,18 @@
 property pActive, pKill, pSync, pAnimFrame, pSwitch
 
 on prepare me, tdata 
-  if tdata.getAt("SWITCHON") = "ON" then
+  if (tdata.getAt("SWITCHON") = "ON") then
     me.setOn()
   else
     me.setOff()
   end if
   pLastDir = -1
   pSync = 1
-  return(1)
+  return TRUE
 end
 
 on updateStuffdata me, tProp, tValue 
-  if tValue = "ON" then
+  if (tValue = "ON") then
     me.setOn()
   else
     me.setOff()
@@ -27,13 +27,13 @@ on update me
     if not pKill then
       pSync = not pSync
       if pSync then
-        pAnimFrame = pAnimFrame + 1
+        pAnimFrame = (pAnimFrame + 1)
         if pAnimFrame > 3 then
           pAnimFrame = 1
         end if
-        tFlameNameA = member.name
-        if tFlameNameA.getProp(#char, tFlameNameA.length - 1, tFlameNameA.length) = "_0" then
-          tFlameNameA = tFlameNameA.getProp(#char, 1, tFlameNameA.length - 1) & "1"
+        tFlameNameA = me.getPropRef(#pSprList, 3).member.name
+        if (tFlameNameA.getProp(#char, (tFlameNameA.length - 1), tFlameNameA.length) = "_0") then
+          tFlameNameA = tFlameNameA.getProp(#char, 1, (tFlameNameA.length - 1)) & "1"
           if memberExists(tFlameNameA) then
             tmember = member(getmemnum(tFlameNameA))
             me.getPropRef(#pSprList, 3).castNum = tmember.number
@@ -41,8 +41,8 @@ on update me
             me.getPropRef(#pSprList, 3).height = tmember.height
           end if
         end if
-        tName = member.name
-        tName = tName.getProp(#char, 1, tName.length - 1) & pAnimFrame
+        tName = me.getPropRef(#pSprList, 4).member.name
+        tName = tName.getProp(#char, 1, (tName.length - 1)) & pAnimFrame
         if memberExists(tName) then
           tmember = member(getmemnum(tName))
           me.getPropRef(#pSprList, 4).castNum = tmember.number
@@ -52,10 +52,10 @@ on update me
       end if
     else
       pActive = 0
-      repeat while me.getPropRef(#pSprList, 3) <= undefined
+      repeat while [3, 4] <= undefined
         tSprNum = getAt(undefined, undefined)
-        tName = member.name
-        tName = tName.getProp(#char, 1, tName.length - 1) & "0"
+        tName = me.getPropRef(#pSprList, tSprNum).member.name
+        tName = tName.getProp(#char, 1, (tName.length - 1)) & "0"
         if memberExists(tName) then
           tmember = member(getmemnum(tName))
           me.getPropRef(#pSprList, tSprNum).castNum = tmember.number
@@ -88,5 +88,5 @@ on select me
     end if
     getThread(#room).getComponent().getRoomConnection().send("SETSTUFFDATA", me.getID() & "/" & "SWITCHON" & "/" & tStr)
   end if
-  return(1)
+  return TRUE
 end

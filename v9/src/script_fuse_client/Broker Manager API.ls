@@ -19,7 +19,7 @@ on createBroker tMessage
 end
 
 on removeBroker tMessage 
-  return(getBrokerManager().remove(tMessage))
+  return(getBrokerManager().Remove(tMessage))
 end
 
 on getBroker tMessage 

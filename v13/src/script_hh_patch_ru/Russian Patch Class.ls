@@ -45,7 +45,7 @@ on construct me
   createObject(#string_validator, "String Validator Cls")
   registerMessage(#Initialize, me.getID(), #delayedPatch)
   registerMessage(#BalloonManagerCreated, me.getID(), #patchBalloonText)
-  return(1)
+  return TRUE
 end
 
 on delayedPatch me 

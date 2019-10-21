@@ -5,12 +5,12 @@ on construct me
   pTxtRect = void()
   pFntStru = void()
   pMember = member(getResourceManager().createMember("writer_" & getUniqueID(), #text))
-  if pMember.number = 0 then
-    return(0)
+  if (pMember.number = 0) then
+    return FALSE
   else
     pMember.alignment = #left
     pMember.wordWrap = 0
-    return(1)
+    return TRUE
   end if
 end
 
@@ -19,12 +19,12 @@ on deconstruct me
     getResourceManager().removeMember(pMember.name)
     pMember = void()
   end if
-  return(1)
+  return TRUE
 end
 
 on define me, tMetrics 
   if not ilk(tMetrics, #propList) then
-    return(0)
+    return FALSE
   end if
   if stringp(tMetrics.getAt(#font)) then
     if pMember.font <> tMetrics.font then
@@ -72,7 +72,7 @@ on define me, tMetrics
     end if
   end if
   if ilk(tMetrics.getAt(#rect), #rect) then
-    if tMetrics <> rect.width then
+    if pMember.width <> tMetrics.rect.width then
       pMember.rect = tMetrics.rect
     end if
   end if
@@ -80,18 +80,18 @@ on define me, tMetrics
     pMember.fixedLineSpace = pMember.fontSize
   end if
   if integerp(tMetrics.getAt(#fixedLineSpace)) then
-    tTopSpacing = tMetrics.fixedLineSpace - pMember.fontSize
+    tTopSpacing = (tMetrics.fixedLineSpace - pMember.fontSize)
     if pMember.topSpacing <> tTopSpacing then
       pMember.topSpacing = tTopSpacing
     end if
   end if
   pTxtRect = tMetrics.getAt(#rect)
-  return(1)
+  return TRUE
 end
 
 on render me, tText, tRect 
   pMember.text = tText
-  if tRect.ilk = #rect then
+  if (tRect.ilk = #rect) then
     if pMember.width <> tRect.width then
       pMember.rect = tRect
     end if
@@ -105,15 +105,15 @@ on render me, tText, tRect
       if tText.count(#line) > 1 then
         i = 2
         repeat while i <= tText.count(#line)
-          tTotal = tTotal + length(tText.getProp(#line, i)) + 1
+          tTotal = ((tTotal + length(tText.getProp(#line, i))) + 1)
           tNext = pMember.charPosToLoc(tTotal).locH
           if tNext > tWidth then
             tWidth = tNext
           end if
-          i = 1 + i
+          i = (1 + i)
         end repeat
       end if
-      tWidth = tWidth + pMember.fontSize
+      tWidth = (tWidth + pMember.fontSize)
       pMember.rect = rect(0, 0, tWidth, pMember.height)
       pMember.alignment = tAlignment
     else
@@ -128,7 +128,7 @@ end
 on renderHTML me, tHtml, tRect 
   tFont = me.getFont()
   pMember.html = tHtml
-  if tRect.ilk = #rect then
+  if (tRect.ilk = #rect) then
     if pMember.width <> tRect.width then
       pMember.rect = tRect
     end if
@@ -137,20 +137,20 @@ on renderHTML me, tHtml, tRect
       tAlignment = pMember.alignment
       pMember.alignment = #left
       pMember.rect = pDefRect
-      tTotal = length(text.getProp(#line, 1))
+      tTotal = length(pMember.text.getProp(#line, 1))
       tWidth = pMember.charPosToLoc(tTotal).locH
-      if text.count(#line) > 1 then
+      if pMember.text.count(#line) > 1 then
         i = 2
-        repeat while pMember <= text.count(#line)
-          tTotal = pMember + length(text.getProp(#line, i)) + 1
+        repeat while i <= pMember.text.count(#line)
+          tTotal = ((tTotal + length(pMember.text.getProp(#line, i))) + 1)
           tNext = pMember.charPosToLoc(tTotal).locH
           if tNext > tWidth then
             tWidth = tNext
           end if
-          i = 1 + i
+          i = (1 + i)
         end repeat
       end if
-      tWidth = tWidth + pMember.fontSize
+      tWidth = (tWidth + pMember.fontSize)
       pMember.rect = rect(0, 0, tWidth, pMember.height)
       pMember.alignment = tAlignment
     else
@@ -182,11 +182,11 @@ on setFont me, tStruct
   if pMember.fixedLineSpace <> pMember.fontSize then
     pMember.fixedLineSpace = pMember.fontSize
   end if
-  tLineHeight = pMember.fontSize + pMember.topSpacing
+  tLineHeight = (pMember.fontSize + pMember.topSpacing)
   if tLineHeight <> tStruct.getaProp(#lineHeight) then
-    pMember.topSpacing = tStruct.getaProp(#lineHeight) - pMember.fontSize
+    pMember.topSpacing = (tStruct.getaProp(#lineHeight) - pMember.fontSize)
   end if
-  return(1)
+  return TRUE
 end
 
 on getFont me 
@@ -197,7 +197,7 @@ on getFont me
   pFntStru.setaProp(#fontStyle, pMember.fontStyle)
   pFntStru.setaProp(#fontSize, pMember.fontSize)
   pFntStru.setaProp(#color, pMember.color)
-  tLineHeight = pMember.fontSize + pMember.topSpacing
+  tLineHeight = (pMember.fontSize + pMember.topSpacing)
   pFntStru.setaProp(#lineHeight, tLineHeight)
   return(pFntStru)
 end

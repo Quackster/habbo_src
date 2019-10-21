@@ -2,7 +2,7 @@ property pLineSprite1, pLineSprite2, pLinesOrigLocV, pNoiseSprite, pMovedByUser,
 
 on prepare me, tdata 
   if me.count(#pSprList) < 9 then
-    return(0)
+    return FALSE
   end if
   pRandomEffectList = [#noise1, #lines1, #lines1]
   removeEventBroker(me.getPropRef(#pSprList, 7).spriteNum)
@@ -13,13 +13,13 @@ on prepare me, tdata
   pNoiseSprite = me.getProp(#pSprList, 9)
   pMovedByUser = 0
   me.hideAllEffects()
-  if tdata.getAt(#stuffdata) = "ON" then
+  if (tdata.getAt(#stuffdata) = "ON") then
     pActive = 1
   else
     pActive = 0
   end if
   pChanges = 1
-  return(1)
+  return TRUE
 end
 
 on prepareForMove me 
@@ -44,7 +44,7 @@ on hideAllEffects me
 end
 
 on updateStuffdata me, tValue 
-  if tValue = "OFF" then
+  if (tValue = "OFF") then
     pActive = 0
   else
     pActive = 1
@@ -54,9 +54,9 @@ end
 
 on update me 
   if pMovedByUser then
-    return(1)
+    return TRUE
   end if
-  if random(40) = 5 and pActiveEffect = #none then
+  if (random(40) = 5) and (pActiveEffect = #none) then
     me.startRandomEffect()
   end if
   if pActiveEffect <> #none then
@@ -65,7 +65,7 @@ on update me
   if not pChanges then
     return()
   end if
-  if pLinesOrigLocV = void() then
+  if (pLinesOrigLocV = void()) then
     pLinesOrigLocV = [pLineSprite1.locV, pLineSprite2.locV]
   end if
   if pActive then
@@ -80,13 +80,13 @@ end
 
 on startRandomEffect me 
   pActiveEffect = pRandomEffectList.getAt(random(pRandomEffectList.count))
-  return(1)
+  return TRUE
 end
 
 on runEffect me 
-  pEffectCounter = pEffectCounter + 1
-  if pActiveEffect = #noise1 then
-    if random(6) = 5 then
+  pEffectCounter = (pEffectCounter + 1)
+  if (pActiveEffect = #noise1) then
+    if (random(6) = 5) then
       pNoiseSprite.visible = 0
     else
       pNoiseSprite.visible = 1
@@ -95,25 +95,25 @@ on runEffect me
       me.hideAllEffects()
     end if
   else
-    if pActiveEffect = #lines1 then
-      if (pEffectCounter mod 2) = 1 then
-        return(1)
+    if (pActiveEffect = #lines1) then
+      if ((pEffectCounter mod 2) = 1) then
+        return TRUE
       end if
       pLineSprite1.visible = 1
       pLineSprite2.visible = 1
-      pLineSprite1.locV = pLineSprite1.locV + 1
-      pLineSprite2.locV = pLineSprite2.locV + 1
+      pLineSprite1.locV = (pLineSprite1.locV + 1)
+      pLineSprite2.locV = (pLineSprite2.locV + 1)
       if pEffectCounter > 90 then
         me.hideAllEffects()
       end if
     else
-      if pActiveEffect = #lines2 then
+      if (pActiveEffect = #lines2) then
         pLineSprite1.visible = 1
         pLineSprite2.visible = 1
         if pEffectCounter < 45 then
-          pLineSprite1.locV = pLineSprite1.locV + 1
+          pLineSprite1.locV = (pLineSprite1.locV + 1)
         else
-          pLineSprite1.locV = pLineSprite1.locV - 1
+          pLineSprite1.locV = (pLineSprite1.locV - 1)
         end if
         if pEffectCounter > 90 then
           me.hideAllEffects()
@@ -121,7 +121,7 @@ on runEffect me
       end if
     end if
   end if
-  return(1)
+  return TRUE
 end
 
 on setOn me 
@@ -138,14 +138,14 @@ on select me, tSprID
   if the doubleClick then
     i = 1
     repeat while i <= tBottompartList.count
-      if me.getPropRef(#pSprList, tBottompartList.getAt(i)).spriteNum = tSprNum then
-        return(0)
+      if (me.getPropRef(#pSprList, tBottompartList.getAt(i)).spriteNum = tSprNum) then
+        return FALSE
       end if
-      i = 1 + i
+      i = (1 + i)
     end repeat
     me.setOnOff()
   end if
-  return(1)
+  return TRUE
 end
 
 on setOnOff me 
@@ -154,5 +154,5 @@ on setOnOff me
   else
     me.setOn()
   end if
-  return(1)
+  return TRUE
 end

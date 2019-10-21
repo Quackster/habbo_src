@@ -5,7 +5,7 @@ on beginSprite me
   pPosterListTxt = ""
   pCurrentFirstLine = 1
   pCurrentPosterCode = void()
-  pImageSprite = spriteNum + 1
+  pImageSprite = (spriteNum + 1)
   sprite(pImageSprite).ink = 36
   updatePosterList(me)
   chooseItem(me, pPosterIndexList.getProp(#line, pCurrentFirstLine))
@@ -17,14 +17,14 @@ on updatePosterList me
   the itemDelimiter = ":"
   put("updateposterlist:" && pCurrentFirstLine)
   i = pCurrentFirstLine
-  repeat while i <= pCurrentFirstLine + 9
+  repeat while i <= (pCurrentFirstLine + 9)
     tLine = pPosterIndexList.getProp(#line, i)
-    if tLine.getProp(#item, 1) = "" then
+    if (tLine.getProp(#item, 1) = "") then
     else
       if tLine.count(#item) <= 1 then
       else
         pPosterListTxt = pPosterListTxt & i & "." && tLine.getPropRef(#item, 2).getProp(#word, 1, tLine.getPropRef(#item, 2).count(#word)) & "\r"
-        i = 1 + i
+        i = (1 + i)
       end if
     end if
   end repeat
@@ -35,7 +35,7 @@ end
 on mouseDown me 
   tMousePoint = the mouseLoc
   tLineNum = sprite(spriteNum).pointToLine(tMousePoint)
-  tdata = pPosterIndexList.getProp(#line, pCurrentFirstLine + tLineNum - 1)
+  tdata = pPosterIndexList.getProp(#line, ((pCurrentFirstLine + tLineNum) - 1))
   if tLineNum > 0 and tLineNum <= 10 then
     chooseItem(me, tdata)
   end if
@@ -43,7 +43,7 @@ on mouseDown me
 end
 
 on chooseItem me, tdata 
-  if tdata = "" then
+  if (tdata = "") then
     return(void())
   end if
   tSaveDelim = the itemDelimiter
@@ -57,19 +57,19 @@ on chooseItem me, tdata
 end
 
 on nextPosterSet me 
-  if pPosterIndexList.getProp(#line, pCurrentFirstLine + 10) = "" then
+  if (pPosterIndexList.getProp(#line, (pCurrentFirstLine + 10)) = "") then
     return(void())
   end if
-  pCurrentFirstLine = pCurrentFirstLine + 10
+  pCurrentFirstLine = (pCurrentFirstLine + 10)
   updatePosterList(me)
   chooseItem(me, pPosterIndexList.getProp(#line, pCurrentFirstLine))
 end
 
 on prevPosterSet me 
-  if pCurrentFirstLine - 10 < 1 then
+  if (pCurrentFirstLine - 10) < 1 then
     return(void())
   end if
-  pCurrentFirstLine = pCurrentFirstLine - 10
+  pCurrentFirstLine = (pCurrentFirstLine - 10)
   updatePosterList(me)
   chooseItem(me, pPosterIndexList.getProp(#line, pCurrentFirstLine))
 end

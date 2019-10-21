@@ -9,33 +9,34 @@ on construct me
 end
 
 on deconstruct me 
-  return(1)
+  return TRUE
 end
 
 on getProperty me, tPropID 
-  if tPropID = #totalSprCount then
+  if (tPropID = #totalSprCount) then
     return(pTotalSprList.count)
   else
-    if tPropID = #freeSprCount then
+    if (tPropID = #freeSprCount) then
       return(pFreeSprList.count)
     else
-      return(0)
+      return FALSE
     end if
   end if
 end
 
 on setProperty me, tPropID, tValue 
-  return(0)
+  return FALSE
 end
 
 on reserveSprite me, tClientID 
-  if pFreeSprList.count = 0 then
+  if (pFreeSprList.count = 0) then
     return(error(me, "Out of free sprite channels!", #reserveSprite))
   end if
   tSprNum = pFreeSprList.getAt(1)
   tSprite = sprite(tSprNum)
   pFreeSprList.deleteAt(1)
   puppetSprite(tSprNum, 1)
+  tSprite.stretch = 0
   tSprite.locV = -1000
   tSprite.visible = 1
   pClientList.setAt(tSprNum, tClientID)
@@ -50,15 +51,19 @@ on releaseSprite me, tSprNum
     return(error(me, "Attempting to release free sprite!", #releaseSprite))
   end if
   tSprite = sprite(tSprNum)
+  tSprite.member = member(0)
   tSprite.scriptInstanceList = []
+  tSprite.rect = rect(0, 0, 1, 1)
   tSprite.locZ = tSprNum
   tSprite.visible = 0
   tSprite.castNum = 0
   tSprite.cursor = 0
+  tSprite.blend = 100
   puppetSprite(tSprNum, 0)
+  tSprite.locZ = void()
   pFreeSprList.append(tSprNum)
   pClientList.setAt(tSprNum, 0)
-  return(1)
+  return TRUE
 end
 
 on releaseAllSprites me 
@@ -67,7 +72,7 @@ on releaseAllSprites me
     tSprNum = getAt(undefined, undefined)
     me.releaseSprite(tSprNum)
   end repeat
-  return(1)
+  return TRUE
 end
 
 on setEventBroker me, tSprNum, tid 
@@ -80,7 +85,7 @@ on setEventBroker me, tSprNum, tid
   tSprite = sprite(tSprNum)
   tSprite.scriptInstanceList = [new(pEventBroker)]
   tSprite.setID(tid)
-  return(1)
+  return TRUE
 end
 
 on removeEventBroker me, tSprNum 
@@ -91,7 +96,7 @@ on removeEventBroker me, tSprNum
     return(error(me, "Attempted to modify non reserved sprite!", #removeEventBroker))
   end if
   sprite(tSprNum).scriptInstanceList = []
-  return(1)
+  return TRUE
 end
 
 on print me, tCount 
@@ -101,19 +106,19 @@ on print me, tCount
     end if
     i = 1
     repeat while i <= tCount
-      put(sprite(i) && member.name && "--" && sprite(i).locZ && "--" && sprite(i).rect && "--" && pClientList.getAt(sprite(i).spriteNum))
-      i = 1 + i
+      put(sprite(i).spriteNum && "--" && sprite(i).member.name && "--" && sprite(i).locZ && "--" && sprite(i).rect && "--" && pClientList.getAt(sprite(i).spriteNum))
+      i = (1 + i)
     end repeat
     exit repeat
   end if
-  repeat while sprite(i).spriteNum && "--" <= undefined
+  repeat while pTotalSprList <= undefined
     tNum = getAt(undefined, tCount)
     if pFreeSprList.getPos(tNum) < 1 then
       tSymbol = "#"
     else
       tSymbol = space()
     end if
-    put(sprite(tNum) && member.name && "--" && sprite(tNum).locZ && "--" && sprite(tNum).rect && "--" && pClientList.getAt(tNum))
+    put(tSymbol & tNum && sprite(tNum).member.name && "--" && sprite(tNum).locZ && "--" && sprite(tNum).rect && "--" && pClientList.getAt(tNum))
   end repeat
 end
 
@@ -127,10 +132,9 @@ on preIndexChannels me
     pClientList.add(0)
     puppetSprite(i, 1)
     sprite(i).visible = 0
-    sprite(i).locZ = i
-    i = 1 + i
+    i = (1 + i)
   end repeat
   pFreeSprList = pTotalSprList.duplicate()
   pTotalSprList.sort()
-  return(1)
+  return TRUE
 end

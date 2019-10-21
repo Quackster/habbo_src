@@ -1,13 +1,13 @@
 on construct me 
   callAncestor(#construct, [me])
   executeMessage(#sound_machine_created, me.getID())
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
   executeMessage(#sound_machine_removed, me.getID())
   callAncestor(#deconstruct, [me])
-  return(1)
+  return TRUE
 end
 
 on select me 
@@ -20,14 +20,14 @@ on select me
   end if
   if the doubleClick and towner then
     tStateOn = 0
-    if me.pState = 2 then
+    if (me.pState = 2) then
       tStateOn = 1
     end if
     executeMessage(#sound_machine_selected, [#id:me.getID(), #furniOn:tStateOn])
   else
     return(callAncestor(#select, [me]))
   end if
-  return(1)
+  return TRUE
 end
 
 on changeState me, tStateOn 
@@ -41,7 +41,7 @@ end
 on setState me, tNewState 
   callAncestor(#setState, [me], tNewState)
   tStateOn = 0
-  if me.pState = 2 then
+  if (me.pState = 2) then
     tStateOn = 1
   end if
   executeMessage(#sound_machine_set_state, [#id:me.getID(), #furniOn:tStateOn])

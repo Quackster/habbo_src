@@ -7,11 +7,11 @@ on deconstructCastLoader
 end
 
 on getCastLoadManager  
-  tObjMngr = getObjectManager()
-  if not tObjMngr.managerExists(#castload_manager) then
+  tMgr = getObjectManager()
+  if not tMgr.managerExists(#castload_manager) then
     return(constructCastLoader())
   end if
-  return(tObjMngr.getManager(#castload_manager))
+  return(tMgr.getManager(#castload_manager))
 end
 
 on startCastLoad tCastlibs, tPermanentOrNot, tAddFlag 

@@ -2,14 +2,14 @@ property pGameSystem, m_bSyncState
 
 on construct me 
   pGameSystem = getObject(getVariable("snowwar.gamesystem.id"))
-  if pGameSystem = 0 then
+  if (pGameSystem = 0) then
     return(error(me, "Cannot locate game system!", #construct))
   end if
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
-  return(1)
+  return TRUE
 end
 
 on SetSyncState me, i_bVal 
@@ -33,7 +33,7 @@ end
 
 on OnEvent me, tEvent, tdata 
   pGameSystem.sendGameSystemEvent(symbol("snowwar_event_" & tEvent), tdata)
-  return(1)
+  return TRUE
 end
 
 on OnPrepareRoom me, a_iRoomCode 

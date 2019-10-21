@@ -33,17 +33,17 @@ on deconstruct me
   unregisterMessage(#enterRoom, me.getID())
   unregisterMessage(#create_user, me.getID())
   unregisterMessage(#remove_user, me.getID())
-  return(1)
+  return TRUE
 end
 
 on setMode me, tMode 
-  if tMode = #user then
+  if (tMode = #user) then
     pObjMode = #user
   else
-    if tMode = #Active then
+    if (tMode = #Active) then
       pObjMode = #Active
     else
-      if tMode = #item then
+      if (tMode = #item) then
         pObjMode = #item
       else
         return(error(me, "Unsupported obj type:" && tMode, #setMode))
@@ -72,31 +72,31 @@ on update me
     tName = getAt(undefined, undefined)
     tObjStr = tObjStr && tName & "\r"
   end repeat
-  tObjStr = tObjStr.getProp(#line, 1, tObjStr.count(#line) - 1)
+  tObjStr = tObjStr.getProp(#line, 1, (tObjStr.count(#line) - 1))
   tImg = pWriterObj.render(tObjStr)
   tElem = getWindow(pWndID).getElement("list")
   tElem.feedImage(tImg)
   pListHeight = tImg.height
-  return(1)
+  return TRUE
 end
 
 on clear me 
   pObjList = []
   pListHeight = 0
   getWindow(pWndID).getElement("list").feedImage(image(1, 1, 8))
-  return(1)
+  return TRUE
 end
 
 on eventProcChooser me, tEvent, tSprID, tParam 
-  if tSprID = "close" then
+  if (tSprID = "close") then
     return(removeObject(me.getID()))
   else
-    if tSprID = "list" then
+    if (tSprID = "list") then
       tCount = count(pObjList)
-      if tCount = 0 then
-        return(0)
+      if (tCount = 0) then
+        return FALSE
       end if
-      tLineNum = (tParam.locV / (pListHeight / tCount)) + 1
+      tLineNum = ((tParam.locV / (pListHeight / tCount)) + 1)
       if tLineNum < 1 then
         tLineNum = 1
       end if

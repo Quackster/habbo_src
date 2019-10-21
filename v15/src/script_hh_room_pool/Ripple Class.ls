@@ -11,13 +11,13 @@ on construct me
   pTargetPoint = point(0, 0)
   pLastPoint = point(0, 0)
   pTargetImg = void()
-  return(1)
+  return TRUE
 end
 
 on define me, tProps 
   pID = tProps.getAt(#id)
   pTargetImg = tProps.getAt(#buffer)
-  return(1)
+  return TRUE
 end
 
 on getAvailableRipple me 
@@ -34,13 +34,13 @@ end
 
 on update me 
   if pAnimFrame < pMaxFrame then
-    pTargetImg.draw(pLastPoint, pLastPoint + pPointList.getAt(pAnimFrame), pDrawProps)
-    pAnimFrame = pAnimFrame + 1
-    pTargetImg.draw(pTargetPoint, pTargetPoint + pPointList.getAt(pAnimFrame), [#shapeType:#oval, #color:pColorlist.getAt(pAnimFrame)])
+    pTargetImg.draw(pLastPoint, (pLastPoint + pPointList.getAt(pAnimFrame)), pDrawProps)
+    pAnimFrame = (pAnimFrame + 1)
+    pTargetImg.draw(pTargetPoint, (pTargetPoint + pPointList.getAt(pAnimFrame)), [#shapeType:#oval, #color:pColorlist.getAt(pAnimFrame)])
     pLastPoint = pTargetPoint
   else
-    if pAnimFrame = pMaxFrame then
-      pTargetImg.draw(pLastPoint, pLastPoint + pPointList.getAt(pAnimFrame), pDrawProps)
+    if (pAnimFrame = pMaxFrame) then
+      pTargetImg.draw(pLastPoint, (pLastPoint + pPointList.getAt(pAnimFrame)), pDrawProps)
       pAvailable = 1
     end if
   end if

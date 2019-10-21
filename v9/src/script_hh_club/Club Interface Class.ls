@@ -6,23 +6,23 @@ on construct me
   pChosenLength = 1
   registerMessage(#show_clubinfo, me.getID(), #show_clubinfo)
   registerMessage(#notify, me.getID(), #notify)
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
   unregisterMessage(#show_clubinfo, me.getID())
   unregisterMessage(#notify, me.getID())
-  return(1)
+  return TRUE
 end
 
 on notify me, ttype 
-  if ttype = 1001 then
+  if (ttype = 1001) then
     executeMessage(#alert, [#Msg:"epsnotify_1001"])
     if connectionExists(pConnectionId) then
       removeConnection(pConnectionId)
     end if
   else
-    if ttype = 552 then
+    if (ttype = 552) then
       executeMessage(#alert, [#Msg:getText("Alert_no_credits")])
     end if
   end if
@@ -32,37 +32,37 @@ on setupEndedWindow me
   tClubInfo = me.getComponent().getStatus()
   tWndObj = getWindow(pDialogId)
   if not objectp(tWndObj) then
-    return(0)
+    return FALSE
   end if
   tElapsed = tClubInfo.getAt(#ElapsedPeriods)
   tElem = tWndObj.getElement("club_elapsed_periods")
   tElem.setText(string(tElapsed))
   tWndObj.registerProcedure(#eventProcDialogMousedown, me.getID(), #mouseDown)
-  return(1)
+  return TRUE
 end
 
 on setupStatusWindow me, ttype 
   tClubInfo = me.getComponent().getStatus()
   tWndObj = getWindow(pDialogId)
   if not objectp(tWndObj) then
-    return(0)
+    return FALSE
   end if
   tDaysLeft = tClubInfo.getAt(#daysLeft)
   tElapsed = tClubInfo.getAt(#ElapsedPeriods)
   tPrepaid = tClubInfo.getAt(#PrepaidPeriods)
   tArrowElem = tWndObj.getElement("club_arrow")
   tLocH = tArrowElem.getProperty(#locH)
-  tLocH = tLocH + (31 - tDaysLeft * 5)
+  tLocH = (tLocH + ((31 - tDaysLeft) * 5))
   tArrowElem.setProperty(#locH, tLocH)
   tElem = tWndObj.getElement("club_elapsed_periods")
   tElem.setText(string(tElapsed))
-  if ttype = #FirstTimer then
+  if (ttype = #FirstTimer) then
     tElem = tWndObj.getElement("club_status_title")
     tElem.setText(getText("club_thanks_title"))
     tElem = tWndObj.getElement("club_status_text")
     tElem.setText(getText("club_thanks_text"))
   end if
-  if tClubInfo.getAt(#PrepaidPeriods) = -1 then
+  if (tClubInfo.getAt(#PrepaidPeriods) = -1) then
     tElem = tWndObj.getElement("club_button_extend")
     tElem.hide()
   else
@@ -73,13 +73,13 @@ on setupStatusWindow me, ttype
     tElem = tWndObj.getElement("club_prepaid_periods")
     tElem.setText(string(tClubInfo.getAt(#PrepaidPeriods)))
   end if
-  if tElapsed = 0 then
+  if (tElapsed = 0) then
     tElem = tWndObj.getElement("club_elapsed_periods")
     tElem.hide()
     tElem = tWndObj.getElement("club_elapsed")
     tElem.hide()
   end if
-  if tPrepaid = 0 then
+  if (tPrepaid = 0) then
     tElem = tWndObj.getElement("club_prepaid_periods")
     tElem.hide()
     tElem = tWndObj.getElement("club_prepaid")
@@ -89,19 +89,19 @@ on setupStatusWindow me, ttype
     getWindow(pDialogId).getElement("club_general_infolink").setProperty(#visible, 0)
   end if
   tWndObj.registerProcedure(#eventProcDialogMousedown, me.getID(), #mouseDown)
-  return(1)
+  return TRUE
 end
 
 on changeTextsToExtend me 
   tWndObj = getWindow(pDialogId)
   if not objectp(tWndObj) then
-    return(0)
+    return FALSE
   end if
   tHeaderText = getText("club_extend_title")
   tText = getText("club_extend_text")
   tWndObj.getElement("club_intro_header").setText(tHeaderText)
   tWndObj.getElement("club_intro_text").setText(tText)
-  return(1)
+  return TRUE
 end
 
 on setupBuyWindow me 
@@ -117,20 +117,20 @@ on replaceCreditsText me
   tText = getText("club_confirm_text" & pChosenLength)
   tText = replaceChunks(tText, "%credits%", string(tCredits))
   tWndObj.getElement("club_confirm_text").setText(tText)
-  return(1)
+  return TRUE
 end
 
 on setupWindow me, ttype 
   if windowExists(pDialogId) then
     removeWindow(pDialogId)
   end if
-  if ttype = #modal then
+  if (ttype = #modal) then
     if not createWindow(pDialogId, void(), 0, 0, #modal) then
-      return(0)
+      return FALSE
     end if
   else
     if not createWindow(pDialogId) then
-      return(0)
+      return FALSE
     end if
   end if
   tWndObj = getWindow(pDialogId)
@@ -138,7 +138,7 @@ on setupWindow me, ttype
   if not tWndObj.merge("habbo_full.window") then
     return(tWndObj.close())
   end if
-  return(1)
+  return TRUE
 end
 
 on show_clubinfo me 
@@ -147,7 +147,7 @@ on show_clubinfo me
     if not windowExists(pDialogId) then
       me.setupWindow()
       tWndObj = getWindow(pDialogId)
-      if tClubInfo.getAt(#daysLeft) = 0 and tClubInfo.getAt(#ElapsedPeriods) = 0 then
+      if (tClubInfo.getAt(#daysLeft) = 0) and (tClubInfo.getAt(#ElapsedPeriods) = 0) then
         if not getText("club_paybycash_url") starts "http" then
           tWndObj.merge("habbo_club_buy.window")
         else
@@ -155,7 +155,7 @@ on show_clubinfo me
         end if
         me.setupBuyWindow("intro")
       else
-        if tClubInfo.getAt(#daysLeft) = 0 and tClubInfo.getAt(#ElapsedPeriods) > 0 then
+        if (tClubInfo.getAt(#daysLeft) = 0) and tClubInfo.getAt(#ElapsedPeriods) > 0 then
           tWndObj.merge("habbo_club_ended.window")
           tWndObj.center()
           me.setupEndedWindow()
@@ -169,40 +169,40 @@ on show_clubinfo me
       removeWindow(pDialogId)
     end if
   end if
-  return(1)
+  return TRUE
 end
 
 on updateClubStatus me, tStatus, tResponseFlag, tOldClubStatus 
-  if tResponseFlag = 2 then
+  if (tResponseFlag = 2) then
     me.setupWindow()
     tWndObj = getWindow(pDialogId)
     if not objectp(tWndObj) then
-      return(0)
+      return FALSE
     end if
     tWndObj.merge("habbo_club_status.window")
     tWndObj.center()
-    if tOldClubStatus.getAt(#ElapsedPeriods) = 0 and tOldClubStatus.getAt(#daysLeft) = 0 then
+    if (tOldClubStatus.getAt(#ElapsedPeriods) = 0) and (tOldClubStatus.getAt(#daysLeft) = 0) then
       me.setupStatusWindow(#FirstTimer)
     else
       me.setupStatusWindow(#BeenHcBefore)
     end if
   end if
-  if tResponseFlag = 3 then
+  if (tResponseFlag = 3) then
     me.setupWindow(#modal)
     tWndObj = getWindow(pDialogId)
     tWndObj.merge("habbo_club_ended.window")
     tWndObj.center()
     me.setupEndedWindow()
   end if
-  return(1)
+  return TRUE
 end
 
 on eventProcDialogMousedown me, tEvent, tSprID, tParam 
   tClubInfo = me.getComponent().getStatus()
-  if tSprID = "club_button_extend" then
+  if (tSprID = "club_button_extend") then
     tWndObj = getWindow(pDialogId)
     if not objectp(tWndObj) then
-      return(0)
+      return FALSE
     end if
     tWndObj.unmerge()
     if getText("club_paybycash_url") starts "http" then
@@ -212,7 +212,7 @@ on eventProcDialogMousedown me, tEvent, tSprID, tParam
     end if
     me.changeTextsToExtend()
   else
-    if tSprID = "club_isp_change" then
+    if (tSprID = "club_isp_change") then
       tSession = getObject(#session)
       tURL = getText("club_change_url")
       tURL = tURL & urlEncode(tSession.get("user_name"))
@@ -222,10 +222,10 @@ on eventProcDialogMousedown me, tEvent, tSprID, tParam
       openNetPage(tURL)
     else
       if tSprID <> "club_intro_link" then
-        if tSprID = "club_general_infolink" then
+        if (tSprID = "club_general_infolink") then
           openNetPage("club_info_url")
         else
-          if tSprID = "club_isp_buy" then
+          if (tSprID = "club_isp_buy") then
             tSession = getObject(#session)
             tURL = getText("club_paybycash_url")
             tURL = tURL & urlEncode(tSession.get("user_name"))
@@ -234,49 +234,49 @@ on eventProcDialogMousedown me, tEvent, tSprID, tParam
             end if
             openNetPage(tURL, "_new")
           else
-            if tSprID = "club_button_1_period" then
+            if (tSprID = "club_button_1_period") then
               tWndObj = getWindow(pDialogId)
               if not objectp(tWndObj) then
-                return(0)
+                return FALSE
               end if
               tWndObj.unmerge()
               tWndObj.merge("habbo_club_confirm.window")
               pChosenLength = 1
               me.replaceCreditsText()
             else
-              if tSprID = "club_button_2_period" then
+              if (tSprID = "club_button_2_period") then
                 tWndObj = getWindow(pDialogId)
                 if not objectp(tWndObj) then
-                  return(0)
+                  return FALSE
                 end if
                 tWndObj.unmerge()
                 tWndObj.merge("habbo_club_confirm.window")
                 pChosenLength = 2
                 me.replaceCreditsText()
               else
-                if tSprID = "club_button_3_period" then
+                if (tSprID = "club_button_3_period") then
                   tWndObj = getWindow(pDialogId)
                   if not objectp(tWndObj) then
-                    return(0)
+                    return FALSE
                   end if
                   tWndObj.unmerge()
                   tWndObj.merge("habbo_club_confirm.window")
                   pChosenLength = 3
                   me.replaceCreditsText()
                 else
-                  if tSprID = "club_confirm_ok" then
+                  if (tSprID = "club_confirm_ok") then
                     me.getComponent().subscribe(pChosenLength)
                     removeWindow(pDialogId)
                   else
                     if tSprID <> "club_confirm_cancel" then
-                      if tSprID = "club_button_close" then
+                      if (tSprID = "club_button_close") then
                         removeWindow(me.pDialogId)
                       else
-                        if tSprID = "close" then
+                        if (tSprID = "close") then
                           removeWindow(me.pDialogId)
                         end if
                       end if
-                      return(1)
+                      return TRUE
                     end if
                   end if
                 end if

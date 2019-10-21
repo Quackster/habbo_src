@@ -1,18 +1,18 @@
 property pChanges, pActive
 
 on prepare me, tdata 
-  if tdata.getAt(#stuffdata) = "ON" then
+  if (tdata.getAt(#stuffdata) = "ON") then
     me.setOn()
     pChanges = 1
   else
     me.setOff()
     pChanges = 0
   end if
-  return(1)
+  return TRUE
 end
 
 on updateStuffdata me, tValue 
-  if tValue = "ON" then
+  if (tValue = "ON") then
     me.setOn()
   else
     me.setOff()
@@ -27,7 +27,7 @@ on update me
   if me.count(#pSprList) < 8 then
     return()
   end if
-  if me.pXFactor = 32 then
+  if (me.pXFactor = 32) then
     tClass = "s_bath"
   else
     tClass = "bath"
@@ -76,5 +76,5 @@ on select me
   else
     getThread(#room).getComponent().getRoomConnection().send("MOVE", [#short:me.pLocX, #short:me.pLocY])
   end if
-  return(1)
+  return TRUE
 end

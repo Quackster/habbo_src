@@ -10,7 +10,7 @@ on construct me
   pPlayer01.setDir(0)
   pPlayer02.setDir(4)
   pGameActive = 0
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
@@ -27,7 +27,7 @@ on deconstruct me
     removeObject("PeeloPlayer02")
   end if
   pGameActive = 0
-  return(1)
+  return TRUE
 end
 
 on prepareGame me, tPlayer01, tPlayer02 
@@ -35,19 +35,19 @@ on prepareGame me, tPlayer01, tPlayer02
   getObject(#session).set("peelo_kesken", 1)
   tPlayerObj01 = getThread(#room).getComponent().getUserObject(tPlayer01)
   tPlayerObj02 = getThread(#room).getComponent().getUserObject(tPlayer02)
-  if tPlayerObj01 = 0 or tPlayerObj02 = 0 then
+  if (tPlayerObj01 = 0) or (tPlayerObj02 = 0) then
     pGameActive = 0
-    return(0)
+    return FALSE
   end if
   pPlayer01.define([#name:tPlayer01, #dir:0])
   pPlayer02.define([#name:tPlayer02, #dir:4])
   pPlayer01.status([#bal:0, #loc:-3])
   pPlayer02.status([#bal:0, #loc:4])
   tMyIndex = getObject(#session).GET("user_index")
-  if tPlayer01 = tMyIndex then
+  if (tPlayer01 = tMyIndex) then
     tOwnPlayer = pPlayer01
   else
-    if tPlayer02 = tMyIndex then
+    if (tPlayer02 = tMyIndex) then
       tOwnPlayer = pPlayer02
     end if
   end if
@@ -71,10 +71,10 @@ on startGame me, tPlayer01, tPlayer02
     pGameActive = 1
   end if
   tMyIndex = getObject(#session).GET("user_index")
-  if tPlayer01 = tMyIndex then
+  if (tPlayer01 = tMyIndex) then
     me.getInterface().start()
   else
-    if tPlayer02 = tMyIndex then
+    if (tPlayer02 = tMyIndex) then
       me.getInterface().start()
     end if
   end if
@@ -100,21 +100,21 @@ on endGame me, tLooser
     return()
   end if
   getThread(#paalu).getInterface().stop()
-  if tLooser = 0 then
+  if (tLooser = 0) then
     pPlayer01.drop()
     if objectExists("dew_camera") then
       tUserName = getThread(#room).getComponent().getUserObject(pPlayer02.pName).getName()
       getObject("dew_camera").fuseShow_showtext(getText("paalu.winner", "VOITTAJA:") & "\r" & tUserName)
     end if
   else
-    if tLooser = 1 then
+    if (tLooser = 1) then
       pPlayer02.drop()
       if objectExists("dew_camera") then
         tUserName = getThread(#room).getComponent().getUserObject(pPlayer01.pName).getName()
         getObject("dew_camera").fuseShow_showtext(getText("paalu.winner", "VOITTAJA:") & "\r" & tUserName)
       end if
     else
-      if tLooser = #both then
+      if (tLooser = #both) then
         pPlayer01.drop()
         pPlayer02.drop()
       end if

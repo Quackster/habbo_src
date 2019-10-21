@@ -6,7 +6,7 @@ on prepare me, tdata
     pChanges = 1
     pActive = 1
     pChannelNum = integer(tdata.getAt("CHANNEL"))
-    if [1, 2, 3].getOne(pChannelNum) = 0 then
+    if ([1, 2, 3].getOne(pChannelNum) = 0) then
       pChannelNum = 1
     end if
   else
@@ -14,16 +14,16 @@ on prepare me, tdata
     pActive = 0
     pChannelNum = 1
   end if
-  return(1)
+  return TRUE
 end
 
 on updateStuffdata me, tProp, tValue 
-  if tValue = "OFF" then
+  if (tValue = "OFF") then
     pActive = 0
   else
     pActive = 1
     pChannelNum = integer(tValue)
-    if [1, 2, 3].getOne(pChannelNum) = 0 then
+    if ([1, 2, 3].getOne(pChannelNum) = 0) then
       pChannelNum = 1
     end if
   end if
@@ -37,21 +37,21 @@ on update me
   if me.count(#pSprList) < 3 then
     return()
   end if
-  pTvFrame = pTvFrame + 1
-  if pActive and pTvFrame mod 3 = 1 then
-    tName = member.name
+  pTvFrame = (pTvFrame + 1)
+  if pActive and ((pTvFrame mod 3) = 1) then
+    tName = me.getPropRef(#pSprList, 3).member.name
     tDelim = the itemDelimiter
     the itemDelimiter = "_"
-    tTmpName = tName.getProp(#item, 1, tName.count(#item) - 1) & "_"
+    tTmpName = tName.getProp(#item, 1, (tName.count(#item) - 1)) & "_"
     the itemDelimiter = tDelim
-    if me.getPropRef(#pSprList, 3) = 1 then
+    if (pChannelNum = 1) then
       tNewName = tTmpName & random(10)
     else
-      if me.getPropRef(#pSprList, 3) = 2 then
-        tNewName = tTmpName & 10 + random(5)
+      if (pChannelNum = 2) then
+        tNewName = tTmpName & (10 + random(5))
       else
-        if me.getPropRef(#pSprList, 3) = 3 then
-          tNewName = tTmpName & 15 + random(5)
+        if (pChannelNum = 3) then
+          tNewName = tTmpName & (15 + random(5))
         end if
       end if
     end if
@@ -73,7 +73,7 @@ on update me
     end if
     pChanges = 0
   end if
-  me.getPropRef(#pSprList, 3).locZ = me.getPropRef(#pSprList, 2).locZ + 2
+  me.getPropRef(#pSprList, 3).locZ = (me.getPropRef(#pSprList, 2).locZ + 2)
 end
 
 on setOn me 
@@ -95,5 +95,5 @@ on select me
       me.setOn()
     end if
   end if
-  return(1)
+  return TRUE
 end

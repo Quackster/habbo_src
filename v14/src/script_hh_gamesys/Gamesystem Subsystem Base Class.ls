@@ -1,15 +1,15 @@
 property systemid, messagesender, messageHandler, baselogic, procmanager, turnmanager, world, component, variablemanager
 
 on construct me 
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
-  return(1)
+  return TRUE
 end
 
 on defineClient me 
-  return(1)
+  return TRUE
 end
 
 on getSystemId me 

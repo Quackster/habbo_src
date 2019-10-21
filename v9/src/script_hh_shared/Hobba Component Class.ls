@@ -3,46 +3,46 @@ property pCryDataBase
 on construct me 
   pCryDataBase = [:]
   registerMessage(#sendCallForHelp, me.getID(), #send_cryForHelp)
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
   pCryDataBase = [:]
   unregisterMessage(#sendCallForHelp, me.getID())
-  return(1)
+  return TRUE
 end
 
 on receive_cryforhelp me, tMsg 
   pCryDataBase.setAt(tMsg.getAt(#cry_id), tMsg)
   me.getInterface().ShowAlert()
   me.getInterface().updateCryWnd()
-  return(1)
+  return TRUE
 end
 
 on receive_pickedCry me, tMsg 
   if voidp(pCryDataBase.getAt(tMsg.getAt(#cry_id))) then
-    return(0)
+    return FALSE
   end if
   pCryDataBase.getAt(tMsg.getAt(#cry_id)).picker = tMsg.getAt(#picker)
   me.getInterface().updateCryWnd()
-  return(1)
+  return TRUE
 end
 
 on deleteCry me, tid 
   pCryDataBase.deleteProp(tid)
   me.getInterface().updateCryWnd()
-  return(1)
+  return TRUE
 end
 
 on send_changeCfhType me, tCryID, tCategoryNum 
   if not connectionExists(getVariable("connection.info.id")) then
-    return(0)
+    return FALSE
   end if
-  if tCategoryNum = 2 then
+  if (tCategoryNum = 2) then
     tNewCategory = 1
     executeMessage(#alert, [#Msg:"hobba_sent_to_helpers"])
   else
-    if tCategoryNum = 1 then
+    if (tCategoryNum = 1) then
       tNewCategory = 2
       executeMessage(#alert, [#Msg:"hobba_sent_to_moderators"])
     else
@@ -50,33 +50,33 @@ on send_changeCfhType me, tCryID, tCategoryNum
     end if
   end if
   getConnection(getVariable("connection.info.id")).send("CHANGECALLCATEGORY", [#string:tCryID, #integer:tNewCategory])
-  return(1)
+  return TRUE
 end
 
 on send_cryPick me, tCryID, tGoHelp 
   if not connectionExists(getVariable("connection.info.id")) then
-    return(0)
+    return FALSE
   end if
   getConnection(getVariable("connection.info.id")).send("PICK_CRYFORHELP", [#string:tCryID])
   if tGoHelp then
     tdata = pCryDataBase.getAt(tCryID).duplicate()
     if voidp(tdata) then
-      return(0)
+      return FALSE
     end if
     tOk = 1
-    tOk = tdata.getAt(#picker).ilk = #string and tOk
-    tOk = tdata.getAt(#url_id).ilk = #string and tOk
-    tOk = tdata.getAt(#roomname).ilk = #string and tOk
-    tOk = tdata.getAt(#cry_id).ilk = #string and tOk
-    tOk = tdata.getAt(#type).ilk = #symbol and tOk
-    tOk = tdata.getAt(#Msg).ilk = #string and tOk
+    tOk = (tdata.getAt(#picker).ilk = #string) and tOk
+    tOk = (tdata.getAt(#url_id).ilk = #string) and tOk
+    tOk = (tdata.getAt(#roomname).ilk = #string) and tOk
+    tOk = (tdata.getAt(#cry_id).ilk = #string) and tOk
+    tOk = (tdata.getAt(#type).ilk = #symbol) and tOk
+    tOk = (tdata.getAt(#Msg).ilk = #string) and tOk
     if not tOk then
       return(error(me, "Invalid or missing data in saved help cry!", #send_cryPick))
     end if
-    if tdata.getAt(#type) = #private then
+    if (tdata.getAt(#type) = #private) then
       tdata.setAt(#casts, getVariableValue("room.cast.private"))
     else
-      if ilk(tdata.getAt(#casts)) = #string then
+      if (ilk(tdata.getAt(#casts)) = #string) then
         tCasts = tdata.getAt(#casts)
         tdata.setAt(#casts, [])
         tDelim = the itemDelimiter
@@ -84,7 +84,7 @@ on send_cryPick me, tCryID, tGoHelp
         c = 1
         repeat while c <= tCasts.count(#item)
           tdata.getAt(#casts).add(tCasts.getProp(#item, c))
-          c = 1 + c
+          c = (1 + c)
         end repeat
         the itemDelimiter = tDelim
       end if
@@ -93,17 +93,17 @@ on send_cryPick me, tCryID, tGoHelp
     executeMessage(#pickAndGoCFH, tdata.getAt(#sender))
     executeMessage(#executeRoomEntry, tdata.getAt(#id), tdata)
   end if
-  return(1)
+  return TRUE
 end
 
 on send_cryForHelp me, tMsg, ttype 
   tMsg = replaceChars(tMsg, "/", space())
   tMsg = replaceChunks(tMsg, "\r", "<br>")
   tMsg = convertSpecialChars(tMsg, 1)
-  if ttype = #habbo_helpers then
+  if (ttype = #habbo_helpers) then
     tSendType = 2
   else
-    if ttype = #emergency then
+    if (ttype = #emergency) then
       tSendType = 1
     else
       return(error(me, "Illegal type for CFH!", #send_cryForHelp))
@@ -119,23 +119,23 @@ end
 
 on send_CfhReply me, tCryID, tMsg 
   if not connectionExists(getVariable("connection.info.id")) then
-    return(0)
+    return FALSE
   end if
   tCharsCounted = 0
   i = 1
   repeat while i <= tMsg.count(#char)
-    tCharsCounted = tCharsCounted + 1
-    if tCharsCounted > 45 and tMsg.getProp(#char, i) = space() then
+    tCharsCounted = (tCharsCounted + 1)
+    if tCharsCounted > 45 and (tMsg.getProp(#char, i) = space()) then
       -- UNK_21
       ERROR.setContents()
       tCharsCounted = 0
     end if
-    i = 1 + i
+    i = (1 + i)
   end repeat
   tMsg = replaceChunks(tMsg, "\r", "<br>")
   tMsg = convertSpecialChars(tMsg, 1)
   getConnection(getVariable("connection.info.id")).send("MESSAGETOCALLER", [#string:tCryID, #string:tMsg])
-  return(1)
+  return TRUE
 end
 
 on getCryDataBase me 
@@ -144,5 +144,5 @@ end
 
 on clearCryDataBase me 
   pCryDataBase = [:]
-  return(1)
+  return TRUE
 end

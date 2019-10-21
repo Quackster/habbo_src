@@ -2,19 +2,19 @@ property pMember, pSprite, pLoc, pProps
 
 on construct me 
   pProps = [:]
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
   if not voidp(pMember) then
     removeMember(pMember.name)
   end if
-  if ilk(pSprite) = #sprite then
+  if (ilk(pSprite) = #sprite) then
     removeEventBroker(pSprite.spriteNum)
   end if
   pSprite = void()
   pMember = void()
-  return(1)
+  return TRUE
 end
 
 on defineBalloon me 
@@ -28,45 +28,45 @@ on defineBalloon me
   pSprite.registerProcedure(#eventProcUserObj, tTargetID, #mouseDown)
   pSprite.registerProcedure(#eventProcUserRollOver, tTargetID, #mouseEnter)
   pSprite.registerProcedure(#eventProcUserRollOver, tTargetID, #mouseLeave)
-  return(1)
+  return TRUE
 end
 
 on UpdateBalloonPos me, tLocV 
   if pLoc.locV < 0 then
-    return(0)
+    return FALSE
   end if
-  pLoc = pLoc + point(0, tLocV)
+  pLoc = (pLoc + point(0, tLocV))
   pSprite.loc = pLoc
 end
 
 on removeBalloon me 
   if voidp(pSprite) then
-    return(0)
+    return FALSE
   end if
   pSprite.loc = point(0, -1000)
   removeEventBroker(pSprite.spriteNum)
-  return(1)
+  return TRUE
 end
 
 on hideBalloon me 
   if voidp(pSprite) then
-    return(0)
+    return FALSE
   end if
   pSprite.visible = 0
-  return(1)
+  return TRUE
 end
 
 on showBalloon me 
   if voidp(pSprite) then
-    return(0)
+    return FALSE
   end if
   pSprite.visible = 1
-  return(1)
+  return TRUE
 end
 
 on set me, tKey, tValue 
   pProps.setAt(tKey, tValue)
-  return(1)
+  return TRUE
 end
 
 on get me, tKey 

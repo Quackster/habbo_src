@@ -94,14 +94,14 @@ on checkUserName me, tNameStr
       tFailed = getObject(#string_validator).getFailedChar()
       setText("alert_InvalidChar", replaceChunks(getText("alert_InvalidUserName"), "\\x", tFailed))
       executeMessage(#alert, [#msg:"alert_InvalidChar", #id:"nameinvalid"])
-      return(0)
+      return FALSE
     end if
   end if
   pCheckingName = tNameStr
   if connectionExists(getVariable("connection.info.id", #info)) then
     getConnection(getVariable("connection.info.id", #info)).send("APPROVENAME", [#string:tNameStr, #short:0])
   end if
-  return(1)
+  return TRUE
 end
 
 on checkIsNameAvailable me, tNameStr 
@@ -138,18 +138,18 @@ on sendNewFigureDataToServer me, tPropList
     tValue = tPropList.getAt(tProp)
     if not voidp(pRegMsgStruct.getAt(tProp)) then
       tMsg.addProp(#short, pRegMsgStruct.getAt(tProp).id)
-      if pRegMsgStruct.getAt(tProp).type = #boolean then
+      if (pRegMsgStruct.getAt(tProp).type = #boolean) then
         tValue = integer(tValue)
       end if
-      if pRegMsgStruct.getAt(tProp).type = #string and tValue.ilk <> #string then
+      if (pRegMsgStruct.getAt(tProp).type = #string) and tValue.ilk <> #string then
         tValue = string(tValue)
       end if
-      if pRegMsgStruct.getAt(tProp).type = #short and tValue.ilk <> #integer then
+      if (pRegMsgStruct.getAt(tProp).type = #short) and tValue.ilk <> #integer then
         tValue = integer(tValue)
       end if
       tMsg.addProp(pRegMsgStruct.getAt(tProp).type, tValue)
     end if
-    f = 1 + f
+    f = (1 + f)
   end repeat
   if connectionExists(getVariable("connection.info.id")) then
     return(getConnection(getVariable("connection.info.id")).send("REGISTER", tMsg))
@@ -168,7 +168,7 @@ on sendFigureUpdateToServer me, tPropList
   end if
   if not voidp(tPropList.getAt("password")) then
     if tPropList.getAt("password") <> "" then
-      if tPropList.getAt("password") = void() then
+      if (tPropList.getAt("password") = void()) then
         return(error(me, "Password was reseted, abort update!", #sendFigureUpdateToServer))
       end if
       tMsg = [:]
@@ -182,19 +182,19 @@ on sendFigureUpdateToServer me, tPropList
         if not [tValue].getPos(getObject(#session).get("user_" & tProp)) then
           if not voidp(pRegMsgStruct.getAt(tProp)) then
             tMsg.addProp(#short, pRegMsgStruct.getAt(tProp).id)
-            if pRegMsgStruct.getAt(tProp).type = #boolean then
+            if (pRegMsgStruct.getAt(tProp).type = #boolean) then
               tValue = integer(tValue)
             end if
-            if pRegMsgStruct.getAt(tProp).type = #string and tValue.ilk <> #string then
+            if (pRegMsgStruct.getAt(tProp).type = #string) and tValue.ilk <> #string then
               tValue = string(tValue)
             end if
-            if pRegMsgStruct.getAt(tProp).type = #short and tValue.ilk <> #integer then
+            if (pRegMsgStruct.getAt(tProp).type = #short) and tValue.ilk <> #integer then
               tValue = integer(tValue)
             end if
             tMsg.addProp(pRegMsgStruct.getAt(tProp).type, tValue)
           end if
         end if
-        f = 1 + f
+        f = (1 + f)
       end repeat
       if connectionExists(getVariable("connection.info.id")) then
         return(getConnection(getVariable("connection.info.id")).send("UPDATE", tMsg))
@@ -208,7 +208,7 @@ end
 on newFigureReady me 
   me.closeFigureCreator()
   me.updateState("start")
-  return(1)
+  return TRUE
 end
 
 on figureUpdateReady me 
@@ -230,10 +230,10 @@ on setAvailableSetList me, tList
   if pFigurePartListLoadedFlag and not voidp(tList) then
     me.initializeSelectablePartList(tList)
     pAvailableSetListLoadedFlag = 1
-    if pState = "openFigureCreator" then
+    if (pState = "openFigureCreator") then
       return(me.updateState("openFigureCreator"))
     else
-      if pState = "openFigureUpdate" then
+      if (pState = "openFigureUpdate") then
         return(me.updateState("openFigureUpdate"))
       end if
     end if
@@ -241,7 +241,7 @@ on setAvailableSetList me, tList
 end
 
 on getAvailableSetList me 
-  if pFigurePartListLoadedFlag = 1 and pAvailableSetListLoadedFlag = 0 then
+  if (pFigurePartListLoadedFlag = 1) and (pAvailableSetListLoadedFlag = 0) then
     if connectionExists(getVariable("connection.info.id")) then
       getConnection(getVariable("connection.info.id")).send("GETAVAILABLESETS")
     end if
@@ -329,20 +329,20 @@ on sendUpdateAccountMsg me, tPropList
     tValue = tPropList.getAt(tProp)
     if not voidp(pRegMsgStruct.getAt(tProp)) then
       tMsg.addProp(#short, pRegMsgStruct.getAt(tProp).id)
-      if pRegMsgStruct.getAt(tProp).type = #boolean then
+      if (pRegMsgStruct.getAt(tProp).type = #boolean) then
         tValue = integer(tValue)
       end if
-      if pRegMsgStruct.getAt(tProp).type = #string and tValue.ilk <> #string then
+      if (pRegMsgStruct.getAt(tProp).type = #string) and tValue.ilk <> #string then
         tValue = string(tValue)
       end if
-      if pRegMsgStruct.getAt(tProp).type = #short and tValue.ilk <> #integer then
+      if (pRegMsgStruct.getAt(tProp).type = #short) and tValue.ilk <> #integer then
         tValue = integer(tValue)
       end if
       tMsg.addProp(pRegMsgStruct.getAt(tProp).type, tValue)
     else
       return(error(me, "Data property not found from structs!" && tProp, #sendUpdateMsg))
     end if
-    f = 1 + f
+    f = (1 + f)
   end repeat
   if connectionExists(getVariable("connection.info.id")) then
     getConnection(getVariable("connection.info.id")).send("UPDATE_ACCOUNT", tMsg)
@@ -354,12 +354,12 @@ on getState me
 end
 
 on updateState me, tstate, tProps 
-  if tstate = "reset" then
+  if (tstate = "reset") then
     pState = tstate
     me.construct()
-    return(0)
+    return FALSE
   else
-    if tstate = "loadFigurePartList" then
+    if (tstate = "loadFigurePartList") then
       return()
       pState = tstate
       tURL = getVariable("external.figurepartlist.txt")
@@ -374,10 +374,10 @@ on updateState me, tstate, tProps
       tmember = queueDownload(tURL, tMem, #field, 1)
       return(registerDownloadCallback(tmember, #updateState, me.getID(), "initialize"))
     else
-      if tstate = "initialize" then
+      if (tstate = "initialize") then
         pState = tstate
         tMemName = getVariable("external.figurepartlist.txt")
-        if tMemName = 0 then
+        if (tMemName = 0) then
           tMemName = ""
         end if
         if not memberExists(tMemName) then
@@ -398,11 +398,11 @@ on updateState me, tstate, tProps
         end if
         return(me.updateState("start"))
       else
-        if tstate = "start" then
+        if (tstate = "start") then
           pState = tstate
-          return(1)
+          return TRUE
         else
-          if tstate = "openFigureCreator" then
+          if (tstate = "openFigureCreator") then
             pState = tstate
             if not objectExists("Figure_System") then
               return(error(me, "Figure system object not found", #updateState))
@@ -430,14 +430,14 @@ on updateState me, tstate, tProps
               end if
               if not getObject("Figure_System").isFigureSystemReady() then
                 me.getInterface().showLoadingWindow()
-                return(0)
+                return FALSE
               else
                 me.getInterface().openFigureCreator(tRegistrationProcessMode)
               end if
             end if
-            return(1)
+            return TRUE
           else
-            if tstate = "openFigureUpdate" then
+            if (tstate = "openFigureUpdate") then
               pState = tstate
               if not objectExists("Figure_System") then
                 return(error(me, "Figure system object not found", #updateState))
@@ -449,9 +449,9 @@ on updateState me, tstate, tProps
               tFigure = getObject("Figure_System").validateFigure(getObject(#session).get("user_figure"), getObject(#session).get("user_sex"))
               getObject(#session).set("user_figure", tFigure)
               me.getInterface().showHideFigureCreator("update")
-              return(1)
+              return TRUE
             else
-              if tstate = "openForcedUpdate" then
+              if (tstate = "openForcedUpdate") then
                 pState = tstate
                 if not objectExists("Figure_System") then
                   return(error(me, "Figure system object not found", #updateState))
@@ -464,13 +464,13 @@ on updateState me, tstate, tProps
                 getObject(#session).set("user_figure", tFigure)
                 tCoppaFlag = getObject(#session).get("conf_coppa")
                 tParentEmailFlag = getObject(#session).get("conf_parent_email_request_reregistration")
-                if tCoppaFlag = 1 and tParentEmailFlag = 0 then
+                if (tCoppaFlag = 1) and (tParentEmailFlag = 0) then
                   me.getInterface().showHideFigureCreator("coppa_forced")
                 else
-                  if tCoppaFlag = 1 and tParentEmailFlag = 1 then
+                  if (tCoppaFlag = 1) and (tParentEmailFlag = 1) then
                     me.getInterface().showHideFigureCreator("parent_email_coppa_forced")
                   else
-                    if tCoppaFlag = 0 and tParentEmailFlag = 1 then
+                    if (tCoppaFlag = 0) and (tParentEmailFlag = 1) then
                       me.getInterface().showHideFigureCreator("parent_email_forced")
                     else
                       me.getInterface().showHideFigureCreator("forced")
@@ -483,7 +483,7 @@ on updateState me, tstate, tProps
                   if stringp(tTempBirthday) then
                     tDelim = the itemDelimiter
                     the itemDelimiter = "."
-                    if tTempBirthday.count(#item) = 3 then
+                    if (tTempBirthday.count(#item) = 3) then
                       tBirthday = tTempBirthday.getProp(#item, 3) & "." & tTempBirthday.getProp(#item, 2) & "." & tTempBirthday.getProp(#item, 1)
                     end if
                     the itemDelimiter = tDelim
@@ -491,7 +491,7 @@ on updateState me, tstate, tProps
                   tHabboID = getObject(#session).get("user_name")
                   me.parentEmailNeedGuery(tBirthday, tHabboID)
                 end if
-                return(1)
+                return TRUE
               else
                 return(error(me, "Unknown state:" && tstate, #updateState))
               end if

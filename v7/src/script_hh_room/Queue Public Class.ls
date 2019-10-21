@@ -1,5 +1,5 @@
 on prepare me, tdata 
-  return(1)
+  return TRUE
 end
 
 on updateStuffdata me, tProp, tValue 

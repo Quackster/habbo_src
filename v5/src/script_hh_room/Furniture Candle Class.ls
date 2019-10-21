@@ -3,18 +3,18 @@ property pActive, pKill, pTimer, pLastFrm, pSwitch
 on prepare me, tdata 
   removeEventBroker(me.getPropRef(#pSprList, 2).spriteNum)
   removeEventBroker(me.getPropRef(#pSprList, 3).spriteNum)
-  if tdata.getAt("SWITCHON") = "ON" then
+  if (tdata.getAt("SWITCHON") = "ON") then
     me.setOn()
   else
     me.setOff()
   end if
   pLastFrm = 0
   pTimer = 1
-  return(1)
+  return TRUE
 end
 
 on updateStuffdata me, tProp, tValue 
-  if tValue = "ON" then
+  if (tValue = "ON") then
     me.setOn()
   else
     me.setOff()
@@ -31,20 +31,20 @@ on update me
       if pTimer then
         tDelim = the itemDelimiter
         the itemDelimiter = "_"
-        tName = member.name
-        tItem = tName.getProp(#item, 1, tName.count(#item) - 6)
-        tPart = tName.getProp(#item, tName.count(#item) - 5)
-        tdata = tName.getProp(#item, tName.count(#item) - 4, tName.count(#item) - 1)
+        tName = me.getPropRef(#pSprList, 1).member.name
+        tItem = tName.getProp(#item, 1, (tName.count(#item) - 6))
+        tPart = tName.getProp(#item, (tName.count(#item) - 5))
+        tdata = tName.getProp(#item, (tName.count(#item) - 4), (tName.count(#item) - 1))
         tRand = random(4)
-        if tRand = pLastFrm then
-          tRand = (tRand + 1 mod 4) + 1
+        if (tRand = pLastFrm) then
+          tRand = (((tRand + 1) mod 4) + 1)
         end if
         pLastFrm = tRand
         tNewNameA = tItem & "_" & "b" & "_" & tdata & "_" & pLastFrm
         tNewNameB = tItem & "_" & "c" & "_" & tdata & "_" & pSwitch
         the itemDelimiter = tDelim
-        me.getPropRef(#pSprList, 2).locZ = me.getPropRef(#pSprList, 1).locZ + 2
-        me.getPropRef(#pSprList, 3).locZ = me.getPropRef(#pSprList, 2).locZ + 2
+        me.getPropRef(#pSprList, 2).locZ = (me.getPropRef(#pSprList, 1).locZ + 2)
+        me.getPropRef(#pSprList, 3).locZ = (me.getPropRef(#pSprList, 2).locZ + 2)
         if memberExists(tNewNameA) then
           tmember = member(getmemnum(tNewNameA))
           me.getPropRef(#pSprList, 2).castNum = tmember.number
@@ -59,10 +59,10 @@ on update me
     else
       tDelim = the itemDelimiter
       the itemDelimiter = "_"
-      tName = member.name
-      tItem = tName.getProp(#item, 1, tName.count(#item) - 6)
-      tPart = tName.getProp(#item, tName.count(#item) - 5)
-      tdata = tName.getProp(#item, tName.count(#item) - 4, tName.count(#item) - 1)
+      tName = me.getPropRef(#pSprList, 1).member.name
+      tItem = tName.getProp(#item, 1, (tName.count(#item) - 6))
+      tPart = tName.getProp(#item, (tName.count(#item) - 5))
+      tdata = tName.getProp(#item, (tName.count(#item) - 4), (tName.count(#item) - 1))
       tNewNameA = tItem & "_" & "b" & "_" & tdata & "_" & 0
       tNewNameB = tItem & "_" & "c" & "_" & tdata & "_" & 0
       the itemDelimiter = tDelim
@@ -102,5 +102,5 @@ on select me
     end if
     getThread(#room).getComponent().getRoomConnection().send(#room, "SETSTUFFDATA /" & me.getID() & "/" & "SWITCHON" & "/" & tStr)
   end if
-  return(1)
+  return TRUE
 end

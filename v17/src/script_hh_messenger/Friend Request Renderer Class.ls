@@ -9,11 +9,11 @@ on construct me
   pCurrentPageIndex = 1
   pRequestsPerPage = 10
   pUnfinishedSelectionExists = 0
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
-  return(1)
+  return TRUE
 end
 
 on define me, tWindowName, tRequestList 
@@ -24,7 +24,7 @@ on define me, tWindowName, tRequestList
   repeat while tRequestNo <= tRequestList.count
     tRequest = tRequestList.getAt(tRequestNo)
     pRequestList.add([#name:tRequest.getAt(#name), #id:tRequest.getAt(#id), #webID:tRequest.getAt(#webID), #selected:0])
-    tRequestNo = 1 + tRequestNo
+    tRequestNo = (1 + tRequestNo)
   end repeat
   me.updateView()
 end
@@ -34,10 +34,10 @@ on unfinishedSelectionExists me
 end
 
 on showNextPage me 
-  pCurrentPageIndex = pCurrentPageIndex + 1
+  pCurrentPageIndex = (pCurrentPageIndex + 1)
   tPagesAvailable = (pRequestList.count / pRequestsPerPage)
   if (pRequestList.count mod pRequestsPerPage) > 0 then
-    tPagesAvailable = tPagesAvailable + 1
+    tPagesAvailable = (tPagesAvailable + 1)
   end if
   if pCurrentPageIndex > tPagesAvailable then
     pCurrentPageIndex = tPagesAvailable
@@ -46,7 +46,7 @@ on showNextPage me
 end
 
 on showPreviousPage me 
-  pCurrentPageIndex = pCurrentPageIndex - 1
+  pCurrentPageIndex = (pCurrentPageIndex - 1)
   if pCurrentPageIndex < 1 then
     pCurrentPageIndex = 1
   end if
@@ -90,15 +90,15 @@ on getDeselectedList me
 end
 
 on getUserIdForSelectionNo me, tSelectionNo 
-  tRequestIndex = integer((pCurrentPageIndex - 1 * pRequestsPerPage) + tSelectionNo)
+  tRequestIndex = integer((((pCurrentPageIndex - 1) * pRequestsPerPage) + tSelectionNo))
   tUserID = pRequestList.getAt(tRequestIndex).getAt(#webID)
   return(tUserID)
 end
 
 on toggleItemSelection me, tItemNumber 
-  tRequestIndex = integer((pCurrentPageIndex - 1 * pRequestsPerPage) + tItemNumber)
+  tRequestIndex = integer((((pCurrentPageIndex - 1) * pRequestsPerPage) + tItemNumber))
   if tRequestIndex > pRequestList.count then
-    return(0)
+    return FALSE
   end if
   tCurrentlySelected = pRequestList.getAt(tRequestIndex).getAt(#selected)
   if tCurrentlySelected then
@@ -121,7 +121,7 @@ on setAllRequestSelectionsTo me, tValue
   tItemNo = 1
   repeat while tItemNo <= pRequestList.count
     pRequestList.getAt(tItemNo).setAt(#selected, tValue)
-    tItemNo = 1 + tItemNo
+    tItemNo = (1 + tItemNo)
   end repeat
 end
 
@@ -138,11 +138,11 @@ on isSelectedAmountValid me, tInverted
   else
     tSelectedAmount = me.getSelectedList().count
   end if
-  tTotalCount = tFriendsAmount + tSelectedAmount
+  tTotalCount = (tFriendsAmount + tSelectedAmount)
   if tTotalCount > tLimit then
-    return(0)
+    return FALSE
   else
-    return(1)
+    return TRUE
   end if
 end
 
@@ -150,7 +150,7 @@ on getMaskedRequests me, tMask
   tList = []
   repeat while pRequestList <= undefined
     tRequest = getAt(undefined, tMask)
-    if tRequest.getAt(#selected) = tMask then
+    if (tRequest.getAt(#selected) = tMask) then
       tList.add(tRequest.getAt(#name))
     end if
   end repeat
@@ -159,7 +159,7 @@ end
 
 on updateView me, tRequestPageIndex 
   if not windowExists(pWindowID) then
-    return(0)
+    return FALSE
   end if
   tWindowObj = getWindow(pWindowID)
   if voidp(tRequestPageIndex) then
@@ -167,7 +167,7 @@ on updateView me, tRequestPageIndex
   end if
   tPagesAvailable = (pRequestList.count / pRequestsPerPage)
   if (pRequestList.count mod pRequestsPerPage) > 0 then
-    tPagesAvailable = tPagesAvailable + 1
+    tPagesAvailable = (tPagesAvailable + 1)
   end if
   if tRequestPageIndex < 1 then
     tRequestPageOffset = 1
@@ -179,16 +179,16 @@ on updateView me, tRequestPageIndex
   tScreenIndex = 1
   repeat while tScreenIndex <= pRequestsPerPage
     me.updateListItemView(tScreenIndex)
-    tScreenIndex = 1 + tScreenIndex
+    tScreenIndex = (1 + tScreenIndex)
   end repeat
   tNextElem = tWindowObj.getElement("console_fr_next")
   tPrevElem = tWindowObj.getElement("console_fr_previous")
-  if tRequestPageIndex = tPagesAvailable then
+  if (tRequestPageIndex = tPagesAvailable) then
     tNextElem.setProperty(#visible, 0)
   else
     tNextElem.setProperty(#visible, 1)
   end if
-  if tRequestPageIndex = 1 then
+  if (tRequestPageIndex = 1) then
     tPrevElem.setProperty(#visible, 0)
   else
     tPrevElem.setProperty(#visible, 1)
@@ -200,11 +200,11 @@ end
 
 on updateListItemView me, tItemNumber 
   if not windowExists(pWindowID) then
-    return(0)
+    return FALSE
   end if
   tWindowObj = getWindow(pWindowID)
-  tFirstIndexOnPage = (pCurrentPageIndex - 1 * pRequestsPerPage) + 1
-  tRequestIndex = tItemNumber + tFirstIndexOnPage - 1
+  tFirstIndexOnPage = (((pCurrentPageIndex - 1) * pRequestsPerPage) + 1)
+  tRequestIndex = ((tItemNumber + tFirstIndexOnPage) - 1)
   tCheckElemID = "fr_check_" & tItemNumber
   tCheckElem = tWindowObj.getElement(tCheckElemID)
   tNameElemID = "fr_name_" & tItemNumber

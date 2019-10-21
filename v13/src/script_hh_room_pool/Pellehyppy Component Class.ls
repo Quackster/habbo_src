@@ -3,7 +3,7 @@ property pJumpButtonsWnd, pTicketCountWnd
 on construct me 
   pJumpButtonsWnd = "pool_helpbuttons"
   pTicketCountWnd = "pool_ticketcount"
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
@@ -26,7 +26,7 @@ on deconstruct me
     removeWindow(pTicketCountWnd)
   end if
   pJumpinPelleObj = void()
-  return(1)
+  return TRUE
 end
 
 on openUimakoppi me 
@@ -81,13 +81,13 @@ on jumpingPlaceOk me
   i = 1
   repeat while i <= 9
     tWndObj.getElement("ph_ui_text_" & i).setText(tPelleKeys.getAt(i))
-    i = 1 + i
+    i = (1 + i)
   end repeat
   tUserName = getObject(#session).get("user_name")
   tFigure = getThread(#room).getComponent().getOwnUser().getPelleFigure()
   createObject(#jumpingpelle_obj, "Jumping Pelle Class", "Pelle KeyDown Class")
   getObject(#jumpingpelle_obj).Init(tUserName, tFigure, 0)
-  return(1)
+  return TRUE
 end
 
 on jumpPlayPack me, tMsg 
@@ -100,9 +100,9 @@ on jumpPlayPack me, tMsg
   tUserObj = getThread(#room).getComponent().getUserObject(tMsg.getAt(#index))
   tFigure = call(#getPelleFigure, [tUserObj])
   if not listp(tFigure) then
-    return(0)
+    return FALSE
   end if
-  if tMsg.getAt(#index) = getObject(#session).get("user_index") then
+  if (tMsg.getAt(#index) = getObject(#session).get("user_index")) then
     me.poolUpView("playback")
   end if
   getObject(#playpackpelle_obj).Init(tUserObj.getName(), tFigure, 1)

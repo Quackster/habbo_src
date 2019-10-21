@@ -19,7 +19,7 @@ on createText tid, tValue
 end
 
 on removeText tid 
-  return(getTextManager().remove(tid))
+  return(getTextManager().Remove(tid))
 end
 
 on setText tid, tValue 

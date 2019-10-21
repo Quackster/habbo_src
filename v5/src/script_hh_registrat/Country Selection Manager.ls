@@ -18,7 +18,7 @@ on construct me
           pContinentList.addProp(tLine.getProp(#item, 2), [#number:integer(tLine.getProp(#item, 1)), #type:symbol(tLine.getProp(#item, 3))])
         end if
       end if
-      i = 1 + i
+      i = (1 + i)
     end repeat
     exit repeat
   end if
@@ -41,7 +41,7 @@ on construct me
           tStruct.add([#number:tNumber, #name:tName])
         end if
       end if
-      i = 1 + i
+      i = (1 + i)
     end repeat
     exit repeat
   end if
@@ -50,7 +50,7 @@ on construct me
   i = 1
   repeat while i <= pContinentList.count
     createText("char_cont_" & i, pContinentList.getPropAt(i))
-    i = 1 + i
+    i = (1 + i)
   end repeat
   pWriterObjID = me.getID() && the milliSeconds
   tMetrics = getStructVariable("struct.font.plain")
@@ -60,7 +60,7 @@ on construct me
   tMetrics = getStructVariable("struct.font.link")
   createWriter(pWriterObjUnderLineID, tMetrics)
   pWriterObjUnderLine = getWriter(pWriterObjUnderLineID)
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
@@ -74,7 +74,7 @@ on deconstruct me
     removeWriter(pWriterObjUnderLineID)
     pWriterObjUnderLine = void()
   end if
-  return(1)
+  return TRUE
 end
 
 on getContinentData me, tContinent 
@@ -152,7 +152,7 @@ on getNthCountryNum me, tNth, tContinentKey
     tContNum = tContinent
   end if
   if tNth > pCountryList.getaProp(tContNum).count then
-    return(0)
+    return FALSE
   end if
   return(pCountryList.getaProp(tContNum).getAt(tNth).number)
 end
@@ -160,7 +160,7 @@ end
 on getNthCountryName me, tNth, tContinentKey 
   tContinent = getText(tContinentKey)
   if voidp(pContinentList.getAt(tContinent)) then
-    return(0)
+    return FALSE
   end if
   if stringp(tContinent) then
     tContNum = pContinentList.getAt(tContinent).number
@@ -168,7 +168,7 @@ on getNthCountryName me, tNth, tContinentKey
     tContNum = tContinent
   end if
   if tNth > pCountryList.getaProp(tContNum).count then
-    return(0)
+    return FALSE
   end if
   return(pCountryList.getaProp(tContNum).getAt(tNth).name)
 end
@@ -176,7 +176,7 @@ end
 on getCountryOrderNum me, tCountry, tContinentKey 
   tContinent = getText(tContinentKey)
   if voidp(pContinentList.getAt(tContinent)) then
-    return(0)
+    return FALSE
   end if
   if stringp(tContinent) then
     tContNum = pContinentList.getAt(tContinent).number
@@ -187,10 +187,10 @@ on getCountryOrderNum me, tCountry, tContinentKey
   if listp(tCountryList) then
     i = 1
     repeat while i <= tCountryList.count
-      if tCountryList.getAt(i).name = tCountry then
+      if (tCountryList.getAt(i).name = tCountry) then
         return(i)
       end if
-      i = 1 + i
+      i = (1 + i)
     end repeat
   end if
 end
@@ -198,7 +198,7 @@ end
 on getClickedLineNum me, tpoint 
   tLine = (tpoint.locV / pLineHeight)
   if (tpoint.locV mod pLineHeight) > 0 then
-    tLine = tLine + 1
+    tLine = (tLine + 1)
   end if
   if tLine < 1 then
     tLine = 1
@@ -214,21 +214,21 @@ on selectCountry me, tCountryName, tContinentKey
   tImg = pWriterObjUnderLine.render(tCountryName)
   tPos = me.getCountryOrderNum(tCountryName, tContinentKey)
   pSelection = [#number:me.getNthCountryNum(tPos, tContinentKey), #name:tCountryName, #continent:tContinent]
-  tY = (tPos * pLineHeight) - pLineHeight
-  pImgBuffer.copyPixels(tImg, rect(0, tY, tImg.width, tY + tImg.height), tImg.rect)
-  return(1)
+  tY = ((tPos * pLineHeight) - pLineHeight)
+  pImgBuffer.copyPixels(tImg, rect(0, tY, tImg.width, (tY + tImg.height)), tImg.rect)
+  return TRUE
 end
 
 on unselectCountry me, tCountryName, tContinentKey 
   tContinent = getText(tContinentKey)
   if tContinent <> pSelection.getAt(#continent) then
-    return(0)
+    return FALSE
   end if
   tImg = pWriterObj.render(tCountryName)
   tPos = me.getCountryOrderNum(tCountryName, tContinentKey)
   pSelection.setAt(#name, void())
   pSelection.setAt(#number, void())
-  tY = (tPos * pLineHeight) - pLineHeight
-  pImgBuffer.copyPixels(tImg, rect(0, tY, tImg.width, tY + tImg.height), tImg.rect)
-  return(1)
+  tY = ((tPos * pLineHeight) - pLineHeight)
+  pImgBuffer.copyPixels(tImg, rect(0, tY, tImg.width, (tY + tImg.height)), tImg.rect)
+  return TRUE
 end

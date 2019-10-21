@@ -8,7 +8,7 @@ on construct me
   registerMessage(#spectatorMode_off, me.getID(), #handleSpectatorModeOff)
   executeMessage(#SetMinigameHandler, getClassVariable("snowwar.minigamehandler.class"))
   executeMessage(#pause_messeger_update)
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
@@ -16,47 +16,47 @@ on deconstruct me
   unregisterMessage(#game_started, me.getID())
   executeMessage(#gamesystem_removefacade, getVariable("snowwar.gamesystem.id"))
   executeMessage(#resume_messeger_update)
-  return(1)
+  return TRUE
 end
 
 on prepare me 
   executeMessage(#hideInfoStand)
   tRoomInt = getObject(#room_interface)
   if tRoomInt <> 0 then
-    if getObject(pFrameworkId) = 0 then
-      return(0)
+    if (getObject(pFrameworkId) = 0) then
+      return FALSE
     end if
-    if getObject(pFrameworkId).getSpectatorModeFlag() = 0 then
+    if (getObject(pFrameworkId).getSpectatorModeFlag() = 0) then
       tRoomInt.hideRoomBar()
     end if
   end if
   getConnection(#info).send("G_OBJS")
-  return(1)
+  return TRUE
 end
 
 on handleSpectatorModeOff me 
-  if getObject(pFrameworkId) = 0 then
-    return(0)
+  if (getObject(pFrameworkId) = 0) then
+    return FALSE
   end if
   getObject(pFrameworkId).enterLounge()
-  return(1)
+  return TRUE
 end
 
 on handleUserCreated me, tName, tUserStrId 
   tRoomInt = getObject(#room_interface)
-  if tRoomInt = 0 then
-    return(0)
+  if (tRoomInt = 0) then
+    return FALSE
   end if
-  if tName = getObject(#session).get(#userName) then
+  if (tName = getObject(#session).get(#userName)) then
     tRoomInt.showArrowHiliter(tUserStrId)
   end if
-  return(1)
+  return TRUE
 end
 
 on hideArrowHiliter me 
   tRoomInt = getObject(#room_interface)
-  if tRoomInt = 0 then
-    return(0)
+  if (tRoomInt = 0) then
+    return FALSE
   end if
   return(tRoomInt.hideArrowHiliter())
 end

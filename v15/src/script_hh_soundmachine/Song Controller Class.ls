@@ -17,22 +17,22 @@ on preloadSounds me, tSampleList
   i = 1
   repeat while i <= tSampleList.count
     tItem = tSampleList.getAt(i)
-    if ilk(tItem) = #propList then
+    if (ilk(tItem) = #propList) then
       me.startSampleDownload(tItem.getAt(#sound), tItem.getAt(#parent))
     else
-      if ilk(tItem) = #string then
+      if (ilk(tItem) = #string) then
         me.startSampleDownload(tItem)
       end if
     end if
-    i = 1 + i
+    i = (1 + i)
   end repeat
 end
 
 on getSampleLoadingStatus me, tMemName 
   if memberExists(tMemName) then
-    return(1)
+    return TRUE
   end if
-  return(0)
+  return FALSE
 end
 
 on getSampleLength me, tMemName 
@@ -41,11 +41,11 @@ on getSampleLength me, tMemName
     return(tLength)
   end if
   tmember = getMember(tMemName)
-  if tmember = 0 then
-    return(0)
+  if (tmember = 0) then
+    return FALSE
   end if
   if tmember.type <> #sound then
-    return(0)
+    return FALSE
   end if
   tLength = tmember.duration
   pLengthCache.setAt(tMemName, tLength)
@@ -82,13 +82,13 @@ end
 
 on startSampleDownload me, tMemberName, tParentId 
   if memberExists(tMemberName) then
-    if pSampleList.getaProp(tMemberName) = void() then
+    if (pSampleList.getaProp(tMemberName) = void()) then
       tSample = [#status:"ready"]
       pSampleList.addProp(tMemberName, tSample)
     else
     end if
   else
-    if pSampleList.getaProp(tMemberName) = void() then
+    if (pSampleList.getaProp(tMemberName) = void()) then
       if threadExists(#dynamicdownloader) then
         getThread(#dynamicdownloader).getComponent().downloadCastDynamically(tMemberName, #sound, me.getID(), #soundDownloadCompleted, void(), void(), tParentId)
         tSample = [#status:"loading"]
@@ -98,7 +98,7 @@ on startSampleDownload me, tMemberName, tParentId
       end if
     end if
   end if
-  return(1)
+  return TRUE
 end
 
 on soundDownloadCompleted me, tName, tParam2 

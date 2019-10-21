@@ -3,12 +3,12 @@ property pItemList
 on construct me 
   pItemList = [:]
   pItemList.sort()
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
   pItemList = [:]
-  return(1)
+  return TRUE
 end
 
 on create me, tMessage 
@@ -19,7 +19,7 @@ on create me, tMessage
     return(error(me, "Broker task already exists:" && tMessage, #create))
   end if
   me.setProp(#pItemList, tMessage, [:])
-  return(1)
+  return TRUE
 end
 
 on remove me, tMessage 
@@ -29,7 +29,7 @@ on remove me, tMessage
   if voidp(me.getProp(#pItemList, tMessage)) then
     return(error(me, "Broker task not found:" && tMessage, #remove))
   end if
-  return(me.deleteProp(tMessage))
+  return(me.pItemList.deleteProp(tMessage))
 end
 
 on register me, tMessage, tClientID, tMethod 
@@ -43,7 +43,7 @@ on register me, tMessage, tClientID, tMethod
     me.setProp(#pItemList, tMessage, [:])
   end if
   me.getPropRef(#pItemList, tMessage).setAt(tClientID, tMethod)
-  return(1)
+  return TRUE
 end
 
 on unregister me, tMessage, tClientID 
@@ -52,33 +52,33 @@ on unregister me, tMessage, tClientID
   end if
   tList = me.getProp(#pItemList, tMessage)
   if voidp(tList) then
-    return(0)
+    return FALSE
   end if
   tList.deleteProp(tClientID)
-  if tList.count = 0 then
+  if (tList.count = 0) then
     me.remove(tMessage)
   end if
-  return(1)
+  return TRUE
 end
 
 on execute me, tMessage, tArgA, tArgB, tArgC 
   tList = me.getProp(#pItemList, tMessage)
   if voidp(tList) then
-    return(0)
+    return FALSE
   end if
   i = tList.count
   repeat while i >= 1
     tid = tList.getPropAt(i)
     tMethod = tList.getAt(i)
     tObject = getObjectManager().get(tid)
-    if tObject = 0 then
+    if (tObject = 0) then
       me.unregister(tMessage, tid)
     else
       call(tMethod, tObject, tArgA, tArgB, tArgC)
     end if
-    i = 255 + i
+    i = (255 + i)
   end repeat
-  return(1)
+  return TRUE
 end
 
 on exists me, tMessage 
@@ -88,13 +88,13 @@ end
 on print me, tMessage 
   i = 1
   repeat while i <= me.count(#pItemList)
-    put(me.getPropAt(i))
+    put(me.pItemList.getPropAt(i))
     j = 1
     repeat while j <= me.getPropRef(#pItemList, i).count
       put("\t" & me.getPropRef(#pItemList, i).getPropAt(j) && "->" && me.getPropRef(#pItemList, i).getAt(j))
-      j = 1 + j
+      j = (1 + j)
     end repeat
-    i = 1 + i
+    i = (1 + i)
   end repeat
-  return(1)
+  return TRUE
 end

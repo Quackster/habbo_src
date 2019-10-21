@@ -7,11 +7,11 @@ on deconstructMultiuserManager
 end
 
 on getMultiuserManager  
-  tObjMngr = getObjectManager()
-  if not tObjMngr.managerExists(#multiuser_manager) then
+  tMgr = getObjectManager()
+  if not tMgr.managerExists(#multiuser_manager) then
     return(constructMultiuserManager())
   end if
-  return(tObjMngr.getManager(#multiuser_manager))
+  return(tMgr.getManager(#multiuser_manager))
 end
 
 on createMultiuser tid, tHost, tPort 

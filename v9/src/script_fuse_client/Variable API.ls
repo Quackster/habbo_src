@@ -19,7 +19,7 @@ on createVariable tid, tValue
 end
 
 on removeVariable tid 
-  return(getVariableManager().remove(tid))
+  return(getVariableManager().Remove(tid))
 end
 
 on setVariable tid, tValue 

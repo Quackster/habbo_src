@@ -4,7 +4,7 @@ on construct me
   pNumOfPhTickets = 0
   pJumpButtonsWnd = "pool_helpbuttons"
   pTicketCountWnd = "pool_ticketcount"
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
@@ -27,7 +27,7 @@ on deconstruct me
     removeWindow(pTicketCountWnd)
   end if
   pJumpinPelleObj = void()
-  return(1)
+  return TRUE
 end
 
 on openUimakoppi me 
@@ -40,7 +40,7 @@ end
 
 on setNumOfPhTickets me, tMsg 
   pNumOfPhTickets = tMsg
-  return(1)
+  return TRUE
 end
 
 on getNumOfPhTickets me 
@@ -89,7 +89,7 @@ on jumpingPlaceOk me
   tFigure = tUserObj.getPelleFigure()
   createObject(#jumpingpelle_obj, "Jumping Pelle Class", "Pelle KeyDown Class")
   getObject(#jumpingpelle_obj).Init(tUserName, tFigure, 0)
-  return(1)
+  return TRUE
 end
 
 on jumpPlayPack me, tMsg 
@@ -101,7 +101,7 @@ on jumpPlayPack me, tMsg
   end if
   tUserObj = getThread(#room).getComponent().getUserObject(tMsg.getAt("name"))
   tFigure = tUserObj.getPelleFigure()
-  if tMsg.getAt("name") = getObject(#session).get("user_name") then
+  if (tMsg.getAt("name") = getObject(#session).get("user_name")) then
     me.poolUpView("playback")
   end if
   getObject(#playpackpelle_obj).Init(tMsg.getAt("name"), tFigure, 1)
@@ -119,7 +119,7 @@ on buyPoolTickets me, tName
   if not connectionExists(getVariable("connection.info.id")) then
     return(error(me, "Connection not found:" && getVariable("connection.info.id"), #buyPoolTickets))
   end if
-  if tName = "" then
+  if (tName = "") then
     tName = getObject(#session).get("user_name")
   end if
   if voidp(tName) then
@@ -137,7 +137,7 @@ on sendJumpPerf me, tJumpData
   tColor = string(tPHFigure.getAt("color"))
   tR = value(tColor.getPropRef(#item, 1).getProp(#char, 5, tColor.getPropRef(#item, 1).length))
   tG = value(tColor.getProp(#item, 2))
-  tB = value(tColor.getPropRef(#item, 3).getProp(#char, 1, tColor.getPropRef(#item, 3).length - 1))
+  tB = value(tColor.getPropRef(#item, 3).getProp(#char, 1, (tColor.getPropRef(#item, 3).length - 1)))
   tColor = tR & "," & tG & "," & tB
   tPHFigure = "ch=" & tPHFigure.getAt("model") & "/" & tColor
   tJump = tName & "\r" & tFigure & "\r" & tPHFigure & "\r" & tJumpData

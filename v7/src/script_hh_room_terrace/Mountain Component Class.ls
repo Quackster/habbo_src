@@ -2,7 +2,7 @@ property pTicketCount
 
 on construct me 
   pTicketCount = "?"
-  return(1)
+  return TRUE
 end
 
 on getTicketCount me 

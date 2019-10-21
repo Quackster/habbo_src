@@ -9,7 +9,7 @@ end
 on handle_furni_revisions me, tMsg 
   tConn = tMsg.connection
   if not tConn then
-    return(0)
+    return FALSE
   end if
   tTypeList = [1, 0]
   ttype = 1
@@ -20,18 +20,18 @@ on handle_furni_revisions me, tMsg
       tClass = tConn.GetStrFrom()
       tRevision = tConn.GetIntFrom()
       me.getComponent().setFurniRevision(tClass, tRevision, tTypeList.getAt(ttype))
-      tIndex = 1 + tIndex
+      tIndex = (1 + tIndex)
     end repeat
-    ttype = 1 + ttype
+    ttype = (1 + ttype)
   end repeat
   me.getComponent().setFurniRevision(void(), void(), void())
-  return(1)
+  return TRUE
 end
 
 on handle_alias_list me, tMsg 
   tConn = tMsg.connection
   if not tConn then
-    return(0)
+    return FALSE
   end if
   tCount = tConn.GetIntFrom()
   tIndex = 1
@@ -39,7 +39,7 @@ on handle_alias_list me, tMsg
     tOriginalClass = tConn.GetStrFrom()
     tAliasClass = tConn.GetStrFrom()
     me.getComponent().setAssetAlias(tOriginalClass, tAliasClass)
-    tIndex = 1 + tIndex
+    tIndex = (1 + tIndex)
   end repeat
   me.getComponent().setAssetAlias(void(), void())
   me.getComponent().tryNextDownload()
@@ -59,5 +59,5 @@ on regMsgList me, tBool
     unregisterListener(getVariable("connection.room.id"), me.getID(), tMsgs)
     unregisterCommands(getVariable("connection.room.id"), me.getID(), tCmds)
   end if
-  return(1)
+  return TRUE
 end

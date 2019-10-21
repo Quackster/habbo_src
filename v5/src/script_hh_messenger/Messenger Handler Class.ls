@@ -16,12 +16,12 @@ on handle_buddylist me, tMsg
   tDelim = the itemDelimiter
   the itemDelimiter = ","
   i = 2
-  repeat while tMsg <= message.count(#line)
-    tLine = message.getProp(#line, i)
+  repeat while i <= tMsg.message.count(#line)
+    tLine = tMsg.message.getProp(#line, i)
     if length(tLine) > 4 then
       the itemDelimiter = "/"
       tSupp = tLine.getProp(#item, tLine.count(#item))
-      tLine = tLine.getProp(#item, 1, tLine.count(#item) - 1)
+      tLine = tLine.getProp(#item, 1, (tLine.count(#item) - 1))
       tProps = [:]
       tProps.setAt(#id, tLine.getProp(#word, 1))
       tProps.setAt(#name, tLine.getProp(#word, 2))
@@ -36,47 +36,47 @@ on handle_buddylist me, tMsg
         tProps.setAt(#sex, "M")
       end if
       the itemDelimiter = "\t"
-      tUnit = message.getPropRef(#line, i + 1).getProp(#item, 1)
-      if tUnit = "ENTERPRISESERVER" then
+      tUnit = tMsg.message.getPropRef(#line, (i + 1)).getProp(#item, 1)
+      if (tUnit = "ENTERPRISESERVER") then
         tProps.setAt(#unit, "Messenger")
       else
         tProps.setAt(#unit, tUnit)
       end if
-      #last_access_time.setAt(tMsg, message.getPropRef(#line, i + 1).getProp(#item, 2))
+      tProps.setAt(#last_access_time, tMsg.message.getPropRef(#line, (i + 1)).getProp(#item, 2))
       the itemDelimiter = ","
       if length(tUnit) > 2 then
-        tMessage.add(tLine.getProp(#word, 2))
+        tMessage.online.add(tLine.getProp(#word, 2))
         tProps.setAt(#online, 1)
       else
-        tMessage.add(tLine.getProp(#word, 2))
+        tMessage.offline.add(tLine.getProp(#word, 2))
         tProps.setAt(#online, 0)
       end if
       tBuddies.setAt(tProps.name, tProps)
     end if
-    i = i + 2
+    i = (i + 2)
   end repeat
   sort(tMessage.online)
   sort(tMessage.offline)
-  repeat while i <= undefined
+  repeat while tMessage.online <= undefined
     tName = getAt(undefined, tMsg)
     tBuddy = tBuddies.getaProp(tName)
-    buddies.setaProp(tBuddy.getAt(#id), tBuddy)
-    render.add(tName)
+    tMessage.buddies.setaProp(tBuddy.getAt(#id), tBuddy)
+    tMessage.render.add(tName)
   end repeat
-  repeat while i <= undefined
+  repeat while tMessage.online <= undefined
     tName = getAt(undefined, tMsg)
     tBuddy = tBuddies.getaProp(tName)
-    buddies.setaProp(tBuddy.getAt(#id), tBuddy)
-    render.add(tName)
+    tMessage.buddies.setaProp(tBuddy.getAt(#id), tBuddy)
+    tMessage.render.add(tName)
   end repeat
   the itemDelimiter = tDelim
   tMsg.setaProp(#content, tMessage)
-  if i = "BLU" then
+  if (tMessage.online = "BLU") then
     if tMessage.count(#buddies) > 0 then
       me.getComponent().receive_BuddyList(#update, tMessage)
     end if
   else
-    if i = "A_BD" then
+    if (tMessage.online = "A_BD") then
       me.getComponent().receive_AppendBuddy(tMessage)
     else
       me.getComponent().receive_BuddyList(#new, tMessage)
@@ -90,20 +90,20 @@ end
 
 on handle_messenger_msg me, tMsg 
   tProps = [:]
-  #id.setAt(tMsg, message.getProp(#line, 2))
-  #senderID.setAt(tMsg, message.getProp(#line, 3))
-  #recipients.setAt(tMsg, message.getProp(#line, 4))
-  #time.setAt(tMsg, message.getProp(#line, 5))
-  tMsg.setAt(message, #line.getProp(6, tMsg, message.count(#line) - 2))
-  tMsg.setAt(message, #line.getProp(tMsg, message.count(#line) - 1))
+  tProps.setAt(#id, tMsg.message.getProp(#line, 2))
+  tProps.setAt(#senderID, tMsg.message.getProp(#line, 3))
+  tProps.setAt(#recipients, tMsg.message.getProp(#line, 4))
+  tProps.setAt(#time, tMsg.message.getProp(#line, 5))
+  tProps.setAt(#message, tMsg.message.getProp(#line, 6, (tMsg.message.count(#line) - 2)))
+  tProps.setAt(#FigureData, tMsg.message.getProp(#line, (tMsg.message.count(#line) - 1)))
   me.getComponent().receive_Message(tProps)
 end
 
 on handle_nosuchuser me, tMsg 
-  if tMsg.getProp(#word, 1) = "REGNAME" then
+  if (tMsg.content.getProp(#word, 1) = "REGNAME") then
   else
-    if tMsg.getProp(#word, 1) = "MESSENGER" then
-      me.getComponent().receive_UserNotFound(["name":tMsg.getProp(#word, 2)])
+    if (tMsg.content.getProp(#word, 1) = "MESSENGER") then
+      me.getComponent().receive_UserNotFound(["name":tMsg.content.getProp(#word, 2)])
     end if
   end if
 end
@@ -114,7 +114,7 @@ end
 
 on handle_buddyaddrequests me, tMsg 
   tProps = [:]
-  tStr = #line.getProp(2, tMsg, message.count(#line))
+  tStr = tMsg.message.getProp(#line, 2, tMsg.message.count(#line))
   tDelim = the itemDelimiter
   the itemDelimiter = "/"
   tProps.setAt(#name, tStr.getPropRef(#word, 1).getProp(#item, 2))
@@ -131,8 +131,8 @@ on handle_userprofile me, tMsg
   tDelim = the itemDelimiter
   the itemDelimiter = "\t"
   i = 2
-  repeat while tMsg <= message.count(#line)
-    tLine = message.getProp(#line, i)
+  repeat while i <= tMsg.message.count(#line)
+    tLine = tMsg.message.getProp(#line, i)
     if tLine.count(#item) > 3 then
       tDataID = integer(tLine.getProp(#item, 1))
       tGroupID = integer(tLine.getProp(#item, 2))
@@ -141,13 +141,13 @@ on handle_userprofile me, tMsg
       if voidp(tProfile.getaProp(tGroupID)) then
         tProfile.setaProp(tGroupID, [#name:"", #open:0, #id:tGroupID, #group:tGroupID, #data:[:]])
       end if
-      if tGroupID = tDataID then
+      if (tGroupID = tDataID) then
         tProfile.getaProp(tGroupID).name = tText
       else
-        data.setaProp(tDataID, [#name:tText, #value:tValue, #id:tDataID, #group:tGroupID])
+        tProfile.getaProp(tGroupID).data.setaProp(tDataID, [#name:tText, #value:tValue, #id:tDataID, #group:tGroupID])
       end if
     end if
-    i = 1 + i
+    i = (1 + i)
   end repeat
   the itemDelimiter = tDelim
   me.getComponent().receive_UserProfile(tProfile)
@@ -155,10 +155,10 @@ end
 
 on handle_campaign_msg me, tMsg 
   tdata = [:]
-  tdata.setAt(#id, tMsg.getProp(#line, 1))
-  tdata.setAt(#url, tMsg.getProp(#line, 2))
-  tdata.setAt(#link, tMsg.getProp(#line, 3))
-  tdata.setAt(#message, tMsg.getProp(#line, 4, tMsg.count(#line)))
+  tdata.setAt(#id, tMsg.content.getProp(#line, 1))
+  tdata.setAt(#url, tMsg.content.getProp(#line, 2))
+  tdata.setAt(#link, tMsg.content.getProp(#line, 3))
+  tdata.setAt(#message, tMsg.content.getProp(#line, 4, tMsg.content.count(#line)))
   tdata.setAt(#senderID, "Campaign Msg")
   tdata.setAt(#recipiens, "[]")
   tdata.setAt(#time, "---")

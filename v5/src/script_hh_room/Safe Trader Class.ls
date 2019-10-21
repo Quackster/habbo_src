@@ -10,7 +10,7 @@ on construct me
   pMyStripItems = []
   pMaxTradeItms = 0
   pItemSlotRect = rect(0, 0, 32, 32)
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
@@ -20,7 +20,7 @@ end
 on open me, tdata 
   getThread(#room).getInterface().pClickAction = "tradeItem"
   if windowExists(pTraderWndID) then
-    return(0)
+    return FALSE
   end if
   if tdata.count > 1 then
     if tdata.getPropAt(1) <> getObject(#session).get("user_name") then
@@ -31,11 +31,11 @@ on open me, tdata
   else
     pTraderPal = tdata.getPropAt(1)
   end if
-  if voidp(pTraderPal) or pTraderPal = "" then
+  if voidp(pTraderPal) or (pTraderPal = "") then
     pTraderPal = "He/she"
   end if
   if not createWindow(pTraderWndID, "habbo_basic.window") then
-    return(0)
+    return FALSE
   end if
   tWndObj = getWindow(pTraderWndID)
   tWndObj.merge("habbo_trading.window")
@@ -45,23 +45,23 @@ on open me, tdata
   tWndObj.getElement("trading_agrees_text").setText(pTraderPal && getText("trading_agrees", "agrees"))
   pMaxTradeItms = 0
   repeat while 1
-    if not getWindow(pTraderWndID).elementExists("trading_mystuff_" & pMaxTradeItms + 1) then
+    if not getWindow(pTraderWndID).elementExists("trading_mystuff_" & (pMaxTradeItms + 1)) then
     else
-      pMaxTradeItms = pMaxTradeItms + 1
+      pMaxTradeItms = (pMaxTradeItms + 1)
     end if
   end repeat
   i = 1
   repeat while i <= pMaxTradeItms
     tWndObj.getElement("trading_mystuff_" & i).draw(rgb(200, 200, 200))
     tWndObj.getElement("trading_herstuff_" & i).draw(rgb(200, 200, 200))
-    i = 1 + i
+    i = (1 + i)
   end repeat
   tWidth = tWndObj.getElement("trading_mystuff_1").getProperty(#width)
   tHeight = tWndObj.getElement("trading_mystuff_1").getProperty(#height)
   pItemSlotRect = rect(0, 0, tWidth, tHeight)
   pState = #open
   me.accept()
-  return(1)
+  return TRUE
 end
 
 on close me, tdata 
@@ -76,18 +76,18 @@ on close me, tdata
     removeWindow(pTraderWndID)
   end if
   pState = #closed
-  return(1)
+  return TRUE
 end
 
 on accept me, tuser, tValue 
-  if pState = #closed then
-    return(0)
+  if (pState = #closed) then
+    return FALSE
   end if
   if not voidp(tuser) and not voidp(tValue) then
-    if tuser = pTraderPal then
+    if (tuser = pTraderPal) then
       pAcceptFlagHe = tValue
     else
-      if tuser = getObject(#session).get("user_name") then
+      if (tuser = getObject(#session).get("user_name")) then
         pAcceptFlagMe = tValue
         me.blendLockedSlots(tValue)
       end if
@@ -124,9 +124,9 @@ on refresh me, tdata
     tWndObj.getElement("trading_mystuff_" & i).feedImage(tImage)
     tWndObj.getElement("trading_mystuff_" & i).draw(rgb(64, 64, 64))
     pMyStripItems.add(pItemListMe.getAt(i).getAt(#stripId))
-    if i = pMaxTradeItms then
+    if (i = pMaxTradeItms) then
     else
-      i = 1 + i
+      i = (1 + i)
     end if
   end repeat
   pItemListHe = tdata.getAt(pTraderPal).getAt(#items)
@@ -135,9 +135,9 @@ on refresh me, tdata
     tImage = me.createItemImg(pItemListHe.getAt(i))
     tWndObj.getElement("trading_herstuff_" & i).feedImage(tImage)
     tWndObj.getElement("trading_herstuff_" & i).draw(rgb(64, 64, 64))
-    if i = pMaxTradeItms then
+    if (i = pMaxTradeItms) then
     else
-      i = 1 + i
+      i = (1 + i)
     end if
   end repeat
   me.accept(tdata.getPropAt(1), value(tdata.getAt(1).getAt(#accept)))
@@ -161,7 +161,7 @@ on createItemImg me, tProps
     tImgProps.setAt(#ink, 41)
   end if
   if tClass contains "*" then
-    tClass = tClass.getProp(#char, 1, offset("*", tClass) - 1)
+    tClass = tClass.getProp(#char, 1, (offset("*", tClass) - 1))
   end if
   if memberExists(tClass & "_small") then
     tMemStr = tClass & "_small"
@@ -205,21 +205,21 @@ end
 on cropToFit me, tImage 
   tOffset = rect(0, 0, 0, 0)
   if tImage.width < pItemSlotRect.width then
-    tOffset.setAt(1, integer((pItemSlotRect.width - tImage.width / 2)))
+    tOffset.setAt(1, integer(((pItemSlotRect.width - tImage.width) / 2)))
     tOffset.setAt(3, tOffset.getAt(1))
   end if
   if tImage.height < pItemSlotRect.height then
-    tOffset.setAt(2, integer((pItemSlotRect.height - tImage.height / 2)))
+    tOffset.setAt(2, integer(((pItemSlotRect.height - tImage.height) / 2)))
     tOffset.setAt(4, tOffset.getAt(2))
   end if
   tNewImg = image(pItemSlotRect.width, pItemSlotRect.height, 32)
-  tNewImg.copyPixels(tImage, tImage.rect + tOffset, tImage.rect)
+  tNewImg.copyPixels(tImage, (tImage.rect + tOffset), tImage.rect)
   return(tNewImg)
 end
 
 on showInfo me, tText 
-  if pState = #closed then
-    return(0)
+  if (pState = #closed) then
+    return FALSE
   end if
   if voidp(tText) then
     tText = getText("trading_additems")
@@ -228,16 +228,16 @@ on showInfo me, tText
 end
 
 on blendLockedSlots me, tBoolean 
-  if pState = #closed then
-    return(0)
+  if (pState = #closed) then
+    return FALSE
   end if
   if tBoolean then
     i = 1
     repeat while i <= pItemListMe.count
       getWindow(pTraderWndID).getElement("trading_mystuff_" & i).setProperty(#blend, 60)
-      if i = pMaxTradeItms then
+      if (i = pMaxTradeItms) then
       else
-        i = 1 + i
+        i = (1 + i)
       end if
     end repeat
     exit repeat
@@ -245,19 +245,19 @@ on blendLockedSlots me, tBoolean
   i = 1
   repeat while i <= pItemListMe.count
     getWindow(pTraderWndID).getElement("trading_mystuff_" & i).setProperty(#blend, 100)
-    if i = pMaxTradeItms then
+    if (i = pMaxTradeItms) then
     else
-      i = 1 + i
+      i = (1 + i)
     end if
   end repeat
 end
 
 on eventProcTrading me, tEvent, tSprID, tParam 
-  if pState = #closed then
-    return(0)
+  if (pState = #closed) then
+    return FALSE
   end if
-  if tEvent = #mouseUp then
-    if tEvent = "trading_confirm_check" then
+  if (tEvent = #mouseUp) then
+    if (tEvent = "trading_confirm_check") then
       if pAcceptFlagMe then
         pAcceptFlagMe = 0
         return(getThread(#room).getComponent().getRoomConnection().send(#room, "TRADE_UNACCEPT" & space()))
@@ -267,7 +267,7 @@ on eventProcTrading me, tEvent, tSprID, tParam
       end if
     else
       if tEvent <> "close" then
-        if tEvent = "trading_cancel" then
+        if (tEvent = "trading_cancel") then
           getThread(#room).getComponent().getRoomConnection().send(#room, "TRADE_CLOSE" & space())
           return(me.close())
         end if
@@ -285,16 +285,16 @@ on eventProcTrading me, tEvent, tSprID, tParam
             end if
           end if
         end if
-        if tEvent = #mouseEnter then
+        if (tEvent = #mouseEnter) then
           tObjMover = getThread(#room).getInterface().getObjectMover()
           if tObjMover <> 0 then
             tObjMover.moveTrade()
           end if
-          if tEvent = "trading_confirm_check" then
+          if (tEvent = "trading_confirm_check") then
             return(me.showInfo(getText("trading_youagree")))
           else
             if tEvent <> "close" then
-              if tEvent = "trading_cancel" then
+              if (tEvent = "trading_cancel") then
                 return(me.showInfo(getText("trading_cancel")))
               end if
               if tSprID contains "trading_mystuff" and not pAcceptFlagMe then
@@ -310,12 +310,12 @@ on eventProcTrading me, tEvent, tSprID, tParam
                   end if
                 end if
               end if
-              if tEvent = #mouseLeave then
-                if tEvent = "trading_confirm_check" then
+              if (tEvent = #mouseLeave) then
+                if (tEvent = "trading_confirm_check") then
                   return(me.showInfo(void()))
                 else
                   if tEvent <> "close" then
-                    if tEvent = "trading_cancel" then
+                    if (tEvent = "trading_cancel") then
                       return(me.showInfo(void()))
                     end if
                     if tSprID contains "trading_mystuff" and not pAcceptFlagMe then

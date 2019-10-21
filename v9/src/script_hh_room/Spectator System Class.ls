@@ -5,13 +5,13 @@ on construct me
   pVisualizerId = "passive_tv_screen"
   registerMessage(#leaveRoom, me.getID(), #hideSpectatorView)
   registerMessage(#changeRoom, me.getID(), #hideSpectatorView)
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
   unregisterMessage(#leaveRoom, me.getID())
   unregisterMessage(#changeRoom, me.getID())
-  return(1)
+  return TRUE
 end
 
 on getSpectatorMode me 
@@ -19,28 +19,28 @@ on getSpectatorMode me
 end
 
 on setSpectatorMode me, tstate, tSpaceType 
-  if tstate = 1 then
+  if (tstate = 1) then
     pSpectatorMode = 1
     me.showSpectatorView()
     executeMessage(#spectatorMode_on)
   else
     pSpectatorMode = 0
-    if tSpaceType = #public then
+    if (tSpaceType = #public) then
       if getConnection(#info) <> 0 then
         getConnection(#info).send("QUIT")
       end if
       executeMessage(#leaveRoom)
       executeMessage(#spectatorMode_off)
     else
-      if tSpaceType = #private then
+      if (tSpaceType = #private) then
       else
-        if tSpaceType = #game then
+        if (tSpaceType = #game) then
           executeMessage(#spectatorMode_off)
         end if
       end if
     end if
   end if
-  return(1)
+  return TRUE
 end
 
 on showSpectatorView me 
@@ -56,16 +56,16 @@ on showSpectatorView me
     end if
   end if
   if visualizerExists(pVisualizerId) then
-    return(1)
+    return TRUE
   end if
   createVisualizer(pVisualizerId, "habbo_tv.visual")
   tVisObj = getVisualizer(pVisualizerId)
   tRoomVis = tRoomInt.getRoomVisualizer()
-  if tRoomVis = 0 then
-    return(0)
+  if (tRoomVis = 0) then
+    return FALSE
   end if
-  tVisObj.moveZ(tRoomVis.getProperty(#locZ) + 1)
-  return(1)
+  tVisObj.moveZ((tRoomVis.getProperty(#locZ) + 1))
+  return TRUE
 end
 
 on hideSpectatorView me 
@@ -73,5 +73,5 @@ on hideSpectatorView me
   if visualizerExists(pVisualizerId) then
     removeVisualizer(pVisualizerId)
   end if
-  return(1)
+  return TRUE
 end

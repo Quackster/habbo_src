@@ -7,11 +7,11 @@ on deconstructDownloadManager
 end
 
 on getDownloadManager  
-  tObjMngr = getObjectManager()
-  if not tObjMngr.managerExists(#download_manager) then
+  tMgr = getObjectManager()
+  if not tMgr.managerExists(#download_manager) then
     return(constructDownloadManager())
   end if
-  return(tObjMngr.getManager(#download_manager))
+  return(tMgr.getManager(#download_manager))
 end
 
 on queueDownload tURL, tMemName, tFileType, tForceFlag 

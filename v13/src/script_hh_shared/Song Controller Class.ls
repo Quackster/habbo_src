@@ -18,23 +18,23 @@ on preloadSounds me, tSampleList
   i = 1
   repeat while i <= tSampleList.count
     me.startSampleDownload(tSampleList.getAt(i))
-    i = 1 + i
+    i = (1 + i)
   end repeat
 end
 
 on getSampleLoadingStatus me, tMemName 
   if memberExists(tMemName) then
-    return(1)
+    return TRUE
   end if
-  return(0)
+  return FALSE
 end
 
 on getSampleLength me, tMemName 
-  if getMember(tMemName) = void() then
-    return(0)
+  if (getMember(tMemName) = void()) then
+    return FALSE
   end if
   if getMember(tMemName).type <> #sound then
-    return(0)
+    return FALSE
   end if
   tLength = getMember(tMemName).duration
   return(tLength)
@@ -58,13 +58,13 @@ end
 
 on startSampleDownload me, tMemberName 
   if memberExists(tMemberName) then
-    if pSampleList.getaProp(tMemberName) = void() then
+    if (pSampleList.getaProp(tMemberName) = void()) then
       tSample = [#status:"ready"]
       pSampleList.addProp(tMemberName, tSample)
     else
     end if
   else
-    if pSampleList.getaProp(tMemberName) = void() then
+    if (pSampleList.getaProp(tMemberName) = void()) then
       if threadExists(#dynamicdownloader) then
         getThread(#dynamicdownloader).getComponent().downloadCastDynamically(tMemberName, #sound, me.getID(), #soundDownloadCompleted)
         tSample = [#status:"loading"]
@@ -74,7 +74,7 @@ on startSampleDownload me, tMemberName
       end if
     end if
   end if
-  return(1)
+  return TRUE
 end
 
 on soundDownloadCompleted me, tName, tParam2 

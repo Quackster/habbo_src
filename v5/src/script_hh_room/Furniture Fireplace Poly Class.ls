@@ -3,16 +3,16 @@ property pTiming, pChanges, pActive
 on prepare me, tdata 
   pChanges = 1
   pTiming = 1
-  if tdata.getAt("FIREON") = "ON" then
+  if (tdata.getAt("FIREON") = "ON") then
     setOn(me)
   else
     setOff(me)
   end if
-  return(1)
+  return TRUE
 end
 
 on updateStuffdata me, tProp, tValue 
-  if tValue = "ON" then
+  if (tValue = "ON") then
     me.setOn()
   else
     me.setOff()
@@ -59,5 +59,5 @@ on select me
     end if
     getThread(#room).getComponent().getRoomConnection().send(#room, "SETSTUFFDATA /" & me.getID() & "/" & "FIREON" & "/" & tStr)
   end if
-  return(1)
+  return TRUE
 end

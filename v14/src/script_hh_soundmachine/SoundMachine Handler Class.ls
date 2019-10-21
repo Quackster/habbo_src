@@ -8,17 +8,17 @@ end
 
 on handle_sound_data me, tMsg 
   tdata = []
-  tStr = tMsg.GetStrFrom()
-  tPlayTime = tMsg.GetIntFrom()
+  tStr = tMsg.connection.GetStrFrom()
+  tPlayTime = tMsg.connection.GetIntFrom()
   tDelim = the itemDelimiter
   the itemDelimiter = ":"
   i = 1
   repeat while i <= (tStr.count(#item) / 2)
-    tChannelNumber = tStr.getProp(#item, 1 + (i - 1 * 2))
-    tChannelData = tStr.getProp(#item, 2 + (i - 1 * 2))
-    if ilk(value(tChannelNumber)) = #integer then
+    tChannelNumber = tStr.getProp(#item, (1 + ((i - 1) * 2)))
+    tChannelData = tStr.getProp(#item, (2 + ((i - 1) * 2)))
+    if (ilk(value(tChannelNumber)) = #integer) then
       tChannelNumber = value(tChannelNumber)
-      if tChannelNumber = tdata.count + 1 then
+      if (tChannelNumber = (tdata.count + 1)) then
         tdata.setAt(tChannelNumber, [])
         the itemDelimiter = ";"
         j = 1
@@ -28,15 +28,15 @@ on handle_sound_data me, tMsg
           if tSample.count(#item) >= 2 then
             tid = value(tSample.getProp(#item, 1))
             tCount = value(tSample.getProp(#item, 2))
-            tdata.getAt(tChannelNumber).setAt(tdata.getAt(tChannelNumber).count + 1, [#id:tid, #length:tCount])
+            tdata.getAt(tChannelNumber).setAt((tdata.getAt(tChannelNumber).count + 1), [#id:tid, #length:tCount])
           end if
           the itemDelimiter = ";"
-          j = 1 + j
+          j = (1 + j)
         end repeat
       end if
     end if
     the itemDelimiter = ":"
-    i = 1 + i
+    i = (1 + i)
   end repeat
   the itemDelimiter = tDelim
   me.getComponent().parseSongData(tdata, tPlayTime)
@@ -44,41 +44,41 @@ end
 
 on handle_machine_sound_packages me, tMsg 
   if voidp(tMsg.connection) then
-    return(0)
+    return FALSE
   end if
-  tSlotCount = tMsg.GetIntFrom()
-  tFilledSlots = tMsg.GetIntFrom()
+  tSlotCount = tMsg.connection.GetIntFrom()
+  tFilledSlots = tMsg.connection.GetIntFrom()
   me.getComponent().clearSoundSets()
   i = 1
   repeat while i <= tFilledSlots
-    tSlotIndex = tMsg.GetIntFrom()
-    tid = tMsg.GetIntFrom()
+    tSlotIndex = tMsg.connection.GetIntFrom()
+    tid = tMsg.connection.GetIntFrom()
     tSampleList = []
-    tSampleCount = tMsg.GetIntFrom()
+    tSampleCount = tMsg.connection.GetIntFrom()
     j = 1
     repeat while j <= tSampleCount
-      tSampleID = tMsg.GetIntFrom()
+      tSampleID = tMsg.connection.GetIntFrom()
       tSampleList.add(tSampleID)
-      j = 1 + j
+      j = (1 + j)
     end repeat
     me.getComponent().updateSoundSet(tSlotIndex, tid, tSampleList)
-    i = 1 + i
+    i = (1 + i)
   end repeat
   me.getComponent().removeSoundSetInsertLock()
-  return(1)
+  return TRUE
 end
 
 on handle_user_sound_packages me, tMsg 
   if voidp(tMsg.connection) then
-    return(0)
+    return FALSE
   end if
-  tCount = tMsg.GetIntFrom()
+  tCount = tMsg.connection.GetIntFrom()
   tList = []
   i = 1
   repeat while i <= tCount
-    tid = tMsg.GetIntFrom()
+    tid = tMsg.connection.GetIntFrom()
     tList.append(tid)
-    i = 1 + i
+    i = (1 + i)
   end repeat
   return(me.getComponent().updateSetList(tList))
 end
@@ -101,5 +101,5 @@ on regMsgList me, tBool
     unregisterListener(getVariable("connection.info.id"), me.getID(), tMsgs)
     unregisterCommands(getVariable("connection.info.id"), me.getID(), tCmds)
   end if
-  return(1)
+  return TRUE
 end

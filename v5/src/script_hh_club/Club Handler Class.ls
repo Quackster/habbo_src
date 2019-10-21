@@ -15,9 +15,9 @@ on handle_scr_sinfo me, tMsg
   the itemDelimiter = "\t"
   tList = [:]
   tList.setAt(#command, "SCR_SINF")
-  #productName.setAt(tMsg, content.getProp(#item, 1))
-  #status.setAt(tMsg, content.getProp(#item, 2))
-  #daysLeft.setAt(tMsg, value(content.getProp(#item, 3)))
+  tList.setAt(#productName, tMsg.content.getProp(#item, 1))
+  tList.setAt(#status, tMsg.content.getProp(#item, 2))
+  tList.setAt(#daysLeft, value(tMsg.content.getProp(#item, 3)))
   the itemDelimiter = tDelim
   me.getComponent().setStatus(tList)
 end

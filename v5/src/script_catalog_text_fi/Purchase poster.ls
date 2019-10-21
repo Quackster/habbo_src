@@ -6,7 +6,7 @@ on setPosterCode me, tCode
 end
 
 on mouseDown me 
-  if voidp(pCode) or pCode = "" then
+  if voidp(pCode) or (pCode = "") then
     return()
   end if
   sendEPFuseMsg("GETORDERINFO /" & pCode && gMyName)

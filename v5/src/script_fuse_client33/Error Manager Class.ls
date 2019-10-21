@@ -7,18 +7,18 @@ on construct me
   pDebugLevel = 1
   pErrorCache = ""
   pCacheSize = 30
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
   the alertHook = 0
-  return(1)
+  return TRUE
 end
 
 on error me, tObject, tMsg, tMethod 
   if objectp(tObject) then
     tObject = string(tObject)
-    tObject = tObject.getProp(#word, 2, tObject.count(#word) - 2)
+    tObject = tObject.getProp(#word, 2, (tObject.count(#word) - 2))
     tObject = tObject.getProp(#char, 2, length(tObject))
   else
     tObject = "Unknown"
@@ -38,37 +38,37 @@ on error me, tObject, tMsg, tMethod
     i = 2
     repeat while i <= tMsg.count(#line)
       tError = tError & "\t" && "        " && tMsg.getProp(#line, i) & "\r"
-      i = 1 + i
+      i = (1 + i)
     end repeat
   end if
   pErrorCache = pErrorCache & tError
   if pErrorCache.count(#line) > pCacheSize then
-    pErrorCache = pErrorCache.getProp(#line, pErrorCache.count(#line) - pCacheSize, pErrorCache.count(#line))
+    pErrorCache = pErrorCache.getProp(#line, (pErrorCache.count(#line) - pCacheSize), pErrorCache.count(#line))
   end if
-  if pDebugLevel = 1 then
+  if (pDebugLevel = 1) then
     put("Error:" & tError)
   else
-    if pDebugLevel = 2 then
+    if (pDebugLevel = 2) then
       put("Error:" & tError)
     else
       put("Error:" & tError)
     end if
   end if
-  return(0)
+  return FALSE
 end
 
 on SystemAlert me, tObject, tMsg, tMethod 
   me.error(tObject, tMsg, tMethod)
   me.SendMailAlert(tObject, tMsg, tMethod)
-  return(0)
+  return FALSE
 end
 
 on SendMailAlert me, tErr, tMsgA, tMsgB 
-  if the runMode = "Author" then
-    return(0)
+  if (the runMode = "Author") then
+    return FALSE
   end if
-  if getVariable("server.mail.address") = "" then
-    return(0)
+  if (getVariable("server.mail.address") = "") then
+    return FALSE
   end if
   if connectionExists(getVariableValue("server.mail.connection")) then
     tEndTime = the long time
@@ -76,7 +76,7 @@ on SendMailAlert me, tErr, tMsgA, tMsgB
     i = 1
     repeat while i <= the environment.count
       tEnvironment = tEnvironment & "\t" & the environment.getPropAt(i) & ":" && the environment.getAt(i) & "\r"
-      i = 1 + i
+      i = (1 + i)
     end repeat
     tEnvironment = tEnvironment & "\t" & "Memory:" && ((the memorysize / 1024) / 1024) & "\r" & "\r"
     if objectExists(#session) then
@@ -91,10 +91,10 @@ on SendMailAlert me, tErr, tMsgA, tMsgB
         if not string(tVarList.getPropAt(j)) contains "password" then
           tSession = tSession & "\t" & tVarList.getPropAt(j) & ":" && tVarList.getAt(j) & "\r"
         end if
-        j = 1 + j
+        j = (1 + j)
       end repeat
       if getObject(#session).exists("mailed_error") then
-        return(0)
+        return FALSE
       else
         getObject(#session).set("mailed_error", 1)
       end if
@@ -111,7 +111,7 @@ on SendMailAlert me, tErr, tMsgA, tMsgB
     i = 1
     repeat while i <= tCastList.count
       tCastlibs = tCastlibs & tCastList.getAt(i) && tCastList.getPropAt(i) & "\r"
-      i = 1 + i
+      i = (1 + i)
     end repeat
     tErrMsg = tErrMsg & "\t" & "Error:" && tErr & "\r"
     tErrMsg = tErrMsg & "\t" & "Message:" && tMsgA & "," && tMsgB & "\r"
@@ -130,15 +130,15 @@ on SendMailAlert me, tErr, tMsgA, tMsgB
     tMailMsg = tMailMsg & "Error cache:" & "\r" & "\r" & getErrorManager().pErrorCache & "\r"
     getConnection(getVariableValue("server.mail.connection")).send("SENDEMAIL", tMailMsg)
   end if
-  return(0)
+  return FALSE
 end
 
 on sendErrorReport me, tErr, tMsgA, tMsgB 
   if not objectExists(#session) then
-    return(0)
+    return FALSE
   end if
   if getObject(#session).exists("sended_error_report") then
-    return(0)
+    return FALSE
   else
     getObject(#session).set("sended_error_report", 1)
   end if
@@ -147,46 +147,46 @@ on sendErrorReport me, tErr, tMsgA, tMsgB
   i = 1
   repeat while i <= tCastList.count
     tCastlibs = tCastlibs & tCastList.getAt(i) && tCastList.getPropAt(i) & "\r"
-    i = 1 + i
+    i = (1 + i)
   end repeat
   tEndTime = the long time
   tStartDate = getObject(#session).get("client_startdate")
   tStartTime = getObject(#session).get("client_starttime")
-  tVarList = undefined.duplicate()
-  if tVarList.getAt("con_lastreceived").ilk = #void then
+  tVarList = getObject(#session).pItemList.duplicate()
+  if (tVarList.getAt("con_lastreceived").ilk = #void) then
     tVarList.setAt("con_lastreceived", "Not defined")
   end if
-  if tVarList.getAt("con_lastsend").ilk = #void then
+  if (tVarList.getAt("con_lastsend").ilk = #void) then
     tVarList.setAt("con_lastsend", "Not defined")
   end if
   if tVarList.getAt("lastroom").ilk <> #propList then
     tVarList.setAt("lastroom", [#name:"Not defined", #marker:"Not defined"])
   end if
-  if tVarList.getAt("moderator").ilk = #void then
+  if (tVarList.getAt("moderator").ilk = #void) then
     tVarList.setAt("moderator", "Not defined")
   end if
-  if tVarList.getAt("room_controller").ilk = #void then
+  if (tVarList.getAt("room_controller").ilk = #void) then
     tVarList.setAt("room_controller", "Not defined")
   end if
-  if tVarList.getAt("room_owner").ilk = #void then
+  if (tVarList.getAt("room_owner").ilk = #void) then
     tVarList.setAt("room_owner", "Not defined")
   end if
-  if tVarList.getAt("user_has_special_rights").ilk = #void then
+  if (tVarList.getAt("user_has_special_rights").ilk = #void) then
     tVarList.setAt("user_has_special_rights", "Not defined")
   end if
-  if tVarList.getAt("user_access_count").ilk = #void then
+  if (tVarList.getAt("user_access_count").ilk = #void) then
     tVarList.setAt("user_access_count", "Not defined")
   end if
-  if tVarList.getAt("user_sex").ilk = #void then
+  if (tVarList.getAt("user_sex").ilk = #void) then
     tVarList.setAt("user_sex", "Not defined")
   end if
-  if tVarList.getAt("user_walletbalance").ilk = #void then
+  if (tVarList.getAt("user_walletbalance").ilk = #void) then
     tVarList.setAt("user_walletbalance", "Not defined")
   end if
-  if tVarList.getAt("user_name").ilk = #void then
+  if (tVarList.getAt("user_name").ilk = #void) then
     tVarList.setAt("user_name", "Not defined")
   end if
-  if tVarList.getAt("user_walletbalance").ilk = #void then
+  if (tVarList.getAt("user_walletbalance").ilk = #void) then
     tVarList.setAt("user_walletbalance", "Not defined")
   end if
   tErrProps = [:]
@@ -213,14 +213,14 @@ on sendErrorReport me, tErr, tMsgA, tMsgB
   tErrProps.setAt("err", pErrorCache)
   tCheckSum1 = value(tStartTime.getProp(#char, 1, 2) & tStartTime.getProp(#char, 4, 5) & tStartTime.getProp(#char, 7, 8))
   tCheckSum2 = value(tEndTime.getProp(#char, 1, 2) & tEndTime.getProp(#char, 4, 5) & tEndTime.getProp(#char, 7, 8))
-  tErrProps.setAt("cs", (tCheckSum1 + tCheckSum2 / value(tEndTime.getProp(#char, 8)) + 1))
+  tErrProps.setAt("cs", ((tCheckSum1 + tCheckSum2) / (value(tEndTime.getProp(#char, 8)) + 1)))
   put(tErrProps)
-  return(0)
+  return FALSE
 end
 
 on setDebugLevel me, tDebugLevel 
   if not integerp(tDebugLevel) then
-    return(0)
+    return FALSE
   end if
   pDebugLevel = tDebugLevel
   if float(the productVersion.getProp(#char, 1, 3)) >= 8.5 then
@@ -228,23 +228,23 @@ on setDebugLevel me, tDebugLevel
       the debugPlaybackEnabled = 1
     end if
   end if
-  return(1)
+  return TRUE
 end
 
 on setErrorEmailAddress me, tMailAddress 
   if not stringp(tMailAddress) then
-    return(0)
+    return FALSE
   end if
   if not tMailAddress contains "@" then
-    return(0)
+    return FALSE
   end if
   pAuthorAddress = tMailAddress
-  return(1)
+  return TRUE
 end
 
 on print me 
   put("Errors:" & "\r" & pErrorCache)
-  return(1)
+  return TRUE
 end
 
 on alertHook me, tErr, tMsgA, tMsgB 
@@ -252,18 +252,18 @@ on alertHook me, tErr, tMsgA, tMsgB
   me.sendErrorReport(tErr, tMsgA, tMsgB)
   me.showErrorDialog()
   pauseUpdate()
-  return(1)
+  return TRUE
 end
 
 on showErrorDialog me 
   createWindow(#error, "error.window", 0, 0, #modal)
   registerClient(#error, me.getID())
   registerProcedure(#error, #eventProcError, me.getID(), #mouseUp)
-  return(1)
+  return TRUE
 end
 
 on eventProcError me, tEvent, tSprID, tParam 
-  if tEvent = #mouseUp and tSprID = "error_close" then
+  if (tEvent = #mouseUp) and (tSprID = "error_close") then
     resetClient()
   end if
 end

@@ -11,7 +11,7 @@ end
 on deconstruct me 
   removeUpdate(me.getID())
   closeThread(#hubu)
-  return(1)
+  return TRUE
 end
 
 on prepare me 
@@ -25,7 +25,7 @@ end
 
 on showprogram me, tMsg 
   if voidp(tMsg) then
-    return(0)
+    return FALSE
   end if
   tDst = tMsg.getAt(#show_dest)
   tCmd = tMsg.getAt(#show_command)
@@ -36,42 +36,42 @@ on showprogram me, tMsg
 end
 
 on busDoor me, tid, tCommand 
-  if tCommand = "open" then
+  if (tCommand = "open") then
     tMem = member(getmemnum("park_bussioviopen"))
   else
-    if tCommand = "close" then
+    if (tCommand = "close") then
       tMem = member(getmemnum("park_bussi_ovi"))
     end if
   end if
   tRoomVis = getThread(#room).getInterface().getRoomVisualizer()
-  if tRoomVis = 0 then
-    return(0)
+  if (tRoomVis = 0) then
+    return FALSE
   end if
   tRoomVis.getSprById(tid).setMember(tMem)
 end
 
 on parkAEventProc me, tEvent, tSprID, tParm 
   tConnection = getThread(#room).getComponent().getRoomConnection()
-  if tConnection = 0 then
-    return(0)
+  if (tConnection = 0) then
+    return FALSE
   end if
-  if tSprID = "bus" then
+  if (tSprID = "bus") then
     tConnection.send("TRYBUS")
   else
     if tSprID contains "hubu_kiosk" then
-      if tSprID = "hubu_kiosk_1" then
+      if (tSprID = "hubu_kiosk_1") then
         tKioskLoc = "12 20"
       else
-        if tSprID = "hubu_kiosk_2" then
+        if (tSprID = "hubu_kiosk_2") then
           tKioskLoc = "12 21"
         else
-          if tSprID = "hubu_kiosk_3" then
+          if (tSprID = "hubu_kiosk_3") then
             tKioskLoc = "12 22"
           else
-            if tSprID = "hubu_kiosk_4" then
+            if (tSprID = "hubu_kiosk_4") then
               tKioskLoc = "12 23"
             else
-              if tSprID = "hubu_kiosk_5" then
+              if (tSprID = "hubu_kiosk_5") then
                 tKioskLoc = "12 24"
               end if
             end if
@@ -109,9 +109,9 @@ on hubuEventProc me, tEvent, tSprID, tParm
       end if
     else
       if tSprID contains "hubukiosk_txtlink" then
-        tTemp = getVariableValue("hubu_t" & tSprID.getProp(#char, length(tSprID) - 2, length(tSprID)))
+        tTemp = getVariableValue("hubu_t" & tSprID.getProp(#char, (length(tSprID) - 2), length(tSprID)))
         if not listp(tTemp) then
-          return(error(me, "Missing link:" && "hubu_t" & tSprID.getProp(#char, length(tSprID) - 2, length(tSprID)), #hubuEventProc))
+          return(error(me, "Missing link:" && "hubu_t" & tSprID.getProp(#char, (length(tSprID) - 2), length(tSprID)), #hubuEventProc))
         end if
         tURL = tTemp.getAt(1)
         tAdId = tTemp.getAt(2)
@@ -134,10 +134,10 @@ on update me
     tMem = member(getmemnum("park_fountain" & pCurrentFrm))
     tRoomVis = getThread(#room).getInterface().getRoomVisualizer()
     if not tRoomVis then
-      return(0)
+      return FALSE
     end if
     tRoomVis.getSprById("fountain").setMember(tMem)
     pAnimCounter = 0
   end if
-  pAnimCounter = pAnimCounter + 1
+  pAnimCounter = (pAnimCounter + 1)
 end

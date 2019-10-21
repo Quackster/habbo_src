@@ -35,7 +35,7 @@ on construct me
   if not objectExists("Ticket_Window_Manager") then
     createObject("Ticket_Window_Manager", "Ticket Window Manager Class")
   end if
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
@@ -61,12 +61,12 @@ on deconstruct me
   if connectionExists(getVariable("connection.info.id", #info)) then
     return(me.disconnect())
   else
-    return(1)
+    return TRUE
   end if
 end
 
 on initA me 
-  if getIntVariable("figurepartlist.loaded", 1) = 0 then
+  if (getIntVariable("figurepartlist.loaded", 1) = 0) then
     return(me.delay(250, #initA))
   end if
   return(me.delay(1000, #initB))
@@ -95,7 +95,7 @@ on connect me
   if not threadExists(#hobba) then
     initThread("thread.hobba")
   end if
-  return(1)
+  return TRUE
 end
 
 on disconnect me 

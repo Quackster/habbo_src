@@ -8,7 +8,7 @@ on construct me
   initThread("paalu.index")
   receivePrepare(me.getID())
   me.prepareRoom()
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
@@ -18,7 +18,7 @@ on deconstruct me
   removeObject(#waterripples)
   closeThread(#mountain)
   closeThread(#paalu)
-  return(1)
+  return TRUE
 end
 
 on prepareRoom me 
@@ -27,8 +27,8 @@ on prepareRoom me
   repeat while f <= 2
     tSprite = getThread(#room).getInterface().getRoomVisualizer().getSprById("curtains" & f)
     pCurtainsLocZ.setAt("curtains" & f, tSprite.locZ)
-    tSprite.locZ = tSprite.locZ - 2000
-    f = 1 + f
+    tSprite.locZ = (tSprite.locZ - 2000)
+    f = (1 + f)
   end repeat
   tProps = [:]
   pSplashs = [:]
@@ -65,22 +65,22 @@ on showprogram me, tMsg
 end
 
 on curtains me, tid, tCommand 
-  if tCommand = "open" then
+  if (tCommand = "open") then
     tmember = member(getmemnum("dew_verho_auki"))
-    tlocz = pCurtainsLocZ.getAt(tid) - 2000
+    tlocz = (pCurtainsLocZ.getAt(tid) - 2000)
   else
-    if tCommand = "close" then
+    if (tCommand = "close") then
       tmember = member(getmemnum("dew_verho_kiinni"))
-      tlocz = pCurtainsLocZ.getAt(tid) - 1000
+      tlocz = (pCurtainsLocZ.getAt(tid) - 1000)
     end if
   end if
   tRoomVis = getThread(#room).getInterface().getRoomVisualizer()
-  if tRoomVis = 0 then
-    return(0)
+  if (tRoomVis = 0) then
+    return FALSE
   end if
   tRoomVis.getSprById(tid).setMember(tmember)
   tRoomVis.getSprById(tid).locZ = tlocz
-  return(1)
+  return TRUE
 end
 
 on splash me, tDest, tCommand 
@@ -96,7 +96,7 @@ on prepare me
     i = 1
     repeat while i <= 3
       tRoomVis.getSprById("putous" && i).member = member(getmemnum("dew_putous" & i & "_" & random(7)))
-      i = 1 + i
+      i = (1 + i)
     end repeat
   end if
   if pSplashs.count > 0 then

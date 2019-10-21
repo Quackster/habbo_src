@@ -16,7 +16,7 @@ on construct me
   if the runMode contains "Author" then
     me.emptyDynamicBin()
   end if
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
@@ -24,23 +24,23 @@ on deconstruct me
     me.deleteDynamicMembers()
   end if
   pAllMemNumList = [:]
-  return(1)
+  return TRUE
 end
 
 on getProperty me, tPropID 
-  if tPropID = #memberCount then
+  if (tPropID = #memberCount) then
     return(pAllMemNumList.count())
   else
-    if tPropID = #dynMemCount then
+    if (tPropID = #dynMemCount) then
       return(pDynMemNumList.count())
     else
-      return(0)
+      return FALSE
     end if
   end if
 end
 
 on setProperty me, tPropID, tValue 
-  return(0)
+  return FALSE
 end
 
 on createMember me, tMemName, ttype 
@@ -48,7 +48,7 @@ on createMember me, tMemName, ttype
     error(me, "Member already exists:" && tMemName, #createMember)
     return(me.getmemnum(tMemName))
   end if
-  if ttype = #bitmap and pBmpMemNumList.count > 0 then
+  if (ttype = #bitmap) and pBmpMemNumList.count > 0 then
     tmember = member(pBmpMemNumList.getAt(1))
     pBmpMemNumList.deleteAt(1)
   else
@@ -70,7 +70,7 @@ on removeMember me, tMemName
     return(error(me, "Can't delete member:" && tMemName, #removeMember))
   end if
   tmember = member(tMemNum)
-  if tmember.type = #bitmap then
+  if (tmember.type = #bitmap) then
     tmember.name = ""
     pBmpMemNumList.add(tMemNum)
   else
@@ -78,7 +78,7 @@ on removeMember me, tMemName
   end if
   pDynMemNumList.deleteOne(tMemNum)
   pAllMemNumList.deleteProp(tMemName)
-  return(1)
+  return TRUE
 end
 
 on getMember me, tMemName 
@@ -94,12 +94,12 @@ on updateMember me, tMemName
     return(error(me, "Member's name required:" && tMemName, #updateMember))
   end if
   if not me.unregisterMember(tMemName) then
-    return(0)
+    return FALSE
   end if
   if not me.registerMember(tMemName) then
-    return(0)
+    return FALSE
   end if
-  return(1)
+  return TRUE
 end
 
 on registerMember me, tMemName, tMemberNum 
@@ -107,7 +107,7 @@ on registerMember me, tMemName, tMemberNum
     tMemberNum = member(tMemName).number
   end if
   if tMemberNum < 1 then
-    return(0)
+    return FALSE
   end if
   pAllMemNumList.setAt(tMemName, tMemberNum)
   return(tMemberNum)
@@ -115,10 +115,10 @@ end
 
 on unregisterMember me, tMemName 
   if voidp(pAllMemNumList.getAt(tMemName)) then
-    return(0)
+    return FALSE
   end if
   pAllMemNumList.deleteProp(tMemName)
-  return(1)
+  return TRUE
 end
 
 on preIndexMembers me, tCastNum 
@@ -141,7 +141,7 @@ on preIndexMembers me, tCastNum
       if length(tmember.name) > 0 then
         if tNameAlertFlag then
           if not voidp(pAllMemNumList.getAt(tmember.name)) then
-            if pLegalDuplicates.getPos(tmember.name) = 0 then
+            if (pLegalDuplicates.getPos(tmember.name) = 0) then
               if pAllMemNumList.getAt(tmember.name) <> tmember.number then
                 tMemA = member(pAllMemNumList.getAt(tmember.name))
                 tMemB = tmember
@@ -156,7 +156,7 @@ on preIndexMembers me, tCastNum
         end if
         pAllMemNumList.setAt(tmember.name, tmember.number)
       end if
-      i = 1 + i
+      i = (1 + i)
     end repeat
     tVarIndex = getVariable("props.index.field")
     if member(tVarIndex, tCastLib).number > 0 then
@@ -172,8 +172,8 @@ on preIndexMembers me, tCastNum
         tLine = tAliasList.getProp(#line, i)
         if length(tLine) > 2 then
           tName = tLine.item[2..the number of item in tLine]
-          if the last char in tName = "*" then
-            tName = tName.getProp(#char, 1, length(tName) - 1)
+          if (the last char in tName = "*") then
+            tName = tName.getProp(#char, 1, (length(tName) - 1))
             tNumber = pAllMemNumList.getAt(tName)
             if tNumber > 0 then
               tReplacingNum = -tNumber
@@ -189,7 +189,7 @@ on preIndexMembers me, tCastNum
             pAllMemNumList.setAt(tMemName, tReplacingNum)
           end if
         end if
-        i = 1 + i
+        i = (1 + i)
       end repeat
       the itemDelimiter = tItemDeLim
     end if
@@ -197,9 +197,9 @@ on preIndexMembers me, tCastNum
     if member(tClsIndex, tCastLib).number > 0 then
       getObject(#classes).dump(member(tClsIndex, tCastLib).number)
     end if
-    tCastLib = 1 + tCastLib
+    tCastLib = (1 + tCastLib)
   end repeat
-  return(1)
+  return TRUE
 end
 
 on unregisterMembers me, tCastNum 
@@ -212,14 +212,14 @@ on unregisterMembers me, tCastNum
     tmember = member(i, tCastNum)
     tTempNum = pAllMemNumList.getAt(tmember.name)
     if tTempNum <> void() then
-      if tTempNum = tmember.number then
+      if (tTempNum = tmember.number) then
         pAllMemNumList.deleteProp(tmember.name)
       end if
     end if
     if pDynMemNumList.getPos(tmember.name) > 0 then
       pDynMemNumList.deleteAt(pDynMemNumList.getPos(tmember.name))
     end if
-    i = 1 + i
+    i = (1 + i)
   end repeat
   tAliasIndex = getVariable("alias.index.field")
   if member(tAliasIndex, tCastNum).number > 0 then
@@ -229,8 +229,8 @@ on unregisterMembers me, tCastNum
       tLine = tAliasList.getProp(#line, i)
       if length(tLine) > 2 then
         tName = tLine.item[2..the number of item in tLine]
-        if the last char in tName = "*" then
-          tName = tName.getProp(#char, 1, length(tName) - 1)
+        if (the last char in tName = "*") then
+          tName = tName.getProp(#char, 1, (length(tName) - 1))
         end if
         if not voidp(pAllMemNumList.getAt(tName)) then
           tMemName = tLine.item[1]
@@ -239,18 +239,18 @@ on unregisterMembers me, tCastNum
           end if
         end if
       end if
-      i = 1 + i
+      i = (1 + i)
     end repeat
   end if
-  return(1)
+  return TRUE
 end
 
 on replaceMember me, tExistingMemName, tReplacingMemName 
   if voidp(pAllMemNumList.getAt(tReplacingMemName)) then
-    return(0)
+    return FALSE
   end if
   pAllMemNumList.setAt(tExistingMemName, pAllMemNumList.getAt(tReplacingMemName))
-  return(1)
+  return TRUE
 end
 
 on exists me, tMemName 
@@ -269,15 +269,15 @@ on print me
   i = 1
   repeat while i <= pAllMemNumList.count
     put(pAllMemNumList.getPropAt(i) && "--" && pAllMemNumList.getAt(i))
-    i = 1 + i
+    i = (1 + i)
   end repeat
-  return(1)
+  return TRUE
 end
 
 on clearMemNumLists me 
   pAllMemNumList = [:]
   pAllMemNumList.sort()
-  return(1)
+  return TRUE
 end
 
 on emptyDynamicBin me 
@@ -288,11 +288,11 @@ on emptyDynamicBin me
     if tmember.type <> #empty then
       tmember.erase()
     end if
-    i = 1 + i
+    i = (1 + i)
   end repeat
   pDynMemNumList = []
   pBmpMemNumList = []
-  return(1)
+  return TRUE
 end
 
 on deleteDynamicMembers me 
@@ -306,5 +306,5 @@ on deleteDynamicMembers me
   end repeat
   pDynMemNumList = []
   pBmpMemNumList = []
-  return(1)
+  return TRUE
 end

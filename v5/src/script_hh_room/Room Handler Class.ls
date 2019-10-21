@@ -1,19 +1,19 @@
 on handle_error me, tMsg, tConnection 
   error(me, tConnection & ":" && tMsg, #handle_error)
-  if tMsg = "Incorrect flat password" then
+  if (tMsg = "Incorrect flat password") then
     if threadExists(#navigator) then
       getThread(#navigator).getComponent().flatAccessResult(tMsg)
     end if
   else
-    if tMsg = "Password required" then
+    if (tMsg = "Password required") then
       if threadExists(#navigator) then
         getThread(#navigator).getComponent().flatAccessResult(tMsg)
       end if
     else
-      if tMsg = "weird error" then
+      if (tMsg = "weird error") then
         executeMessage(#leaveRoom)
       else
-        if tMsg = "Not owner" then
+        if (tMsg = "Not owner") then
           getObject(#session).set("room_controller", 0)
           me.getInterface().hideInterface(#hide)
         else
@@ -27,7 +27,7 @@ on handle_error me, tMsg, tConnection
 end
 
 on handle_users me, tList 
-  if count(tList) = 0 then
+  if (count(tList) = 0) then
     me.getComponent().validateUserObjects(0)
   else
     repeat while tList <= undefined
@@ -118,11 +118,11 @@ on handle_door_in me, tMsg
   tDoorObj = me.getComponent().getActiveObject(tMsg.getAt(#door))
   if tDoorObj <> 0 then
     tDoorObj.animate(18)
-    if getObject(#session).get("user_name") = tMsg.getAt(#user) then
+    if (getObject(#session).get("user_name") = tMsg.getAt(#user)) then
       tDoorObj.prepareToKick(tMsg.getAt(#user))
     end if
   else
-    return(0)
+    return FALSE
   end if
 end
 
@@ -131,7 +131,7 @@ on handle_door_out me, tMsg
   if tDoorObj <> 0 then
     tDoorObj.animate()
   else
-    return(0)
+    return FALSE
   end if
 end
 

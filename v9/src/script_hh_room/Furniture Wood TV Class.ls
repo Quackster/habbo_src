@@ -6,7 +6,7 @@ on prepare me, tdata
     pChanges = 1
     pActive = 1
     pChannelNum = integer(tdata.getAt(#stuffdata))
-    if [1, 2, 3].getOne(pChannelNum) = 0 then
+    if ([1, 2, 3].getOne(pChannelNum) = 0) then
       pChannelNum = 0
       pActive = 0
     end if
@@ -15,16 +15,16 @@ on prepare me, tdata
     pActive = 0
     pChannelNum = 1
   end if
-  return(1)
+  return TRUE
 end
 
 on updateStuffdata me, tValue 
-  if tValue = "OFF" then
+  if (tValue = "OFF") then
     pActive = 0
   else
     pActive = 1
     pChannelNum = integer(tValue)
-    if [1, 2, 3].getOne(pChannelNum) = 0 then
+    if ([1, 2, 3].getOne(pChannelNum) = 0) then
       pChannelNum = 0
       pActive = 0
     end if
@@ -39,20 +39,20 @@ on update me
   if me.count(#pSprList) < 3 then
     return()
   end if
-  tName = undefined.name
+  tName = me.getPropRef(#pSprList, 3).member.name
   tDelim = the itemDelimiter
   the itemDelimiter = "_"
-  tTmpName = tName.getProp(#item, 1, tName.count(#item) - 1) & "_"
+  tTmpName = tName.getProp(#item, 1, (tName.count(#item) - 1)) & "_"
   the itemDelimiter = tDelim
-  pTvFrame = pTvFrame + 1
-  if pActive and (pTvFrame mod 3) = 1 then
-    if pChannelNum = 1 then
+  pTvFrame = (pTvFrame + 1)
+  if pActive and ((pTvFrame mod 3) = 1) then
+    if (pChannelNum = 1) then
       tNewName = tTmpName & random(10)
     else
-      if pChannelNum = 2 then
-        tNewName = tTmpName & 10 + random(5)
+      if (pChannelNum = 2) then
+        tNewName = tTmpName & (10 + random(5))
       else
-        tNewName = tTmpName & 15 + random(5)
+        tNewName = tTmpName & (15 + random(5))
       end if
     end if
     if memberExists(tNewName) then
@@ -65,8 +65,8 @@ on update me
   end if
   if not pActive then
     the itemDelimiter = "_"
-    tMemName = undefined.name
-    tClass = tMemName.getProp(#item, 1, tMemName.count(#item) - 6)
+    tMemName = me.getPropRef(#pSprList, 3).member.name
+    tClass = tMemName.getProp(#item, 1, (tMemName.count(#item) - 6))
     tNewName = tTmpName & "0"
     if memberExists(tNewName) then
       tmember = member(getmemnum(tNewName))
@@ -76,7 +76,7 @@ on update me
     end if
     pChanges = 0
   end if
-  me.getPropRef(#pSprList, 3).locZ = me.getPropRef(#pSprList, 2).locZ + 2
+  me.getPropRef(#pSprList, 3).locZ = (me.getPropRef(#pSprList, 2).locZ + 2)
 end
 
 on setOn me 
@@ -98,5 +98,5 @@ on select me
       me.setOn()
     end if
   end if
-  return(1)
+  return TRUE
 end

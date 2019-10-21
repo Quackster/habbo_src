@@ -8,7 +8,7 @@ end
 
 on parseActiveObject me, tConn 
   if not tConn then
-    return(0)
+    return FALSE
   end if
   tObj = [:]
   tObj.setAt(#id, tConn.GetStrFrom())
@@ -22,20 +22,20 @@ on parseActiveObject me, tConn
   tObj.setAt(#dimensions, [tWidth, tHeight])
   tObj.setAt(#altitude, getLocalFloat(tConn.GetStrFrom()))
   tObj.setAt(#colors, tConn.GetStrFrom())
-  tRuntimeData = tConn.GetStrFrom()
   tExtra = tConn.GetIntFrom()
   tStuffData = tConn.GetStrFrom()
-  if tObj.getAt(#colors) = "" then
+  tExpireTime = tConn.GetIntFrom()
+  if (tObj.getAt(#colors) = "") then
     tObj.setAt(#colors, "0")
   end if
-  tObj.setAt(#props, [#runtimedata:tRuntimeData, #extra:tExtra, #stuffdata:tStuffData])
+  tObj.setAt(#props, [#runtimedata:"", #extra:tExtra, #stuffdata:tStuffData])
   return(tObj)
 end
 
 on handle_stuffdataupdate me, tMsg 
   tConn = tMsg.connection
   if not tConn then
-    return(0)
+    return FALSE
   end if
   tMsgTemp = [:]
   tIndex = 1
@@ -43,23 +43,23 @@ on handle_stuffdataupdate me, tMsg
     tProp = tMsg.getPropAt(tIndex)
     tValue = tMsg.getAt(tIndex)
     tMsgTemp.setAt(tProp, tValue)
-    tIndex = 1 + tIndex
+    tIndex = (1 + tIndex)
   end repeat
   tTargetID = tConn.GetStrFrom()
   return(me.getComponent().bufferMessage(tMsgTemp, tTargetID, "active"))
 end
 
 on handle_activeobject_remove me, tMsg 
-  return(tMsg.removeObject(content.getProp(#word, 1), "active"))
+  return(me.getComponent().removeObject(tMsg.content.getProp(#word, 1), "active"))
 end
 
 on handle_activeobject_update me, tMsg 
   if ilk(tMsg) <> #propList then
-    return(0)
+    return FALSE
   end if
   tConn = tMsg.connection
   if not tConn then
-    return(0)
+    return FALSE
   end if
   tMsgTemp = [:]
   tIndex = 1
@@ -67,23 +67,23 @@ on handle_activeobject_update me, tMsg
     tProp = tMsg.getPropAt(tIndex)
     tValue = tMsg.getAt(tIndex)
     tMsgTemp.setAt(tProp, tValue)
-    tIndex = 1 + tIndex
+    tIndex = (1 + tIndex)
   end repeat
   tObj = me.parseActiveObject(tConn)
   if not listp(tObj) then
-    return(0)
+    return FALSE
   end if
-  tid = tObj.getAt(#id)
-  return(me.getComponent().bufferMessage(tMsgTemp, tid, "active"))
+  tID = tObj.getAt(#id)
+  return(me.getComponent().bufferMessage(tMsgTemp, tID, "active"))
 end
 
 on handle_removeitem me, tMsg 
-  return(tMsg.removeObject(content.getProp(#word, 1), "item"))
+  return(me.getComponent().removeObject(tMsg.content.getProp(#word, 1), "item"))
 end
 
 on handle_updateitem me, tMsg 
-  tid = content.getProp(#word, 1)
-  return(me.getComponent().bufferMessage(tMsg, tid, "item"))
+  tID = tMsg.content.getProp(#word, 1)
+  return(me.getComponent().bufferMessage(tMsg, tID, "item"))
 end
 
 on regMsgList me, tBool 
@@ -101,5 +101,5 @@ on regMsgList me, tBool
     unregisterListener(getVariable("connection.room.id"), me.getID(), tMsgs)
     unregisterCommands(getVariable("connection.room.id"), me.getID(), tCmds)
   end if
-  return(1)
+  return TRUE
 end

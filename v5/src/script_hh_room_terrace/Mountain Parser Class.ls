@@ -19,11 +19,11 @@ on parse_md_exit me, tMsg
 end
 
 on parse_tickets me, tMsg 
-  me.getComponent().setTicketCount(integer(tMsg.getProp(#word, 1)))
+  me.getComponent().setTicketCount(integer(tMsg.content.getProp(#word, 1)))
 end
 
 on parse_tickets_buy me, tMsg 
-  me.getComponent().setTicketCount(integer(tMsg.getProp(#word, 1)))
+  me.getComponent().setTicketCount(integer(tMsg.content.getProp(#word, 1)))
   me.getInterface().openTicketWnd(1)
 end
 
@@ -46,5 +46,5 @@ on regMsgList me, tBool
     unregisterListener(getVariable("connection.room.id"), me.getID(), tList)
     unregisterListener(getVariable("connection.info.id"), me.getID(), ["PH_TICKETS_BUY":#parse_tickets_buy])
   end if
-  return(1)
+  return TRUE
 end

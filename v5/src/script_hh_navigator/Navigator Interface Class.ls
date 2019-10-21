@@ -36,7 +36,7 @@ on deconstruct me
   end if
   me.removeImgResources()
   removeObject(#navigator_login)
-  return(1)
+  return TRUE
 end
 
 on getLogin me 
@@ -54,10 +54,10 @@ on showNavigator me
     if me.ChangeWindowView("nav_public_start.window") then
       pPrivateDropMode = "nav_rooms_popular"
       me.delay(2, #renderUnitList)
-      return(1)
+      return TRUE
     end if
   end if
-  return(0)
+  return FALSE
 end
 
 on hideNavigator me, tHideOrRemove 
@@ -65,13 +65,13 @@ on hideNavigator me, tHideOrRemove
     tHideOrRemove = #remove
   end if
   if windowExists(pWindowTitle) then
-    if tHideOrRemove = #remove then
+    if (tHideOrRemove = #remove) then
       removeWindow(pWindowTitle)
     else
       getWindow(pWindowTitle).hide()
     end if
   end if
-  return(1)
+  return TRUE
 end
 
 on showhidenavigator me, tHideOrRemove 
@@ -109,35 +109,35 @@ end
 
 on saveFlatInfo me, tFlatData 
   pCurrentFlatData = tFlatData
-  if pFlatInfoAction = #enterflat then
+  if (pFlatInfoAction = #enterflat) then
     tFlatPort = pCurrentFlatData.getAt(#port)
     pCurrentFlatData.setAt(#ip, me.getComponent().getFlatIp(tFlatPort))
-    if pCurrentFlatData.getAt(#owner) = getObject(#session).get("user_name") then
+    if (pCurrentFlatData.getAt(#owner) = getObject(#session).get("user_name")) then
       tDoor = "open"
     else
       tDoor = pCurrentFlatData.getAt(#door)
       pFlatPasswords = [:]
     end if
     if pFlatInfoAction <> "open" then
-      if pFlatInfoAction = "closed" then
+      if (pFlatInfoAction = "closed") then
         if voidp(pCurrentFlatData) then
           return(error(me, "Can't enter flat, no room is selected!!!", #saveFlatInfo))
         end if
         me.getComponent().updateState("enterFlat", pCurrentFlatData.getAt(#id))
       else
-        if pFlatInfoAction = "password" then
+        if (pFlatInfoAction = "password") then
           me.ChangeWindowView("nav_private_password.window")
           getWindow(pWindowTitle).getElement("nav_roomname_text").setText(pCurrentFlatData.getAt(#name))
           me.CreatePrivateRoomInfo(pCurrentFlatData)
         end if
       end if
       pFlatInfoAction = 0
-      if pFlatInfoAction = #flatInfo then
+      if (pFlatInfoAction = #flatInfo) then
         me.ChangeWindowView("nav_private_info.window")
         me.CreatePrivateRoomInfo(pCurrentFlatData)
         pFlatInfoAction = 0
       else
-        if pFlatInfoAction = #modifyInfo then
+        if (pFlatInfoAction = #modifyInfo) then
           me.modifyPrivateRoom(pCurrentFlatData)
           pFlatInfoAction = 0
         else
@@ -150,12 +150,12 @@ end
 
 on createImgResources me 
   if pResourcesReady then
-    return(0)
+    return FALSE
   end if
   tPlain = getStructVariable("struct.font.plain")
   tBold = getStructVariable("struct.font.bold")
   tLink = getStructVariable("struct.font.link")
-  pListItemHeight = tPlain.getaProp(#lineHeight) + 4
+  pListItemHeight = (tPlain.getaProp(#lineHeight) + 4)
   createWriter("nav_plain_norm_left", tPlain)
   pWriterPlainNormLeft = getWriter("nav_plain_norm_left")
   createWriter("nav_plain_bold_left", tBold)
@@ -178,37 +178,37 @@ on createImgResources me
   tXPoint = 0
   repeat while tXPoint <= (pPublicListWidth / 2)
     pPublicDotLineImg.setPixel((tXPoint * 2), 0, rgb(0, 0, 0))
-    tXPoint = 1 + tXPoint
+    tXPoint = (1 + tXPoint)
   end repeat
   pFlatGoTextImg = pWriterUnderNormLeft.render(getText("nav_gobutton")).duplicate()
   tTempImg = pWriterUnderNormLeft.render(getText("nav_hotelview"))
   PHotelEntryImg = image(pPublicListWidth, tTempImg.height, pBufferDepth)
   x1 = 5
-  x2 = x1 + tTempImg.width
+  x2 = (x1 + tTempImg.width)
   y1 = 0
   y2 = tTempImg.height
   tdestrect = rect(x1, y1, x2, y2)
   PHotelEntryImg.copyPixels(tTempImg, tdestrect, tTempImg.rect)
   x1 = x2
-  y1 = PHotelEntryImg.height - 1
-  x2 = PHotelEntryImg.width - 5
-  y2 = y1 + 1
+  y1 = (PHotelEntryImg.height - 1)
+  x2 = (PHotelEntryImg.width - 5)
+  y2 = (y1 + 1)
   tdestrect = rect(x1, y1, x2, y2)
-  tSourceRect = rect(0, 0, x2 - x1, 1)
+  tSourceRect = rect(0, 0, (x2 - x1), 1)
   PHotelEntryImg.copyPixels(pPublicDotLineImg, tdestrect, tSourceRect)
-  x1 = PHotelEntryImg.width - pFlatGoTextImg.width + 2
+  x1 = ((PHotelEntryImg.width - pFlatGoTextImg.width) + 2)
   y1 = 0
-  x2 = x1 + pFlatGoTextImg.width
-  y2 = y1 + pFlatGoTextImg.height
+  x2 = (x1 + pFlatGoTextImg.width)
+  y2 = (y1 + pFlatGoTextImg.height)
   tdestrect = rect(x1, y1, x2, y2)
   PHotelEntryImg.copyPixels(pFlatGoTextImg, tdestrect, pFlatGoTextImg.rect)
   pResourcesReady = 1
-  return(1)
+  return TRUE
 end
 
 on removeImgResources me 
   if not pResourcesReady then
-    return(0)
+    return FALSE
   end if
   removeWriter(pWriterPlainNormLeft.getID())
   pWriterPlainNormLeft = void()
@@ -225,7 +225,7 @@ on removeImgResources me
   removeWriter(pWriterPrivUnder.getID())
   pWriterPrivUnder = void()
   pResourcesReady = 0
-  return(1)
+  return TRUE
 end
 
 on createUnitlist me, tUnitlist 
@@ -233,7 +233,7 @@ on createUnitlist me, tUnitlist
   f = 1
   repeat while f <= tUnitlist.count()
     me.UpdateListOfUnits(tUnitlist.getPropAt(f), tUnitlist.getAt(tUnitlist.getPropAt(f)), #closed)
-    f = 1 + f
+    f = (1 + f)
   end repeat
   f = 1
   repeat while f <= pUnitList.count
@@ -250,10 +250,10 @@ on createUnitlist me, tUnitlist
       tObject.define(tProps)
       pUnitDrawObjs.addProp(tUnitid, tObject)
     end if
-    if pUnitList.getAt(f).getAt(#visible) = 1 then
-      pVisibleFlatCount = pVisibleFlatCount + 1
+    if (pUnitList.getAt(f).getAt(#visible) = 1) then
+      pVisibleFlatCount = (pVisibleFlatCount + 1)
     end if
-    f = 1 + f
+    f = (1 + f)
   end repeat
   me.renderUnitList()
 end
@@ -262,7 +262,7 @@ on UpdateUnitList me, tUnitlist
   f = 1
   repeat while f <= tUnitlist.count()
     me.UpdateListOfUnits(tUnitlist.getPropAt(f), tUnitlist.getAt(tUnitlist.getPropAt(f)), void())
-    f = 1 + f
+    f = (1 + f)
   end repeat
   me.renderUnitList()
 end
@@ -276,15 +276,15 @@ on UpdateListOfUnits me, tUnitid, tUnitData, tstate
       tstate = #closed
     end if
   end if
-  if tUnitData.getAt(#subunitcount) = 0 then
+  if (tUnitData.getAt(#subunitcount) = 0) then
     tUnit.setAt(#type, #subUnit)
     if not voidp(tUnit.getAt(#mymainunitid)) then
       tMyMainId = tUnit.getAt(#mymainunitid)
     else
-      return(0)
+      return FALSE
     end if
     if not voidp(pUnitList.getAt(tMyMainId)) then
-      if pUnitList.getAt(tMyMainId).getAt(#multiroomOpen) = #open then
+      if (pUnitList.getAt(tMyMainId).getAt(#multiroomOpen) = #open) then
         tUnit.setAt(#visible, 1)
       else
         tUnit.setAt(#visible, 0)
@@ -293,7 +293,7 @@ on UpdateListOfUnits me, tUnitid, tUnitData, tstate
       tUnit.setAt(#visible, 0)
     end if
   else
-    if tUnitData.getAt(#subunitcount) = 1 then
+    if (tUnitData.getAt(#subunitcount) = 1) then
       tUnit.setAt(#type, #mainUnit)
       tUnit.setAt(#visible, 1)
     else
@@ -309,25 +309,25 @@ end
 
 on renderUnitList me 
   tWndObj = getWindow(pWindowTitle)
-  if tWndObj = 0 then
-    return(0)
+  if (tWndObj = 0) then
+    return FALSE
   end if
   tElement = tWndObj.getElement("nav_public_rooms_list")
-  if tElement = 0 then
-    return(0)
+  if (tElement = 0) then
+    return FALSE
   end if
   pVisibleFlatCount = 0
   f = 1
   repeat while f <= pUnitList.count()
     tUnitid = pUnitList.getPropAt(f)
-    if pUnitList.getAt(tUnitid).getAt(#visible) = 1 then
-      pVisibleFlatCount = pVisibleFlatCount + 1
+    if (pUnitList.getAt(tUnitid).getAt(#visible) = 1) then
+      pVisibleFlatCount = (pVisibleFlatCount + 1)
       pUnitDrawObjs.getAt(tUnitid).setProp(#pPropList, #number, pVisibleFlatCount)
     end if
-    f = 1 + f
+    f = (1 + f)
   end repeat
-  if pPublicListHeight <> (pVisibleFlatCount + 1 * pListItemHeight) then
-    pPublicListHeight = (pVisibleFlatCount + 1 * pListItemHeight)
+  if pPublicListHeight <> ((pVisibleFlatCount + 1) * pListItemHeight) then
+    pPublicListHeight = ((pVisibleFlatCount + 1) * pListItemHeight)
     pPublicUnitsImg = image(pPublicListWidth, pPublicListHeight, pBufferDepth)
   end if
   pPublicUnitsImg.copyPixels(PHotelEntryImg, PHotelEntryImg.rect, PHotelEntryImg.rect)
@@ -381,28 +381,28 @@ on ChangeWindowView me, tWindowName
       return(error(me, "Couldn't solve Navigator's state:" && tWindowName, #ChangeWindowView))
     end if
   end if
-  return(1)
+  return TRUE
 end
 
 on renderLoadingText me, tTempElementId 
   if voidp(tTempElementId) then
-    return(0)
+    return FALSE
   end if
   tElem = getWindow(pWindowTitle).getElement(tTempElementId)
   tWidth = tElem.getProperty(#width)
   tHeight = tElem.getProperty(#height)
   tTempImg = image(tWidth, tHeight, pBufferDepth)
   tTextImg = pWriterPlainBoldCent.render(getText("loading"))
-  tOffX = (tWidth - tTextImg.width / 2)
-  tOffY = (tHeight - tTextImg.height / 2)
-  tDstRect = tTextImg.rect + rect(tOffX, tOffY, tOffX, tOffY)
+  tOffX = ((tWidth - tTextImg.width) / 2)
+  tOffY = ((tHeight - tTextImg.height) / 2)
+  tDstRect = (tTextImg.rect + rect(tOffX, tOffY, tOffX, tOffY))
   tTempImg.copyPixels(tTextImg, tDstRect, tTextImg.rect)
   tElem.feedImage(tTempImg)
-  return(1)
+  return TRUE
 end
 
 on updateUnitUsers me, tUsersStr 
-  if pOpenWindow = "nav_public_people.window" then
+  if (pOpenWindow = "nav_public_people.window") then
     tWndObj = getWindow(pWindowTitle)
     if tWndObj.elementExists("nav_people_list") then
       tElem = tWndObj.getElement("nav_people_list")
@@ -427,7 +427,7 @@ on GetUnitUsers me, tUnitid
     if pOpenWindow <> "nav_public_people.window" then
       me.ChangeWindowView("nav_public_people.window")
     end if
-    if pUnitList.getAt(tUnitid).getAt(#type) = #subUnit then
+    if (pUnitList.getAt(tUnitid).getAt(#type) = #subUnit) then
       tMainUnitID = pUnitList.getAt(tUnitid).getAt(#mymainunitid)
       tMainUnitName = pUnitList.getAt(tMainUnitID).getAt(#name)
       me.getComponent().GetUnitUsers(tMainUnitName, pUnitList.getAt(tUnitid).getAt(#name))
@@ -446,8 +446,8 @@ on CreatepublicRoomInfo me, tUnitid
   end if
   tWndObj = getWindow(pWindowTitle)
   tElem = tWndObj.getElement("nav_roominfo")
-  if tElem = 0 then
-    return(0)
+  if (tElem = 0) then
+    return FALSE
   end if
   tInfo = getText("nav_roominfo_" & tUnitid, "")
   tWidth = tElem.getProperty(#width)
@@ -468,21 +468,21 @@ end
 on saveFlatList me, tFlats, tMode 
   pFlatList = tFlats
   if not pOpenWindow contains "private" then
-    return(0)
+    return FALSE
   end if
   tWndObj = getWindow(pWindowTitle)
-  if tWndObj = 0 then
-    return(0)
+  if (tWndObj = 0) then
+    return FALSE
   end if
   tElement = tWndObj.getElement("nav_private_rooms_list")
-  if tElement = 0 then
-    return(0)
+  if (tElement = 0) then
+    return FALSE
   end if
-  if tMode = #cached then
+  if (tMode = #cached) then
     if pCachedFlatImg <> 0 then
       pPrivateListImg = pCachedFlatImg
       tElement.feedImage(pPrivateListImg)
-      return(1)
+      return TRUE
     else
       tMode = #busy
     end if
@@ -499,17 +499,17 @@ on saveFlatList me, tFlats, tMode
     tFlat = tFlats.getAt(f)
     tUsersTxt = tUsersTxt & tFlat.getAt(#usercount) & "\r"
     tFlatstxt = tFlatstxt & tFlat.getAt(#name) & "\r"
-    tSrcRect = rect(0, 0, tItemWidth - 30, 1)
+    tSrcRect = rect(0, 0, (tItemWidth - 30), 1)
     tCurrLocY = (f * pListItemHeight)
-    tDstRect = tSrcRect + rect(20, tCurrLocY - 1, 20, tCurrLocY - 1)
+    tDstRect = (tSrcRect + rect(20, (tCurrLocY - 1), 20, (tCurrLocY - 1)))
     pPrivateListImg.copyPixels(pPublicDotLineImg, tDstRect, tSrcRect)
-    tDstRect = pFlatGoTextImg.rect + rect(tItemWidth - pFlatGoTextImg.width, tCurrLocY - pFlatGoTextImg.height, tItemWidth - pFlatGoTextImg.width, tCurrLocY - pFlatGoTextImg.height)
+    tDstRect = (pFlatGoTextImg.rect + rect((tItemWidth - pFlatGoTextImg.width), (tCurrLocY - pFlatGoTextImg.height), (tItemWidth - pFlatGoTextImg.width), (tCurrLocY - pFlatGoTextImg.height)))
     pPrivateListImg.copyPixels(pFlatGoTextImg, tDstRect, pFlatGoTextImg.rect)
     if tFlat.getAt(#door) <> "open" then
-      if tFlat.getAt(#door) = "closed" then
+      if (tFlat.getAt(#door) = "closed") then
         tLockImg = tLockMemImgA
       else
-        if tFlat.getAt(#door) = "password" then
+        if (tFlat.getAt(#door) = "password") then
           tLockImg = tLockMemImgB
         else
           tLockImg = 0
@@ -517,25 +517,25 @@ on saveFlatList me, tFlats, tMode
       end if
       if tLockImg <> 0 then
         tSrcRect = tLockImg.rect
-        tDstRect = tSrcRect + rect(tItemWidth - pFlatGoTextImg.width - 20, tCurrLocY - (tLockImg.height * 1.5), tItemWidth - pFlatGoTextImg.width - 20, tCurrLocY - (tLockImg.height * 1.5))
+        tDstRect = (tSrcRect + rect(((tItemWidth - pFlatGoTextImg.width) - 20), (tCurrLocY - (tLockImg.height * 1.5)), ((tItemWidth - pFlatGoTextImg.width) - 20), (tCurrLocY - (tLockImg.height * 1.5))))
         pPrivateListImg.copyPixels(tLockImg, tDstRect, tSrcRect)
       end if
     end if
-    f = 1 + f
+    f = (1 + f)
   end repeat
-  tUsersTxt = tUsersTxt.getProp(#line, 1, tUsersTxt.count(#line) - 1)
-  tFlatstxt = tFlatstxt.getProp(#line, 1, tFlatstxt.count(#line) - 1)
+  tUsersTxt = tUsersTxt.getProp(#line, 1, (tUsersTxt.count(#line) - 1))
+  tFlatstxt = tFlatstxt.getProp(#line, 1, (tFlatstxt.count(#line) - 1))
   tTempRoomNamesImg = pWriterPrivUnder.render(tFlatstxt)
   tTempUserCountImg = pWriterPrivPlain.render(tUsersTxt)
-  tDstRect = tTempUserCountImg.rect + rect(0, 0, 0, 0)
+  tDstRect = (tTempUserCountImg.rect + rect(0, 0, 0, 0))
   pPrivateListImg.copyPixels(tTempUserCountImg, tDstRect, tTempUserCountImg.rect)
-  tDstRect = tTempRoomNamesImg.rect + rect(20, 0, 20, 0)
+  tDstRect = (tTempRoomNamesImg.rect + rect(20, 0, 20, 0))
   pPrivateListImg.copyPixels(tTempRoomNamesImg, tDstRect, tTempRoomNamesImg.rect)
-  if tMode = #busy then
+  if (tMode = #busy) then
     pCachedFlatImg = pPrivateListImg
   end if
   tElement.feedImage(pPrivateListImg)
-  return(1)
+  return TRUE
 end
 
 on CreatePrivateRoomInfo me, tRoomData 
@@ -549,10 +549,10 @@ on CreatePrivateRoomInfo me, tRoomData
     return(error(me, "Can't create flat info, 'pPrivateDropMode' is VOID!", #CreatePrivateRoomInfo))
   end if
   tWndObj = getWindow(pWindowTitle)
-  if tWndObj = 0 then
+  if (tWndObj = 0) then
     return(error(me, "Window doesn't exist!", #CreatePrivateRoomInfo))
   end if
-  if pPrivateDropMode = "nav_rooms_favourite" then
+  if (pPrivateDropMode = "nav_rooms_favourite") then
     me.ChangeWindowView("nav_private_removefavorite.window")
   end if
   if voidp(pPrivateListImg) then
@@ -592,15 +592,15 @@ on CreatePrivateRoomInfo me, tRoomData
   end if
   if tWndObj.elementExists("nav_door_icon") then
     if voidp(pCurrentFlatData.getAt(#door)) then
-      return(0)
+      return FALSE
     end if
-    if pCurrentFlatData.getAt(#door) = "open" then
+    if (pCurrentFlatData.getAt(#door) = "open") then
       tLockmem = "door_open"
     else
-      if pCurrentFlatData.getAt(#door) = "closed" then
+      if (pCurrentFlatData.getAt(#door) = "closed") then
         tLockmem = "door_closed"
       else
-        if pCurrentFlatData.getAt(#door) = "password" then
+        if (pCurrentFlatData.getAt(#door) = "password") then
           tLockmem = "door_password"
         else
           return(error(me, "Saved flat data is not valid!", #CreatePrivateRoomInfo))
@@ -613,7 +613,7 @@ on CreatePrivateRoomInfo me, tRoomData
     end if
   end if
   if tWndObj.elementExists("nav_modify_button") and not voidp(tRoomData.getAt(#owner)) then
-    if tRoomData.getAt(#owner) = getObject(#session).get("user_name") then
+    if (tRoomData.getAt(#owner) = getObject(#session).get("user_name")) then
       tWndObj.getElement("nav_modify_button").show()
     else
       tWndObj.getElement("nav_modify_button").hide()
@@ -624,7 +624,7 @@ end
 on modifyPrivateRoom me 
   pFlatPasswords = [:]
   if pCurrentFlatData.getAt(#owner) <> getObject(#session).get("user_name") then
-    return(0)
+    return FALSE
   end if
   me.ChangeWindowView("nav_private_modify.window")
   tWndObj = getWindow(pWindowTitle)
@@ -638,22 +638,22 @@ on modifyPrivateRoom me
         tWndObj.getElement(tField).setText(pCurrentFlatData.getAt(tProp))
       end if
     end if
-    f = 1 + f
+    f = (1 + f)
   end repeat
   tCheckOnImg = member(getmemnum("button.checkbox.on")).image
   tCheckOffImg = member(getmemnum("button.checkbox.off")).image
-  if pCurrentFlatData.getAt(#showownername) = 1 then
+  if (pCurrentFlatData.getAt(#showownername) = 1) then
     me.updateRadioButton("nav_modify_nameshow_yes_radio", ["nav_modify_nameshow_no_radio"])
   else
     me.updateRadioButton("nav_modify_nameshow_no_radio", ["nav_modify_nameshow_yes_radio"])
   end if
-  if pCurrentFlatData.getAt(#door) = "open" then
+  if (pCurrentFlatData.getAt(#door) = "open") then
     me.updateRadioButton("nav_modify_door_open_radio", ["nav_modify_door_locked_radio", "nav_modify_door_pw_radio"])
   else
-    if pCurrentFlatData.getAt(#door) = "closed" then
+    if (pCurrentFlatData.getAt(#door) = "closed") then
       me.updateRadioButton("nav_modify_door_locked_radio", ["nav_modify_door_open_radio", "nav_modify_door_pw_radio"])
     else
-      if pCurrentFlatData.getAt(#door) = "password" then
+      if (pCurrentFlatData.getAt(#door) = "password") then
         me.updateRadioButton("nav_modify_door_pw_radio", ["nav_modify_door_open_radio", "nav_modify_door_locked_radio"])
       end if
     end if
@@ -674,19 +674,19 @@ on checkPasswords me
   else
     tPw2 = pFlatPasswords.getAt(tElementId2)
   end if
-  if tPw1.count = 0 then
+  if (tPw1.count = 0) then
     executeMessage(#alert, [#msg:"Alert_ForgotSetPassword"])
-    return(0)
+    return FALSE
   end if
   if tPw1.count < 3 then
     executeMessage(#alert, [#msg:"Alert_YourPasswordIstooShort"])
-    return(0)
+    return FALSE
   end if
   if tPw1 <> tPw2 then
     executeMessage(#alert, [#msg:"Alert_WrongPassword"])
-    return(0)
+    return FALSE
   end if
-  return(1)
+  return TRUE
 end
 
 on getPassword me, tElementId 
@@ -733,13 +733,13 @@ on updateCheckButton me, tElement, tProp, tChangeMode
     tChangeMode = 0
   end if
   if tChangeMode then
-    if pCurrentFlatData.getAt(tProp) = 1 then
+    if (pCurrentFlatData.getAt(tProp) = 1) then
       pCurrentFlatData.setAt(tProp, 0)
     else
       pCurrentFlatData.setAt(tProp, 1)
     end if
   end if
-  if pCurrentFlatData.getAt(tProp) = 1 then
+  if (pCurrentFlatData.getAt(tProp) = 1) then
     if tWndObj.elementExists(tElement) then
       tWndObj.getElement(tElement).feedImage(tOnImg)
     end if
@@ -754,9 +754,9 @@ on searchPrivateRooms me, tMode
   if pOpenWindow contains "private" then
     tWndObj = getWindow(pWindowTitle)
     if not tWndObj.elementExists("nav_private_search_field") then
-      return(0)
+      return FALSE
     end if
-    if tMode = 1 then
+    if (tMode = 1) then
       pPrivateDropMode = "nav_rooms_search"
       tWndObj.getElement("nav_private_dropdown").setSelection("nav_rooms_search")
       tElement = tWndObj.getElement("nav_private_search_field")
@@ -791,7 +791,7 @@ on makePrivateRoomSearch me
     tSearchQuery = tWndObj.getElement("nav_private_search_field").getText()
     if pLastFlatSearch <> tSearchQuery then
       pLastFlatSearch = tSearchQuery
-      if tSearchQuery = "" then
+      if (tSearchQuery = "") then
         return(me.failedFlatSearch(getText("nav_prvrooms_notfound")))
       end if
       me.renderLoadingText("nav_private_rooms_list")
@@ -811,19 +811,19 @@ on failedFlatSearch me, tText
   tHeight = tElem.getProperty(#height)
   tTempImg = image(tWidth, tHeight, 8)
   tTextImg = pWriterPlainNormLeft.render(tText)
-  tTempImg.copyPixels(tTextImg, tTextImg.rect + rect(8, 5, 8, 5), tTextImg.rect)
+  tTempImg.copyPixels(tTextImg, (tTextImg.rect + rect(8, 5, 8, 5)), tTextImg.rect)
   tElem.feedImage(tTempImg)
 end
 
 on getFlatPassword me 
   if voidp(pCurrentFlatData) then
-    return(0)
+    return FALSE
   end if
   if pCurrentFlatData.getAt(#door) <> "password" then
-    return(0)
+    return FALSE
   end if
   if voidp(pCurrentFlatData.getAt(#password)) then
-    return(0)
+    return FALSE
   else
     return(pCurrentFlatData.getAt(#password))
   end if
@@ -840,19 +840,19 @@ on roomlistupdate me
       me.getComponent().getUnitUpdates()
     else
       if pOpenWindow contains "private" then
-        if pPrivateDropMode = "nav_rooms_own" then
+        if (pPrivateDropMode = "nav_rooms_own") then
           me.getComponent().getOwnFlats()
         else
-          if pPrivateDropMode = "nav_rooms_popular" then
+          if (pPrivateDropMode = "nav_rooms_popular") then
             me.getComponent().searchBusyFlats(0, pFlatsPerView, #update)
           else
-            if pPrivateDropMode = "nav_rooms_favourite" then
+            if (pPrivateDropMode = "nav_rooms_favourite") then
               me.getComponent().getFavouriteFlats()
             else
-              if pPrivateDropMode = "nav_rooms_search" then
+              if (pPrivateDropMode = "nav_rooms_search") then
                 me.searchPrivateRooms(1)
               else
-                return(0)
+                return FALSE
               end if
             end if
           end if
@@ -863,29 +863,29 @@ on roomlistupdate me
 end
 
 on eventProcNavigatorPublic me, tEvent, tSprID, tParm 
-  if tEvent = #mouseDown then
-    if tSprID = "nav_private_tab" then
+  if (tEvent = #mouseDown) then
+    if (tSprID = "nav_private_tab") then
       me.ChangeWindowView("nav_private_start.window")
       pPrivateDropMode = "nav_rooms_popular"
       if not me.getComponent().searchBusyFlats(0, pFlatsPerView) then
         me.renderLoadingText("nav_private_rooms_list")
       end if
     else
-      if tSprID = "nav_public_rooms_list" then
-        if not ilk(tParm, #point) or pUnitList.count = 0 then
+      if (tSprID = "nav_public_rooms_list") then
+        if not ilk(tParm, #point) or (pUnitList.count = 0) then
           return()
         end if
-        if pOpenWindow = "nav_public_start.window" then
+        if (pOpenWindow = "nav_public_start.window") then
           me.ChangeWindowView("nav_public_info.window")
         end if
         tClickLine = integer((tParm.locV / pListItemHeight))
         if tClickLine < 1 then
-          tGoLinkArea = pPublicListWidth - pFlatGoTextImg.width
+          tGoLinkArea = (pPublicListWidth - pFlatGoTextImg.width)
           if tParm.locH > tGoLinkArea then
             getConnection(getVariable("connection.info.id")).send(#room, "QUIT")
             return(me.getComponent().updateState("enterEntry"))
           else
-            return(1)
+            return TRUE
           end if
         end if
         if tClickLine > pVisibleFlatCount then
@@ -900,17 +900,17 @@ on eventProcNavigatorPublic me, tEvent, tSprID, tParm
           return(error(me, "Unit data not found:" && tClickedUnit, #eventProcNavigator))
         end if
         pLastClickedUnitId = tClickedUnit
-        tGoLinkH = pPublicListWidth - pFlatGoTextImg.width
+        tGoLinkH = (pPublicListWidth - pFlatGoTextImg.width)
         if tParm.locH > tGoLinkH and pUnitList.getAt(tClickedUnit).getAt(#type) <> #MultiUnit then
           return(me.getComponent().updateState("enterUnit", tClickedUnit))
         else
-          if pOpenWindow = "nav_public_info.window" then
+          if (pOpenWindow = "nav_public_info.window") then
             me.CreatepublicRoomInfo(tClickedUnit)
           else
             me.GetUnitUsers(tClickedUnit)
           end if
-          if pUnitList.getAt(tClickedUnit).getAt(#type) = #MultiUnit then
-            if pUnitList.getAt(tClickedUnit).getAt(#multiroomOpen) = #open then
+          if (pUnitList.getAt(tClickedUnit).getAt(#type) = #MultiUnit) then
+            if (pUnitList.getAt(tClickedUnit).getAt(#multiroomOpen) = #open) then
               tstate = #closed
             else
               tstate = #open
@@ -919,34 +919,34 @@ on eventProcNavigatorPublic me, tEvent, tSprID, tParm
             if not voidp(pUnitList.findPos(tClickedUnit)) then
               tMainPos = pUnitList.findPos(tClickedUnit)
             end if
-            f = tMainPos + 1
-            repeat while f <= tMainPos + pUnitList.getAt(tClickedUnit).getAt(#subunitcount)
-              if tstate = #open then
+            f = (tMainPos + 1)
+            repeat while f <= (tMainPos + pUnitList.getAt(tClickedUnit).getAt(#subunitcount))
+              if (tstate = #open) then
                 pUnitList.getAt(pUnitList.getPropAt(f)).setAt(#visible, 1)
               else
                 pUnitList.getAt(pUnitList.getPropAt(f)).setAt(#visible, 0)
               end if
-              f = 1 + f
+              f = (1 + f)
             end repeat
             me.renderUnitList()
           end if
         end if
       else
-        if tSprID = "nav_public_people_tab" then
+        if (tSprID = "nav_public_people_tab") then
           me.GetUnitUsers(pLastClickedUnitId)
         else
-          if tSprID = "nav_public_info_tab" then
+          if (tSprID = "nav_public_info_tab") then
             me.CreatepublicRoomInfo(pLastClickedUnitId)
           else
             if tSprID <> "create_room" then
-              if tSprID = "nav_public_helptext" then
+              if (tSprID = "nav_public_helptext") then
                 return(executeMessage(#open_roomkiosk))
               end if
-              if tEvent = #mouseUp then
-                if tSprID = "close" then
+              if (tEvent = #mouseUp) then
+                if (tSprID = "close") then
                   me.hideNavigator(#hide)
                 else
-                  if tSprID = "nav_go_public_button" then
+                  if (tSprID = "nav_go_public_button") then
                     if not voidp(pLastClickedUnitId) then
                       me.getComponent().updateState("enterUnit", pLastClickedUnitId)
                     end if
@@ -962,8 +962,8 @@ on eventProcNavigatorPublic me, tEvent, tSprID, tParm
 end
 
 on eventProcNavigatorPrivate me, tEvent, tSprID, tParm 
-  if tEvent = #mouseDown then
-    if tSprID = "nav_public_tab" then
+  if (tEvent = #mouseDown) then
+    if (tSprID = "nav_public_tab") then
       if not voidp(pLastClickedUnitId) then
         me.ChangeWindowView("nav_public_info.window")
         me.CreatepublicRoomInfo(pLastClickedUnitId)
@@ -971,11 +971,11 @@ on eventProcNavigatorPrivate me, tEvent, tSprID, tParm
         me.ChangeWindowView("nav_public_start.window")
       end if
     else
-      if tSprID = "nav_private_rooms_list" then
-        if not ilk(tParm, #point) or pFlatList.count = 0 then
-          return(0)
+      if (tSprID = "nav_private_rooms_list") then
+        if not ilk(tParm, #point) or (pFlatList.count = 0) then
+          return FALSE
         end if
-        tClickLine = integer((tParm.locV / pListItemHeight)) + 1
+        tClickLine = (integer((tParm.locV / pListItemHeight)) + 1)
         if tClickLine > pFlatList.count then
           tClickLine = pFlatList.count
         end if
@@ -983,12 +983,12 @@ on eventProcNavigatorPrivate me, tEvent, tSprID, tParm
           if not voidp(pFlatList.getAt(tClickLine)) then
             tRoomId = pFlatList.getAt(tClickLine).getAt(#id)
             if not voidp(tRoomId) then
-              tGoLinkArea = pPrivateListImg.width - pFlatGoTextImg.width
+              tGoLinkArea = (pPrivateListImg.width - pFlatGoTextImg.width)
               if tParm.locH > tGoLinkArea then
                 if not getObject(#session).get("user_rights").getOne("can_enter_others_rooms") then
                   if pFlatList.getAt(tRoomId).getAt(#owner) <> getObject(#session).get(#userName) then
                     executeMessage(#alert, [#msg:"nav_norights"])
-                    return(1)
+                    return TRUE
                   end if
                 end if
                 pFlatInfoAction = #enterflat
@@ -1007,71 +1007,71 @@ on eventProcNavigatorPrivate me, tEvent, tSprID, tParm
           end if
         end if
       else
-        if tSprID = "nav_private_search_field" then
+        if (tSprID = "nav_private_search_field") then
           me.searchPrivateRooms(1)
         else
-          if tSprID = "nav_modify_nameshow_yes_radio" then
+          if (tSprID = "nav_modify_nameshow_yes_radio") then
             pCurrentFlatData.setAt(#showownername, "1")
             me.updateRadioButton("nav_modify_nameshow_yes_radio", ["nav_modify_nameshow_no_radio"])
           else
-            if tSprID = "nav_modify_nameshow_no_radio" then
+            if (tSprID = "nav_modify_nameshow_no_radio") then
               pCurrentFlatData.setAt(#showownername, "0")
               me.updateRadioButton("nav_modify_nameshow_no_radio", ["nav_modify_nameshow_yes_radio"])
             else
-              if tSprID = "nav_modify_door_open_radio" then
+              if (tSprID = "nav_modify_door_open_radio") then
                 pCurrentFlatData.setAt(#door, "open")
                 me.updateRadioButton("nav_modify_door_open_radio", ["nav_modify_door_locked_radio", "nav_modify_door_pw_radio"])
               else
-                if tSprID = "nav_modify_door_locked_radio" then
+                if (tSprID = "nav_modify_door_locked_radio") then
                   pCurrentFlatData.setAt(#door, "closed")
                   me.updateRadioButton("nav_modify_door_locked_radio", ["nav_modify_door_open_radio", "nav_modify_door_pw_radio"])
                 else
-                  if tSprID = "nav_modify_door_pw_radio" then
+                  if (tSprID = "nav_modify_door_pw_radio") then
                     pCurrentFlatData.setAt(#door, "password")
                     me.updateRadioButton("nav_modify_door_pw_radio", ["nav_modify_door_open_radio", "nav_modify_door_locked_radio"])
                   else
-                    if tSprID = "nav_modify_furnituremove_check" then
+                    if (tSprID = "nav_modify_furnituremove_check") then
                       me.updateCheckButton("nav_modify_furnituremove_check", #ableothersmovefurniture, 1)
                     else
                       if tSprID <> "create_room" then
-                        if tSprID = "nav_public_helptext" then
+                        if (tSprID = "nav_public_helptext") then
                           return(executeMessage(#open_roomkiosk))
                         end if
-                        if tEvent = #mouseUp then
-                          if tSprID = "close" then
+                        if (tEvent = #mouseUp) then
+                          if (tSprID = "close") then
                             me.hideNavigator(#hide)
                           else
-                            if tSprID = "nav_go_private_button" then
+                            if (tSprID = "nav_go_private_button") then
                               if not getObject(#session).get("user_rights").getOne("can_enter_others_rooms") then
                                 if pCurrentFlatData.getAt(#owner) <> getObject(#session).get(#userName) then
                                   executeMessage(#alert, [#msg:"nav_norights"])
-                                  return(1)
+                                  return TRUE
                                 end if
                               end if
                               pFlatInfoAction = #enterflat
                               me.getComponent().getFlatInfo(pCurrentFlatData.getAt(#id))
                               me.renderLoadingText("nav_private_rooms_list")
                             else
-                              if tSprID = "nav_private_dropdown" then
-                                if tParm.ilk <> #string or tParm = pPrivateDropMode then
-                                  return(1)
+                              if (tSprID = "nav_private_dropdown") then
+                                if tParm.ilk <> #string or (tParm = pPrivateDropMode) then
+                                  return TRUE
                                 end if
                                 pPrivateDropMode = tParm
-                                if pPrivateDropMode = "nav_rooms_search" then
+                                if (pPrivateDropMode = "nav_rooms_search") then
                                   return(me.searchPrivateRooms(1))
                                 else
                                   me.searchPrivateRooms(0)
                                 end if
-                                if tSprID = "nav_rooms_own" then
+                                if (tSprID = "nav_rooms_own") then
                                   me.getComponent().getOwnFlats()
                                 else
-                                  if tSprID = "nav_rooms_popular" then
+                                  if (tSprID = "nav_rooms_popular") then
                                     return(me.getComponent().searchBusyFlats(0, pFlatsPerView))
                                   else
-                                    if tSprID = "nav_rooms_search" then
+                                    if (tSprID = "nav_rooms_search") then
                                       me.makePrivateRoomSearch()
                                     else
-                                      if tSprID = "nav_rooms_favourite" then
+                                      if (tSprID = "nav_rooms_favourite") then
                                         me.getComponent().getFavouriteFlats()
                                       end if
                                     end if
@@ -1079,24 +1079,24 @@ on eventProcNavigatorPrivate me, tEvent, tSprID, tParm
                                 end if
                                 me.renderLoadingText("nav_private_rooms_list")
                               else
-                                if tSprID = "nav_private_button_search" then
+                                if (tSprID = "nav_private_button_search") then
                                   me.makePrivateRoomSearch()
                                 else
-                                  if tSprID = "nav_modify_button" then
+                                  if (tSprID = "nav_modify_button") then
                                     if not voidp(pCurrentFlatData.getAt(#id)) then
                                       pFlatInfoAction = #modifyInfo
                                       me.getComponent().getFlatInfo(pCurrentFlatData.getAt(#id))
                                       me.renderLoadingText("nav_private_rooms_list")
                                     end if
                                   else
-                                    if tSprID = "nav_modify_ok" then
+                                    if (tSprID = "nav_modify_ok") then
                                       if voidp(pCurrentFlatData) then
-                                        return(0)
+                                        return FALSE
                                       end if
                                       tWndObj = getWindow(pWindowTitle)
-                                      if pCurrentFlatData.getAt(#door) = "password" then
+                                      if (pCurrentFlatData.getAt(#door) = "password") then
                                         if not me.checkPasswords() then
-                                          return(0)
+                                          return FALSE
                                         end if
                                       end if
                                       pCurrentFlatData.setAt(#name, tWndObj.getElement("nav_modify_roomnamefield").getText().getProp(#line, 1))
@@ -1110,30 +1110,30 @@ on eventProcNavigatorPrivate me, tEvent, tSprID, tParm
                                       me.ChangeWindowView("nav_private_info.window")
                                       me.renderLoadingText("nav_private_rooms_list")
                                     else
-                                      if tSprID = "nav_modify_cancel" then
+                                      if (tSprID = "nav_modify_cancel") then
                                         me.roomlistupdate()
                                         me.ChangeWindowView("nav_private_info.window")
                                         me.renderLoadingText("nav_private_rooms_list")
                                       else
-                                        if tSprID = "nav_modify_deleteroom" then
+                                        if (tSprID = "nav_modify_deleteroom") then
                                           me.ChangeWindowView("nav_private_modify_delete1.window")
                                         else
-                                          if tSprID = "nav_addtofavourites_button" then
+                                          if (tSprID = "nav_addtofavourites_button") then
                                             if voidp(pCurrentFlatData.getAt(#id)) then
-                                              return(0)
+                                              return FALSE
                                             end if
                                             me.getComponent().addToFavouriteFlats(pCurrentFlatData.getAt(#id))
                                           else
-                                            if tSprID = "nav_removefavourites_button" then
+                                            if (tSprID = "nav_removefavourites_button") then
                                               if voidp(pCurrentFlatData.getAt(#id)) then
-                                                return(0)
+                                                return FALSE
                                               end if
                                               me.getComponent().removeFavouriteFlats(pCurrentFlatData.getAt(#id))
                                               me.getComponent().getFavouriteFlats()
                                             else
                                               if tSprID <> "nav_ringbell_cancel_button" then
                                                 if tSprID <> "nav_flatpassword_cancel_button" then
-                                                  if tSprID = "nav_trypw_cancel_button" then
+                                                  if (tSprID = "nav_trypw_cancel_button") then
                                                     if tSprID <> "nav_flatpassword_cancel_button" then
                                                       me.getComponent().updateState("enterEntry")
                                                     end if
@@ -1142,9 +1142,9 @@ on eventProcNavigatorPrivate me, tEvent, tSprID, tParm
                                                       me.renderLoadingText("nav_private_rooms_list")
                                                     end if
                                                   else
-                                                    if tSprID = "nav_flatpassword_ok_button" then
+                                                    if (tSprID = "nav_flatpassword_ok_button") then
                                                       tTemp = me.getPassword("nav_flatpassword_field")
-                                                      if length(tTemp) = 0 then
+                                                      if (length(tTemp) = 0) then
                                                         return()
                                                       end if
                                                       pCurrentFlatData.setAt(#password, tTemp)
@@ -1152,11 +1152,11 @@ on eventProcNavigatorPrivate me, tEvent, tSprID, tParm
                                                       getWindow(pWindowTitle).getElement("nav_roomname_text").setText(pCurrentFlatData.getAt(#name))
                                                       me.getComponent().updateState("enterFlat", pCurrentFlatData.getAt(#id))
                                                     else
-                                                      if tSprID = "nav_tryagain_ok_button" then
+                                                      if (tSprID = "nav_tryagain_ok_button") then
                                                         pFlatInfoAction = #enterflat
                                                         me.getComponent().getFlatInfo(pCurrentFlatData.getAt(#id))
                                                       else
-                                                        if tSprID = "nav_noanswer_ok_button" then
+                                                        if (tSprID = "nav_noanswer_ok_button") then
                                                           me.getComponent().updateState("enterEntry")
                                                           me.ChangeWindowView("nav_private_info.window")
                                                           if not me.getComponent().searchBusyFlats(0, pFlatsPerView) then
@@ -1165,13 +1165,13 @@ on eventProcNavigatorPrivate me, tEvent, tSprID, tParm
                                                         else
                                                           if tSprID contains "nav_delete_room_ok_" then
                                                             if not voidp(pCurrentFlatData.getAt(#id)) then
-                                                              if tSprID = 1 then
+                                                              if (tSprID = 1) then
                                                                 me.ChangeWindowView("nav_private_modify_delete2.window")
                                                               else
-                                                                if tSprID = 2 then
+                                                                if (tSprID = 2) then
                                                                   me.ChangeWindowView("nav_private_modify_delete3.window")
                                                                 else
-                                                                  if tSprID = 3 then
+                                                                  if (tSprID = 3) then
                                                                     me.getComponent().deleteFlat(pCurrentFlatData.getAt(#id))
                                                                     me.ChangeWindowView("nav_private_start.window")
                                                                     pPrivateDropMode = "nav_rooms_own"
@@ -1184,7 +1184,7 @@ on eventProcNavigatorPrivate me, tEvent, tSprID, tParm
                                                           else
                                                             if tSprID contains "nav_delete_room_cancel_" then
                                                               if voidp(pCurrentFlatData.getAt(#id)) then
-                                                                return(0)
+                                                                return FALSE
                                                               end if
                                                               me.getComponent().getFlatInfo(pCurrentFlatData.getAt(#id))
                                                               pFlatInfoAction = #modifyInfo
@@ -1194,42 +1194,42 @@ on eventProcNavigatorPrivate me, tEvent, tSprID, tParm
                                                       end if
                                                     end if
                                                   end if
-                                                  if tEvent = #keyDown then
-                                                    if tSprID = "nav_private_search_field" then
-                                                      if the key = "\r" then
+                                                  if (tEvent = #keyDown) then
+                                                    if (tSprID = "nav_private_search_field") then
+                                                      if (the key = "\r") then
                                                         me.makePrivateRoomSearch()
                                                       end if
                                                     else
                                                       if tSprID <> "nav_modify_door_pw" then
                                                         if tSprID <> "nav_modify_door_pw2" then
-                                                          if tSprID = "nav_flatpassword_field" then
+                                                          if (tSprID = "nav_flatpassword_field") then
                                                             if voidp(pFlatPasswords.getAt(tSprID)) then
                                                               pFlatPasswords.setAt(tSprID, [])
                                                             end if
-                                                            if tSprID = 48 then
-                                                              return(0)
+                                                            if (tSprID = 48) then
+                                                              return FALSE
                                                             else
                                                               if tSprID <> 36 then
-                                                                if tSprID = 76 then
-                                                                  if tSprID = "nav_flatpassword_field" then
+                                                                if (tSprID = 76) then
+                                                                  if (tSprID = "nav_flatpassword_field") then
                                                                     return(me.eventProcNavigatorPrivate(#mouseUp, "nav_flatpassword_ok_button", void()))
                                                                   else
-                                                                    return(1)
+                                                                    return TRUE
                                                                   end if
                                                                 else
-                                                                  if tSprID = 51 then
+                                                                  if (tSprID = 51) then
                                                                     if pFlatPasswords.getAt(tSprID).count > 0 then
                                                                       pFlatPasswords.getAt(tSprID).deleteAt(pFlatPasswords.getAt(tSprID).count)
                                                                     end if
                                                                   else
-                                                                    if tSprID = 117 then
+                                                                    if (tSprID = 117) then
                                                                       pFlatPasswords.setAt(tSprID, [])
                                                                     else
                                                                       tValidKeys = getVariable("permitted.name.chars", "1234567890qwertyuiopasdfghjklzxcvbnm_-=+?!@<>:.,")
                                                                       tTheKey = the key
                                                                       tASCII = charToNum(tTheKey)
                                                                       if tASCII > 31 and tASCII < 128 then
-                                                                        if tValidKeys contains tTheKey or tValidKeys = "" then
+                                                                        if tValidKeys contains tTheKey or (tValidKeys = "") then
                                                                           if pFlatPasswords.getAt(tSprID).count < 32 then
                                                                             pFlatPasswords.getAt(tSprID).append(tTheKey)
                                                                           end if
@@ -1241,12 +1241,12 @@ on eventProcNavigatorPrivate me, tEvent, tSprID, tParm
                                                                 tStr = ""
                                                                 i = 1
                                                                 repeat while i <= pFlatPasswords.getAt(tSprID).count
-                                                                  i = 1 + i
+                                                                  i = (1 + i)
                                                                 end repeat
                                                                 getWindow(pWindowTitle).getElement(tSprID).setText(tStr)
                                                                 the selStart = pFlatPasswords.getAt(tSprID).count
                                                                 the selEnd = pFlatPasswords.getAt(tSprID).count
-                                                                return(1)
+                                                                return TRUE
                                                               end if
                                                             end if
                                                           end if
@@ -1281,8 +1281,8 @@ on eventProcNavigatorPrivate me, tEvent, tSprID, tParm
 end
 
 on eventProcDisconnect me, tEvent, tElemID, tParam 
-  if tEvent = #mouseUp then
-    if tElemID = "error_close" then
+  if (tEvent = #mouseUp) then
+    if (tElemID = "error_close") then
       removeWindow(#error)
       resetClient()
     end if

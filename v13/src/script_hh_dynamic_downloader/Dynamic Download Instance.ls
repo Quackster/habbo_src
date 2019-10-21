@@ -25,7 +25,7 @@ on purgeCallbacks me, tSuccess
     else
       error(me, "Object or handler invalid:" && tObject && tHandler, #purgeCallbacks)
     end if
-    tCounter = tCounter + 1
+    tCounter = (tCounter + 1)
   end repeat
   pListenerList = []
 end
@@ -53,7 +53,7 @@ end
 on getDownloadName me 
   tOffset = offset("?", pDownloadURL)
   if tOffset then
-    tDownloadURLNoParams = pDownloadURL.getProp(#char, 1, tOffset - 1)
+    tDownloadURLNoParams = pDownloadURL.getProp(#char, 1, (tOffset - 1))
   else
     tDownloadURLNoParams = pDownloadURL
   end if

@@ -10,7 +10,7 @@ on construct me
   pSprite.ink = 8
   pSprite.visible = 0
   pTime = 0
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
@@ -19,7 +19,7 @@ on deconstruct me
     releaseSprite(pSprite.spriteNum)
   end if
   pSprite = void()
-  return(1)
+  return TRUE
 end
 
 on start me 
@@ -34,10 +34,10 @@ on start me
 end
 
 on update me 
-  if the milliSeconds - pTime >= 1000 then
-    pCurCount = pCurCount - 1
+  if (the milliSeconds - pTime) >= 1000 then
+    pCurCount = (pCurCount - 1)
     pAnimFrm = 1
-    if pCurCount = 0 then
+    if (pCurCount = 0) then
       removeUpdate(me.getID())
       pSprite.visible = 0
       pCurCount = 3
@@ -53,5 +53,5 @@ on update me
       pSprite.member = member(getmemnum("startcount" && pCurCount && pAnimFrm))
     end if
   end if
-  pAnimFrm = pAnimFrm + 1
+  pAnimFrm = (pAnimFrm + 1)
 end

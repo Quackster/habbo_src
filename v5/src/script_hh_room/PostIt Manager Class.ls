@@ -4,13 +4,13 @@ on construct me
   pWindowID = #postit_window
   registerMessage(#leaveRoom, me.getID(), #close)
   registerMessage(#changeRoom, me.getID(), #close)
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
   unregisterMessage(#leaveRoom, me.getID())
   unregisterMessage(#changeRoom, me.getID())
-  return(1)
+  return TRUE
 end
 
 on open me, tid, tColor, tLocX, tLocY 
@@ -29,11 +29,11 @@ on close me
   if pActivePostItId > 0 then
     tColorHex = pcolor.hexString()
     tWindow = getWindow(pWindowID)
-    if tWindow = 0 then
-      return(0)
+    if (tWindow = 0) then
+      return FALSE
     end if
     tdata = tColorHex.getProp(#char, 2, length(tColorHex)) && tWindow.getElement("stickies_text_field").getText()
-    if pChanged = 1 then
+    if (pChanged = 1) then
       getThread(#room).getComponent().getRoomConnection().send(#room, "SETITEMDATA /" & pActivePostItId & "/" & tdata)
     end if
   end if
@@ -59,18 +59,18 @@ on setItemData me, tMsg
   pActivePostItId = tid
   pText = tText
   tObject = getThread(#room).getComponent().getItemObject(string(pActivePostItId))
-  if tObject = 0 then
+  if (tObject = 0) then
     return(error(me, "Couldn't find stickie:" && pActivePostItId, #setItemData))
   end if
-  if tObject.getClass() = "post.it.vd" then
+  if (tObject.getClass() = "post.it.vd") then
     tWndType = "habbo_stickie_vd.window"
   else
     tWndType = "habbo_stickies.window"
   end if
   createWindow(pWindowID, tWndType)
   tWindow = getWindow(pWindowID)
-  if the stage > image.width - tWindow.getProperty(#width) then
-    pLocX = image.width - tWindow.getProperty(#width)
+  if pLocX > (the stage.image.width - tWindow.getProperty(#width)) then
+    pLocX = (the stage.image.width - tWindow.getProperty(#width))
   end if
   if pLocY < 100 then
     pLocY = 100
@@ -82,7 +82,7 @@ on setItemData me, tMsg
   tWindow.registerProcedure(#eventProcMouseDown, me.getID(), #mouseDown)
   tWindow.registerProcedure(#eventProcKeyDown, me.getID(), #keyDown)
   tWindow.getElement("stickies_delete_button").setProperty(#blend, 100)
-  if tWndType = "habbo_stickies.window" then
+  if (tWndType = "habbo_stickies.window") then
     if pIsController then
       tWindow.getElement("stickies_color1_button").setProperty(#blend, 100)
       tWindow.getElement("stickies_color2_button").setProperty(#blend, 100)
@@ -99,7 +99,7 @@ on setColor me, tColor, tByUser
   end if
   pcolor = tColor
   tBgElem = getWindow(pWindowID).getElement("stickies_bg")
-  if tBgElem = 0 then
+  if (tBgElem = 0) then
     return()
   end if
   tBgElem.getProperty(#sprite).bgColor = pcolor
@@ -110,30 +110,30 @@ on setColor me, tColor, tByUser
 end
 
 on eventProcMouseDown me, tEvent, tSprID, tParam 
-  if tSprID = "stickies_close_button" then
+  if (tSprID = "stickies_close_button") then
     me.close()
   else
-    if tSprID = "stickies_color4_button" then
+    if (tSprID = "stickies_color4_button") then
       if pIsController then
         me.setColor(rgb(156, 206, 255), 1)
       end if
     else
-      if tSprID = "stickies_color3_button" then
+      if (tSprID = "stickies_color3_button") then
         if pIsController then
           me.setColor(rgb(255, 156, 255), 1)
         end if
       else
-        if tSprID = "stickies_color2_button" then
+        if (tSprID = "stickies_color2_button") then
           if pIsController then
             me.setColor(rgb(156, 255, 156), 1)
           end if
         else
-          if tSprID = "stickies_color1_button" then
+          if (tSprID = "stickies_color1_button") then
             if pIsController then
               me.setColor(rgb(255, 255, 51), 1)
             end if
           else
-            if tSprID = "stickies_delete_button" then
+            if (tSprID = "stickies_delete_button") then
               if pIsController then
                 me.delete()
               end if
@@ -143,14 +143,14 @@ on eventProcMouseDown me, tEvent, tSprID, tParam
       end if
     end if
   end if
-  return(1)
+  return TRUE
 end
 
 on eventProcKeyDown me, tEvent, tSprID, tParam 
-  if tSprID = "stickies_text_field" then
-    if the selStart < length(pText) and pIsController = 0 then
+  if (tSprID = "stickies_text_field") then
+    if the selStart < length(pText) and (pIsController = 0) then
       error(me, "Cannot edit postIts - only add!", #eventProcKeyDown)
-      return(1)
+      return TRUE
     end if
     pChanged = 1
   end if

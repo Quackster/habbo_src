@@ -1,34 +1,34 @@
 on construct me 
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
-  return(1)
+  return TRUE
 end
 
 on Refresh me, tTopic, tdata 
-  if tTopic = #msgstruct_instancelist then
+  if (tTopic = #msgstruct_instancelist) then
     return(me.handle_instancelist(tdata))
   else
-    if tTopic = #msgstruct_gameinstance then
+    if (tTopic = #msgstruct_gameinstance) then
       return(me.handle_gameinstance(tdata))
     else
-      if tTopic = #msgstruct_gamestatus then
+      if (tTopic = #msgstruct_gamestatus) then
         return(me.handle_gamestatus(tdata))
       else
-        if tTopic = #msgstruct_fullgamestatus then
+        if (tTopic = #msgstruct_fullgamestatus) then
           return(me.handle_fullgamestatus(tdata))
         else
-          if tTopic = #msgstruct_gamestart then
+          if (tTopic = #msgstruct_gamestart) then
             return(me.handle_gamestart(tdata))
           else
-            if tTopic = #msgstruct_gameend then
+            if (tTopic = #msgstruct_gameend) then
               return(me.handle_gameend(tdata))
             else
-              if tTopic = #msgstruct_gamereset then
+              if (tTopic = #msgstruct_gamereset) then
                 return(me.handle_gamereset(tdata))
               else
-                if tTopic = #msgstruct_gameplayerinfo then
+                if (tTopic = #msgstruct_gameplayerinfo) then
                   return(me.handle_gameplayerinfo(tdata))
                 end if
               end if
@@ -38,7 +38,7 @@ on Refresh me, tTopic, tdata
       end if
     end if
   end if
-  return(0)
+  return FALSE
 end
 
 on handle_instancelist me, tMsg 
@@ -49,21 +49,21 @@ on handle_instancelist me, tMsg
   repeat while i <= tCreatedCount
     tInstance = me.parse_created_instance(tConn)
     tResult.addProp(string(tInstance.getAt(#id)), tInstance)
-    i = 1 + i
+    i = (1 + i)
   end repeat
   tStartedCount = tConn.GetIntFrom()
   i = 1
   repeat while i <= tStartedCount
     tInstance = me.parse_started_instance(tConn)
     tResult.addProp(string(tInstance.getAt(#id)), tInstance)
-    i = 1 + i
+    i = (1 + i)
   end repeat
   tFinishedCount = tConn.GetIntFrom()
   i = 1
   repeat while i <= tFinishedCount
     tInstance = me.parse_finished_instance(tConn)
     tResult.addProp(string(tInstance.getAt(#id)), tInstance)
-    i = 1 + i
+    i = (1 + i)
   end repeat
   return(me.getGameSystem().sendGameSystemEvent(#instancelist, tResult))
   return(tResult)
@@ -72,8 +72,8 @@ end
 on handle_gameinstance me, tMsg 
   tConn = tMsg.connection
   tStateInt = tConn.GetIntFrom()
-  tstate = [#created, #started, #finished].getAt(tStateInt + 1)
-  if tstate = #created then
+  tstate = [#created, #started, #finished].getAt((tStateInt + 1))
+  if (tstate = #created) then
     tResult = me.parse_created_instance(tConn)
     tResult.addProp(#numSpectators, tConn.GetIntFrom())
     tNumTeams = tConn.GetIntFrom()
@@ -85,15 +85,15 @@ on handle_gameinstance me, tMsg
       j = 1
       repeat while j <= tNumPlayers
         tList.add(me.parse_team_player(tConn))
-        j = 1 + j
+        j = (1 + j)
       end repeat
       tTeams.add([#players:tList, #id:i])
-      i = 1 + i
+      i = (1 + i)
     end repeat
     tResult.addProp(#numTeams, tNumTeams)
     tResult.addProp(#teams, tTeams)
   else
-    if tstate = #started then
+    if (tstate = #started) then
       tResult = me.parse_started_instance(tConn)
       tNumTeams = tConn.GetIntFrom()
       tTeams = []
@@ -104,15 +104,15 @@ on handle_gameinstance me, tMsg
         j = 1
         repeat while j <= tNumPlayers
           tList.add([#name:tConn.GetStrFrom()])
-          j = 1 + j
+          j = (1 + j)
         end repeat
         tTeams.add([#players:tList, #id:i])
-        i = 1 + i
+        i = (1 + i)
       end repeat
       tResult.addProp(#numTeams, tNumTeams)
       tResult.addProp(#teams, tTeams)
     else
-      if tstate = #finished then
+      if (tstate = #finished) then
         tResult = me.parse_finished_instance(tConn)
         tNumTeams = tConn.GetIntFrom()
         tTeamsUnsorted = []
@@ -126,11 +126,11 @@ on handle_gameinstance me, tMsg
             tPlayer.addProp(#name, tConn.GetStrFrom())
             tPlayer.addProp(#score, tConn.GetIntFrom())
             tList.getAt(#players).add(tPlayer)
-            j = 1 + j
+            j = (1 + j)
           end repeat
           tList.addProp(#score, tConn.GetIntFrom())
           tTeamsUnsorted.add(tList)
-          i = 1 + i
+          i = (1 + i)
         end repeat
         tResult.addProp(#numTeams, tNumTeams)
         tTeams = []
@@ -146,26 +146,26 @@ on handle_gameinstance me, tMsg
             tPlayerPos = 1
             if tList.getAt(#players).count > 0 then
               repeat while tList.getAt(#players).getAt(tPlayerPos).getAt(#score) > tPlayer.getAt(#score)
-                tPlayerPos = tPlayerPos + 1
+                tPlayerPos = (tPlayerPos + 1)
                 if tPlayerPos > tList.getAt(#players).count then
                 else
                 end if
               end repeat
             end if
             tList.getAt(#players).addAt(tPlayerPos, tPlayer)
-            j = 1 + j
+            j = (1 + j)
           end repeat
           tTeamPos = 1
           if tTeams.count > 0 then
             repeat while tTeams.getAt(tTeamPos).getAt(#score) > tList.getAt(#score)
-              tTeamPos = tTeamPos + 1
+              tTeamPos = (tTeamPos + 1)
               if tTeamPos > tTeams.count then
               else
               end if
             end repeat
           end if
           tTeams.addAt(tTeamPos, tList)
-          tTeamId = 1 + tTeamId
+          tTeamId = (1 + tTeamId)
         end repeat
         tPlayerPos = 1
         tResult.addProp(#teams, tTeams)
@@ -188,7 +188,7 @@ on handle_fullgamestatus me, tMsg
   i = 1
   repeat while i <= tNumPlayers
     tPlayers.add(me.parse_fullgamestatus_player(tConn))
-    i = 1 + i
+    i = (1 + i)
   end repeat
   tdata.addProp(#players, tPlayers)
   tWorldLength = tConn.GetIntFrom()
@@ -200,13 +200,13 @@ on handle_fullgamestatus me, tMsg
     repeat while tLocV <= tWorldLength
       tTile = me.parse_tile(tConn)
       if tTile.getAt(#teamId) > -1 then
-        tTile.setAt(#locX, tLocH - 1)
-        tTile.setAt(#locY, tLocV - 1)
+        tTile.setAt(#locX, (tLocH - 1))
+        tTile.setAt(#locY, (tLocV - 1))
         tWorld.add(tTile)
       end if
-      tLocV = 1 + tLocV
+      tLocV = (1 + tLocV)
     end repeat
-    tLocH = 1 + tLocH
+    tLocH = (1 + tLocH)
   end repeat
   tdata.addProp(#flood, tWorld)
   tNumSubturns = tConn.GetIntFrom()
@@ -216,13 +216,13 @@ on handle_fullgamestatus me, tMsg
   repeat while i <= tNumEvents
     tEvent = [:]
     tEvent.addProp(#type, tConn.GetIntFrom())
-    if tEvent.getAt(#type) = 0 then
+    if (tEvent.getAt(#type) = 0) then
       tEvent.addProp(#data, me.parse_fullgamestatus_player(tConn))
     else
-      if tEvent.getAt(#type) = 1 then
+      if (tEvent.getAt(#type) = 1) then
         tEvent.addProp(#id, tConn.GetIntFrom())
       else
-        if tEvent.getAt(#type) = 2 then
+        if (tEvent.getAt(#type) = 2) then
           tEvent.addProp(#id, tConn.GetIntFrom())
           tEvent.addProp(#goalx, tConn.GetIntFrom())
           tEvent.addProp(#goaly, tConn.GetIntFrom())
@@ -230,12 +230,12 @@ on handle_fullgamestatus me, tMsg
       end if
     end if
     tList.add(tEvent)
-    i = 1 + i
+    i = (1 + i)
   end repeat
   tdata.addProp(#events, tList)
   tGameSystem = me.getGameSystem()
   if not getObject(#session).exists(#gamespace_world_info) then
-    return(0)
+    return FALSE
   end if
   tGameSpaceData = getObject(#session).get(#gamespace_world_info)
   if listp(tGameSpaceData) then
@@ -245,7 +245,7 @@ on handle_fullgamestatus me, tMsg
   tGameSystem.sendGameSystemEvent(#fullgamestatus_players, tdata.getAt(#players))
   tGameSystem.sendGameSystemEvent(#fullgamestatus_tiles, tdata.getAt(#flood))
   tGameSystem.sendGameSystemEvent(#gamestatus_events, tdata.getAt(#events))
-  return(1)
+  return TRUE
 end
 
 on handle_gamestatus me, tMsg 
@@ -256,7 +256,7 @@ on handle_gamestatus me, tMsg
   i = 1
   repeat while i <= tNumChangedPlayers
     tList.add(me.parse_gamestatus_player(tConn))
-    i = 1 + i
+    i = (1 + i)
   end repeat
   tdata.addProp(#players, tList)
   tNumChangedTiles = tConn.GetIntFrom()
@@ -269,7 +269,7 @@ on handle_gamestatus me, tMsg
     tTile.addProp(#teamId, tConn.GetIntFrom())
     tTile.addProp(#jumps, tConn.GetIntFrom())
     tList.add(tTile)
-    i = 1 + i
+    i = (1 + i)
   end repeat
   tdata.addProp(#tiles, tList)
   tNumChangedTiles = tConn.GetIntFrom()
@@ -282,7 +282,7 @@ on handle_gamestatus me, tMsg
     tTile.addProp(#teamId, tConn.GetIntFrom())
     tTile.addProp(#jumps, tConn.GetIntFrom())
     tList.add(tTile)
-    i = 1 + i
+    i = (1 + i)
   end repeat
   tdata.addProp(#flood, tList)
   tList = []
@@ -290,7 +290,7 @@ on handle_gamestatus me, tMsg
   i = 1
   repeat while i <= tNumTeams
     tList.add(tConn.GetIntFrom())
-    i = 1 + i
+    i = (1 + i)
   end repeat
   tdata.addProp(#scores, tList)
   tNumSubturns = tConn.GetIntFrom()
@@ -300,13 +300,13 @@ on handle_gamestatus me, tMsg
   repeat while i <= tNumEvents
     tEvent = [:]
     tEvent.addProp(#type, tConn.GetIntFrom())
-    if tEvent.getAt(#type) = 0 then
+    if (tEvent.getAt(#type) = 0) then
       tEvent.addProp(#data, me.parse_fullgamestatus_player(tConn))
     else
-      if tEvent.getAt(#type) = 1 then
+      if (tEvent.getAt(#type) = 1) then
         tEvent.addProp(#id, tConn.GetIntFrom())
       else
-        if tEvent.getAt(#type) = 2 then
+        if (tEvent.getAt(#type) = 2) then
           tEvent.addProp(#id, tConn.GetIntFrom())
           tEvent.addProp(#goalx, tConn.GetIntFrom())
           tEvent.addProp(#goaly, tConn.GetIntFrom())
@@ -314,7 +314,7 @@ on handle_gamestatus me, tMsg
       end if
     end if
     tList.add(tEvent)
-    i = 1 + i
+    i = (1 + i)
   end repeat
   tdata.addProp(#events, tList)
   tGameSystem = me.getGameSystem()
@@ -323,7 +323,7 @@ on handle_gamestatus me, tMsg
   tGameSystem.sendGameSystemEvent(#gamestatus_flood, tdata.getAt(#flood))
   tGameSystem.sendGameSystemEvent(#gamestatus_scores, tdata.getAt(#scores))
   tGameSystem.sendGameSystemEvent(#gamestatus_events, tdata.getAt(#events))
-  return(1)
+  return TRUE
 end
 
 on handle_gamestart me, tMsg 
@@ -348,7 +348,7 @@ on handle_gameend me, tMsg
       tPlayerId = tConn.GetIntFrom()
       tPlayerScore = tConn.GetIntFrom()
       tPlayers.addProp(string(tPlayerId), [#id:tPlayerId, #score:tPlayerScore])
-      tPlayer = 1 + tPlayer
+      tPlayer = (1 + tPlayer)
     end repeat
     if tNumPlayers > 0 then
       tTeamScore = tConn.GetIntFrom()
@@ -356,7 +356,7 @@ on handle_gameend me, tMsg
       tTeamScore = 0
     end if
     tTeamScores.add([#players:tPlayers, #score:tTeamScore])
-    tTeamNum = 1 + tTeamNum
+    tTeamNum = (1 + tTeamNum)
   end repeat
   tdata.addProp(#gameend_scores, tTeamScores)
   return(me.getGameSystem().sendGameSystemEvent(#gameend, tdata))
@@ -371,7 +371,7 @@ on handle_gamereset me, tMsg
   i = 1
   repeat while i <= tNumPlayers
     tList.add(me.parse_gamestatus_player(tConn))
-    i = 1 + i
+    i = (1 + i)
   end repeat
   tdata.addProp(#players, tList)
   return(me.getGameSystem().sendGameSystemEvent(#gamereset, tdata))
@@ -387,7 +387,7 @@ on handle_gameplayerinfo me, tMsg
     tValue = tConn.GetStrFrom()
     tSkill = tConn.GetStrFrom()
     tdata.addProp(string(tid), [#id:tid, #skillvalue:tValue, #skilllevel:tSkill])
-    i = 1 + i
+    i = (1 + i)
   end repeat
   return(me.getGameSystem().sendGameSystemEvent(#gameplayerinfo, tdata))
 end
@@ -461,9 +461,9 @@ on clonePlayers me, tdata
   i = 1
   repeat while i <= 11
     tNew = tdata.getAt(1).duplicate()
-    tNew.setAt(#id, tNew.getAt(#id) + i)
+    tNew.setAt(#id, (tNew.getAt(#id) + i))
     tResult.add(tdata)
-    i = 1 + i
+    i = (1 + i)
   end repeat
   return(tResult)
 end

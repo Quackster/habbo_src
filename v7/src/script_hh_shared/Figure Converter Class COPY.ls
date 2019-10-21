@@ -6,16 +6,16 @@ on construct me
   pSelectablePartsList = [:]
   pSelectableSetIDList = [:]
   pFigureDataMember = ""
-  return(1)
+  return TRUE
 end
 
 on initializeValidPartLists me, tPartList 
-  if not tPartList.ilk = #propList then
-    error(me, "Can't initialize part list!", #initializeValidPartLists)
+  if not (tPartList.ilk = #propList) then
+    error(me, "Can't initialize part list!", #initializeValidPartLists, #major)
     if memberExists("DefaultPartList") then
       tPartList = value(member(getmemnum("DefaultPartList")).text)
     else
-      return(error(me, "Missing default part list!"))
+      return(error(me, "Missing default part list!", #initializeValidPartLists, #major))
     end if
   end if
   pValidPartsList = tPartList
@@ -31,16 +31,16 @@ on initializeValidPartLists me, tPartList
       repeat while tP <= tDesc.count
         tSetID = tDesc.getAt(tP).getAt("s")
         pValidSetIDList.getAt(tsex).addProp(tSetID, [#part:tProp, #location:tP])
-        tP = 1 + tP
+        tP = (1 + tP)
       end repeat
-      tPartSet = 1 + tPartSet
+      tPartSet = (1 + tPartSet)
     end repeat
   end repeat
 end
 
 on initializeSelectablePartList me, tSetIDList 
-  if not tSetIDList.ilk = #list then
-    return(error(me, "Can't initialize selectable partlist", #initializeSelectablePartList))
+  if not (tSetIDList.ilk = #list) then
+    return(error(me, "Can't initialize selectable partlist", #initializeSelectablePartList, #major))
   end if
   tTempSetIDList = [:]
   tTempSetIDList.setAt("M", [])
@@ -91,14 +91,14 @@ on GenerateFigureDataToServerMode me, tFigure, tsex
         if not stringp(tColorId) then
           tColorId = string(tColorId)
         end if
-        if tSetID.length = 1 then
+        if (tSetID.length = 1) then
           tSetID = "00" & tSetID
         else
-          if tSetID.length = 2 then
+          if (tSetID.length = 2) then
             tSetID = "0" & tSetID
           end if
         end if
-        if tColorId.count(#char) = 1 then
+        if (tColorId.count(#char) = 1) then
           tColorId = "0" & tColorId
         end if
         tFigureToServer = tFigureToServer & tSetID & tColorId
@@ -116,7 +116,7 @@ on checkAndFixFigure me, tFigure, tsex
     tPart = getAt(tsex, tFigure)
     if ["hr", "hd", "ey", "fc", "bd", "lh", "rh", "ch", "ls", "rs", "lg", "sh"] <> "ls" then
       if ["hr", "hd", "ey", "fc", "bd", "lh", "rh", "ch", "ls", "rs", "lg", "sh"] <> "ch" then
-        if ["hr", "hd", "ey", "fc", "bd", "lh", "rh", "ch", "ls", "rs", "lg", "sh"] = "rs" then
+        if (["hr", "hd", "ey", "fc", "bd", "lh", "rh", "ch", "ls", "rs", "lg", "sh"] = "rs") then
           tMainPart = "ch"
         else
           if ["hr", "hd", "ey", "fc", "bd", "lh", "rh", "ch", "ls", "rs", "lg", "sh"] <> "hd" then
@@ -124,7 +124,7 @@ on checkAndFixFigure me, tFigure, tsex
               if ["hr", "hd", "ey", "fc", "bd", "lh", "rh", "ch", "ls", "rs", "lg", "sh"] <> "fc" then
                 if ["hr", "hd", "ey", "fc", "bd", "lh", "rh", "ch", "ls", "rs", "lg", "sh"] <> "bd" then
                   if ["hr", "hd", "ey", "fc", "bd", "lh", "rh", "ch", "ls", "rs", "lg", "sh"] <> "lh" then
-                    if ["hr", "hd", "ey", "fc", "bd", "lh", "rh", "ch", "ls", "rs", "lg", "sh"] = "rh" then
+                    if (["hr", "hd", "ey", "fc", "bd", "lh", "rh", "ch", "ls", "rs", "lg", "sh"] = "rh") then
                       tMainPart = "hd"
                     else
                       tMainPart = tPart
@@ -146,10 +146,10 @@ on checkAndFixFigure me, tFigure, tsex
                     else
                       tColor = rgb(tColorList.getAt(1))
                     end if
-                    if tmodel.length = 1 then
+                    if (tmodel.length = 1) then
                       tmodel = "00" & tmodel
                     else
-                      if tmodel.length = 2 then
+                      if (tmodel.length = 2) then
                         tmodel = "0" & tmodel
                       end if
                     end if
@@ -203,14 +203,14 @@ on generateFigureDataToOldServerMode me, tFigure, tsex, tCheckValidParts
       tmodel = tFigureData.getAt(tPart).getAt("model")
       tColor = tFigureData.getAt(tPart).getAt("color")
       if tPart <> "sd" then
-        if tmodel.length = 1 then
+        if (tmodel.length = 1) then
           tmodel = "00" & tmodel
         else
-          if tmodel.length = 2 then
+          if (tmodel.length = 2) then
             tmodel = "0" & tmodel
           end if
         end if
-        if tColor = rgb("#EEEEEE") then
+        if (tColor = rgb("#EEEEEE")) then
           tColor = rgb(255, 255, 255)
         end if
         tColor = string(tColor)
@@ -219,26 +219,26 @@ on generateFigureDataToOldServerMode me, tFigure, tsex, tCheckValidParts
         else
           tR = value(tColor.getPropRef(#item, 1).getProp(#char, 5, length(tColor.getProp(#item, 1))))
           tG = value(tColor.getProp(#item, 2))
-          tB = value(tColor.getPropRef(#item, 3).getProp(#char, 1, length(tColor.getProp(#item, 3)) - 1))
+          tB = value(tColor.getPropRef(#item, 3).getProp(#char, 1, (length(tColor.getProp(#item, 3)) - 1)))
           tColor = string(tR) & "," & string(tG) & "," & string(tB)
         end if
-        if tPart = "ey" then
+        if (tPart = "ey") then
           tColor = "0"
         end if
         tNewFigure = tNewFigure & "&" & tPart & "=" & tmodel & "/" & tColor
       end if
-      f = 1 + f
+      f = (1 + f)
     end repeat
     exit repeat
   end if
-  error(me, "Weirdness in figure data!!!", #generateFigureDataToOldServerMode)
+  error(me, "Weirdness in figure data!!!", #generateFigureDataToOldServerMode, #minor)
   tNewFigure = tFigureData
   the itemDelimiter = tTemp
   return(["figuretoServer":tNewFigure])
 end
 
 on validateFigure me, tFigure, tsex 
-  if tsex.getProp(#char, 1) = "F" or tsex.getProp(#char, 1) = "f" then
+  if (tsex.getProp(#char, 1) = "F") or (tsex.getProp(#char, 1) = "f") then
     tsex = "F"
   else
     tsex = "M"
@@ -264,7 +264,7 @@ on validateFigure me, tFigure, tsex
         tTempFigure.setAt(string(tSetID), tColor)
       end if
     end if
-    f = 1 + f
+    f = (1 + f)
   end repeat
   tFigure = me.parseNewTypeFigure(tTempFigure, tsex)
   return(tFigure)
@@ -278,23 +278,23 @@ on parseFigure me, tFigureData, tsex, tClass, tCommand
     tCommand = ""
   end if
   if tClass <> "user" then
-    if tClass = "pelle" then
+    if (tClass = "pelle") then
       tTempFigure = [:]
-      if tFigureData.count(#char) = 25 and integerp(integer(tFigureData)) then
+      if (tFigureData.count(#char) = 25) and integerp(integer(tFigureData)) then
         tFigureData = tFigureData.getProp(#char, 1, tFigureData.count(#char))
-        tPartCount = tFigureData.count(#char) / 5
+        tPartCount = (tFigureData.count(#char) / 5)
         i = 0
-        repeat while i <= tPartCount - 1
-          tPart = tFigureData.getProp(#char, i * 5 + 1, i * 5 + 5)
+        repeat while i <= (tPartCount - 1)
+          tPart = tFigureData.getProp(#char, ((i * 5) + 1), ((i * 5) + 5))
           tSetID = tPart.getProp(#char, 1, 3)
           tColorId = tPart.getProp(#char, 4, 5)
           tTempFigure.setAt(tSetID, value(tColorId))
-          i = 1 + i
+          i = (1 + i)
         end repeat
       end if
       tFigure = me.parseNewTypeFigure(tTempFigure, tsex)
     else
-      if tClass = "bot" then
+      if (tClass = "bot") then
         the itemDelimiter = "&"
         tPartCount = tFigureData.count(#item)
         tFigure = [:]
@@ -309,20 +309,20 @@ on parseFigure me, tFigureData, tsex, tClass, tCommand
           tValue.setAt("model", tDesc.getProp(#item, 1))
           tColor = tDesc.getPropRef(#item, 2).getProp(#line, 1)
           the itemDelimiter = ","
-          if tColor.count(#item) = 1 then
-            if integer(tColor) = 0 then
+          if (tColor.count(#item) = 1) then
+            if (integer(tColor) = 0) then
               tValue.setAt("color", rgb("EEEEEE"))
             else
               tPalette = paletteIndex(integer(tColor))
               tValue.setAt("color", rgb(tPalette.red, tPalette.green, tPalette.blue))
             end if
           else
-            if tColor.count(#item) = 3 then
+            if (tColor.count(#item) = 3) then
               tValue.setAt("color", value("rgb(" & tColor & ")"))
               if voidp(tValue.getAt("color")) then
                 tValue.setAt("color", rgb("EEEEEE"))
               end if
-              if tValue.getAt("color").red + tValue.getAt("color").green + tValue.getAt("color").blue > 238 * 3 then
+              if ((tValue.getAt("color").red + tValue.getAt("color").green) + tValue.getAt("color").blue) > (238 * 3) then
                 tValue.setAt("color", rgb("EEEEEE"))
               end if
             else
@@ -331,7 +331,7 @@ on parseFigure me, tFigureData, tsex, tClass, tCommand
           end if
           tFigure.setAt(tProp, tValue)
           the itemDelimiter = "&"
-          i = 1 + i
+          i = (1 + i)
         end repeat
         tRequiredParts = ["hr", "hd", "ey", "fc", "bd", "lh", "rh", "ch", "ls", "rs", "lg", "sh"]
         repeat while tClass <= tsex
@@ -359,7 +359,7 @@ on parseNewTypeFigure me, tFigure, tsex
   if voidp(tsex) then
     tsex = "M"
   end if
-  if tsex.getProp(#char, 1) = "F" or tsex.getProp(#char, 1) = "f" then
+  if (tsex.getProp(#char, 1) = "F") or (tsex.getProp(#char, 1) = "f") then
     tsex = "F"
   else
     tsex = "M"
@@ -382,7 +382,7 @@ on parseNewTypeFigure me, tFigure, tsex
         tMainPartsList.setAt(tMainPart, ["changeparts":tchangeparts, "setid":tSetID, "colorlist":tColorList, "colorID":tColorId])
       end if
     end if
-    f = 1 + f
+    f = (1 + f)
   end repeat
   tTempFigure = [:]
   repeat while ["hr", "hd", "lg", "sh", "ch"] <= tsex
@@ -398,7 +398,7 @@ on parseNewTypeFigure me, tFigure, tsex
       if not listp(tColorList) then
         tColor = rgb("#EEEEEE")
         tColorId = 1
-        error(me, "Weirdness in the list of figure parts!", #parseNewTypeFigure)
+        error(me, "Weirdness in the list of figure parts!", #parseNewTypeFigure, #minor)
       else
         if tColorId > tColorList.count then
           tColorId = 1
@@ -414,10 +414,10 @@ on parseNewTypeFigure me, tFigure, tsex
       repeat while i <= tchangeparts.count
         tPart = tchangeparts.getPropAt(i)
         tmodel = tchangeparts.getAt(tPart)
-        if tmodel.count(#char) = 1 then
+        if (tmodel.count(#char) = 1) then
           tmodel = "00" & tmodel
         else
-          if tmodel.count(#char) = 2 then
+          if (tmodel.count(#char) = 2) then
             tmodel = "0" & tmodel
           end if
         end if
@@ -431,7 +431,7 @@ on parseNewTypeFigure me, tFigure, tsex
         else
           tTempFigure.setAt(tPart, ["model":tmodel, "color":tColor, "setid":tSetID, "colorid":tColorId])
         end if
-        i = 1 + i
+        i = (1 + i)
       end repeat
     end if
   end repeat

@@ -10,14 +10,14 @@ on construct me
     pCatalogProps.setAt("editmode", "production")
   end if
   registerMessage(#edit_catalogue, me.getID(), #editModeOn)
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
   pOrderInfoList = []
   pCatalogProps = [:]
   unregisterMessage(#edit_catalogue, me.getID())
-  return(1)
+  return TRUE
 end
 
 on editModeOn me 
@@ -61,10 +61,10 @@ on checkProductOrder me, tProductProps
     end if
     pProductOrderData = tProductProps.duplicate()
     me.getInterface().showOrderInfo(tstate, tProps)
-    return(1)
+    return TRUE
   else
     pProductOrderData = [:]
-    return(0)
+    return FALSE
   end if
 end
 
@@ -117,7 +117,7 @@ on purchaseProduct me, tGiftProps
   tOrderStr = tOrderStr & tExtra & "\r"
   tOrderStr = tOrderStr & tGift
   if not connectionExists(getVariable("connection.info.id")) then
-    return(0)
+    return FALSE
   end if
   return(getConnection(getVariable("connection.info.id")).send("GPRC", tOrderStr))
 end
@@ -135,7 +135,7 @@ on retrieveCatalogueIndex me
     if connectionExists(getVariable("connection.info.id")) then
       return(getConnection(getVariable("connection.info.id")).send("GCIX", tEditmode & "/" & tLanguage))
     else
-      return(0)
+      return FALSE
     end if
   end if
 end
@@ -155,35 +155,35 @@ on retrieveCataloguePage me, tPageID
     if connectionExists(getVariable("connection.info.id")) then
       return(getConnection(getVariable("connection.info.id")).send("GCAP", tEditmode & "/" & tPageID & "/" & tLanguage))
     else
-      return(0)
+      return FALSE
     end if
   end if
-  return(0)
+  return FALSE
 end
 
 on purchaseReady me, tStatus, tMsg 
-  if tStatus = "OK" then
+  if (tStatus = "OK") then
     me.getInterface().showPurchaseOk()
   else
-    if tStatus = "NOBALANCE" then
+    if (tStatus = "NOBALANCE") then
       error(me, "User out of cash!", #purchaseReady)
     else
-      if tStatus = "ERROR" then
+      if (tStatus = "ERROR") then
         error(me, "Purchase error:" && tMsg, #purchaseReady)
       else
         error(me, "Unsupported purchase result:" && tStatus && tMsg, #purchaseReady)
       end if
     end if
   end if
-  return(1)
+  return TRUE
 end
 
 on saveCatalogueIndex me, tdata 
   if tdata.ilk <> #propList then
     return(error(me, "Incorrect Catalogue Format", #saveCatalogueIndex))
   end if
-  if tdata.count = 0 then
-    return(0)
+  if (tdata.count = 0) then
+    return FALSE
   end if
   pCatalogProps.setAt("catalogueIndex", tdata)
   me.getInterface().saveCatalogueIndex(tdata)
@@ -193,8 +193,8 @@ on saveCataloguePage me, tdata
   if tdata.ilk <> #propList then
     return(error(me, "Incorrect Catalogue Page Format", #saveCataloguePage))
   end if
-  if tdata.count = 0 then
-    return(0)
+  if (tdata.count = 0) then
+    return FALSE
   end if
   if not voidp(tdata.getAt("id")) then
     tdata = me.solveCatalogueMembers(tdata)
@@ -254,7 +254,7 @@ on solveCatalogueMembers me, tdata
         tClass = tProductData.getAt("class")
         if tClass contains "*" then
           tSmallMem = tClass & "_small"
-          tClass = tClass.getProp(#char, 1, offset("*", tClass) - 1)
+          tClass = tClass.getProp(#char, 1, (offset("*", tClass) - 1))
           if not memberExists(tSmallMem) then
             tSmallMem = tClass & "_small"
           else
@@ -263,7 +263,7 @@ on solveCatalogueMembers me, tdata
         else
           tSmallMem = tClass & "_small"
         end if
-        if tdata.getAt("productList").getAt(f).getAt("smallPrewImg") = 0 then
+        if (tdata.getAt("productList").getAt(f).getAt("smallPrewImg") = 0) then
           if memberExists(tSmallMem) then
             tdata.getAt("productList").getAt(f).setAt("smallPrewImg", getmemnum(tSmallMem))
           else
@@ -271,7 +271,7 @@ on solveCatalogueMembers me, tdata
           end if
         end if
       end if
-      f = 1 + f
+      f = (1 + f)
     end repeat
   end if
   return(tdata)

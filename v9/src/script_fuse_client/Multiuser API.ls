@@ -19,7 +19,7 @@ on createMultiuser tid, tHost, tPort
 end
 
 on removeMultiuser tid 
-  return(getMultiuserManager().remove(tid))
+  return(getMultiuserManager().Remove(tid))
 end
 
 on getMultiuser tid 

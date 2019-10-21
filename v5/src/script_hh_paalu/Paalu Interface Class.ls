@@ -9,7 +9,7 @@ on construct me
   pArrowSpr = void()
   pOwnPlayer = void()
   pCurrBal = 0
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
@@ -20,12 +20,12 @@ on deconstruct me
     removeWindow(pWndID)
   end if
   removeUpdate(me.getID())
-  return(1)
+  return TRUE
 end
 
 on prepare me, tOwnPlayerObj 
   if windowExists(pWndID) then
-    return(0)
+    return FALSE
   end if
   createWindow(pWndID, "paaluUI.window", 10, 10, #modal)
   tWndObj = getWindow(pWndID)
@@ -38,15 +38,15 @@ on prepare me, tOwnPlayerObj
     error(me, "Where's the modal window?", #prepare)
   end if
   pArrowSpr = tWndObj.getElement("needle").getProperty(#sprite)
-  (member.width / 2).regPoint = point(pArrowSpr, member.height - 3)
+  pArrowSpr.member.regPoint = point((pArrowSpr.member.width / 2), (pArrowSpr.member.height - 3))
   tBallSpr = tWndObj.getElement("needle_ball").getProperty(#sprite)
-  (member.width / 2).regPoint = point(tBallSpr, (member.height / 2))
+  tBallSpr.member.regPoint = point((tBallSpr.member.width / 2), (tBallSpr.member.height / 2))
   pOwnPlayer = tOwnPlayerObj
   pCurrAct = "-"
   pCurrTime = the milliSeconds
   pCurrBal = 0
   pActive = 0
-  return(1)
+  return TRUE
 end
 
 on start me 
@@ -54,7 +54,7 @@ on start me
   the keyboardFocusSprite = 0
   receiveUpdate(me.getID())
   startTimer()
-  return(1)
+  return TRUE
 end
 
 on stop me 
@@ -64,15 +64,15 @@ on stop me
   removeWindow(pWndID)
   removeUpdate(me.getID())
   the keyboardFocusSprite = -1
-  return(1)
+  return TRUE
 end
 
 on update me 
   the keyboardFocusSprite = 0
-  tTime = the milliSeconds - pCurrTime
+  tTime = (the milliSeconds - pCurrTime)
   tKey = the key
   if the lastKey < the timer then
-    if tKey = space() then
+    if (tKey = space()) then
       tKey = "SPACE"
     end if
     if tKey <> pCurrAct then
@@ -87,7 +87,7 @@ on update me
     startTimer()
   end if
   tTimerOff = (tTime / 100)
-  if tTimerOff = 9 then
+  if (tTimerOff = 9) then
     if pCurrAct <> "-" then
       me.highLightKey(pCurrAct)
     end if
@@ -96,8 +96,8 @@ on update me
     pCurrTime = the milliSeconds
   end if
   tBalance = pOwnPlayer.getBalance()
-  tBalOff = tBalance - pCurrBal
-  pCurrBal = pCurrBal + (tBalOff / 4)
+  tBalOff = (tBalance - pCurrBal)
+  pCurrBal = (pCurrBal + (tBalOff / 4))
   pArrowSpr.rotation = pCurrBal
 end
 
@@ -113,7 +113,7 @@ on resetDialog me
     if tmember.number > 0 then
       tWndObj.getElement("button" && tKey).getProperty(#sprite).member = tmember
     end if
-    i = 1 + i
+    i = (1 + i)
   end repeat
 end
 
@@ -138,7 +138,7 @@ on highLightKey me, tAction
 end
 
 on eventProcPaalu me, tEvent, tSprID, tParam 
-  if tSprID.getProp(#word, 1) = "button" then
+  if (tSprID.getProp(#word, 1) = "button") then
     tAction = tSprID.getProp(#word, 2)
     if pCurrAct <> tAction then
       pCurrAct = tAction

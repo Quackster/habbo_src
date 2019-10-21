@@ -25,14 +25,14 @@ end
 
 on defineWithSprite me, tsprite, tSize 
   if ilk(tsprite) <> #sprite then
-    return(0)
+    return FALSE
   end if
   if voidp(tSize) then
     tSize = #large
   end if
   tWidth = tsprite.width
   tHeight = tsprite.height
-  tloc = point(tsprite.locH + (tWidth / 2), tsprite.locV - (tHeight / 2))
+  tloc = point((tsprite.locH + (tWidth / 2)), (tsprite.locV - (tHeight / 2)))
   tlocz = tsprite.locZ
   tRect = tsprite.rect
   pHostSpriteData.setAt(#sprite, tsprite)
@@ -45,13 +45,13 @@ end
 
 on define me, tloc, tlocz, tSize 
   if voidp(tloc) then
-    return(0)
+    return FALSE
   end if
   if ilk(tloc) <> #point then
-    return(0)
+    return FALSE
   end if
   if voidp(tlocz) then
-    return(0)
+    return FALSE
   end if
   if voidp(tSize) then
     tSize = #large
@@ -61,14 +61,14 @@ on define me, tloc, tlocz, tSize
   tAngleSectorSize = ((2 * pi()) / tSpriteCount)
   tMaxItemTravelDist = 25
   tLocZVariance = 200
-  if tSize = #small then
+  if (tSize = #small) then
     tMaxItemTravelDist = (tMaxItemTravelDist / 2)
     pMemberPrefix = pMemberPrefix & "small_"
   end if
   i = 1
   repeat while i <= tSpriteCount
     tsprite = sprite(reserveSprite(me.getID()))
-    tDirAngle = (i - 1 * tAngleSectorSize) + random(tAngleSectorSize)
+    tDirAngle = (((i - 1) * tAngleSectorSize) + random(tAngleSectorSize))
     tMaxTravelX = (cos(tDirAngle) * tMaxItemTravelDist)
     tMaxTravelY = (sin(tDirAngle) * tMaxItemTravelDist)
     tPixelsPerMillisecX = (float(tMaxTravelX) / pTotalAnimTime)
@@ -81,9 +81,9 @@ on define me, tloc, tlocz, tSize
     tdata.setAt(#sprite, tsprite)
     pSpriteData.add(tdata)
     tsprite.member = member(getmemnum(pMemberPrefix & pCurrentPhase & "_" & pCurrentFrame))
-    tsprite.locZ = tlocz + random(tLocZVariance) - (tLocZVariance / 2)
+    tsprite.locZ = ((tlocz + random(tLocZVariance)) - (tLocZVariance / 2))
     tsprite.ink = 8
-    i = 1 + i
+    i = (1 + i)
   end repeat
   pAnimStartTime = the milliSeconds
   pRunAnimation = 1
@@ -92,16 +92,16 @@ end
 
 on update me 
   if not pRunAnimation then
-    return(0)
+    return FALSE
   end if
-  tMoveTime = the milliSeconds - pAnimStartTime
+  tMoveTime = (the milliSeconds - pAnimStartTime)
   if tMoveTime > pTotalAnimTime then
     pRunAnimation = 0
     me.deconstruct()
-    return(0)
+    return FALSE
   end if
   tUpdatePhase = 0
-  tCurrentPhase = integer((tMoveTime / pTimePerPhase)) + 1
+  tCurrentPhase = (integer((tMoveTime / pTimePerPhase)) + 1)
   if tCurrentPhase <> pCurrentPhase then
     tUpdatePhase = 1
     pCurrentPhase = tCurrentPhase
@@ -109,7 +109,7 @@ on update me
   repeat while pSpriteData <= undefined
     tSpriteData = getAt(undefined, undefined)
     tRandomUpdateTrigger = 3
-    if random(tRandomUpdateTrigger) > tRandomUpdateTrigger - 1 or tUpdatePhase then
+    if random(tRandomUpdateTrigger) > (tRandomUpdateTrigger - 1) or tUpdatePhase then
       tNewFrame = random(pFrameAmount)
       tSpriteData.getAt(#sprite).flipH = random(1)
       tSpriteData.getAt(#sprite).flipV = random(1)
@@ -117,8 +117,8 @@ on update me
       tSpriteData.setAt(#IncrementX, (tSpriteData.getAt(#IncrementX) * 1.05))
       tSpriteData.setAt(#IncrementY, (tSpriteData.getAt(#IncrementY) * 1.05))
     end if
-    tLocX = integer((tMoveTime * tSpriteData.getAt(#IncrementX)) + pScreenStartLoc.locH)
-    tLocY = integer((tMoveTime * tSpriteData.getAt(#IncrementY)) + pScreenStartLoc.locV)
+    tLocX = integer(((tMoveTime * tSpriteData.getAt(#IncrementX)) + pScreenStartLoc.locH))
+    tLocY = integer(((tMoveTime * tSpriteData.getAt(#IncrementY)) + pScreenStartLoc.locV))
     tSpriteData.getAt(#sprite).loc = point(tLocX, tLocY)
   end repeat
   if tMoveTime > ((3 / 4) * pTotalAnimTime) and pHostSpriteData.getAt(#sprite) <> void() then

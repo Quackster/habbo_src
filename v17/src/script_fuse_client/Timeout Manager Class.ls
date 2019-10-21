@@ -1,6 +1,6 @@
 on construct me 
   me.pItemList = [:]
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
@@ -11,10 +11,10 @@ on deconstruct me
     if tObjMngr.exists(tID) then
       tObjMngr.GET(tID).forget()
     end if
-    i = 1 + i
+    i = (1 + i)
   end repeat
   me.pItemList = [:]
-  return(1)
+  return TRUE
 end
 
 on create me, tID, tTime, tHandler, tClientID, tArgument, tIterations 
@@ -47,7 +47,7 @@ on create me, tID, tTime, tHandler, tClientID, tArgument, tIterations
   tList.setAt(#iterations, tIterations)
   tList.setAt(#count, 0)
   me.setProp(#pItemList, tID, tList)
-  return(1)
+  return TRUE
 end
 
 on GET me, tID 
@@ -79,7 +79,7 @@ on Remove me, tID
     tObject = void()
     tObjMngr.Remove(me.getPropRef(#pItemList, tID).getAt(#uniqueid))
   end if
-  return(me.deleteProp(tID))
+  return(me.pItemList.deleteProp(tID))
 end
 
 on exists me, tID 
@@ -89,19 +89,19 @@ end
 on executeTimeOut me, tTimeout 
   i = 1
   repeat while i <= me.count(#pItemList)
-    if me.getPropRef(#pItemList, i).getAt(#uniqueid) = tTimeout.name then
-      tID = me.getPropAt(i)
+    if (me.getPropRef(#pItemList, i).getAt(#uniqueid) = tTimeout.name) then
+      tID = me.pItemList.getPropAt(i)
       tTask = me.getProp(#pItemList, tID)
     else
-      i = 1 + i
+      i = (1 + i)
     end if
   end repeat
   if voidp(tID) then
     tTimeout.forget()
-    return(0)
+    return FALSE
   end if
-  me.getPropRef(#pItemList, tID).setAt(#count, me.getPropRef(#pItemList, tID).getAt(#count) + 1)
-  if me.getPropRef(#pItemList, tID).getAt(#count) = me.getPropRef(#pItemList, tID).getAt(#iterations) then
+  me.getPropRef(#pItemList, tID).setAt(#count, (me.getPropRef(#pItemList, tID).getAt(#count) + 1))
+  if (me.getPropRef(#pItemList, tID).getAt(#count) = me.getPropRef(#pItemList, tID).getAt(#iterations)) then
     me.Remove(tID)
   end if
   if voidp(tTask.getAt(#client)) then
@@ -114,5 +114,5 @@ on executeTimeOut me, tTimeout
       return(me.Remove(tID))
     end if
   end if
-  return(1)
+  return TRUE
 end

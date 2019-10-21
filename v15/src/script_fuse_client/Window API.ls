@@ -38,20 +38,20 @@ on mergeWindow tid, tLayout
   if windowExists(tid) then
     return(getWindow(tid).merge(tLayout))
   else
-    return(0)
+    return FALSE
   end if
 end
 
 on activateWindow tid 
   if voidp(tid) then
-    return(0)
+    return FALSE
   end if
   return(getWindowManager().Activate(tid))
 end
 
 on deactivateWindow tid 
   if voidp(tid) then
-    return(0)
+    return FALSE
   end if
   return(getWindowManager().deactivate(tid))
 end
@@ -60,7 +60,7 @@ on registerClient tid, tClientID
   if windowExists(tid) then
     return(getWindow(tid).registerClient(tClientID))
   else
-    return(0)
+    return FALSE
   end if
 end
 
@@ -68,7 +68,7 @@ on registerProcedure tid, tHandler, tClientID, tEvent
   if windowExists(tid) then
     return(getWindow(tid).registerProcedure(tHandler, tClientID, tEvent))
   else
-    return(0)
+    return FALSE
   end if
 end
 

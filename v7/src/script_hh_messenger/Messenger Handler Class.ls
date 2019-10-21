@@ -7,7 +7,7 @@ on deconstruct me
 end
 
 on handle_ok me, tMsg 
-  tMsg.send("MESSENGER_INIT")
+  tMsg.connection.send("MESSENGER_INIT")
 end
 
 on handle_messengerready me, tMsg 
@@ -20,12 +20,12 @@ on handle_buddylist me, tMsg
   tDelim = the itemDelimiter
   the itemDelimiter = ","
   i = 1
-  repeat while i <= tMsg.count(#line)
-    tLine = tMsg.getProp(#line, i)
+  repeat while i <= tMsg.content.count(#line)
+    tLine = tMsg.content.getProp(#line, i)
     if length(tLine) > 4 then
       the itemDelimiter = "/"
       tSupp = tLine.getProp(#item, tLine.count(#item))
-      tLine = tLine.getProp(#item, 1, tLine.count(#item) - 1)
+      tLine = tLine.getProp(#item, 1, (tLine.count(#item) - 1))
       tProps = [:]
       tProps.setAt(#id, tLine.getProp(#word, 1))
       tProps.setAt(#name, tLine.getProp(#word, 2))
@@ -39,47 +39,47 @@ on handle_buddylist me, tMsg
         tProps.setAt(#sex, "M")
       end if
       the itemDelimiter = "\t"
-      tUnit = tMsg.getPropRef(#line, i + 1).getProp(#item, 1)
-      if tUnit = "ENTERPRISESERVER" then
+      tUnit = tMsg.content.getPropRef(#line, (i + 1)).getProp(#item, 1)
+      if (tUnit = "ENTERPRISESERVER") then
         tProps.setAt(#unit, "Messenger")
       else
         tProps.setAt(#unit, tUnit)
       end if
-      tProps.setAt(#last_access_time, tMsg.getPropRef(#line, i + 1).getProp(#item, 2))
+      tProps.setAt(#last_access_time, tMsg.content.getPropRef(#line, (i + 1)).getProp(#item, 2))
       the itemDelimiter = ","
       if length(tUnit) > 2 then
-        online.add(tLine.getProp(#word, 2))
+        tMessage.online.add(tLine.getProp(#word, 2))
         tProps.setAt(#online, 1)
       else
-        offline.add(tLine.getProp(#word, 2))
+        tMessage.offline.add(tLine.getProp(#word, 2))
         tProps.setAt(#online, 0)
       end if
       tBuddies.setAt(tProps.name, tProps)
     end if
-    i = i + 2
+    i = (i + 2)
   end repeat
   sort(tMessage.online)
   sort(tMessage.offline)
-  repeat while tMessage <= undefined
+  repeat while tMessage.online <= undefined
     tName = getAt(undefined, tMsg)
     tBuddy = tBuddies.getaProp(tName)
-    buddies.setaProp(tBuddy.getAt(#id), tBuddy)
-    render.add(tName)
+    tMessage.buddies.setaProp(tBuddy.getAt(#id), tBuddy)
+    tMessage.render.add(tName)
   end repeat
-  repeat while tMessage <= undefined
+  repeat while tMessage.online <= undefined
     tName = getAt(undefined, tMsg)
     tBuddy = tBuddies.getaProp(tName)
-    buddies.setaProp(tBuddy.getAt(#id), tBuddy)
-    render.add(tName)
+    tMessage.buddies.setaProp(tBuddy.getAt(#id), tBuddy)
+    tMessage.render.add(tName)
   end repeat
   the itemDelimiter = tDelim
   tMsg.setaProp(#content, tMessage)
-  if tMessage = 17 then
+  if (tMessage.online = 17) then
     if tMessage.count(#buddies) > 0 then
       me.getComponent().receive_BuddyList(#update, tMessage)
     end if
   else
-    if tMessage = 137 then
+    if (tMessage.online = 137) then
       me.getComponent().receive_AppendBuddy(tMessage)
     else
       me.getComponent().receive_BuddyList(#new, tMessage)
@@ -93,26 +93,26 @@ end
 
 on handle_messenger_msg me, tMsg 
   tProps = [:]
-  tProps.setAt(#id, tMsg.getProp(#line, 1))
-  tProps.setAt(#senderID, tMsg.getProp(#line, 2))
-  tProps.setAt(#recipients, tMsg.getProp(#line, 3))
-  tProps.setAt(#time, tMsg.getProp(#line, 4))
-  tProps.setAt(#message, tMsg.getProp(#line, 5, tMsg.count(#line) - 1))
-  tProps.setAt(#FigureData, tMsg.getProp(#line, tMsg.count(#line)))
+  tProps.setAt(#id, tMsg.content.getProp(#line, 1))
+  tProps.setAt(#senderID, tMsg.content.getProp(#line, 2))
+  tProps.setAt(#recipients, tMsg.content.getProp(#line, 3))
+  tProps.setAt(#time, tMsg.content.getProp(#line, 4))
+  tProps.setAt(#message, tMsg.content.getProp(#line, 5, (tMsg.content.count(#line) - 1)))
+  tProps.setAt(#FigureData, tMsg.content.getProp(#line, tMsg.content.count(#line)))
   me.getComponent().receive_Message(tProps)
 end
 
 on handle_nosuchuser me, tMsg 
-  if tMsg.getProp(#word, 1) = "REGNAME" then
+  if (tMsg.content.getProp(#word, 1) = "REGNAME") then
   else
-    if tMsg.getProp(#word, 1) = "MESSENGER" then
-      me.getComponent().receive_UserNotFound(["name":tMsg.getProp(#word, 2)])
+    if (tMsg.content.getProp(#word, 1) = "MESSENGER") then
+      me.getComponent().receive_UserNotFound(["name":tMsg.content.getProp(#word, 2)])
     end if
   end if
 end
 
 on handle_memberinfo me, tMsg 
-  if tMsg.getPropRef(#line, 1).getProp(#word, 1) = "MESSENGER" then
+  if (tMsg.content.getPropRef(#line, 1).getProp(#word, 1) = "MESSENGER") then
     tProps = [:]
     tStr = tMsg.getaProp(#content)
     tStr = tStr.getProp(#line, 2, tStr.count(#line))
@@ -127,7 +127,7 @@ on handle_memberinfo me, tMsg
     else
       tProps.setAt(#sex, "M")
     end if
-    if tProps.getAt(#location) = "ENTERPRISESERVER" then
+    if (tProps.getAt(#location) = "ENTERPRISESERVER") then
       tProps.setAt(#location, "messenger")
     end if
     if objectExists("Figure_System") then
@@ -139,7 +139,7 @@ end
 
 on handle_buddyaddrequests me, tMsg 
   tProps = [:]
-  tStr = tMsg.getProp(#line, 1, tMsg.count(#line))
+  tStr = tMsg.content.getProp(#line, 1, tMsg.content.count(#line))
   tDelim = the itemDelimiter
   the itemDelimiter = "/"
   tProps.setAt(#name, tStr.getPropRef(#word, 1).getProp(#item, 2))
@@ -153,10 +153,10 @@ end
 
 on handle_campaign_msg me, tMsg 
   tdata = [:]
-  tdata.setAt(#id, tMsg.getProp(#line, 1))
-  tdata.setAt(#url, tMsg.getProp(#line, 2))
-  tdata.setAt(#link, tMsg.getProp(#line, 3))
-  tdata.setAt(#message, tMsg.getProp(#line, 4, tMsg.count(#line)))
+  tdata.setAt(#id, tMsg.content.getProp(#line, 1))
+  tdata.setAt(#url, tMsg.content.getProp(#line, 2))
+  tdata.setAt(#link, tMsg.content.getProp(#line, 3))
+  tdata.setAt(#message, tMsg.content.getProp(#line, 4, tMsg.content.count(#line)))
   tdata.setAt(#senderID, "Campaign Msg")
   tdata.setAt(#recipiens, "[]")
   tdata.setAt(#time, "---")
@@ -200,5 +200,5 @@ on regMsgList me, tBool
     unregisterListener(getVariable("connection.info.id"), me.getID(), tMsgs)
     unregisterCommands(getVariable("connection.info.id"), me.getID(), tCmds)
   end if
-  return(1)
+  return TRUE
 end

@@ -24,7 +24,7 @@ on startSong me, tSongData
   if not timeoutExists(pUpdateTimeout) then
     createTimeout(pUpdateTimeout, 1500, #checkLoopData, me.getID(), void(), 0)
   end if
-  return(1)
+  return TRUE
 end
 
 on stopSong me 
@@ -35,11 +35,11 @@ on stopSong me
     removeTimeout(pPlayTimeout)
   end if
   if voidp(pSongData) then
-    return(1)
+    return TRUE
   end if
   tChannelList = pSongData.getAt(#channelList)
   if voidp(tChannelList) then
-    return(1)
+    return TRUE
   end if
   repeat while tChannelList <= undefined
     tChannel = getAt(undefined, undefined)
@@ -50,12 +50,12 @@ on stopSong me
   if timeoutExists(pUpdateTimeout) then
     removeTimeout(pUpdateTimeout)
   end if
-  return(1)
+  return TRUE
 end
 
 on processSongData me 
   if voidp(pSongData.getaProp(#sounds)) then
-    return(1)
+    return TRUE
   end if
   tSounds = pSongData.getaProp(#sounds)
   tChannels = []
@@ -66,7 +66,7 @@ on processSongData me
     if not tChannels.findPos(tChannel) then
       tChannels.add(tChannel)
     end if
-    i = 1 + i
+    i = (1 + i)
   end repeat
   tChannels.sort()
   i = 1
@@ -74,24 +74,24 @@ on processSongData me
     tSound = tSounds.getAt(i)
     tChannel = tSound.channel
     tSound.channel = tChannels.findPos(tChannel)
-    i = 1 + i
+    i = (1 + i)
   end repeat
   tChannelsFinal = []
   i = 1
   repeat while i <= tChannels.count
     tChannelsFinal.add(i)
-    i = 1 + i
+    i = (1 + i)
   end repeat
   pSongData.setAt(#channelList, tChannelsFinal)
 end
 
 on reserveSongChannels me 
   if voidp(pSongData) then
-    return(1)
+    return TRUE
   end if
   tChannelList = pSongData.getAt(#channelList)
   if voidp(tChannelList) then
-    return(1)
+    return TRUE
   end if
   repeat while tChannelList <= undefined
     tChannel = getAt(undefined, undefined)
@@ -104,11 +104,11 @@ end
 
 on queueChannels me 
   if voidp(pSongData) then
-    return(1)
+    return TRUE
   end if
   tChannelList = pSongData.getAt(#channelList)
   if voidp(tChannelList) then
-    return(1)
+    return TRUE
   end if
   repeat while tChannelList <= undefined
     tChannel = getAt(undefined, undefined)
@@ -120,7 +120,7 @@ on queueChannels me
   i = 1
   repeat while i <= tPlayRoundsOnQueue
     me.addPlayRound()
-    i = 1 + i
+    i = (1 + i)
   end repeat
   if timeoutExists(pPlayTimeout) then
     removeTimeout(pPlayTimeout)
@@ -130,11 +130,11 @@ end
 
 on startChannels me 
   if voidp(pSongData) then
-    return(1)
+    return TRUE
   end if
   tChannelList = pSongData.getAt(#channelList)
   if voidp(tChannelList) then
-    return(1)
+    return TRUE
   end if
   i = tChannelList.count
   repeat while i >= 1
@@ -142,13 +142,13 @@ on startChannels me
     if tChannel >= 1 and tChannel <= pSongChannels.count then
       startSoundChannel(pSongChannels.getAt(tChannel))
     end if
-    i = 255 + i
+    i = (255 + i)
   end repeat
 end
 
 on addPlayRound me 
-  if pSongData.getaProp(#sounds) = void() then
-    return(1)
+  if (pSongData.getaProp(#sounds) = void()) then
+    return TRUE
   end if
   tOffset = 0
   if not voidp(pSongData.getAt(#offset)) then
@@ -158,7 +158,7 @@ on addPlayRound me
   i = 1
   repeat while i <= pSongChannels.count
     tOffsetList.add(tOffset)
-    i = 1 + i
+    i = (1 + i)
   end repeat
   i = 1
   repeat while i <= pSongData.count(#sounds)
@@ -168,22 +168,22 @@ on addPlayRound me
       tChannel = tSound.channel
       if tChannel >= 1 and tChannel <= pSongChannels.count then
         if getMember(tSound.name) <> void() then
-          if getMember(tSound.name).type = #sound then
+          if (getMember(tSound.name).type = #sound) then
             if tOffsetList.getAt(tChannel) > 0 then
               tLength = getMember(tSound.name).duration
               if tLength > tOffsetList.getAt(tChannel) then
                 queueSound(tSound.name, pSongChannels.getAt(tChannel), [#startTime:tOffsetList.getAt(tChannel)])
               end if
-              tOffsetList.setAt(tChannel, max(0, tOffsetList.getAt(tChannel) - tLength))
+              tOffsetList.setAt(tChannel, max(0, (tOffsetList.getAt(tChannel) - tLength)))
             else
               queueSound(tSound.name, pSongChannels.getAt(tChannel))
             end if
           end if
         end if
       end if
-      j = 1 + j
+      j = (1 + j)
     end repeat
-    i = 1 + i
+    i = (1 + i)
   end repeat
   if not voidp(pSongData.getAt(#offset)) then
     tOffset = tOffsetList.getAt(1)
@@ -192,39 +192,39 @@ on addPlayRound me
       if tOffsetList.getAt(i) < tOffset then
         tOffset = tOffsetList.getAt(i)
       end if
-      i = 1 + i
+      i = (1 + i)
     end repeat
     pSongData.setAt(#offset, tOffset)
   end if
-  return(1)
+  return TRUE
 end
 
 on checkLoopData me 
   if voidp(pSongData) then
-    return(1)
+    return TRUE
   end if
   tChannelList = pSongData.getAt(#channelList)
   if voidp(tChannelList) then
-    return(1)
+    return TRUE
   end if
-  if tChannelList.count = 0 then
-    return(1)
+  if (tChannelList.count = 0) then
+    return TRUE
   end if
   tChannel = tChannelList.getAt(1)
   if tChannel < 1 or tChannel > pSongChannels.count then
-    return(1)
+    return TRUE
   end if
   tPlayList = sound(pSongChannels.getAt(tChannel)).getPlaylist()
   tLength = 0
   i = 1
   repeat while i <= tPlayList.count
-    tLength = tPlayList.getAt(i) + member.duration
-    i = 1 + i
+    tLength = (tLength + tPlayList.getAt(i).member.duration)
+    i = (1 + i)
   end repeat
   if tLength < 60000 then
     me.addPlayRound()
   end if
-  return(1)
+  return TRUE
 end
 
 on startSamplePreview me, tParams 
@@ -232,7 +232,7 @@ on startSamplePreview me, tParams
   if not tSuccess then
     return(error(me, "Sound could not be started", #startSamplePreview))
   end if
-  return(1)
+  return TRUE
 end
 
 on stopSamplePreview me 
@@ -240,5 +240,5 @@ on stopSamplePreview me
   if not tSuccess then
     return(error(me, "Sound could not be stopped", #stopSamplePreview))
   end if
-  return(1)
+  return TRUE
 end

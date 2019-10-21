@@ -8,10 +8,10 @@ on prepare me
   i = 1
   repeat while i <= tTokenList.count(#item)
     pTokenList.add(tTokenList.getPropRef(#item, i).getProp(#word, 1, tTokenList.getPropRef(#item, i).count(#word)))
-    i = 1 + i
+    i = (1 + i)
   end repeat
   the itemDelimiter = tDelim
-  return(1)
+  return TRUE
 end
 
 on select me 
@@ -22,38 +22,38 @@ on select me
   if not tUserObj then
     return(error(me, "User object not found:" && getObject(#session).get("user_name"), #select))
   end if
-  if me.getProp(#pDirection, 1) = 4 then
-    if me.pLocX = tUserObj.pLocX and me.pLocY - tUserObj.pLocY = -1 then
+  if (me.getProp(#pDirection, 1) = 4) then
+    if (me.pLocX = tUserObj.pLocX) and ((me.pLocY - tUserObj.pLocY) = -1) then
       me.giveDrink()
     else
-      getThread(#room).getComponent().getRoomConnection().send(#room, "Move" && me.pLocX && me.pLocY + 1)
+      getThread(#room).getComponent().getRoomConnection().send(#room, "Move" && me.pLocX && (me.pLocY + 1))
     end if
   else
-    if me.getProp(#pDirection, 1) = 0 then
-      if me.pLocX = tUserObj.pLocX and me.pLocY - tUserObj.pLocY = 1 then
+    if (me.getProp(#pDirection, 1) = 0) then
+      if (me.pLocX = tUserObj.pLocX) and ((me.pLocY - tUserObj.pLocY) = 1) then
         me.giveDrink()
       else
-        getThread(#room).getComponent().getRoomConnection().send(#room, "Move" && me.locX && me.pLocY - 1)
+        getThread(#room).getComponent().getRoomConnection().send(#room, "Move" && me.locX && (me.pLocY - 1))
       end if
     else
-      if me.getProp(#pDirection, 1) = 2 then
-        if me.pLocY = tUserObj.pLocY and me.pLocX - tUserObj.pLocX = -1 then
+      if (me.getProp(#pDirection, 1) = 2) then
+        if (me.pLocY = tUserObj.pLocY) and ((me.pLocX - tUserObj.pLocX) = -1) then
           me.giveDrink()
         else
-          getThread(#room).getComponent().getRoomConnection().send(#room, "Move" && me.pLocX + 1 && me.pLocY)
+          getThread(#room).getComponent().getRoomConnection().send(#room, "Move" && (me.pLocX + 1) && me.pLocY)
         end if
       else
-        if me.getProp(#pDirection, 1) = 6 then
-          if me.pLocY = tUserObj.pLocY and me.pLocX - tUserObj.pLocX = 1 then
+        if (me.getProp(#pDirection, 1) = 6) then
+          if (me.pLocY = tUserObj.pLocY) and ((me.pLocX - tUserObj.pLocX) = 1) then
             me.giveDrink()
           else
-            getThread(#room).getComponent().getRoomConnection().send(#room, "Move" && me.pLocX - 1 && me.pLocY)
+            getThread(#room).getComponent().getRoomConnection().send(#room, "Move" && (me.pLocX - 1) && me.pLocY)
           end if
         end if
       end if
     end if
   end if
-  return(1)
+  return TRUE
 end
 
 on giveDrink me 

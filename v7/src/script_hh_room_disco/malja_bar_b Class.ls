@@ -5,10 +5,10 @@ on showprogram me, tMsg
     tNum = tMsg.getAt(#show_params)
     tSpr = getThread(#room).getInterface().getRoomVisualizer().getSprById("show_" & tDst)
     if tSpr <> 0 then
-      if tCmd = "setfloor" then
-        member.paletteRef = member(getmemnum("chrome_floorpalette" & tNum))
+      if (tCmd = "setfloor") then
+        tSpr.member.paletteRef = member(getmemnum("chrome_floorpalette" & tNum))
       else
-        if tCmd = "fade" then
+        if (tCmd = "fade") then
           tSpr.color = rgb("#" & tNum)
         end if
       end if

@@ -12,17 +12,17 @@ on createTemplateHuman me, tSize, tdir, tAction, tActionProps
     tProps.setAt(#x, 10000)
     tProps.setAt(#y, 10000)
     tProps.setAt(#h, 10000)
-    if tSize = "sh" then
+    if (tSize = "sh") then
       tProps.setAt(#type, 32)
     else
       tProps.setAt(#type, 64)
     end if
     tmember = getObject("temp_humanobj").define(tProps)
   end if
-  if tAction = "remove" then
+  if (tAction = "remove") then
     removeObject("temp_humanobj")
   else
-    if tAction = "reset" then
+    if (tAction = "reset") then
       call(#resetTemplateHuman, [getObject("temp_humanobj")])
     else
       call(symbol("action_" & tAction), [getObject("temp_humanobj")], tActionProps)
@@ -41,7 +41,7 @@ end
 on createHumanPartPreview me, tWindowTitle, tElement, tPartList, tFigure 
   if voidp(tFigure) then
     tFigure = getObject(#session).get("user_figure")
-    if tFigure.ilk = #propList then
+    if (tFigure.ilk = #propList) then
       tFigure = tFigure.duplicate()
     else
       return(error(me, "Figure data not found!", #createHumanPartPreview))
@@ -58,10 +58,10 @@ on setParts me, tFigure, tPartList
     if not tPart contains "it" then
       tmodel = tFigure.getAt(tPart).getAt("model")
       tColor = tFigure.getAt(tPart).getAt("color")
-      if tPartList = 1 then
+      if (tPartList = 1) then
         tmodel = "00" & tmodel
       else
-        if tPartList = 2 then
+        if (tPartList = 2) then
           tmodel = "0" & tmodel
         end if
       end if
@@ -88,10 +88,10 @@ on createTemplateParts me, tFigure, tPartList, tdir, tSize
       tDirection = tdir
       tAction = "std"
       tAncestor = me
-      if tPartList = 1 then
+      if (tPartList = 1) then
         tmodel = "00" & tmodel
       else
-        if tPartList = 2 then
+        if (tPartList = 2) then
           tmodel = "0" & tmodel
         end if
       end if
@@ -109,9 +109,9 @@ on feedHumanPreview me, tWindowTitle, tElemID, tPartList
     me.getPartImg(tPartList, tTempPartImg, 3)
     tTempPartImg = tTempPartImg.trimWhiteSpace()
     tPrewImg = image(tElem.getProperty(#width), tElem.getProperty(#height), 16)
-    tdestrect = tPrewImg.rect - tTempPartImg.rect
+    tdestrect = (tPrewImg.rect - tTempPartImg.rect)
     tMargins = rect(0, 0, 0, 0)
-    tdestrect = rect((tdestrect.width / 2), (tdestrect.height / 2), tTempPartImg.width + (tdestrect.width / 2), (tdestrect.height / 2) + tTempPartImg.height) + tMargins
+    tdestrect = (rect((tdestrect.width / 2), (tdestrect.height / 2), (tTempPartImg.width + (tdestrect.width / 2)), ((tdestrect.height / 2) + tTempPartImg.height)) + tMargins)
     tPrewImg.copyPixels(tTempPartImg, tdestrect, tTempPartImg.rect, [#ink:8])
     tElem.clearImage()
     tElem.feedImage(tPrewImg)

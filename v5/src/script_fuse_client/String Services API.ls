@@ -7,11 +7,11 @@ on deconstructStringServices
 end
 
 on getStringServices  
-  tObjMngr = getObjectManager()
-  if not tObjMngr.managerExists(#string_services) then
+  tMgr = getObjectManager()
+  if not tMgr.managerExists(#string_services) then
     return(constructStringServices())
   end if
-  return(tObjMngr.getManager(#string_services))
+  return(tMgr.getManager(#string_services))
 end
 
 on convertToPropList tString, tDelimiter 
@@ -24,10 +24,10 @@ on convertToPropList tString, tDelimiter
   i = 1
   repeat while i <= tString.count(#item)
     tPair = tString.getPropRef(#item, i).getProp(#word, 1, tString.getPropRef(#item, i).count(#word))
-    tProp = tPair.getProp(#char, 1, offset("=", tPair) - 1)
-    tValue = tPair.getProp(#char, offset("=", tPair) + 1, length(tString))
+    tProp = tPair.getProp(#char, 1, (offset("=", tPair) - 1))
+    tValue = tPair.getProp(#char, (offset("=", tPair) + 1), length(tString))
     tProps.setAt(tProp.getProp(#word, 1, tProp.count(#word)), tValue.getProp(#word, 1, tValue.count(#word)))
-    i = 1 + i
+    i = (1 + i)
   end repeat
   the itemDelimiter = tOldDelim
   return(tProps)

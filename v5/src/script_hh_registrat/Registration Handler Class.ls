@@ -7,16 +7,16 @@ on deconstruct me
 end
 
 on handle_ok me, tMsg 
-  if me.getComponent().pState = "openFigureCreator" then
+  if (me.getComponent().pState = "openFigureCreator") then
     getConnection(tMsg.getaProp(#connection)).send(#info, "GETAVAILABLESETS")
   end if
 end
 
 on handle_regok me, tMsg 
-  if me.getComponent().pState = "openFigureCreator" then
+  if (me.getComponent().pState = "openFigureCreator") then
     me.getComponent().newFigureReady()
   else
-    if me.getComponent().pState = "openFigureUpdate" then
+    if (me.getComponent().pState = "openFigureUpdate") then
       me.getComponent().figureUpdateReady()
     end if
   end if
@@ -30,7 +30,7 @@ on handle_nameunacceptable me, tMsg
 end
 
 on handle_availablesets me, tMsg 
-  tSets = value(tMsg.getProp(#line, 2))
+  tSets = value(tMsg.message.getProp(#line, 2))
   if not listp(tSets) then
     tSets = []
   end if

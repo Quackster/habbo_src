@@ -31,7 +31,7 @@ on construct me
   pXFactor = pGeometry.pXFactor
   pYFactor = pGeometry.pYFactor
   pHFactor = pGeometry.pHFactor
-  if pXFactor = 32 then
+  if (pXFactor = 32) then
     pMemberNamePrefix = "s_p_"
     pCorrectLocZ = 0
   else
@@ -41,20 +41,20 @@ on construct me
   pPartClass = value(getThread(#room).getComponent().getClassContainer().get("petpart"))
   pOffsetList = me.getOffsetList()
   pOffsetListSmall = me.getOffsetList(#small)
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
   pGeometry = void()
   pPartList = []
   pInfoStruct = [:]
-  if pSprite.ilk = #sprite then
+  if (pSprite.ilk = #sprite) then
     releaseSprite(pSprite.spriteNum)
   end if
-  if pMatteSpr.ilk = #sprite then
+  if (pMatteSpr.ilk = #sprite) then
     releaseSprite(pMatteSpr.spriteNum)
   end if
-  if pShadowSpr.ilk = #sprite then
+  if (pShadowSpr.ilk = #sprite) then
     releaseSprite(pShadowSpr.spriteNum)
   end if
   if memberExists(me.getCanvasName()) then
@@ -63,7 +63,7 @@ on deconstruct me
   pShadowSpr = void()
   pMatteSpr = void()
   pSprite = void()
-  return(1)
+  return TRUE
 end
 
 on define me, tdata 
@@ -73,8 +73,8 @@ on define me, tdata
   end if
   pMember = member(getmemnum(me.getCanvasName()))
   pMember.image = image(pCanvasSize.getAt(1), pCanvasSize.getAt(2), pCanvasSize.getAt(3))
-  pMember.regPoint = point(0, pMember.height + pCanvasSize.getAt(4))
-  pBuffer = pMember.duplicate()
+  pMember.regPoint = point(0, (pMember.image.height + pCanvasSize.getAt(4)))
+  pBuffer = pMember.image.duplicate()
   pSprite = sprite(reserveSprite(me.getID()))
   pSprite.castNum = pMember.number
   pSprite.width = pMember.width
@@ -104,7 +104,7 @@ on define me, tdata
   pInfoStruct.setAt(#class, pClass)
   pInfoStruct.setAt(#custom, pCustom)
   pInfoStruct.setAt(#image, me.getPicture())
-  return(1)
+  return TRUE
 end
 
 on setup me, tdata 
@@ -117,7 +117,7 @@ on setup me, tdata
   pCustom = getText("pet_race_" & tdata.getAt(#figure).getProp(#word, 1) & "_" & tdata.getAt(#figure).getProp(#word, 2), "")
   if pName contains numToChar(4) then
     pIDPrefix = pName.getProp(#char, 1, offset(numToChar(4), pName))
-    pName = pName.getProp(#char, offset(numToChar(4), pName) + 1, length(pName))
+    pName = pName.getProp(#char, (offset(numToChar(4), pName) + 1), length(pName))
   end if
   pCanvasSize = [60, 62, 32, -18]
   if not me.setPartLists(tdata.getAt(#figure)) then
@@ -144,7 +144,7 @@ on resetValues me, tX, tY, tH, tDirHead, tDirBody
   pSniffing = 0
   call(#reset, pPartList)
   if pCorrectLocZ then
-    pScreenLoc = pGeometry.getScreenCoordinate(tX, tY, tH + pRestingHeight)
+    pScreenLoc = pGeometry.getScreenCoordinate(tX, tY, (tH + pRestingHeight))
   else
     pScreenLoc = pGeometry.getScreenCoordinate(tX, tY, tH)
   end if
@@ -154,18 +154,18 @@ on resetValues me, tX, tY, tH, tDirHead, tDirBody
   pLocH = tH
   pRestingHeight = 0
   call(#defineDir, pPartList, tDirBody)
-  if tDirBody <> pFlipList.getAt(tDirBody + 1) then
+  if tDirBody <> pFlipList.getAt((tDirBody + 1)) then
     if tDirBody <> tDirHead then
-      if tDirHead = 4 then
+      if (tDirHead = 4) then
         tDirHead = 2
       else
-        if tDirHead = 5 then
+        if (tDirHead = 5) then
           tDirHead = 1
         else
-          if tDirHead = 6 then
+          if (tDirHead = 6) then
             tDirHead = 4
           else
-            if tDirHead = 7 then
+            if (tDirHead = 7) then
               tDirHead = 5
             end if
           end if
@@ -188,7 +188,7 @@ on select me
       getConnection(getVariable("connection.info.id", #info)).send("GETPETSTAT", [#string:pIDPrefix & pName])
     end if
   end if
-  return(1)
+  return TRUE
 end
 
 on getClass me 
@@ -214,13 +214,13 @@ on setPartColor me, tPart, tColor
 end
 
 on getProperty me, tPropID 
-  if tPropID = #loc then
+  if (tPropID = #loc) then
     return([pLocX, pLocY, pLocH])
   else
-    if tPropID = #moving then
+    if (tPropID = #moving) then
       return(me.pMoving)
     else
-      return(0)
+      return FALSE
     end if
   end if
 end
@@ -238,7 +238,7 @@ on getScrLocation me
 end
 
 on getTileCenter me 
-  return(point(pScreenLoc.getAt(1) + (pXFactor / 2), pScreenLoc.getAt(2)))
+  return(point((pScreenLoc.getAt(1) + (pXFactor / 2)), pScreenLoc.getAt(2)))
 end
 
 on getPartLocation me, tPart 
@@ -321,15 +321,15 @@ on draw me, tRGB
   if not ilk(tRGB, #color) then
     tRGB = rgb(255, 0, 0)
   end if
-  pMember.draw(pMember.rect, [#shapeType:#rect, #color:tRGB])
+  pMember.image.draw(pMember.image.rect, [#shapeType:#rect, #color:tRGB])
 end
 
 on prepare me 
-  pAnimCounter = (pAnimCounter + 1 mod 4)
+  pAnimCounter = ((pAnimCounter + 1) mod 4)
   if pEyesClosed then
     me.openEyes()
   else
-    if random(30) = 3 then
+    if (random(30) = 3) then
       me.closeEyes()
     end if
   end if
@@ -345,28 +345,28 @@ on prepare me
     pPartList.getAt(pPartIndex.getAt("hd")).defineAct("snf")
     pChanges = 1
   end if
-  if pMainAction = "scr" then
+  if (pMainAction = "scr") then
     pPartList.getAt(pPartIndex.getAt("bd")).defineAct("scr")
     pChanges = 1
   end if
-  if pMainAction = "bnd" then
+  if (pMainAction = "bnd") then
     pPartList.getAt(pPartIndex.getAt("bd")).defineAct("bnd")
     pChanges = 1
   end if
-  if pMainAction = "jmp" then
+  if (pMainAction = "jmp") then
     pPartList.getAt(pPartIndex.getAt("bd")).defineAct("jmp")
     pChanges = 1
   end if
-  if pMainAction = "pla" then
+  if (pMainAction = "pla") then
     pPartList.getAt(pPartIndex.getAt("bd")).defineAct("pla")
     pChanges = 1
   end if
   if pMoving then
-    tFactor = (float(the milliSeconds - pMoveStart) / pMoveTime)
+    tFactor = (float((the milliSeconds - pMoveStart)) / pMoveTime)
     if tFactor > 1 then
       tFactor = 1
     end if
-    pScreenLoc = (pDestLScreen - pStartLScreen * tFactor) + pStartLScreen
+    pScreenLoc = (((pDestLScreen - pStartLScreen) * tFactor) + pStartLScreen)
     pChanges = 1
   end if
 end
@@ -381,7 +381,7 @@ on render me
   end if
   if pBuffer.width <> pCanvasSize.getAt(1) or pBuffer.height <> pCanvasSize.getAt(2) then
     pMember.image = image(pCanvasSize.getAt(1), pCanvasSize.getAt(2), pCanvasSize.getAt(3))
-    pMember.regPoint = point(0, pCanvasSize.getAt(2) + pCanvasSize.getAt(4))
+    pMember.regPoint = point(0, (pCanvasSize.getAt(2) + pCanvasSize.getAt(4)))
     pSprite.width = pCanvasSize.getAt(1)
     pSprite.height = pCanvasSize.getAt(2)
     pMatteSpr.width = pCanvasSize.getAt(1)
@@ -389,11 +389,11 @@ on render me
     pBuffer = image(pCanvasSize.getAt(1), pCanvasSize.getAt(2), pCanvasSize.getAt(3))
   end if
   tFlip = 0
-  tFlip = tFlip or pFlipList.getAt(pDirection + 1) <> pDirection
-  tFlip = tFlip or pDirection = 3 and pPartList.getAt(pPartIndex.getAt("hd")).pDirection = 4
-  tFlip = tFlip or pDirection = 7 and pPartList.getAt(pPartIndex.getAt("hd")).pDirection = 6
+  tFlip = tFlip or pFlipList.getAt((pDirection + 1)) <> pDirection
+  tFlip = tFlip or (pDirection = 3) and (pPartList.getAt(pPartIndex.getAt("hd")).pDirection = 4)
+  tFlip = tFlip or (pDirection = 7) and (pPartList.getAt(pPartIndex.getAt("hd")).pDirection = 6)
   if tFlip then
-    pMember.regPoint = point(pMember.width, pMember.getProp(#regPoint, 2))
+    pMember.regPoint = point(pMember.image.width, pMember.getProp(#regPoint, 2))
     pShadowFix = pXFactor
     if not pSprite.flipH then
       pSprite.flipH = 1
@@ -410,27 +410,27 @@ on render me
     end if
   end if
   if pCorrectLocZ then
-    tOffZ = (pLocH + pRestingHeight * 1000) + 2
+    tOffZ = (((pLocH + pRestingHeight) * 1000) + 2)
   else
     tOffZ = 2
   end if
   pSprite.locH = pScreenLoc.getAt(1)
   pSprite.locV = pScreenLoc.getAt(2)
-  pSprite.locZ = pScreenLoc.getAt(3) + tOffZ
+  pSprite.locZ = (pScreenLoc.getAt(3) + tOffZ)
   pMatteSpr.loc = pSprite.loc
-  pMatteSpr.locZ = pSprite.locZ + 1
-  pShadowSpr.loc = pSprite.loc + [pShadowFix, 0]
-  pShadowSpr.locZ = pSprite.locZ - 3
+  pMatteSpr.locZ = (pSprite.locZ + 1)
+  pShadowSpr.loc = (pSprite.loc + [pShadowFix, 0])
+  pShadowSpr.locZ = (pSprite.locZ - 3)
   pUpdateRect = rect(0, 0, 0, 0)
   pBuffer.fill(pBuffer.rect, pAlphaColor)
   call(#update, pPartList)
-  pMember.copyPixels(pBuffer, pUpdateRect, pUpdateRect)
+  pMember.image.copyPixels(pBuffer, pUpdateRect, pUpdateRect)
 end
 
 on reDraw me 
   pBuffer.fill(pBuffer.rect, pAlphaColor)
   call(#render, pPartList)
-  pMember.copyPixels(pBuffer, pBuffer.rect, pBuffer.rect)
+  pMember.image.copyPixels(pBuffer, pBuffer.rect, pBuffer.rect)
 end
 
 on setPartLists me, tFigure 
@@ -454,22 +454,22 @@ on setPartLists me, tFigure
   repeat while i <= tPartDefinition.count
     tPartSymbol = tPartDefinition.getAt(i)
     tPartObj = createObject(#temp, pPartClass)
-    if tPartSymbol = "bd" then
+    if (tPartSymbol = "bd") then
       tmodel = "000"
     else
       tmodel = "00" & tRaceNum
     end if
     tPartObj.define(tPartSymbol, tmodel, tPalette, tColor, pDirection, tAction, me)
     pPartList.add(tPartObj)
-    i = 1 + i
+    i = (1 + i)
   end repeat
   pPartIndex = [:]
   i = 1
   repeat while i <= pPartList.count
     pPartIndex.setAt(pPartList.getAt(i).pPart, i)
-    i = 1 + i
+    i = (1 + i)
   end repeat
-  return(1)
+  return TRUE
 end
 
 on arrangeParts me 
@@ -480,11 +480,11 @@ on arrangeParts me
   tHead = pPartList.getAt(tHeadInd)
   tBody = pPartList.getAt(tBodyInd)
   tHeadDir = tHead.getDirection()
-  if tHeadDir = 7 then
+  if (tHeadDir = 7) then
     pPartList = [tHead, tBody, tTail]
     pPartIndex = ["hd":1, "bd":2, "tl":3]
   else
-    if pDirection = 6 or pDirection = 7 or pDirection = 0 then
+    if (pDirection = 6) or (pDirection = 7) or (pDirection = 0) then
       pPartList = [tBody, tHead, tTail]
       pPartIndex = ["bd":1, "hd":2, "tl":3]
     else
@@ -505,7 +505,7 @@ on getOffsetList me, tSize
   if voidp(tSize) then
     tSize = #large
   end if
-  if tSize = #large then
+  if (tSize = #large) then
     tList = [:]
     tList.setAt("hd_std", [[36, -21], [38, -18], [37, -18], [32, -15], [32, -20]])
     tList.setAt("hd_sit", [[36, -21], [38, -18], [37, -18], [32, -14], [32, -17]])
@@ -630,7 +630,7 @@ on action_sld me, tProps
   tLocY = integer(tloc.getProp(#item, 2))
   tLocH = getLocalFloat(tloc.getProp(#item, 3))
   the itemDelimiter = tDelim
-  pStartLScreen = pGeometry.getScreenCoordinate(pLocX, pLocY, pLocH + pRestingHeight)
+  pStartLScreen = pGeometry.getScreenCoordinate(pLocX, pLocY, (pLocH + pRestingHeight))
   pDestLScreen = pGeometry.getScreenCoordinate(tLocX, tLocY, tLocH)
   pMoveStart = the milliSeconds
 end
@@ -639,8 +639,8 @@ on action_sit me, tProps
   pMainAction = "sit"
   pPartList.getAt(pPartIndex.getAt("bd")).defineAct("sit")
   if pCorrectLocZ then
-    pRestingHeight = getLocalFloat(tProps.getProp(#word, 2)) - pLocH
-    pScreenLoc = pGeometry.getScreenCoordinate(pLocX, pLocY, pLocH + pRestingHeight)
+    pRestingHeight = (getLocalFloat(tProps.getProp(#word, 2)) - pLocH)
+    pScreenLoc = pGeometry.getScreenCoordinate(pLocX, pLocY, (pLocH + pRestingHeight))
   else
     pRestingHeight = getLocalFloat(tProps.getProp(#word, 2))
     pScreenLoc = pGeometry.getScreenCoordinate(pLocX, pLocY, pRestingHeight)
@@ -666,8 +666,8 @@ on action_lay me, tProps
   pMainAction = "lay"
   pPartList.getAt(pPartIndex.getAt("bd")).defineAct("lay")
   if pCorrectLocZ then
-    pRestingHeight = getLocalFloat(tProps.getProp(#word, 2)) - pLocH
-    pScreenLoc = pGeometry.getScreenCoordinate(pLocX, pLocY, pLocH + pRestingHeight)
+    pRestingHeight = (getLocalFloat(tProps.getProp(#word, 2)) - pLocH)
+    pScreenLoc = pGeometry.getScreenCoordinate(pLocX, pLocY, (pLocH + pRestingHeight))
   else
     pRestingHeight = getLocalFloat(tProps.getProp(#word, 2))
     pScreenLoc = pGeometry.getScreenCoordinate(pLocX, pLocY, pRestingHeight)
@@ -726,7 +726,7 @@ on action_gst me, tProps
   if tGesture <> "sml" then
     if tGesture <> "agr" then
       if tGesture <> "sad" then
-        if tGesture = "puz" then
+        if (tGesture = "puz") then
           pPartList.getAt(pPartIndex.getAt("tl")).defineAct(tGesture)
         end if
       end if

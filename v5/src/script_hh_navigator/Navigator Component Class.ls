@@ -13,7 +13,7 @@ on construct me
   registerMessage(#leaveRoom, me.getID(), #showNavigator)
   registerMessage(#Initialize, me.getID(), #updateState)
   getObject(#session).set("user_rights", [])
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
@@ -59,7 +59,7 @@ on UpdateUnitList me, tMsg
       if not voidp(pItemList.getAt(#units).getAt(tUnitid)) then
         pItemList.getAt(#units).getAt(tUnitid).setAt(#usercount, tMsg.getAt(f).getAt(#usercount))
       end if
-      f = 1 + f
+      f = (1 + f)
     end repeat
   end if
   return(me.getInterface().UpdateUnitList(pItemList.getAt(#units)))
@@ -72,7 +72,7 @@ on prepareFlatList me, tMsg
     repeat while f <= tMsg.count()
       tUnitPort = tMsg.getPropAt(f)
       pItemList.getAt(#prvunits).setAt(tUnitPort, tMsg.getAt(f))
-      f = 1 + f
+      f = (1 + f)
     end repeat
   end if
 end
@@ -80,14 +80,14 @@ end
 on saveFlatList me, tMsg, tMode 
   pItemList.setAt(#flats, [:])
   if listp(tMsg) then
-    if tMode = #busy then
+    if (tMode = #busy) then
       pFlatCache.setAt(#flats, [:])
       f = 1
       repeat while f <= tMsg.count()
         tFlatID = tMsg.getPropAt(f)
         pItemList.getAt(#flats).setAt(tFlatID, tMsg.getAt(f))
         pFlatCache.getAt(#flats).setAt(tFlatID, tMsg.getAt(f))
-        f = 1 + f
+        f = (1 + f)
       end repeat
       exit repeat
     end if
@@ -95,7 +95,7 @@ on saveFlatList me, tMsg, tMode
     repeat while f <= tMsg.count()
       tFlatID = tMsg.getPropAt(f)
       pItemList.getAt(#flats).setAt(tFlatID, tMsg.getAt(f))
-      f = 1 + f
+      f = (1 + f)
     end repeat
   end if
   return(me.getInterface().saveFlatList(pItemList.getAt(#flats), tMode))
@@ -114,7 +114,7 @@ on saveFlatInfo me, tMsg
           pItemList.getAt(#flats).setAt(tFlatID, [:])
         end if
         pItemList.getAt(#flats).getAt(tFlatID).setAt(tProp, tDesc)
-        f = 1 + f
+        f = (1 + f)
       end repeat
     end if
   end if
@@ -149,26 +149,26 @@ on searchBusyFlats me, tFromNum, tToNum, tMode
         tFromNum = 0
       end if
       if not integerp(tToNum) then
-        tToNum = tFromNum + getIntVariable("navigator.private.count", 40)
+        tToNum = (tFromNum + getIntVariable("navigator.private.count", 40))
       end if
       getConnection(pConnectionId).send(#info, "SBUSYF /" & tFromNum & "," & tToNum)
     end if
   end if
-  return(0)
+  return FALSE
 end
 
 on getOwnFlats me 
   if connectionExists(pConnectionId) then
     return(getConnection(pConnectionId).send(#info, "SUSERF /" & getObject(#session).get("user_name")))
   end if
-  return(0)
+  return FALSE
 end
 
 on getFavouriteFlats me 
   if connectionExists(pConnectionId) then
     return(getConnection(pConnectionId).send(#info, "GETFVRF"))
   end if
-  return(0)
+  return FALSE
 end
 
 on addToFavouriteFlats me, tRoomId 
@@ -178,7 +178,7 @@ on addToFavouriteFlats me, tRoomId
     end if
     return(getConnection(pConnectionId).send(#info, "ADD_FAVORITE_ROOM" && tRoomId))
   end if
-  return(0)
+  return FALSE
 end
 
 on removeFavouriteFlats me, tRoomId 
@@ -189,7 +189,7 @@ on removeFavouriteFlats me, tRoomId
       return(getConnection(pConnectionId).send(#info, "DEL_FAVORITE_ROOM" && tRoomId))
     end if
   end if
-  return(0)
+  return FALSE
 end
 
 on getFlatInfo me, tRoomId 
@@ -200,7 +200,7 @@ on getFlatInfo me, tRoomId
       return(getConnection(pConnectionId).send(#info, "GETFLATINFO /" & tRoomId))
     end if
   end if
-  return(0)
+  return FALSE
 end
 
 on searchFlats me, tQuery 
@@ -210,7 +210,7 @@ on searchFlats me, tQuery
     end if
     return(getConnection(pConnectionId).send(#info, "SRCHF /" & "%" & tQuery & "%"))
   end if
-  return(0)
+  return FALSE
 end
 
 on GetUnitUsers me, tUnitName, tSubUnitName 
@@ -221,14 +221,14 @@ on GetUnitUsers me, tUnitName, tSubUnitName
       return(getConnection(pConnectionId).send(#info, "GETUNITUSERS" && "/" & tUnitName))
     end if
   end if
-  return(0)
+  return FALSE
 end
 
 on deleteFlat me, tFlatID 
   if connectionExists(pConnectionId) then
     return(getConnection(pConnectionId).send(#info, "DELETEFLAT /" & tFlatID))
   else
-    return(0)
+    return FALSE
   end if
 end
 
@@ -241,14 +241,14 @@ on sendupdateFlatInfo me, tPropList
     tProp = getAt(undefined, tPropList)
     tFlatMsg = tFlatMsg & tPropList.getAt(tProp) & "/"
   end repeat
-  tFlatMsg = tFlatMsg.getProp(#char, 1, length(tFlatMsg) - 1)
+  tFlatMsg = tFlatMsg.getProp(#char, 1, (length(tFlatMsg) - 1))
   getConnection(pConnectionId).send(#info, "UPDATEFLAT /" & tFlatMsg)
   tFlatMsg = string(tPropList.getAt(#id)) & "/" & "\r"
   tFlatMsg = tFlatMsg & "description=" & tPropList.getAt(#description) & "\r"
   tFlatMsg = tFlatMsg & "password=" & tPropList.getAt(#password) & "\r"
   tFlatMsg = tFlatMsg & "allsuperuser=" & tPropList.getAt(#ableothersmovefurniture)
   getConnection(pConnectionId).send(#info, "SETFLATINFO /" & tFlatMsg)
-  return(1)
+  return TRUE
 end
 
 on getFlatIp me, tFlatPort 
@@ -294,10 +294,10 @@ end
 
 on flatAccessResult me, tMsg 
   if tMsg <> "flat_letin" then
-    if tMsg = "flatpassword_ok" then
+    if (tMsg = "flatpassword_ok") then
     else
       if tMsg <> "incorrect flat password" then
-        if tMsg = "password required" then
+        if (tMsg = "password required") then
           me.getInterface().flatPasswordIncorrect()
           me.updateState("enterEntry")
         end if
@@ -311,30 +311,30 @@ on getUnitId me, tMsg
   repeat while f <= pItemList.getAt(#units).count
     tUnitid = pItemList.getAt(#units).getPropAt(f)
     tUnitData = pItemList.getAt(#units).getAt(tUnitid)
-    if tUnitData.getAt(#port) = tMsg.getAt(#port) and tUnitData.getAt(#marker) = tMsg.getAt(#marker) then
+    if (tUnitData.getAt(#port) = tMsg.getAt(#port)) and (tUnitData.getAt(#marker) = tMsg.getAt(#marker)) then
       return(tUnitid)
     else
-      f = 1 + f
+      f = (1 + f)
     end if
   end repeat
-  return(0)
+  return FALSE
 end
 
 on updateState me, tstate, tProps 
-  if tstate = "reset" then
+  if (tstate = "reset") then
     pState = tstate
     if timeoutExists(#navigator_update) then
       removeTimeout(#navigator_update)
     end if
-    return(0)
+    return FALSE
   else
-    if tstate = "initialize" then
+    if (tstate = "initialize") then
       pState = tstate
       initThread("thread.hobba")
       me.delay(1000, #updateState, "login")
     else
-      if tstate = "login" then
-        if getIntVariable("figurepartlist.loaded", 1) = 0 then
+      if (tstate = "login") then
+        if (getIntVariable("figurepartlist.loaded", 1) = 0) then
           return(me.delay(1000, #updateState, "login"))
         end if
         pState = tstate
@@ -354,21 +354,21 @@ on updateState me, tstate, tProps
           end if
         end if
         initThread("thread.hobba")
-        if tstate = #trial then
+        if (tstate = #trial) then
           executeMessage(#show_registration)
         else
-          if tstate = #subscribe then
+          if (tstate = #subscribe) then
             executeMessage(#show_registration)
           else
             me.getInterface().getLogin().showLogin()
           end if
         end if
       else
-        if tstate = "forgottenPassWord" then
+        if (tstate = "forgottenPassWord") then
           pState = tstate
-          return(1)
+          return TRUE
         else
-          if tstate = "connection" then
+          if (tstate = "connection") then
             pState = tstate
             tHost = getVariable("connection.info.host")
             tPort = getIntVariable("connection.info.port")
@@ -378,12 +378,12 @@ on updateState me, tstate, tProps
             if not createConnection(pConnectionId, tHost, tPort) then
               return(error(me, "Failed to create info connection!!!", #updateState))
             else
-              return(1)
+              return TRUE
             end if
           else
-            if tstate = "connectionOk" then
-              if pState = "forgottenPassWord" then
-                return(1)
+            if (tstate = "connectionOk") then
+              if (pState = "forgottenPassWord") then
+                return TRUE
               end if
               if not connectionExists(pConnectionId) then
                 return(me.updateState("connection"))
@@ -392,19 +392,19 @@ on updateState me, tstate, tProps
               tUserName = getObject(#session).get(#userName)
               tPassword = getObject(#session).get(#password)
               if voidp(tUserName) or voidp(tPassword) then
-                return(0)
+                return FALSE
               end if
-              if tUserName = "" or tPassword = "" then
-                return(0)
+              if (tUserName = "") or (tPassword = "") then
+                return FALSE
               end if
               if not stringp(tUserName) or not stringp(tPassword) then
-                return(0)
+                return FALSE
               end if
               getConnection(pConnectionId).send(#info, "LOGIN" && tUserName && tPassword)
               getConnection(pConnectionId).send(#info, "UNIQUEMACHINEID" && getMachineID())
-              return(1)
+              return TRUE
             else
-              if tstate = "loginOk" then
+              if (tstate = "loginOk") then
                 pState = tstate
                 executeMessage(#userlogin, 1)
                 if not connectionExists(pConnectionId) then
@@ -423,26 +423,26 @@ on updateState me, tstate, tProps
                 tConnection.send(#info, "GETADFORME general")
                 tConnection.send(#info, "MESSENGERINIT")
                 me.searchBusyFlats(void(), void(), #update)
-                return(1)
+                return TRUE
               else
-                if tstate = "openNavigator" then
+                if (tstate = "openNavigator") then
                   pState = tstate
                   me.showNavigator()
                   createTimeout(#navigator_update, pUpdatePeriod, #roomListTimeOutUpdate, me.getID(), void(), 0)
                   return(executeMessage(#navigator_activated, #navigator))
                 else
-                  if tstate = "enterEntry" then
+                  if (tstate = "enterEntry") then
                     pState = tstate
                     executeMessage(#leaveRoom)
                     getObject(#session).set("lastroom", "Entry")
-                    return(1)
+                    return TRUE
                   else
                     if tstate <> "enterRoom" then
                       if tstate <> "enterUnit" then
-                        if tstate = "enterFlat" then
+                        if (tstate = "enterFlat") then
                           pState = tstate
                           me.getInterface().hideNavigator()
-                          if getObject(#session).get("lastroom") = "Entry" then
+                          if (getObject(#session).get("lastroom") = "Entry") then
                             if threadExists(#entry) then
                               getThread(#entry).getComponent().leaveEntry()
                             end if
@@ -454,7 +454,7 @@ on updateState me, tstate, tProps
                               getConnection(pConnectionId).send(#info, "GETADFORME general")
                             end if
                             if voidp(tProps) then
-                              if getObject(#session).get("lastroom").ilk = #propList then
+                              if (getObject(#session).get("lastroom").ilk = #propList) then
                                 tProps = getObject(#session).get("lastroom").getaProp(#id)
                               else
                                 error(me, "Target room's ID expected!", #updateState)
@@ -466,7 +466,7 @@ on updateState me, tstate, tProps
                             return(executeMessage(#enterRoom, tRoomDataStruct))
                           end if
                         else
-                          if tstate = "disconnection" then
+                          if (tstate = "disconnection") then
                             pState = tstate
                             return(me.getInterface().showDisconnectionDialog())
                           else

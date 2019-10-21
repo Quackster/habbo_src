@@ -1,6 +1,6 @@
 on construct me 
   me.pItemList = [:]
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
@@ -11,10 +11,10 @@ on deconstruct me
     if tObjMngr.exists(tid) then
       tObjMngr.GET(tid).forget()
     end if
-    i = 1 + i
+    i = (1 + i)
   end repeat
   me.pItemList = [:]
-  return(1)
+  return TRUE
 end
 
 on create me, tid, tTime, tHandler, tClientID, tArgument, tIterations 
@@ -47,7 +47,7 @@ on create me, tid, tTime, tHandler, tClientID, tArgument, tIterations
   tList.setAt(#iterations, tIterations)
   tList.setAt(#count, 0)
   me.setProp(#pItemList, tid, tList)
-  return(1)
+  return TRUE
 end
 
 on GET me, tid 
@@ -79,7 +79,7 @@ on Remove me, tid
     tObject = void()
     tObjMngr.Remove(me.getPropRef(#pItemList, tid).getAt(#uniqueid))
   end if
-  return(pItemList.deleteProp(tid))
+  return(me.pItemList.deleteProp(tid))
 end
 
 on exists me, tid 
@@ -89,19 +89,19 @@ end
 on executeTimeOut me, tTimeout 
   i = 1
   repeat while i <= me.count(#pItemList)
-    if me.getPropRef(#pItemList, i).getAt(#uniqueid) = tTimeout.name then
-      tid = pItemList.getPropAt(i)
+    if (me.getPropRef(#pItemList, i).getAt(#uniqueid) = tTimeout.name) then
+      tid = me.pItemList.getPropAt(i)
       tTask = me.getProp(#pItemList, tid)
     else
-      i = 1 + i
+      i = (1 + i)
     end if
   end repeat
   if voidp(tid) then
     tTimeout.forget()
-    return(0)
+    return FALSE
   end if
-  me.getPropRef(#pItemList, tid).setAt(#count, me.getPropRef(#pItemList, tid).getAt(#count) + 1)
-  if me.getPropRef(#pItemList, tid).getAt(#count) = me.getPropRef(#pItemList, tid).getAt(#iterations) then
+  me.getPropRef(#pItemList, tid).setAt(#count, (me.getPropRef(#pItemList, tid).getAt(#count) + 1))
+  if (me.getPropRef(#pItemList, tid).getAt(#count) = me.getPropRef(#pItemList, tid).getAt(#iterations)) then
     me.Remove(tid)
   end if
   if voidp(tTask.getAt(#client)) then
@@ -114,5 +114,5 @@ on executeTimeOut me, tTimeout
       return(me.Remove(tid))
     end if
   end if
-  return(1)
+  return TRUE
 end

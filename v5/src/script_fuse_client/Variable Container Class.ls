@@ -1,12 +1,12 @@
 on construct me 
   me.pItemList = [:]
-  me.sort()
-  return(1)
+  me.pItemList.sort()
+  return TRUE
 end
 
 on deconstruct me 
   me.pItemList = [:]
-  return(1)
+  return TRUE
 end
 
 on create me, tVariable, tValue 
@@ -14,7 +14,7 @@ on create me, tVariable, tValue
     return(error(me, "String or symbol expected:" && tVariable, #create))
   end if
   me.setProp(#pItemList, tVariable, tValue)
-  return(1)
+  return TRUE
 end
 
 on set me, tVariable, tValue 
@@ -22,7 +22,7 @@ on set me, tVariable, tValue
     return(error(me, "String or symbol expected:" && tVariable, #set))
   end if
   me.setProp(#pItemList, tVariable, tValue)
-  return(1)
+  return TRUE
 end
 
 on get me, tVariable, tDefault 
@@ -67,7 +67,7 @@ on getValue me, tVariable, tDefault
 end
 
 on remove me, tVariable 
-  return(me.deleteProp(tVariable))
+  return(me.pItemList.deleteProp(tVariable))
 end
 
 on exists me, tVariable 
@@ -90,11 +90,11 @@ on dump me, tField, tDelimiter
       tValue = tPair.getProp(#item, 2, tPair.count(#item))
       tValue = tValue.getProp(#word, 1, tValue.count(#word))
       if not tValue contains space() then
-        if tValue.getProp(#char, 1) = "#" then
+        if (tValue.getProp(#char, 1) = "#") then
           tValue = symbol(chars(tValue, 2, length(tValue)))
         else
           if integerp(integer(tValue)) then
-            if length(string(integer(tValue))) = length(tValue) then
+            if (length(string(integer(tValue))) = length(tValue)) then
               tValue = integer(tValue)
             end if
           end if
@@ -107,21 +107,21 @@ on dump me, tField, tDelimiter
       if stringp(tValue) then
         j = 1
         repeat while j <= length(tValue)
-          if tField = 228 then
+          if (tField = 228) then
           else
-            if tField = 246 then
+            if (tField = 246) then
             end if
           end if
-          j = 1 + j
+          j = (1 + j)
         end repeat
       end if
       me.setProp(#pItemList, tProp, tValue)
       the itemDelimiter = tDelimiter
     end if
-    i = 1 + i
+    i = (1 + i)
   end repeat
   the itemDelimiter = tDelim
-  return(1)
+  return TRUE
 end
 
 on clear me 

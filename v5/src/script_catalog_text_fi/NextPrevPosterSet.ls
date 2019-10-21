@@ -10,7 +10,7 @@ on mouseUp me
   if sprite(spriteNum).blend < 100 then
     return()
   end if
-  if pDirection = #next then
+  if (pDirection = #next) then
     sendAllSprites(#nextPosterSet)
   else
     sendAllSprites(#prevPosterSet)

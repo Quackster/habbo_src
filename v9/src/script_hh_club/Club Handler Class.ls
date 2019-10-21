@@ -11,11 +11,11 @@ on handle_ok me, tMsg
 end
 
 on handle_scr_sinfo me, tMsg 
-  tProdName = connection.GetStrFrom()
-  tDaysLeft = connection.GetIntFrom()
-  tElapsedPeriods = connection.GetIntFrom()
-  tPrepaidPeriods = connection.GetIntFrom()
-  tResponseFlag = connection.GetIntFrom()
+  tProdName = tMsg.connection.GetStrFrom()
+  tDaysLeft = tMsg.connection.GetIntFrom()
+  tElapsedPeriods = tMsg.connection.GetIntFrom()
+  tPrepaidPeriods = tMsg.connection.GetIntFrom()
+  tResponseFlag = tMsg.connection.GetIntFrom()
   tList = [:]
   tList.setAt(#productName, tProdName)
   tList.setAt(#daysLeft, tDaysLeft)
@@ -38,5 +38,5 @@ on regMsgList me, tBool
     unregisterListener(getVariable("connection.info.id"), me.getID(), tMsgs)
     unregisterCommands(getVariable("connection.info.id"), me.getID(), tCmds)
   end if
-  return(1)
+  return TRUE
 end

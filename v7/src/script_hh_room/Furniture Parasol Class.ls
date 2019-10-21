@@ -1,18 +1,18 @@
 property pChanges, pActive
 
 on prepare me, tdata 
-  if tdata.getAt("STATUS") = "O" then
+  if (tdata.getAt("STATUS") = "O") then
     me.setOn()
     pChanges = 1
   else
     me.setOff()
     pChanges = 0
   end if
-  return(1)
+  return TRUE
 end
 
 on updateStuffdata me, tProp, tValue 
-  if tValue = "O" then
+  if (tValue = "O") then
     me.setOn()
   else
     me.setOff()
@@ -27,8 +27,8 @@ on update me
   if me.count(#pSprList) < 4 then
     return()
   end if
-  tCurName = member.name
-  tNewName = tCurName.getProp(#char, 1, length(tCurName) - 11)
+  tCurName = me.getPropRef(#pSprList, 1).member.name
+  tNewName = tCurName.getProp(#char, 1, (length(tCurName) - 11))
   tParts = ["a", "b", "c", "d"]
   i = 1
   repeat while i <= 4
@@ -39,7 +39,7 @@ on update me
       me.getPropRef(#pSprList, i).width = tmember.width
       me.getPropRef(#pSprList, i).height = tmember.height
     end if
-    i = 1 + i
+    i = (1 + i)
   end repeat
   pChanges = 0
 end
@@ -61,5 +61,5 @@ on select me
     end if
     getThread(#room).getComponent().getRoomConnection().send("SETSTUFFDATA", me.getID() & "/" & "STATUS" & "/" & tStr)
   end if
-  return(1)
+  return TRUE
 end

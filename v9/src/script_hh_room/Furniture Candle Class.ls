@@ -4,32 +4,32 @@ on prepare me, tdata
   i = 2
   repeat while i <= me.count(#pSprList)
     removeEventBroker(me.getPropRef(#pSprList, i).spriteNum)
-    i = 1 + i
+    i = (1 + i)
   end repeat
   tDelim = the itemDelimiter
   the itemDelimiter = "_"
-  tName = undefined.name
-  pItem = tName.getProp(#item, 1, tName.count(#item) - 6)
-  pPart = tName.getProp(#item, tName.count(#item) - 5)
-  pData = tName.getProp(#item, tName.count(#item) - 4, tName.count(#item) - 1)
+  tName = me.getPropRef(#pSprList, 1).member.name
+  pItem = tName.getProp(#item, 1, (tName.count(#item) - 6))
+  pPart = tName.getProp(#item, (tName.count(#item) - 5))
+  pData = tName.getProp(#item, (tName.count(#item) - 4), (tName.count(#item) - 1))
   the itemDelimiter = tDelim
   i = 2
   repeat while i <= me.count(#pSprList)
-    me.getPropRef(#pSprList, i).locZ = me.getPropRef(#pSprList, i - 1).locZ + 2
-    i = 1 + i
+    me.getPropRef(#pSprList, i).locZ = (me.getPropRef(#pSprList, (i - 1)).locZ + 2)
+    i = (1 + i)
   end repeat
-  if tdata.getAt(#stuffdata) = "ON" then
+  if (tdata.getAt(#stuffdata) = "ON") then
     me.setOn()
   else
     me.setOff()
   end if
   pLastFrm = 0
   pTimer = 1
-  return(1)
+  return TRUE
 end
 
 on updateStuffdata me, tValue 
-  if tValue = "ON" then
+  if (tValue = "ON") then
     me.setOn()
   else
     me.setOff()
@@ -41,8 +41,8 @@ on update me
     pTimer = not pTimer
     if pTimer then
       tRand = random(4)
-      if tRand = pLastFrm then
-        tRand = (tRand + 1 mod 4) + 1
+      if (tRand = pLastFrm) then
+        tRand = (((tRand + 1) mod 4) + 1)
       end if
       pLastFrm = tRand
       me.setAnimMembersToFrame(pLastFrm)
@@ -68,14 +68,14 @@ on select me
     end if
     getThread(#room).getComponent().getRoomConnection().send("SETSTUFFDATA", [#string:string(me.getID()), #string:tStr])
   end if
-  return(1)
+  return TRUE
 end
 
 on setAnimMembersToFrame me, tFrame 
   tCharNum = charToNum("a")
   i = 2
   repeat while i <= me.count(#pSprList)
-    tLayerChar = numToChar(tCharNum + i - 1)
+    tLayerChar = numToChar(((tCharNum + i) - 1))
     tNewName = pItem & "_" & tLayerChar & "_" & pData & "_" & tFrame
     if memberExists(tNewName) then
       tmember = member(getmemnum(tNewName))
@@ -83,6 +83,6 @@ on setAnimMembersToFrame me, tFrame
       me.getPropRef(#pSprList, i).width = tmember.width
       me.getPropRef(#pSprList, i).height = tmember.height
     end if
-    i = 1 + i
+    i = (1 + i)
   end repeat
 end

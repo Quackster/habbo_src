@@ -2,14 +2,14 @@ property pAgentID, pParts, pButtonImg, pClientID, pScrollOffset, pViewClientRect
 
 on deconstruct me 
   removeObject(pAgentID)
-  return(1)
+  return TRUE
 end
 
 on define me, tProps 
   tField = tProps.getAt(#type) & tProps.getAt(#model) & ".element"
   pParts = getObject(#layout_parser).parse(tField)
-  if pParts = 0 then
-    return(0)
+  if (pParts = 0) then
+    return FALSE
   end if
   me.pProps = tProps
   me.pID = tProps.getAt(#id)
@@ -36,50 +36,50 @@ on define me, tProps
   pScrollOffset = 0
   pButtonStates = [#top:#up, #bottom:#up, #bar:#up, #lift:#up]
   me.UpdateImageObjects(void(), [#up, #down, #passive])
-  if me.pType = "scrollbarv" then
+  if (me.pType = "scrollbarv") then
     me.pwidth = pButtonImg.getAt("top_up").width
   else
     me.pheight = pButtonImg.getAt("top_up").height
   end if
   me.pimage = image(me.pwidth, me.pheight, 8, me.pPalette)
   me.UpdateScrollBar([#top, #bottom, #bar, #lift], #up)
-  tTempOffset = me.regPoint
-  me.image = me.pimage
-  me.regPoint = tTempOffset
+  tTempOffset = me.pBuffer.regPoint
+  me.pBuffer.image = me.pimage
+  me.pBuffer.regPoint = tTempOffset
   pAgentID = me.getID() && the milliSeconds
   createObject(pAgentID, getClassVariable("event.agent.class"))
-  return(1)
+  return TRUE
 end
 
 on prepare me 
-  pSprite.width = me.pwidth
-  pSprite.height = me.pheight
+  me.pSprite.width = me.pwidth
+  me.pSprite.height = me.pheight
   call(#registerScroll, [getWindow(me.pMotherId).getElement(pClientID)], me.pID)
 end
 
 on getProperty me, tProp 
-  if tProp = #width then
+  if (tProp = #width) then
     return(me.pwidth)
   else
-    if tProp = #height then
+    if (tProp = #height) then
       return(me.pheight)
     else
-      if tProp = #locH then
+      if (tProp = #locH) then
         return(me.pLocX)
       else
-        if tProp = #locV then
+        if (tProp = #locV) then
           return(me.pLocY)
         else
-          if tProp = #locX then
+          if (tProp = #locX) then
             return(me.pLocX)
           else
-            if tProp = #locY then
+            if (tProp = #locY) then
               return(me.pLocY)
             else
-              if tProp = #offset then
+              if (tProp = #offset) then
                 return(pScrollOffset)
               else
-                return(0)
+                return FALSE
               end if
             end if
           end if
@@ -97,29 +97,29 @@ on setScrollOffset me, tOffset
   me.sendAdjustOffsetTo(tOffset)
   me.UpdateLiftPosition()
   me.ButtonsStates()
-  return(1)
+  return TRUE
 end
 
 on updateData me, tViewClientRect, tClientSourceRect 
   pViewClientRect = tViewClientRect
   pClientSourceRect = tClientSourceRect
-  if me.pType = "scrollbarv" then
+  if (me.pType = "scrollbarv") then
     if (pViewClientRect.height mod pScrollStep) <> 0 then
-      pViewClientRect.bottom = pViewClientRect.bottom - (pViewClientRect.height mod pScrollStep) + pScrollStep
+      pViewClientRect.bottom = ((pViewClientRect.bottom - (pViewClientRect.height mod pScrollStep)) + pScrollStep)
     end if
     if pViewClientRect.height > pClientSourceRect.height then
       pScrollOffset = 0
     end if
-    pMaxOffset = pClientSourceRect.height - pViewClientRect.height
+    pMaxOffset = (pClientSourceRect.height - pViewClientRect.height)
     pPageSize = pViewClientRect.height
   else
     if (pViewClientRect.width mod pScrollStep) <> 0 then
-      pViewClientRect.right = pViewClientRect.right - (pViewClientRect.width mod pScrollStep) + pScrollStep
+      pViewClientRect.right = ((pViewClientRect.right - (pViewClientRect.width mod pScrollStep)) + pScrollStep)
     end if
     if pViewClientRect.width > pClientSourceRect.width then
       pScrollOffset = 0
     end if
-    pMaxOffset = pClientSourceRect.width - pViewClientRect.width
+    pMaxOffset = (pClientSourceRect.width - pViewClientRect.width)
     pPageSize = pViewClientRect.width
   end if
   me.sendAdjustOffsetTo(pScrollOffset)
@@ -127,13 +127,13 @@ on updateData me, tViewClientRect, tClientSourceRect
 end
 
 on ScrollBarPercentV me 
-  tHeight = float(pClientSourceRect.height - pViewClientRect.height)
-  if tHeight = 0 then
-    return(0)
+  tHeight = float((pClientSourceRect.height - pViewClientRect.height))
+  if (tHeight = 0) then
+    return FALSE
   else
     tPercent = (float(pScrollOffset) / tHeight)
     if tPercent > 1 then
-      return(1)
+      return TRUE
     else
       return(tPercent)
     end if
@@ -141,13 +141,13 @@ on ScrollBarPercentV me
 end
 
 on ScrollBarPercentH me 
-  tWidth = float(pClientSourceRect.width - pViewClientRect.width)
-  if tWidth = 0 then
-    return(0)
+  tWidth = float((pClientSourceRect.width - pViewClientRect.width))
+  if (tWidth = 0) then
+    return FALSE
   else
     tPercent = (float(pScrollOffset) / tWidth)
     if tPercent > 1 then
-      return(1)
+      return TRUE
     else
       return(tPercent)
     end if
@@ -155,67 +155,67 @@ on ScrollBarPercentH me
 end
 
 on mouseDown me 
-  if pSprite.blend < 100 then
-    return(0)
+  if me.pSprite.blend < 100 then
+    return FALSE
   end if
   pClickPass = 1
   pClickPoint = the mouseLoc
   me.ScrollBarMouseEvent(#down)
   me.render()
-  return(1)
+  return TRUE
 end
 
 on mouseUp me 
   me.initEventAgent(0)
-  if pSprite.blend < 100 then
-    return(0)
+  if me.pSprite.blend < 100 then
+    return FALSE
   end if
-  if pClickPass = 0 then
-    return(0)
+  if (pClickPass = 0) then
+    return FALSE
   end if
   pClickPass = 0
   me.ScrollBarMouseEvent(#up)
   pState = #waitMouseEvent
   me.ButtonsStates()
   me.render()
-  return(1)
+  return TRUE
 end
 
 on mouseWithin me 
-  if pState = #lift then
+  if (pState = #lift) then
     tMouseH = the mouseH
     tMouseV = the mouseV
-    if me.pType = "scrollbarv" then
-      if tMouseV > pSprite.bottom - pRects.getAt(#bottom).height then
-        tMouseV = pSprite.bottom - pRects.getAt(#bottom).height
+    if (me.pType = "scrollbarv") then
+      if tMouseV > (me.pSprite.bottom - pRects.getAt(#bottom).height) then
+        tMouseV = (me.pSprite.bottom - pRects.getAt(#bottom).height)
       else
-        if me < pSprite.top + pRects.getAt(#top).height then
-          tMouseV = pSprite.top + pRects.getAt(#top).height
+        if tMouseV < (me.pSprite.top + pRects.getAt(#top).height) then
+          tMouseV = (me.pSprite.top + pRects.getAt(#top).height)
         end if
       end if
-      tNewLocV = pClickPoint.locV - tMouseV
-      tNewLiftRect = pRects.getAt(#lift) - rect(0, tNewLocV, 0, tNewLocV)
+      tNewLocV = (pClickPoint.locV - tMouseV)
+      tNewLiftRect = (pRects.getAt(#lift) - rect(0, tNewLocV, 0, tNewLocV))
       if tNewLiftRect.bottom > pRects.getAt(#bottom).top then
-        tNewLiftRect = pButtonImg.getAt(#lift_up).rect + rect(0, pRects.getAt(#bottom).top - pRects.getAt(#lift).height, 0, pRects.getAt(#bottom).top - pRects.getAt(#lift).height)
+        tNewLiftRect = (pButtonImg.getAt(#lift_up).rect + rect(0, (pRects.getAt(#bottom).top - pRects.getAt(#lift).height), 0, (pRects.getAt(#bottom).top - pRects.getAt(#lift).height)))
       end if
       if tNewLiftRect.top < pRects.getAt(#top).bottom then
-        tNewLiftRect = pButtonImg.getAt(#lift_up).rect + rect(0, pRects.getAt(#top).height, 0, pRects.getAt(#top).height)
+        tNewLiftRect = (pButtonImg.getAt(#lift_up).rect + rect(0, pRects.getAt(#top).height, 0, pRects.getAt(#top).height))
       end if
     else
-      if me > pSprite.right - pRects.getAt(#bottom).left then
-        tMouseH = pSprite.right - pRects.getAt(#bottom).left
+      if tMouseH > (me.pSprite.right - pRects.getAt(#bottom).left) then
+        tMouseH = (me.pSprite.right - pRects.getAt(#bottom).left)
       else
-        if me < pSprite.left + pRects.getAt(#top).right then
-          tMouseH = pSprite.left + pRects.getAt(#top).right
+        if tMouseH < (me.pSprite.left + pRects.getAt(#top).right) then
+          tMouseH = (me.pSprite.left + pRects.getAt(#top).right)
         end if
       end if
-      tNewLocH = pClickPoint.locH - tMouseH
-      tNewLiftRect = pRects.getAt(#lift) - rect(tNewLocH, 0, tNewLocH, 0)
+      tNewLocH = (pClickPoint.locH - tMouseH)
+      tNewLiftRect = (pRects.getAt(#lift) - rect(tNewLocH, 0, tNewLocH, 0))
       if tNewLiftRect.right > pRects.getAt(#bottom).left then
-        tNewLiftRect = pButtonImg.getAt(#lift_up).rect + rect(pRects.getAt(#bottom).left - pRects.getAt(#lift).width, 0, pRects.getAt(#bottom).left - pRects.getAt(#lift).width, 0)
+        tNewLiftRect = (pButtonImg.getAt(#lift_up).rect + rect((pRects.getAt(#bottom).left - pRects.getAt(#lift).width), 0, (pRects.getAt(#bottom).left - pRects.getAt(#lift).width), 0))
       end if
       if tNewLiftRect.left < pRects.getAt(#top).right then
-        newLIftRect = pButtonImg.getAt(#lift_up).rect + rect(pRects.getAt(#top).width, 0, pRects.getAt(#top).width, 0)
+        tNewLiftRect = (pButtonImg.getAt(#lift_up).rect + rect(pRects.getAt(#top).width, 0, pRects.getAt(#top).width, 0))
       end if
     end if
     pRects.setAt(#lift, tNewLiftRect)
@@ -225,7 +225,7 @@ on mouseWithin me
     me.ButtonsStates()
     pClickPoint = point(tMouseH, tMouseV)
   else
-    if pState = #top or pState = #bottom then
+    if (pState = #top) or (pState = #bottom) then
       me.ScrollBarMouseEvent(#down)
       me.ButtonsStates()
     end if
@@ -233,42 +233,42 @@ on mouseWithin me
 end
 
 on mouseUpOutSide me 
-  if pSprite.blend < 100 then
-    return(0)
+  if me.pSprite.blend < 100 then
+    return FALSE
   end if
   pClickPass = 0
   pState = #waitMouseEvent
   me.ButtonsStates()
   me.render()
-  return(0)
+  return FALSE
 end
 
 on UpdateLiftPosition me 
-  if me.pType = "scrollbarv" then
-    tMoveAreaV = pRects.getAt(#bar).height - pRects.getAt(#lift).height
+  if (me.pType = "scrollbarv") then
+    tMoveAreaV = (pRects.getAt(#bar).height - pRects.getAt(#lift).height)
     tNewOffset = integer((me.ScrollBarPercentV() * tMoveAreaV))
-    pRects.setAt(#lift, rect(0, tNewOffset + pRects.getAt(#top).height, pRects.getAt(#lift).width, tNewOffset + pRects.getAt(#top).height + pRects.getAt(#lift).height))
+    pRects.setAt(#lift, rect(0, (tNewOffset + pRects.getAt(#top).height), pRects.getAt(#lift).width, ((tNewOffset + pRects.getAt(#top).height) + pRects.getAt(#lift).height)))
   else
-    tMoveAreaV = pRects.getAt(#bar).width - pRects.getAt(#lift).width
+    tMoveAreaV = (pRects.getAt(#bar).width - pRects.getAt(#lift).width)
     tNewOffset = integer((me.ScrollBarPercentH() * tMoveAreaV))
-    pRects.setAt(#lift, rect(tNewOffset + pRects.getAt(#top).width, 0, tNewOffset + pRects.getAt(#top).width + pRects.getAt(#lift).width, pRects.getAt(#lift).height))
+    pRects.setAt(#lift, rect((tNewOffset + pRects.getAt(#top).width), 0, ((tNewOffset + pRects.getAt(#top).width) + pRects.getAt(#lift).width), pRects.getAt(#lift).height))
   end if
 end
 
 on ScrollByLift me 
-  if me.pType = "scrollbarv" then
-    tMoveAreaV = pRects.getAt(#bar).height - pRects.getAt(#lift).height
-    tScrollPercent = ((pRects.getAt(#lift).top - pRects.getAt(#lift).height + 1 * 100) / tMoveAreaV)
+  if (me.pType = "scrollbarv") then
+    tMoveAreaV = (pRects.getAt(#bar).height - pRects.getAt(#lift).height)
+    tScrollPercent = ((((pRects.getAt(#lift).top - pRects.getAt(#lift).height) + 1) * 100) / tMoveAreaV)
     tNowPercent = (float(tScrollPercent) / 100)
-    tNowOffset = integer(((pClientSourceRect.bottom - pViewClientRect.height * float(tScrollPercent)) / 100))
+    tNowOffset = integer((((pClientSourceRect.bottom - pViewClientRect.height) * float(tScrollPercent)) / 100))
   else
-    tMoveAreaH = pRects.getAt(#bar).width - pRects.getAt(#lift).width
-    tScrollPercent = ((pRects.getAt(#lift).left - pRects.getAt(#lift).width + 1 * 100) / tMoveAreaH)
+    tMoveAreaH = (pRects.getAt(#bar).width - pRects.getAt(#lift).width)
+    tScrollPercent = ((((pRects.getAt(#lift).left - pRects.getAt(#lift).width) + 1) * 100) / tMoveAreaH)
     tNowPercent = (float(tScrollPercent) / 100)
-    tNowOffset = integer(((pClientSourceRect.right - pViewClientRect.width * float(tScrollPercent)) / 100))
+    tNowOffset = integer((((pClientSourceRect.right - pViewClientRect.width) * float(tScrollPercent)) / 100))
   end if
   if (tNowOffset mod pScrollStep) <> 0 then
-    tNowOffset = tNowOffset - (tNowOffset mod pScrollStep)
+    tNowOffset = (tNowOffset - (tNowOffset mod pScrollStep))
   end if
   me.sendAdjustOffsetTo(tNowOffset)
 end
@@ -282,7 +282,7 @@ on sendAdjustOffsetTo me, tNewOffset
   if tNewOffset <= 0 then
     pScrollOffset = 0
   end if
-  if me.pType = "scrollbarv" then
+  if (me.pType = "scrollbarv") then
     call(#setOffsetY, [getWindow(me.pMotherId).getElement(pClientID)], pScrollOffset)
   else
     call(#setOffsetX, [getWindow(me.pMotherId).getElement(pClientID)], pScrollOffset)
@@ -309,7 +309,7 @@ on UpdateImageObjects me, tPalette, tListStates
         else
           me.pPalette = tPalette
         end if
-        tImage = tmember.duplicate()
+        tImage = tmember.image.duplicate()
         if tDesc.getAt(#flipH) then
           tImage = me.flipH(tImage)
         end if
@@ -328,30 +328,30 @@ on UpdateImageObjects me, tPalette, tListStates
 end
 
 on DefineRects me, tElementPart 
-  if me.pType = "scrollbarv" then
+  if (me.pType = "scrollbarv") then
     tRect = pButtonImg.getAt(tElementPart & "_up").rect
-    if tElementPart = #lift then
-      tRect = tRect + rect(0, pButtonImg.getAt("top_up").height, 0, pButtonImg.getAt("top_up").height)
+    if (tElementPart = #lift) then
+      tRect = (tRect + rect(0, pButtonImg.getAt("top_up").height, 0, pButtonImg.getAt("top_up").height))
     else
-      if tElementPart = #bottom then
-        tRect = tRect + rect(0, me.pheight - pButtonImg.getAt("bottom_up").height, 0, me.pheight - pButtonImg.getAt("bottom_up").height)
+      if (tElementPart = #bottom) then
+        tRect = (tRect + rect(0, (me.pheight - pButtonImg.getAt("bottom_up").height), 0, (me.pheight - pButtonImg.getAt("bottom_up").height)))
       else
-        if tElementPart = #bar then
-          tRect = tRect + rect(0, pButtonImg.getAt(#top_up).height, 0, me.pheight - pButtonImg.getAt(#bottom_up).height - 1)
+        if (tElementPart = #bar) then
+          tRect = (tRect + rect(0, pButtonImg.getAt(#top_up).height, 0, ((me.pheight - pButtonImg.getAt(#bottom_up).height) - 1)))
         end if
       end if
     end if
     pRects.addProp(tElementPart, tRect)
   else
     tRect = pButtonImg.getAt(tElementPart & "_up").rect
-    if tElementPart = #lift then
-      tRect = tRect + rect(pButtonImg.getAt("top_up").width, 0, pButtonImg.getAt("top_up").width, 0)
+    if (tElementPart = #lift) then
+      tRect = (tRect + rect(pButtonImg.getAt("top_up").width, 0, pButtonImg.getAt("top_up").width, 0))
     else
-      if tElementPart = #bottom then
-        tRect = tRect + rect(me.pwidth - pButtonImg.getAt("bottom_up").width, 0, me.pwidth - pButtonImg.getAt("bottom_up").width, 0)
+      if (tElementPart = #bottom) then
+        tRect = (tRect + rect((me.pwidth - pButtonImg.getAt("bottom_up").width), 0, (me.pwidth - pButtonImg.getAt("bottom_up").width), 0))
       else
-        if tElementPart = #bar then
-          tRect = tRect + rect(pButtonImg.getAt(#top_up).width, 0, me.pwidth - pButtonImg.getAt(#bottom_up).width - 1, 0)
+        if (tElementPart = #bar) then
+          tRect = (tRect + rect(pButtonImg.getAt(#top_up).width, 0, ((me.pwidth - pButtonImg.getAt(#bottom_up).width) - 1), 0))
         end if
       end if
     end if
@@ -361,7 +361,7 @@ end
 
 on DrawSpecificRect me, tdestrect, tElementPart, tstate 
   tImgPropName = tElementPart & "_" & tstate
-  me.copyPixels(pButtonImg.getProp(tImgPropName), tdestrect, pButtonImg.getProp(tImgPropName).rect)
+  me.pimage.copyPixels(pButtonImg.getProp(tImgPropName), tdestrect, pButtonImg.getProp(tImgPropName).rect)
 end
 
 on UpdateScrollBar me, tElementPartList, tstate 
@@ -369,15 +369,15 @@ on UpdateScrollBar me, tElementPartList, tstate
     f = getAt(tstate, tElementPartList)
     tDstRect = pRects.getAt(f)
     tImgPropName = f & "_" & tstate
-    me.copyPixels(pButtonImg.getProp(tImgPropName), tDstRect, pButtonImg.getProp(tImgPropName).rect, [#ink:36])
+    me.pimage.copyPixels(pButtonImg.getProp(tImgPropName), tDstRect, pButtonImg.getProp(tImgPropName).rect, [#ink:36])
   end repeat
 end
 
 on ScrollBarMouseEvent me, tstate 
-  if pButtonStates.getAt(#top) = #passive and pButtonStates.getAt(#bottom) = #passive then
+  if (pButtonStates.getAt(#top) = #passive) and (pButtonStates.getAt(#bottom) = #passive) then
     return()
   end if
-  if pState = #lift then
+  if (pState = #lift) then
     me.UpdateScrollBar([#bar, #lift], #up)
     pButtonStates.setAt(#lift, #up)
     return()
@@ -386,45 +386,45 @@ on ScrollBarMouseEvent me, tstate
   if voidp(tClickbutton) then
     return()
   end if
-  if pButtonStates.getAt(tClickbutton) = #passive then
+  if (pButtonStates.getAt(tClickbutton) = #passive) then
     return()
   end if
   pButtonStates.setAt(tClickbutton, tstate)
   pState = symbol(tClickbutton)
-  if tClickbutton = #top or tClickbutton = #bottom then
+  if (tClickbutton = #top) or (tClickbutton = #bottom) then
     me.UpdateScrollBar([tClickbutton], tstate)
-    if tClickbutton = #top then
-      me.sendAdjustOffsetTo(pScrollOffset - pScrollStep)
+    if (tClickbutton = #top) then
+      me.sendAdjustOffsetTo((pScrollOffset - pScrollStep))
     else
-      me.sendAdjustOffsetTo(pScrollOffset + pScrollStep)
+      me.sendAdjustOffsetTo((pScrollOffset + pScrollStep))
     end if
     me.UpdateLiftPosition()
     me.UpdateScrollBar([#bar, #lift], #up)
   else
-    if tClickbutton = #lift then
+    if (tClickbutton = #lift) then
       me.UpdateScrollBar([#bar], #up)
       me.UpdateScrollBar([#lift], tstate)
       me.initEventAgent(1)
     else
-      if tClickbutton = #bar and tstate = #down then
+      if (tClickbutton = #bar) and (tstate = #down) then
         tUpPageUp = 0
         me.UpdateLiftPosition()
-        if me.pType = "scrollbarv" then
-          if pClickPoint.locV - pSprite.locV <= pRects.getAt(#lift).top then
+        if (me.pType = "scrollbarv") then
+          if (pClickPoint.locV - me.pSprite.locV) <= pRects.getAt(#lift).top then
             tUpPageUp = 1
           end if
         else
-          if pClickPoint.locV - pSprite.locH <= pRects.getAt(#lift).left then
+          if (pClickPoint.locH - me.pSprite.locH) <= pRects.getAt(#lift).left then
             tUpPageUp = 1
           end if
         end if
-        if me.pType = "scrollbarv" then
+        if (me.pType = "scrollbarv") then
           if tUpPageUp then
-            me.sendAdjustOffsetTo(pScrollOffset - pPageSize)
+            me.sendAdjustOffsetTo((pScrollOffset - pPageSize))
             tTop = pRects.getAt(#lift).bottom
             tBottom = pRects.getAt(#bottom).top
           else
-            me.sendAdjustOffsetTo(pScrollOffset + pPageSize)
+            me.sendAdjustOffsetTo((pScrollOffset + pPageSize))
             tTop = pRects.getAt(#top).bottom
             tBottom = pRects.getAt(#lift).top
           end if
@@ -432,11 +432,11 @@ on ScrollBarMouseEvent me, tstate
           me.DrawSpecificRect(rect(0, tTop, pRects.getAt(#bar).width, tBottom), #bar, #up)
         else
           if tUpPageUp then
-            me.sendAdjustOffsetTo(pScrollOffset - pPageSize)
+            me.sendAdjustOffsetTo((pScrollOffset - pPageSize))
             tLeft = pRects.getAt(#lift).right
             tRight = pRects.getAt(#bottom).left
           else
-            me.sendAdjustOffsetTo(pScrollOffset + pPageSize)
+            me.sendAdjustOffsetTo((pScrollOffset + pPageSize))
             tLeft = pRects.getAt(#top).right
             tRight = pRects.getAt(#lift).left
           end if
@@ -468,7 +468,7 @@ on ButtonsStates me
       me.UpdateScrollBar([#bottom], #passive)
     end if
   end if
-  if pButtonStates.getAt(#top) = #passive and pButtonStates.getAt(#bottom) = #passive then
+  if (pButtonStates.getAt(#top) = #passive) and (pButtonStates.getAt(#bottom) = #passive) then
     pButtonStates.setAt(#lift, #passive)
     me.UpdateScrollBar([#bar], #up)
     me.UpdateScrollBar([#lift], #passive)
@@ -483,13 +483,13 @@ on ButtonsStates me
 end
 
 on buttonOfClickArea me, tpoint 
-  tpoint = pSprite.left - point(me, pSprite.top)
+  tpoint = (tpoint - point(me.pSprite.left, me.pSprite.top))
   r = 1
   repeat while r <= pRects.count()
     if tpoint.inside(pRects.getAt(r)) then
       return(pRects.getPropAt(r))
     else
-      r = 1 + r
+      r = (1 + r)
     end if
   end repeat
 end
@@ -507,25 +507,25 @@ end
 
 on resizeBy me, tOffH, tOffV 
   if tOffH <> 0 or tOffV <> 0 then
-    if me.pScaleH = #move then
-      me.locH = pSprite.locH + tOffH
+    if (me.pScaleH = #move) then
+      me.pSprite.locH = (me.pSprite.locH + tOffH)
     else
-      if me = #scale then
-        me.width = pSprite.width + tOffH
+      if (me.pScaleH = #scale) then
+        me.pSprite.width = (me.pSprite.width + tOffH)
       else
-        if me = #center then
-          me.locH = pSprite.locH + (tOffH / 2)
+        if (me.pScaleH = #center) then
+          me.pSprite.locH = (me.pSprite.locH + (tOffH / 2))
         end if
       end if
     end if
-    if me = #move then
-      me.locV = pSprite.locV + tOffV
+    if (me.pScaleH = #move) then
+      me.pSprite.locV = (me.pSprite.locV + tOffV)
     else
-      if me = #scale then
-        me.height = pSprite.height + tOffV
+      if (me.pScaleH = #scale) then
+        me.pSprite.height = (me.pSprite.height + tOffV)
       else
-        if me = #center then
-          me.locV = pSprite.locV + (tOffV / 2)
+        if (me.pScaleH = #center) then
+          me.pSprite.locV = (me.pSprite.locV + (tOffV / 2))
         end if
       end if
     end if
@@ -533,12 +533,11 @@ on resizeBy me, tOffH, tOffV
     pState = #waitMouseEvent
     pScrollOffset = 0
     pButtonStates = [#top:#up, #bottom:#up, #bar:#up, #lift:#up]
-    me.UpdateImageObjects(void(), [#up, #down, #passive])
-    if me.pType = "scrollbarv" then
+    if (me.pType = "scrollbarv") then
       me.pwidth = pButtonImg.getAt("top_up").width
-      me.pheight = pSprite.height
+      me.pheight = me.pSprite.height
     else
-      me.pwidth = pSprite.width
+      me.pwidth = me.pSprite.width
       me.pheight = pButtonImg.getAt("top_up").height
     end if
     if me.pwidth < 1 then
@@ -547,11 +546,12 @@ on resizeBy me, tOffH, tOffV
     if me.pheight < 1 then
       me.pheight = 1
     end if
+    me.UpdateImageObjects(void(), [#up, #down, #passive])
     me.pimage = image(me.pwidth, me.pheight, 8, me.pPalette)
     me.UpdateScrollBar([#top, #bottom, #bar, #lift], #up)
-    tTempOffset = me.regPoint
-    me.image = me.pimage
-    me.regPoint = tTempOffset
+    tTempOffset = me.pBuffer.regPoint
+    me.pBuffer.image = me.pimage
+    me.pBuffer.regPoint = tTempOffset
   end if
 end
 

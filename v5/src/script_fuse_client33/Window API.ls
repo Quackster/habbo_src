@@ -34,7 +34,7 @@ on mergeWindow tid, tLayout
   if windowExists(tid) then
     return(getWindow(tid).merge(tLayout))
   else
-    return(0)
+    return FALSE
   end if
 end
 
@@ -50,7 +50,7 @@ on registerClient tid, tClientID
   if windowExists(tid) then
     return(getWindow(tid).registerClient(tClientID))
   else
-    return(0)
+    return FALSE
   end if
 end
 
@@ -58,7 +58,7 @@ on registerProcedure tid, tHandler, tClientID, tEvent
   if windowExists(tid) then
     return(getWindow(tid).registerProcedure(tHandler, tClientID, tEvent))
   else
-    return(0)
+    return FALSE
   end if
 end
 

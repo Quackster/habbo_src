@@ -19,7 +19,7 @@ on createTimeout tid, tTime, tHandler, tClientID, tArguments, tIterations
 end
 
 on removeTimeout tid 
-  return(getTimeoutManager().remove(tid))
+  return(getTimeoutManager().Remove(tid))
 end
 
 on getTimeout tid 

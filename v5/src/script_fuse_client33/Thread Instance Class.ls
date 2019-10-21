@@ -5,7 +5,7 @@ on construct me
   component = 0
   handler = 0
   parser = 0
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
@@ -13,7 +13,7 @@ on deconstruct me
   component = 0
   handler = 0
   parser = 0
-  return(1)
+  return TRUE
 end
 
 on getInterface me 

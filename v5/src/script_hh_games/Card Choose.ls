@@ -10,12 +10,12 @@ on setCard me, card
 end
 
 on mouseDown me 
-  if gPoker.changed = 0 then
+  if (gPoker.changed = 0) then
     select(me, not selected)
   end if
 end
 
 on select me, s 
   selected = s
-  sprite(me.spriteNum + 1).visible = selected
+  sprite((me.spriteNum + 1)).visible = selected
 end

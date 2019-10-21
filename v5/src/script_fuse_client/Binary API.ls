@@ -7,11 +7,11 @@ on deconstructBinaryManager
 end
 
 on getBinaryManager  
-  tObjMngr = getObjectManager()
-  if not tObjMngr.managerExists(#binary_data_manager) then
+  tMgr = getObjectManager()
+  if not tMgr.managerExists(#binary_data_manager) then
     return(constructBinaryManager())
   end if
-  return(tObjMngr.getManager(#binary_data_manager))
+  return(tMgr.getManager(#binary_data_manager))
 end
 
 on retrieveBinaryData tid, tAuth, tCallBackObject 

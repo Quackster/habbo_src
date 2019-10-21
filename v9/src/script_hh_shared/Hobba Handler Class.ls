@@ -19,20 +19,20 @@ on handle_cryforhelp me, tMsg
   tProps.setAt(#roomname, tConn.GetStrFrom())
   ttype = tConn.GetIntFrom()
   tMarker = tConn.GetStrFrom()
-  if ttype = 0 then
+  if (ttype = 0) then
     tProps.setAt(#type, #public)
     tProps.setAt(#casts, tMarker)
     tProps.setAt(#port, tConn.GetIntFrom())
     tProps.setAt(#door, tConn.GetIntFrom())
     tProps.setAt(#room_id, #public)
   else
-    if ttype = 1 then
+    if (ttype = 1) then
       tProps.setAt(#type, #private)
       tProps.setAt(#marker, tMarker)
       tProps.setAt(#room_id, string(tConn.GetIntFrom()))
       tProps.setAt(#owner, string(tConn.GetStrFrom()))
     else
-      if ttype = 2 then
+      if (ttype = 2) then
         tProps.setAt(#type, #game)
         tProps.setAt(#casts, tMarker)
         tProps.setAt(#port, tConn.GetIntFrom())
@@ -65,7 +65,7 @@ on handle_cry_reply me, tMsg
   tText = convertSpecialChars(tConn.GetStrFrom(), 0)
   tText = replaceChunks(tText, "<br>", "\r")
   executeMessage(#alert, [#title:"hobba_message_from", #Msg:tText])
-  return(1)
+  return TRUE
 end
 
 on regMsgList me, tBool 
@@ -87,5 +87,5 @@ on regMsgList me, tBool
     unregisterListener(getVariable("connection.info.id"), me.getID(), tMsgs)
     unregisterCommands(getVariable("connection.info.id"), me.getID(), tCmds)
   end if
-  return(1)
+  return TRUE
 end

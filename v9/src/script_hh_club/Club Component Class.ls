@@ -2,12 +2,12 @@ property pClubStatus
 
 on construct me 
   pClubStatus = [:]
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
   pClubStatus = [:]
-  return(1)
+  return TRUE
 end
 
 on setStatus me, tStatus, tResponseFlag 
@@ -16,12 +16,12 @@ on setStatus me, tStatus, tResponseFlag
   getObject(#session).set("club_status", tStatus)
   me.getInterface().updateClubStatus(tStatus, tResponseFlag, tOldClubStatus)
   executeMessage(#updateClubStatus, tStatus)
-  return(1)
+  return TRUE
 end
 
 on getStatus me 
   if voidp(pClubStatus) then
-    return(0)
+    return FALSE
   else
     return(pClubStatus)
   end if

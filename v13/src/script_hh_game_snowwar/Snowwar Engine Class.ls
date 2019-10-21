@@ -1,39 +1,39 @@
 property pObjectCache
 
 on construct me 
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
   pObjectCache = void()
-  return(1)
+  return TRUE
 end
 
 on Refresh me, tTopic, tdata 
-  if tTopic = #gameend then
+  if (tTopic = #gameend) then
     if getObject(#session).exists("user_game_index") then
       me.getGameSystem().executeGameObjectEvent(getObject(#session).get("user_game_index"), #gameend)
     end if
   else
-    if tTopic = #update_game_object then
+    if (tTopic = #update_game_object) then
       return(me.updateGameObject(tdata))
     else
-      if tTopic = #verify_game_object_id_list then
+      if (tTopic = #verify_game_object_id_list) then
         return(me.verifyGameObjectList(tdata))
       else
         if tTopic <> #snowwar_event_0 then
-          if tTopic = #create_game_object then
+          if (tTopic = #create_game_object) then
             return(me.createGameObject(tdata))
           else
             if tTopic <> #snowwar_event_1 then
-              if tTopic = #remove_game_object then
+              if (tTopic = #remove_game_object) then
                 return(me.removeGameObject(tdata.getAt(#id)))
               else
-                if tTopic = #snowwar_event_8 then
+                if (tTopic = #snowwar_event_8) then
                   playSound("LS-throw")
                   return(me.createSnowballGameObject(tdata))
                 else
-                  if tTopic = #world_ready then
+                  if (tTopic = #world_ready) then
                     return(me.createStoredObjects())
                   else
                     return(error(me, "Undefined event!" && tTopic && "for" && me.pID, #Refresh))
@@ -49,8 +49,8 @@ on Refresh me, tTopic, tdata
 end
 
 on createStoredObjects me 
-  if pObjectCache = void() then
-    return(1)
+  if (pObjectCache = void()) then
+    return TRUE
   end if
   repeat while pObjectCache <= undefined
     tDataObject = getAt(undefined, undefined)
@@ -61,27 +61,27 @@ end
 
 on createGameObject me, tDataObject 
   tGameSystem = me.getGameSystem()
-  if tGameSystem.getWorldReady() = 0 then
-    if pObjectCache = void() then
+  if (tGameSystem.getWorldReady() = 0) then
+    if (pObjectCache = void()) then
       pObjectCache = []
     end if
     pObjectCache.add(tDataObject)
-    return(1)
+    return TRUE
   end if
   tGameSystem.createGameObject(tDataObject.getAt(#id), tDataObject.getAt(#str_type), tDataObject.getAt(#objectDataStruct))
   tGameObject = tGameSystem.getGameObject(tDataObject.getAt(#id))
-  if tGameObject = 0 then
+  if (tGameObject = 0) then
     return(error(me, "Unable to create game object:" && tDataObject.getAt(#id), #createGameObject))
   end if
   tGameObject.setGameObjectProperty(tDataObject)
   tGameObject.define(tDataObject)
-  return(1)
+  return TRUE
 end
 
 on updateGameObject me, tDataObject 
   tGameSystem = me.getGameSystem()
   tGameObject = tGameSystem.getGameObject(tDataObject.getAt(#id))
-  if tGameObject = 0 then
+  if (tGameObject = 0) then
     return(error(me, "Game object not found:" && tDataObject.getAt(#id), #updateGameObject))
   end if
   tOldValues = tGameObject.pGameObjectSyncValues
@@ -92,7 +92,7 @@ on updateGameObject me, tDataObject
     if tOldValues.getAt(tKey) <> tNewValues.getAt(tKey) then
       put("** Obj" && tDataObject.getAt(#id) && "NOT IN SYNC:" && tKey && tOldValues.getAt(tKey) & ", server says:" && tNewValues.getAt(tKey))
     end if
-    i = 1 + i
+    i = (1 + i)
   end repeat
   tGameSystem.updateGameObject(tDataObject.getAt(#id), tDataObject.getAt(#objectDataStruct))
   return(tGameObject.define(tDataObject))
@@ -112,7 +112,7 @@ on verifyGameObjectList me, tObjectIdList
       tGameSystem.removeGameObject(tObjectID)
     end if
   end repeat
-  return(1)
+  return TRUE
 end
 
 on createSnowballGameObject me, tdata 
@@ -132,10 +132,10 @@ on createSnowballGameObject me, tdata
   tGameObjectStruct.addProp(#int_thrower_id, tdata.int_thrower_id)
   tGameObjectStruct.addProp(#parabola_offset, 0)
   tObject = tGameSystem.createGameObject(tdata.getAt(#id), "snowball", tGameObjectStruct)
-  if tObject = 0 then
+  if (tObject = 0) then
     return(error(me, "Cannot create snowball object!", #createSnowballGameObject))
   end if
   tObject.define(tGameObjectStruct)
   tObject.calculateFlightPath(tGameObjectStruct, tdata.targetX, tdata.targetY)
-  return(1)
+  return TRUE
 end

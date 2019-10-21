@@ -5,7 +5,7 @@ on construct me
   pGiftCount = 0
   pAcceptedGifts = 0
   pGiftTimeOut = "timeout_clubgift"
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
@@ -13,7 +13,7 @@ on deconstruct me
   if timeoutExists(pGiftTimeOut) then
     removeTimeout(pGiftTimeOut)
   end if
-  return(1)
+  return TRUE
 end
 
 on showGifts me, tCount 
@@ -22,12 +22,12 @@ on showGifts me, tCount
   if pGiftCount > 0 then
     me.getInterface().show_giftinfo()
   end if
-  return(1)
+  return TRUE
 end
 
 on acceptGift me 
   if pGiftCount > pAcceptedGifts then
-    pAcceptedGifts = pAcceptedGifts + 1
+    pAcceptedGifts = (pAcceptedGifts + 1)
     if pGiftCount > pAcceptedGifts then
       if timeoutExists(pGiftTimeOut) then
         removeTimeout(pGiftTimeOut)
@@ -37,7 +37,7 @@ on acceptGift me
       return(me.sendAcceptGift())
     end if
   else
-    return(0)
+    return FALSE
   end if
 end
 
@@ -47,10 +47,10 @@ on rejectGift me
     if pAcceptedGifts > 0 then
       return(me.sendAcceptGift())
     else
-      return(1)
+      return TRUE
     end if
   else
-    return(0)
+    return FALSE
   end if
 end
 
@@ -58,7 +58,7 @@ on sendAcceptGift me
   tAcceptedGifts = pAcceptedGifts
   me.resetGiftList()
   tConnection = getConnection(getVariable("connection.info.id"))
-  if tConnection = 0 then
+  if (tConnection = 0) then
     return(error(me, "Couldn't find connection:" && getVariable("connection.info.id"), #sendAcceptGift))
   end if
   return(tConnection.send("SCR_GIFT_APPROVAL", [#integer:tAcceptedGifts]))
@@ -75,12 +75,12 @@ on setStatus me, tStatus, tResponseFlag
   getObject(#session).set("club_status", tStatus)
   me.getInterface().updateClubStatus(tStatus, tResponseFlag, tOldClubStatus)
   executeMessage(#updateClubStatus, tStatus)
-  return(1)
+  return TRUE
 end
 
 on getStatus me 
   if voidp(pClubStatus) then
-    return(0)
+    return FALSE
   else
     return(pClubStatus)
   end if

@@ -9,7 +9,7 @@ on construct me
   registerMessage(#enterRoom, me.getID(), #hideTicketWindow)
   registerMessage(#leaveRoom, me.getID(), #hideTicketWindow)
   registerMessage(#changeRoom, me.getID(), #hideTicketWindow)
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
@@ -21,16 +21,16 @@ on deconstruct me
   if windowExists(pWndID) then
     removeWindow(pWndID)
   end if
-  return(1)
+  return TRUE
 end
 
 on showTicketWindow me 
   if windowExists(pWndID) then
-    return(1)
+    return TRUE
   end if
   createWindow(pWndID, "habbo_basic.window")
   tWndObj = getWindow(pWndID)
-  if tWndObj = 0 then
+  if (tWndObj = 0) then
     return(error(me, "Cannot open tickets window", #showTicketWindow))
   end if
   if not tWndObj.merge("habbo_ph_tickets.window") then
@@ -54,15 +54,15 @@ on hideTicketWindow me
   end if
   pChosenAmount = 1
   pGiftActive = 0
-  return(1)
+  return TRUE
 end
 
 on eventProcTicketsWindow me, tEvent, tSprID, tParam, tWndID 
-  if tEvent = #mouseUp then
-    if tSprID = "close" then
+  if (tEvent = #mouseUp) then
+    if (tSprID = "close") then
       me.hideTicketWindow()
     else
-      if tSprID = "ph_tickets_buy_button" then
+      if (tSprID = "ph_tickets_buy_button") then
         if pGiftActive then
           tName = getWindow(tWndID).getElement("ph_tickets_namefield").getText()
         else
@@ -73,19 +73,19 @@ on eventProcTicketsWindow me, tEvent, tSprID, tParam, tWndID
           me.hideTicketWindow()
         end if
       else
-        if tSprID = "tickets_checkbox_1" then
+        if (tSprID = "tickets_checkbox_1") then
           me.setCheckBox(1)
           pChosenAmount = 1
         else
-          if tSprID = "tickets_checkbox_2" then
+          if (tSprID = "tickets_checkbox_2") then
             me.setCheckBox(2)
             pChosenAmount = 2
           else
-            if tSprID = "tickets_gift_check" then
+            if (tSprID = "tickets_gift_check") then
               pGiftActive = not pGiftActive
               me.activateGiftBox(pGiftActive)
             else
-              if tSprID = "ph_tickets_cancel_button" then
+              if (tSprID = "ph_tickets_cancel_button") then
                 me.hideTicketWindow()
               end if
             end if
@@ -98,7 +98,7 @@ end
 
 on setCheckBox me, tNr 
   if not windowExists(pWndID) then
-    return(0)
+    return FALSE
   end if
   tWndObj = getWindow(pWndID)
   tOnImg = getMember("button.radio.on").image
@@ -106,14 +106,14 @@ on setCheckBox me, tNr
   i = 1
   repeat while i <= 2
     tElem = tWndObj.getElement("tickets_checkbox_" & i)
-    if tNr = i then
+    if (tNr = i) then
       tElem.feedImage(tOnImg)
     else
       tElem.feedImage(tOffImg)
     end if
-    i = 1 + i
+    i = (1 + i)
   end repeat
-  return(1)
+  return TRUE
 end
 
 on buyGameTickets me, tName 
@@ -121,12 +121,12 @@ on buyGameTickets me, tName
   if connectionExists(getVariable("connection.info.id")) then
     getConnection(getVariable("connection.info.id")).send("BTCKS", tParams)
   end if
-  return(1)
+  return TRUE
 end
 
 on activateGiftBox me, tActive 
   if not windowExists(pWndID) then
-    return(0)
+    return FALSE
   end if
   tWndObj = getWindow(pWndID)
   tOnMember = "button.checkbox.on"

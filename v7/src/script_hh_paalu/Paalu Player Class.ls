@@ -14,7 +14,7 @@ on construct me
   pMember = member(createMember(me.getID() && "CanvasX", #bitmap))
   pBuffer = image(40, 58, 32)
   pMember.image = pBuffer.duplicate()
-  pMember.regPoint = point(-2, pMember.height - 10)
+  pMember.regPoint = point(-2, (pMember.height - 10))
   pSprite.member = pMember
   pSprite.visible = 0
   pSprite.ink = 36
@@ -41,7 +41,7 @@ on construct me
   pSplashPoint = point(0, 0)
   setEventBroker(pSprite.spriteNum, me.getID())
   pSprite.registerProcedure(#peeloProc, me.getID(), #mouseUp)
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
@@ -52,7 +52,7 @@ on deconstruct me
   pPartList = [:]
   releaseSprite(pSprite.spriteNum)
   removeMember(pMember.name)
-  return(1)
+  return TRUE
 end
 
 on define me, tProps 
@@ -67,7 +67,7 @@ on define me, tProps
   tZeroLoc = getVariableValue("paalu.zero.loc", [354, 382])
   pZeroLoc = point(tZeroLoc.getAt(1), tZeroLoc.getAt(2))
   pSprite.loc = tScrLoc
-  pSprite.locZ = tScrLoc.getAt(3) + 1000
+  pSprite.locZ = (tScrLoc.getAt(3) + 1000)
   pSprite.visible = 1
   tFigureData = tUserObj.getPelleFigure()
   tProps = [#dir:pDirection, #figure:tFigureData, #buffer:pBuffer]
@@ -77,7 +77,7 @@ on define me, tProps
   pPartList.getAt("rh").define("rh", tProps)
   pPartList.getAt("hd").define("hd", tProps)
   pPartList.getAt("sp").define("sp", tProps)
-  if pDirection = 4 then
+  if (pDirection = 4) then
     pLocZFix = 5010
   else
     pLocZFix = 5020
@@ -98,7 +98,7 @@ on define me, tProps
   pDropPoint = point(0, 0)
   tUserObj.hide()
   receivePrepare(me.getID())
-  return(1)
+  return TRUE
 end
 
 on reset me 
@@ -119,7 +119,7 @@ on reset me
   pDropOffset = [0, 0]
   pDropPoint = point(0, 0)
   pBuffer.fill(pBuffer.rect, rgb(255, 255, 255))
-  image.copyPixels(pBuffer, pBuffer.rect, pBuffer.rect)
+  pMember.image.copyPixels(pBuffer, pBuffer.rect, pBuffer.rect)
   pSprite.visible = 0
 end
 
@@ -129,14 +129,14 @@ on prepare me
     me.render()
   end if
   if pIsDropping then
-    pDropCounter = pDropCounter + 2 mod pDropMaxCnt
-    tOffset = -50 * sin(float(pDropCounter) / 10)
-    pSprite.loc = pDropPoint + [0, tOffset] + pDropOffset
-    pDropPoint = pDropPoint + pDropOffset
-    if pDropCounter = 0 then
+    pDropCounter = ((pDropCounter + 2) mod pDropMaxCnt)
+    tOffset = (-50 * sin((float(pDropCounter) / 10)))
+    pSprite.loc = ((pDropPoint + [0, tOffset]) + pDropOffset)
+    pDropPoint = (pDropPoint + pDropOffset)
+    if (pDropCounter = 0) then
       pIsDropping = 0
       pSprite.visible = 0
-      pPartList.getAt("sp").splash(pSplashPoint, pSprite.locZ + 10)
+      pPartList.getAt("sp").splash(pSplashPoint, (pSprite.locZ + 10))
     end if
   end if
   pUpdate = not pUpdate
@@ -145,31 +145,31 @@ end
 on render me 
   pBuffer.fill(pBuffer.rect, rgb(255, 255, 255))
   call(#render, pPartList, pBuffer)
-  image.copyPixels(pBuffer, pBuffer.rect, pBuffer.rect)
+  pMember.image.copyPixels(pBuffer, pBuffer.rect, pBuffer.rect)
 end
 
 on status me, tStatus 
   pLocation = tStatus.getAt(#loc)
   pBalance = tStatus.getAt(#bal)
-  if tStatus.getAt(#act) = "-" then
+  if (tStatus.getAt(#act) = "-") then
     pAction = "std"
   else
-    if tStatus.getAt(#act) = "X" then
+    if (tStatus.getAt(#act) = "X") then
       pAction = "wlk"
     else
-      if tStatus.getAt(#act) = "S" then
+      if (tStatus.getAt(#act) = "S") then
         pAction = "wlk"
       else
-        if tStatus.getAt(#act) = "W" then
+        if (tStatus.getAt(#act) = "W") then
           pAction = "hit1"
         else
-          if tStatus.getAt(#act) = "E" then
+          if (tStatus.getAt(#act) = "E") then
             pAction = "hit2"
           else
-            if tStatus.getAt(#act) = "A" then
+            if (tStatus.getAt(#act) = "A") then
               pAction = "std"
             else
-              if tStatus.getAt(#act) = "D" then
+              if (tStatus.getAt(#act) = "D") then
                 pAction = "std"
               else
                 pAction = "std"
@@ -180,21 +180,21 @@ on status me, tStatus
       end if
     end if
   end if
-  pSprite.loc = pZeroLoc + pLocation * pMoveDir
+  pSprite.loc = (pZeroLoc + (pLocation * pMoveDir))
   tWorldCrd = getThread(#room).getInterface().getGeometry().getWorldCoordinate(pSprite.locH, pSprite.locV)
   if tWorldCrd <> 0 then
-    pSprite.locZ = getThread(#room).getInterface().getGeometry().getScreenCoordinate(tWorldCrd.getAt(1), tWorldCrd.getAt(2), tWorldCrd.getAt(3)).getAt(3) + pLocZFix
+    pSprite.locZ = (getThread(#room).getInterface().getGeometry().getScreenCoordinate(tWorldCrd.getAt(1), tWorldCrd.getAt(2), tWorldCrd.getAt(3)).getAt(3) + pLocZFix)
   else
     pSprite.locZ = -100000
   end if
-  tAnimBal = pBalance / 20 + 2
+  tAnimBal = ((pBalance / 20) + 2)
   if tAnimBal < 0 then
     tAnimBal = 0
   end if
   if tAnimBal > 4 then
     tAnimBal = 4
   end if
-  call(pPartList, pAction, tAnimBal, pSprite.loc, pSprite + [member.width / 2, -4], pSprite.locZ, tStatus.getAt(#hit))
+  call(#status, pPartList, pAction, tAnimBal, (pSprite.loc + [(pSprite.member.width / 2), -4]), pSprite.locZ, tStatus.getAt(#hit))
 end
 
 on drop me 
@@ -206,14 +206,14 @@ on drop me
     pDropOffset = [-1, 0]
     pDropMaxCnt = 28
     tAnimBal = 0
-    pSplashPoint = pDropPoint + [-16, -8]
+    pSplashPoint = (pDropPoint + [-16, -8])
   else
     pDropOffset = [1, 0]
     pDropMaxCnt = 38
     tAnimBal = 4
-    pSplashPoint = pDropPoint + [16, 8]
+    pSplashPoint = (pDropPoint + [16, 8])
   end if
-  call(pPartList, pAction, tAnimBal, pSprite.loc, pSprite + [member.width / 2, -4], pSprite.locZ, 0)
+  call(#status, pPartList, pAction, tAnimBal, (pSprite.loc + [(pSprite.member.width / 2), -4]), pSprite.locZ, 0)
 end
 
 on getBalance me 

@@ -3,7 +3,7 @@ property delays, id
 on construct me 
   valid = 1
   delays = [:]
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
@@ -11,11 +11,11 @@ on deconstruct me
     i = 1
     repeat while i <= count(delays)
       timeout(delays.getPropAt(i)).forget()
-      i = 1 + i
+      i = (1 + i)
     end repeat
   end if
   delays = [:]
-  return(1)
+  return TRUE
 end
 
 on setID me, tid 
@@ -46,14 +46,14 @@ end
 
 on cancel me, tDelayID 
   if voidp(me.getProp(#delays, tDelayID)) then
-    return(0)
+    return FALSE
   end if
   timeout(tDelayID).forget()
-  return(me.deleteProp(tDelayID))
+  return(me.delays.deleteProp(tDelayID))
 end
 
 on getRefCount me 
-  return(integer(string(param(1)).getProp(#word, string(param(1)).count(#word) - 1)) - 3)
+  return((integer(string(param(1)).getProp(#word, (string(param(1)).count(#word) - 1))) - 3))
 end
 
 on print me 

@@ -7,11 +7,11 @@ on construct me
   pHideList = []
   pDefaultLocZ = getIntVariable("visualizer.default.locz", -20000000)
   pAvailableLocZ = pDefaultLocZ
-  pBoundary = rect(0, 0, undefined.width, undefined.height) + getVariableValue("visualizer.boundary.limit")
+  pBoundary = (rect(0, 0, the stage.rect.width, the stage.rect.height) + getVariableValue("visualizer.boundary.limit"))
   if not objectExists(#layout_parser) then
     createObject(#layout_parser, getClassVariable("layout.parser.class"))
   end if
-  return(1)
+  return TRUE
 end
 
 on create me, tid, tLayout, tLocX, tLocY 
@@ -36,45 +36,45 @@ on create me, tid, tLayout, tLocX, tLocY
   tProps.setAt(#boundary, pBoundary)
   if not tItem.define(tProps) then
     getObjectManager().remove(tid)
-    return(0)
+    return FALSE
   end if
-  me.add(tid)
-  pAvailableLocZ = pAvailableLocZ + tItem.getProperty(#sprCount)
-  return(1)
+  me.pItemList.add(tid)
+  pAvailableLocZ = (pAvailableLocZ + tItem.getProperty(#sprCount))
+  return TRUE
 end
 
 on remove me, tid 
   if not me.exists(tid) then
-    return(0)
+    return FALSE
   end if
   tItem = me.get(tid)
-  pAvailableLocZ = pAvailableLocZ - tItem.getProperty(#sprCount)
+  pAvailableLocZ = (pAvailableLocZ - tItem.getProperty(#sprCount))
   pPosCache.setAt(tid, [tItem.getProperty(#locX), tItem.getProperty(#locY)])
-  me.deleteOne(tid)
-  if pActiveItem = tid then
-    pActiveItem = me.getLast()
+  me.pItemList.deleteOne(tid)
+  if (pActiveItem = tid) then
+    pActiveItem = me.pItemList.getLast()
   end if
   getObjectManager().remove(tid)
-  me.Activate(me.getLast())
-  return(1)
+  me.Activate(me.pItemList.getLast())
+  return TRUE
 end
 
 on Activate me, tid 
   if me.exists(tid) then
     pActiveItem = tid
     me.get(tid).setActive()
-    return(1)
+    return TRUE
   else
-    return(0)
+    return FALSE
   end if
 end
 
 on deactivate me, tid 
   if me.exists(tid) then
     me.get(tid).setDeactive()
-    return(1)
+    return TRUE
   else
-    return(0)
+    return FALSE
   end if
 end
 
@@ -87,7 +87,7 @@ on hideAll me
       pHideList.add(tItem)
     end if
   end repeat
-  return(1)
+  return TRUE
 end
 
 on showAll me 
@@ -99,33 +99,33 @@ on showAll me
     end if
   end repeat
   pHideList = []
-  return(1)
+  return TRUE
 end
 
 on getProperty me, tProp 
-  if tProp = #defaultLocZ then
+  if (tProp = #defaultLocZ) then
     return(pDefaultLocZ)
   else
-    if tProp = #boundary then
+    if (tProp = #boundary) then
       return(pBoundary)
     else
-      if tProp = #count then
+      if (tProp = #count) then
         return(me.count(#pItemList))
       end if
     end if
   end if
-  return(0)
+  return FALSE
 end
 
 on setProperty me, tProp, tValue 
-  if tProp = #defaultLocZ then
+  if (tProp = #defaultLocZ) then
     return(me.setDefaultLocZ(tValue))
   else
-    if tProp = #boundary then
+    if (tProp = #boundary) then
       return(me.setBoundary(tValue))
     end if
   end if
-  return(0)
+  return FALSE
 end
 
 on setDefaultLocZ me, tValue 
@@ -145,5 +145,5 @@ on setBoundary me, tValue
   pBoundary.setAt(3, tValue.getAt(3))
   pBoundary.setAt(4, tValue.getAt(4))
   call(#moveBy, me.pItemList, 0, 0)
-  return(1)
+  return TRUE
 end

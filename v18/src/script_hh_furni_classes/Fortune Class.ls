@@ -10,11 +10,11 @@ end
 
 on select me 
   if not the doubleClick then
-    return(0)
+    return FALSE
   end if
   tConn = getThread(#room).getComponent().getRoomConnection()
   tConn.send("SET_RANDOM_STATE", [#integer:integer(me.getID())])
-  return(1)
+  return TRUE
 end
 
 on update me 
@@ -22,7 +22,7 @@ on update me
     tsprite = me.getProp(#pSprList, 6)
     tBlend = tsprite.blend
     if tBlend < pTargetBlend then
-      tBlend = tBlend + 1
+      tBlend = (tBlend + 1)
       if tBlend > pTargetBlend then
         tBlend = pTargetBlend
       end if
@@ -38,7 +38,7 @@ on setState me, tNewState
     tNewState = 2
     pShowSymbol = 0
   else
-    tNewState = tNewState + 2
+    tNewState = (tNewState + 2)
     tsprite = me.getProp(#pSprList, 6)
     tsprite.blend = 0
     pShowSymbol = 1

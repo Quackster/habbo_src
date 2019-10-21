@@ -3,7 +3,7 @@ property plastoColor, plastoColorCode
 on mouseDown me 
   gPlastoColor = plastoColor
   sendSprite(gPlastoSpr, #updateColor)
-  sendSprite(gPlastoSpr + 2, #updateColor)
+  sendSprite((gPlastoSpr + 2), #updateColor)
   gPlastoCodeColor = plastoColorCode
   sendSprite(gPlastoCodeSpr, #updateCode)
 end

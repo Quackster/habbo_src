@@ -8,7 +8,7 @@ on registerProcedure me, tMethod, tClientID, tEvent
     i = 1
     repeat while i <= pProcList.count
       pProcList.setAt(i, [pProcList.getPropAt(i), tClientID])
-      i = 1 + i
+      i = (1 + i)
     end repeat
     exit repeat
   end if
@@ -16,7 +16,7 @@ on registerProcedure me, tMethod, tClientID, tEvent
     i = 1
     repeat while i <= pProcList.count
       pProcList.setAt(i, [tMethod, tClientID])
-      i = 1 + i
+      i = (1 + i)
     end repeat
     exit repeat
   end if
@@ -24,7 +24,7 @@ on registerProcedure me, tMethod, tClientID, tEvent
     tMethod = tEvent
   end if
   pProcList.setAt(tEvent, [tMethod, tClientID])
-  return(1)
+  return TRUE
 end
 
 on removeProcedure me, tEvent 
@@ -35,7 +35,7 @@ on removeProcedure me, tEvent
       pProcList.setAt(tEvent, [#null, 0])
     end if
   end if
-  return(1)
+  return TRUE
 end
 
 on getID me 
@@ -48,7 +48,7 @@ on setID me, tid
     return(error(me, "String expected:" && tid, #setID))
   end if
   id = tid
-  return(1)
+  return TRUE
 end
 
 on getMember me 
@@ -57,9 +57,9 @@ end
 
 on setMember me, tmember 
   pSprite.member = tmember
-  pSprite.width = member.width
-  pSprite.height = member.height
-  return(1)
+  pSprite.width = pSprite.member.width
+  pSprite.height = pSprite.member.height
+  return TRUE
 end
 
 on getCursor me 
@@ -68,19 +68,19 @@ end
 
 on setcursor me, ttype 
   if symbolp(ttype) then
-    if ttype = #arrow then
+    if (ttype = #arrow) then
       ttype = -1
     else
-      if ttype = #ibeam then
+      if (ttype = #ibeam) then
         ttype = 1
       else
-        if ttype = #crosshair then
+        if (ttype = #crosshair) then
           ttype = 2
         else
-          if ttype = #crossbar then
+          if (ttype = #crossbar) then
             ttype = 3
           else
-            if ttype = #timer then
+            if (ttype = #timer) then
               ttype = 4
             end if
           end if
@@ -101,23 +101,23 @@ on setcursor me, ttype
     end if
   end if
   pSprite.cursor = ttype
-  return(1)
+  return TRUE
 end
 
 on getLink me 
   if stringp(pLink) then
     return(pLink)
   else
-    return(0)
+    return FALSE
   end if
 end
 
 on setLink me, tUrlOrKey 
   if stringp(tUrlOrKey) then
     pLink = tUrlOrKey
-    return(1)
+    return TRUE
   else
-    return(0)
+    return FALSE
   end if
 end
 
@@ -153,14 +153,14 @@ end
 
 on keyDown me 
   if me.redirectEvent(#keyDown) then
-    return(1)
+    return TRUE
   end if
   pass()
 end
 
 on keyUp me 
   if me.redirectEvent(#keyUp) then
-    return(1)
+    return TRUE
   end if
   pass()
 end
@@ -170,10 +170,10 @@ on redirectEvent me, tEvent
     pProcList = me.createProcListTemplate()
   end if
   if not pProcList.getAt(tEvent).getAt(2) then
-    return(0)
+    return FALSE
   end if
   if not objectExists(pProcList.getAt(tEvent).getAt(2)) then
-    return(0)
+    return FALSE
   end if
   return(call(pProcList.getAt(tEvent).getAt(1), getObject(pProcList.getAt(tEvent).getAt(2)), tEvent, id))
 end

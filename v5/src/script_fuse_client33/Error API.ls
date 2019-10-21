@@ -13,11 +13,11 @@ end
 
 on deconstructErrorManager  
   if not objectp(gError) then
-    return(0)
+    return FALSE
   end if
   gError.deconstruct()
   gError = void()
-  return(1)
+  return TRUE
 end
 
 on getErrorManager  

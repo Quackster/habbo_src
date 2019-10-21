@@ -2,12 +2,12 @@ property pErrorLists
 
 on construct me 
   pErrorLists = []
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
   pErrorLists = []
-  return(1)
+  return TRUE
 end
 
 on storeErrorReport me, tErrorList 

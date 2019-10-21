@@ -1,13 +1,13 @@
 on construct me 
   registerListener(getVariable("connection.info.id"), me.getID(), [4:#handle_film])
   getMultiuserManager().registerListener(getVariable("connection.mus.id"), me.getID(), ["OK":#handle_ok, "FILM":#handle_film_mus])
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
   unregisterListener(getVariable("connection.info.id"), me.getID(), [4:#handle_film])
   getMultiuserManager().unregisterListener(getVariable("connection.mus.id"), me.getID(), ["OK":#handle_ok, "FILM":#handle_film_mus])
-  return(1)
+  return TRUE
 end
 
 on handle_ok me 

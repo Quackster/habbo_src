@@ -23,7 +23,7 @@ on construct me
   createWriter(pWriterID_last, tMetrics)
   tMetrics = [#font:tPlain.getaProp(#font), #fontStyle:tPlain.getaProp(#fontStyle), #color:rgb("#EEEEEE")]
   createWriter(pWriterID_text, tMetrics)
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
@@ -32,7 +32,7 @@ on deconstruct me
   removeWriter(pWriterID_msgs)
   removeWriter(pWriterID_last)
   removeWriter(pWriterID_text)
-  return(1)
+  return TRUE
 end
 
 on define me, tBuddyListPntr 
@@ -55,7 +55,7 @@ end
 on prepare me 
   tName = 0
   pRenderObjList.getAt(pRenderIndex).render(pBufferImage, pRenderIndex)
-  pRenderIndex = pRenderIndex + 1
+  pRenderIndex = (pRenderIndex + 1)
   if pRenderIndex > pRenderObjList.count then
     removePrepare(me.getID())
     pCompleteFlag = 1
@@ -85,11 +85,11 @@ end
 on buildBufferImage me 
   pRenderIndex = 1
   tBuddyCount = pBuddyListPntr.getaProp(#value).count
-  if tBuddyCount = 0 then
+  if (tBuddyCount = 0) then
     pBufferImage = image(pBufferWidth, pBufferHeight, 8)
   else
-    pBufferImage = image(pBufferWidth, tBuddyCount * pBufferHeight, 8)
+    pBufferImage = image(pBufferWidth, (tBuddyCount * pBufferHeight), 8)
     receivePrepare(me.getID())
   end if
-  return(1)
+  return TRUE
 end

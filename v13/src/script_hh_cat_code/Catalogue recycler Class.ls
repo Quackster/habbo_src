@@ -8,12 +8,12 @@ on construct me
   getThread(#recycler).getInterface().setHeaderImage(tHeaderImageNo)
   getThread(#recycler).getInterface().setHostWindowObject(tWindowObj)
   getThread(#recycler).getComponent().openRecycler()
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
   getThread(#recycler).getComponent().closeRecycler()
-  return(1)
+  return TRUE
 end
 
 on closePage me 

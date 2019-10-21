@@ -43,14 +43,14 @@ on checkUserName me, tNameStr
       tFailed = getObject(#string_validator).getFailedChar()
       setText("alert_InvalidChar", replaceChunks(getText("alert_InvalidUserName"), "\\x", tFailed))
       executeMessage(#alert, [#msg:"alert_InvalidChar", #id:"nameinvalid"])
-      return(0)
+      return FALSE
     end if
   end if
   if connectionExists(getVariable("connection.info.id")) then
     getConnection(getVariable("connection.info.id")).send(#info, "FINDUSER" && tNameStr & "\t" & "REGNAME")
     getConnection(getVariable("connection.info.id")).send(#info, "APPROVENAME" && tNameStr)
   end if
-  return(1)
+  return TRUE
 end
 
 on sendNewFigureDataToServer me, tPropList 
@@ -68,15 +68,15 @@ on sendNewFigureDataToServer me, tPropList
   repeat while f <= tPropList.count
     tProp = tPropList.getPropAt(f)
     tDesc = tPropList.getAt(tProp)
-    if tProp = "sex" then
-      if tDesc.getProp(#char, 1) = "f" or tDesc.getProp(#char, 1) = "F" then
+    if (tProp = "sex") then
+      if (tDesc.getProp(#char, 1) = "f") or (tDesc.getProp(#char, 1) = "F") then
         tDesc = "Female"
       else
         tDesc = "Male"
       end if
     end if
     tMsg = tMsg & tProp & "=" & tDesc & "\r"
-    f = 1 + f
+    f = (1 + f)
   end repeat
   if connectionExists(getVariable("connection.info.id")) then
     return(getConnection(getVariable("connection.info.id")).send(#info, "REGISTER" && tMsg))
@@ -92,7 +92,7 @@ on sendFigureUpdateToServer me, tPropList
   end if
   if not voidp(tPropList.getAt("password")) then
     if tPropList.getAt("password") <> "" then
-      if tPropList.getAt("password") = void() then
+      if (tPropList.getAt("password") = void()) then
         return(error(me, "Password was reseted, abort update!", #sendFigureUpdateToServer))
       end if
       tMsg = ""
@@ -100,8 +100,8 @@ on sendFigureUpdateToServer me, tPropList
       repeat while f <= tPropList.count
         tProp = tPropList.getPropAt(f)
         tDesc = tPropList.getAt(tProp)
-        if tProp = "user_sex" then
-          if tDesc.getProp(#char, 1) = "f" or tDesc.getProp(#char, 1) = "F" then
+        if (tProp = "user_sex") then
+          if (tDesc.getProp(#char, 1) = "f") or (tDesc.getProp(#char, 1) = "F") then
             tDesc = "Female"
           else
             tDesc = "Male"
@@ -111,7 +111,7 @@ on sendFigureUpdateToServer me, tPropList
           getObject(#session).set(tProp, tDesc)
         end if
         tMsg = tMsg & tProp & "=" & tDesc & "\r"
-        f = 1 + f
+        f = (1 + f)
       end repeat
       if connectionExists(getVariable("connection.info.id")) then
         return(getConnection(getVariable("connection.info.id")).send(#info, "UPDATE" && tMsg))
@@ -129,7 +129,7 @@ on newFigureReady me
   if threadExists(#navigator) then
     getThread(#navigator).getComponent().updateState("connectionOk")
   end if
-  return(1)
+  return TRUE
 end
 
 on figureUpdateReady me 
@@ -146,10 +146,10 @@ on setAvailableSetList me, tList
   if pFigurePartListLoadedFlag and not voidp(tList) then
     me.initializeSelectablePartList(tList)
     pAvailableSetListLoadedFlag = 1
-    if pState = "openFigureCreator" then
+    if (pState = "openFigureCreator") then
       return(me.updateState("openFigureCreator"))
     else
-      if pState = "openFigureUpdate" then
+      if (pState = "openFigureUpdate") then
         return(me.updateState("openFigureUpdate"))
       end if
     end if
@@ -157,7 +157,7 @@ on setAvailableSetList me, tList
 end
 
 on getAvailableSetList me 
-  if pFigurePartListLoadedFlag = 1 and pAvailableSetListLoadedFlag = 0 then
+  if (pFigurePartListLoadedFlag = 1) and (pAvailableSetListLoadedFlag = 0) then
     if connectionExists(getVariable("connection.info.id")) then
       getConnection(getVariable("connection.info.id")).send(#info, "GETAVAILABLESETS")
     end if
@@ -169,12 +169,12 @@ on getState me
 end
 
 on updateState me, tstate, tProps 
-  if tstate = "reset" then
+  if (tstate = "reset") then
     pState = tstate
     me.construct()
-    return(0)
+    return FALSE
   else
-    if tstate = "loadFigurePartList" then
+    if (tstate = "loadFigurePartList") then
       pState = tstate
       tURL = getVariable("external.figurepartlist.txt")
       tMem = tURL
@@ -188,10 +188,10 @@ on updateState me, tstate, tProps
       tmember = queueDownload(tURL, tMem, #field, 1)
       return(registerDownloadCallback(tmember, #updateState, me.getID(), "initialize"))
     else
-      if tstate = "initialize" then
+      if (tstate = "initialize") then
         pState = tstate
         tMemName = getVariable("external.figurepartlist.txt")
-        if tMemName = 0 then
+        if (tMemName = 0) then
           tMemName = ""
         end if
         if not memberExists(tMemName) then
@@ -212,33 +212,33 @@ on updateState me, tstate, tProps
         end if
         return(me.updateState("start"))
       else
-        if tstate = "start" then
+        if (tstate = "start") then
           pState = tstate
-          return(1)
+          return TRUE
         else
-          if tstate = "openFigureCreator" then
+          if (tstate = "openFigureCreator") then
             pState = tstate
             if threadExists(#navigator) and not connectionExists(getVariable("connection.info.id")) then
               getThread(#navigator).getComponent().updateState("connection")
               me.getInterface().showLoadingWindow()
             else
-              if pAvailableSetListLoadedFlag = 0 then
+              if (pAvailableSetListLoadedFlag = 0) then
                 return(me.getAvailableSetList())
               else
                 me.getInterface().openFigureCreator("newFigure")
               end if
             end if
-            return(1)
+            return TRUE
           else
-            if tstate = "openFigureUpdate" then
+            if (tstate = "openFigureUpdate") then
               pState = tstate
-              if pAvailableSetListLoadedFlag = 0 then
+              if (pAvailableSetListLoadedFlag = 0) then
                 return(me.getAvailableSetList())
               end if
               tFigure = me.validateFigure(getObject(#session).get("user_figure"), getObject(#session).get("user_sex"))
               getObject(#session).set("user_figure", tFigure)
               me.getInterface().showHideFigureCreator("update")
-              return(1)
+              return TRUE
             else
               return(error(me, "Unknown state:" && tstate, #updateState))
             end if

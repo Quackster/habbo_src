@@ -8,16 +8,16 @@ on define me, tSprite, tmodel
   pLastFrame = 3
   pFrame = pStartFrame
   pFountainModel = tmodel
-  return(1)
+  return TRUE
 end
 
 on update me 
   if pDelayCounter < pDelayAmount then
-    pDelayCounter = pDelayCounter + 1
-    return(1)
+    pDelayCounter = (pDelayCounter + 1)
+    return TRUE
   end if
   pDelayCounter = 0
-  pFrame = pFrame + 1
+  pFrame = (pFrame + 1)
   if pFrame > pLastFrame then
     pFrame = pStartFrame
   end if

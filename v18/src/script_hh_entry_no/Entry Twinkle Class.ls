@@ -3,7 +3,7 @@ property pSprite, pCount, pAdd, pRandom
 on define me, tsprite 
   pSprite = tsprite
   me.reset()
-  return(1)
+  return TRUE
 end
 
 on reset me 
@@ -16,15 +16,15 @@ on reset me
 end
 
 on update me 
-  pCount = pCount + pAdd
-  if pRandom = 1 then
-    if 1 = pCount >= 0 and pCount <= 100 then
+  pCount = (pCount + pAdd)
+  if (pRandom = 1) then
+    if (1 = pCount >= 0 and pCount <= 100) then
       sprite(pSprite).blend = pCount
     else
-      if 1 = pCount > 100 then
+      if (1 = pCount > 100) then
         pAdd = (pAdd * -1)
       else
-        if 1 = pCount < 0 then
+        if (1 = pCount < 0) then
           me.reset()
         end if
       end if

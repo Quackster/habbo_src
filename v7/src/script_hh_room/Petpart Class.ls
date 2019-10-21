@@ -2,7 +2,7 @@ property pAction, pPart, pDirection, ancestor, pmodel, pMemString, pCacheRectA, 
 
 on deconstruct me 
   ancestor = void()
-  return(1)
+  return TRUE
 end
 
 on define me, tPart, tmodel, tPalette, tColor, tDirection, tAction, tAncestor 
@@ -18,54 +18,54 @@ on define me, tPart, tmodel, tPalette, tColor, tDirection, tAction, tAncestor
   pDirection = tDirection
   pAction = tAction
   pMemString = ""
-  return(1)
+  return TRUE
 end
 
 on update me 
   tAnimCntr = 0
   tAction = pAction
   tPart = pPart
-  tdir = me.getProp(#pFlipList, pDirection + 1)
+  tdir = me.getProp(#pFlipList, (pDirection + 1))
   tUpdate = 0
-  tBodyDir = me.getProp(#pFlipList, ancestor.pDirection + 1) + 1
+  tBodyDir = (me.getProp(#pFlipList, (ancestor.pDirection + 1)) + 1)
   if tBodyDir > 4 then
     tBodyDir = 5
   end if
-  if pPart = "bd" then
+  if (pPart = "bd") then
     if pPart <> "wlk" then
       if pPart <> "jmp" then
-        if pPart = "bnd" then
+        if (pPart = "bnd") then
           tAnimCntr = me.pAnimCounter
         else
           if pPart <> "pla" then
-            if pPart = "scr" then
-              tAnimCntr = 1 mod me.pAnimCounter
+            if (pPart = "scr") then
+              tAnimCntr = (1 mod me.pAnimCounter)
             end if
             tXFix = 0
             tYFix = 0
-            if pPart = "hd" then
-              if me.pMainAction = "jmp" or me.pMainAction = "scr" or me.pMainAction = "bnd" then
+            if (pPart = "hd") then
+              if (me.pMainAction = "jmp") or (me.pMainAction = "scr") or (me.pMainAction = "bnd") then
                 tXFix = me.getPropRef(#pOffsetList, "hd_" & me.pMainAction & "_" & me.pAnimCounter).getAt(tBodyDir).getAt(1)
                 tYFix = me.getPropRef(#pOffsetList, "hd_" & me.pMainAction & "_" & me.pAnimCounter).getAt(tBodyDir).getAt(2)
               else
                 tXFix = me.getPropRef(#pOffsetList, "hd_" & me.pMainAction).getAt(tBodyDir).getAt(1)
                 tYFix = me.getPropRef(#pOffsetList, "hd_" & me.pMainAction).getAt(tBodyDir).getAt(2)
               end if
-              if tAction = "snf" or tAction = "eat" or tAction = "spk" then
-                tAnimCntr = me.pAnimCounter mod 2
+              if (tAction = "snf") or (tAction = "eat") or (tAction = "spk") then
+                tAnimCntr = (me.pAnimCounter mod 2)
               end if
               tUpdate = 1
             else
-              if pPart = "tl" then
-                if me.pMainAction = "jmp" or me.pMainAction = "scr" or me.pMainAction = "bnd" then
+              if (pPart = "tl") then
+                if (me.pMainAction = "jmp") or (me.pMainAction = "scr") or (me.pMainAction = "bnd") then
                   tXFix = me.getPropRef(#pOffsetList, "tl_" & me.pMainAction & "_" & me.pAnimCounter).getAt(tBodyDir).getAt(1)
                   tYFix = me.getPropRef(#pOffsetList, "tl_" & me.pMainAction & "_" & me.pAnimCounter).getAt(tBodyDir).getAt(2)
                 else
                   tXFix = me.getPropRef(#pOffsetList, "tl_" & me.pMainAction).getAt(tBodyDir).getAt(1)
                   tYFix = me.getPropRef(#pOffsetList, "tl_" & me.pMainAction).getAt(tBodyDir).getAt(2)
                 end if
-                if tAction = "wav" then
-                  tAnimCntr = me.pAnimCounter mod 2
+                if (tAction = "wav") then
+                  tAnimCntr = (me.pAnimCounter mod 2)
                 end if
                 tUpdate = 1
               end if
@@ -77,11 +77,11 @@ on update me
                 pMemString = tMemString
                 tmember = member(tMemNum)
                 tRegPnt = tmember.regPoint
-                tX = -tRegPnt.getAt(1) + tXFix
-                tY = rect.height - tRegPnt.getAt(2) - 10 + tYFix
+                tX = (-tRegPnt.getAt(1) + tXFix)
+                tY = (((me.pBuffer.rect.height - tRegPnt.getAt(2)) - 10) + tYFix)
                 me.pUpdateRect = union(me.pUpdateRect, pCacheRectA)
                 pCacheImage = tmember.image
-                pCacheRectA = rect(tX, tY, tX + pCacheImage.width, tY + pCacheImage.height) + rect(me.pLocFix, me.pLocFix)
+                pCacheRectA = (rect(tX, tY, (tX + pCacheImage.width), (tY + pCacheImage.height)) + rect(me.pLocFix, me.pLocFix))
                 pCacheRectB = pCacheImage.rect
                 pDrawProps.setAt(#maskImage, pCacheImage.createMatte())
                 me.pUpdateRect = union(me.pUpdateRect, pCacheRectA)
@@ -94,7 +94,7 @@ on update me
               end if
             end if
             member(tMemNum).paletteRef = member(getmemnum(pDrawProps.getAt(#palette)))
-            me.copyPixels(pCacheImage, pCacheRectA, pCacheRectB, pDrawProps)
+            me.pBuffer.copyPixels(pCacheImage, pCacheRectA, pCacheRectB, pDrawProps)
           end if
         end if
       end if
@@ -104,12 +104,12 @@ end
 
 on render me 
   if memberExists(pMemString) then
-    me.copyPixels(pCacheRectB, pCacheRectA, pCacheRectB, pDrawProps)
+    me.pBuffer.copyPixels(pCacheRectB, pCacheRectA, pCacheRectB, pDrawProps)
   end if
 end
 
 on defineDir me, tdir, tPart 
-  if voidp(tPart) or tPart = pPart then
+  if voidp(tPart) or (tPart = pPart) then
     pDirection = tdir
   end if
 end
@@ -121,17 +121,17 @@ on defineDirMultiple me, tdir, tTargetPartList
 end
 
 on defineAct me, tAct, tTargetPartList 
-  if pAction = "std" then
+  if (pAction = "std") then
     pAction = tAct
   end if
 end
 
 on defineActMultiple me, tAct, tTargetPartList 
   if tTargetPartList.getOne(pPart) then
-    if pAction = "std" then
+    if (pAction = "std") then
       pAction = tAct
     end if
-    if tAct = "std" then
+    if (tAct = "std") then
       pAction = "std"
     end if
   end if
@@ -139,14 +139,14 @@ end
 
 on defineInk me, tInk 
   if voidp(tInk) then
-    if pPart = "sd" then
+    if (pPart = "sd") then
       tInk = 32
     else
       tInk = 41
     end if
   end if
   pDrawProps.setAt(#ink, tInk)
-  return(1)
+  return TRUE
 end
 
 on setModel me, tmodel 
@@ -155,17 +155,17 @@ end
 
 on setColor me, tColor 
   if voidp(tColor) then
-    return(0)
+    return FALSE
   end if
-  if tColor = "" then
-    return(0)
+  if (tColor = "") then
+    return FALSE
   end if
-  if tColor.ilk = #color and pDrawProps.getAt(#ink) <> 36 then
+  if (tColor.ilk = #color) and pDrawProps.getAt(#ink) <> 36 then
     pDrawProps.setAt(#bgColor, tColor)
   else
     pDrawProps.setAt(#bgColor, rgb(255, 255, 255))
   end if
-  return(1)
+  return TRUE
 end
 
 on layDown me 
@@ -197,27 +197,27 @@ on copyPicture me, tImg, tdir, tHumanSize, tAction, tAnimFrame
   if voidp(tAnimFrame) then
     tAnimFrame = "0"
   end if
-  if pPart = "bd" then
+  if (pPart = "bd") then
     tOffX = 0
     tOffY = 0
   else
-    tOffX = me.getPropRef(#pOffsetList, pPart & "_" & tAction).getAt(integer(tdir) + 1).getAt(1)
-    tOffY = me.getPropRef(#pOffsetList, pPart & "_" & tAction).getAt(integer(tdir) + 1).getAt(2)
+    tOffX = me.getPropRef(#pOffsetList, pPart & "_" & tAction).getAt((integer(tdir) + 1)).getAt(1)
+    tOffY = me.getPropRef(#pOffsetList, pPart & "_" & tAction).getAt((integer(tdir) + 1)).getAt(2)
   end if
   tMemName = tHumanSize & "_" & tAction & "_" & pPart & "_" & pmodel & "_" & tdir & "_" & tAnimFrame
   if memberExists(tMemName) then
     tmember = member(getmemnum(tMemName))
     tImage = tmember.image
     tRegPnt = tmember.regPoint
-    tX = -tRegPnt.getAt(1) + tOffX
-    tY = rect.height - tRegPnt.getAt(2) - 10 + tOffY
-    tRect = rect(tX, tY, tX + tImage.width, tY + tImage.height)
+    tX = (-tRegPnt.getAt(1) + tOffX)
+    tY = (((tImg.rect.height - tRegPnt.getAt(2)) - 10) + tOffY)
+    tRect = rect(tX, tY, (tX + tImage.width), (tY + tImage.height))
     tMatte = tImage.createMatte()
     tmember.paletteRef = member(getmemnum(pDrawProps.getAt(#palette)))
     tImg.copyPixels(tImage, tRect, tImage.rect, [#maskImage:tMatte, #ink:pDrawProps.getAt(#ink), #bgColor:pDrawProps.getAt(#bgColor)])
-    return(1)
+    return TRUE
   end if
-  return(0)
+  return FALSE
 end
 
 on reset me 

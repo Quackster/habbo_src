@@ -17,10 +17,10 @@ on construct me
       tTempRaces.add("000")
       f = 1
       repeat while 1
-        if string(f).length = 1 then
+        if (string(f).length = 1) then
           tTemp = "00" & f
         else
-          if string(f).length = 2 then
+          if (string(f).length = 2) then
             tTemp = "0" & f
           else
             tTemp = string(f)
@@ -30,19 +30,19 @@ on construct me
           tTempRaces.add(tTemp)
         else
         end if
-        f = f + 1
+        f = (f + 1)
       end repeat
       exit repeat
     end if
-    i = i + 1
+    i = (i + 1)
   end repeat
   me.regMsgList(1)
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
   me.regMsgList(0)
-  return(1)
+  return TRUE
 end
 
 on define me, tPageProps 
@@ -77,17 +77,17 @@ on define me, tPageProps
             tProductData.addProp("petColor", tColor)
             pPageData.setAt("pet_" & tPetType & "_" & tPetCount, tProductData)
           end if
-          tPetCount = 1 + tPetCount
+          tPetCount = (1 + tPetCount)
         end repeat
       end if
-      f = 1 + f
+      f = (1 + f)
     end repeat
   end if
   selectProduct(me, 1)
 end
 
 on petNameApproved me 
-  if pSelectedProduct.ilk = #propList then
+  if (pSelectedProduct.ilk = #propList) then
     getThread(#catalogue).getComponent().checkProductOrder(pSelectedProduct)
   end if
 end
@@ -111,9 +111,9 @@ on definePet me, tProps
   tdata.setAt(#figure, tProps.getAt("petType") && tProps.getAt("petRace") && tProps.getAt("petColor"))
   if not voidp(pPetTemplateObj) then
     pPetTemplateObj.setup(tdata)
-    return(1)
+    return TRUE
   else
-    return(0)
+    return FALSE
   end if
 end
 
@@ -129,7 +129,7 @@ on selectProduct me, tOrderNum
   if voidp(pPageData) then
     return(error(me, "product not found", #selectProduct))
   end if
-  if pPageData.count = 0 then
+  if (pPageData.count = 0) then
     return()
   end if
   if tOrderNum > pPageData.count then
@@ -141,19 +141,19 @@ on selectProduct me, tOrderNum
   pSelectedProduct = pPageData.getAt(tOrderNum)
   pSelectedColorNum = 1
   pSelectedOrderNum = tOrderNum
-  if me.definePet(pSelectedProduct) = 1 then
+  if (me.definePet(pSelectedProduct) = 1) then
     tElemID = "ctlg_teaserimg_1"
     if tWndObj.elementExists(tElemID) then
       tElem = tWndObj.getElement(tElemID)
       tImage = pPetTemplateObj.getPicture()
-      if tImage.ilk = #image then
+      if (tImage.ilk = #image) then
         tDestImg = tElem.getProperty(#image)
         tSourceImg = tImage
         tDestImg.fill(tDestImg.rect, rgb(255, 255, 255))
         tSourceRect = (tSourceImg.rect * 2)
-        tdestrect = tDestImg.rect - tSourceRect
+        tdestrect = (tDestImg.rect - tSourceRect)
         tMargins = rect(14, -7, 14, -7)
-        tdestrect = rect((tdestrect.width / 2), (tdestrect.height / 2), tSourceRect.width + (tdestrect.width / 2), (tdestrect.height / 2) + tSourceRect.height) + tMargins
+        tdestrect = (rect((tdestrect.width / 2), (tdestrect.height / 2), (tSourceRect.width + (tdestrect.width / 2)), ((tdestrect.height / 2) + tSourceRect.height)) + tMargins)
         tDestImg.copyPixels(tSourceImg, tdestrect, tSourceImg.rect, [#ink:36])
         tElem.feedImage(tDestImg)
       end if
@@ -183,7 +183,7 @@ on nextProduct me
   if pPageData.ilk <> #propList then
     return(error(me, "Incorrect data", #nextProduct))
   end if
-  tNext = pLastProductNum + 1
+  tNext = (pLastProductNum + 1)
   if tNext > pPageData.count then
     tNext = pPageData.count
   end if
@@ -195,7 +195,7 @@ on prevProduct me
   if pPageData.ilk <> #propList then
     return(error(me, "Incorrect data", #prewProduct))
   end if
-  tPrev = pLastProductNum - 1
+  tPrev = (pLastProductNum - 1)
   if tPrev < 1 then
     tPrev = 1
   end if
@@ -204,13 +204,13 @@ on prevProduct me
 end
 
 on eventProc me, tEvent, tSprID, tProp 
-  if tEvent = #mouseUp then
-    if tSprID = "close" then
-      return(0)
+  if (tEvent = #mouseUp) then
+    if (tSprID = "close") then
+      return FALSE
     end if
   end if
-  if tEvent = #mouseDown then
-    if tSprID = "ctlg_buy_button" then
+  if (tEvent = #mouseDown) then
+    if (tSprID = "ctlg_buy_button") then
       tWndObj = getThread(#catalogue).getInterface().getCatalogWindow()
       tText = ""
       if tWndObj.elementExists("dedication_text") then
@@ -236,31 +236,31 @@ on eventProc me, tEvent, tSprID, tProp
         getConnection(getVariable("connection.info.id", #info)).send("APPROVENAME", [#string:tText, #integer:1])
       end if
     else
-      if tSprID = "ctlg_nextmodel_button" then
+      if (tSprID = "ctlg_nextmodel_button") then
         me.nextProduct()
       else
-        if tSprID = "ctlg_prevmodel_button" then
+        if (tSprID = "ctlg_prevmodel_button") then
           me.prevProduct()
         else
-          if tSprID = "ctlg_text_3" then
+          if (tSprID = "ctlg_text_3") then
             put("TODO >>> link")
           else
-            return(0)
+            return FALSE
           end if
         end if
       end if
     end if
   end if
-  return(1)
+  return TRUE
 end
 
 on handle_nameapproved me, tMsg 
   if not pNameCheckPending then
-    return(1)
+    return TRUE
   end if
   pNameCheckPending = 0
-  tParm = tMsg.GetIntFrom(tMsg)
-  if tParm = 0 then
+  tParm = tMsg.connection.GetIntFrom(tMsg)
+  if (tParm = 0) then
     me.petNameApproved()
   else
     me.petNameUnacceptable()
@@ -279,5 +279,5 @@ on regMsgList me, tBool
     unregisterListener(getVariable("connection.info.id"), me.getID(), tMsgs)
     unregisterCommands(getVariable("connection.info.id"), me.getID(), tCmds)
   end if
-  return(1)
+  return TRUE
 end

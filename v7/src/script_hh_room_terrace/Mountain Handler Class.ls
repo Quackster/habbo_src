@@ -19,11 +19,11 @@ on handle_md_exit me, tMsg
 end
 
 on handle_tickets me, tMsg 
-  me.getComponent().setTicketCount(integer(tMsg.getProp(#word, 1)))
+  me.getComponent().setTicketCount(integer(tMsg.content.getProp(#word, 1)))
 end
 
 on handle_tickets_buy me, tMsg 
-  me.getComponent().setTicketCount(integer(tMsg.getProp(#word, 1)))
+  me.getComponent().setTicketCount(integer(tMsg.content.getProp(#word, 1)))
   me.getInterface().openTicketWnd(1)
 end
 
@@ -52,5 +52,5 @@ on regMsgList me, tBool
     unregisterListener(getVariable("connection.room.id"), me.getID(), tMsgs)
     unregisterCommands(getVariable("connection.room.id"), me.getID(), tCmds)
   end if
-  return(1)
+  return TRUE
 end

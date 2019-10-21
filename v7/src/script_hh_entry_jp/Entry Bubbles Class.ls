@@ -10,21 +10,21 @@ on construct me
     tBubble = member("bubble" & random(3)).image
     tLocH = random(132)
     tLocV = random(336)
-    tDrawLoc = tBubble.rect + rect(tLocH, tLocV, tLocH, tLocV)
+    tDrawLoc = (tBubble.rect + rect(tLocH, tLocV, tLocH, tLocV))
     pBubblesImg.copyPixels(tBubble, tDrawLoc, tBubble.rect, [#ink:36])
-    i = 1 + i
+    i = (1 + i)
   end repeat
   me.updateMember()
   pLastUpdate = the milliSeconds
-  return(1)
+  return TRUE
 end
 
 on update me 
-  if the milliSeconds - pLastUpdate > 66 then
+  if (the milliSeconds - pLastUpdate) > 66 then
     if random(4) > 1 then
       tBubble = member("bubble" & random(3)).image
       tLocH = random(132)
-      tDrawLoc = tBubble.rect + rect(tLocH, 330, tLocH, 330)
+      tDrawLoc = (tBubble.rect + rect(tLocH, 330, tLocH, 330))
       pBubblesImg.copyPixels(tBubble, tDrawLoc, tBubble.rect, [#ink:36, #blendLevel:(random(2) * 128)])
     end if
     pBubblesImg.copyPixels(pBubblesImg, rect(0, 0, 132, 334), rect(0, 2, 132, 336), [#ink:0])
@@ -35,5 +35,5 @@ on update me
 end
 
 on updateMember me 
-  image.copyPixels(pBubblesImg, pBubblesImg.rect, pBubblesImg.rect, [#ink:0, #maskImage:pMaskMember.image])
+  pCanvMember.image.copyPixels(pBubblesImg, pBubblesImg.rect, pBubblesImg.rect, [#ink:0, #maskImage:pMaskMember.image])
 end

@@ -20,21 +20,21 @@ end
 
 on retrieveData me, tid, tAuth, tCallBackObj 
   pQueue.add([#type:#retrieve, #id:tid, #auth:tAuth, #callback:tCallBackObj])
-  if count(pQueue) = 1 or not multiuserExists(pConnectionId) then
+  if (count(pQueue) = 1) or not multiuserExists(pConnectionId) then
     me.next()
   end if
 end
 
 on storeData me, tdata, tCallBackObj 
   pQueue.add([#type:#store, #data:tdata, #callback:tCallBackObj])
-  if count(pQueue) = 1 or not multiuserExists(pConnectionId) then
+  if (count(pQueue) = 1) or not multiuserExists(pConnectionId) then
     me.next()
   end if
 end
 
 on addMessageToQueue me, tMsg 
   pQueue.add([#type:#fusemsg, #message:tMsg])
-  if count(pQueue) = 1 or not multiuserExists(pConnectionId) then
+  if (count(pQueue) = 1) or not multiuserExists(pConnectionId) then
     me.next()
   end if
 end
@@ -69,17 +69,17 @@ on next me
       end if
       if count(pQueue) > 0 then
         tTask = pQueue.getAt(1)
-        if tTask.type = #store then
+        if (tTask.type = #store) then
           return(getMultiuser(pConnectionId).sendBinary(tTask.data))
         else
-          if tTask.type = #retrieve then
+          if (tTask.type = #retrieve) then
             return(getMultiuser(pConnectionId).send("GETBINDATA" && tTask.id && tTask.auth))
           else
-            if tTask.type = #fusemsg then
+            if (tTask.type = #fusemsg) then
               pQueue.deleteAt(1)
               getMultiuser(pConnectionId).send(tTask.message)
               me.next()
-              return(1)
+              return TRUE
             end if
           end if
         end if
@@ -94,7 +94,7 @@ on binaryDataStored me, tMsg
   tTask = pQueue.getAt(1)
   if tTask.getAt(#callback) <> void() then
     tObject = getObject(tTask.getAt(#callback))
-    if tObject.ilk = #instance then
+    if (tObject.ilk = #instance) then
       call(#binaryDataStored, tObject, tMsg.getaProp(#content))
     end if
   end if
@@ -112,7 +112,7 @@ on binaryDataReceived me, tdata
   pQueue.deleteAt(1)
   if tTask.getAt(#callback) <> void() then
     tObject = getObject(tTask.getAt(#callback))
-    if tObject.ilk = #instance then
+    if (tObject.ilk = #instance) then
       call(#binaryDataReceived, tObject, tdata, tTask.getAt(#id))
     end if
   end if
@@ -120,7 +120,7 @@ on binaryDataReceived me, tdata
 end
 
 on delayedClosing me 
-  if multiuserExists(pConnectionId) and count(pQueue) = 0 then
+  if multiuserExists(pConnectionId) and (count(pQueue) = 0) then
     removeMultiuser(pConnectionId)
   end if
 end
@@ -145,7 +145,7 @@ end
 on helloReply me, tMsg 
   tSecretKey = tMsg.getAt(#content)
   tSecretKey = integer(tSecretKey)
-  if voidp(tSecretKey) or tSecretKey = "" or tSecretKey = 0 then
+  if voidp(tSecretKey) or (tSecretKey = "") or (tSecretKey = 0) then
     pUseCrypto = 0
   else
     pCrypto.setKey(tSecretKey)
