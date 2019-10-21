@@ -11,7 +11,7 @@ on construct me
   createWriter(pWriterBold, tFontBold)
   registerMessage(#leaveRoom, me.getID(), #hideSpectatorView)
   registerMessage(#changeRoom, me.getID(), #hideSpectatorView)
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
@@ -26,7 +26,7 @@ on deconstruct me
   if writerExists(pWriterBold) then
     removeWriter(pWriterBold)
   end if
-  return(1)
+  return TRUE
 end
 
 on getSpectatorMode me 
@@ -34,38 +34,38 @@ on getSpectatorMode me
 end
 
 on setSpectatorMode me, tstate, tSpaceType 
-  if tstate = 1 then
+  if (tstate = 1) then
     pSpectatorMode = 1
     me.showSpectatorView()
     me.getSpectatorCount()
     executeMessage(#spectatorMode_on)
   else
     pSpectatorMode = 0
-    if tSpaceType = #public then
+    if (tSpaceType = #public) then
       if getConnection(#info) <> 0 then
         getConnection(#info).send("QUIT")
       end if
       executeMessage(#leaveRoom)
       executeMessage(#spectatorMode_off)
     else
-      if tSpaceType = #private then
+      if (tSpaceType = #private) then
       else
-        if tSpaceType = #game then
+        if (tSpaceType = #game) then
           executeMessage(#spectatorMode_off)
         end if
       end if
     end if
   end if
-  return(1)
+  return TRUE
 end
 
 on updateSpectatorCount me, tSpectatorCount, tSpectatorMax 
   createTimeout(pSpecCountTimerId, 15000, #getSpectatorCount, me.getID(), void(), 1)
-  if tSpectatorCount = -1 then
+  if (tSpectatorCount = -1) then
     if windowExists(pSpecCountId) then
       removeWindow(pSpecCountId)
     end if
-    return(1)
+    return TRUE
   end if
   tUnmerge = 1
   if not windowExists(pSpecCountId) then
@@ -80,15 +80,15 @@ on updateSpectatorCount me, tSpectatorCount, tSpectatorMax
   tText = replaceChunks(tText, "%max%", tSpectatorMax)
   tTextImg = getWriter(pWriterBold).render(tText).duplicate()
   tWndObj = getWindow(pSpecCountId)
-  if tWndObj = 0 then
-    return(0)
+  if (tWndObj = 0) then
+    return FALSE
   end if
   tWndObj.lock(1)
   if tUnmerge then
     tWndObj.unmerge()
   end if
   if not tWndObj.merge("spec_count_2.window") then
-    return(0)
+    return FALSE
   end if
   tElem = tWndObj.getElement("spec_count_text")
   if tElem <> 0 then
@@ -96,14 +96,14 @@ on updateSpectatorCount me, tSpectatorCount, tSpectatorMax
     tElemWd = tElem.getProperty(#width)
     tWindowWd = tWndObj.getProperty(#width)
     tWindowHt = tWndObj.getProperty(#height)
-    tWndObj.resizeTo(tTextWd + tWindowWd - tElemWd, tWindowHt)
+    tWndObj.resizeTo((tTextWd + (tWindowWd - tElemWd)), tWindowHt)
     tElem.resizeTo(tTextWd, tElem.getProperty(#height))
-    tElem.moveBy((tTextWd - tTextImg.width / 2), (tWindowHt - tTextHt / 2))
+    tElem.moveBy(((tTextWd - tTextImg.width) / 2), ((tWindowHt - tTextHt) / 2))
     tElem.feedImage(tTextImg)
   end if
   tWndObj.center()
   tWndObj.moveTo(tWndObj.getProperty(#locX), 2)
-  return(1)
+  return TRUE
 end
 
 on showSpectatorView me 
@@ -117,20 +117,20 @@ on showSpectatorView me
     end if
   end if
   if visualizerExists(pVisualizerId) then
-    return(1)
+    return TRUE
   end if
-  if rect.width <= 720 then
+  if the stage.rect.width <= 720 then
     createVisualizer(pVisualizerId, "habbo_tv.visual")
   else
     createVisualizer(pVisualizerId, "habbo_tv_wide.visual")
   end if
   tVisObj = getVisualizer(pVisualizerId)
   tRoomVis = tRoomInt.getRoomVisualizer()
-  if tRoomVis = 0 then
-    return(0)
+  if (tRoomVis = 0) then
+    return FALSE
   end if
-  tVisObj.moveZ(getIntVariable("window.default.locz") - 10)
-  return(1)
+  tVisObj.moveZ((getIntVariable("window.default.locz") - 10))
+  return TRUE
 end
 
 on hideSpectatorView me 
@@ -144,7 +144,7 @@ on hideSpectatorView me
   if timeoutExists(pSpecCountTimerId) then
     removeTimeout(pSpecCountTimerId)
   end if
-  return(1)
+  return TRUE
 end
 
 on getSpectatorCount me 
