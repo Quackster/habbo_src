@@ -38,7 +38,7 @@ on define me, tNodeObj, tProps
     return(error(me, "Unable to create renderer, invalid selected image.", #define, #major))
   end if
   pwidth = tProps.getAt(#width)
-  pheight = image.height
+  pheight = pBackground.image.height
   if not writerExists(pTextRendererId) then
     createWriter(pTextRendererId, getStructVariable("struct.font.bold"))
   end if
@@ -66,35 +66,35 @@ end
 
 on render me 
   pimage = image(pwidth, pheight, 32)
-  tLevel = integer(pData.getData(#level)) - 1
-  tOffsetX = getVariableValue("treeview.node.start.offset") + (getVariableValue("treeview.node.item.offset") * max([tLevel, 0]))
+  tLevel = (integer(pData.getData(#level)) - 1)
+  tOffsetX = (getVariableValue("treeview.node.start.offset") + (getVariableValue("treeview.node.item.offset") * max([tLevel, 0])))
   if pData.getSelected() then
-    pSelectedBg.image.copyPixels(pimage.rect, pSelectedBg, image.rect, [#useFastQuads:1])
+    pimage.copyPixels(pSelectedBg.image, pimage.rect, pSelectedBg.image.rect, [#useFastQuads:1])
   else
-    pBackground.image.copyPixels(pimage.rect, pBackground, image.rect, [#useFastQuads:1])
+    pimage.copyPixels(pBackground.image, pimage.rect, pBackground.image.rect, [#useFastQuads:1])
   end if
   if not voidp(pIcon) then
-    tOffsetY = pimage.height.getCenteredOfs(pIcon, image.height)
-    tCenterX = getVariableValue("treeview.node.icon.maxwidth").getCenteredOfs(pIcon, image.height)
-    pIcon.copyPixels(image.rect + rect(tOffsetX + tCenterX, tOffsetY, tOffsetX + tCenterX, tOffsetY), pIcon, image.rect, [#useFastQuads:1, #ink:36])
-    tOffsetX = tOffsetX + getVariableValue("treeview.node.icon.maxwidth") + getVariableValue("treeview.node.item.offset")
+    tOffsetY = me.getCenteredOfs(pimage.height, pIcon.image.height)
+    tCenterX = me.getCenteredOfs(getVariableValue("treeview.node.icon.maxwidth"), pIcon.image.height)
+    pimage.copyPixels(pIcon.image, (pIcon.image.rect + rect((tOffsetX + tCenterX), tOffsetY, (tOffsetX + tCenterX), tOffsetY)), pIcon.image.rect, [#useFastQuads:1, #ink:36])
+    tOffsetX = ((tOffsetX + getVariableValue("treeview.node.icon.maxwidth")) + getVariableValue("treeview.node.item.offset"))
   end if
   tTextImage = getWriter(pTextRendererId).render(pText)
   tTextImage.useAlpha = 1
-  tOffsetY = me.getCenteredOfs(pimage.height - tTextImage.height)
-  pimage.copyPixels(tTextImage, tTextImage.rect + rect(tOffsetX, tOffsetY, tOffsetX, tOffsetY), tTextImage.rect, [#useFastQuads:1, #ink:36])
-  if pData.getState() = #closed then
+  tOffsetY = me.getCenteredOfs((pimage.height - tTextImage.height))
+  pimage.copyPixels(tTextImage, (tTextImage.rect + rect(tOffsetX, tOffsetY, tOffsetX, tOffsetY)), tTextImage.rect, [#useFastQuads:1, #ink:36])
+  if (pData.getState() = #closed) then
     tStateIndicator = getMember(getVariable("treeview.node.stateindicator.closed"))
   else
     tStateIndicator = getMember(getVariable("treeview.node.stateindicator.open"))
   end if
   if pData.hasChildren() then
-    tOffsetX = pimage.width - getVariableValue("treeview.node.stateindicator.offset.right")
-    tOffsetY = pimage.height.getCenteredOfs(tStateIndicator, image.height)
-    pimage.copyPixels(tStateIndicator.image, tStateIndicator.rect + rect(tOffsetX, tOffsetY, tOffsetX, tOffsetY), tStateIndicator.rect, [#useFastQuads:1, #ink:36])
+    tOffsetX = (pimage.width - getVariableValue("treeview.node.stateindicator.offset.right"))
+    tOffsetY = me.getCenteredOfs(pimage.height, tStateIndicator.image.height)
+    pimage.copyPixels(tStateIndicator.image, (tStateIndicator.rect + rect(tOffsetX, tOffsetY, tOffsetX, tOffsetY)), tStateIndicator.rect, [#useFastQuads:1, #ink:36])
   end if
 end
 
 on getCenteredOfs me, tDest, tSource 
-  return((tDest - tSource / 2))
+  return(((tDest - tSource) / 2))
 end

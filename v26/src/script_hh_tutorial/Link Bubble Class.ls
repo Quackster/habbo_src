@@ -5,27 +5,27 @@ on construct me
   me.pTextWidth = 160
   me.Init()
   me.pLinksOffset = 0
-  me.registerProcedure(#blendHandler, me.getID(), #mouseEnter)
-  me.registerProcedure(#blendHandler, me.getID(), #mouseLeave)
-  me.registerProcedure(#eventHandler, me.getID(), #mouseUp)
+  me.pWindow.registerProcedure(#blendHandler, me.getID(), #mouseEnter)
+  me.pWindow.registerProcedure(#blendHandler, me.getID(), #mouseLeave)
+  me.pWindow.registerProcedure(#eventHandler, me.getID(), #mouseUp)
   tLinkFont = getStructVariable("struct.font.link")
   me.pLinkLineHeight = 16
   tLinkFont.setaProp(#lineHeight, me.pLinkLineHeight)
   tWriterId = getUniqueID()
   createWriter(tWriterId, tLinkFont)
   me.pLinkWriter = getWriter(tWriterId)
-  me.define([#bgColor:rgb("#F0F0F0")])
+  me.pLinkWriter.define([#bgColor:rgb("#F0F0F0")])
   me.pResizeOffset = 0
-  me.pLinkPosOrigX = me.getElement("bubble_links").getProperty(#locH)
-  me.pLinkPosOrigY = me.getElement("bubble_links").getProperty(#locV)
-  me.pWidthOrig = me.getProperty(#width)
-  me.pHeightOrig = me.getProperty(#height)
+  me.pLinkPosOrigX = me.pWindow.getElement("bubble_links").getProperty(#locH)
+  me.pLinkPosOrigY = me.pWindow.getElement("bubble_links").getProperty(#locV)
+  me.pWidthOrig = me.pWindow.getProperty(#width)
+  me.pHeightOrig = me.pWindow.getProperty(#height)
   me.hideLinks()
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
-  removeWindow(me.getProperty(#id))
+  removeWindow(me.pWindow.getProperty(#id))
 end
 
 on setText me, tText 
@@ -35,42 +35,42 @@ end
 
 on setLinks me, tLinkList, tStatusList 
   me.pLinkList = tLinkList
-  tElem = me.getElement("bubble_links")
+  tElem = me.pWindow.getElement("bubble_links")
   if voidp(me.pLinkList) then
     me.hideLinks()
-    return(1)
+    return TRUE
   end if
-  if me.count(#pLinkList) = 0 then
+  if (me.count(#pLinkList) = 0) then
     me.hideLinks()
-    return(1)
+    return TRUE
   end if
   tListString = ""
   repeat while tLinkList <= tStatusList
     tLink = getAt(tStatusList, tLinkList)
     tListString = tListString & getText(tLink) & "\r"
   end repeat
-  tListString = tListString.getProp(#line, 1, tListString.count(#line) - 1)
-  tLinkImage = me.render(tListString).duplicate()
+  tListString = tListString.getProp(#line, 1, (tListString.count(#line) - 1))
+  tLinkImage = me.pLinkWriter.render(tListString).duplicate()
   if not voidp(tStatusList) then
-    tColorOrig = pLinkWriter.color
+    tColorOrig = pLinkWriter.pMember.color
     i = 1
     repeat while i <= tLinkList.count
       tID = tLinkList.getPropAt(i)
       if tStatusList.getaProp(tID) then
-        undefined.getPropRef(#line, i).color = rgb(150, 150, 150)
+        me.pLinkWriter.pMember.getPropRef(#line, i).color = rgb(150, 150, 150)
       end if
-      i = 1 + i
+      i = (1 + i)
     end repeat
-    tLinkImage = undefined.duplicate()
-    undefined.color = tColorOrig
+    tLinkImage = me.pLinkWriter.pMember.image.duplicate()
+    me.pLinkWriter.pMember.color = tColorOrig
   end if
   tElem.show()
   tElem.feedImage(tLinkImage)
   tElem.resizeTo(tLinkImage.width, tLinkImage.height, 1)
-  tTextH = me.getElement("bubble_text").getProperty(#height)
-  tElem.moveTo(0, tTextH + me.pLinksOffset)
-  tSizeY = me.pEmptySizeY + tTextH + me.pLinksOffset + tElem.getProperty(#height)
-  me.resizeTo(me.pEmptySizeX, tSizeY)
+  tTextH = me.pWindow.getElement("bubble_text").getProperty(#height)
+  tElem.moveTo(0, (tTextH + me.pLinksOffset))
+  tSizeY = (((me.pEmptySizeY + tTextH) + me.pLinksOffset) + tElem.getProperty(#height))
+  me.pWindow.resizeTo(me.pEmptySizeX, tSizeY)
   me.updatePointer()
   if not voidp(tStatusList) then
     me.setCheckmarks(tStatusList, 1)
@@ -78,32 +78,32 @@ on setLinks me, tLinkList, tStatusList
 end
 
 on hideLinks me 
-  tElem = me.getElement("bubble_links")
+  tElem = me.pWindow.getElement("bubble_links")
   tElem.hide()
-  tTextH = me.getElement("bubble_text").getProperty(#height)
-  me.resizeTo(me.pEmptySizeX, me.pEmptySizeY + tTextH)
+  tTextH = me.pWindow.getElement("bubble_text").getProperty(#height)
+  me.pWindow.resizeTo(me.pEmptySizeX, (me.pEmptySizeY + tTextH))
   me.updatePointer()
 end
 
 on setCheckmarks me, tStatusList, tBlockTextReset 
   tMarkImage = member("checkmark").image
-  tLinkElem = me.getElement("bubble_links")
+  tLinkElem = me.pWindow.getElement("bubble_links")
   tLinkImage = tLinkElem.getProperty(#image)
   tMarkOffset = 4
   tVerticalOffset = 8
-  tImage = image(tLinkImage.width + tMarkImage.width + tMarkOffset, tLinkImage.height, 8)
-  tTargetRect = rect(tImage.width - tLinkImage.width + 1, 0, tImage.width, tImage.height)
+  tImage = image(((tLinkImage.width + tMarkImage.width) + tMarkOffset), tLinkImage.height, 8)
+  tTargetRect = rect(((tImage.width - tLinkImage.width) + 1), 0, tImage.width, tImage.height)
   tImage.copyPixels(tLinkImage, tTargetRect, tLinkImage.rect)
   tLinkNum = 1
   repeat while tLinkNum <= me.count(#pLinkList)
-    tID = me.getPropAt(tLinkNum)
+    tID = me.pLinkList.getPropAt(tLinkNum)
     if tStatusList.getaProp(tID) then
     else
-      tY1 = (me.pLinkLineHeight * tLinkNum - 1) + tVerticalOffset
-      tY2 = tY1 + tMarkImage.height
+      tY1 = ((me.pLinkLineHeight * (tLinkNum - 1)) + tVerticalOffset)
+      tY2 = (tY1 + tMarkImage.height)
       tImage.copyPixels(tMarkImage, rect(0, tY1, tMarkImage.width, tY2), tMarkImage.rect)
     end if
-    tLinkNum = 1 + tLinkNum
+    tLinkNum = (1 + tLinkNum)
   end repeat
   tLinkElem.feedImage(tImage)
   tLinkElem.resizeTo(tImage.width, tImage.height, 1)
@@ -119,15 +119,15 @@ on blendHandler me, tEvent, tSpriteID, tParam
 end
 
 on eventHandler me, tEvent, tSpriteID, tParam 
-  if me.ilk <> #propList then
-    return(0)
+  if me.pLinkList.ilk <> #propList then
+    return FALSE
   end if
-  if tSpriteID = "bubble_links" then
+  if (tSpriteID = "bubble_links") then
     if tParam.ilk <> #point then
-      return(0)
+      return FALSE
     end if
-    tLineNum = (tParam.getAt(2) / 16) + 1
-    tTopicID = me.getPropAt(tLineNum)
+    tLineNum = ((tParam.getAt(2) / 16) + 1)
+    tTopicID = me.pLinkList.getPropAt(tLineNum)
     getThread(#tutorial).getComponent().selectTopic(tTopicID)
   end if
 end

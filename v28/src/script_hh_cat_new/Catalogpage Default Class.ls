@@ -29,7 +29,7 @@ on define me, tdata
     tClass = getVariableValue("layout.class.default.productstrip")
   end if
   pProductStrip = createObject(getUniqueID(), tClass)
-  me.define(pPageData.offers)
+  pProductStrip.define(me.pPageData.offers)
   if voidp(pPersistentFurniData) then
     pPersistentFurniData = getThread("dynamicdownloader").getComponent().getPersistentFurniDataObject()
   end if
@@ -62,7 +62,7 @@ on mergeWindow me, tParentWndObj
         pWndObj.getElement(pTextElements.getAt(i)).setText(tTextFields.getAt(i))
       end if
     end if
-    i = 1 + i
+    i = (1 + i)
   end repeat
   tBitmaps = me.getPropRef(#pPageData, #localization).getAt(#images)
   i = 1
@@ -78,7 +78,7 @@ on mergeWindow me, tParentWndObj
         end if
       end if
     end if
-    i = 1 + i
+    i = (1 + i)
   end repeat
   if tParentWndObj.elementExists("ctlg_productstrip") then
     pProductStrip.setTargetElement(tParentWndObj.getElement("ctlg_productstrip"), tParentWndObj.getElement("ctlg_products_scroll"))
@@ -102,9 +102,9 @@ on hidePriceBox me
     j = 1
     repeat while j <= tElementList.count
       pWndObj.getElement(tElementList.getAt(j)).hide()
-      j = 1 + j
+      j = (1 + j)
     end repeat
-    i = 1 + i
+    i = (1 + i)
   end repeat
 end
 
@@ -115,9 +115,9 @@ on showPriceBox me
     j = 1
     repeat while j <= tElementList.count
       pWndObj.getElement(tElementList.getAt(j)).show()
-      j = 1 + j
+      j = (1 + j)
     end repeat
-    i = 1 + i
+    i = (1 + i)
   end repeat
 end
 
@@ -125,18 +125,18 @@ on setBuyButtonStates me, tOfferTypeList
   i = 1
   repeat while i <= pOfferTypesAvailable.count
     pWndObj.getElement(pOfferTypesAvailable.getPropAt(i)).deactivate()
-    i = 1 + i
+    i = (1 + i)
   end repeat
   j = 1
   repeat while j <= tOfferTypeList.count
     i = 1
     repeat while i <= pOfferTypesAvailable.count
-      if pOfferTypesAvailable.getAt(i).getAt(#type) = tOfferTypeList.getAt(j) then
+      if (pOfferTypesAvailable.getAt(i).getAt(#type) = tOfferTypeList.getAt(j)) then
         pWndObj.getElement(pOfferTypesAvailable.getPropAt(i)).Activate()
       end if
-      i = 1 + i
+      i = (1 + i)
     end repeat
-    j = 1 + j
+    j = (1 + j)
   end repeat
 end
 
@@ -160,13 +160,13 @@ on resolveLargePreview me, tOffer
   if memberExists(tPrevMember & tOfferName) then
     return(getMember(tPrevMember & tOfferName).image)
   end if
-  if tOffer.getAt(#content).count = 1 then
+  if (tOffer.getAt(#content).count = 1) then
     tFurniProps = pPersistentFurniData.getProps(tOffer.getAt(#content).getAt(1).getAt(#type), tOffer.getAt(#content).getAt(1).getAt(#classID))
     if not listp(tFurniProps) then
       return(getMember("no_icon_small").image)
     end if
     tClass = me.getClassAsset(tFurniProps.getaProp(#class))
-    if tClass = "poster" then
+    if (tClass = "poster") then
       tClass = tClass && tOffer.getAt(#content).getAt(1).getAt(#extra_param)
     end if
     if getThread(#dynamicdownloader).getComponent().isAssetDownloaded(tClass) then
@@ -176,7 +176,7 @@ on resolveLargePreview me, tOffer
       tPrevProps.setAt("direction", tFurniProps.getAt(#defaultDir))
       tPrevProps.setAt("dimensions", tFurniProps.getAt(#xdim) & "," & tFurniProps.getAt(#ydim))
       tPrevProps.setAt("partColors", tFurniProps.getAt(#partColors))
-      if tPrevProps.getAt("class") = "poster" then
+      if (tPrevProps.getAt("class") = "poster") then
         tPrevProps.setAt("class", tPrevProps.getAt("class") && tOffer.getAt(#content).getAt(1).getAt(#extra_param))
       end if
       return(me.renderLargePreviewImage(tPrevProps))
@@ -233,10 +233,10 @@ on showPreview me, tOffer
         pWndObj.getElement(tElement).setText(tText)
       end if
     end repeat
-    i = 1 + i
+    i = (1 + i)
   end repeat
   if listp(tCatalogProps) and pTextElements.count >= 3 then
-    if chars(tCatalogProps.getAt(#specialText), 2, 2) = ":" then
+    if (chars(tCatalogProps.getAt(#specialText), 2, 2) = ":") then
       tNum = value(tCatalogProps.getAt(#specialText).getProp(#char, 1))
       tText = chars(tCatalogProps.getAt(#specialText), 3, tCatalogProps.getAt(#specialText).length)
     else
@@ -276,7 +276,7 @@ on downloadCompleted me, tProps
     if not voidp(tSelectedItem) then
       tFurniProps = pPersistentFurniData.getProps(tSelectedItem.getAt(#offerList).getAt(1).getAt(#type), tSelectedItem.getAt(#offerList).getAt(1).getAt(#classID))
       if not voidp(tFurniProps) then
-        if tProps.getAt(#assetId) = me.getClassAsset(tFurniProps.getAt(#class)) then
+        if (tProps.getAt(#assetId) = me.getClassAsset(tFurniProps.getAt(#class))) then
           me.showPreview(tSelectedItem)
         end if
       end if
@@ -293,8 +293,8 @@ on getSelectedProduct me
 end
 
 on handleClick me, tEvent, tSprID, tProp 
-  if tEvent = #mouseUp then
-    if tSprID = "ctlg_productstrip" then
+  if (tEvent = #mouseUp) then
+    if (tSprID = "ctlg_productstrip") then
       tSelectedItem = void()
       if objectp(pProductStrip) then
         pProductStrip.selectItemAt(tProp)
@@ -315,7 +315,7 @@ on handleClick me, tEvent, tSprID, tProp
       if tSprID <> "ctlg_buy_button" then
         if tSprID <> "ctlg_buy_pixels_credits" then
           if tSprID <> "ctlg_buy_pixels" then
-            if tSprID = "ctlg_buy_andwear" then
+            if (tSprID = "ctlg_buy_andwear") then
               tSelectedItem = pProductStrip.getSelectedItem()
               if not voidp(tSelectedItem) then
                 tOfferType = pOfferTypesAvailable.getAt(tSprID).getaProp(#type)
@@ -324,7 +324,7 @@ on handleClick me, tEvent, tSprID, tProp
                   return(error(me, "Unable to find offer of type " & tOfferType & " check page offer configuration.", #handleClick, #major))
                 end if
                 tExtraProps = void()
-                if tSprID = "ctlg_buy_pixels_credits" or tSprID = "ctlg_buy_pixels" or tSprID = "ctlg_buy_andwear" then
+                if (tSprID = "ctlg_buy_pixels_credits") or (tSprID = "ctlg_buy_pixels") or (tSprID = "ctlg_buy_andwear") then
                   tExtraProps = [#disableGift]
                 end if
                 getThread(#catalogue).getComponent().requestPurchase(tOfferType, me.getProp(#pPageData, #pageid), tOffer, #sendPurchaseFromCatalog, tExtraProps)

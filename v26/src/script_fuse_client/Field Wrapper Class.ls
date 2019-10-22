@@ -23,7 +23,7 @@ on prepare me
   if integerp(me.getProp(#pProps, #boxDropShadow)) then
     pMember.boxDropShadow = me.getProp(#pProps, #boxDropShadow)
   end if
-  if me.getProp(#pProps, #key) = "" then
+  if (me.getProp(#pProps, #key) = "") then
     pMember.text = ""
   else
     if textExists(me.getProp(#pProps, #key)) then
@@ -33,9 +33,9 @@ on prepare me
       pMember.text = me.getProp(#pProps, #key)
     end if
   end if
-  pSprite.member = pMember
+  me.pSprite.member = pMember
   pMember.rect = rect(0, 0, me.pwidth, me.pheight)
-  return(1)
+  return TRUE
 end
 
 on getText me 
@@ -47,40 +47,40 @@ on setText me, tText
     tText = string(tText)
   end if
   pMember.text = tText
-  return(1)
+  return TRUE
 end
 
 on setEdit me, tBool 
   if tBool <> 1 and tBool <> 0 then
-    return(0)
+    return FALSE
   end if
   pMember.editable = tBool
-  pSprite.editable = tBool
-  return(1)
+  me.pSprite.editable = tBool
+  return TRUE
 end
 
 on setFocus me, tBool 
-  if tBool = 1 then
-    the keyboardFocusSprite = pSprite.spriteNum
+  if (tBool = 1) then
+    the keyboardFocusSprite = me.pSprite.spriteNum
   else
-    if me = 0 then
+    if (tBool = 0) then
       the keyboardFocusSprite = 0
     else
-      return(0)
+      return FALSE
     end if
   end if
-  return(1)
+  return TRUE
 end
 
 on render me 
-  me.pwidth = pSprite.width
-  me.pheight = pSprite.height
-  me.rect = rect(0, 0, me.pwidth, me.pheight)
+  me.pwidth = me.pSprite.width
+  me.pheight = me.pSprite.height
+  me.pMember.rect = rect(0, 0, me.pwidth, me.pheight)
 end
 
 on draw me, tRGB 
   if not ilk(tRGB, #color) then
     tRGB = rgb(255, 0, 0)
   end if
-  me.draw(pSprite.rect, [#shapeType:#rect, #color:tRGB])
+  the stage.image.draw(me.pSprite.rect, [#shapeType:#rect, #color:tRGB])
 end

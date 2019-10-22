@@ -30,12 +30,12 @@ on construct me
   i = 1
   repeat while i <= tLandscapePatterns.count(#line)
     pLandscapePatterns.add(tLandscapePatterns.getProp(#line, i))
-    i = 1 + i
+    i = (1 + i)
   end repeat
   i = 1
   repeat while i <= tLandscapeGradients.count(#line)
     pLandscapeGradients.add(tLandscapeGradients.getProp(#line, i))
-    i = 1 + i
+    i = (1 + i)
   end repeat
   pLandscapeBlockedCombos = []
   if memberExists("catalog_landscape_blocked_combinations") then
@@ -45,11 +45,11 @@ on construct me
     i = 1
     repeat while i <= tBlockList.count(#line)
       pLandscapeBlockedCombos.add([tBlockList.getPropRef(#line, i).getProp(#item, 1), tBlockList.getPropRef(#line, i).getProp(#item, 2)])
-      i = 1 + i
+      i = (1 + i)
     end repeat
     the itemDelimiter = tDelim
   end if
-  return(1)
+  return TRUE
 end
 
 on define me, tPageProps 
@@ -73,7 +73,7 @@ on define me, tPageProps
       if tWndObj.elementExists("ctlg_buy_landscape") then
         tWndObj.getElement("ctlg_buy_landscape").setProperty(#visible, 0)
       end if
-      return(0)
+      return FALSE
     end if
     tItemNo = 1
     repeat while tItemNo <= tProdList.count
@@ -81,7 +81,7 @@ on define me, tPageProps
       tClass = tProp.getAt("class")
       tClassPrefix = tClass.getProp(#word, 1)
       tClassPostfix = tClass.getProp(#word, 2)
-      if tClassPrefix = "wallpaper" and tClassPostfix <> "" then
+      if (tClassPrefix = "wallpaper") and tClassPostfix <> "" then
         tPatternNo = tClassPostfix
         tPatternMemName = tWallPatterns.getProp(#line, integer(tPatternNo))
         tModelsRawData = member(tPatternMemName).text
@@ -113,19 +113,19 @@ on define me, tPageProps
             tModelProps.setAt(#rgb, tRGB)
             tModelProps.setAt(#palette, tPalette)
             tmodellist.setAt(string(tModelNo), tModelProps)
-            tModelNo = 1 + tModelNo
+            tModelNo = (1 + tModelNo)
           end if
         end repeat
         pWallPatterns.setAt(tPatternNo, tmodellist)
         the itemDelimiter = tDelim
       else
-        if tClass = "floor" then
+        if (tClass = "floor") then
           pFloorProps = tProp
         else
-          if tClassPrefix = "landscape" then
+          if (tClassPrefix = "landscape") then
             tPatternNo = tClassPostfix
             if tPatternNo <= pLandscapePatterns.count then
-              if tPatternNo = 0 then
+              if (tPatternNo = 0) then
                 tPatternMemName = ""
               else
                 tPatternMemName = pLandscapePatterns.getAt(integer(tPatternNo))
@@ -138,7 +138,7 @@ on define me, tPageProps
           end if
         end if
       end if
-      tItemNo = 1 + tItemNo
+      tItemNo = (1 + tItemNo)
     end repeat
   end if
   me.setWallPaper("pattern", 6)
@@ -151,8 +151,8 @@ on setWallPaper me, ttype, tChange
   if not tWndObj then
     return(error(me, "Couldn't access catalogue window!", #setWallPaper, #major))
   end if
-  if ttype = "pattern" then
-    pWallPattern = pWallPattern + tChange
+  if (ttype = "pattern") then
+    pWallPattern = (pWallPattern + tChange)
     if pWallPattern > pWallPatterns.count then
       pWallPattern = 1
     else
@@ -171,8 +171,8 @@ on setWallPaper me, ttype, tChange
       tElemNext.Activate()
     end if
   else
-    if ttype = "model" then
-      pWallModel = pWallModel + tChange
+    if (ttype = "model") then
+      pWallModel = (pWallModel + tChange)
       if pWallModel > pWallPatterns.getAt(pWallPattern).count then
         pWallModel = 1
       else
@@ -186,7 +186,7 @@ on setWallPaper me, ttype, tChange
   ttype = tWallData.getAt(#patternID)
   tPalette = tWallData.getAt(#palette)
   tColor = tWallData.getAt(#rgb)
-  tColors = ["left":tColor - rgb(16, 16, 16), "right":tColor, "a":tColor - rgb(16, 16, 16), "b":tColor, "pattern":tColor]
+  tColors = ["left":(tColor - rgb(16, 16, 16)), "right":tColor, "a":(tColor - rgb(16, 16, 16)), "b":tColor, "pattern":tColor]
   pWallProps = tWallData
   tDelim = the itemDelimiter
   the itemDelimiter = "_"
@@ -221,12 +221,12 @@ on setWallPaper me, ttype, tChange
       end if
     end if
   end if
-  return(1)
+  return TRUE
 end
 
 on setFloorPattern me, ttype, tChange 
-  if ttype = "pattern" then
-    pFloorPattern = pFloorPattern + tChange
+  if (ttype = "pattern") then
+    pFloorPattern = (pFloorPattern + tChange)
     if pFloorPattern > pFloorPatterns.count(#line) then
       pFloorPattern = 1
     else
@@ -236,8 +236,8 @@ on setFloorPattern me, ttype, tChange
     end if
     pFloorModel = 1
   else
-    if ttype = "model" then
-      pFloorModel = pFloorModel + tChange
+    if (ttype = "model") then
+      pFloorModel = (pFloorModel + tChange)
       if pFloorPatterns.getProp(#line, pFloorPattern) > field(0).count(#line) then
         pFloorModel = 1
       else
@@ -294,16 +294,16 @@ on setFloorPattern me, ttype, tChange
       end if
     end if
   end if
-  return(1)
+  return TRUE
 end
 
 on GetLsProductOffset me, tNumber 
   i = 1
   repeat while i <= pLandscapeProducts.count
-    if string(tNumber) = pLandscapeProducts.getPropAt(i) then
+    if (string(tNumber) = pLandscapeProducts.getPropAt(i)) then
       return(i)
     end if
-    i = 1 + i
+    i = (1 + i)
   end repeat
   return(void())
 end
@@ -311,19 +311,19 @@ end
 on ComboIsBlocked me, tLandscape, tGradient 
   repeat while pLandscapeBlockedCombos <= tGradient
     tCombo = getAt(tGradient, tLandscape)
-    if tLandscape = tCombo.getAt(1) and tGradient = tCombo.getAt(2) then
-      return(1)
+    if (tLandscape = tCombo.getAt(1)) and (tGradient = tCombo.getAt(2)) then
+      return TRUE
     end if
   end repeat
-  return(0)
+  return FALSE
 end
 
 on availableGradientsCount me, tLandscape 
   tGradientsCount = pLandscapeGradients.count
   repeat while pLandscapeBlockedCombos <= undefined
     tCombo = getAt(undefined, tLandscape)
-    if tLandscape = tCombo.getAt(1) then
-      tGradientsCount = tGradientsCount - 1
+    if (tLandscape = tCombo.getAt(1)) then
+      tGradientsCount = (tGradientsCount - 1)
     end if
   end repeat
   return(tGradientsCount)
@@ -332,13 +332,13 @@ end
 on setLandscapePreview me, ttype, tChange 
   tCurrent = me.GetLsProductOffset(pLandscapePattern)
   if voidp(tCurrent) then
-    tCurrent = 1 - tChange
+    tCurrent = (1 - tChange)
   end if
   if pLandscapeProducts.count < 1 then
-    return(0)
+    return FALSE
   end if
-  if ttype = "pattern" then
-    tNext = tCurrent + tChange
+  if (ttype = "pattern") then
+    tNext = (tCurrent + tChange)
     if tNext > pLandscapeProducts.count then
       tNext = 1
     else
@@ -350,15 +350,15 @@ on setLandscapePreview me, ttype, tChange
     if me.ComboIsBlocked(pLandscapePattern, pLandscapeGradient) then
       tGradient = 1
       repeat while me.ComboIsBlocked(pLandscapePattern, tGradient)
-        tGradient = tGradient + 1
+        tGradient = (tGradient + 1)
       end repeat
       pLandscapeGradient = tGradient
     end if
   else
-    if ttype = "gradient" then
-      pLandscapeGradient = pLandscapeGradient + tChange
+    if (ttype = "gradient") then
+      pLandscapeGradient = (pLandscapeGradient + tChange)
       repeat while me.ComboIsBlocked(pLandscapePattern, pLandscapeGradient)
-        pLandscapeGradient = pLandscapeGradient + tChange
+        pLandscapeGradient = (pLandscapeGradient + tChange)
         if pLandscapeGradient > pLandscapeGradients.count then
           pLandscapeGradient = 1
           next repeat
@@ -421,20 +421,20 @@ on setLandscapePreview me, ttype, tChange
   repeat while i <= tRenderCount
     tSrcRect = rect(0, 0, tSrc.width, tSrc.height)
     tOldDest = tdestrect.duplicate()
-    tdestrect.bottom = tdestrect.bottom - tClipAmount
-    tdestrect.top = tdestrect.top - tClipAmount
+    tdestrect.bottom = (tdestrect.bottom - tClipAmount)
+    tdestrect.top = (tdestrect.top - tClipAmount)
     if tdestrect.top < 0 then
       tdestrect.top = 0
     end if
-    tSrcRect.top = tSrcRect.height - tdestrect.height
+    tSrcRect.top = (tSrcRect.height - tdestrect.height)
     tBuffer.copyPixels(tSrc, tdestrect, tSrcRect, [#useFastQuads:1, #ink:#copy])
     tdestrect = tOldDest
-    tdestrect = tdestrect + tRenderOffsetRect
-    tClipAmount = tClipAmount - tRenderOffsetRect.top
+    tdestrect = (tdestrect + tRenderOffsetRect)
+    tClipAmount = (tClipAmount - tRenderOffsetRect.top)
     if tClipAmount < 0 then
       tClipAmount = 0
     end if
-    i = 1 + i
+    i = (1 + i)
   end repeat
   if pLandscapePattern <= pLandscapePatterns.count and pLandscapePattern > 0 then
     tSrc = getMember(pLandscapePatterns.getAt(pLandscapePattern)).image
@@ -445,64 +445,64 @@ on setLandscapePreview me, ttype, tChange
   tBuffer.copyPixels(getMember(pLandscapePreviewIdList.getAt(1)).image, tdestrect, tdestrect, [#useFastQuads:1, #ink:#copy, #maskImage:tMask])
   tBuffer.setAlpha(getMember(pLandscapePreviewIdList.getAt(3)).image)
   tBuffer.useAlpha = 1
-  member.image = tBuffer
-  member.useAlpha = 1
-  member.regPoint = point(0, 0)
+  tElement.pSprite.member.image = tBuffer
+  tElement.pSprite.member.useAlpha = 1
+  tElement.pSprite.member.regPoint = point(0, 0)
 end
 
 on eventProc me, tEvent, tSprID, tProp 
-  if tEvent = #mouseUp then
-    if tSprID = "close" then
-      return(0)
+  if (tEvent = #mouseUp) then
+    if (tSprID = "close") then
+      return FALSE
     end if
   end if
-  if tEvent = #mouseDown then
-    if tSprID = "ctlg_wall_pattern_prev" then
+  if (tEvent = #mouseDown) then
+    if (tSprID = "ctlg_wall_pattern_prev") then
       me.setWallPaper("pattern", -1)
     else
-      if tSprID = "ctlg_wall_pattern_next" then
+      if (tSprID = "ctlg_wall_pattern_next") then
         me.setWallPaper("pattern", 1)
       else
-        if tSprID = "ctlg_wall_color_prev" then
+        if (tSprID = "ctlg_wall_color_prev") then
           me.setWallPaper("model", -1)
         else
-          if tSprID = "ctlg_wall_color_next" then
+          if (tSprID = "ctlg_wall_color_next") then
             me.setWallPaper("model", 1)
           else
-            if tSprID = "ctlg_floor_pattern_prev" then
+            if (tSprID = "ctlg_floor_pattern_prev") then
               me.setFloorPattern("pattern", -1)
             else
-              if tSprID = "ctlg_floor_pattern_next" then
+              if (tSprID = "ctlg_floor_pattern_next") then
                 me.setFloorPattern("pattern", 1)
               else
-                if tSprID = "ctlg_floor_color_prev" then
+                if (tSprID = "ctlg_floor_color_prev") then
                   me.setFloorPattern("model", -1)
                 else
-                  if tSprID = "ctlg_floor_color_next" then
+                  if (tSprID = "ctlg_floor_color_next") then
                     me.setFloorPattern("model", 1)
                   else
-                    if tSprID = "ctlg_landscape_pattern_prev" then
+                    if (tSprID = "ctlg_landscape_pattern_prev") then
                       me.setLandscapePreview("pattern", -1)
                     else
-                      if tSprID = "ctlg_landscape_pattern_next" then
+                      if (tSprID = "ctlg_landscape_pattern_next") then
                         me.setLandscapePreview("pattern", 1)
                       else
-                        if tSprID = "ctlg_landscape_color_prev" then
+                        if (tSprID = "ctlg_landscape_color_prev") then
                           me.setLandscapePreview("gradient", -1)
                         else
-                          if tSprID = "ctlg_landscape_color_next" then
+                          if (tSprID = "ctlg_landscape_color_next") then
                             me.setLandscapePreview("gradient", 1)
                           else
-                            if tSprID = "ctlg_buy_wall" then
+                            if (tSprID = "ctlg_buy_wall") then
                               getThread(#catalogue).getComponent().checkProductOrder(pWallProps)
                             else
-                              if tSprID = "ctlg_buy_floor" then
+                              if (tSprID = "ctlg_buy_floor") then
                                 getThread(#catalogue).getComponent().checkProductOrder(pFloorProps)
                               else
-                                if tSprID = "ctlg_buy_landscape" then
+                                if (tSprID = "ctlg_buy_landscape") then
                                   getThread(#catalogue).getComponent().checkProductOrder(pLandscapeProps)
                                 else
-                                  return(0)
+                                  return FALSE
                                 end if
                               end if
                             end if
@@ -519,5 +519,5 @@ on eventProc me, tEvent, tSprID, tProp
       end if
     end if
   end if
-  return(1)
+  return TRUE
 end

@@ -9,7 +9,7 @@ end
 
 on addRequest me, tRequestData 
   if ilk(tRequestData) <> #propList then
-    return(0)
+    return FALSE
   end if
   tUserID = string(tRequestData.getAt(#userID))
   tPrevIndex = pRequestList.findPos(tUserID)
@@ -21,11 +21,11 @@ end
 
 on updateRequest me, tRequestData 
   if ilk(tRequestData) <> #propList then
-    return(0)
+    return FALSE
   end if
   tUserID = string(tRequestData.getAt(#userID))
   if not pRequestList.findPos(tUserID) then
-    return(0)
+    return FALSE
   end if
   tRequestProps = pRequestList.getAt(tUserID)
   if not voidp(tRequestProps) then
@@ -34,7 +34,7 @@ on updateRequest me, tRequestData
       tProp = tRequestData.getPropAt(tNo)
       tValue = tRequestData.getAt(tNo)
       tRequestProps.setAt(tProp, tValue)
-      tNo = 1 + tNo
+      tNo = (1 + tNo)
     end repeat
     pRequestList.setAt(tUserID, tRequestProps.duplicate())
   end if
@@ -43,7 +43,7 @@ end
 on getRequestByUserID me, tUserID 
   tRequest = pRequestList.getAt(string(tUserID))
   if voidp(tRequest) then
-    return(0)
+    return FALSE
   else
     return(tRequest)
   end if
@@ -55,11 +55,11 @@ on getPendingRequests me
   tNo = 1
   repeat while tNo <= pRequestList.count
     tRequest = pRequestList.getAt(tNo)
-    if tRequest.getAt(#state) = #pending or tRequest.getAt(#state) = #error then
+    if (tRequest.getAt(#state) = #pending) or (tRequest.getAt(#state) = #error) then
       tPendingList.setAt(string(tRequest.getAt(#userID)), tRequest)
       if tPendingList.count >= tMaxAmount then
       else
-        tNo = 1 + tNo
+        tNo = (1 + tNo)
       end if
       return(tPendingList)
     end if
@@ -70,9 +70,9 @@ on cleanUpHandled me
   tNo = 1
   repeat while tNo <= pRequestList.count
     tRequest = pRequestList.getAt(tNo)
-    if tRequest.getAt(#status) = #rejected or tRequest.getAt(#status) = #accepted then
+    if (tRequest.getAt(#status) = #rejected) or (tRequest.getAt(#status) = #accepted) then
       pRequestList.deleteAt(tNo)
     end if
-    tNo = 1 + tNo
+    tNo = (1 + tNo)
   end repeat
 end

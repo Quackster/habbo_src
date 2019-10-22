@@ -8,7 +8,7 @@ on construct me
   if variableExists("productdata.load.url") then
     tURL = getVariable("productdata.load.url")
     tHash = getSpecialServices().getSessionHash()
-    if tHash = "" then
+    if (tHash = "") then
       tHash = string(random(1000000))
     end if
     tURL = replaceChunks(tURL, "%hash%", tHash)
@@ -43,9 +43,9 @@ on downloadCallback me, tParams, tSuccess
     tmember = member(tParams)
     i = 1
     l = 1
-    repeat while l <= tmember.count(#line)
-      tVal = value(tmember.getProp(#line, l))
-      if ilk(tVal) = #list then
+    repeat while l <= tmember.text.count(#line)
+      tVal = value(tmember.text.getProp(#line, l))
+      if (ilk(tVal) = #list) then
         repeat while tVal <= tSuccess
           tItem = getAt(tSuccess, tParams)
           tdata = [:]
@@ -56,7 +56,7 @@ on downloadCallback me, tParams, tSuccess
           pData.setaProp(tItem.getAt(1), tdata)
         end repeat
       end if
-      l = 1 + l
+      l = (1 + l)
     end repeat
     pDataLoaded = 1
   end if

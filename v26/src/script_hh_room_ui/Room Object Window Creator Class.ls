@@ -17,12 +17,12 @@ on construct me
   tPlain.setaProp(#color, rgb("#EEEEEE"))
   createWriter(tWriterId, tPlain)
   pWriterPlain = getWriter(tWriterId)
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
   removeObject(pScroller.getID())
-  return(1)
+  return TRUE
 end
 
 on initWindow me, tID, ttype 
@@ -51,7 +51,7 @@ on createFurnitureWindow me, tID, tProps
   end if
   tWndObj.getElement("room_obj_disp_avatar").feedImage(tImage)
   tWndObj.lock()
-  return(1)
+  return TRUE
 end
 
 on createMottoWindow me, tID, tProps, tSelectedObj, tBadgeObjID, tShowTags 
@@ -71,13 +71,13 @@ on createMottoWindow me, tID, tProps, tSelectedObj, tBadgeObjID, tShowTags
     tDescImage = pWriterPlain.render(tProps.getAt(#custom)).duplicate()
     tWndObj.getElement("room_obj_disp_desc").feedImage(tDescImage)
     tDescHeight = tDescImage.height
-    if tProps.getAt(#custom) = "" then
+    if (tProps.getAt(#custom) = "") then
       tDescHeight = 0
     end if
-    tWndObj.resizeBy(0, tDescHeight - tOrigHeight)
+    tWndObj.resizeBy(0, (tDescHeight - tOrigHeight))
   end if
   tWndObj.lock()
-  return(1)
+  return TRUE
 end
 
 on createHumanWindow me, tID, tProps, tSelectedObj, tBadgeObjID, tShowTags 
@@ -101,16 +101,16 @@ on createHumanWindow me, tID, tProps, tSelectedObj, tBadgeObjID, tShowTags
     if tIndex > tMaxBadgeIndex then
       tMaxBadgeIndex = tIndex
     end if
-    i = 1 + i
+    i = (1 + i)
   end repeat
   if tMaxBadgeIndex < 4 then
-    tOffsetV = tAvatarElem.getProperty(#height) - tWndObj.getProperty(#height)
+    tOffsetV = (tAvatarElem.getProperty(#height) - tWndObj.getProperty(#height))
     tWndObj.resizeBy(0, tOffsetV)
   end if
   tBadgeObj = getObject(tBadgeObjID)
   tBadgeObj.updateInfoStandBadge(tID, tSelectedObj, tBadges)
   tWndObj.lock()
-  return(1)
+  return TRUE
 end
 
 on createBotWindow me, tID, tProps 
@@ -121,7 +121,7 @@ on createBotWindow me, tID, tProps
   pScroller.registerElement(tID, "room_obj_disp_name")
   pScroller.setScroll(1)
   tWndObj.lock()
-  return(1)
+  return TRUE
 end
 
 on createPetWindow me, tID, tProps 
@@ -133,13 +133,13 @@ on createPetWindow me, tID, tProps
   pScroller.setScroll(1)
   tWndObj.getElement("room_obj_disp_avatar").feedImage(tProps.getAt(#image))
   tWndObj.lock()
-  return(1)
+  return TRUE
 end
 
 on createActionsHumanWindow me, tID, tTargetUserName, tShowButtons 
   tSessionObj = getObject(#session)
   tUserRights = tSessionObj.GET("user_rights")
-  if tTargetUserName = tSessionObj.GET("user_name") then
+  if (tTargetUserName = tSessionObj.GET("user_name")) then
     tOwnUser = getThread("room").getComponent().getOwnUser()
     tWindowModel = "obj_disp_actions_own.window"
     tButtonList = [:]
@@ -150,8 +150,8 @@ on createActionsHumanWindow me, tID, tTargetUserName, tShowButtons
     tButtonList.setAt("outlook", #visible)
     tMainAction = tOwnUser.getProperty(#mainAction)
     tSwimming = tOwnUser.getProperty(#swimming)
-    tSitting = tMainAction = "sit"
-    tLaying = tMainAction = "lay"
+    tSitting = (tMainAction = "sit")
+    tLaying = (tMainAction = "lay")
     tDanceButtonState = #visible
     if tLaying or tSwimming then
       tDanceButtonState = #deactive
@@ -182,7 +182,7 @@ on createActionsHumanWindow me, tID, tTargetUserName, tShowButtons
     if threadExists(#friend_list) then
       tComponent = getThread(#friend_list).getComponent()
       tFriendData = tComponent.getFriendByName(tTargetUserName)
-      if ilk(tFriendData) = #propList then
+      if (ilk(tFriendData) = #propList) then
         tButtonList.setAt("friend", #deactive)
       end if
     else
@@ -190,7 +190,7 @@ on createActionsHumanWindow me, tID, tTargetUserName, tShowButtons
     end if
     tRoomComponent = getThread(#room).getComponent()
     tNotPrivateRoom = tRoomComponent.getRoomID() <> "private"
-    tNoTrading = tRoomComponent.getRoomData().getAt(#trading) = 0
+    tNoTrading = (tRoomComponent.getRoomData().getAt(#trading) = 0)
     tTradeTimeout = 0
     tTradeProhibited = not tUserRights.getOne("fuse_trade")
     if tTradeTimeout or tNotPrivateRoom or tNoTrading or tTradeProhibited then
@@ -217,18 +217,18 @@ on createActionsHumanWindow me, tID, tTargetUserName, tShowButtons
       tButtonList.setAt("ban", #hidden)
     end if
     tRoomData = tRoomComponent.getRoomData()
-    if tRoomData.getaProp(#type) = #public then
+    if (tRoomData.getaProp(#type) = #public) then
       tButtonList.setAt("kick", #hidden)
       tButtonList.setAt("ban", #hidden)
     end if
     if tRoomOwner then
-      if tUserInfo.ctrl = 0 then
+      if (tUserInfo.ctrl = 0) then
         tButtonList.setAt("take_rights", #hidden)
       else
-        if tUserInfo.ctrl = "furniture" then
+        if (tUserInfo.ctrl = "furniture") then
           tButtonList.setAt("give_rights", #hidden)
         else
-          if tUserInfo.ctrl = "useradmin" then
+          if (tUserInfo.ctrl = "useradmin") then
             tButtonList.setAt("give_rights", #hidden)
           end if
         end if
@@ -240,11 +240,11 @@ on createActionsHumanWindow me, tID, tTargetUserName, tShowButtons
   end if
   tWndObj = me.initWindow(tID, tWindowModel)
   me.scaleButtonWindow(tID, tButtonList, tShowButtons)
-  if tTargetUserName = tSessionObj.GET("user_name") then
+  if (tTargetUserName = tSessionObj.GET("user_name")) then
     if tWndObj.elementExists("hcdance.button") then
       tElem = tWndObj.getElement("hcdance.button")
       tDance = tOwnUser.getProperty(#dancing)
-      tElem.setSelection(tDance + 2, 1)
+      tElem.setSelection((tDance + 2), 1)
     end if
   end if
   tWndObj.lock()
@@ -275,7 +275,7 @@ on createActionsFurniWindow me, tID, tClass, tShowButtons
     tButtonList.setAt("rotate", #visible)
     tButtonList.setAt("pick", #visible)
   end if
-  if tClass = "item" then
+  if (tClass = "item") then
     tButtonList.setAt("move", #hidden)
     tButtonList.setAt("rotate", #hidden)
   end if
@@ -306,10 +306,10 @@ end
 on showHideTags me, tID, tShowTags 
   tWndObj = getWindow(tID)
   if not tWndObj.elementExists("object_displayer_toggle_tags_icon") then
-    return(0)
+    return FALSE
   end if
   if not tWndObj.elementExists("object_displayer_toggle_tags") then
-    return(0)
+    return FALSE
   end if
   tArrowElem = tWndObj.getElement("object_displayer_toggle_tags_icon")
   tTextElem = tWndObj.getElement("object_displayer_toggle_tags")
@@ -329,12 +329,12 @@ end
 
 on scaleButtonWindow me, tID, tButtonList, tShowButtons 
   tWndObj = getWindow(tID)
-  if tShowButtons = 0 then
+  if (tShowButtons = 0) then
     tIndex = 1
     repeat while tIndex <= tButtonList.count
       tButtonID = tButtonList.getPropAt(tIndex)
       tButtonList.setAt(tButtonID, #hidden)
-      tIndex = 1 + tIndex
+      tIndex = (1 + tIndex)
     end repeat
     tArrowElem = tWndObj.getElement("object_displayer_toggle_actions_icon")
     tArrowElem.setProperty(#member, pExtensionClosedID)
@@ -348,60 +348,60 @@ on scaleButtonWindow me, tID, tButtonList, tShowButtons
   tButtonHeight = 15
   tLine = 1
   tWindowWidth = tWndObj.getProperty(#width)
-  tMaxWidth = rect.width
+  tMaxWidth = the stage.rect.width
   tIndex = 1
   repeat while tIndex <= tButtonList.count
     tButtonID = tButtonList.getPropAt(tIndex)
     tButtonVisibility = tButtonList.getAt(tButtonID)
     tElement = tWndObj.getElement(tButtonID & ".button")
     tLeftPos = tElement.getProperty(#locX)
-    if tIndex = 1 then
+    if (tIndex = 1) then
       tCurrentButtonTopPos = tElement.getProperty(#locY)
     end if
     tElemWidth = tElement.getProperty(#width)
     if tButtonVisibility <> #hidden then
-      if tOffsetV + tElemWidth <= tMaxWidth then
-        tLeftPos = tLeftPos + tOffsetV
-        tOffsetV = tOffsetV + tElemWidth + tButtonVertMargins
+      if (tOffsetV + tElemWidth) <= tMaxWidth then
+        tLeftPos = (tLeftPos + tOffsetV)
+        tOffsetV = ((tOffsetV + tElemWidth) + tButtonVertMargins)
       else
         if tButtonVisibility <> #hidden and tIndex > 1 then
-          tCurrentButtonTopPos = tCurrentButtonTopPos + tButtonHeight + tButtonVertMargins
-          tLine = tLine + 1
+          tCurrentButtonTopPos = ((tCurrentButtonTopPos + tButtonHeight) + tButtonVertMargins)
+          tLine = (tLine + 1)
         end if
-        tOffsetV = tElemWidth + tButtonVertMargins
+        tOffsetV = (tElemWidth + tButtonVertMargins)
       end if
     end if
-    if the stage = #visible then
+    if (tButtonVisibility = #visible) then
       tElement.moveTo(tLeftPos, tCurrentButtonTopPos)
     else
-      if the stage = #deactive then
+      if (tButtonVisibility = #deactive) then
         tElement.moveTo(tLeftPos, tCurrentButtonTopPos)
         tElement.deactivate()
       else
-        if the stage = #hidden then
+        if (tButtonVisibility = #hidden) then
           tElement.setProperty(#visible, 0)
         end if
       end if
     end if
-    tIndex = 1 + tIndex
+    tIndex = (1 + tIndex)
   end repeat
-  tStackHeight = (tLine * tButtonHeight + tButtonVertMargins) + (2 * tButtonVertMargins)
+  tStackHeight = ((tLine * (tButtonHeight + tButtonVertMargins)) + (2 * tButtonVertMargins))
   me.resizeWindowTo(tID, tOffsetV, tStackHeight)
 end
 
 on createLinksWindow me, tID, tFormat 
-  if tFormat = #own then
+  if (tFormat = #own) then
     tWindowModel = "obj_disp_links_own.window"
   else
-    if tFormat = #peer then
+    if (tFormat = #peer) then
       tWindowModel = "obj_disp_links_peer.window"
     end if
   end if
   tWndObj = me.initWindow(tID, tWindowModel)
-  if tFormat = #own then
+  if (tFormat = #own) then
     tBadgeList = getObject(#session).GET("available_badges")
     if listp(tBadgeList) then
-      if tBadgeList.count = 0 then
+      if (tBadgeList.count = 0) then
         tElem = tWndObj.getElement("room_obj_disp_badge_sel")
         tElem.setProperty(#blend, 20)
         tElem.setProperty(#cursor, 0)
@@ -425,13 +425,13 @@ end
 on createUserXpWindow me, tID, tXP 
   tWindowModel = "obj_disp_xp.window"
   tWndObj = me.initWindow(tID, tWindowModel)
-  if tWndObj = 0 then
-    return(0)
+  if (tWndObj = 0) then
+    return FALSE
   end if
   tWndObj.lock()
   tElem = tWndObj.getElement("room_obj_disp_xp")
-  if tElem = 0 then
-    return(0)
+  if (tElem = 0) then
+    return FALSE
   end if
   tElem.setText(replaceChunks(getText("object_displayer_xp"), "\\xp", tXP))
   return(tID)
@@ -455,11 +455,11 @@ end
 
 on clearWindow me, tWindowID 
   if not windowExists(tWindowID) then
-    return(0)
+    return FALSE
   end if
   tWndObj = getWindow(tWindowID)
   tWndObj.hide()
   tWndObj.unmerge()
   pScroller.setScroll(0)
-  return(1)
+  return TRUE
 end

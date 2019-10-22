@@ -6,7 +6,7 @@ end
 
 on getAngleFromComponents me, xComponent, yComponent 
   if abs(xComponent) <= abs(yComponent) then
-    if yComponent = 0 then
+    if (yComponent = 0) then
       yComponent = 1
     end if
     xComponent = (xComponent * 256)
@@ -19,19 +19,19 @@ on getAngleFromComponents me, xComponent, yComponent
     end if
     if yComponent < 0 then
       if xComponent > 0 then
-        return(m_componentToAngleArray.getAt(temp + 1))
+        return(m_componentToAngleArray.getAt((temp + 1)))
       else
-        return(360 - m_componentToAngleArray.getAt(temp + 1))
+        return((360 - m_componentToAngleArray.getAt((temp + 1))))
       end if
     else
       if xComponent > 0 then
-        return(180 - m_componentToAngleArray.getAt(temp + 1))
+        return((180 - m_componentToAngleArray.getAt((temp + 1))))
       else
-        return(180 + m_componentToAngleArray.getAt(temp + 1))
+        return((180 + m_componentToAngleArray.getAt((temp + 1))))
       end if
     end if
   else
-    if xComponent = 0 then
+    if (xComponent = 0) then
       xComponent = 1
     end if
     yComponent = (yComponent * 256)
@@ -44,15 +44,15 @@ on getAngleFromComponents me, xComponent, yComponent
     end if
     if yComponent < 0 then
       if xComponent > 0 then
-        return(90 - m_componentToAngleArray.getAt(temp + 1))
+        return((90 - m_componentToAngleArray.getAt((temp + 1))))
       else
-        return(270 + m_componentToAngleArray.getAt(temp + 1))
+        return((270 + m_componentToAngleArray.getAt((temp + 1))))
       end if
     else
       if xComponent > 0 then
-        return(90 + m_componentToAngleArray.getAt(temp + 1))
+        return((90 + m_componentToAngleArray.getAt((temp + 1))))
       else
-        return(270 - m_componentToAngleArray.getAt(temp + 1))
+        return((270 - m_componentToAngleArray.getAt((temp + 1))))
       end if
     end if
   end if

@@ -2,12 +2,12 @@ property pPageData
 
 on construct me 
   pPageData = void()
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
   pPageData = void()
-  return(1)
+  return TRUE
 end
 
 on define me, tdata 
@@ -21,7 +21,7 @@ end
 on getClassAsset me, tClassName 
   tClass = tClassName
   if tClass contains "*" then
-    tClass = tClass.getProp(#char, 1, offset("*", tClass) - 1)
+    tClass = tClass.getProp(#char, 1, (offset("*", tClass) - 1))
   end if
   return(tClass)
 end
@@ -30,7 +30,7 @@ on renderLargePreviewImage me, tProps
   if not voidp(tProps.getAt("dealList")) then
     if not objectExists("ctlg_dealpreviewObj") then
       tObj = createObject("ctlg_dealpreviewObj", ["Deal Preview Class"])
-      if tObj = 0 then
+      if (tObj = 0) then
         return(error(me, "Failed object creation!", #showHideDialog, #major))
       end if
     else
@@ -65,7 +65,7 @@ on renderLargePreviewImage me, tProps
       return(error(me, "PartColors property missing", #showPreviewImage, #minor))
     else
       tpartColors = tProps.getAt("partColors")
-      if tpartColors = "" or tpartColors = "0,0,0" then
+      if (tpartColors = "") or (tpartColors = "0,0,0") then
         tpartColors = "*ffffff"
       end if
     end if
@@ -85,7 +85,7 @@ on renderLargePreviewImage me, tProps
     tdata.setAt(#objectType, tObjectType)
     if not objectExists("ctlg_previewObj") then
       tObj = createObject("ctlg_previewObj", ["Product Preview Class"])
-      if tObj = 0 then
+      if (tObj = 0) then
         return(error(me, "Failed object creation!", #showHideDialog, #major))
       end if
     else
@@ -110,7 +110,7 @@ on getPossibleBuyButtonTypes me, tWndObj
         tTypes.setaProp(tID, ttype)
       end if
     end if
-    i = 1 + i
+    i = (1 + i)
   end repeat
   return(tTypes)
 end
@@ -132,18 +132,18 @@ end
 on getOfferByType me, tItemGroup, tOfferType 
   repeat while tItemGroup <= tOfferType
     tOffer = getAt(tOfferType, tItemGroup)
-    if tItemGroup = #credits then
-      if tOffer.getAt(#price).getAt(#pixels) = 0 then
+    if (tItemGroup = #credits) then
+      if (tOffer.getAt(#price).getAt(#pixels) = 0) then
         return(tOffer)
       end if
     else
-      if tItemGroup = #creditsandpixels then
+      if (tItemGroup = #creditsandpixels) then
         if tOffer.getAt(#price).getAt(#pixels) <> 0 and tOffer.getAt(#price).getAt(#credits) <> 0 then
           return(tOffer)
         end if
       else
-        if tItemGroup = #pixels then
-          if tOffer.getAt(#price).getAt(#credits) = 0 then
+        if (tItemGroup = #pixels) then
+          if (tOffer.getAt(#price).getAt(#credits) = 0) then
             return(tOffer)
           end if
         end if
@@ -156,13 +156,13 @@ end
 on getOfferPriceTextByType me, tItemGroup, tOfferType 
   tOffer = me.getOfferByType(tItemGroup, tOfferType)
   if not voidp(tOffer) then
-    if tOfferType = #credits then
+    if (tOfferType = #credits) then
       return(tOffer.getAt(#price).getAt(#credits) && getText("credits", "credits"))
     else
-      if tOfferType = #creditsandpixels then
+      if (tOfferType = #creditsandpixels) then
         return(tOffer.getAt(#price).getAt(#pixels) && getText("pixels", "pixels") && "&" && tOffer.getAt(#price).getAt(#credits) && getText("credits", "credits"))
       else
-        if tOfferType = #pixels then
+        if (tOfferType = #pixels) then
           return(tOffer.getAt(#price).getAt(#pixels) && getText("pixels", "pixels"))
         end if
       end if
@@ -173,8 +173,8 @@ end
 
 on centerRectInRect me, tSmallrect, tLargeRect 
   tpoint = point(0, 0)
-  tpoint.locH = (tLargeRect.width - tSmallrect.width / 2)
-  tpoint.locV = (tLargeRect.height - tSmallrect.height / 2)
+  tpoint.locH = ((tLargeRect.width - tSmallrect.width) / 2)
+  tpoint.locV = ((tLargeRect.height - tSmallrect.height) / 2)
   if tpoint.locH < 0 then
     tpoint.locH = 0
   end if
@@ -188,7 +188,7 @@ on centerBlitImageToElement me, tImage, tElement
   tElement.clearBuffer()
   tOffset = me.centerRectInRect(tImage.rect, tElement.getProperty(#image).rect)
   tOldImage = tElement.getProperty(#image)
-  tOldImage.copyPixels(tImage, tImage.rect + rect(tOffset.locH, tOffset.locV, tOffset.locH, tOffset.locV), tImage.rect)
+  tOldImage.copyPixels(tImage, (tImage.rect + rect(tOffset.locH, tOffset.locV, tOffset.locH, tOffset.locV)), tImage.rect)
   tElement.feedImage(tOldImage)
 end
 

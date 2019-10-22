@@ -16,13 +16,13 @@ on construct me
   pNumberPosX = getVariable("catalogue.deal.numberpos.x")
   pNumberPosY = getVariable("catalogue.deal.numberpos.y")
   pPageId = -1
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
   pPageItemDownloader.removeCallback(me, #downloadCompleted)
   pStripData = void()
-  return(1)
+  return TRUE
 end
 
 on define me, tdata, tWidth, tHeight, tPageID 
@@ -70,13 +70,13 @@ on resolveSmallPreview me, tOffer
   if memberExists(tPrevMember & "small_" & tOfferName) then
     return(getMember(tPrevMember & "small_" & tOfferName).image)
   end if
-  if tOffer.getAt(#content).count = 1 then
+  if (tOffer.getAt(#content).count = 1) then
     tFurniProps = pPersistentFurniData.getProps(tOffer.getAt(#content).getAt(1).getAt(#type), tOffer.getAt(#content).getAt(1).getAt(#classID))
     if not listp(tFurniProps) then
       return(getMember("no_icon_small").image)
     end if
     tClass = me.getClassAsset(tFurniProps.getaProp(#class))
-    if tClass = "poster" then
+    if (tClass = "poster") then
       tClass = tClass && tOffer.getAt(#content).getAt(1).getAt(#extra_param)
     end if
     if getThread(#dynamicdownloader).getComponent().isAssetDownloaded(tClass) then
@@ -87,7 +87,7 @@ on resolveSmallPreview me, tOffer
           return(tImage)
         end if
         tCountImg = pDealPreviewObj.getNumberImage(tOffer.getAt(#content).getAt(1).getAt(#productcount))
-        tImage.copyPixels(tCountImg, tCountImg.rect + rect(2, 0, 2, 0), tCountImg.rect, [#ink:36])
+        tImage.copyPixels(tCountImg, (tCountImg.rect + rect(2, 0, 2, 0)), tCountImg.rect, [#ink:36])
       end if
       return(tImage)
     end if
@@ -114,19 +114,19 @@ on resolveMembers me
   i = 0
   repeat while pStripData <= undefined
     tProduct = getAt(undefined, undefined)
-    i = i + 1
+    i = (i + 1)
     tOffer = tProduct.getAt(#offerList).getAt(1)
     pDealNumber = i
     tSmallPrev = me.resolveSmallPreview(tOffer)
-    if ilk(tSmallPrev) = #image then
+    if (ilk(tSmallPrev) = #image) then
       tProduct.setaProp(#smallPreview, tSmallPrev)
     end if
-    if tOffer.getAt(#content).count = 1 then
+    if (tOffer.getAt(#content).count = 1) then
       tFurniProps = pPersistentFurniData.getProps(tOffer.getAt(#content).getAt(1).getAt(#type), tOffer.getAt(#content).getAt(1).getAt(#classID))
       if not listp(tFurniProps) then
       else
         tClass = me.getClassAsset(tFurniProps.getaProp(#class))
-        if tClass = "poster" then
+        if (tClass = "poster") then
           tClass = tClass && tOffer.getAt(#content).getAt(1).getAt(#extra_param)
         end if
         if not getThread(#dynamicdownloader).getComponent().isAssetDownloaded(tClass) then
@@ -139,7 +139,7 @@ on resolveMembers me
             if not listp(tFurniProps) then
             else
               tClass = me.getClassAsset(tFurniProps.getaProp(#class))
-              if tClass = "poster" then
+              if (tClass = "poster") then
                 tClass = tClass && tDealItem.getAt(#extra_param)
               end if
               if not getThread(#dynamicdownloader).getComponent().isAssetDownloaded(tClass) then
@@ -161,7 +161,7 @@ end
 on getClassAsset me, tClassName 
   tClass = tClassName
   if tClass contains "*" then
-    tClass = tClass.getProp(#char, 1, offset("*", tClass) - 1)
+    tClass = tClass.getProp(#char, 1, (offset("*", tClass) - 1))
   end if
   return(tClass)
 end
@@ -179,7 +179,7 @@ on downloadCompleted me, tProps
   end if
   pDealNumber = tItemIndex
   tSmallPrev = me.resolveSmallPreview(pStripData.getAt(tItemIndex).getAt(#offerList).getAt(1))
-  if ilk(tSmallPrev) = #image then
+  if (ilk(tSmallPrev) = #image) then
     pStripData.getAt(tItemIndex).setaProp(#smallPreview, tSmallPrev)
   end if
   return()

@@ -10,23 +10,23 @@ on define me, tProps
     if me.getPropRef(#pLayerDataList, i).count > 1 then
       pBlendSpriteList.add(i)
     end if
-    i = 1 + i
+    i = (1 + i)
   end repeat
   return(tRetVal)
 end
 
 on update me 
   if not voidp(pActiveLayer) and not voidp(pActiveLayerNew) then
-    if pCounter > pAnimLength - pCrossFadeLength then
-      tDelta = pCounter - pAnimLength - pCrossFadeLength
+    if pCounter > (pAnimLength - pCrossFadeLength) then
+      tDelta = (pCounter - (pAnimLength - pCrossFadeLength))
       if me.count(#pSprList) >= pActiveLayer then
-        me.getPropRef(#pSprList, pActiveLayer).blend = ((pCrossFadeLength - tDelta * 100) / pCrossFadeLength)
+        me.getPropRef(#pSprList, pActiveLayer).blend = (((pCrossFadeLength - tDelta) * 100) / pCrossFadeLength)
       end if
       if me.count(#pSprList) >= pActiveLayerNew then
         me.getPropRef(#pSprList, pActiveLayerNew).blend = ((tDelta * 100) / pCrossFadeLength)
       end if
     end if
-    if pCounter = pAnimLength then
+    if (pCounter = pAnimLength) then
       pCounter = 1
       tList = pBlendSpriteList.duplicate()
       pActiveLayer = pActiveLayerNew
@@ -39,7 +39,7 @@ on update me
       pActiveLayerNew = tList.getAt(random(tList.count))
       me.initBlends()
     else
-      pCounter = pCounter + 1
+      pCounter = (pCounter + 1)
     end if
   end if
   return(callAncestor(#update, [me]))
@@ -47,7 +47,7 @@ end
 
 on setState me, tNewState 
   tNewState = value(tNewState)
-  if tNewState = 2 then
+  if (tNewState = 2) then
     pCounter = 1
     if voidp(pBlendSpriteList) then
       pBlendSpriteList = []
@@ -56,7 +56,7 @@ on setState me, tNewState
         if me.getPropRef(#pLayerDataList, i).count > 1 then
           pBlendSpriteList.add(i)
         end if
-        i = 1 + i
+        i = (1 + i)
       end repeat
     end if
     tList = pBlendSpriteList.duplicate()
@@ -78,17 +78,17 @@ end
 
 on initBlends me 
   if voidp(pBlendSpriteList) then
-    return(0)
+    return FALSE
   end if
   repeat while pBlendSpriteList <= undefined
     i = getAt(undefined, undefined)
     if me.count(#pSprList) >= i then
-      if i = pActiveLayer then
+      if (i = pActiveLayer) then
         me.getPropRef(#pSprList, i).blend = 100
       else
         me.getPropRef(#pSprList, i).blend = 0
       end if
     end if
   end repeat
-  return(1)
+  return TRUE
 end

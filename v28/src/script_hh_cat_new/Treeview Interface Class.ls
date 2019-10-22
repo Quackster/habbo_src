@@ -43,16 +43,16 @@ on appendRenderToImage me, tImageDest, tImageSrc, tRectDest, tRectSrc
 end
 
 on renderNode me, tNode, tOffsetY 
-  if not tNode = pData.getRootNode() and not tNode.getData(#navigateable) then
+  if not (tNode = pData.getRootNode()) and not tNode.getData(#navigateable) then
     return(tOffsetY)
   end if
   if tNode.getData(#navigateable) then
     tNodeImage = tNode.getImage()
-    me.pimage = me.appendRenderToImage(me.pimage, tNodeImage, tNodeImage.rect + rect(0, tOffsetY, 0, tOffsetY), tNodeImage.rect)
-    pClickAreas.add([#min:tOffsetY, #max:tOffsetY + tNodeImage.height, #data:tNode])
-    tOffsetY = tOffsetY + tNodeImage.height
+    me.pimage = me.appendRenderToImage(me.pimage, tNodeImage, (tNodeImage.rect + rect(0, tOffsetY, 0, tOffsetY)), tNodeImage.rect)
+    pClickAreas.add([#min:tOffsetY, #max:(tOffsetY + tNodeImage.height), #data:tNode])
+    tOffsetY = (tOffsetY + tNodeImage.height)
   end if
-  if tNode.getState() = #open and tNode.getChildren().count > 0 then
+  if (tNode.getState() = #open) and tNode.getChildren().count > 0 then
     repeat while tNode.getChildren() <= tOffsetY
       tChild = getAt(tOffsetY, tNode)
       tOffsetY = me.renderNode(tChild, tOffsetY)
@@ -69,7 +69,7 @@ on render me
 end
 
 on selectNode me, tNode, tSelectedNode 
-  if tNode = tSelectedNode then
+  if (tNode = tSelectedNode) then
     tNode.select(1)
   else
     tNode.select(0)
@@ -88,10 +88,10 @@ on simulateClickByName me, tNodeName
   tClickLoc = point(2, 0)
   i = 1
   repeat while i <= pClickAreas.count
-    if pClickAreas.getAt(i).getAt(#data).getData(#nodename) = tNodeName then
-      tClickLoc.locV = pClickAreas.getAt(i).getAt(#min) + 1
+    if (pClickAreas.getAt(i).getAt(#data).getData(#nodename) = tNodeName) then
+      tClickLoc.locV = (pClickAreas.getAt(i).getAt(#min) + 1)
     else
-      i = 1 + i
+      i = (1 + i)
     end if
   end repeat
   me.handleClick(tClickLoc)
@@ -104,14 +104,14 @@ on handleClick me, tloc
     if pClickAreas.getAt(i).getAt(#min) < tloc.locV and pClickAreas.getAt(i).getAt(#max) > tloc.locV then
       tNode = pClickAreas.getAt(i).getAt(#data)
     else
-      i = 1 + i
+      i = (1 + i)
     end if
   end repeat
   if voidp(tNode) then
-    return(0)
+    return FALSE
   end if
   if tNode.getChildren().count > 0 then
-    if tNode.getState() = #open then
+    if (tNode.getState() = #open) then
       tNode.setState(#closed)
     else
       tNode.setState(#open)
@@ -131,5 +131,5 @@ on handleClick me, tloc
   if tNode.getData(#pageid) <> -1 then
     pData.handlePageRequest(tNode.getData(#pageid))
   end if
-  return(1)
+  return TRUE
 end

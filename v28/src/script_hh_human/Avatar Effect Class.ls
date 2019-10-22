@@ -9,7 +9,7 @@ on construct me
   pFrame = 0
   pDirOffset = 0
   pSpriteList = [:]
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
@@ -23,12 +23,12 @@ on deconstruct me
     releaseSprite(tsprite.spriteNum)
   end repeat
   pSpriteList = [:]
-  return(1)
+  return TRUE
 end
 
 on define me, tID, tText, tAvatarObj 
-  if tAvatarObj = 0 then
-    return(0)
+  if (tAvatarObj = 0) then
+    return FALSE
   end if
   pXFactor = tAvatarObj.pXFactor
   pPeopleSize = tAvatarObj.pPeopleSize
@@ -43,7 +43,7 @@ on define me, tID, tText, tAvatarObj
       tKey = symbol(tLine.getProp(#item, 1))
       tValue = tLine.getProp(#item, 2)
       tValue = value(tValue)
-      if tKey = #sprite then
+      if (tKey = #sprite) then
         tSpriteNum = reserveSprite(tAvatarObj.getID())
         if tSpriteNum > 0 then
           tValue.setaProp(#sprite, sprite(tSpriteNum))
@@ -51,10 +51,10 @@ on define me, tID, tText, tAvatarObj
           tValue.setaProp(#direction, -1)
         end if
       else
-        if tKey = symbol(pPeopleSize & "_size") then
+        if (tKey = symbol(pPeopleSize & "_size")) then
           pSizeParams = tValue
         else
-          if tKey = #exclude_bodypart then
+          if (tKey = #exclude_bodypart) then
             pExcludedBodyPartIndex.add(tValue)
           else
             pProps.addProp(tKey, tValue)
@@ -62,36 +62,36 @@ on define me, tID, tText, tAvatarObj
         end if
       end if
     end if
-    i = 1 + i
+    i = (1 + i)
   end repeat
   the itemDelimiter = tTempDelim
   i = 1
   repeat while i <= pProps.count
     ttype = pProps.getPropAt(i)
     tParam = pProps.getAt(i)
-    if tKey = #add_bodypart then
+    if (tKey = #add_bodypart) then
       me.addBodyPart(tParam, tAvatarObj)
     else
-      if tKey = #sprite then
+      if (tKey = #sprite) then
         me.addSprite(tParam, tAvatarObj)
       else
-        if tKey = #human_sprite_props then
+        if (tKey = #human_sprite_props) then
           me.setHumanSpriteProps(tParam, tAvatarObj)
         else
-          if tKey = #shadow then
+          if (tKey = #shadow) then
             pShadowName = tParam
           else
-            if tKey = #OffD then
+            if (tKey = #OffD) then
               pDirOffset = integer(tParam)
             end if
           end if
         end if
       end if
     end if
-    i = 1 + i
+    i = (1 + i)
   end repeat
   me.updateSprites(tAvatarObj, 1)
-  return(1)
+  return TRUE
 end
 
 on getEffectDirOffset me 
@@ -116,20 +116,20 @@ end
 
 on getEffectBodyPartModel me, tPart 
   tPartInfo = pAddedBodyParts.getaProp(tPart)
-  if tPartInfo = 0 then
-    return(0)
+  if (tPartInfo = 0) then
+    return FALSE
   end if
-  if tPartInfo.getaProp("model") = 0 then
+  if (tPartInfo.getaProp("model") = 0) then
     tPartInfo.setaProp("model", "1")
   end if
-  if tPartInfo.getaProp("color") = 0 then
+  if (tPartInfo.getaProp("color") = 0) then
     tPartInfo.setaProp("color", rgb(0, 0, 0))
     tPartInfo.setaProp("color", rgb(255, 255, 255))
   end if
-  if tPartInfo.getaProp("setid") = 0 then
+  if (tPartInfo.getaProp("setid") = 0) then
     tPartInfo.setaProp("setid", "1")
   end if
-  if tPartInfo.getaProp("colorid") = 0 then
+  if (tPartInfo.getaProp("colorid") = 0) then
     tPartInfo.setaProp("colorid", "1")
   end if
   return(tPartInfo)
@@ -137,7 +137,7 @@ end
 
 on getEffectBodyPartAction me, tPart 
   tAction = pAddedBodyPartActionList.getaProp(tPart)
-  if tAction = void() then
+  if (tAction = void()) then
     return("std")
   else
     return(tAction)
@@ -161,25 +161,25 @@ on alignEffectBodyparts me, tPartDefinition, tDirection
   repeat while i <= pAddedBodyParts.count
     tID = pAddedBodyParts.getPropAt(i)
     tProps = pAddedBodyParts.getAt(i)
-    if tPartDefinition.findPos(tID) = 0 then
+    if (tPartDefinition.findPos(tID) = 0) then
       tAlignmentDef = tProps.getaProp(#align)
       tAlignment = #top
       if symbolp(tAlignmentDef) then
         tAlignment = tAlignmentDef
       else
         if listp(tAlignmentDef) then
-          if tAlignmentDef.count >= tDirection + 1 then
-            tAlignment = tAlignmentDef.getAt(tDirection + 1)
+          if tAlignmentDef.count >= (tDirection + 1) then
+            tAlignment = tAlignmentDef.getAt((tDirection + 1))
           end if
         end if
       end if
-      if tAlignment = #bottom then
+      if (tAlignment = #bottom) then
         tPartDefinition.addAt(1, tID)
       else
         tPartDefinition.append(tID)
       end if
     end if
-    i = 1 + i
+    i = (1 + i)
   end repeat
   return(tPartDefinition)
 end
@@ -193,33 +193,33 @@ on getEffectSpriteProps me
 end
 
 on updateSprites me, tAvatarObj, tForcedUpdate 
-  if tAvatarObj = 0 then
-    return(0)
+  if (tAvatarObj = 0) then
+    return FALSE
   end if
-  tAvatarObj.setMember(pSprite.loc, tAvatarObj, pSprite.locZ, tAvatarObj.pXFactor, tForcedUpdate)
-  return(1)
+  me.setMember(tAvatarObj.getProperty(#direction), tAvatarObj.pSprite.loc, tAvatarObj.pSprite.locZ, tAvatarObj.pXFactor, tForcedUpdate)
+  return TRUE
 end
 
 on setAnimation me, tPart, tAnim 
-  if tPart = "all" then
+  if (tPart = "all") then
     repeat while pSpriteList <= tAnim
       tProps = getAt(tAnim, tPart)
       i = 1
       repeat while i <= tAnim.count
         tProps.setaProp(tAnim.getPropAt(i), tAnim.getAt(i))
-        i = 1 + i
+        i = (1 + i)
       end repeat
       tProps.setaProp(#counter, 0)
     end repeat
   else
-    if pSpriteList.findPos(tPart) = 0 then
-      return(0)
+    if (pSpriteList.findPos(tPart) = 0) then
+      return FALSE
     end if
     tProps = pSpriteList.getaProp(tPart)
     i = 1
     repeat while i <= tAnim.count
       tProps.setaProp(tAnim.getPropAt(i), tAnim.getAt(i))
-      i = 1 + i
+      i = (1 + i)
     end repeat
     tProps.setaProp(#counter, 0)
   end if
@@ -227,7 +227,7 @@ end
 
 on addBodyPart me, tParam 
   tID = tParam.getaProp(#id)
-  if pAddedBodyPartIndex.findPos(tID) = 0 then
+  if (pAddedBodyPartIndex.findPos(tID) = 0) then
     pAddedBodyPartIndex.add(tID)
     if tParam.findPos(#act) > 0 then
       pAddedBodyPartActionList.setaProp(tID, tParam.getaProp(#act))
@@ -240,14 +240,14 @@ on addBodyPart me, tParam
     end if
     pAddedBodyParts.setaProp(tID, tParam)
   end if
-  return(1)
+  return TRUE
 end
 
 on addSprite me, tParam, tAvatarObj 
   tID = symbol(tParam.getaProp(#id))
   tsprite = tParam.getaProp(#sprite)
-  if pSpriteList.findPos(tID) = 0 then
-    if tParam.findPos(#offZ) = 0 then
+  if (pSpriteList.findPos(tID) = 0) then
+    if (tParam.findPos(#offZ) = 0) then
       tParam.setaProp(#offZ, 1)
     end if
     tParam.setaProp(#sprite, tsprite)
@@ -257,7 +257,7 @@ on addSprite me, tParam, tAvatarObj
     tParam.setaProp(#frame, 0)
     pSpriteList.setaProp(tID, tParam)
   end if
-  return(1)
+  return TRUE
 end
 
 on setMember me, tdir, tloc, tlocz, tXFactor, tForcedUpdate 
@@ -276,12 +276,12 @@ on setMember me, tdir, tloc, tlocz, tXFactor, tForcedUpdate
         tFrameTotal = tFrames.count
         if tFrameTotal > 1 then
           tFrameSkipTotal = tProps.getaProp(#skip)
-          if tFrameSkipTotal = void() then
+          if (tFrameSkipTotal = void()) then
             tFrameSkipTotal = 1
           end if
           tSkipCounter = tProps.getaProp(#counter)
-          if tSkipCounter < tFrameSkipTotal - 1 then
-            tProps.setaProp(#counter, tSkipCounter + 1)
+          if tSkipCounter < (tFrameSkipTotal - 1) then
+            tProps.setaProp(#counter, (tSkipCounter + 1))
           else
             tFrame = tProps.getaProp(#frame)
             tFrameMem = tFrames.getAt(tFrame)
@@ -329,7 +329,7 @@ on setMember me, tdir, tloc, tlocz, tXFactor, tForcedUpdate
     if tsprite <> void() then
       if tChanges or tForcedUpdate then
         tProps.setaProp(#direction, tdir)
-        tdir = (tdir + tDFix mod 8)
+        tdir = ((tdir + tDFix) mod 8)
         tMemName = pPeopleSize & "_" & tProps.getaProp(#member)
         tList = [tMemName & "_" & tdir & "_" & tFrameMem, tMemName & "_" & tdir & "_0", tMemName & "_0_" & tFrameMem, tMemName & "_0_0"]
         repeat while pSpriteList <= tloc
@@ -350,33 +350,33 @@ on setMember me, tdir, tloc, tlocz, tXFactor, tForcedUpdate
               tsprite.blend = tBlend
             end if
             if tFrame < tFrameTotal then
-              tProps.setaProp(#frame, tFrame + 1)
+              tProps.setaProp(#frame, (tFrame + 1))
             else
               tProps.setaProp(#frame, 1)
             end if
             if listp(tXFix) then
-              tXFix = tXFix.getAt(tdir + 1)
+              tXFix = tXFix.getAt((tdir + 1))
             end if
             if listp(tYFix) then
-              tYFix = tYFix.getAt(tdir + 1)
+              tYFix = tYFix.getAt((tdir + 1))
             end if
-            if tXFactor = 32 then
+            if (tXFactor = 32) then
               tSizeMultiplier = 0.5
             else
               tSizeMultiplier = 1
             end if
             tXFix = (tXFix * tSizeMultiplier)
             tYFix = (tYFix * tSizeMultiplier)
-            if tsprite.rotation = 0 then
-              tsprite.loc = tloc + point(tXFix, tYFix)
+            if (tsprite.rotation = 0) then
+              tsprite.loc = (tloc + point(tXFix, tYFix))
             else
-              tsprite.loc = tloc + point(tXFactor, 0) + point(tXFix, tYFix)
+              tsprite.loc = ((tloc + point(tXFactor, 0)) + point(tXFix, tYFix))
             end if
             tOffZ = tProps.getaProp(#offZ)
             if listp(tOffZ) then
-              tOffZ = tOffZ.getAt(tdir + 1)
+              tOffZ = tOffZ.getAt((tdir + 1))
             end if
-            tsprite.locZ = tlocz + tOffZ
+            tsprite.locZ = (tlocz + tOffZ)
           end if
         end repeat
       end if
@@ -388,35 +388,35 @@ on setLocation me, tloc, tlocz, tXFactor
   repeat while pSpriteList <= tlocz
     tProps = getAt(tlocz, tloc)
     tsprite = tProps.getaProp(#sprite)
-    if tsprite.rotation = 0 then
+    if (tsprite.rotation = 0) then
       tsprite.loc = tloc
     else
-      tsprite.loc = tloc + point(tXFactor, 0)
+      tsprite.loc = (tloc + point(tXFactor, 0))
     end if
-    tsprite.locZ = tlocz + tProps.getaProp(#offZ)
+    tsprite.locZ = (tlocz + tProps.getaProp(#offZ))
   end repeat
 end
 
 on setHumanSpriteProps me, tParam, tAvatarObj 
   if ilk(tAvatarObj.pSprite) <> #sprite then
-    return(0)
+    return FALSE
   end if
   i = 1
   repeat while i <= tParam.count
     tKey = tParam.getPropAt(i)
     tValue = tParam.getAt(i)
-    if tKey = #ink then
-      pSprite.ink = tValue
+    if (tKey = #ink) then
+      tAvatarObj.pSprite.ink = tValue
     else
-      if tKey = #bgColor then
-        pSprite.bgColor = rgb(tValue)
+      if (tKey = #bgColor) then
+        tAvatarObj.pSprite.bgColor = rgb(tValue)
       else
-        if tKey = #foreColor then
-          pSprite.foreColor = rgb(tValue)
+        if (tKey = #foreColor) then
+          tAvatarObj.pSprite.foreColor = rgb(tValue)
         end if
       end if
     end if
-    i = 1 + i
+    i = (1 + i)
   end repeat
-  return(1)
+  return TRUE
 end

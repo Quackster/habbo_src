@@ -4,7 +4,7 @@ on getLevelHighscore me
     return(tScoreData)
   end if
   me.requestHallOfFame()
-  return(0)
+  return FALSE
 end
 
 on getLevelTeamHighscore me 
@@ -13,17 +13,17 @@ on getLevelTeamHighscore me
     return(tScoreData)
   end if
   me.requestHallOfFame()
-  return(0)
+  return FALSE
 end
 
 on requestHallOfFame me 
   if me.getProperty(#score_data_pending) then
-    return(0)
+    return FALSE
   end if
   me.setProperty(#score_data_pending, 1)
   tService = me.getOwnerIGComponent()
-  if tService = 0 then
-    return(0)
+  if (tService = 0) then
+    return FALSE
   end if
   return(tService.getHandler().send_GET_LEVEL_HALL_OF_FAME(me.getProperty(#id)))
 end

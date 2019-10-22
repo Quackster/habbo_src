@@ -5,17 +5,17 @@ on construct me
   pEventInfoWindowID = "EventInfoWindow"
   pUseRatings = 0
   if variableExists("room.rating.enable") then
-    if getVariable("room.rating.enable") = 1 then
+    if (getVariable("room.rating.enable") = 1) then
       pUseRatings = 1
     end if
   end if
   registerMessage(#roomRatingChanged, me.getID(), #updateRatingData)
   registerMessage(#roomEventInfoUpdated, me.getID(), #updateRoomEventInfo)
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
-  return(1)
+  return TRUE
 end
 
 on showRoomInfo me 
@@ -23,10 +23,10 @@ on showRoomInfo me
   if listp(tRoomData) then
     tRoomType = tRoomData.getaProp(#type)
   end if
-  if tRoomType = #private then
+  if (tRoomType = #private) then
     tWndObj = me.createInfoWindow()
-    if tWndObj = 0 then
-      return(0)
+    if (tWndObj = 0) then
+      return FALSE
     end if
     tRoomData = getThread(#room).getComponent().pSaveData
     tWndObj.getElement("room_info_room_name").setText(tRoomData.getAt(#name))
@@ -50,8 +50,8 @@ end
 on createInfoWindow me 
   if not windowExists(pWindowID) then
     tSuccess = createWindow(pWindowID, "room_info.window", 10, 420)
-    if tSuccess = 0 then
-      return(0)
+    if (tSuccess = 0) then
+      return FALSE
     else
       tWndObj = getWindow(pWindowID)
       tWndObj.lock()
@@ -69,18 +69,18 @@ end
 
 on updateRatingData me 
   tWndObj = getWindow(pWindowID)
-  if tWndObj = 0 then
-    return(0)
+  if (tWndObj = 0) then
+    return FALSE
   end if
   if not tWndObj.elementExists("room_info_rate_plus") then
-    return(0)
+    return FALSE
   end if
   if not pUseRatings then
     me.hideRatingElements()
-    return(1)
+    return TRUE
   end if
   tRoomRatings = getThread(#room).getComponent().getRoomRating()
-  if tRoomRatings.getAt(#rate) = -1 then
+  if (tRoomRatings.getAt(#rate) = -1) then
     tWndObj.getElement("room_info_rate_plus").setProperty(#visible, 1)
     tWndObj.getElement("room_info_rate_minus").setProperty(#visible, 1)
     tWndObj.getElement("room_info_rate_room").setProperty(#visible, 1)
@@ -106,11 +106,11 @@ end
 on updateRoomEventInfo me 
   tRoomEventData = getThread(#room).getComponent().getRoomEvent()
   if voidp(tRoomEventData) then
-    return(0)
+    return FALSE
   end if
   tWnd = getWindow(pWindowID)
-  if tWnd = 0 then
-    return(0)
+  if (tWnd = 0) then
+    return FALSE
   end if
   tLinkElem = tWnd.getElement("roominfo_event_link")
   tHostID = tRoomEventData.getaProp(#hostID)
@@ -164,15 +164,15 @@ end
 
 on eventProcInfo me, tEvent, tSprID, tParam 
   if tEvent <> #mouseUp then
-    return(0)
+    return FALSE
   end if
-  if tSprID = "room_info_rate_plus" then
+  if (tSprID = "room_info_rate_plus") then
     me.sendFlatRate(1)
   else
-    if tSprID = "room_info_rate_minus" then
+    if (tSprID = "room_info_rate_minus") then
       me.sendFlatRate(-1)
     else
-      if tSprID = "roominfo_event_link" then
+      if (tSprID = "roominfo_event_link") then
         me.showEventInfo()
       end if
     end if
@@ -180,13 +180,13 @@ on eventProcInfo me, tEvent, tSprID, tParam
 end
 
 on eventProcEventInfo me, tEvent, tSprID, tParam 
-  if tSprID = "room_info_event_details_close" then
+  if (tSprID = "room_info_event_details_close") then
     me.removeEventInfo()
   else
-    if tSprID = "room_info_event_details_quit" then
+    if (tSprID = "room_info_event_details_quit") then
       me.quitEvent()
     else
-      if tSprID = "room_info_event_details_edit" then
+      if (tSprID = "room_info_event_details_edit") then
         me.editEvent()
       end if
     end if

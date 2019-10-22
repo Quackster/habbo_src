@@ -37,14 +37,14 @@ on construct me
     getWriter(pWriterID).define([#alignment:#center, #rect:rect(0, 0, 108, 10)])
     me.fuseShow_transition("fade")
     receivePrepare(me.getID())
-    return(1)
+    return TRUE
   end if
 end
 
 on deconstruct me 
   removeWriter(pWriterID)
   removePrepare(me.getID())
-  return(1)
+  return TRUE
 end
 
 on activatePaaluPlayer me, tName, tObj 
@@ -61,10 +61,10 @@ on fuseShow_setcamera me, tNumber
   if pTransition <> "fade" then
     pTransition = 0
   end if
-  if tNumber = 1 then
+  if (tNumber = 1) then
     pZoom = 2
   end if
-  if tNumber = 2 then
+  if (tNumber = 2) then
     pZoom = 4
   end if
 end
@@ -78,19 +78,19 @@ on fuseShow_targetcamera me, tTargetObj
   end if
   pTargetSpr = tUserObj.getSprites().getAt(1)
   pTargetObj = tTargetObj
-  pSpeed = 50 + random(10)
-  pFlexible = 10 + random(20)
+  pSpeed = (50 + random(10))
+  pFlexible = (10 + random(20))
 end
 
 on fuseShow_transition me, tTran 
-  if StateOfAd = 0 then
-    if tTran = "cameraPan" then
+  if (StateOfAd = 0) then
+    if (tTran = "cameraPan") then
       pTransition = "cameraPan"
       pTargetObj = void()
-      pSpeed = 5 + random(25)
-      pFlexible = 30 + random(20)
+      pSpeed = (5 + random(25))
+      pFlexible = (30 + random(20))
     else
-      if tTran = "fade" then
+      if (tTran = "fade") then
         pTransition = "fade"
         pTargetObj = void()
         pTransitBuffer = image(pheight, pwidth, 16)
@@ -102,7 +102,7 @@ on fuseShow_transition me, tTran
 end
 
 on fuseShow_showtext me, tText 
-  if StateOfAd = 0 then
+  if (StateOfAd = 0) then
     tDelim = the itemDelimiter
     the itemDelimiter = "/"
     if tText.count(#item) > 1 then
@@ -110,16 +110,16 @@ on fuseShow_showtext me, tText
       f = 1
       repeat while f <= tText.count(#item)
         tTemp = tTemp & tText.getProp(#item, f) & "\r"
-        f = 1 + f
+        f = (1 + f)
       end repeat
-      tText = tTemp.getProp(#line, 1, tTemp.count(#line) - 1)
+      tText = tTemp.getProp(#line, 1, (tTemp.count(#line) - 1))
     end if
     the itemDelimiter = tDelim
     tWriObj = getWriter(pWriterID)
     if tWriObj <> 0 then
       pTextShowState = 1
       pTextImgBuffer = tWriObj.render(tText)
-      pTextShowTime = 5000 + the milliSeconds
+      pTextShowTime = (5000 + the milliSeconds)
       pTextBlend = 100
     end if
   end if
@@ -140,7 +140,7 @@ on fuseShow_Activate_ad me
     pTargetObj = void()
     pTransitState = 0
     pFadeSpeed = 10
-    adShowTime = 12000 + the milliSeconds
+    adShowTime = (12000 + the milliSeconds)
     pTransitBuffer = image(pheight, pwidth, 16)
     pTransitBuffer.fill(rect(0, 0, pheight, pwidth), rgb(0, 0, 0))
     if not voidp(pSprite) then
@@ -152,7 +152,7 @@ end
 on mouseDown me 
   if voidp(adLink) then
     dontPassEvent()
-    return(0)
+    return FALSE
   end if
   if sprite(me.spriteNum).cursor <> 0 then
     if adLink contains "http:" then
@@ -164,14 +164,14 @@ end
 
 on prepare me 
   if pPaaluPlayers.count > 0 then
-    if pPaaluPlayers.count = 2 then
+    if (pPaaluPlayers.count = 2) then
       if abs(pPaaluPlayers.getAt(1).getBalance()) < abs(pPaaluPlayers.getAt(2).getBalance()) then
-        tloc = pSprite.loc
+        tloc = pPaaluPlayers.getAt(1).pSprite.loc
       else
-        tloc = pSprite.loc
+        tloc = pPaaluPlayers.getAt(2).pSprite.loc
       end if
     else
-      tloc = pSprite.loc
+      tloc = pPaaluPlayers.getAt(1).pSprite.loc
     end if
     bufferImage = void()
     pZoom = 4
@@ -180,18 +180,18 @@ on prepare me
     AdWaitScore = 1
     StateOfAd = 0
   else
-    if pTextShowState = 0 and StateOfAd = 0 then
-      if pTransition = 0 then
+    if (pTextShowState = 0) and (StateOfAd = 0) then
+      if (pTransition = 0) then
         if not voidp(pTargetObj) then
           me.cameraPan(pTargetSpr.loc)
         end if
       else
-        if pPaaluPlayers.getAt(1) = "cameraPan" then
+        if (pTransition = "cameraPan") then
           if not voidp(pTargetObj) then
             me.cameraPan(pTargetSpr.loc)
           end if
         else
-          if pPaaluPlayers.getAt(1) = "fade" then
+          if (pTransition = "fade") then
             if not voidp(pTargetObj) then
               if pSprite.member <> member(getmemnum("fuse_screen")) then
                 pSprite.member = member(getmemnum("fuse_screen"))
@@ -205,7 +205,7 @@ on prepare me
         end if
       end if
     else
-      if StateOfAd <> 0 and AdWaitScore = 0 then
+      if StateOfAd <> 0 and (AdWaitScore = 0) then
         me.ad_system()
       end if
     end if
@@ -218,31 +218,31 @@ end
 
 on showText me 
   if pTextShowState < pTextImgBuffer.height then
-    pScrImg.copyPixels(pTextBgBoxImg, rect(0, pwidth - pTextShowState, pheight, pwidth), pTextBgBoxImg.rect, [#blend:40])
-    pTextShowState = pTextShowState + 2
+    pScrImg.copyPixels(pTextBgBoxImg, rect(0, (pwidth - pTextShowState), pheight, pwidth), pTextBgBoxImg.rect, [#blend:40])
+    pTextShowState = (pTextShowState + 2)
   else
-    pTextShowState = pTextShowState + 20
-    textLocH = pTextImgBuffer.width - pTextShowState - pTextImgBuffer.height
+    pTextShowState = (pTextShowState + 20)
+    textLocH = (pTextImgBuffer.width - (pTextShowState - pTextImgBuffer.height))
     if textLocH > 0 then
-      pScrImg.copyPixels(pTextBgBoxImg, rect(0, pwidth - pTextImgBuffer.height - 2, pheight, pwidth), pTextBgBoxImg.rect, [#blend:40])
-      pScrImg.copyPixels(pTextImgBuffer, rect(textLocH, pwidth - pTextImgBuffer.height, pheight + textLocH, pwidth), pTextImgBuffer.rect, [#blend:100 - textLocH - 8 - 20])
+      pScrImg.copyPixels(pTextBgBoxImg, rect(0, ((pwidth - pTextImgBuffer.height) - 2), pheight, pwidth), pTextBgBoxImg.rect, [#blend:40])
+      pScrImg.copyPixels(pTextImgBuffer, rect(textLocH, (pwidth - pTextImgBuffer.height), (pheight + textLocH), pwidth), pTextImgBuffer.rect, [#blend:((100 - (textLocH - 8)) - 20)])
     else
       if the milliSeconds < pTextShowTime then
         if pTextBlend > 80 then
-          pTextBlend = pTextBlend - 10
+          pTextBlend = (pTextBlend - 10)
         end if
-        pScrImg.copyPixels(pTextBgBoxImg, rect(0, pwidth - pTextImgBuffer.height - 2, pheight, pwidth), pTextBgBoxImg.rect, [#blend:40])
-        pScrImg.copyPixels(pTextImgBuffer, rect(0, pwidth - pTextImgBuffer.height, pheight, pwidth), pTextImgBuffer.rect, [#blend:pTextBlend])
+        pScrImg.copyPixels(pTextBgBoxImg, rect(0, ((pwidth - pTextImgBuffer.height) - 2), pheight, pwidth), pTextBgBoxImg.rect, [#blend:40])
+        pScrImg.copyPixels(pTextImgBuffer, rect(0, (pwidth - pTextImgBuffer.height), pheight, pwidth), pTextImgBuffer.rect, [#blend:pTextBlend])
       else
         if pTextBlend > 0 then
-          pTextBlend = pTextBlend - 8
+          pTextBlend = (pTextBlend - 8)
         end if
         if pTextBlend <= 0 then
           pTextBlend = 0
           pTextShowState = 0
         end if
-        pScrImg.copyPixels(pTextBgBoxImg, rect(0, pwidth - pTextImgBuffer.height - 2, pheight, pwidth), pTextBgBoxImg.rect, [#blend:integer((pTextBlend / 2))])
-        pScrImg.copyPixels(pTextImgBuffer, rect(0, pwidth - pTextImgBuffer.height, pheight, pwidth), pTextImgBuffer.rect, [#blend:pTextBlend])
+        pScrImg.copyPixels(pTextBgBoxImg, rect(0, ((pwidth - pTextImgBuffer.height) - 2), pheight, pwidth), pTextBgBoxImg.rect, [#blend:integer((pTextBlend / 2))])
+        pScrImg.copyPixels(pTextImgBuffer, rect(0, (pwidth - pTextImgBuffer.height), pheight, pwidth), pTextImgBuffer.rect, [#blend:pTextBlend])
       end if
     end if
   end if
@@ -251,18 +251,18 @@ end
 on cameraPan me, tTransitionTargetPoint 
   tX = pLastCropPoint.locH
   tY = pLastCropPoint.locV
-  tAX = (tTransitionTargetPoint.locH - tX * (pSpeed / 100))
-  tAY = (tTransitionTargetPoint.locV - tY * (pSpeed / 100))
-  pVX = (pVX + tAX * (pFlexible / 100))
-  pVY = (pVY + tAY * (pFlexible / 100))
-  tX = tX + pVX
-  tY = tY + pVY
+  tAX = ((tTransitionTargetPoint.locH - tX) * (pSpeed / 100))
+  tAY = ((tTransitionTargetPoint.locV - tY) * (pSpeed / 100))
+  pVX = ((pVX + tAX) * (pFlexible / 100))
+  pVY = ((pVY + tAY) * (pFlexible / 100))
+  tX = (tX + pVX)
+  tY = (tY + pVY)
   me.cameraCrop(point(tX, tY))
 end
 
 on cameraFade me, tTransitionTargetPoint 
   me.cameraCrop(tTransitionTargetPoint, 1)
-  pTransitState = pTransitState + pFadeSpeed
+  pTransitState = (pTransitState + pFadeSpeed)
   pScrImg.copyPixels(pTransitBuffer, pTransitBuffer.rect, member(getmemnum("fuse_screen")).rect, [#blend:pTransitState])
   if pTransitState > 99 then
     pTransition = 0
@@ -271,15 +271,15 @@ end
 
 on ad_system me 
   if pTransition <> 0 then
-    if pTextShowState = 0 then
-      pTransitState = pTransitState + pFadeSpeed
+    if (pTextShowState = 0) then
+      pTransitState = (pTransitState + pFadeSpeed)
       pScrImg.copyPixels(pTransitBuffer, pTransitBuffer.rect, member(getmemnum("fuse_screen")).rect, [#blend:pTransitState])
       if pTransitState > 99 then
         pTransition = 0
       end if
     end if
   else
-    if member.name <> adMember then
+    if pSprite.member.name <> adMember then
       pSprite.member = member(getmemnum(adMember))
     end if
     if the milliSeconds > adShowTime then
@@ -300,27 +300,27 @@ on cameraCrop me, tpoint, tBufferImage
   if voidp(pTargetSpr) then
     return(error(me, "Target sprite not defined!", #cameraCrop))
   end if
-  tpoint = tpoint + point(0, -18)
-  if pZoom = 8 then
-    tpoint = tpoint + point(0, -6)
+  tpoint = (tpoint + point(0, -18))
+  if (pZoom = 8) then
+    tpoint = (tpoint + point(0, -6))
   end if
-  if pTargetSpr.flipH = 0 then
-    tpoint = tpoint + point(pXFactor, 0)
+  if (pTargetSpr.flipH = 0) then
+    tpoint = (tpoint + point(pXFactor, 0))
   end if
-  if tpoint.locH - (pheight / pZoom) < 0 then
+  if (tpoint.locH - (pheight / pZoom)) < 0 then
     tpoint.locH = (pheight / pZoom)
   end if
-  if tpoint.locH + (pheight / pZoom) > the stageRight - the stageLeft then
-    tpoint.locH = the stageRight - the stageLeft - (pheight / pZoom)
+  if (tpoint.locH + (pheight / pZoom)) > (the stageRight - the stageLeft) then
+    tpoint.locH = ((the stageRight - the stageLeft) - (pheight / pZoom))
   end if
-  if tpoint.locV - (pwidth / pZoom) < 0 then
+  if (tpoint.locV - (pwidth / pZoom)) < 0 then
     tpoint.locV = (pwidth / pZoom)
   end if
-  if tpoint.locV + (pwidth / pZoom) > 480 then
-    tpoint.locV = 480 - (pwidth / pZoom)
+  if (tpoint.locV + (pwidth / pZoom)) > 480 then
+    tpoint.locV = (480 - (pwidth / pZoom))
   end if
-  tCropRect = rect(tpoint.locH - (pheight / pZoom), tpoint.locV - (pwidth / pZoom), tpoint.locH + (pheight / pZoom), tpoint.locV + (pwidth / pZoom))
-  tCropScrImg = image.crop(tCropRect)
+  tCropRect = rect((tpoint.locH - (pheight / pZoom)), (tpoint.locV - (pwidth / pZoom)), (tpoint.locH + (pheight / pZoom)), (tpoint.locV + (pwidth / pZoom)))
+  tCropScrImg = the stage.image.crop(tCropRect)
   if voidp(tBufferImage) then
     pScrImg.copyPixels(tCropScrImg, rect(0, 0, pheight, pwidth), tCropScrImg.rect)
   else

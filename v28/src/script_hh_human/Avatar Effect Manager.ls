@@ -2,17 +2,17 @@ property pCurrentEffects
 
 on construct me 
   pCurrentEffects = [:]
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
   me.clearEffects()
-  return(1)
+  return TRUE
 end
 
 on getCurrentEffectState me 
-  if pCurrentEffects.count = 0 then
-    return(0)
+  if (pCurrentEffects.count = 0) then
+    return FALSE
   end if
   tID = pCurrentEffects.getPropAt(1)
   tR = [:]
@@ -21,8 +21,8 @@ on getCurrentEffectState me
 end
 
 on constructEffect me, tAvatarObj, tID 
-  if tID = void() then
-    return(0)
+  if (tID = void()) then
+    return FALSE
   end if
   if pCurrentEffects.getaProp(tID) <> 0 then
     return(pCurrentEffects.getaProp(tID))
@@ -39,8 +39,8 @@ on constructEffect me, tAvatarObj, tID
     tClass = [tClass, "Avatar Effect" && tID && "Class"]
   end if
   tObject = createObject(#temp, tClass)
-  if tObject = 0 then
-    return(0)
+  if (tObject = 0) then
+    return FALSE
   end if
   tObject.define(tID, tProps, tAvatarObj)
   pCurrentEffects.setaProp(tID, tObject)
@@ -49,14 +49,14 @@ on constructEffect me, tAvatarObj, tID
     repeat while tPartIndex <= tID
       tPart = getAt(tID, tAvatarObj)
       tmodel = tObject.getEffectBodyPartModel(tPart)
-      pRawFigure.setaProp(tPart, tmodel)
+      tAvatarObj.pRawFigure.setaProp(tPart, tmodel)
       tPartListAction = tObject.getEffectBodyPartAction(tPart)
       tAvatarObj.definePartListAction([tPart], tPartListAction)
     end repeat
     tAvatarObj.changeFigureAndData()
   end if
   tAvatarObj.startAnimation(tMemName)
-  return(1)
+  return TRUE
 end
 
 on updateEffects me, tAvatarObj 
@@ -78,11 +78,11 @@ on clearEffects me, tAvatarObj
         if objectp(tAvatarObj) then
           i = 1
           repeat while i <= tAvatarObj.count(#pPartList)
-            if tAvatarObj.getPropRef(#pPartList, i).pPart = tPart then
-              pPartList.deleteAt(i)
+            if (tAvatarObj.getPropRef(#pPartList, i).pPart = tPart) then
+              tAvatarObj.pPartList.deleteAt(i)
               next repeat
             end if
-            i = i + 1
+            i = (i + 1)
           end repeat
         end if
       end repeat
@@ -95,8 +95,8 @@ on clearEffects me, tAvatarObj
     tAvatarObj.pPartIndex = [:]
     i = 1
     repeat while i <= tAvatarObj.count(#pPartList)
-      pPartIndex.addProp(tAvatarObj.getPropRef(#pPartList, i).pPart, i)
-      i = 1 + i
+      tAvatarObj.pPartIndex.addProp(tAvatarObj.getPropRef(#pPartList, i).pPart, i)
+      i = (1 + i)
     end repeat
     if tFigureChanged then
       tAvatarObj.changeFigureAndData()
@@ -106,12 +106,12 @@ on clearEffects me, tAvatarObj
     tAvatarObj.pFx = 0
     executeMessage(#updateInfostandAvatar)
   end if
-  return(1)
+  return TRUE
 end
 
 on effectExists me, tID 
-  if tID = void() then
-    return(0)
+  if (tID = void()) then
+    return FALSE
   end if
   return(pCurrentEffects.findPos(tID) > 0)
 end
@@ -124,7 +124,7 @@ on getEffectDirOffset me
       return(tOffD)
     end if
   end repeat
-  return(0)
+  return FALSE
 end
 
 on getEffectSizeParams me 
@@ -152,7 +152,7 @@ on getEffectShadowName me
       return(tShadow)
     end if
   end repeat
-  return(0)
+  return FALSE
 end
 
 on getEffectSpriteProps me 
@@ -165,7 +165,7 @@ on getEffectSpriteProps me
       tsprite = getAt(undefined, undefined)
       tList.append(tsprite)
     end repeat
-    i = 1 + i
+    i = (1 + i)
   end repeat
   return(tList)
 end
@@ -178,11 +178,11 @@ on getEffectAddedPartIndex me
     tEffectParts = tEffect.getAddedBodyPartIndex()
     repeat while tEffectParts <= undefined
       tPart = getAt(undefined, undefined)
-      if tList.findPos(tPart) = 0 then
+      if (tList.findPos(tPart) = 0) then
         tList.append(tPart)
       end if
     end repeat
-    i = 1 + i
+    i = (1 + i)
   end repeat
   return(tList)
 end
@@ -194,7 +194,7 @@ on getEffectExcludedPartIndex me
     tEffectParts = tEffect.getExcludedBodyPartIndex()
     repeat while pCurrentEffects <= undefined
       tPart = getAt(undefined, undefined)
-      if tList.findPos(tPart) = 0 then
+      if (tList.findPos(tPart) = 0) then
         tList.append(tPart)
       end if
     end repeat
@@ -209,7 +209,7 @@ on alignEffectBodyparts me, tPartDefinition, tDirection
     if tEffect.addsBodyparts() then
       tEffect.alignEffectBodyparts(tPartDefinition, tDirection)
     end if
-    i = 1 + i
+    i = (1 + i)
   end repeat
   return(tPartDefinition)
 end
@@ -219,20 +219,20 @@ on setAnimation me, tPart, tAnim
 end
 
 on getEffectTimeRemaining me, tID 
-  if tID = void() then
+  if (tID = void()) then
     return(-1)
   end if
   tActiveList = getObject(#session).GET("active_fx")
-  if tActiveList = 0 then
+  if (tActiveList = 0) then
     return(-1)
   end if
-  if tActiveList.findPos(tID) = 0 then
+  if (tActiveList.findPos(tID) = 0) then
     return(-1)
   end if
   tEndTime = tActiveList.getaProp(tID)
-  tTime = (tEndTime - the milliSeconds / 1000)
+  tTime = ((tEndTime - the milliSeconds) / 1000)
   if tTime < 0 then
-    return(0)
+    return FALSE
   end if
   return(tTime)
 end

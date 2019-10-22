@@ -16,7 +16,7 @@ on construct me
   registerMessage(#achievementsUpdated, me.getID(), #updateAchievements)
   registerMessage(#badgeReceived, me.getID(), #addNewBadge)
   registerMessage(#badgeRemoved, me.getID(), #handleBadgeRemove)
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
@@ -29,23 +29,23 @@ on deconstruct me
   i = 1
   repeat while i <= pActiveDownloads.count
     abortDownLoad(pActiveDownloads.getAt(i))
-    i = 1 + i
+    i = (1 + i)
   end repeat
   unregisterMessage(#achievementsUpdated, me.getID())
   unregisterMessage(#badgeReceived, me.getID())
   unregisterMessage(#badgeRemoved, me.getID())
-  return(1)
+  return TRUE
 end
 
 on openBadgeWindow me 
   me.closeBadgeWindow()
   tSelectedObjID = getThread(#room).getInterface().getSelectedObject()
   if tSelectedObjID <> getObject(#session).GET("user_index") then
-    return(0)
+    return FALSE
   end if
   tSelectedObj = getThread(#room).getComponent().getUserObject(tSelectedObjID)
   if not tSelectedObj then
-    return(0)
+    return FALSE
   end if
   tBadges = tSelectedObj.getProperty(#badges)
   if tBadges.ilk <> #propList then
@@ -54,7 +54,7 @@ on openBadgeWindow me
   i = 1
   repeat while i <= tBadges.count
     pSelectedBadges.setAt(tBadges.getPropAt(i), tBadges.getAt(i))
-    i = 1 + i
+    i = (1 + i)
   end repeat
   tAllBadges = getObject("session").GET("available_badges", [])
   me.loadBadgeImages(tAllBadges)
@@ -74,7 +74,7 @@ on openBadgeWindow me
   registerMessage(#leaveRoom, tWndObj.getID(), #close)
   registerMessage(#changeRoom, tWndObj.getID(), #close)
   tWndObj.registerProcedure(#eventProcBadgeChooser, me.getID(), #mouseUp)
-  if pActiveBadgeID = 0 and tAllBadges.count > 0 then
+  if (pActiveBadgeID = 0) and tAllBadges.count > 0 then
     me.selectBadge(tAllBadges.getAt(1))
   else
     me.selectBadge(pActiveBadgeID)
@@ -116,7 +116,7 @@ end
 
 on updateAchievements me 
   if not windowExists(pBadgeWindowID) then
-    return(0)
+    return FALSE
   end if
   tWindow = getWindow(pBadgeWindowID)
   if tWindow.elementExists("achievement_list") and threadExists(#room) then
@@ -125,7 +125,7 @@ on updateAchievements me
     tPropNum = 1
     repeat while tPropNum <= tAchievements.count
       tBadgeIDs.add(tAchievements.getPropAt(tPropNum))
-      tPropNum = 1 + tPropNum
+      tPropNum = (1 + tPropNum)
     end repeat
     me.loadBadgeImages(tBadgeIDs)
     tElem = tWindow.getElement("achievement_list")
@@ -136,30 +136,30 @@ end
 
 on updateBadgeImage me 
   if not windowExists(pBadgeWindowID) then
-    return(0)
+    return FALSE
   end if
   tWndObj = getWindow(pBadgeWindowID)
   tBadgeList = getObject("session").GET("available_badges", [])
   if pChosenBadge > tBadgeList.count or pChosenBadge < 1 then
-    return(0)
+    return FALSE
   end if
   tBadgeName = tBadgeList.getAt(pChosenBadge)
   tMemNum = getmemnum("badge" && tBadgeName)
-  if tMemNum < 1 or pUpdatedBadges.getAt(tBadgeName) = 0 then
+  if tMemNum < 1 or (pUpdatedBadges.getAt(tBadgeName) = 0) then
     tWndObj.getElement("badge_preview").clearImage()
     me.startBadgeDownload(tBadgeName)
-    return(0)
+    return FALSE
   end if
   tWidth = tWndObj.getElement("badge_preview").getProperty(#width)
   tHeight = tWndObj.getElement("badge_preview").getProperty(#height)
   tBadgeImage = member(tMemNum).image
   tCenteredImage = image(tWidth, tHeight, 32)
-  tXchange = (tCenteredImage.width - tBadgeImage.width / 2)
-  tYchange = (tCenteredImage.height - tBadgeImage.height / 2)
-  tRect1 = tBadgeImage.rect + rect(tXchange, tYchange, tXchange, tYchange)
+  tXchange = ((tCenteredImage.width - tBadgeImage.width) / 2)
+  tYchange = ((tCenteredImage.height - tBadgeImage.height) / 2)
+  tRect1 = (tBadgeImage.rect + rect(tXchange, tYchange, tXchange, tYchange))
   tCenteredImage.copyPixels(tBadgeImage, tRect1, tBadgeImage.rect)
   tWndObj.getElement("badge_preview").feedImage(tCenteredImage)
-  return(1)
+  return TRUE
 end
 
 on sendSetBadges me 
@@ -167,12 +167,12 @@ on sendSetBadges me
   i = 1
   repeat while i <= 5
     tMsg.addProp(#integer, i)
-    if pSelectedBadges.getAt(i).ilk = #string then
+    if (pSelectedBadges.getAt(i).ilk = #string) then
       tMsg.addProp(#string, pSelectedBadges.getAt(i))
     else
       tMsg.addProp(#string, "")
     end if
-    i = 1 + i
+    i = (1 + i)
   end repeat
   getThread(#room).getComponent().getRoomConnection().send("SETBADGE", tMsg)
 end
@@ -181,19 +181,19 @@ on eventProcBadgeChooser me, tEvent, tSprID, tParam
   if tSprID contains "badge_slot" then
     tSlotNum = tSprID.getProp(#char, tSprID.length)
     me.selectSlot(tSlotNum)
-    return(1)
+    return TRUE
   end if
-  if tSprID = "badge_list" then
+  if (tSprID = "badge_list") then
     if tParam.ilk <> #point then
-      return(0)
+      return FALSE
     end if
     tBadgeID = pBadgeListRenderer.getBadgeAt(tParam)
     if not tBadgeID then
-      return(0)
+      return FALSE
     end if
     me.selectBadge(tBadgeID)
   else
-    if tSprID = "selected_badge_button" then
+    if (tSprID = "selected_badge_button") then
       if pSelectedBadges.findPos(pActiveBadgeID) > 0 then
         me.clearActiveSlot()
       else
@@ -203,17 +203,17 @@ on eventProcBadgeChooser me, tEvent, tSprID, tParam
         end if
       end if
     else
-      if tSprID = "badges_tab" then
+      if (tSprID = "badges_tab") then
         me.openBadgeWindow()
       else
-        if tSprID = "achievements_tab" then
+        if (tSprID = "achievements_tab") then
           me.openAchievementsWindow()
         else
-          if tSprID = "button_ok" then
+          if (tSprID = "button_ok") then
             me.sendSetBadges()
             me.closeBadgeWindow()
           else
-            if tSprID = "button_cancel" then
+            if (tSprID = "button_cancel") then
               me.closeBadgeWindow()
             end if
           end if
@@ -224,14 +224,14 @@ on eventProcBadgeChooser me, tEvent, tSprID, tParam
 end
 
 on startBadgeDownload me, tBadgeName 
-  if tBadgeName = "" or tBadgeName = " " or voidp(tBadgeName) then
-    return(0)
+  if (tBadgeName = "") or (tBadgeName = " ") or voidp(tBadgeName) then
+    return FALSE
   end if
   if downloadExists("badge" && tBadgeName) then
-    return(0)
+    return FALSE
   end if
   if downloadExists("badge localized" && tBadgeName) then
-    return(0)
+    return FALSE
   end if
   tSourceURL = pImageLibraryURL & "Badges/" & tBadgeName & ".gif"
   if getmemnum("badge" && tBadgeName) <> 0 then
@@ -239,21 +239,21 @@ on startBadgeDownload me, tBadgeName
   else
     tBadgeMemNum = queueDownload(tSourceURL, "badge" && tBadgeName, #bitmap, 1)
   end if
-  if tBadgeMemNum = 0 then
-    return(0)
+  if (tBadgeMemNum = 0) then
+    return FALSE
   end if
   member(tBadgeMemNum).image = image(1, 1, 32)
   member(tBadgeMemNum).trimWhiteSpace = 0
   registerDownloadCallback(tBadgeMemNum, #badgeLoaded, me.getID(), tBadgeName)
   pActiveDownloads.add("badge" && tBadgeName)
-  return(1)
+  return TRUE
 end
 
 on badgeLoaded me, tBadgeName 
   pUpdatedBadges.setAt(tBadgeName, 1)
   tLoadedBadgeNum = getmemnum("badge localized" && tBadgeName)
   if tLoadedBadgeNum <> 0 then
-    if image.rect <> rect(0, 0, 1, 1) then
+    if member(tLoadedBadgeNum).image.rect <> rect(0, 0, 1, 1) then
       tBadgeNum = getmemnum("badge" && tBadgeName)
       if tBadgeNum <> 0 then
         member(tBadgeNum).image = member(tLoadedBadgeNum).image
@@ -262,7 +262,7 @@ on badgeLoaded me, tBadgeName
   end if
   executeMessage(#updateInfoStandBadge, tBadgeName)
   pActiveDownloads.deleteOne("badge" && tBadgeName)
-  if pActiveBadgeID = tBadgeName then
+  if (pActiveBadgeID = tBadgeName) then
     me.selectBadge(tBadgeName)
   end if
   me.updateBadgeView()
@@ -271,7 +271,7 @@ end
 
 on addNewBadge me, tBadgeID 
   if pNewBadges.getPos(tBadgeID) > 0 then
-    return(0)
+    return FALSE
   end if
   pNewBadges.add(tBadgeID)
   me.updateBadgeView()
@@ -282,7 +282,7 @@ on handleBadgeRemove me, tBadgeID
   if tPos > 0 then
     pSelectedBadges.setAt(tPos, 0)
   end if
-  if pActiveBadgeID = tBadgeID then
+  if (pActiveBadgeID = tBadgeID) then
     pActiveBadgeID = 0
   end if
   me.updateBadgeView()
@@ -296,11 +296,11 @@ end
 
 on updateBadgeListImage me 
   if not windowExists(pBadgeWindowID) then
-    return(0)
+    return FALSE
   end if
   tWindow = getWindow(pBadgeWindowID)
   if not tWindow.elementExists("badge_list") then
-    return(0)
+    return FALSE
   end if
   tBadges = getObject(#session).GET("available_badges", [])
   tListElem = tWindow.getElement("badge_list")
@@ -310,18 +310,18 @@ end
 on updateInfoStandBadge me, tInfoStandID, tSelectedObjID, tBadges 
   tWndObj = getWindow(tInfoStandID)
   if not tWndObj then
-    return(0)
+    return FALSE
   end if
   tUserObj = getThread(#room).getComponent().getUserObject(tSelectedObjID)
   if not objectp(tUserObj) then
-    return(0)
+    return FALSE
   end if
   if tBadges.ilk <> #propList then
-    return(0)
+    return FALSE
   end if
-  tOwnCharacter = tSelectedObjID = getObject("session").GET("user_index")
+  tOwnCharacter = (tSelectedObjID = getObject("session").GET("user_index"))
   if tUserObj.pBadges <> tBadges then
-    return(0)
+    return FALSE
   end if
   tBadgeIndex = 1
   repeat while tBadgeIndex <= 5
@@ -337,29 +337,29 @@ on updateInfoStandBadge me, tInfoStandID, tSelectedObjID, tBadges
         end if
         if memberExists("badge" && tBadgeID && "localized") then
           tBadgeMember = member(getmemnum("badge" && tBadgeID && "localized"))
-          if tBadgeMember.type = #bitmap then
+          if (tBadgeMember.type = #bitmap) then
             tElem.feedImage(tBadgeMember.image)
           end if
         else
           if memberExists("badge" && tBadgeID) then
             tBadgeMember = member(getmemnum("badge" && tBadgeID))
-            if tBadgeMember.type = #bitmap then
+            if (tBadgeMember.type = #bitmap) then
               tElem.feedImage(tBadgeMember.image)
             end if
           else
             me.startBadgeDownload(tBadgeID)
-            return(0)
+            return FALSE
           end if
         end if
       end if
     end if
-    tBadgeIndex = 1 + tBadgeIndex
+    tBadgeIndex = (1 + tBadgeIndex)
   end repeat
 end
 
 on createBadgeEffect me, tElem 
   if objectExists("BadgeEffect") then
-    return(0)
+    return FALSE
   end if
   if createObject("BadgeEffect", "Badge Effect Class") <> 0 then
     return(getObject("BadgeEffect").Init(tElem))
@@ -383,7 +383,7 @@ end
 
 on updatePreview me 
   if not windowExists(pBadgeWindowID) then
-    return(0)
+    return FALSE
   end if
   tWindow = getWindow(pBadgeWindowID)
   if tWindow.elementExists("selected_badge") then
@@ -417,10 +417,10 @@ on updatePreview me
   if tWindow.elementExists("selected_badge_button") and tWindow.elementExists("slots_full_text") then
     tButton = tWindow.getElement("selected_badge_button")
     tTextElem = tWindow.getElement("slots_full_text")
-    if pSelectedBadges.getPos(pActiveBadgeID) = 0 then
+    if (pSelectedBadges.getPos(pActiveBadgeID) = 0) then
       tButtonText = getText("badge_wear")
       pActiveSlot = 0
-      if pSelectedBadges.getPos(0) = 0 then
+      if (pSelectedBadges.getPos(0) = 0) then
         tButton.hide()
         tTextElem.show()
       else
@@ -446,7 +446,7 @@ on selectSlot me, tSlotIndex
   if tBadgeID <> 0 then
     me.selectBadge(tBadgeID)
   else
-    if pActiveBadgeID <> 0 and pSelectedBadges.getPos(pActiveBadgeID) = 0 then
+    if pActiveBadgeID <> 0 and (pSelectedBadges.getPos(pActiveBadgeID) = 0) then
       pSelectedBadges.setAt(tSlotIndex, pActiveBadgeID)
       me.updateBadgeView()
     end if
@@ -454,8 +454,8 @@ on selectSlot me, tSlotIndex
 end
 
 on clearActiveSlot me 
-  if pActiveSlot = 0 then
-    return(0)
+  if (pActiveSlot = 0) then
+    return FALSE
   end if
   pSelectedBadges.setAt(pActiveSlot, 0)
   me.updateBadgeView()
@@ -463,7 +463,7 @@ end
 
 on updateSlots me 
   if not windowExists(pBadgeWindowID) then
-    return(0)
+    return FALSE
   end if
   tWindow = getWindow(pBadgeWindowID)
   tSlot = 1
@@ -473,7 +473,7 @@ on updateSlots me
       tBadgeID = pSelectedBadges.getAt(tSlot)
       tElem = tWindow.getElement("badge_slot_" & tSlot)
       tMemNum = getmemnum("badge" && tBadgeID)
-      if tBadgeID = 0 or tMemNum = 0 then
+      if (tBadgeID = 0) or (tMemNum = 0) then
         tBadgeImage = image(1, 1, 8)
       else
         tBadgeImage = member(tMemNum).image
@@ -481,13 +481,13 @@ on updateSlots me
       tWidth = tElem.getProperty(#width)
       tHeight = tElem.getProperty(#height)
       tCenteredImage = pBadgeListRenderer.centerImage(tBadgeImage, rect(0, 0, tWidth, tHeight))
-      if pActiveBadgeID <> 0 and tBadgeID = pActiveBadgeID and memberExists("slot_hilite") then
+      if pActiveBadgeID <> 0 and (tBadgeID = pActiveBadgeID) and memberExists("slot_hilite") then
         tHiliteImage = member(getmemnum("slot_hilite")).image
         tCenteredImage.copyPixels(tHiliteImage, tCenteredImage.rect, tHiliteImage.rect, [#ink:36])
       end if
       tElem.feedImage(tCenteredImage)
     end if
-    tSlot = 1 + tSlot
+    tSlot = (1 + tSlot)
   end repeat
 end
 

@@ -5,16 +5,16 @@ on construct me
   pWriterIdBold = getUniqueID()
   pWindowIdPrefix = "ig"
   pWindowID = ""
-  return(me.construct())
+  return(me.ancestor.construct())
 end
 
 on deconstruct me 
-  if pID = #modal then
+  if (pID = #modal) then
     return(me.removeModalWindow())
   end if
   tWrapObjRef = me.getWindowWrapper()
-  if tWrapObjRef = 0 then
-    return(0)
+  if (tWrapObjRef = 0) then
+    return FALSE
   end if
   tWrapObjRef.removeMatchingSets(pWindowSetId)
   if writerExists(pWriterIdPlain) then
@@ -23,7 +23,7 @@ on deconstruct me
   if writerExists(pWriterIdBold) then
     removeWriter(pWriterIdBold)
   end if
-  return(me.deconstruct())
+  return(me.ancestor.deconstruct())
 end
 
 on setID me, tID 
@@ -31,10 +31,10 @@ on setID me, tID
 end
 
 on addWindows me 
-  if pID = #modal then
+  if (pID = #modal) then
     return(me.createModalWindow())
   end if
-  return(1)
+  return TRUE
 end
 
 on render me 
@@ -45,19 +45,19 @@ end
 
 on getOwnPlayerName me 
   tSession = getObject(#session)
-  if tSession = 0 then
-    return(0)
+  if (tSession = 0) then
+    return FALSE
   end if
   if not tSession.exists(#user_name) then
-    return(0)
+    return FALSE
   end if
   return(tSession.GET(#user_name))
 end
 
 on getOwnPlayerGameIndex me 
   tSession = getObject(#session)
-  if tSession = 0 then
-    return(0)
+  if (tSession = 0) then
+    return FALSE
   end if
   if not tSession.exists("user_game_index") then
     return(-1)
@@ -87,24 +87,24 @@ end
 
 on alignIconImage me, tImage, tWidth, tHeight 
   if tImage.ilk <> #image then
-    return(0)
+    return FALSE
   end if
   tNewImage = image(tWidth, tHeight, tImage.depth)
-  tOffsetX = (tWidth - tImage.width / 2)
-  tOffsetY = tHeight - tImage.height
-  tNewImage.copyPixels(tImage, tImage.rect + rect(tOffsetX, tOffsetY, tOffsetX, tOffsetY), tImage.rect)
+  tOffsetX = ((tWidth - tImage.width) / 2)
+  tOffsetY = (tHeight - tImage.height)
+  tNewImage.copyPixels(tImage, (tImage.rect + rect(tOffsetX, tOffsetY, tOffsetX, tOffsetY)), tImage.rect)
   return(tNewImage)
 end
 
 on getHeadImage me, tFigure, tsex, tWidth, tHeight 
   tFigureObj = getObject("Figure_Preview")
-  if tFigureObj = 0 then
-    return(0)
+  if (tFigureObj = 0) then
+    return FALSE
   end if
   if tFigure.ilk <> #propList then
     tParserObj = getObject("Figure_System")
-    if tParserObj = 0 then
-      return(0)
+    if (tParserObj = 0) then
+      return FALSE
     end if
     tFigure = tParserObj.parseFigure(tFigure, tsex)
   end if
@@ -127,7 +127,7 @@ end
 on getIGComponent me, tID 
   tMainThreadRef = me.getMainThread()
   if not objectp(tMainThreadRef) then
-    return(0)
+    return FALSE
   end if
   return(tMainThreadRef.getIGComponent(tID))
 end
@@ -142,21 +142,21 @@ end
 
 on createModalWindow me 
   if pModalSpr > 0 then
-    return(1)
+    return TRUE
   end if
   pModalSpr = reserveSprite(me.getID())
   tsprite = sprite(pModalSpr)
   tsprite.member = member(getmemnum("null"))
   tsprite.blend = 70
-  tsprite.rect = rect(0, 0, undefined.width, undefined.height)
+  tsprite.rect = rect(0, 0, the stage.rect.width, the stage.rect.height)
   tVisualizer = getVisualizer("Room_visualizer")
   if tVisualizer <> 0 then
-    tsprite.locZ = tVisualizer.getProperty(#locZ) + 10000000
+    tsprite.locZ = (tVisualizer.getProperty(#locZ) + 10000000)
   else
     tsprite.locZ = -10000000
   end if
   setEventBroker(tsprite.spriteNum, me.getID() & "_spr")
-  return(1)
+  return TRUE
 end
 
 on removeModalWindow me 
@@ -164,26 +164,26 @@ on removeModalWindow me
     releaseSprite(pModalSpr)
     pModalSpr = void()
   end if
-  return(1)
+  return TRUE
 end
 
 on removeMatchingSets me, tWindowSetId, tRender 
-  if tWindowSetId = void() then
-    return(0)
+  if (tWindowSetId = void()) then
+    return FALSE
   end if
   tIdLength = tWindowSetId.length
   i = 1
   repeat while i <= me.count(#pSetIndex)
     tTestString = me.getProp(#pSetIndex, i)
-    if tTestString.getProp(#char, 1, tIdLength) = tWindowSetId then
+    if (tTestString.getProp(#char, 1, tIdLength) = tWindowSetId) then
       me.removeSet(tTestString, tRender)
       next repeat
     end if
-    i = i + 1
+    i = (i + 1)
   end repeat
-  return(1)
+  return TRUE
 end
 
 on eventProcMouseDown me, tEvent, tSprID, tParam, tWndID 
-  return(1)
+  return TRUE
 end

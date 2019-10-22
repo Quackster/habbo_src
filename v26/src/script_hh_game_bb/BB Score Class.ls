@@ -5,28 +5,28 @@ on construct me
   pFinalScoresObjId = "bb_game_finalscores"
   pWindowID = "win_bb_score"
   pTimeOutID = "bb_score_updateGameTimeout"
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
   me.removeGameScores()
-  return(1)
+  return TRUE
 end
 
 on Refresh me, tTopic, tdata 
-  if tTopic = #gamestatus_scores then
+  if (tTopic = #gamestatus_scores) then
     return(me.renderScore(tdata))
   else
-    if tTopic = #gamestart then
+    if (tTopic = #gamestart) then
       me.startGameTimer(tdata)
       return(me.showGameScores())
     else
-      if tTopic = #gameend then
+      if (tTopic = #gameend) then
         return(me.removeGameScores())
       else
-        if tTopic = #fullgamestatus_time then
+        if (tTopic = #fullgamestatus_time) then
           if tdata.getAt(#state) <> #game_started then
-            return(1)
+            return TRUE
           end if
           me.resumeGameTimer(tdata)
           return(me.showGameScores())
@@ -34,14 +34,14 @@ on Refresh me, tTopic, tdata
       end if
     end if
   end if
-  return(1)
+  return TRUE
 end
 
 on resumeGameTimer me, tdata 
   if tdata.getAt(#time_to_next_state) <= 0 then
-    return(0)
+    return FALSE
   end if
-  pTimerEndTime = the milliSeconds + (tdata.getAt(#time_to_next_state) * 1000)
+  pTimerEndTime = (the milliSeconds + (tdata.getAt(#time_to_next_state) * 1000))
   pTimerDurationSec = tdata.getAt(#state_duration)
   if timeoutExists(pTimeOutID) then
     removeTimeout(pTimeOutID)
@@ -52,9 +52,9 @@ end
 
 on startGameTimer me, tdata 
   if tdata.getAt(#time_until_game_end) <= 0 then
-    return(0)
+    return FALSE
   end if
-  pTimerEndTime = the milliSeconds + (tdata.getAt(#time_until_game_end) * 1000)
+  pTimerEndTime = (the milliSeconds + (tdata.getAt(#time_until_game_end) * 1000))
   pTimerDurationSec = tdata.getAt(#time_until_game_end)
   if timeoutExists(pTimeOutID) then
     removeTimeout(pTimeOutID)
@@ -74,29 +74,29 @@ end
 
 on renderGameTimer me, tEndTime 
   tWndObj = getWindow(pWindowID)
-  if tWndObj = 0 then
-    return(0)
+  if (tWndObj = 0) then
+    return FALSE
   end if
   tElem = tWndObj.getElement("bb_info_remTime")
-  if tElem = 0 then
-    return(0)
+  if (tElem = 0) then
+    return FALSE
   end if
   if tEndTime < the milliSeconds then
-    return(0)
+    return FALSE
   end if
-  tTime = me.convertToMinSec(tEndTime - the milliSeconds)
+  tTime = me.convertToMinSec((tEndTime - the milliSeconds))
   tTimeStr = tTime.getAt(1) & ":" & tTime.getAt(2)
   tElem.setText(replaceChunks(getText("gs_timeleft"), "\\x", tTimeStr))
-  return(1)
+  return TRUE
 end
 
 on renderScore me, tdata 
   tWndObj = getWindow(pWindowID)
-  if tWndObj = 0 then
-    return(0)
+  if (tWndObj = 0) then
+    return FALSE
   end if
-  if pTimerEndTime - the milliSeconds >= 0 then
-    tElapsedTimePct = ((pTimerDurationSec * 1000) - pTimerEndTime - the milliSeconds / float((pTimerDurationSec * 1000)))
+  if (pTimerEndTime - the milliSeconds) >= 0 then
+    tElapsedTimePct = (((pTimerDurationSec * 1000) - (pTimerEndTime - the milliSeconds)) / float((pTimerDurationSec * 1000)))
   end if
   tMaxWidth = (tElapsedTimePct * 159)
   tHighest = 0
@@ -106,8 +106,8 @@ on renderScore me, tdata
       tHighest = float(tTeamScore)
     end if
   end repeat
-  if tHighest = 0 then
-    return(1)
+  if (tHighest = 0) then
+    return TRUE
   end if
   tTeamId = 1
   repeat while tTeamId <= tdata.count
@@ -116,16 +116,16 @@ on renderScore me, tdata
     if tElem <> 0 then
       tOldSize = tElem.getProperty(#width)
       tNewSize = (tMaxWidth * tPercent)
-      tElem.resizeBy(tNewSize - tOldSize, 0)
+      tElem.resizeBy((tNewSize - tOldSize), 0)
     end if
-    tTeamId = 1 + tTeamId
+    tTeamId = (1 + tTeamId)
   end repeat
-  return(1)
+  return TRUE
 end
 
 on showGameScores me 
   if windowExists(pWindowID) then
-    return(1)
+    return TRUE
   end if
   if createWindow(pWindowID, "bb_scores.window") then
     tWndObj = getWindow(pWindowID)
@@ -142,7 +142,7 @@ on showGameScores me
   else
     return(error(me, "Cannot open score window.", #showGameScores))
   end if
-  return(1)
+  return TRUE
 end
 
 on removeGameScores me 
@@ -152,5 +152,5 @@ on removeGameScores me
   if timeoutExists(pTimeOutID) then
     removeTimeout(pTimeOutID)
   end if
-  return(1)
+  return TRUE
 end

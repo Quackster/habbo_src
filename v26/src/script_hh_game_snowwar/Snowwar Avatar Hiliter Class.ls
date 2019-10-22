@@ -6,8 +6,8 @@ on display me, tName, tScore, tTeamId, tloc, tOwnPlayer
   end if
   pNameSpriteNum = reserveSprite("sw_hiliter1_" & tName & tTeamId)
   pBottomSpriteNum = reserveSprite("sw_hiliter2_" & tName & tTeamId)
-  if pNameSpriteNum = 0 or pBottomSpriteNum = 0 then
-    return(0)
+  if (pNameSpriteNum = 0) or (pBottomSpriteNum = 0) then
+    return FALSE
   end if
   tText = getText("gs_mouseover_player")
   tText = replaceChunks(tText, "\\x", tName)
@@ -19,19 +19,19 @@ on display me, tName, tScore, tTeamId, tloc, tOwnPlayer
     tsprite.member = tmember
   end if
   tsprite.locZ = 1000000
-  tsprite.loc = point(tloc.getAt(1) - (tmember.width / 2), tloc.getAt(2) + 10)
+  tsprite.loc = point((tloc.getAt(1) - (tmember.width / 2)), (tloc.getAt(2) + 10))
   tsprite.ink = 36
   if not tOwnPlayer then
     tmember = member(getmemnum("sw_avatar_hilite_team_" & tTeamId))
     tsprite = sprite(pBottomSpriteNum)
-    if tmember.type = #bitmap then
+    if (tmember.type = #bitmap) then
       tsprite.member = tmember
     end if
-    tsprite.locZ = tloc.getAt(3) - 1
+    tsprite.locZ = (tloc.getAt(3) - 1)
     tsprite.loc = point(tloc.getAt(1), tloc.getAt(2))
     tsprite.ink = 36
   end if
-  return(1)
+  return TRUE
 end
 
 on hide me 
@@ -46,7 +46,7 @@ on hide me
   end if
   pNameSpriteNum = void()
   pBottomSpriteNum = void()
-  return(0)
+  return FALSE
 end
 
 on getNameFieldMember me, tText, tTeamId 
@@ -56,8 +56,8 @@ on getNameFieldMember me, tText, tTeamId
   else
     tNameFieldMem = getMember(pNameFieldMemName)
   end if
-  if tNameFieldMem.type = #empty then
-    return(0)
+  if (tNameFieldMem.type = #empty) then
+    return FALSE
   end if
   tTeamColor = rgb(string(getVariable("snowwar.teamcolors.team" & tTeamId)))
   tFontStruct = getStructVariable("struct.font.bold")

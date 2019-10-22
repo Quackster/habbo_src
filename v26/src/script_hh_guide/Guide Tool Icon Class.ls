@@ -8,7 +8,7 @@ on construct me
 end
 
 on deconstruct me 
-  if pIconSprite.ilk = #sprite then
+  if (pIconSprite.ilk = #sprite) then
     releaseSprite(pIconSprite.spriteNum)
   end if
 end
@@ -19,8 +19,8 @@ on show me, tstate
   end if
   if pIconSprite.ilk <> #sprite then
     pIconSprite = sprite(reserveSprite(me.getID()))
-    if pIconSprite = 0 then
-      return(0)
+    if (pIconSprite = 0) then
+      return FALSE
     end if
   end if
   pIconSprite.member = member("guide_tool_icon_normal")
@@ -31,17 +31,17 @@ on show me, tstate
   setEventBroker(pIconSprite.spriteNum, pSpriteId)
   pIconSprite.registerProcedure(#eventProcIcon, me.getID(), #mouseUp)
   pIconSprite.setcursor("cursor.finger")
-  return(1)
+  return TRUE
 end
 
 on hide me 
-  if pIconSprite.ilk = #sprite then
+  if (pIconSprite.ilk = #sprite) then
     pIconSprite.visible = 0
   end if
 end
 
 on setFlashing me, tstate 
-  if tstate = 1 then
+  if (tstate = 1) then
     if not timeoutExists(pFlashTimeoutID) then
       createTimeout(pFlashTimeoutID, 500, #updateFlash, me.getID(), void(), 0)
     end if
@@ -49,7 +49,7 @@ on setFlashing me, tstate
     if timeoutExists(pFlashTimeoutID) then
       removeTimeout(pFlashTimeoutID)
     end if
-    if pIconSprite.ilk = #sprite then
+    if (pIconSprite.ilk = #sprite) then
       pIconSprite.member = member("guide_tool_icon_normal")
     end if
   end if
@@ -57,10 +57,10 @@ end
 
 on updateFlash me 
   if pIconSprite.ilk <> #sprite then
-    return(0)
+    return FALSE
   end if
-  tMemName = member.name
-  if tMemName = "guide_tool_icon_normal" then
+  tMemName = pIconSprite.member.name
+  if (tMemName = "guide_tool_icon_normal") then
     pIconSprite.member = member("guide_tool_icon_black")
   else
     pIconSprite.member = member("guide_tool_icon_normal")

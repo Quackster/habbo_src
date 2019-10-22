@@ -12,11 +12,11 @@ on construct me
   pwidth = 1
   pheight = 1
   pGapH = 5
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
-  return(1)
+  return TRUE
 end
 
 on createTagList me, tTagList 
@@ -31,18 +31,18 @@ on createTagList me, tTagList
   repeat while tTagList <= undefined
     tTag = getAt(undefined, tTagList)
     tTagImage = pWriter.render(tTag).duplicate()
-    if tPosX + tTagImage.width > pwidth then
+    if (tPosX + tTagImage.width) > pwidth then
       tPosX = 0
-      tPosY = tPosY + tTagImage.height + 1
+      tPosY = ((tPosY + tTagImage.height) + 1)
     end if
-    if tPosX + tTagImage.width >= pwidth then
+    if (tPosX + tTagImage.width) >= pwidth then
     else
-      if tPosY + tTagImage.height > pheight then
+      if (tPosY + tTagImage.height) > pheight then
       else
-        tTargetRect = rect(tPosX, tPosY, tPosX + tTagImage.width, tPosY + tTagImage.height)
+        tTargetRect = rect(tPosX, tPosY, (tPosX + tTagImage.width), (tPosY + tTagImage.height))
         tImage.copyPixels(tTagImage, tTargetRect, tTagImage.rect)
         pRectList.setaProp(tTag, tTargetRect)
-        tPosX = tPosX + tTagImage.width + pGapH
+        tPosX = ((tPosX + tTagImage.width) + pGapH)
       end if
       return(tImage)
     end if
@@ -55,21 +55,21 @@ on getTagAt me, tpoint
     if tpoint.inside(pRectList.getAt(tRect)) then
       return(pRectList.getPropAt(tRect))
     end if
-    tRect = 1 + tRect
+    tRect = (1 + tRect)
   end repeat
-  return(0)
+  return FALSE
 end
 
 on setWidth me, tWidth 
   if not integerp(tWidth) then
-    return(0)
+    return FALSE
   end if
   pwidth = tWidth
 end
 
 on setHeight me, tHeight 
   if not integerp(tHeight) then
-    return(0)
+    return FALSE
   end if
   pheight = tHeight
 end

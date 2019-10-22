@@ -36,7 +36,7 @@ on mergeWindow me, tParentWndObj
     if tParentWndObj.elementExists(pTextElements.getAt(i)) then
       pWndObj.getElement(pTextElements.getAt(i)).setText(tTextFields.getAt(i))
     end if
-    i = 1 + i
+    i = (1 + i)
   end repeat
   tBitmaps = me.getPropRef(#pPageData, #localization).getAt(#images)
   i = 1
@@ -50,7 +50,7 @@ on mergeWindow me, tParentWndObj
         pPageItemDownloader.registerDownload(#bitmap, tBitmap, [#imagedownload:1, #element:pImageElements.getAt(i), #assetId:tBitmap, #pageid:me.getProp(#pPageData, #pageid)])
       end if
     end if
-    i = 1 + i
+    i = (1 + i)
   end repeat
 end
 
@@ -64,8 +64,8 @@ end
 
 on centerRectInRect me, tSmallrect, tLargeRect 
   tpoint = point(0, 0)
-  tpoint.locH = (tLargeRect.width - tSmallrect.width / 2)
-  tpoint.locV = (tLargeRect.height - tSmallrect.height / 2)
+  tpoint.locH = ((tLargeRect.width - tSmallrect.width) / 2)
+  tpoint.locV = ((tLargeRect.height - tSmallrect.height) / 2)
   if tpoint.locH < 0 then
     tpoint.locH = 0
   end if
@@ -92,6 +92,6 @@ on downloadCompleted me, tProps
 end
 
 on handleClick me, tEvent, tSprID, tProp 
-  if tEvent = #mouseUp then
+  if (tEvent = #mouseUp) then
   end if
 end

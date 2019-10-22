@@ -6,7 +6,7 @@ on construct me
   pConfirmDeleteFriend = void()
   pCurrentCategoryID = getVariable("fr.window.default.category.id")
   pMaxFreeCategories = getVariable("fr.window.max.free.categories")
-  pMaxCategories = pMaxFreeCategories + 4
+  pMaxCategories = (pMaxFreeCategories + 4)
   pMinimized = 0
   pViewsList = [:]
   pCategoryHighlBaseID = "fr_category_highlighter_"
@@ -19,7 +19,7 @@ on construct me
   registerMessage(#changeRoom, me.getID(), #updateActionIconsState)
   registerMessage(#enterRoomDirect, me.getID(), #updateActionIconsState)
   registerMessage(#gamesystem_constructed, me.getID(), #closeFriendList)
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
@@ -39,20 +39,20 @@ on deconstruct me
   unregisterMessage(#changeRoom, me.getID())
   unregisterMessage(#enterRoomDirect, me.getID())
   unregisterMessage(#gamesystem_constructed, me.getID())
-  return(1)
+  return TRUE
 end
 
 on createFriendList me 
   if not me.getComponent().isFriendListInited() then
-    return(0)
+    return FALSE
   end if
   if windowExists(pFriendListWindowID) then
-    return(0)
+    return FALSE
   end if
   createWindow(pFriendListWindowID, "friends_list_base.window")
   tWndObj = getWindow(pFriendListWindowID)
-  if tWndObj = 0 then
-    return(0)
+  if (tWndObj = 0) then
+    return FALSE
   end if
   tWndContentID = getVariable("fr.category.content.id." & pCurrentCategoryID) & ".window"
   tWndObj.merge(tWndContentID)
@@ -62,7 +62,7 @@ on createFriendList me
   tWndObj.registerProcedure(#eventProc, me.getID(), #keyDown)
   pWindowDefaultHeight = tWndObj.getProperty(#height)
   me.changeCategory(pCurrentCategoryID)
-  return(1)
+  return TRUE
 end
 
 on openFriendList me 
@@ -71,7 +71,7 @@ on openFriendList me
       tWndObj = getWindow(pFriendListWindowID)
       tWndObj.moveTo(15, 65)
     else
-      return(0)
+      return FALSE
     end if
   else
     tWndObj = getWindow(pFriendListWindowID)
@@ -105,11 +105,11 @@ end
 
 on minimizedView me, tMinimized 
   tWndObj = getWindow(pFriendListWindowID)
-  if tWndObj = 0 then
-    return(0)
+  if (tWndObj = 0) then
+    return FALSE
   end if
   if voidp(tMinimized) then
-    if pMinimized = 0 then
+    if (pMinimized = 0) then
       tMinimized = 1
     else
       tMinimized = 0
@@ -125,21 +125,21 @@ on minimizedView me, tMinimized
 end
 
 on isFriendRequestViewOpen me 
-  return(pCurrentCategoryID = -2)
+  return((pCurrentCategoryID = -2))
 end
 
 on addFriend me, tFriendData, tHoldRender 
-  if tFriendData = 0 then
-    return(0)
+  if (tFriendData = 0) then
+    return FALSE
   end if
   tCategoryId = tFriendData.getAt(#categoryId)
   tViewObj = me.getViewListObject(tCategoryId)
-  if tViewObj = 0 then
-    return(0)
+  if (tViewObj = 0) then
+    return FALSE
   end if
   tViewObj.addFriend(tFriendData)
   me.setCategoryHighlight(tCategoryId)
-  if not tHoldRender and pCurrentCategoryID = tCategoryId then
+  if not tHoldRender and (pCurrentCategoryID = tCategoryId) then
     me.updateOpenCategoryPanel()
   end if
   me.updateCategoryCounts()
@@ -148,12 +148,12 @@ end
 on addFriendRequest me, tRequest 
   tCategoryId = -2
   tViewObj = me.getViewListObject(tCategoryId)
-  if tViewObj = 0 then
-    return(0)
+  if (tViewObj = 0) then
+    return FALSE
   end if
   tViewObj.addRequest(tRequest)
   me.setCategoryHighlight(tCategoryId)
-  if pCurrentCategoryID = tCategoryId then
+  if (pCurrentCategoryID = tCategoryId) then
     me.updateOpenCategoryPanel()
   end if
 end
@@ -185,30 +185,30 @@ on removeCategoryHighlight me, tCategoryId
 end
 
 on updateFriend me, tFriendData, tHoldRender 
-  if tFriendData = 0 then
-    return(0)
+  if (tFriendData = 0) then
+    return FALSE
   end if
   tViewObj = me.getViewListObject(tFriendData.getAt(#categoryId))
-  if not tViewObj = 0 then
+  if not (tViewObj = 0) then
     tViewObj.updateFriend(tFriendData)
   end if
   if tHoldRender then
-    return(1)
+    return TRUE
   end if
-  if pCurrentCategoryID = tFriendData.getAt(#categoryId) then
+  if (pCurrentCategoryID = tFriendData.getAt(#categoryId)) then
     me.updateOpenCategoryPanel()
   end if
 end
 
 on removeFriend me, tFriendID, tCategory, tHoldRender 
   tViewObj = me.getViewListObject(tCategory)
-  if not tViewObj = 0 then
+  if not (tViewObj = 0) then
     tViewObj.removeFriend(tFriendID)
   end if
   if tHoldRender then
-    return(1)
+    return TRUE
   end if
-  if pCurrentCategoryID = tCategory then
+  if (pCurrentCategoryID = tCategory) then
     me.updateOpenCategoryPanel()
   end if
 end
@@ -224,8 +224,8 @@ end
 
 on removeInputFieldFocus me 
   tWndObj = getWindow(pFriendListWindowID)
-  if tWndObj = 0 then
-    return(0)
+  if (tWndObj = 0) then
+    return FALSE
   end if
   if tWndObj.elementExists("search_input") then
     tWndObj.getElement("search_input").setFocus(0)
@@ -237,15 +237,15 @@ on changeCategory me, tCategoryId
     removeObject(pInfoPopupId)
   end if
   tWndObj = getWindow(pFriendListWindowID)
-  if tWndObj = 0 then
-    return(0)
+  if (tWndObj = 0) then
+    return FALSE
   end if
   if voidp(tCategoryId) then
     tCategoryId = pCurrentCategoryID
   end if
   me.removeCategoryHighlight(tCategoryId)
   if tCategoryId <> pCurrentCategoryID then
-    if pCurrentCategoryID = -3 then
+    if (pCurrentCategoryID = -3) then
       me.removeInputFieldFocus()
     end if
     tWndObj.unmerge()
@@ -266,7 +266,7 @@ on changeCategory me, tCategoryId
       tElem = tWndObj.getElement(tTitleElemID)
       tElem.hide()
     end if
-    tNo = 1 + tNo
+    tNo = (1 + tNo)
   end repeat
   tCategoryList = me.getComponent().getCategoryList()
   tCategoryTitleHeight = getVariable("fr.category.height")
@@ -277,23 +277,23 @@ on changeCategory me, tCategoryId
     tCategory = getAt(undefined, tCategoryId)
     tCount = me.getComponent().getItemCountForcategory(tCategory.getAt(#id))
     me.showCategoryTitle(tCategory.getAt(#id), tCurrentOffsetV, tCategory.getAt(#name), tCount)
-    tCurrentOffsetV = tCurrentOffsetV + tCategoryTitleHeight
-    if tCategory.getAt(#id) = tCategoryId then
+    tCurrentOffsetV = (tCurrentOffsetV + tCategoryTitleHeight)
+    if (tCategory.getAt(#id) = tCategoryId) then
       me.moveCategoryContent(tCurrentOffsetV)
       if not pMinimized then
-        tCurrentOffsetV = tCurrentOffsetV + tCategoryContentHeight + tActionsPanelHeight + 1
+        tCurrentOffsetV = (((tCurrentOffsetV + tCategoryContentHeight) + tActionsPanelHeight) + 1)
       end if
     end if
   end repeat
   if pMinimized then
-    tHiddenAmountPx = (pMaxCategories - tCategoryList.count * tCategoryTitleHeight) + tCategoryContentHeight + tActionsPanelHeight + 1
+    tHiddenAmountPx = (((((pMaxCategories - tCategoryList.count) * tCategoryTitleHeight) + tCategoryContentHeight) + tActionsPanelHeight) + 1)
   else
-    tHiddenAmountPx = (pMaxCategories - tCategoryList.count * tCategoryTitleHeight)
-    if tCategoryId = -2 then
+    tHiddenAmountPx = ((pMaxCategories - tCategoryList.count) * tCategoryTitleHeight)
+    if (tCategoryId = -2) then
       executeMessage(#FriendRequestListOpened)
     end if
   end if
-  tWndObj.resizeTo(tWndObj.getProperty(#width), pWindowDefaultHeight - tHiddenAmountPx)
+  tWndObj.resizeTo(tWndObj.getProperty(#width), (pWindowDefaultHeight - tHiddenAmountPx))
   pCurrentCategoryID = tCategoryId
   me.updateOpenCategoryPanel()
   me.updateActionIconsState()
@@ -301,15 +301,15 @@ end
 
 on updateOpenCategoryPanel me 
   tWndObj = getWindow(pFriendListWindowID)
-  if tWndObj = 0 then
-    return(0)
+  if (tWndObj = 0) then
+    return FALSE
   end if
   tViewObj = me.getViewListObject(pCurrentCategoryID)
-  if pCurrentCategoryID = -2 then
+  if (pCurrentCategoryID = -2) then
     tViewObj.cleanUp()
   end if
   tContentElem = tWndObj.getElement("list_panel")
-  if pCurrentCategoryID = -3 and me.getComponent().getHabboSearchLastString() = "" then
+  if (pCurrentCategoryID = -3) and (me.getComponent().getHabboSearchLastString() = "") then
     tViewObj.pListImg = image(1, 1, 32)
     tViewObj.pNeedsRender = 0
   end if
@@ -333,7 +333,7 @@ on update me
   tViewObj = me.getViewListObject(pCurrentCategoryID)
   if not tViewObj.hasQueue() then
     removeUpdate(me.getID())
-    return(1)
+    return TRUE
   end if
   tElem = me.getContentElement()
   if tElem <> 0 then
@@ -343,16 +343,16 @@ end
 
 on getContentElement me 
   tWndObj = getWindow(pFriendListWindowID)
-  if tWndObj = 0 then
-    return(0)
+  if (tWndObj = 0) then
+    return FALSE
   end if
   return(tWndObj.getElement("list_panel"))
 end
 
 on showCategoryTitle me, tID, tLocV, tName, tItemCount 
   tWndObj = getWindow(pFriendListWindowID)
-  if tWndObj = 0 then
-    return(0)
+  if (tWndObj = 0) then
+    return FALSE
   end if
   tHighLighted = 0
   if pHighlightedCategories.getOne(tID) then
@@ -360,7 +360,7 @@ on showCategoryTitle me, tID, tLocV, tName, tItemCount
   end if
   tElemBaseName = "category_element_" & tID
   if not tWndObj.elementExists(tElemBaseName) then
-    return(0)
+    return FALSE
   end if
   tElemBase = tWndObj.getElement(tElemBaseName)
   tElemBase.show()
@@ -399,7 +399,7 @@ on showCategoryTitle me, tID, tLocV, tName, tItemCount
       tFont.setAt(#color, tTextColor)
       tElemText.setFont(tFont)
     else
-      if tID = -2 then
+      if (tID = -2) then
         tmember = getMember(getVariable("fr.category.background.requests"))
         tElemBase.setProperty(#member, tmember)
         tElemBase.setProperty(#width, getVariable("fr.category.width"))
@@ -411,18 +411,18 @@ on showCategoryTitle me, tID, tLocV, tName, tItemCount
     end if
   end if
   if not voidp(tLocV) then
-    tElemText.moveTo(tElemText.getProperty(#locH), tLocV + 3)
+    tElemText.moveTo(tElemText.getProperty(#locH), (tLocV + 3))
     tElemBase.moveTo(tElemBase.getProperty(#locH), tLocV)
   end if
 end
 
 on activateMailIcon me, tIconIsActive 
   tWndObj = getWindow(pFriendListWindowID)
-  if tWndObj = 0 then
-    return(0)
+  if (tWndObj = 0) then
+    return FALSE
   end if
   if not tWndObj.elementExists("mail_inbox_icon") then
-    return(0)
+    return FALSE
   end if
   tElem = tWndObj.getElement("mail_inbox_icon")
   if tIconIsActive then
@@ -434,13 +434,13 @@ end
 
 on moveCategoryContent me, tLocV 
   tWndObj = getWindow(pFriendListWindowID)
-  if tWndObj = 0 then
-    return(0)
+  if (tWndObj = 0) then
+    return FALSE
   end if
   tLocalOffsetV = 0
-  tLocalOffsetV = tLocalOffsetV + getVariable("fr.category.offset.top")
-  tLocalOffsetV = tLocalOffsetV + getVariable("fr.category.height")
-  tLocV = tLocV - tLocalOffsetV
+  tLocalOffsetV = (tLocalOffsetV + getVariable("fr.category.offset.top"))
+  tLocalOffsetV = (tLocalOffsetV + getVariable("fr.category.height"))
+  tLocV = (tLocV - tLocalOffsetV)
   tElemPanel = tWndObj.getElement("list_panel")
   tElemScroll = tWndObj.getElement("list_scroll")
   tElemBG = tWndObj.getElement("actions_panel")
@@ -452,7 +452,7 @@ on moveCategoryContent me, tLocV
     tElemScroll.setProperty(#visible, 0)
     tElemBG.setProperty(#visible, 0)
     tElemPanelBg.setProperty(#visible, 0)
-    tContentBottom = tElemPanel.getProperty(#locV) + tElemPanelHeight
+    tContentBottom = (tElemPanel.getProperty(#locV) + tElemPanelHeight)
   else
     tElemPanel.setProperty(#visible, 1)
     tElemScroll.setProperty(#visible, 1)
@@ -461,7 +461,7 @@ on moveCategoryContent me, tLocV
     tElemPanel.moveTo(tElemPanel.getProperty(#locH), tLocV)
     tElemScroll.moveTo(tElemScroll.getProperty(#locH), tLocV)
     tElemPanelBg.moveTo(tElemScroll.getProperty(#locH), tLocV)
-    tContentBottom = tElemPanel.getProperty(#locV) + tElemPanelHeight
+    tContentBottom = (tElemPanel.getProperty(#locV) + tElemPanelHeight)
     tElemBG.moveTo(tElemBG.getProperty(#locH), tContentBottom)
   end if
   tActions = []
@@ -481,8 +481,8 @@ on moveCategoryContent me, tLocV
     if tWndObj.elementExists(tElemID) then
       tElem = tWndObj.getElement(tElemID)
       tRect = tElem.getProperty(#rect)
-      tOffV = (tElemBgHeight - tElem.getProperty(#height) / 2)
-      tElem.moveTo(tElem.getProperty(#locH), tContentBottom + tOffV)
+      tOffV = ((tElemBgHeight - tElem.getProperty(#height)) / 2)
+      tElem.moveTo(tElem.getProperty(#locH), (tContentBottom + tOffV))
       if pMinimized then
         tElem.setProperty(#visible, 0)
       else
@@ -494,15 +494,15 @@ end
 
 on updateActionIconsState me 
   tWndObj = getWindow(pFriendListWindowID)
-  if tWndObj = 0 then
-    return(0)
+  if (tWndObj = 0) then
+    return FALSE
   end if
   tViewObj = me.getViewListObject(pCurrentCategoryID)
   if value(pCurrentCategoryID) >= -1 then
     tSelectedFriends = tViewObj.getSelectedFriends()
     tInvitesInUse = 0
     if variableExists("client.use.invites") then
-      if getVariable("client.use.invites") = 1 then
+      if (getVariable("client.use.invites") = 1) then
         tInvitesInUse = 1
       end if
     end if
@@ -517,13 +517,13 @@ on updateActionIconsState me
       tMulti = tElemData.getAt(#multiselection)
       if tWndObj.elementExists(tElemName) then
         tElement = tWndObj.getElement(tElemName)
-        if tSelectedFriends.count > 1 and tMulti = 0 then
+        if tSelectedFriends.count > 1 and (tMulti = 0) then
           tElement.setProperty(#blend, getVariable("fr.actions.inactive.blend"))
         else
-          if tSelectedFriends.count > 1 and tMulti = 1 then
+          if tSelectedFriends.count > 1 and (tMulti = 1) then
             tElement.setProperty(#blend, 100)
           else
-            if tSelectedFriends.count = 1 then
+            if (tSelectedFriends.count = 1) then
               tElement.setProperty(#blend, 100)
             else
               tElement.setProperty(#blend, getVariable("fr.actions.inactive.blend"))
@@ -531,7 +531,7 @@ on updateActionIconsState me
           end if
         end if
         tSession = getObject(#session)
-        if tSession.GET("lastroom") = "Entry" then
+        if (tSession.GET("lastroom") = "Entry") then
           if tElemData.getAt(#allowedroom) <> #all then
             tElement.setProperty(#blend, getVariable("fr.actions.inactive.blend"))
           end if
@@ -542,7 +542,7 @@ on updateActionIconsState me
       end if
     end repeat
   else
-    if value(pCurrentCategoryID) = -2 then
+    if (value(pCurrentCategoryID) = -2) then
       tElems = []
       tElems.add("requests_dismiss_all")
       tElems.add("requests_dismiss_all_text")
@@ -550,7 +550,7 @@ on updateActionIconsState me
       tElems.add("requests_accept_all_text")
       tRequests = me.getComponent().getPendingFriendRequests()
       tCount = 0
-      if ilk(tRequests) = #propList then
+      if (ilk(tRequests) = #propList) then
         tCount = tRequests.count
       end if
       repeat while tActions <= undefined
@@ -570,7 +570,7 @@ end
 
 on getViewListObject me, tCategoryId 
   tCategoryId = string(tCategoryId)
-  if pViewsList.getaProp(tCategoryId) = void() then
+  if (pViewsList.getaProp(tCategoryId) = void()) then
     tViewObj = me.createListViewObject(tCategoryId)
     if tCategoryId > -2 then
       tCategoryContent = me.getComponent().getFriendsInCategory(tCategoryId)
@@ -588,13 +588,13 @@ on createListViewObject me, tCategoryId
   if tCategoryId >= 0 then
     createObject(tObjID, ["Friend List View Base", "Friend List Actions Base", "Friend Online List View"])
   else
-    if tCategoryId = "-1" then
+    if (tCategoryId = "-1") then
       createObject(tObjID, ["Friend List View Base", "Friend List Actions Base", "Friend Offline List View"])
     else
-      if tCategoryId = "-2" then
+      if (tCategoryId = "-2") then
         createObject(tObjID, ["Friend List View Base", "Friend Request List View"])
       else
-        if tCategoryId = "-3" then
+        if (tCategoryId = "-3") then
           createObject(tObjID, ["Friend List View Base", "Friend Search Results View"])
         end if
       end if
@@ -606,16 +606,16 @@ end
 
 on showInfoPopup me, tFriend, tWndX, tWndY, tContentElem 
   tObject = me.getInfoPopupObject()
-  if tObject = 0 then
-    return(0)
+  if (tObject = 0) then
+    return FALSE
   end if
   return(tObject.showInfoPopup(tFriend, tWndX, tWndY, tContentElem))
 end
 
 on removeInfoPopup me 
   tObject = me.getInfoPopupObject()
-  if tObject = 0 then
-    return(0)
+  if (tObject = 0) then
+    return FALSE
   end if
   return(tObject.removeInfoPopup())
 end
@@ -641,8 +641,8 @@ on endInboxBlink me
     removeTimeout(tTimeoutID)
   end if
   tWndObj = getWindow(pFriendListWindowID)
-  if tWndObj = 0 then
-    return(0)
+  if (tWndObj = 0) then
+    return FALSE
   end if
   if tWndObj.elementExists("mail_inbox_icon") then
     tElem = tWndObj.getElement("mail_inbox_icon")
@@ -652,8 +652,8 @@ end
 
 on stepInboxBlink me 
   tWndObj = getWindow(pFriendListWindowID)
-  if tWndObj = 0 then
-    return(0)
+  if (tWndObj = 0) then
+    return FALSE
   end if
   if tWndObj.elementExists("mail_inbox_icon") then
     tElem = tWndObj.getElement("mail_inbox_icon")
@@ -662,19 +662,19 @@ on stepInboxBlink me
       pInboxBlinkStep = 0
     else
       tElem.setProperty(#member, "friends_mini_mail_button_inactive")
-      pInboxBlinkStep = pInboxBlinkStep + 1
+      pInboxBlinkStep = (pInboxBlinkStep + 1)
     end if
   end if
 end
 
 on setTipText me, tText 
   tWndObj = getWindow(pFriendListWindowID)
-  if tWndObj = 0 then
-    return(0)
+  if (tWndObj = 0) then
+    return FALSE
   end if
   tElemID = "friends_tooltip"
   if not tWndObj.elementExists(tElemID) then
-    return(0)
+    return FALSE
   end if
   tElem = tWndObj.getElement(tElemID)
   tElem.setText(tText)
@@ -682,7 +682,7 @@ end
 
 on showConfirmRemoveUser me 
   if windowExists(pRemoveConfirmID) then
-    return(0)
+    return FALSE
   end if
   if not createWindow(pRemoveConfirmID, "habbo_basic.window", 200, 120) then
     return(error(me, "Couldn't create confirmation window!", #showConfirmRemoveUser, #major))
@@ -690,7 +690,7 @@ on showConfirmRemoveUser me
   tWndObj = getWindow(pRemoveConfirmID)
   tMsgA = getText("friend_list_confirm_remove_1")
   tMsgB = getText("friend_list_confirm_remove_2")
-  if ilk(pConfirmDeleteFriend) = #propList then
+  if (ilk(pConfirmDeleteFriend) = #propList) then
     tMsgB = replaceChunks(tMsgB, "%username%", pConfirmDeleteFriend.getAt(#name))
   end if
   if not tWndObj.merge("habbo_decision_dialog.window") then
@@ -701,7 +701,7 @@ on showConfirmRemoveUser me
   tWndObj.registerClient(me.getID())
   tWndObj.registerProcedure(#eventProcConfirm, me.getID(), #mouseUp)
   tWndObj.center()
-  return(1)
+  return TRUE
 end
 
 on hideConfirmRemoveUser me 
@@ -719,26 +719,26 @@ end
 
 on handleListPanelEvent me, tEvent, tLocX, tLocY 
   tWndObj = getWindow(pFriendListWindowID)
-  if tWndObj = 0 then
-    return(0)
+  if (tWndObj = 0) then
+    return FALSE
   end if
-  if tEvent = #mouseLeave then
+  if (tEvent = #mouseLeave) then
     return(me.removeInfoPopup())
   end if
   tViewObj = me.getViewListObject(pCurrentCategoryID)
   tEventData = tViewObj.relayEvent(tEvent, tLocX, tLocY)
   if ilk(tEventData) <> #propList then
-    return(0)
+    return FALSE
   end if
   tContentElem = tWndObj.getElement("list_panel")
-  if tContentElem = 0 then
-    return(0)
+  if (tContentElem = 0) then
+    return FALSE
   end if
   tFriend = tEventData.getAt(#friend)
   tListElement = tEventData.getAt(#element)
-  if tEventData.getAt(#Event) = #mouseWithin then
+  if (tEventData.getAt(#Event) = #mouseWithin) then
     tCursor = "cursor.arrow"
-    if ilk(tEventData.getaProp(#cursor)) = #string then
+    if (ilk(tEventData.getaProp(#cursor)) = #string) then
       tCursor = tEventData.getaProp(#cursor)
     end if
     tContentElem.setProperty(#cursor, tCursor)
@@ -746,20 +746,20 @@ on handleListPanelEvent me, tEvent, tLocX, tLocY
     tWndY = tWndObj.getProperty(#locY)
     tScrollElem = tWndObj.getElement("list_scroll")
     if tScrollElem <> 0 then
-      tWndY = tWndY - tScrollElem.getScrollOffset()
-      tEventData.setAt(#item_y, tEventData.getAt(#item_y) - tScrollElem.getScrollOffset())
+      tWndY = (tWndY - tScrollElem.getScrollOffset())
+      tEventData.setAt(#item_y, (tEventData.getAt(#item_y) - tScrollElem.getScrollOffset()))
     end if
     me.showInfoPopup(tEventData, tWndX, tWndY, tContentElem)
-    if tListElement = #mail then
+    if (tListElement = #mail) then
       me.setTipText(getText("friend_tip_mail"))
     else
-      if tListElement = #im then
+      if (tListElement = #im) then
         me.setTipText(getText("friend_tip_im"))
       else
-        if tListElement = #follow then
+        if (tListElement = #follow) then
           me.setTipText(getText("friend_tip_follow"))
         else
-          if tListElement = #addFriend then
+          if (tListElement = #addFriend) then
             me.setTipText(getText("friend_tip_addfriend"))
           else
             me.setTipText("")
@@ -767,34 +767,34 @@ on handleListPanelEvent me, tEvent, tLocX, tLocY
         end if
       end if
     end if
-    return(1)
+    return TRUE
   end if
   if voidp(tEventData.getaProp(#element)) then
-    return(0)
+    return FALSE
   end if
-  if tListElement = #im then
+  if (tListElement = #im) then
     executeMessage(#startIMChat, tFriend.getAt(#name), "")
   else
-    if tListElement = #follow then
+    if (tListElement = #follow) then
       tConn = getConnection(getVariable("connection.info.id"))
       tConn.send("FOLLOW_FRIEND", [#integer:integer(tFriend.getAt(#id))])
     else
-      if tListElement = #request_accept then
+      if (tListElement = #request_accept) then
         tRequest = tEventData.getAt(#request)
         me.getComponent().updateFriendRequest(tRequest, #accepted)
       else
-        if tListElement = #request_reject then
+        if (tListElement = #request_reject) then
           tRequest = tEventData.getAt(#request)
           me.getComponent().updateFriendRequest(tRequest, #rejected)
         else
-          if tListElement = #mail then
+          if (tListElement = #mail) then
             if variableExists("link.format.mail.compose") then
               tDestURL = replaceChunks(getVariable("link.format.mail.compose"), "%recipientid%", tFriend.getAt(#id))
               openNetPage(tDestURL)
               executeMessage(#externalLinkClick, the mouseLoc)
             end if
           else
-            if tListElement = #addFriend then
+            if (tListElement = #addFriend) then
               me.getComponent().externalFriendRequest(tFriend.getAt(#name))
             end if
           end if
@@ -811,15 +811,15 @@ on handleListPanelEvent me, tEvent, tLocX, tLocY
 end
 
 on eventProcConfirm me, tEvent, tElemID, tParam 
-  if tElemID = "habbo_decision_ok" then
-    if ilk(pConfirmDeleteFriend) = #propList then
+  if (tElemID = "habbo_decision_ok") then
+    if (ilk(pConfirmDeleteFriend) = #propList) then
       me.getComponent().sendRemoveFriend(pConfirmDeleteFriend.getAt(#id))
       me.hideConfirmRemoveUser()
       pConfirmDeleteFriend = void()
     end if
   else
     if tElemID <> "habbo_decision_cancel" then
-      if tElemID = "close" then
+      if (tElemID = "close") then
         me.hideConfirmRemoveUser()
         pConfirmDeleteFriend = void()
       end if
@@ -829,33 +829,33 @@ end
 
 on eventProc me, tEvent, tElemID, tParam 
   tWndObj = getWindow(pFriendListWindowID)
-  if tWndObj = 0 then
-    return(0)
+  if (tWndObj = 0) then
+    return FALSE
   end if
-  if tEvent = #mouseUp then
+  if (tEvent = #mouseUp) then
     me.removeInfoPopup()
     tloc = the mouseLoc
-    if tElemID = "friends_btn_close" then
+    if (tElemID = "friends_btn_close") then
       me.closeFriendList()
     else
-      if tElemID = "friends_btn_minimize" then
+      if (tElemID = "friends_btn_minimize") then
         me.minimizedView()
       else
-        if tElemID = "list_panel" then
+        if (tElemID = "list_panel") then
           if ilk(tParam) <> #point then
-            return(0)
+            return FALSE
           end if
           me.handleListPanelEvent(tEvent, tParam.getAt(1), tParam.getAt(2))
         else
-          if tElemID = "preferences_icon" then
+          if (tElemID = "preferences_icon") then
             openNetPage(getVariable("link.format.friendlist.pref"))
             executeMessage(#externalLinkClick, tloc)
           else
-            if tElemID = "home_icon" then
+            if (tElemID = "home_icon") then
               tViewObj = me.getViewListObject(pCurrentCategoryID)
               tSelectedFriends = tViewObj.getSelectedFriends()
-              if tSelectedFriends.count = 0 or tSelectedFriends.count > 1 then
-                return(0)
+              if (tSelectedFriends.count = 0) or tSelectedFriends.count > 1 then
+                return FALSE
               end if
               tSelectedFriendData = tSelectedFriends.getAt(1)
               if variableExists("link.format.userpage") then
@@ -865,29 +865,29 @@ on eventProc me, tEvent, tElemID, tParam
                 executeMessage(#externalLinkClick, tloc)
               end if
             else
-              if tElemID = "mail_compose_icon" then
+              if (tElemID = "mail_compose_icon") then
                 tViewObj = me.getViewListObject(pCurrentCategoryID)
                 tSelectedFriends = tViewObj.getSelectedFriends()
-                if tSelectedFriends.count = 0 then
-                  return(0)
+                if (tSelectedFriends.count = 0) then
+                  return FALSE
                 end if
                 tRecipients = ""
                 repeat while tElemID <= tElemID
                   tFriend = getAt(tElemID, tEvent)
                   tRecipients = tRecipients & tFriend.getAt(#id) & ","
                 end repeat
-                tRecipients = chars(tRecipients, 1, tRecipients.length - 1)
+                tRecipients = chars(tRecipients, 1, (tRecipients.length - 1))
                 if variableExists("link.format.mail.compose") then
                   tDestURL = replaceChunks(getVariable("link.format.mail.compose"), "%recipientid%", tRecipients)
                   openNetPage(tDestURL)
                   executeMessage(#externalLinkClick, tloc)
                 end if
               else
-                if tElemID = "invite_icon" then
+                if (tElemID = "invite_icon") then
                   tViewObj = me.getViewListObject(pCurrentCategoryID)
                   tSelectedFriends = tViewObj.getSelectedFriends()
-                  if tSelectedFriends.count = 0 then
-                    return(0)
+                  if (tSelectedFriends.count = 0) then
+                    return FALSE
                   end if
                   tFriendIds = []
                   repeat while tElemID <= tElemID
@@ -900,31 +900,31 @@ on eventProc me, tEvent, tElemID, tParam
                     tIMComponent.inviteFriends(tFriendIds)
                   end if
                 else
-                  if tElemID = "mail_inbox_icon" then
+                  if (tElemID = "mail_inbox_icon") then
                     if variableExists("link.format.mail.inbox") then
                       tDestURL = getVariable("link.format.mail.inbox")
                       openNetPage(tDestURL)
                       executeMessage(#externalLinkClick, tloc)
                     end if
                   else
-                    if tElemID = "search_icon" then
+                    if (tElemID = "search_icon") then
                       if variableExists("link.format.user.search") then
                         tDestURL = getVariable("link.format.user.search")
                         openNetPage(tDestURL)
                         executeMessage(#externalLinkClick, tloc)
                       end if
                     else
-                      if tElemID = "remove_icon" then
+                      if (tElemID = "remove_icon") then
                         tViewObj = me.getViewListObject(pCurrentCategoryID)
                         tSelectedFriends = tViewObj.getSelectedFriends()
-                        if tSelectedFriends.count = 0 or tSelectedFriends.count > 1 then
-                          return(0)
+                        if (tSelectedFriends.count = 0) or tSelectedFriends.count > 1 then
+                          return FALSE
                         end if
                         tSelectedFriendData = tSelectedFriends.getAt(1)
                         pConfirmDeleteFriend = tSelectedFriendData.duplicate()
                         me.showConfirmRemoveUser()
                       else
-                        if tElemID = "requests_accept_all" then
+                        if (tElemID = "requests_accept_all") then
                           tViewObj = me.getViewListObject(pCurrentCategoryID)
                           tViewObj.handleAll(#accepted)
                           me.getComponent().handleAllRequests(#accepted)
@@ -933,7 +933,7 @@ on eventProc me, tEvent, tElemID, tParam
                           tContentElem.clearImage()
                           tContentElem.feedImage(tListImage)
                         else
-                          if tElemID = "requests_dismiss_all" then
+                          if (tElemID = "requests_dismiss_all") then
                             tViewObj = me.getViewListObject(pCurrentCategoryID)
                             tViewObj.handleAll(#rejected)
                             me.getComponent().handleAllRequests(#rejected)
@@ -943,7 +943,7 @@ on eventProc me, tEvent, tElemID, tParam
                             tContentElem.feedImage(tListImage)
                           else
                             if tElemID <> "search_button" then
-                              if tElemID = "search_button_text" then
+                              if (tElemID = "search_button_text") then
                                 tViewObj = me.getViewListObject(pCurrentCategoryID)
                                 tSearchString = tWndObj.getElement("search_input").getText()
                                 me.getComponent().sendHabboSearch(tSearchString)
@@ -957,47 +957,47 @@ on eventProc me, tEvent, tElemID, tParam
                                   me.minimizedView(0)
                                   me.changeCategory(tCategoryId)
                                 else
-                                  if tCategoryId = pCurrentCategoryID then
+                                  if (tCategoryId = pCurrentCategoryID) then
                                     me.minimizedView(1)
                                   else
                                     me.changeCategory(tCategoryId)
                                   end if
                                 end if
                               end if
-                              if tEvent = #mouseWithin then
+                              if (tEvent = #mouseWithin) then
                                 if tWndObj.elementExists("friends_tooltip") then
                                   tElemTooltip = tWndObj.getElement("friends_tooltip")
-                                  if tElemID = "home_icon" then
+                                  if (tElemID = "home_icon") then
                                     me.setTipText(getText("friend_tip_home"))
                                   else
-                                    if tElemID = "mail_compose_icon" then
+                                    if (tElemID = "mail_compose_icon") then
                                       me.setTipText(getText("friend_tip_compose"))
                                     else
-                                      if tElemID = "invite_icon" then
+                                      if (tElemID = "invite_icon") then
                                         me.setTipText(getText("friend_tip_invite"))
                                       else
-                                        if tElemID = "remove_icon" then
+                                        if (tElemID = "remove_icon") then
                                           me.setTipText(getText("friend_tip_remove"))
                                         else
-                                          if tElemID = "preferences_icon" then
+                                          if (tElemID = "preferences_icon") then
                                             me.setTipText(getText("friend_tip_preferences"))
                                           else
-                                            if tElemID = "search_icon" then
+                                            if (tElemID = "search_icon") then
                                               me.setTipText(getText("friend_tip_search"))
                                             else
-                                              if tElemID = "mail_inbox_icon" then
+                                              if (tElemID = "mail_inbox_icon") then
                                                 me.setTipText(getText("friend_tip_inbox"))
                                               else
                                                 if tElemID <> "search_button" then
-                                                  if tElemID = "search_button_text" then
+                                                  if (tElemID = "search_button_text") then
                                                     me.setTipText(getText("friend_tip_search_button"))
                                                   else
-                                                    if tElemID = "search_input" then
+                                                    if (tElemID = "search_input") then
                                                       me.setTipText(getText("friend_tip_search_input"))
                                                     else
-                                                      if tElemID = "list_panel" then
+                                                      if (tElemID = "list_panel") then
                                                         if ilk(tParam) <> #point then
-                                                          return(0)
+                                                          return FALSE
                                                         end if
                                                         me.handleListPanelEvent(tEvent, tParam.getAt(1), tParam.getAt(2))
                                                       else
@@ -1005,20 +1005,20 @@ on eventProc me, tEvent, tElemID, tParam
                                                       end if
                                                     end if
                                                   end if
-                                                  if tEvent = #mouseLeave then
+                                                  if (tEvent = #mouseLeave) then
                                                     me.setTipText("")
-                                                    if tElemID = "list_panel" then
+                                                    if (tElemID = "list_panel") then
                                                       me.handleListPanelEvent(tEvent)
                                                     end if
                                                   else
-                                                    if tEvent = #keyDown then
-                                                      if tElemID = "search_input" then
+                                                    if (tEvent = #keyDown) then
+                                                      if (tElemID = "search_input") then
                                                         if tElemID <> 36 then
-                                                          if tElemID = 76 then
+                                                          if (tElemID = 76) then
                                                             me.eventProc(#mouseUp, "search_button")
-                                                            return(1)
+                                                            return TRUE
                                                           else
-                                                            return(0)
+                                                            return FALSE
                                                           end if
                                                         end if
                                                       end if

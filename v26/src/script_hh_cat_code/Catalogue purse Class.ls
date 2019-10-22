@@ -3,7 +3,7 @@ on construct me
   me.updatePurseTickets()
   me.updatePurseFilm()
   registerMessage(#updateCreditCount, me.getID(), #updatePurseSaldo)
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
@@ -12,7 +12,7 @@ end
 
 on updatePurseSaldo me 
   if not threadExists(#catalogue) then
-    return(0)
+    return FALSE
   end if
   tWndObj = getThread(#catalogue).getInterface().getCatalogWindow()
   if objectp(tWndObj) then
@@ -34,7 +34,7 @@ on updatePurseTickets me
       tFieldTxt = getObject(#session).GET("user_ph_tickets") && getText("purse_info_tickets")
       tWndObj.getElement("purse_info_tickets").setText(tFieldTxt)
     end if
-    return(1)
+    return TRUE
   end if
 end
 
@@ -45,29 +45,29 @@ on updatePurseFilm me
       tFieldTxt = getObject(#session).GET("user_photo_film") && getText("purse_info_film")
       tWndObj.getElement("purse_info_film").setText(tFieldTxt)
     end if
-    return(1)
+    return TRUE
   end if
 end
 
 on eventProc me, tEvent, tSprID, tProp 
-  if tEvent = #mouseUp then
-    if tSprID = "close" then
-      return(0)
+  if (tEvent = #mouseUp) then
+    if (tSprID = "close") then
+      return FALSE
     end if
   end if
-  if tEvent = #mouseDown then
+  if (tEvent = #mouseDown) then
     tloc = the mouseLoc
-    if tSprID = "coins_btn" then
+    if (tSprID = "coins_btn") then
       executeMessage(#externalLinkClick, tloc)
       openNetPage(getText("url_purselink"))
     else
-      if tSprID = "vouchers_btn" then
+      if (tSprID = "vouchers_btn") then
         executeMessage(#externalLinkClick, tloc)
         openNetPage(getText("purse_vouchers_helpurl"))
       else
-        return(0)
+        return FALSE
       end if
     end if
   end if
-  return(1)
+  return TRUE
 end

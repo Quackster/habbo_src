@@ -4,7 +4,7 @@ on prepare me, tdata
   pCardObj = "PackageCardObj"
   tdata = tdata.getAt(#stuffdata)
   if not voidp(tdata) then
-    if tdata.getProp(#char, 1) = "!" then
+    if (tdata.getProp(#char, 1) = "!") then
       pMessage = tdata.getProp(#char, 2, length(tdata))
     else
       tDelim = the itemDelimiter
@@ -13,14 +13,14 @@ on prepare me, tdata
       the itemDelimiter = tDelim
     end if
   end if
-  return(1)
+  return TRUE
 end
 
 on select me 
   if the doubleClick then
     me.showCard()
   end if
-  return(1)
+  return TRUE
 end
 
 on showCard me 
@@ -28,5 +28,5 @@ on showCard me
     createObject(pCardObj, "Package Card Class")
   end if
   getObject(pCardObj).define([#id:me.getID(), #Msg:pMessage, #loc:me.getPropRef(#pSprList, 1).loc])
-  return(1)
+  return TRUE
 end

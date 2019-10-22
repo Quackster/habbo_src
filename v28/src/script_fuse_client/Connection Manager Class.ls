@@ -3,13 +3,13 @@ property pListenerList, pCommandsList, pClassString, pLastMessageData
 on construct me 
   pLastMessageData = [:]
   me.pItemList = []
-  me.sort()
+  me.pItemList.sort()
   pListenerList = [:]
   pListenerList.sort()
   pCommandsList = [:]
   pCommandsList.sort()
   pClassString = "connection.instance.class"
-  return(1)
+  return TRUE
 end
 
 on create me, tID, tHost, tPort 
@@ -22,7 +22,7 @@ on create me, tID, tHost, tPort
   if not integerp(tPort) then
     return(error(me, "Integer expected:" && tPort, #create, #major))
   end if
-  if getIntVariable("connection.log.level") = 2 and the runMode contains "Author" then
+  if (getIntVariable("connection.log.level") = 2) and the runMode contains "Author" then
     if not memberExists("connectionLog.text") then
       tLogField = member(createMember("connectionLog.text", #field))
       tLogField.boxType = #scroll
@@ -36,7 +36,7 @@ on create me, tID, tHost, tPort
     if not createObject(tID, getClassVariable(pClassString)) then
       return(error(me, "Failed to initialize connection:" && tID, #create, #major))
     end if
-    me.add(tID)
+    me.pItemList.add(tID)
   end if
   if voidp(pListenerList.getAt(tID)) then
     tMsgPtr = getStructVariable("struct.pointer")
@@ -55,7 +55,7 @@ on create me, tID, tHost, tPort
   me.GET(tID).setProperty(#listener, tMsgPtr)
   me.GET(tID).setProperty(#commands, tCmdPtr)
   me.GET(tID).connect(tHost, tPort)
-  return(1)
+  return TRUE
 end
 
 on closeAll me 
@@ -64,7 +64,7 @@ on closeAll me
     if objectExists(me.getProp(#pItemList, i)) then
       removeObject(me.getProp(#pItemList, i))
     end if
-    i = 1 + i
+    i = (1 + i)
   end repeat
   me.pItemList = []
 end
@@ -74,7 +74,7 @@ on registerListener me, tID, tObjID, tMsgList
     return(error(me, "Invalid message header ID:" && tID, #registerListener, #major))
   end if
   tObject = getObject(tObjID)
-  if tObject = 0 then
+  if (tObject = 0) then
     return(error(me, "Object not found:" && tObjID, #registerListener, #major))
   end if
   if voidp(pListenerList.getAt(tID)) then
@@ -96,9 +96,9 @@ on registerListener me, tID, tObjID, tMsgList
       end if
       tPtr.getaProp(#value).getaProp(tMsg).add([tObjID, tMethod])
     end if
-    i = 1 + i
+    i = (1 + i)
   end repeat
-  return(1)
+  return TRUE
 end
 
 on unregisterListener me, tID, tObjID, tMsgList 
@@ -107,7 +107,7 @@ on unregisterListener me, tID, tObjID, tMsgList
   end if
   tPtr = pListenerList.getAt(tID)
   if voidp(tPtr) then
-    return(0)
+    return FALSE
   end if
   tList = tPtr.getaProp(#value)
   i = 1
@@ -120,16 +120,16 @@ on unregisterListener me, tID, tObjID, tMsgList
       j = 1
       repeat while j <= tList.getaProp(tMsg).count
         tCallback = tList.getaProp(tMsg).getAt(j)
-        if tCallback.getAt(1) = tObjID and tCallback.getAt(2) = tMethod then
+        if (tCallback.getAt(1) = tObjID) and (tCallback.getAt(2) = tMethod) then
           tList.getaProp(tMsg).deleteAt(j)
         else
-          j = 1 + j
+          j = (1 + j)
         end if
       end repeat
     end if
-    i = 1 + i
+    i = (1 + i)
   end repeat
-  return(1)
+  return TRUE
 end
 
 on registerCommands me, tID, tObjID, tCmdList 
@@ -157,9 +157,9 @@ on registerCommands me, tID, tObjID, tCmdList
       end if
     end if
     tPtr.getaProp(#value).setaProp(tCmd, tNew)
-    i = 1 + i
+    i = (1 + i)
   end repeat
-  return(1)
+  return TRUE
 end
 
 on unregisterCommands me, tID, tObjID, tCmdList 
@@ -168,9 +168,9 @@ on unregisterCommands me, tID, tObjID, tCmdList
   end if
   tPtr = pCommandsList.getAt(tID)
   if voidp(tPtr) then
-    return(0)
+    return FALSE
   end if
-  return(1)
+  return TRUE
 end
 
 on registerLastMessage me, tmessageId, tMessage 
@@ -184,7 +184,7 @@ end
 
 on lastMessageParsed me 
   if voidp(pLastMessageData) then
-    return(0)
+    return FALSE
   end if
   pLastMessageData.setAt(#isParsed, 0)
 end

@@ -44,7 +44,7 @@ end
 on updateTreeView me 
   tTreeviewImage = pTreeView.getInterface().getImage()
   tDestElement = pWndObj.getElement("ctlg_pages")
-  if voidp(tDestElement) or tDestElement = 0 then
+  if voidp(tDestElement) or (tDestElement = 0) then
     return(error(me, "ctlg_pages element missing from window!", #updateTreeView, #major))
   end if
   if tTreeviewImage.height > tDestElement.getProperty(#height) then
@@ -112,7 +112,7 @@ on showVoucherRedeemOk me, tProductName, tProductDesc
   tWndObj.registerProcedure(#hidePurchaseOk, me.getID(), #mouseUp)
   tWndObj.setProperty(#locZ, 22000000)
   tWndObj.lock(1)
-  return(1)
+  return TRUE
 end
 
 on showVoucherRedeemError me, tError 
@@ -143,7 +143,7 @@ on showVoucherRedeemError me, tError
   tWndObj.registerProcedure(#hidePurchaseOk, me.getID(), #mouseUp)
   tWndObj.setProperty(#locZ, 22000000)
   tWndObj.lock(1)
-  return(1)
+  return TRUE
 end
 
 on showCatalogWasPublishedDialog me 
@@ -159,7 +159,7 @@ on showCatalogWasPublishedDialog me
   tWndObj.registerClient(me.getID())
   tWndObj.registerProcedure(#hidePurchaseOk, me.getID(), #mouseUp)
   tWndObj.lock(1)
-  return(1)
+  return TRUE
 end
 
 on isVisible me 
@@ -246,18 +246,18 @@ on activateTreeviewNodeByName me, tNodeName
 end
 
 on eventProcCatalogue me, tEvent, tSprID, tProp 
-  if tEvent = #mouseUp then
-    if tSprID = "ctlg_pages" then
+  if (tEvent = #mouseUp) then
+    if (tSprID = "ctlg_pages") then
       pTreeView.getInterface().handleClick(tProp)
       me.updateTreeView()
     else
-      if tSprID = "close" then
+      if (tSprID = "close") then
         me.destroyWindow()
       else
-        if tSprID = "catalog_get_pixels_bottom" then
+        if (tSprID = "catalog_get_pixels_bottom") then
           me.getComponent().preparePixelsInfoPage()
         else
-          if tSprID = "catalog_get_credits_bottom" then
+          if (tSprID = "catalog_get_credits_bottom") then
             me.getComponent().prepareCreditsInfoPage()
           end if
         end if
@@ -300,24 +300,24 @@ on showPreviewImage me, tProps, tElemID
   else
     tImage = me.renderPreviewImage(tProps)
   end if
-  if tImage.ilk = #image then
+  if (tImage.ilk = #image) then
     tDestImg = tElem.getProperty(#image)
     tSourceImg = tImage
     tDestImg.fill(tDestImg.rect, rgb(255, 255, 255))
-    tdestrect = tDestImg.rect - tSourceImg.rect
+    tdestrect = (tDestImg.rect - tSourceImg.rect)
     tMargins = rect(0, 0, 0, 0)
-    tdestrect = rect((tdestrect.width / 2), (tdestrect.height / 2), tSourceImg.width + (tdestrect.width / 2), (tdestrect.height / 2) + tSourceImg.height) + tMargins
+    tdestrect = (rect((tdestrect.width / 2), (tdestrect.height / 2), (tSourceImg.width + (tdestrect.width / 2)), ((tdestrect.height / 2) + tSourceImg.height)) + tMargins)
     tDestImg.copyPixels(tSourceImg, tdestrect, tSourceImg.rect, [#ink:36])
     tElem.feedImage(tDestImg)
   end if
-  return(1)
+  return TRUE
 end
 
 on renderPreviewImage me, tProps 
   if not voidp(tProps.getAt("dealList")) then
     if not objectExists("ctlg_dealpreviewObj") then
       tObj = createObject("ctlg_dealpreviewObj", ["Deal Preview Class"])
-      if tObj = 0 then
+      if (tObj = 0) then
         return(error(me, "Failed object creation!", #showHideDialog, #major))
       end if
     else
@@ -355,7 +355,7 @@ on renderPreviewImage me, tProps
       return(error(me, "PartColors property missing", #showPreviewImage, #minor))
     else
       tpartColors = tProps.getAt("partColors")
-      if tpartColors = "" or tpartColors = "0,0,0" then
+      if (tpartColors = "") or (tpartColors = "0,0,0") then
         tpartColors = "*ffffff"
       end if
     end if
@@ -375,7 +375,7 @@ on renderPreviewImage me, tProps
     tdata.setAt(#objectType, tObjectType)
     if not objectExists("ctlg_previewObj") then
       tObj = createObject("ctlg_previewObj", ["Product Preview Class"])
-      if tObj = 0 then
+      if (tObj = 0) then
         return(error(me, "Failed object creation!", #showHideDialog, #major))
       end if
     else
@@ -389,7 +389,7 @@ end
 
 on showNoBalance me, tNotEnoughCredits, tNotEnoughPixels 
   if windowExists(pInfoWindowID) then
-    return(0)
+    return FALSE
   end if
   tMsgA = ""
   if tNotEnoughCredits and not tNotEnoughPixels then
@@ -426,12 +426,12 @@ on showNoBalance me, tNotEnoughCredits, tNotEnoughPixels
   tWndObj.registerProcedure(#hidePurchaseOk, me.getID(), #mouseUp)
   tWndObj.setProperty(#locZ, 22000000)
   tWndObj.lock(1)
-  return(1)
+  return TRUE
 end
 
 on showPurchaseOk me 
   if not createWindow(pInfoWindowID, "habbo_basic.window", void(), void(), #modal) then
-    return(0)
+    return FALSE
   end if
   tWndObj = getWindow(pInfoWindowID)
   if not tWndObj.merge("habbo_message_dialog.window") then
@@ -442,20 +442,20 @@ on showPurchaseOk me
   tWndObj.center()
   tWndObj.setProperty(#locZ, 22000000)
   tWndObj.getElement("habbo_message_text_b").setText(getText("catalog_itsurs"))
-  return(1)
+  return TRUE
 end
 
 on hidePurchaseOk me, tOptionalEvent, tOptionalSprID 
-  if tOptionalEvent = #mouseUp then
+  if (tOptionalEvent = #mouseUp) then
     if stringp(tOptionalSprID) then
-      if tOptionalSprID = "close" or tOptionalSprID = "habbo_message_ok" or tOptionalSprID = "button_cancel" or tOptionalSprID = "alert_ok" then
+      if (tOptionalSprID = "close") or (tOptionalSprID = "habbo_message_ok") or (tOptionalSprID = "button_cancel") or (tOptionalSprID = "alert_ok") then
         if windowExists(pInfoWindowID) then
           removeWindow(pInfoWindowID)
         end if
       end if
-      if tOptionalSprID = "nobalance_ok" then
+      if (tOptionalSprID = "nobalance_ok") then
         if not textExists("url_nobalance") then
-          return(0)
+          return FALSE
         end if
         tSession = getObject(#session)
         tURL = getText("url_nobalance")
@@ -469,20 +469,20 @@ on hidePurchaseOk me, tOptionalEvent, tOptionalSprID
           removeWindow(pInfoWindowID)
         end if
       end if
-      if tOptionalSprID = "alert_link" then
+      if (tOptionalSprID = "alert_link") then
         tURL = getWindow(pInfoWindowID).getElement("alert_link").getText()
         executeMessage(#externalLinkClick, the mouseLoc)
         openNetPage(tURL)
       end if
     end if
   end if
-  return(1)
+  return TRUE
 end
 
 on getClassAsset me, tClassName 
   tClass = tClassName
   if tClass contains "*" then
-    tClass = tClass.getProp(#char, 1, offset("*", tClass) - 1)
+    tClass = tClass.getProp(#char, 1, (offset("*", tClass) - 1))
   end if
   return(tClass)
 end

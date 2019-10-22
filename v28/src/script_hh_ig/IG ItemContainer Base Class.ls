@@ -2,11 +2,11 @@ property pData, pIGComponentId
 
 on construct me 
   pData = [:]
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
-  return(me.deconstruct())
+  return(me.ancestor.deconstruct())
 end
 
 on define me, tdata 
@@ -15,29 +15,29 @@ end
 
 on Refresh me, tdata 
   if not listp(tdata) then
-    return(0)
+    return FALSE
   end if
   i = 1
   repeat while i <= tdata.count
     tKey = tdata.getPropAt(i)
     tValue = tdata.getAt(i)
-    me.setaProp(tKey, tValue)
-    i = 1 + i
+    me.pData.setaProp(tKey, tValue)
+    i = (1 + i)
   end repeat
-  return(1)
+  return TRUE
 end
 
 on getProperty me, tKey 
-  return(me.getaProp(tKey))
+  return(me.pData.getaProp(tKey))
 end
 
 on exists me, tKey 
-  return(me.findPos(tKey))
+  return(me.pData.findPos(tKey))
 end
 
 on setProperty me, tKey, tValue 
-  tOldValue = me.getaProp(tKey)
-  if ilk(tOldValue) = #list then
+  tOldValue = me.pData.getaProp(tKey)
+  if (ilk(tOldValue) = #list) then
     if ilk(tValue) <> #list then
       if tOldValue.findPos(tValue) then
         tOldValue.deleteOne(tValue)
@@ -47,8 +47,8 @@ on setProperty me, tKey, tValue
       tValue = tOldValue
     end if
   end if
-  me.setaProp(tKey, tValue)
-  return(1)
+  me.pData.setaProp(tKey, tValue)
+  return TRUE
 end
 
 on getItemId me 
@@ -61,8 +61,8 @@ end
 
 on getIGComponent me, tServiceId 
   towner = me.getOwnerIGComponent()
-  if towner = 0 then
-    return(0)
+  if (towner = 0) then
+    return FALSE
   end if
   return(towner.getIGComponent(tServiceId))
 end

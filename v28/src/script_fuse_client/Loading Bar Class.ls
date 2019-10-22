@@ -15,7 +15,7 @@ on construct me
   pReadyFlag = 0
   pExtraTasks = [:]
   registerMessage(#loadingBarSetExtraTaskDone, me.getID(), #setExtraTaskDone)
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
@@ -26,7 +26,7 @@ on deconstruct me
     pWindowID = ""
   end if
   unregisterMessage(#loadingBarSetExtraTaskDone, me.getID())
-  return(1)
+  return TRUE
 end
 
 on define me, tLoadID, tProps 
@@ -38,31 +38,31 @@ on define me, tLoadID, tProps
   pDrawPoint = 0
   pReadyFlag = 0
   if ilk(tProps, #propList) then
-    if ilk(tProps.getAt(#buffer)) = #image then
+    if (ilk(tProps.getAt(#buffer)) = #image) then
       pBuffer = tProps.getAt(#buffer)
     end if
-    if ilk(tProps.getAt(#width)) = #integer then
+    if (ilk(tProps.getAt(#width)) = #integer) then
       pwidth = tProps.getAt(#width)
     end if
-    if ilk(tProps.getAt(#height)) = #integer then
+    if (ilk(tProps.getAt(#height)) = #integer) then
       pheight = tProps.getAt(#height)
     end if
-    if ilk(tProps.getAt(#bgColor)) = #color then
+    if (ilk(tProps.getAt(#bgColor)) = #color) then
       pBgColor = tProps.getAt(#bgColor)
     end if
-    if ilk(tProps.getAt(#color)) = #color then
+    if (ilk(tProps.getAt(#color)) = #color) then
       pcolor = tProps.getAt(#color)
     end if
-    if ilk(tProps.getAt(#type)) = #symbol then
+    if (ilk(tProps.getAt(#type)) = #symbol) then
       pTaskType = tProps.getAt(#type)
     end if
-    if ilk(tProps.getAt(#extraTasks)) = #list then
+    if (ilk(tProps.getAt(#extraTasks)) = #list) then
       repeat while tProps.getAt(#extraTasks) <= tProps
         tTask = getAt(tProps, tLoadID)
         pExtraTasks.setaProp(tTask, 0)
       end repeat
     end if
-    if tProps.getAt(#buffer) = #window then
+    if (tProps.getAt(#buffer) = #window) then
       if pWindowID <> "" then
         removeWindow(pWindowID)
       end if
@@ -87,8 +87,8 @@ on define me, tLoadID, tProps
   if pheight > tRect.height then
     pheight = tRect.height
   end if
-  pBarRect = rect((tRect.width / 2) - (pwidth / 2), (tRect.height / 2) - (pheight / 2), (tRect.width / 2) + (pwidth / 2), (tRect.height / 2) + (pheight / 2))
-  pOffRect = rect(pBarRect.getAt(1) + 2, pBarRect.getAt(2) + 2, pBarRect.getAt(3) - 2, pBarRect.getAt(4) - 2)
+  pBarRect = rect(((tRect.width / 2) - (pwidth / 2)), ((tRect.height / 2) - (pheight / 2)), ((tRect.width / 2) + (pwidth / 2)), ((tRect.height / 2) + (pheight / 2)))
+  pOffRect = rect((pBarRect.getAt(1) + 2), (pBarRect.getAt(2) + 2), (pBarRect.getAt(3) - 2), (pBarRect.getAt(4) - 2))
   pBuffer.fill(pBarRect, pBgColor)
   pBuffer.draw(pBarRect, [#color:pcolor, #shapeType:#rect])
   return(receivePrepare(me.getID()))
@@ -104,30 +104,30 @@ on prepare me
   if voidp(pTaskId) or pReadyFlag then
     return(removeObject(me.getID()))
   end if
-  if pTaskType = #cast then
+  if (pTaskType = #cast) then
     tPercent = getCastLoadManager().getLoadPercent(pTaskId)
   else
-    if pTaskType = #file then
+    if (pTaskType = #file) then
       tPercent = getDownloadManager().getLoadPercent(pTaskId)
     end if
   end if
   repeat while pTaskType <= undefined
     tTask = getAt(undefined, undefined)
     if not tTask then
-      tPercent = tPercent - (0.1 / pExtraTasks.count)
+      tPercent = (tPercent - (0.1 / pExtraTasks.count))
     end if
   end repeat
-  pDrawPoint = pDrawPoint + 1
+  pDrawPoint = (pDrawPoint + 1)
   if pDrawPoint <= (pPercent * pOffRect.width) then
-    tRect = rect(pOffRect.getAt(1) + pDrawPoint - 1, pOffRect.getAt(2), pOffRect.getAt(1) + pDrawPoint, pOffRect.getAt(4))
+    tRect = rect(((pOffRect.getAt(1) + pDrawPoint) - 1), pOffRect.getAt(2), (pOffRect.getAt(1) + pDrawPoint), pOffRect.getAt(4))
     pBuffer.fill(tRect, pcolor)
   end if
-  if pPercent = tPercent then
+  if (pPercent = tPercent) then
     return()
   end if
   pBuffer.fill(pBarRect, pBgColor)
   pBuffer.draw(pBarRect, [#color:pcolor, #shapeType:#rect])
-  tRect = rect(pOffRect.getAt(1), pOffRect.getAt(2), (pPercent * pOffRect.width) + pOffRect.getAt(1), pOffRect.getAt(4))
+  tRect = rect(pOffRect.getAt(1), pOffRect.getAt(2), ((pPercent * pOffRect.width) + pOffRect.getAt(1)), pOffRect.getAt(4))
   pBuffer.fill(tRect, pcolor)
   pDrawPoint = (pPercent * pOffRect.width)
   pPercent = tPercent

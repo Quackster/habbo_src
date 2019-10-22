@@ -41,7 +41,7 @@ on createNode me, tdata, tWidth, tLevel
   if not voidp(tdata.getaProp(#subnodes)) then
     repeat while tdata.subnodes <= tWidth
       tSubNodeData = getAt(tWidth, tdata)
-      tSubNode = me.createNode(tSubNodeData, tWidth, tLevel + 1)
+      tSubNode = me.createNode(tSubNodeData, tWidth, (tLevel + 1))
       tNode.addChild(tSubNode)
     end repeat
   end if

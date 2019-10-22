@@ -1,17 +1,17 @@
 on addWindows me 
   me.pWindowID = "ru"
   tService = me.getIGComponent("PreGame")
-  if tService = 0 then
-    return(0)
+  if (tService = 0) then
+    return FALSE
   end if
   tGameRef = tService.getJoinedGame()
-  if tGameRef = 0 then
-    return(0)
+  if (tGameRef = 0) then
+    return FALSE
   end if
   tGameType = tGameRef.getProperty(#game_type)
   tWrapObjRef = me.getWindowWrapper()
-  if tWrapObjRef = 0 then
-    return(0)
+  if (tWrapObjRef = 0) then
+    return FALSE
   end if
   tScrollStartOffset = -100
   tWinChar = "a"
@@ -22,7 +22,7 @@ on addWindows me
     if memberExists(tLayoutID) then
       tLayoutList.append(tLayoutID)
     end if
-    i = 1 + i
+    i = (1 + i)
   end repeat
   i = 1
   repeat while i <= tLayoutList.count
@@ -31,8 +31,8 @@ on addWindows me
     else
       tWrapObjRef.addOneWindow(me.getWindowId(i), tLayoutList.getAt(i), me.pWindowSetId, [#scrollFromLocX:tScrollStartOffset, #spaceBottom:2])
     end if
-    tScrollStartOffset = tScrollStartOffset - 50
-    i = 1 + i
+    tScrollStartOffset = (tScrollStartOffset - 50)
+    i = (1 + i)
   end repeat
-  return(1)
+  return TRUE
 end

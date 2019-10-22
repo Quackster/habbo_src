@@ -1,65 +1,65 @@
 property pUpdateCounter, pWindowHidden, pEndTime
 
 on update me 
-  me.update()
-  pUpdateCounter = pUpdateCounter + 1
+  me.ancestor.update()
+  pUpdateCounter = (pUpdateCounter + 1)
   if pUpdateCounter < 4 then
-    return(1)
+    return TRUE
   end if
   pUpdateCounter = 0
   tTimeLeft = me.getTimeLeft()
   if tTimeLeft <= 0 then
-    return(1)
+    return TRUE
   end if
   if tTimeLeft > 30 then
-    return(1)
+    return TRUE
   else
     if pWindowHidden then
       pWindowHidden = 0
-      return(me.createWindows())
+      return(me.ancestor.createWindows())
     end if
   end if
   if me.count(#pWindowList) < 1 then
-    return(0)
+    return FALSE
   end if
-  tWndObj = getWindow(me.getAt(1))
-  if tWndObj = 0 then
-    return(0)
+  tWndObj = getWindow(me.pWindowList.getAt(1))
+  if (tWndObj = 0) then
+    return FALSE
   end if
   tElem = tWndObj.getElement("ig_tip_title")
-  if tElem = 0 then
-    return(0)
+  if (tElem = 0) then
+    return FALSE
   end if
   tElem.setText(me.getTitleText())
-  return(1)
+  return TRUE
 end
 
 on setTitleField me, tWindowID, tMode 
   tWndObj = getWindow(tWindowID)
-  if tWndObj = 0 then
-    return(0)
+  if (tWndObj = 0) then
+    return FALSE
   end if
-  tLocY = tLocY + tWndObj.getProperty(#height)
+  tLocY = (tLocY + tWndObj.getProperty(#height))
   tElem = tWndObj.getElement("ig_tip_title")
   tTitleText = me.getTitleText()
   if tMode then
-    tWndObj.resizeTo((tTitleText.length * 8) + 19 + 15 + 6, tWndObj.getProperty(#height))
+    tWndObj.resizeTo(((((tTitleText.length * 8) + 19) + 15) + 6), tWndObj.getProperty(#height))
   else
-    tWndObj.resizeTo((tTitleText.length * 8) + 19 + 15 + 6, tWndObj.getProperty(#height))
+    tWndObj.resizeTo(((((tTitleText.length * 8) + 19) + 15) + 6), tWndObj.getProperty(#height))
   end if
   if tElem <> 0 then
     tElem.setText(tTitleText)
   end if
-  return(1)
+  return TRUE
 end
 
 on showInfo me, tWindowList, tdata, tMode 
   if tWindowList.count < 1 then
-    return(1)
+    return TRUE
   end if
   pWindowID = tWindowList.getAt(1)
   pEndTime = tdata
-  return(1)
+  return TRUE
 end
 
 on getTitleText me 
@@ -70,9 +70,9 @@ on createWindows me
   pEndTime = me.pData
   if me.getTimeLeft() > 30 then
     pWindowHidden = 1
-    return(1)
+    return TRUE
   else
-    return(me.createWindows())
+    return(me.ancestor.createWindows())
   end if
 end
 
@@ -86,7 +86,7 @@ on getLayout me, tMode
 end
 
 on getFormatTime me 
-  tTimeLeft = integer((pEndTime - the milliSeconds / 1000))
+  tTimeLeft = integer(((pEndTime - the milliSeconds) / 1000))
   if tTimeLeft < 0 then
     return("0:00")
   end if
@@ -99,9 +99,9 @@ on getFormatTime me
 end
 
 on getTimeLeft me 
-  tTimeLeft = (pEndTime - the milliSeconds / 1000)
+  tTimeLeft = ((pEndTime - the milliSeconds) / 1000)
   if tTimeLeft < 0 then
-    return(0)
+    return FALSE
   end if
   return(tTimeLeft)
 end

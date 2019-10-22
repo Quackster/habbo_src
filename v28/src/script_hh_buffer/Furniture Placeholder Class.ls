@@ -2,27 +2,27 @@ property pMaxFrames, pDelay, pFrame, pItem, pData
 
 on prepare me, tdata 
   if me.count(#pSprList) < 1 then
-    return(0)
+    return FALSE
   end if
   pMaxFrames = 6
   tDelim = the itemDelimiter
   the itemDelimiter = "_"
-  tName = member.name
-  pItem = tName.getProp(#item, 1, tName.count(#item) - 6)
-  pPart = tName.getProp(#item, tName.count(#item) - 5)
-  pData = tName.getProp(#item, tName.count(#item) - 4, tName.count(#item) - 1)
+  tName = me.getPropRef(#pSprList, 1).member.name
+  pItem = tName.getProp(#item, 1, (tName.count(#item) - 6))
+  pPart = tName.getProp(#item, (tName.count(#item) - 5))
+  pData = tName.getProp(#item, (tName.count(#item) - 4), (tName.count(#item) - 1))
   the itemDelimiter = tDelim
-  pFrame = random(pMaxFrames) - 1
+  pFrame = (random(pMaxFrames) - 1)
   pDelay = 0
   me.setAnimMembersToFrame()
   pTimer = 1
-  return(1)
+  return TRUE
 end
 
 on update me 
-  pDelay = pDelay + 1
+  pDelay = (pDelay + 1)
   if pDelay > 4 then
-    pFrame = (pFrame + 1 mod pMaxFrames)
+    pFrame = ((pFrame + 1) mod pMaxFrames)
     me.setAnimMembersToFrame(pFrame)
     pDelay = 0
   end if
@@ -30,7 +30,7 @@ end
 
 on setAnimMembersToFrame me, tFrame 
   if me.count(#pSprList) < 1 then
-    return(0)
+    return FALSE
   end if
   tLayerChar = "a"
   tNewName = pItem & "_" & tLayerChar & "_" & pData & "_" & tFrame

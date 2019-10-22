@@ -20,7 +20,7 @@ on construct me
   pSkippedFrames = 20
   pREquiresUpdate = 1
   pStopped = 1
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
@@ -33,7 +33,7 @@ on deconstruct me
     removeObject(pAnimInstance.getID())
   end repeat
   removeUpdate(me.getID())
-  return(1)
+  return TRUE
 end
 
 on define me, tdata 
@@ -47,7 +47,7 @@ on define me, tdata
     pAnimBottom = tRoomDef.getAt(#anim_bottom)
     pAnimTop = tRoomDef.getAt(#anim_top)
   end if
-  pTurnPoint = pTurnPoint + tdata.getAt(#offset)
+  pTurnPoint = (pTurnPoint + tdata.getAt(#offset))
   me.initAnimation()
   receiveUpdate(me.getID())
 end
@@ -61,14 +61,14 @@ on initAnimation me
   i = 1
   repeat while i <= pMaxItemAmount
     tProps = [:]
-    tProps.setaProp(#type, random(3) - 1)
+    tProps.setaProp(#type, (random(3) - 1))
     tProps.setaProp(#turnpoint, pTurnPoint)
     tProps.setaProp(#initminv, pAnimTop)
     tProps.setaProp(#initmaxv, pAnimBottom)
     tCloud = createObject(getUniqueID(), "Landscape Cloud")
     tCloud.define(tProps)
     pAnimInstanceList.setaProp(tCloud.getID(), tCloud)
-    i = 1 + i
+    i = (1 + i)
   end repeat
   me.renderFrame()
 end
@@ -79,13 +79,13 @@ end
 
 on update me 
   if pStopped then
-    return(0)
+    return FALSE
   end if
-  pSkip = pSkip - 1
+  pSkip = (pSkip - 1)
   if pSkip <= 0 then
     pSkip = pSkippedFrames
   else
-    return(0)
+    return FALSE
   end if
   me.renderFrame()
 end

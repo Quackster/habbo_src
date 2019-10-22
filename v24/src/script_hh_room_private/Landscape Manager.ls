@@ -10,7 +10,7 @@ on construct me
   if threadExists(#room) then
     pWideScreenOffset = getThread(#room).getInterface().getProperty(#widescreenoffset)
   end if
-  pwidth = the stageRight - the stageLeft
+  pwidth = (the stageRight - the stageLeft)
   pheight = integer(getVariable("landscape.height", 400))
   tMemberName = "room_landscape"
   if memberExists(tMemberName) then
@@ -25,7 +25,7 @@ on construct me
     me.setLandscape(1, tRoomType)
     me.setLandscapeAnimation(1, tRoomType)
   end if
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
@@ -43,19 +43,19 @@ on deconstruct me
     removeMember(tMemberName)
   end if
   removeUpdate(me.getID())
-  return(1)
+  return TRUE
 end
 
 on insertWallMaskItem me, tID, tClassID, tloc, tdir, tSize 
   pWallMaskMngr.insertWallMaskItem(tID, tClassID, tloc, tdir, tSize)
-  if pWallMaskMngr.getItemCount() = 1 then
+  if (pWallMaskMngr.getItemCount() = 1) then
     me.setActivate(1)
   end if
 end
 
 on removeWallMaskItem me, tID 
   pWallMaskMngr.removeWallMaskItem(tID)
-  if pWallMaskMngr.getItemCount() = 0 then
+  if (pWallMaskMngr.getItemCount() = 0) then
     me.setActivate(0)
   end if
 end
@@ -66,7 +66,7 @@ on setActivate me, tActive
     tViz = me.getRoomVisualizer()
     if objectp(tViz) then
       tSpr = tViz.getSprById("landscape")
-      if ilk(tSpr) = #sprite then
+      if (ilk(tSpr) = #sprite) then
         tSpr.member = pLandscapeMem
         tSpr.blend = 100
         tSpr.width = pwidth
@@ -89,8 +89,8 @@ on setLandscape me, tLandscapeID, tRoomType
   the itemDelimiter = "_"
   tRoomTypeID = tRoomType.getProp(#item, 2)
   the itemDelimiter = tDelim
-  if tRoomTypeID = "" then
-    return(0)
+  if (tRoomTypeID = "") then
+    return FALSE
   end if
   tdata = [:]
   tdata.setAt(#width, pwidth)
@@ -108,8 +108,8 @@ on setLandscapeAnimation me, tAnimationID, tRoomType
   the itemDelimiter = "_"
   tRoomTypeID = tRoomType.getProp(#item, 2)
   the itemDelimiter = tDelim
-  if tRoomTypeID = "" then
-    return(0)
+  if (tRoomTypeID = "") then
+    return FALSE
   end if
   tdata = [:]
   tdata.setAt(#width, pwidth)
@@ -125,14 +125,14 @@ on getRoomVisualizer me
   if threadExists(#room) then
     tInterface = getThread(#room).getInterface()
     tComponent = getThread(#room).getComponent()
-    if tComponent.getRoomID() = "private" then
+    if (tComponent.getRoomID() = "private") then
       tVisualizer = getThread(#room).getInterface().getRoomVisualizer()
       if objectp(tVisualizer) then
         return(tVisualizer)
       end if
     end if
   end if
-  return(0)
+  return FALSE
 end
 
 on updateLandscape me 
@@ -145,8 +145,8 @@ on updateLandscape me
   tViz = me.getRoomVisualizer()
   if objectp(tViz) then
     tSpr = tViz.getSprById("landscape")
-    if ilk(tSpr) = #sprite then
-      image.copyPixels(tLandscapeImg, tLandscapeImg.rect, tLandscapeImg.rect)
+    if (ilk(tSpr) = #sprite) then
+      tSpr.member.image.copyPixels(tLandscapeImg, tLandscapeImg.rect, tLandscapeImg.rect)
     end if
   end if
 end

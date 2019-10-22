@@ -15,7 +15,7 @@ on construct me
   pPersistentCatalogDataId = "Persistent Catalog Data"
   createObject(pPersistentCatalogDataId, ["Persistent Product Data Container"])
   registerMessage(#edit_catalogue, me.getID(), #editModeOn)
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
@@ -23,7 +23,7 @@ on deconstruct me
   pCatalogProps = [:]
   pLoadingProps = [:]
   unregisterMessage(#edit_catalogue, me.getID())
-  return(1)
+  return TRUE
 end
 
 on editModeOn me 
@@ -67,10 +67,10 @@ on checkProductOrder me, tProductProps
     end if
     pProductOrderData = tProductProps.duplicate()
     me.getInterface().showOrderInfo(tstate, tProps)
-    return(1)
+    return TRUE
   else
     pProductOrderData = [:]
-    return(0)
+    return FALSE
   end if
 end
 
@@ -121,7 +121,7 @@ on purchaseProduct me, tGiftProps
   tMessage.addProp(#string, string(me.getLanguage()))
   tMessage.addProp(#string, string(pProductOrderData.getAt("purchaseCode")))
   tMessage.addProp(#string, tExtra)
-  if tGiftProps.getAt("gift") = 1 then
+  if (tGiftProps.getAt("gift") = 1) then
     tMessage.addProp(#integer, 1)
     tMessage.addProp(#string, tGiftProps.getAt("gift_receiver"))
     tMessage.addProp(#string, tGiftProps.getAt("gift_msg"))
@@ -129,7 +129,7 @@ on purchaseProduct me, tGiftProps
     tMessage.addProp(#integer, 0)
   end if
   if not connectionExists(getVariable("connection.info.id")) then
-    return(0)
+    return FALSE
   end if
   return(getConnection(getVariable("connection.info.id")).send("PURCHASE_FROM_CATALOG", tMessage))
 end
@@ -143,12 +143,12 @@ on retrieveCatalogueIndex me
   tLanguage = me.getLanguage()
   if not voidp(pCatalogProps.getAt("catalogueIndex")) and tEditmode <> "develop" then
     me.getInterface().saveCatalogueIndex(pCatalogProps.getAt("catalogueIndex"))
-    return(0)
+    return FALSE
   else
     if connectionExists(getVariable("connection.info.id")) then
       return(getConnection(getVariable("connection.info.id")).send("GCIX", tEditmode & "/" & tLanguage))
     else
-      return(0)
+      return FALSE
     end if
   end if
 end
@@ -169,35 +169,35 @@ on retrieveCataloguePage me, tPageID
     if connectionExists(getVariable("connection.info.id")) then
       return(getConnection(getVariable("connection.info.id")).send("GCAP", tEditmode & "/" & tPageID & "/" & tLanguage))
     else
-      return(0)
+      return FALSE
     end if
   end if
-  return(0)
+  return FALSE
 end
 
 on purchaseReady me, tStatus, tMsg 
-  if tStatus = "OK" then
+  if (tStatus = "OK") then
     me.getInterface().showPurchaseOk()
   else
-    if tStatus = "NOBALANCE" then
+    if (tStatus = "NOBALANCE") then
       me.getInterface().showNoBalance(void(), 1)
     else
-      if tStatus = "ERROR" then
+      if (tStatus = "ERROR") then
         error(me, "Purchase error:" && tMsg, #purchaseReady, #major)
       else
         error(me, "Unsupported purchase result:" && tStatus && tMsg, #purchaseReady, #major)
       end if
     end if
   end if
-  return(1)
+  return TRUE
 end
 
 on saveCatalogueIndex me, tdata 
   if tdata.ilk <> #propList then
     return(error(me, "Incorrect Catalogue Format", #saveCatalogueIndex, #major))
   end if
-  if tdata.count = 0 then
-    return(0)
+  if (tdata.count = 0) then
+    return FALSE
   end if
   pCatalogProps.setAt("catalogueIndex", tdata)
   me.getInterface().saveCatalogueIndex(tdata)
@@ -207,8 +207,8 @@ on saveCataloguePage me, tdata
   if tdata.ilk <> #propList then
     return(error(me, "Incorrect Catalogue Page Format", #saveCataloguePage, #major))
   end if
-  if tdata.count = 0 then
-    return(0)
+  if (tdata.count = 0) then
+    return FALSE
   end if
   if not voidp(tdata.getAt("id")) then
     if me.processCataloguePage(tdata) then
@@ -275,7 +275,7 @@ on solveCatalogueMembers me, tdata
         tClass = tProductData.getAt("class")
         if tClass contains "*" then
           tSmallMem = tClass & "_small"
-          tClass = tClass.getProp(#char, 1, offset("*", tClass) - 1)
+          tClass = tClass.getProp(#char, 1, (offset("*", tClass) - 1))
           if not memberExists(tSmallMem) then
             tSmallMem = tClass & "_small"
           else
@@ -284,7 +284,7 @@ on solveCatalogueMembers me, tdata
         else
           tSmallMem = tClass & "_small"
         end if
-        if tClass = "" and not voidp(tdata.getAt("productList").getAt(f).getaProp("dealList")) then
+        if (tClass = "") and not voidp(tdata.getAt("productList").getAt(f).getaProp("dealList")) then
           tLoading = 0
           repeat while tImageNameList <= undefined
             tProduct = getAt(undefined, tdata)
@@ -301,7 +301,7 @@ on solveCatalogueMembers me, tdata
           tdata.getAt("productList").getAt(f).setAt("smallPrewImg", getmemnum("ctlg_loading_icon2"))
           tdata.getAt("productList").getAt(f).setAt("prewImage", getmemnum("ctlg_loading_icon2"))
         end if
-        if tdata.getAt("productList").getAt(f).getAt("smallPrewImg") = 0 then
+        if (tdata.getAt("productList").getAt(f).getAt("smallPrewImg") = 0) then
           if memberExists(tSmallMem) then
             tdata.getAt("productList").getAt(f).setAt("smallPrewImg", getmemnum(tSmallMem))
           else
@@ -312,7 +312,7 @@ on solveCatalogueMembers me, tdata
       if not voidp(tDealNumber) and tdata.getAt("productList").getAt(f).getAt("smallPrewImg") <> getmemnum("ctlg_loading_icon2") then
         tdata.getAt("productList").getAt(f).setAt("smallPrewImg", 0)
       end if
-      f = 1 + f
+      f = (1 + f)
     end repeat
   end if
   return(tdata)
@@ -328,13 +328,13 @@ on processCataloguePage me, tdata
       tHeaderMemNum = queueDownload(tSourceURL, tHeaderImgName, #bitmap, 1)
       if tHeaderMemNum > 0 then
         registerDownloadCallback(tHeaderMemNum, #catalogImgDownloaded, me.getID(), tHeaderImgName)
-        if tObjectLoadList.findPos(tHeaderImgName) = 0 then
+        if (tObjectLoadList.findPos(tHeaderImgName) = 0) then
           tObjectLoadList.addAt(1, tHeaderImgName)
         end if
       end if
     end if
   end if
-  if ilk(tTeaserImgList) = #list then
+  if (ilk(tTeaserImgList) = #list) then
     repeat while tTeaserImgList <= undefined
       tTeaserImg = getAt(undefined, tdata)
       if string(tTeaserImg).length > 0 then
@@ -343,7 +343,7 @@ on processCataloguePage me, tdata
           tTeaserMemNum = queueDownload(tSourceURL, tTeaserImg, #bitmap, 1)
           if tTeaserMemNum > 0 then
             registerDownloadCallback(tTeaserMemNum, #catalogImgDownloaded, me.getID(), tTeaserImg)
-            if tObjectLoadList.findPos(tTeaserImg) = 0 then
+            if (tObjectLoadList.findPos(tTeaserImg) = 0) then
               tObjectLoadList.addAt(1, tTeaserImg)
             end if
           end if
@@ -364,7 +364,7 @@ on processCataloguePage me, tdata
       tProduct = getAt(undefined, tdata)
       tClass = me.getClassName(tProduct.getAt("class"))
       if not voidp(tClass) and tClass <> "" then
-        if tObjectLoadList.findPos(tClass) = 0 then
+        if (tObjectLoadList.findPos(tClass) = 0) then
           tObjectLoadList.addAt(1, tClass)
         end if
       else
@@ -376,7 +376,7 @@ on processCataloguePage me, tdata
           tDealProduct = getAt(undefined, tdata)
           tClass = me.getClassName(tDealProduct.getAt("class"))
           if not voidp(tClass) and tClass <> "" then
-            if tObjectLoadList.findPos(tClass) = 0 then
+            if (tObjectLoadList.findPos(tClass) = 0) then
               tObjectLoadList.add(tClass)
             end if
           else
@@ -388,7 +388,7 @@ on processCataloguePage me, tdata
     tIndex = tObjectLoadList.count
     repeat while tIndex >= 1
       tClass = tObjectLoadList.getAt(tIndex)
-      if getThread(#dynamicdownloader) = 0 then
+      if (getThread(#dynamicdownloader) = 0) then
         tObjectLoadList.deleteAt(tIndex)
       else
         if getThread(#dynamicdownloader).getComponent().isAssetDownloaded(tClass) then
@@ -398,7 +398,7 @@ on processCataloguePage me, tdata
           getThread(#dynamicdownloader).getComponent().downloadCastDynamically(tClass, ttype, me.getID(), #objectDownloadCompleted, 1)
         end if
       end if
-      tIndex = 255 + tIndex
+      tIndex = (255 + tIndex)
     end repeat
   end if
   tOut = 1
@@ -449,13 +449,13 @@ on isLoading me, tName, tPageName
     if tPos > 0 then
       tFoundIndex = tIndex
     else
-      tIndex = 255 + tIndex
+      tIndex = (255 + tIndex)
     end if
   end repeat
   if tFoundIndex < 1 then
-    return(0)
+    return FALSE
   else
-    return(1)
+    return TRUE
   end if
 end
 
@@ -474,12 +474,12 @@ on objectDownloadCompleted me, tClass, tSuccess
     if tPos > 0 then
       tFoundIndex = tIndex
     else
-      tIndex = 255 + tIndex
+      tIndex = (255 + tIndex)
     end if
   end repeat
   me.downloadCompleted(tClass, tSuccess)
   if not voidp(tFoundIndex) then
-    if tPageID = pLastSelectedPageID then
+    if (tPageID = pLastSelectedPageID) then
       tdata = me.solveCatalogueMembers(me.getProp(#pCatalogProps, tPageID))
       me.getInterface().ShowSmallIcons(#furniLoaded, tClass)
       me.getInterface().showProductPageCounter()
@@ -491,9 +491,9 @@ end
 on catalogImgDownloaded me, tImgId 
   tSuccess = 0
   if memberExists(tImgId) then
-    if member(getmemnum(tImgId)).type = #bitmap then
+    if (member(getmemnum(tImgId)).type = #bitmap) then
       tImage = member(getmemnum(tImgId)).image
-      if tImage.width = 0 or tImage.height = 0 then
+      if (tImage.width = 0) or (tImage.height = 0) then
         member(getmemnum(tImgId)).image = member(getmemnum("loading_icon")).image
       else
         tSuccess = 1
@@ -508,7 +508,7 @@ on catalogImgDownloaded me, tImgId
     if tDownloadList.findPos(tImgId) > 0 then
       tPageID = pLoadingProps.getPropAt(tIndex)
     else
-      tIndex = 255 + tIndex
+      tIndex = (255 + tIndex)
     end if
   end repeat
   me.downloadCompleted(tImgId, tSuccess)
@@ -552,7 +552,7 @@ on downloadCompleted me, tClassID, tSuccess
     tdata = me.solveCatalogueMembers(tdata)
     tPageID = tdata.getAt("id")
     pCatalogProps.setAt(tPageID, tdata)
-    if tDownloadList.count = 0 then
+    if (tDownloadList.count = 0) then
       pLoadingProps.deleteAt(tIndex)
       if tPageID contains pLastSelectedPageID then
         tInterfaceId = me.getInterface().getID()
@@ -562,7 +562,7 @@ on downloadCompleted me, tClassID, tSuccess
         createTimeout(#catalogpagedata, 10, #cataloguePageData, tInterfaceId, tdata, 1)
       end if
     end if
-    tIndex = 255 + tIndex
+    tIndex = (255 + tIndex)
   end repeat
 end
 

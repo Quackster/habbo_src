@@ -20,7 +20,7 @@ on defineCallback me, tCallBackObj, tMethod
   tCallbackReg = 1
   repeat while pCallbackList <= tMethod
     tCallback = getAt(tMethod, tCallBackObj)
-    if tCallback.getAt(#obj) = tCallBackObj and tCallback.getAt(#method) = tMethod then
+    if (tCallback.getAt(#obj) = tCallBackObj) and (tCallback.getAt(#method) = tMethod) then
       tCallbackReg = 0
     end if
   end repeat
@@ -33,11 +33,11 @@ on removeCallback me, tCallBackObj, tMethod
   i = 1
   repeat while i <= pCallbackList.count
     tCallback = pCallbackList.getAt(i)
-    if tCallback.getAt(#obj) = tCallBackObj and tCallback.getAt(#method) = tMethod then
+    if (tCallback.getAt(#obj) = tCallBackObj) and (tCallback.getAt(#method) = tMethod) then
       pCallbackList.deleteAt(i)
       next repeat
     end if
-    i = i + 1
+    i = (i + 1)
   end repeat
 end
 
@@ -46,7 +46,7 @@ on registerDownload me, ttype, tAssetId, tProps
     pDynamicDownloader = getThread(#dynamicdownloader).getComponent()
   end if
   tProps = [#type:ttype, #assetId:tAssetId, #props:tProps]
-  if ttype = #bitmap then
+  if (ttype = #bitmap) then
     tSourceURL = pImageLibraryURL & "catalogue/" & tAssetId & ".gif"
     tMemNum = queueDownload(tSourceURL, tAssetId, #bitmap, 1)
     if tMemNum > 0 then
@@ -54,11 +54,11 @@ on registerDownload me, ttype, tAssetId, tProps
       pAssetLoadingList.add(tAssetId)
     end if
   else
-    if ttype = #furni then
+    if (ttype = #furni) then
       pDynamicDownloader.downloadCastDynamically(tAssetId, #Active, me.getID(), #downloadCallback, 1, tProps)
       pAssetLoadingList.add(tAssetId)
     else
-      if ttype = #soundset then
+      if (ttype = #soundset) then
       end if
     end if
   end if
@@ -66,7 +66,7 @@ end
 
 on downloadCallback me, tName, tSuccess, tProps 
   if tSuccess then
-    if ilk(tName) = #propList then
+    if (ilk(tName) = #propList) then
       tProps = tName
     end if
     repeat while pCallbackList <= tSuccess

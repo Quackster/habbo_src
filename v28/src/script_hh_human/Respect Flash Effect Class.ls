@@ -34,14 +34,14 @@ end
 
 on defineWithSprite me, tsprite, tSize 
   if ilk(tsprite) <> #sprite then
-    return(0)
+    return FALSE
   end if
   if voidp(tSize) then
     tSize = #large
   end if
   tWidth = tsprite.width
   tHeight = tsprite.height
-  tloc = point(tsprite.locH + (tWidth / 2), tsprite.locV - (tHeight / 2))
+  tloc = point((tsprite.locH + (tWidth / 2)), (tsprite.locV - (tHeight / 2)))
   tlocz = tsprite.locZ
   tRect = tsprite.rect
   pHostSpriteData.setAt(#sprite, tsprite)
@@ -54,13 +54,13 @@ end
 
 on define me, tloc, tlocz, tSize 
   if voidp(tloc) then
-    return(0)
+    return FALSE
   end if
   if ilk(tloc) <> #point then
-    return(0)
+    return FALSE
   end if
   if voidp(tlocz) then
-    return(0)
+    return FALSE
   end if
   if voidp(tSize) then
     tSize = #large
@@ -73,16 +73,16 @@ end
 
 on update me 
   if not pRunAnimation then
-    return(0)
+    return FALSE
   end if
-  tMoveTime = the milliSeconds - pAnimStartTime
+  tMoveTime = (the milliSeconds - pAnimStartTime)
   if tMoveTime > pTotalAnimTime then
     pRunAnimation = 0
     me.removeFromObjectManager()
-    return(0)
+    return FALSE
   end if
   tUpdatePhase = 0
-  tCurrentPhase = integer((tMoveTime / pTimePerPhase)) + 1
+  tCurrentPhase = (integer((tMoveTime / pTimePerPhase)) + 1)
   if tCurrentPhase <> pCurrentPhase then
     tUpdatePhase = 1
     pCurrentPhase = tCurrentPhase

@@ -1,6 +1,6 @@
 on construct me 
   me.registerServerMessages(1)
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
@@ -32,7 +32,7 @@ on handleTutorialConfig me, tMsg
     tTopicStatus = tConn.GetIntFrom()
     tTopicList.setaProp(tTopicID, tTopicName)
     tStatusList.setaProp(tTopicID, tTopicStatus)
-    tTopic = 1 + tTopic
+    tTopic = (1 + tTopic)
   end repeat
   tConfig.setaProp(#id, tTutorialID)
   tConfig.setaProp(#name, tTutorialName)
@@ -58,21 +58,21 @@ on handleTopicConfig me, tMsg
       tMessage = tConn.GetStrFrom()
       tParam = tConn.GetStrFrom()
       tPreList.setaProp(tMessage, tParam)
-      tPre = 1 + tPre
+      tPre = (1 + tPre)
     end repeat
     tNumOfTriggers = tConn.GetIntFrom()
     tTriggerList = []
     tTrig = 1
     repeat while tTrig <= tNumOfTriggers
       tTriggerList.add(tConn.GetStrFrom())
-      tTrig = 1 + tTrig
+      tTrig = (1 + tTrig)
     end repeat
     tNumOfRestrictions = tConn.GetIntFrom()
     tRestList = []
     tRest = 1
     repeat while tRest <= tNumOfRestrictions
       tRestList.add(tConn.GetStrFrom())
-      tRest = 1 + tRest
+      tRest = (1 + tRest)
     end repeat
     tNumOfContent = tConn.GetIntFrom()
     tContentList = []
@@ -85,13 +85,13 @@ on handleTopicConfig me, tMsg
       tContent.setaProp(#offsetx, tConn.GetStrFrom())
       tContent.setaProp(#offsety, tConn.GetStrFrom())
       tContent.setaProp(#special, tConn.GetStrFrom())
-      if tContent.getAt(#targetID) = "tutor" then
+      if (tContent.getAt(#targetID) = "tutor") then
         tContent.setaProp(#links, void())
         tTutorList = tContent
       else
         tContentList.add(tContent)
       end if
-      tCont = 1 + tCont
+      tCont = (1 + tCont)
     end repeat
     tStep = [:]
     tStep.setaProp(#name, tStepName)
@@ -101,7 +101,7 @@ on handleTopicConfig me, tMsg
     tStep.setaProp(#content, tContentList)
     tStep.setaProp(#tutor, tTutorList)
     tSteps.setaProp(tStepID, tStep)
-    tStepNum = 1 + tStepNum
+    tStepNum = (1 + tStepNum)
   end repeat
   tTopic.setaProp(#id, tTopicID)
   tTopic.setaProp(#steps, tSteps)
@@ -118,7 +118,7 @@ on handleTutorialStatus me, tMsg
     tID = tConn.GetIntFrom()
     tStatus = tConn.GetIntFrom()
     tStatusList.setaProp(tID, tStatus)
-    tStatusNum = 1 + tStatusNum
+    tStatusNum = (1 + tStatusNum)
   end repeat
   me.getComponent().setTutorialStatus(tStatusList)
 end
@@ -150,5 +150,5 @@ on registerServerMessages me, tBool
     unregisterListener(getVariable("connection.info.id", #info), me.getID(), tMsgs)
     unregisterCommands(getVariable("connection.info.id", #info), me.getID(), tCmds)
   end if
-  return(1)
+  return TRUE
 end

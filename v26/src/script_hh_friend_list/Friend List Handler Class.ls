@@ -26,14 +26,14 @@ on getSlotCatAlias me, tUniqueCatID
   repeat while tSlotNo <= tMaxFreeCount
     tSlotStr = string(tSlotNo)
     tPropID = pCatAliases.getOne(tSlotStr)
-    if tPropID = 0 then
+    if (tPropID = 0) then
       pCatAliases.setAt(tUniqueCatID, tSlotStr)
       return(tSlotStr)
     end if
-    tSlotNo = 1 + tSlotNo
+    tSlotNo = (1 + tSlotNo)
   end repeat
   error(me, "Could not map category id to a slot: " & tUniqueCatID, #getSlotCatAlias, #major)
-  return(0)
+  return FALSE
 end
 
 on removeUnusedCategories me, tIdsInUse 
@@ -44,7 +44,7 @@ on removeUnusedCategories me, tIdsInUse
     if not tIdsInUse.getOne(tID) then
       pCatAliases.deleteProp(tID)
     end if
-    tNo = 1 + tNo
+    tNo = (1 + tNo)
   end repeat
 end
 
@@ -55,8 +55,8 @@ end
 
 on handleFriendListInit me, tMsg 
   tConn = tMsg.connection
-  if tConn = 0 then
-    return(0)
+  if (tConn = 0) then
+    return FALSE
   end if
   tUserLimit = tConn.GetIntFrom()
   tNormalLimit = tConn.GetIntFrom()
@@ -71,7 +71,7 @@ on handleFriendListInit me, tMsg
     if tID <> 0 then
       tCategories.setAt(tID, tName)
     end if
-    tCatNo = 1 + tCatNo
+    tCatNo = (1 + tCatNo)
   end repeat
   tFriendCount = tConn.GetIntFrom()
   tFriendList = [:]
@@ -79,7 +79,7 @@ on handleFriendListInit me, tMsg
   repeat while tFriendNo <= tFriendCount
     tFriend = me.parseFriendData(tMsg)
     tFriendList.setAt(string(tFriend.getAt(#id)), tFriend)
-    tFriendNo = 1 + tFriendNo
+    tFriendNo = (1 + tFriendNo)
   end repeat
   tFriendRequestLimit = tConn.GetIntFrom()
   tFriendRequestCount = tConn.GetIntFrom()
@@ -93,8 +93,8 @@ end
 
 on handleFriendListUpdate me, tMsg 
   tConn = tMsg.connection
-  if tConn = 0 then
-    return(0)
+  if (tConn = 0) then
+    return FALSE
   end if
   tCategoryCount = tConn.GetIntFrom()
   if tCategoryCount > 0 then
@@ -106,7 +106,7 @@ on handleFriendListUpdate me, tMsg
       tName = tConn.GetStrFrom()
       tCategoriesTemp.setAt(tID, tName)
       tUsedIds.add(tID)
-      tCatNo = 1 + tCatNo
+      tCatNo = (1 + tCatNo)
     end repeat
     me.removeUnusedCategories(tUsedIds)
     tCategories = [:]
@@ -118,7 +118,7 @@ on handleFriendListUpdate me, tMsg
       if tSlotID <> 0 then
         tCategories.setAt(tSlotID, tName)
       end if
-      tNo = 1 + tNo
+      tNo = (1 + tNo)
     end repeat
     me.getComponent().populateCategoryData(tCategories)
   end if
@@ -126,11 +126,11 @@ on handleFriendListUpdate me, tMsg
   tNo = 1
   repeat while tNo <= tFriendCount
     tUpdateType = tConn.GetIntFrom()
-    if tUpdateType = -1 then
+    if (tUpdateType = -1) then
       tFriendID = tConn.GetIntFrom()
       me.getComponent().removeFriend(tFriendID, 1)
     else
-      if tUpdateType = 0 then
+      if (tUpdateType = 0) then
         tFriend = [:]
         tFriend.setAt(#id, tConn.GetIntFrom())
         tFriend.setAt(#name, tConn.GetStrFrom())
@@ -142,7 +142,7 @@ on handleFriendListUpdate me, tMsg
         if tFriend.getAt(#categoryId) < 0 then
           tFriend.setAt(#categoryId, "0")
         end if
-        if tFriend.getAt(#online) = 0 then
+        if (tFriend.getAt(#online) = 0) then
           tFriend.setAt(#categoryId, "-1")
         end if
         tFriend.setAt(#categoryId, string(tFriend.getAt(#categoryId)))
@@ -150,13 +150,13 @@ on handleFriendListUpdate me, tMsg
         tFriend.setAt(#lastAccess, tConn.GetStrFrom())
         me.getComponent().updateFriend(tFriend, 1)
       else
-        if tUpdateType = 1 then
+        if (tUpdateType = 1) then
           tFriend = me.parseFriendData(tMsg)
           me.getComponent().addFriend(tFriend, 1)
         end if
       end if
     end if
-    tNo = 1 + tNo
+    tNo = (1 + tNo)
   end repeat
   if tFriendCount > 0 or tCategoryCount > 0 then
     me.getInterface().updateCategoryCounts()
@@ -167,31 +167,31 @@ end
 
 on handleError me, tMsg 
   tConn = tMsg.connection
-  if tConn = 0 then
-    return(0)
+  if (tConn = 0) then
+    return FALSE
   end if
   tClientMessageId = tConn.GetIntFrom()
   tErrorCode = tConn.GetIntFrom()
-  if tErrorCode = 0 then
+  if (tErrorCode = 0) then
     return(error(me, "Undefined friend list error!", #handleError, #major))
   else
-    if tErrorCode = 2 then
+    if (tErrorCode = 2) then
       return(executeMessage(#alert, [#Msg:getText("console_target_friend_list_full")]))
     else
-      if tErrorCode = 3 then
+      if (tErrorCode = 3) then
         return(executeMessage(#alert, [#Msg:getText("console_target_does_not_accept")]))
       else
-        if tErrorCode = 4 then
+        if (tErrorCode = 4) then
           return(executeMessage(#alert, [#Msg:getText("console_friend_request_not_found")]))
         else
-          if tErrorCode = 37 then
+          if (tErrorCode = 37) then
             tReason = tConn.GetIntFrom()
-            if tErrorCode = 1 then
+            if (tErrorCode = 1) then
             else
-              if tErrorCode = 2 then
+              if (tErrorCode = 2) then
                 executeMessage(#alert, [#Msg:"console_buddylimit_requester", #modal:1])
               else
-                if tErrorCode = 42 then
+                if (tErrorCode = 42) then
                   executeMessage(#alert, [#Msg:"console_buddylist_concurrency", #modal:1])
                   if connectionExists(getVariable("connection.info.id")) then
                     getConnection(getVariable("connection.info.id")).send("FRIENDLIST_UPDATE")
@@ -200,9 +200,9 @@ on handleError me, tMsg
               end if
             end if
           else
-            if tErrorCode = 39 then
+            if (tErrorCode = 39) then
             else
-              if tErrorCode = 42 then
+              if (tErrorCode = 42) then
                 return(executeMessage(#alert, [#Msg:getText("console_concurrency_error")]))
               else
                 return(error(me, "Friendlist error, failed message:" && tErrorCode && "Triggered by message:" && tClientMessageId, #handleError, #major))
@@ -213,7 +213,7 @@ on handleError me, tMsg
       end if
     end if
   end if
-  return(1)
+  return TRUE
 end
 
 on handleFriendRequestList me, tMsg 
@@ -224,7 +224,7 @@ on handleFriendRequestList me, tMsg
   repeat while tRequestNo <= tFriendRequestCount
     tRequest = me.parseFriendRequest(tMsg)
     me.getComponent().addFriendRequest(tRequest)
-    tRequestNo = 1 + tRequestNo
+    tRequestNo = (1 + tRequestNo)
   end repeat
   me.getInterface().updateCategoryCounts()
   me.getComponent().notifyFriendRequests()
@@ -246,42 +246,42 @@ on handleFriendRequestResult me, tMsg
     tSenderName = tConn.GetStrFrom()
     tErrorCode = tConn.GetIntFrom()
     tErrorList.setaProp(tSenderName, tErrorCode)
-    tItemNo = 1 + tItemNo
+    tItemNo = (1 + tItemNo)
   end repeat
   me.getComponent().setFriendRequestResult(tErrorList)
   if tFailureCount < 1 then
-    return(1)
+    return TRUE
   end if
 end
 
 on handleFollowFailed me, tMsg 
   tConn = tMsg.connection
   tFailureType = tConn.GetIntFrom()
-  if tFailureType = 0 then
+  if (tFailureType = 0) then
     tTextKey = "console_follow_not_friend"
   else
-    if tFailureType = 1 then
+    if (tFailureType = 1) then
       tTextKey = "console_follow_offline"
     else
-      if tFailureType = 2 then
+      if (tFailureType = 2) then
         tTextKey = "console_follow_hotelview"
       else
-        if tFailureType = 3 then
+        if (tFailureType = 3) then
           tTextKey = "console_follow_prevented"
         else
-          return(0)
+          return FALSE
         end if
       end if
     end if
   end if
   if threadExists(#room) then
     tRoomID = getThread(#room).getComponent().getRoomID()
-    if tRoomID = "" then
+    if (tRoomID = "") then
       executeMessage(#show_navigator)
     end if
   end if
   executeMessage(#alert, [#Msg:tTextKey, #id:#follow_failure_notice])
-  return(1)
+  return TRUE
 end
 
 on handleMailNotification me, tMsg 
@@ -303,14 +303,14 @@ on handleHabboSearchResult me, tMsg
   tRequestNo = 1
   repeat while tRequestNo <= tResultFriendsCount
     tResultsFriends.append(me.parseHabboSearchResult(tMsg))
-    tRequestNo = 1 + tRequestNo
+    tRequestNo = (1 + tRequestNo)
   end repeat
   tResultHabbosCount = tConn.GetIntFrom()
   tResultsHabbos = []
   tRequestNo = 1
   repeat while tRequestNo <= tResultHabbosCount
     tResultsHabbos.append(me.parseHabboSearchResult(tMsg))
-    tRequestNo = 1 + tRequestNo
+    tRequestNo = (1 + tRequestNo)
   end repeat
   me.getComponent().setHabboSearchResults(tResultsFriends, tResultsHabbos)
   me.getInterface().showHabboSearchResults()
@@ -318,8 +318,8 @@ end
 
 on parseFriendRequest me, tMsg 
   tConn = tMsg.connection
-  if tConn = 0 then
-    return(0)
+  if (tConn = 0) then
+    return FALSE
   end if
   tdata = [:]
   tdata.setAt(#id, string(tConn.GetIntFrom()))
@@ -331,8 +331,8 @@ end
 
 on parseFriendData me, tMsg 
   tConn = tMsg.connection
-  if tConn = 0 then
-    return(0)
+  if (tConn = 0) then
+    return FALSE
   end if
   tFriend = [:]
   tFriend.setAt(#id, tConn.GetIntFrom())
@@ -345,7 +345,7 @@ on parseFriendData me, tMsg
   if tFriend.getAt(#categoryId) < 0 then
     tFriend.setAt(#categoryId, "0")
   end if
-  if tFriend.getAt(#online) = 0 then
+  if (tFriend.getAt(#online) = 0) then
     tFriend.setAt(#categoryId, "-1")
   end if
   tFriend.setAt(#categoryId, string(tFriend.getAt(#categoryId)))
@@ -356,8 +356,8 @@ end
 
 on parseHabboSearchResult me, tMsg 
   tConn = tMsg.connection
-  if tConn = 0 then
-    return(0)
+  if (tConn = 0) then
+    return FALSE
   end if
   tdata = [:]
   tdata.setAt(#id, tConn.GetIntFrom())
@@ -403,5 +403,5 @@ on regMsgList me, tBool
     unregisterListener(getVariable("connection.info.id"), me.getID(), tMsgs)
     unregisterCommands(getVariable("connection.info.id"), me.getID(), tCmds)
   end if
-  return(1)
+  return TRUE
 end

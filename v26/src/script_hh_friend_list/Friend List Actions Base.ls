@@ -11,7 +11,7 @@ on selectFriend me, tName
   if voidp(pSelectedFriends) then
     pSelectedFriends = []
   end if
-  if pSelectedFriends.getOne(tName) = 0 then
+  if (pSelectedFriends.getOne(tName) = 0) then
     pSelectedFriends.add(tName)
   end if
 end
@@ -32,8 +32,8 @@ on getSelectedFriends me
   tList = []
   repeat while pSelectedFriends <= undefined
     tName = getAt(undefined, undefined)
-    tFriendData = me.getaProp(tName)
-    if ilk(tFriendData) = #propList then
+    tFriendData = me.pContentList.getaProp(tName)
+    if (ilk(tFriendData) = #propList) then
       tList.add(tFriendData)
     end if
   end repeat
@@ -42,46 +42,46 @@ end
 
 on addFriend me, tFriendData 
   if ilk(tFriendData) <> #propList then
-    return(0)
+    return FALSE
   end if
   tName = string(tFriendData.getAt(#name))
-  if me.findPos(tName) > 0 then
-    return(0)
+  if me.pContentList.findPos(tName) > 0 then
+    return FALSE
   end if
   me.pNeedsRender = 1
   me.setProp(#pContentList, tName, tFriendData.duplicate())
   tFriendImg = me.renderFriendItem(tFriendData, 0)
-  tIndex = me.findPos(tName)
-  tPosV = (tIndex - 1 * me.pItemHeight)
-  me.pListImg = me.insertImageTo(tFriendImg, me.duplicate(), tPosV)
+  tIndex = me.pContentList.findPos(tName)
+  tPosV = ((tIndex - 1) * me.pItemHeight)
+  me.pListImg = me.insertImageTo(tFriendImg, me.pListImg.duplicate(), tPosV)
 end
 
 on updateFriend me, tFriendData 
   tName = string(tFriendData.getAt(#name))
-  tIndex = me.findPos(tName)
+  tIndex = me.pContentList.findPos(tName)
   if tIndex < 1 then
-    return(0)
+    return FALSE
   end if
   me.setProp(#pContentList, tName, tFriendData)
   tFriendImg = me.renderFriendItem(tFriendData, 0)
-  tPosV = (tIndex - 1 * me.pItemHeight)
+  tPosV = ((tIndex - 1) * me.pItemHeight)
   me.pListImg = me.updateImagePart(tFriendImg, me.pListImg, tPosV)
 end
 
 on removeFriend me, tFriendID 
   tIndex = 1
   repeat while tIndex <= me.count(#pContentList)
-    tFriend = me.getAt(tIndex)
-    if tFriend.getAt(#id) = tFriendID then
-      tIndex = me.findPos(tFriend.getAt(#name))
-      tStartPosV = (tIndex - 1 * me.pItemHeight)
-      tEndPosV = tStartPosV + me.pItemHeight
-      me.pListImg = me.removeImagePart(me.duplicate(), tStartPosV, tEndPosV)
-      me.deleteAt(tIndex)
+    tFriend = me.pContentList.getAt(tIndex)
+    if (tFriend.getAt(#id) = tFriendID) then
+      tIndex = me.pContentList.findPos(tFriend.getAt(#name))
+      tStartPosV = ((tIndex - 1) * me.pItemHeight)
+      tEndPosV = (tStartPosV + me.pItemHeight)
+      me.pListImg = me.removeImagePart(me.pListImg.duplicate(), tStartPosV, tEndPosV)
+      me.pContentList.deleteAt(tIndex)
       me.deselectFriend(tFriend.getAt(#name))
       me.pNeedsRender = 1
     else
-      tIndex = 1 + tIndex
+      tIndex = (1 + tIndex)
     end if
   end repeat
 end
@@ -89,9 +89,9 @@ end
 on setFriendSelection me, tName, tSelected 
   tFriendData = me.getProp(#pContentList, tName)
   tFriendImg = me.renderFriendItem(tFriendData, tSelected)
-  tIndex = me.findPos(tName)
-  tPosV = (tIndex - 1 * me.pItemHeight)
-  me.pListImg = me.updateImagePart(tFriendImg, me.duplicate(), tPosV)
+  tIndex = me.pContentList.findPos(tName)
+  tPosV = ((tIndex - 1) * me.pItemHeight)
+  me.pListImg = me.updateImagePart(tFriendImg, me.pListImg.duplicate(), tPosV)
   if tSelected then
     me.selectFriend(tFriendData.getAt(#name))
   else
@@ -101,11 +101,11 @@ end
 
 on userSelectionEvent me, tName 
   if voidp(tName) then
-    return(0)
+    return FALSE
   end if
   tFriendData = me.getProp(#pContentList, tName)
   if voidp(tFriendData) then
-    return(0)
+    return FALSE
   end if
   if me.isFriendselected(tName) then
     me.setFriendSelection(tName, 0)

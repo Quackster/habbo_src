@@ -14,7 +14,7 @@ on construct me
   if variableExists("furnidata.load.url") then
     tURL = getVariable("furnidata.load.url")
     tHash = getSpecialServices().getSessionHash()
-    if tHash = "" then
+    if (tHash = "") then
       tHash = string(random(1000000))
     end if
     tURL = replaceChunks(tURL, "%hash%", tHash)
@@ -28,10 +28,10 @@ on deconstruct me
 end
 
 on getProps me, ttype, tID 
-  if ttype = "s" then
+  if (ttype = "s") then
     return(pStuffData.getaProp(tID))
   else
-    if ttype = "i" then
+    if (ttype = "i") then
       return(pWallitemData.getaProp(tID))
     else
       error(me, "invalid item type", #getProps, #minor)
@@ -40,10 +40,10 @@ on getProps me, ttype, tID
 end
 
 on getPropsByClass me, ttype, tClass 
-  if ttype = "s" then
+  if (ttype = "s") then
     return(pStuffDataByClass.getaProp(tClass))
   else
-    if ttype = "i" then
+    if (ttype = "i") then
       return(pWallitemDataByClass.getaProp(tClass))
     else
       error(me, "invalid item type", #getProps, #minor)
@@ -66,10 +66,10 @@ on downloadCallback me, tParams, tSuccess
     tmember = member(tParams)
     i = 1
     l = 1
-    repeat while tmember <= text.count(#line)
-      tVal = value(text.getProp(#line, l))
-      if ilk(tVal) = #list then
-        repeat while l <= tSuccess
+    repeat while l <= tmember.text.count(#line)
+      tVal = value(tmember.text.getProp(#line, l))
+      if (ilk(tVal) = #list) then
+        repeat while tVal <= tSuccess
           tItem = getAt(tSuccess, tParams)
           tdata = [:]
           tdata.setAt(#type, tItem.getAt(1))
@@ -82,8 +82,8 @@ on downloadCallback me, tParams, tSuccess
           tdata.setAt(#partColors, tItem.getAt(8))
           tdata.setAt(#localizedName, decodeUTF8(tItem.getAt(9)))
           tdata.setAt(#localizedDesc, decodeUTF8(tItem.getAt(10)))
-          getThread("dynamicdownloader").getComponent().setFurniRevision(tdata.getAt(#class), tdata.getAt(#revision), tdata.getAt(#type) = "s")
-          if tdata.getAt(#type) = "s" then
+          getThread("dynamicdownloader").getComponent().setFurniRevision(tdata.getAt(#class), tdata.getAt(#revision), (tdata.getAt(#type) = "s"))
+          if (tdata.getAt(#type) = "s") then
             pStuffData.setaProp(tdata.getAt(#classID), tdata)
             pStuffDataByClass.setaProp(tItem.getAt(3), tdata)
           else
@@ -92,7 +92,7 @@ on downloadCallback me, tParams, tSuccess
           end if
         end repeat
       end if
-      l = 1 + l
+      l = (1 + l)
     end repeat
     getThread("dynamicdownloader").getComponent().setFurniRevision(void())
     sendProcessTracking(25)

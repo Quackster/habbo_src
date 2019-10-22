@@ -23,7 +23,7 @@ end
 
 on updatePageData me, tPageID, tdata 
   pPageCache.setaProp(tPageID, me.groupOffersByProducts(tdata.duplicate()))
-  if tPageID = pWaitingForData then
+  if (tPageID = pWaitingForData) then
     me.getInterface().displayPage(tPageID)
   end if
 end
@@ -96,7 +96,7 @@ end
 on getPageDataByLayout me, tLayout 
   repeat while pPageCache <= undefined
     tPage = getAt(undefined, tLayout)
-    if tPage.getAt(#layout) = tLayout then
+    if (tPage.getAt(#layout) = tLayout) then
       return(tPage)
     end if
   end repeat
@@ -147,7 +147,7 @@ on getFirstNodeByName me, tName, tNode
     error(me, "Node type was invalid.", #getNodeByName, #major)
     return(void())
   end if
-  if tNode.getAt(#nodename) = tName then
+  if (tNode.getAt(#nodename) = tName) then
     return(tNode)
   else
     if not voidp(tNode.getaProp(#subnodes)) then
@@ -183,14 +183,14 @@ on groupOffersByProducts me, tPageData
 end
 
 on findOfferByOldpageSelection me, tSelectedProduct, tPageID 
-  tPageData = me.getaProp(tPageID)
+  tPageData = me.pPageCache.getaProp(tPageID)
   tOffer = void()
   i = 1
   repeat while i <= tPageData.getAt(#offers).count
-    if tSelectedProduct.getAt("purchaseCode") = tPageData.getAt(#offers).getPropAt(i) then
+    if (tSelectedProduct.getAt("purchaseCode") = tPageData.getAt(#offers).getPropAt(i)) then
       tOffer = tPageData.getAt(#offers).getAt(i).getAt(#offerList).getAt(1).duplicate()
     else
-      i = 1 + i
+      i = (1 + i)
     end if
   end repeat
   if voidp(tOffer) then
@@ -228,10 +228,10 @@ on requestPurchase me, tOfferType, tPageID, tSelectedItem, tMethod, tExtraProps
 end
 
 on getArePixelsEnabled me 
-  if getVariableValue("pixels.enabled") = 1 then
-    return(1)
+  if (getVariableValue("pixels.enabled") = 1) then
+    return TRUE
   else
-    return(0)
+    return FALSE
   end if
 end
 

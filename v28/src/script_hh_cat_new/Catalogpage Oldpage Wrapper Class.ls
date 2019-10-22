@@ -41,11 +41,11 @@ on define me, tdata
   if variableExists("catalog.oldpage.impl." & me.getProp(#pPageData, #layout)) then
     tObjectLoadList = []
     i = 0
-    repeat while me <= undefined
+    repeat while me.pPageData.offers <= undefined
       tProduct = getAt(undefined, tdata)
-      i = i + 1
+      i = (i + 1)
       tOffer = tProduct.getAt(#offerList).getAt(1)
-      if tOffer.getAt(#content).count = 1 then
+      if (tOffer.getAt(#content).count = 1) then
         tFurniProps = pPersistentFurniData.getProps(tOffer.getAt(#content).getAt(1).getAt(#type), tOffer.getAt(#content).getAt(1).getAt(#classID))
         if not listp(tFurniProps) then
         else
@@ -54,7 +54,7 @@ on define me, tdata
             tObjectLoadList.add([#assetId:tClass, #type:#furni, #props:[#itemIndex:i, #pageid:me.getProp(#pPageData, #pageid)]])
           else
           end if
-          repeat while me <= undefined
+          repeat while me.pPageData.offers <= undefined
             tDealItem = getAt(undefined, tdata)
             tFurniProps = pPersistentFurniData.getProps(tDealItem.getAt(#type), tDealItem.getAt(#classID))
             if not listp(tFurniProps) then
@@ -67,7 +67,7 @@ on define me, tdata
           end repeat
         end if
         pPageItemDownloader.defineCallback(me, #downloadCompleted)
-        repeat while me <= undefined
+        repeat while me.pPageData.offers <= undefined
           tLoadObject = getAt(undefined, tdata)
           pPageItemDownloader.registerDownload(tLoadObject.getAt(#type), tLoadObject.getAt(#assetId), tLoadObject.getAt(#props))
         end repeat
@@ -142,13 +142,13 @@ on convertPageData me, tdata
   tOut = ["id":tdata.getAt(#pageid), "pageName":tdata.getAt(#layout), "productList":tProductList]
   i = 1
   repeat while i <= tdata.getAt(#localization).getAt(#texts).count
-    if i = 1 then
+    if (i = 1) then
       tOut.addProp("headerText", tdata.getAt(#localization).getAt(#texts).getAt(i))
     end if
-    if i = 2 then
+    if (i = 2) then
       tOut.addProp("teaserText", tdata.getAt(#localization).getAt(#texts).getAt(i))
     end if
-    if i = 3 then
+    if (i = 3) then
       tOut.addProp("teaserSpecialText", tdata.getAt(#localization).getAt(#texts).getAt(i))
     end if
     if i > 3 then
@@ -157,11 +157,11 @@ on convertPageData me, tdata
       end if
       tOut.getAt("textList").append(tdata.getAt(#localization).getAt(#texts).getAt(i))
     end if
-    i = 1 + i
+    i = (1 + i)
   end repeat
   i = 1
   repeat while i <= tdata.getAt(#localization).getAt(#images).count
-    if i = 1 then
+    if (i = 1) then
       tOut.addProp("headerImage", tdata.getAt(#localization).getAt(#images).getAt(i))
     end if
     if i > 1 then
@@ -170,7 +170,7 @@ on convertPageData me, tdata
       end if
       tOut.getAt("teaserImgList").append(tdata.getAt(#localization).getAt(#images).getAt(i))
     end if
-    i = 1 + i
+    i = (1 + i)
   end repeat
   return(tOut)
 end
@@ -181,7 +181,7 @@ on resolveSmallPreview me, tOffer
   if memberExists(tPrevMember & "small_" & tOfferName) then
     return(getMember(tPrevMember & "small_" & tOfferName).image)
   end if
-  if tOffer.getAt(#content).count = 1 then
+  if (tOffer.getAt(#content).count = 1) then
     tFurniProps = pPersistentFurniData.getProps(tOffer.getAt(#content).getAt(1).getAt(#type), tOffer.getAt(#content).getAt(1).getAt(#classID))
     if not listp(tFurniProps) then
       return(getMember("no_icon_small").image)
@@ -195,7 +195,7 @@ on resolveSmallPreview me, tOffer
           return(tImage)
         end if
         tCountImg = pDealPreviewObj.getNumberImage(tOffer.getAt(#content).getAt(1).getAt(#productcount))
-        tImage.copyPixels(tCountImg, tCountImg.rect + rect(2, 0, 2, 0), tCountImg.rect, [#ink:36])
+        tImage.copyPixels(tCountImg, (tCountImg.rect + rect(2, 0, 2, 0)), tCountImg.rect, [#ink:36])
       end if
       return(tImage)
     end if
@@ -224,10 +224,10 @@ on downloadCompleted me, tProps
   else
     tItemIndex = tProps.getAt(#props).getaProp(#itemIndex)
     pDealNumber = tItemIndex
-    if pPageData.count(#offers) < tItemIndex then
+    if me.pPageData.count(#offers) < tItemIndex then
       return()
     end if
-    tPrev = pPageData.resolveSmallPreview(offers.getAt(tItemIndex).getAt(#offerList).getAt(1))
+    tPrev = me.resolveSmallPreview(me.pPageData.offers.getAt(tItemIndex).getAt(#offerList).getAt(1))
     if ilk(tPrev) <> #image then
       return()
     end if
@@ -239,7 +239,7 @@ end
 
 on renderGridPreview me, tItemIndex 
   if objectp(pPageImplObj) then
-    me.ShowSmallIcons(pPageData, offers.getAt(tItemIndex).getAt(#offerList).getAt(1).getAt(#offername))
+    me.ShowSmallIcons(#furniLoaded, me.pPageData.offers.getAt(tItemIndex).getAt(#offerList).getAt(1).getAt(#offername))
     pPageImplObj.define(pOldPageData)
   end if
 end
@@ -251,17 +251,17 @@ on handleClick me, tEvent, tSprID, tProp
   end if
   if not tClickHandled then
     tloc = the mouseLoc
-    if tEvent = #mouseDown then
-      if tSprID = "ctlg_next_button" then
+    if (tEvent = #mouseDown) then
+      if (tSprID = "ctlg_next_button") then
         me.changeProductOffset(1)
       else
-        if tSprID = "ctlg_prev_button" then
+        if (tSprID = "ctlg_prev_button") then
           me.changeProductOffset(-1)
         else
-          if tSprID = "ctlg_nextpage_button" then
+          if (tSprID = "ctlg_nextpage_button") then
             me.changeLinkPage(1)
           else
-            if tSprID = "ctlg_prevpage_button" then
+            if (tSprID = "ctlg_prevpage_button") then
               me.changeLinkPage(-1)
             else
               if tSprID contains "ctlg_small_img_" then
@@ -271,10 +271,10 @@ on handleClick me, tEvent, tSprID, tProp
                 the itemDelimiter = tItemDeLimiter
                 me.selectProduct(tProductOrderNum, 1)
               else
-                if tSprID = "ctlg_buy_button" then
+                if (tSprID = "ctlg_buy_button") then
                   getThread(#catalogue).getComponent().checkProductOrder(pSelectedProduct)
                 else
-                  if tSprID = "ctlg_collectibles_link" then
+                  if (tSprID = "ctlg_collectibles_link") then
                     if variableExists("link.format.collectibles") then
                       openNetPage(getVariable("link.format.collectibles"))
                       executeMessage(#externalLinkClick, the mouseLoc)
@@ -304,10 +304,10 @@ on feedPageData me
   repeat while tProducts <= 50
     tID = "ctlg_small_img_" & tProducts
     if tWndObj.elementExists(tID) then
-      pProductPerPage = pProductPerPage + 1
+      pProductPerPage = (pProductPerPage + 1)
     else
     end if
-    tProducts = 1 + tProducts
+    tProducts = (1 + tProducts)
   end repeat
   if tWndObj.elementExists("ctlg_header_img") then
     if not voidp(pCurrentPageData.getAt("headerImage")) then
@@ -317,9 +317,9 @@ on feedPageData me
         tmember = getMember(pCurrentPageData.getAt("headerImage"))
         if tmember.memberNum > 0 and pCurrentPageData.getAt("headerImage").length > 0 then
           tSourceImg = tmember.image
-          tdestrect = tDestImg.rect - tSourceImg.rect
+          tdestrect = (tDestImg.rect - tSourceImg.rect)
           tMargins = rect(0, 0, 0, 0)
-          tdestrect = rect((tdestrect.width / 2), (tdestrect.height / 2), tSourceImg.width + (tdestrect.width / 2), (tdestrect.height / 2) + tSourceImg.height) + tMargins
+          tdestrect = (rect((tdestrect.width / 2), (tdestrect.height / 2), (tSourceImg.width + (tdestrect.width / 2)), ((tdestrect.height / 2) + tSourceImg.height)) + tMargins)
           tDestImg.copyPixels(tSourceImg, tdestrect, tSourceImg.rect, [#ink:8])
           tElem.feedImage(tDestImg)
         else
@@ -342,7 +342,7 @@ on feedPageData me
   end if
   if not voidp(pCurrentPageData.getAt("textList")) then
     tTextList = pCurrentPageData.getAt("textList")
-    if tTextList.ilk = #list then
+    if (tTextList.ilk = #list) then
       t = 1
       repeat while tWndObj.elementExists("ctlg_text_" & t) or t < tTextList.count
         if tWndObj.elementExists("ctlg_text_" & t) then
@@ -352,14 +352,14 @@ on feedPageData me
             tWndObj.getElement("ctlg_text_" & t).setText("")
           end if
         end if
-        t = t + 1
+        t = (t + 1)
       end repeat
     end if
   end if
   if voidp(pSelectedProduct) then
     if not voidp(pCurrentPageData.getAt("teaserImgList")) then
       tImgList = pCurrentPageData.getAt("teaserImgList")
-      if tImgList.ilk = #list then
+      if (tImgList.ilk = #list) then
         t = 1
         repeat while tWndObj.elementExists("ctlg_teaserimg_" & t)
           if tImgList.count >= t then
@@ -368,9 +368,9 @@ on feedPageData me
             if memberExists(tmember) and tImgList.getAt(t).length > 0 then
               tDestImg = tElem.getProperty(#image)
               tSourceImg = member(tmember).image
-              tdestrect = tDestImg.rect - tSourceImg.rect
+              tdestrect = (tDestImg.rect - tSourceImg.rect)
               tMargins = rect(0, 0, 0, 0)
-              tdestrect = rect((tdestrect.width / 2), (tdestrect.height / 2), tSourceImg.width + (tdestrect.width / 2), (tdestrect.height / 2) + tSourceImg.height) + tMargins
+              tdestrect = (rect((tdestrect.width / 2), (tdestrect.height / 2), (tSourceImg.width + (tdestrect.width / 2)), ((tdestrect.height / 2) + tSourceImg.height)) + tMargins)
               tDestImg.copyPixels(tSourceImg, tdestrect, tSourceImg.rect, [#ink:36])
               tElem.feedImage(tDestImg)
             else
@@ -382,7 +382,7 @@ on feedPageData me
             tImage = image(tElem.getProperty(#width), tElem.getProperty(#height), 32)
             tElem.feedImage(tImage)
           end if
-          t = t + 1
+          t = (t + 1)
         end repeat
       end if
     end if
@@ -426,7 +426,7 @@ on feedPageData me
             end if
           else
           end if
-          tNum = 1 + tNum
+          tNum = (1 + tNum)
         end repeat
       end if
     end if
@@ -462,9 +462,9 @@ on showSpecialText me, tSpecialText
     tDestImg = tElem.getProperty(#image)
     tSourceImg = member(getmemnum(tMem)).image
     tDestImg.fill(tDestImg.rect, rgb(255, 255, 255))
-    tdestrect = tDestImg.rect - tSourceImg.rect
+    tdestrect = (tDestImg.rect - tSourceImg.rect)
     tMargins = rect(0, 0, 0, 0)
-    tdestrect = rect((tdestrect.width / 2), (tdestrect.height / 2), tSourceImg.width + (tdestrect.width / 2), (tdestrect.height / 2) + tSourceImg.height) + tMargins
+    tdestrect = (rect((tdestrect.width / 2), (tdestrect.height / 2), (tSourceImg.width + (tdestrect.width / 2)), ((tdestrect.height / 2) + tSourceImg.height)) + tMargins)
     tDestImg.copyPixels(tSourceImg, tdestrect, tSourceImg.rect, [#ink:8])
     tElem.feedImage(tDestImg)
   end if
@@ -485,9 +485,9 @@ on ShowSmallIcons me, tstate, tPram
   if ilk(pCurrentPageData.getAt("productList")) <> #list then
     return()
   end if
-  if tstate = void() then
-    tFirst = pProductOffset + 1
-    tLast = tFirst + pProductPerPage
+  if (tstate = void()) then
+    tFirst = (pProductOffset + 1)
+    tLast = (tFirst + pProductPerPage)
     if tLast > pCurrentPageData.getAt("productList").count then
       tLast = pCurrentPageData.getAt("productList").count
     end if
@@ -499,16 +499,16 @@ on ShowSmallIcons me, tstate, tPram
         tElem.clearImage()
         tElem.setProperty(#cursor, 0)
       end if
-      f = 1 + f
+      f = (1 + f)
     end repeat
     exit repeat
   end if
   if tstate <> #hilite then
-    if tstate = #unhilite then
+    if (tstate = #unhilite) then
       tFirst = tPram
       tLast = tPram
     else
-      if tstate = #furniLoaded then
+      if (tstate = #furniLoaded) then
         if voidp(pCurrentPageData) then
           return()
         end if
@@ -525,7 +525,7 @@ on ShowSmallIcons me, tstate, tPram
               tLast = i
             end if
           end if
-          i = 1 + i
+          i = (1 + i)
         end repeat
         exit repeat
       end if
@@ -546,12 +546,12 @@ on ShowSmallIcons me, tstate, tPram
         tpartColors = pCurrentPageData.getAt("productList").getAt(f).getAt("partColors")
         tDealNumber = pCurrentPageData.getAt("productList").getAt(f).getAt("dealNumber")
         tDealList = pCurrentPageData.getAt("productList").getAt(f).getAt("dealList")
-        tID = "ctlg_small_img_" & f - pProductOffset
+        tID = "ctlg_small_img_" & (f - pProductOffset)
         if tmember <> 0 or not voidp(tDealNumber) and listp(tDealList) then
           if tWndObj.elementExists(tID) then
             tElem = tWndObj.getElement(tID)
             if not voidp(tstate) then
-              if tstate = #hilite and memberExists("ctlg_small_active_bg") then
+              if (tstate = #hilite) and memberExists("ctlg_small_active_bg") then
                 tBgImage = getMember("ctlg_small_active_bg").image
               end if
             end if
@@ -569,7 +569,7 @@ on ShowSmallIcons me, tstate, tPram
               else
                 if not objectExists("ctlg_dealpreviewObj") then
                   tObj = createObject("ctlg_dealpreviewObj", ["Deal Preview Class"])
-                  if tObj = 0 then
+                  if (tObj = 0) then
                     return(error(me, "Failed object creation!", #showHideDialog, #major))
                   end if
                 else
@@ -583,17 +583,17 @@ on ShowSmallIcons me, tstate, tPram
               tCenteredImage.copyPixels(tBgImage, tBgImage.rect, tBgImage.rect)
             end if
             tMatte = tRenderedImage.createMatte()
-            tXchange = (tCenteredImage.width - tRenderedImage.width / 2)
-            tYchange = (tCenteredImage.height - tRenderedImage.height / 2)
-            tRect1 = tRenderedImage.rect + rect(tXchange, tYchange, tXchange, tYchange)
+            tXchange = ((tCenteredImage.width - tRenderedImage.width) / 2)
+            tYchange = ((tCenteredImage.height - tRenderedImage.height) / 2)
+            tRect1 = (tRenderedImage.rect + rect(tXchange, tYchange, tXchange, tYchange))
             tCenteredImage.copyPixels(tRenderedImage, tRect1, tRenderedImage.rect, [#maskImage:tMatte, #ink:41])
             tElem.feedImage(tCenteredImage)
             tElem.setProperty(#cursor, "cursor.finger")
-            tCount = tCount + 1
+            tCount = (tCount + 1)
           end if
         end if
       end if
-      f = 1 + f
+      f = (1 + f)
     end repeat
   end if
 end
@@ -602,7 +602,7 @@ on renderPreviewImage me, tProps
   if not voidp(tProps.getAt("dealList")) then
     if not objectExists("ctlg_dealpreviewObj") then
       tObj = createObject("ctlg_dealpreviewObj", ["Deal Preview Class"])
-      if tObj = 0 then
+      if (tObj = 0) then
         return(error(me, "Failed object creation!", #showHideDialog, #major))
       end if
     else
@@ -637,7 +637,7 @@ on renderPreviewImage me, tProps
       return(error(me, "PartColors property missing", #showPreviewImage, #minor))
     else
       tpartColors = tProps.getAt("partColors")
-      if tpartColors = "" or tpartColors = "0,0,0" then
+      if (tpartColors = "") or (tpartColors = "0,0,0") then
         tpartColors = "*ffffff"
       end if
     end if
@@ -657,7 +657,7 @@ on renderPreviewImage me, tProps
     tdata.setAt(#objectType, tObjectType)
     if not objectExists("ctlg_previewObj") then
       tObj = createObject("ctlg_previewObj", ["Product Preview Class"])
-      if tObj = 0 then
+      if (tObj = 0) then
         return(error(me, "Failed object creation!", #showHideDialog, #major))
       end if
     else
@@ -689,17 +689,17 @@ on showPreviewImage me, tProps, tElemID
   else
     tImage = me.renderPreviewImage(tProps)
   end if
-  if tImage.ilk = #image then
+  if (tImage.ilk = #image) then
     tDestImg = tElem.getProperty(#image)
     tSourceImg = tImage
     tDestImg.fill(tDestImg.rect, rgb(255, 255, 255))
-    tdestrect = tDestImg.rect - tSourceImg.rect
+    tdestrect = (tDestImg.rect - tSourceImg.rect)
     tMargins = rect(0, 0, 0, 0)
-    tdestrect = rect((tdestrect.width / 2), (tdestrect.height / 2), tSourceImg.width + (tdestrect.width / 2), (tdestrect.height / 2) + tSourceImg.height) + tMargins
+    tdestrect = (rect((tdestrect.width / 2), (tdestrect.height / 2), (tSourceImg.width + (tdestrect.width / 2)), ((tdestrect.height / 2) + tSourceImg.height)) + tMargins)
     tDestImg.copyPixels(tSourceImg, tdestrect, tSourceImg.rect, [#ink:36])
     tElem.feedImage(tDestImg)
   end if
-  return(1)
+  return TRUE
 end
 
 on refreshPreviewImage me, tClass, tdata 
@@ -716,13 +716,13 @@ on refreshPreviewImage me, tClass, tdata
   if ilk(pCurrentPageData.getAt("productList")) <> #list then
     return()
   end if
-  if pSelectedProduct.getAt("class") = tClass then
+  if (pSelectedProduct.getAt("class") = tClass) then
     i = 1
     repeat while i <= pCurrentPageData.getAt("productList").count
       if pCurrentPageData.getAt("productList").getAt(i).getAt("class") contains tClass then
         pSelectedProduct = pCurrentPageData.getAt("productList").getAt(i)
       end if
-      i = 1 + i
+      i = (1 + i)
     end repeat
     me.showPreviewImage(pSelectedProduct)
   end if
@@ -734,14 +734,14 @@ on selectProduct me, tOrderNum, tFeedFlag
     return(error(me, "Incorrect value", #selectProduct, #major))
   end if
   if voidp(pCurrentPageData.getAt("productList")) then
-    return(0)
+    return FALSE
   end if
-  tProductNum = tOrderNum + pProductOffset
-  if tProductNum = pLastProductNum then
-    return(0)
+  tProductNum = (tOrderNum + pProductOffset)
+  if (tProductNum = pLastProductNum) then
+    return FALSE
   end if
   if tProductNum > pCurrentPageData.getAt("productList").count then
-    return(0)
+    return FALSE
   end if
   pSelectedProduct = pCurrentPageData.getAt("productList").getAt(tProductNum)
   if pSelectedProduct.ilk <> #propList then
@@ -751,7 +751,7 @@ on selectProduct me, tOrderNum, tFeedFlag
     tFeedFlag = 0
   end if
   if not tFeedFlag then
-    return(1)
+    return TRUE
   end if
   me.showPreviewImage(pSelectedProduct)
   if not voidp(pSelectedProduct.getAt("name")) then
@@ -787,7 +787,7 @@ on selectProduct me, tOrderNum, tFeedFlag
     me.showSpecialText(pSelectedProduct.getAt("specialText"))
   end if
   pLastProductNum = tProductNum
-  return(1)
+  return TRUE
 end
 
 on changeProductOffset me, tDirection 
@@ -797,12 +797,12 @@ on changeProductOffset me, tDirection
   if pProductPerPage >= pCurrentPageData.getAt("productList").count then
     return()
   end if
-  if tDirection = 1 then
-    if pProductOffset + pProductPerPage < pCurrentPageData.getAt("productList").count then
-      pProductOffset = pProductOffset + pProductPerPage
+  if (tDirection = 1) then
+    if (pProductOffset + pProductPerPage) < pCurrentPageData.getAt("productList").count then
+      pProductOffset = (pProductOffset + pProductPerPage)
     end if
   else
-    pProductOffset = pProductOffset - pProductPerPage
+    pProductOffset = (pProductOffset - pProductPerPage)
     if pProductOffset < 0 then
       pProductOffset = 0
     end if
@@ -816,7 +816,7 @@ on changeLinkPage me, tDirection
     tID = pCurrentPageData.getAt("id")
     tPos = pPageLinkList.findPos(tID)
     if tPos > 0 then
-      tPageNum = tPos + tDirection
+      tPageNum = (tPos + tDirection)
       if tPageNum < 1 then
         tPageNum = 1
       end if
@@ -869,20 +869,20 @@ on showProductPageCounter me
         tWndObj.getElement("ctlg_page_text").setText(tPage)
       end if
       if tWndObj.elementExists("ctlg_page_counter") then
-        tCurrent = integer((pProductOffset / pProductPerPage)) + 1
+        tCurrent = (integer((pProductOffset / pProductPerPage)) + 1)
         tTotalPages = (float(pCurrentPageData.getAt("productList").count) / float(pProductPerPage))
-        if tTotalPages - integer(tTotalPages) > 0 then
-          tTotalPages = integer(tTotalPages) + 1
+        if (tTotalPages - integer(tTotalPages)) > 0 then
+          tTotalPages = (integer(tTotalPages) + 1)
         else
           tTotalPages = integer(tTotalPages)
         end if
         tCounterText = string(tCurrent) & "/" & string(integer(tTotalPages))
         tWndObj.getElement("ctlg_page_counter").setText(tCounterText)
-        if tCurrent = 1 then
+        if (tCurrent = 1) then
           tNextButton = 1
           tPrewButton = 0
         else
-          if tCurrent = tTotalPages then
+          if (tCurrent = tTotalPages) then
             tNextButton = 0
             tPrewButton = 1
           else

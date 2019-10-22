@@ -23,12 +23,12 @@ on construct me
   else
     pBgHilite = image(1, 1, 8)
   end if
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
   me.removeWriters()
-  return(1)
+  return TRUE
 end
 
 on render me, tBadges, tSelectedBadges, tNewBadges, tActiveBadge 
@@ -38,7 +38,7 @@ on render me, tBadges, tSelectedBadges, tNewBadges, tActiveBadge
   pBadges = tBadges
   tRows = (tBadges.count / pColumns)
   if (tBadges.count mod pColumns) > 0 then
-    tRows = tRows + 1
+    tRows = (tRows + 1)
   end if
   tRows = max(tRows, pMinRows)
   tListImage = image((pColumns * pGridSize), (tRows * pGridSize), 32)
@@ -47,35 +47,35 @@ on render me, tBadges, tSelectedBadges, tNewBadges, tActiveBadge
   tLastIndex = (tRows * pColumns)
   tIndex = 1
   repeat while tIndex <= tLastIndex
-    tTargetRect = rect((tCol * pGridSize), (tRow * pGridSize), (tCol + 1 * pGridSize), (tRow + 1 * pGridSize))
+    tTargetRect = rect((tCol * pGridSize), (tRow * pGridSize), ((tCol + 1) * pGridSize), ((tRow + 1) * pGridSize))
     tListImage.copyPixels(pBg, tTargetRect, pBg.rect)
     if tIndex <= tBadges.count then
       tBadgeID = tBadges.getAt(tIndex)
       if tNewBadges.getPos(tBadgeID) > 0 then
         tListImage.copyPixels(pBgNew, tTargetRect, pBgNew.rect)
       end if
-      if tBadgeID = tActiveBadge then
+      if (tBadgeID = tActiveBadge) then
         tListImage.copyPixels(pBgHilite, tTargetRect, pBgHilite.rect)
       end if
       tBadgeImage = member(getmemnum("badge" && tBadgeID)).image
-      if tBadgeImage.ilk = #image then
-        if tBadgeImage.rect = rect(0, 0, 1, 1) then
+      if (tBadgeImage.ilk = #image) then
+        if (tBadgeImage.rect = rect(0, 0, 1, 1)) then
           tBadgeImage = member(getmemnum("loading_icon")).image
         end if
         tCenteredImage = me.centerImage(tBadgeImage, tTargetRect)
-        if tSelectedBadges.getPos(tBadgeID) = 0 then
+        if (tSelectedBadges.getPos(tBadgeID) = 0) then
           tListImage.copyPixels(tCenteredImage, tTargetRect, tCenteredImage.rect, [#ink:36])
         else
           tListImage.copyPixels(tCenteredImage, tTargetRect, tCenteredImage.rect, [#ink:36, #blend:15])
         end if
       end if
     end if
-    tCol = tCol + 1
+    tCol = (tCol + 1)
     if tCol >= pColumns then
       tCol = 0
-      tRow = tRow + 1
+      tRow = (tRow + 1)
     end if
-    tIndex = 1 + tIndex
+    tIndex = (1 + tIndex)
   end repeat
   return(tListImage)
 end
@@ -84,16 +84,16 @@ on getBadgeAt me, tpoint
   if tpoint.ilk <> #point then
     return(error(me, "Point expected.", #getBadgeAt, #major))
   end if
-  tCol = (tpoint.getAt(1) / pGridSize) + 1
+  tCol = ((tpoint.getAt(1) / pGridSize) + 1)
   if tCol > pColumns then
-    return(0)
+    return FALSE
   end if
-  tRow = (tpoint.getAt(2) / pGridSize) + 1
-  tIndex = (tRow - 1 * pColumns) + tCol
+  tRow = ((tpoint.getAt(2) / pGridSize) + 1)
+  tIndex = (((tRow - 1) * pColumns) + tCol)
   if tIndex > 0 and tIndex <= pBadges.count then
     return(pBadges.getAt(tIndex))
   end if
-  return(0)
+  return FALSE
 end
 
 on renderAchievements me, tAchievements 
@@ -105,17 +105,17 @@ on renderAchievements me, tAchievements
   tIndex = 1
   repeat while tIndex <= tAchievements.count
     tBadgeID = tAchievements.getAt(tIndex)
-    tbadgerect = rect(0, (tIndex - 1 * pGridSize), pGridSize, (tIndex * pGridSize))
+    tbadgerect = rect(0, ((tIndex - 1) * pGridSize), pGridSize, (tIndex * pGridSize))
     tListImage.copyPixels(tBgImage, tbadgerect, tBgImage.rect)
     tBadgeImage = member(getmemnum("badge" && tBadgeID)).image
     tCenteredImage = me.centerImage(tBadgeImage, tbadgerect)
     tListImage.copyPixels(tCenteredImage, tbadgerect, tCenteredImage.rect, [#ink:36])
     tWriter = me.getBoldWriter()
     tNameImage = tWriter.render(getText("badge_name_" & tBadgeID)).duplicate()
-    tLeft = tbadgerect.getAt(3) + 7
-    tRight = tLeft + tNameImage.width
+    tLeft = (tbadgerect.getAt(3) + 7)
+    tRight = (tLeft + tNameImage.width)
     tTop = tbadgerect.getAt(2)
-    tBottom = tTop + tNameImage.height
+    tBottom = (tTop + tNameImage.height)
     tNameRect = rect(tLeft, tTop, tRight, tBottom)
     tListImage.copyPixels(tNameImage, tNameRect, tNameImage.rect, [#ink:36])
     tLeft = tNameRect.getAt(1)
@@ -124,24 +124,24 @@ on renderAchievements me, tAchievements
     tWriter.setProperty(#rect, rect(0, 0, 240, 0))
     tDesc = getText("badge_desc_" & tBadgeID)
     tDescImage = tWriter.render(tDesc).duplicate()
-    tRight = tLeft + tDescImage.width
-    tBottom = tTop + tDescImage.height
+    tRight = (tLeft + tDescImage.width)
+    tBottom = (tTop + tDescImage.height)
     tDescRect = rect(tLeft, tTop, tRight, tBottom)
     if tDescRect.getAt(4) > tbadgerect.getAt(4) then
       tDescRect.setAt(4, tbadgerect.getAt(4))
     end if
     tSourceRect = rect(0, 0, tDescRect.width, tDescRect.height)
     tListImage.copyPixels(tDescImage, tDescRect, tSourceRect, [#ink:36])
-    tIndex = 1 + tIndex
+    tIndex = (1 + tIndex)
   end repeat
   return(tListImage)
 end
 
 on centerImage me, tImage, tRect 
   tCentered = image(tRect.width, tRect.height, tImage.depth)
-  tOffH = (tRect.width - tImage.width / 2)
-  tOffV = (tRect.height - tImage.height / 2)
-  tTargetRect = tImage.rect + rect(tOffH, tOffV, tOffH, tOffV)
+  tOffH = ((tRect.width - tImage.width) / 2)
+  tOffV = ((tRect.height - tImage.height) / 2)
+  tTargetRect = (tImage.rect + rect(tOffH, tOffV, tOffH, tOffV))
   tCentered.copyPixels(tImage, tTargetRect, tImage.rect)
   return(tCentered)
 end

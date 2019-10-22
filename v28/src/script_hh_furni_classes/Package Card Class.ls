@@ -10,7 +10,7 @@ on construct me
   pIconType = void()
   pIconCode = void()
   pIconColor = void()
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
@@ -19,14 +19,14 @@ on deconstruct me
   end if
   unregisterMessage(#leaveRoom, me.getID())
   unregisterMessage(#changeRoom, me.getID())
-  return(1)
+  return TRUE
 end
 
 on define me, tProps 
   pPackageID = tProps.getAt(#id)
   pMessage = tProps.getAt(#Msg)
-  me.showCard(tProps.getAt(#loc) + [0, -220])
-  return(1)
+  me.showCard((tProps.getAt(#loc) + [0, -220]))
+  return TRUE
 end
 
 on showCard me, tloc 
@@ -36,14 +36,14 @@ on showCard me, tloc
   if voidp(tloc) then
     tloc = [100, 100]
   end if
-  if the stage > rect.width - 260 then
-    1.setAt(the stage, rect.width - 260)
+  if tloc.getAt(1) > (the stage.rect.width - 260) then
+    tloc.setAt(1, (the stage.rect.width - 260))
   end if
   if tloc.getAt(2) < 2 then
     tloc.setAt(2, 2)
   end if
   if not createWindow(pCardWndID, "package_card.window", tloc.getAt(1), tloc.getAt(2)) then
-    return(0)
+    return FALSE
   end if
   tWndObj = getWindow(pCardWndID)
   tUserRights = getObject(#session).GET("user_rights")
@@ -54,14 +54,14 @@ on showCard me, tloc
   tWndObj.registerClient(me.getID())
   tWndObj.registerProcedure(#eventProcCard, me.getID(), #mouseUp)
   tWndObj.getElement("package_msg").setText(pMessage)
-  return(1)
+  return TRUE
 end
 
 on hideCard me 
   if windowExists(pCardWndID) then
     removeWindow(pCardWndID)
   end if
-  return(1)
+  return TRUE
 end
 
 on openPresent me 
@@ -70,19 +70,19 @@ end
 
 on showContent me, tdata 
   if not windowExists(pCardWndID) then
-    return(0)
+    return FALSE
   end if
   pIconType = tdata.getAt(#type)
   pIconCode = tdata.getAt(#code)
   pIconColor = tdata.getAt(#color)
   tMemNum = void()
-  if pIconColor = "" then
+  if (pIconColor = "") then
     pIconColor = void()
   end if
-  if pIconType = "ticket" then
+  if (pIconType = "ticket") then
     tMemNum = getmemnum("ticket_icon")
   else
-    if pIconType = "film" then
+    if (pIconType = "film") then
       tMemNum = getmemnum("film_icon")
     end if
   end if
@@ -99,9 +99,9 @@ on showContent me, tdata
       tMemNum = getmemnum("ctlg_pic_small_" & pIconCode)
     end if
   end if
-  if tMemNum = 0 then
+  if (tMemNum = 0) then
     tDynThread = getThread(#dynamicdownloader)
-    if tDynThread = 0 then
+    if (tDynThread = 0) then
       tImg = getObject("Preview_renderer").renderPreviewImage(void(), void(), pIconColor, pIconType)
     else
       tDownloadIdName = ""
@@ -115,7 +115,7 @@ on showContent me, tdata
       tRoomThread = getThread(#room)
       if tRoomThread <> 0 then
         tTileSize = tRoomThread.getInterface().getGeometry().getTileWidth()
-        if tTileSize = 32 then
+        if (tTileSize = 32) then
           tRoomSizePrefix = "s_"
         end if
       end if
@@ -128,7 +128,7 @@ on showContent me, tdata
       end if
     end if
   else
-    tImg = image.duplicate()
+    tImg = member(tMemNum).image.duplicate()
   end if
   me.feedIconToCard(tImg)
 end
@@ -152,9 +152,9 @@ on feedIconToCard me, tImg
   tHei = tElem.getProperty(#height)
   tCenteredImage = image(tWid, tHei, 32)
   tMatte = tImg.createMatte()
-  tXchange = (tCenteredImage.width - tImg.width / 2)
-  tYchange = (tCenteredImage.height - tImg.height / 2)
-  tRect1 = tImg.rect + rect(tXchange, tYchange, tXchange, tYchange)
+  tXchange = ((tCenteredImage.width - tImg.width) / 2)
+  tYchange = ((tCenteredImage.height - tImg.height) / 2)
+  tRect1 = (tImg.rect + rect(tXchange, tYchange, tXchange, tYchange))
   tCenteredImage.copyPixels(tImg, tRect1, tImg.rect, [#maskImage:tMatte, #ink:41])
   tElem.feedImage(tCenteredImage)
   tWndObj.getElement("card_icon").hide()
@@ -164,12 +164,12 @@ end
 
 on eventProcCard me, tEvent, tElemID, tParam 
   if tEvent <> #mouseUp then
-    return(0)
+    return FALSE
   end if
-  if tElemID = "close" then
+  if (tElemID = "close") then
     return(me.hideCard())
   else
-    if tElemID = "open_package" then
+    if (tElemID = "open_package") then
       return(me.openPresent())
     end if
   end if

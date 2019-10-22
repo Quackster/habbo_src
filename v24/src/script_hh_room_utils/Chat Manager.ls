@@ -46,18 +46,18 @@ on handle_chat me, tMsg
   tConn = tMsg.getaProp(#connection)
   tuser = string(tConn.GetIntFrom())
   tChat = tConn.GetStrFrom()
-  if tMsg.getaProp(#subject) = 24 then
+  if (tMsg.getaProp(#subject) = 24) then
     tMode = "CHAT"
   else
-    if tMsg.getaProp(#subject) = 25 then
+    if (tMsg.getaProp(#subject) = 25) then
       tMode = "WHISPER"
     else
-      if tMsg.getaProp(#subject) = 26 then
+      if (tMsg.getaProp(#subject) = 26) then
         tMode = "SHOUT"
       end if
     end if
   end if
-  if tChat = "" then
+  if (tChat = "") then
     tMode = "UNHEARD"
   end if
   me.enterChatMessage(tMode, tuser, tChat)
@@ -80,5 +80,5 @@ on regMsgList me, tBool
     unregisterListener(getVariable("connection.room.id"), me.getID(), tMsgs)
     unregisterCommands(getVariable("connection.room.id"), me.getID(), tCmds)
   end if
-  return(1)
+  return TRUE
 end

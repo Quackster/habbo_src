@@ -13,12 +13,12 @@ on construct me
   pSessionHash = ""
   if _player <> void() then
     if _player.traceScript or _player.traceScript then
-      return(0)
+      return FALSE
     end if
   end if
   _player.traceScript = 0
   _player.traceScript = 0
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
@@ -28,25 +28,25 @@ on deconstruct me
   if not voidp(pToolTipMem) then
     removeMember(pToolTipMem.name)
   end if
-  return(1)
+  return TRUE
 end
 
 on try me 
   pCatchFlag = 0
   pSavedHook = the alertHook
   the alertHook = me
-  return(1)
+  return TRUE
 end
 
 on catch me 
   the alertHook = pSavedHook
   return(pCatchFlag)
-  return(0)
+  return FALSE
 end
 
 on callJavaScriptFunction me, tCallString, tdata 
-  if the runMode = "Author" then
-    return(0)
+  if (the runMode = "Author") then
+    return FALSE
   end if
   script("JavaScript Proxy").callJavaScript("\"" & tCallString & "\"", "\"" & tdata & "\"")
 end
@@ -72,10 +72,10 @@ end
 
 on removeToolTip me, tNextID 
   if pToolTipAct then
-    if voidp(tNextID) or pToolTipID = tNextID then
+    if voidp(tNextID) or (pToolTipID = tNextID) then
       pToolTipID = void()
       pToolTipSpr.visible = 0
-      return(1)
+      return TRUE
     end if
   end if
 end
@@ -83,34 +83,34 @@ end
 on renderToolTip me, tNextID 
   if pToolTipAct then
     if tNextID <> pToolTipID or voidp(pToolTipID) then
-      return(0)
+      return FALSE
     end if
-    pToolTipSpr.loc = the mouseLoc + [-2, 15]
+    pToolTipSpr.loc = (the mouseLoc + [-2, 15])
     pToolTipSpr.visible = 1
     me.delay((pToolTipDel * 2), #removeToolTip, pToolTipID)
   end if
 end
 
 on setcursor me, ttype 
-  if ttype = void() then
+  if (ttype = void()) then
     ttype = 0
   else
-    if ttype = #arrow then
+    if (ttype = #arrow) then
       ttype = 0
     else
-      if ttype = #ibeam then
+      if (ttype = #ibeam) then
         ttype = 1
       else
-        if ttype = #crosshair then
+        if (ttype = #crosshair) then
           ttype = 2
         else
-          if ttype = #crossbar then
+          if (ttype = #crossbar) then
             ttype = 3
           else
-            if ttype = #timer then
+            if (ttype = #timer) then
               ttype = 4
             else
-              if ttype = #previous then
+              if (ttype = #previous) then
                 ttype = pLastCursor
               end if
             end if
@@ -122,12 +122,12 @@ on setcursor me, ttype
   cursor(ttype)
   pLastCursor = pCurrCursor
   pCurrCursor = ttype
-  return(1)
+  return TRUE
 end
 
 on openNetPage me, tURL_key, tTarget 
   if not stringp(tURL_key) then
-    return(0)
+    return FALSE
   end if
   if textExists(tURL_key) then
     tURL = getText(tURL_key, tURL_key)
@@ -145,10 +145,10 @@ on openNetPage me, tURL_key, tTarget
       tResolvedTarget = "_new"
     end if
   else
-    if tTarget = "self" or tTarget = "_self" then
+    if (tTarget = "self") or (tTarget = "_self") then
       tResolvedTarget = void()
     else
-      if tTarget = "_new" or tTarget = "new" then
+      if (tTarget = "_new") or (tTarget = "new") then
         tResolvedTarget = "_new"
       else
         tResolvedTarget = tTarget
@@ -158,7 +158,7 @@ on openNetPage me, tURL_key, tTarget
   tURLStart = tURL
   tURLEnd = ""
   if tURL contains "#" then
-    tURLStart = chars(tURL, 1, offset("#", tURL) - 1)
+    tURLStart = chars(tURL, 1, (offset("#", tURL) - 1))
     tURLEnd = chars(tURL, offset("#", tURL), tURL.length)
   end if
   if variableExists("client.http.request.sourceid") and tTargetIsPArent then
@@ -175,12 +175,12 @@ on openNetPage me, tURL_key, tTarget
   tURL = replaceChunks(tURL, "%random%", random(9999999999))
   gotoNetPage(tURL, tResolvedTarget)
   put("Open page:" && tURL && "target:" && tResolvedTarget)
-  return(1)
+  return TRUE
 end
 
 on showLoadingBar me, tLoadID, tProps 
   tObj = createObject(#random, getClassVariable("loading.bar.class"))
-  if tObj = 0 then
+  if (tObj = 0) then
     return(error(me, "Couldn't create loading bar instance!", #showLoadingBar, #major))
   end if
   if not tObj.define(tLoadID, tProps) then
@@ -191,7 +191,7 @@ on showLoadingBar me, tLoadID, tProps
 end
 
 on getUniqueID me 
-  pUniqueSeed = pUniqueSeed + 1
+  pUniqueSeed = (pUniqueSeed + 1)
   return("uid:" & pUniqueSeed & ":" & the milliSeconds)
 end
 
@@ -216,10 +216,10 @@ on getDomainPart me, tPath
   if voidp(tPath) then
     return("")
   end if
-  if chars(tPath, 1, 8) = "https://" then
+  if (chars(tPath, 1, 8) = "https://") then
     tPath = chars(tPath, 9, tPath.length)
   else
-    if chars(tPath, 1, 7) = "http://" then
+    if (chars(tPath, 1, 7) = "http://") then
       tPath = chars(tPath, 8, tPath.length)
     end if
   end if
@@ -229,9 +229,9 @@ on getDomainPart me, tPath
   the itemDelimiter = "."
   tMaxItemCount = 2
   if tPath contains ".co." then
-    tMaxItemCount = tMaxItemCount + 1
+    tMaxItemCount = (tMaxItemCount + 1)
   end if
-  tPath = tPath.getProp(#item, tPath.count(#item) - tMaxItemCount + 1, tPath.count(#item))
+  tPath = tPath.getProp(#item, ((tPath.count(#item) - tMaxItemCount) + 1), tPath.count(#item))
   the itemDelimiter = ":"
   tPath = tPath.getProp(#item, 1)
   the itemDelimiter = tDelim
@@ -243,7 +243,7 @@ on getPredefinedURL me, tURL
     if variableExists("url.prefix") then
       tReplace = "http://%predefined%"
       tPrefix = getVariable("url.prefix")
-      if chars(tPrefix, tPrefix.length, tPrefix.length) = "/" then
+      if (chars(tPrefix, tPrefix.length, tPrefix.length) = "/") then
         tReplace = "http://%predefined%/"
       end if
       tURL = replaceChunks(tURL, tReplace, tPrefix)
@@ -268,7 +268,7 @@ on sendProcessTracking me, tStepValue
   end if
   if variableExists("processlog.url") then
     tReportURL = string(getVariable("processlog.url"))
-    if tReportURL = "javascript" then
+    if (tReportURL = "javascript") then
       tJsHandler = script("javascriptLog").newJavaScriptLog()
       if objectp(tJsHandler) then
         tJsHandler.call(tStepValue)
@@ -288,28 +288,28 @@ end
 
 on secretDecode me, tKey 
   tLength = tKey.length
-  if (tLength mod 2) = 1 then
-    tLength = tLength - 1
+  if ((tLength mod 2) = 1) then
+    tLength = (tLength - 1)
   end if
   tTable = tKey.getProp(#char, 1, (tKey.length / 2))
-  tKey = tKey.getProp(#char, 1 + (tKey.length / 2), tLength)
+  tKey = tKey.getProp(#char, (1 + (tKey.length / 2)), tLength)
   tCheckSum = 0
   i = 1
   repeat while i <= tKey.length
     c = tKey.getProp(#char, i)
-    a = offset(c, tTable) - 1
-    if (a mod 2) = 0 then
+    a = (offset(c, tTable) - 1)
+    if ((a mod 2) = 0) then
       a = (a * 2)
     end if
-    if (i - 1 mod 3) = 0 then
+    if (((i - 1) mod 3) = 0) then
       a = (a * 3)
     end if
     if a < 0 then
       a = (tKey.length mod 2)
     end if
-    tCheckSum = tCheckSum + a
-    tCheckSum = bitXor(tCheckSum, (a * power(2, ((i - 1 mod 3) * 8))))
-    i = 1 + i
+    tCheckSum = (tCheckSum + a)
+    tCheckSum = bitXor(tCheckSum, (a * power(2, (((i - 1) mod 3) * 8))))
+    i = (1 + i)
   end repeat
   return(tCheckSum)
 end
@@ -329,9 +329,9 @@ on readValueFromField me, tField, tDelimiter, tSearchedKey
       tProp = tPair.getPropRef(#item, 1).getProp(#word, 1, tPair.getPropRef(#item, 1).count(#word))
       tValue = tPair.getProp(#item, 2, tPair.count(#item))
       tValue = tValue.getProp(#word, 1, tValue.count(#word))
-      if tProp = tSearchedKey then
+      if (tProp = tSearchedKey) then
         if not tValue contains space() and integerp(integer(tValue)) then
-          if length(string(integer(tValue))) = length(tValue) then
+          if (length(string(integer(tValue))) = length(tValue)) then
             tValue = integer(tValue)
           end if
         else
@@ -342,7 +342,7 @@ on readValueFromField me, tField, tDelimiter, tSearchedKey
         if stringp(tValue) then
           j = 1
           repeat while j <= length(tValue)
-            j = 1 + j
+            j = (1 + j)
           end repeat
         end if
         the itemDelimiter = tDelim
@@ -350,10 +350,10 @@ on readValueFromField me, tField, tDelimiter, tSearchedKey
       end if
     end if
     the itemDelimiter = tDelimiter
-    i = 1 + i
+    i = (1 + i)
   end repeat
   the itemDelimiter = tDelim
-  return(0)
+  return FALSE
 end
 
 on addRandomParamToURL me, tURL 
@@ -380,16 +380,16 @@ on checkForXtra me, tXtraName
     end if
     if tXtraListName <> "" then
       if tXtraListName contains tXtraName then
-        return(1)
+        return TRUE
       end if
     end if
   end repeat
-  return(0)
+  return FALSE
 end
 
 on print me, tObj, tMsg 
   tObj = string(tObj)
-  tObj = tObj.getProp(#word, 2, tObj.count(#word) - 2)
+  tObj = tObj.getProp(#word, 2, (tObj.count(#word) - 2))
   tObj = tObj.getProp(#char, 2, length(tObj))
   put("Print:" & "\r" & "\t" && "Object: " && tObj & "\r" & "\t" && "Message:" && tMsg)
 end
@@ -404,7 +404,7 @@ on generateMachineId me, tMaxLength
     if tWhiteList contains tChar then
       tMachineID = tMachineID & tChar
     end if
-    tCharNo = 1 + tCharNo
+    tCharNo = (1 + tCharNo)
   end repeat
   tMachineID = replaceChunks(tMachineID, "AM", "")
   tMachineID = replaceChunks(tMachineID, "PM", "")
@@ -428,7 +428,7 @@ end
 
 on setExtVarPath me, tURL 
   if tURL contains "hash=" then
-    pSessionHash = chars(tURL, offset("hash=", tURL) + 5, tURL.length)
+    pSessionHash = chars(tURL, (offset("hash=", tURL) + 5), tURL.length)
   end if
   return(setVariable("system.v2", obfuscate(tURL)))
 end
@@ -462,7 +462,7 @@ end
 on alertHook me 
   pCatchFlag = 1
   the alertHook = pSavedHook
-  return(1)
+  return TRUE
 end
 
 on getReceipt me, tStamp 
@@ -471,9 +471,9 @@ on getReceipt me, tStamp
   repeat while tCharNo <= tStamp.length
     tChar = chars(tStamp, tCharNo, tCharNo)
     tChar = charToNum(tChar)
-    tChar = (tChar * tCharNo) + 309203
+    tChar = ((tChar * tCharNo) + 309203)
     tReceipt.setAt(tCharNo, tChar)
-    tCharNo = 1 + tCharNo
+    tCharNo = (1 + tCharNo)
   end repeat
   return(tReceipt)
 end
@@ -482,7 +482,7 @@ on getClientUpTime me
   tTimeNow = the long time
   tDateNow = the date
   if not objectExists(#session) then
-    return(0)
+    return FALSE
   end if
   tTimeStart = getObject(#session).GET("client_starttime")
   tDateStart = getObject(#session).GET("client_startdate")
@@ -490,7 +490,7 @@ on getClientUpTime me
   tTimeDelimiter = me.getDelimiter(tTimeNow)
   if tDateNow <> tDateStart then
     tDays = 1
-    tSeconds = (((tDays * 24) * 60) * 60) + me.calculateTimeDifference(tTimeStart, tTimeNow, tTimeDelimiter)
+    tSeconds = ((((tDays * 24) * 60) * 60) + me.calculateTimeDifference(tTimeStart, tTimeNow, tTimeDelimiter))
   else
     tSeconds = me.calculateTimeDifference(tTimeStart, tTimeNow, tTimeDelimiter)
   end if
@@ -500,9 +500,9 @@ end
 on calculateTimeDifference me, a_from, a_to, a_delimiter 
   tItemDeLim = the itemDelimiter
   the itemDelimiter = a_delimiter
-  tHours = integer(a_to.getProp(#item, 1)) - integer(a_from.getProp(#item, 1))
-  tMinutes = integer(a_to.getProp(#item, 2)) - integer(a_from.getProp(#item, 2))
-  tSeconds = integer(a_to.getProp(#item, 3)) - integer(a_from.getProp(#item, 3))
+  tHours = (integer(a_to.getProp(#item, 1)) - integer(a_from.getProp(#item, 1)))
+  tMinutes = (integer(a_to.getProp(#item, 2)) - integer(a_from.getProp(#item, 2)))
+  tSeconds = (integer(a_to.getProp(#item, 3)) - integer(a_from.getProp(#item, 3)))
   tAmPmMod = 0
   if a_from contains "am" or a_from contains "pm" then
     if a_from contains "am" and a_to contains "pm" then
@@ -513,7 +513,7 @@ on calculateTimeDifference me, a_from, a_to, a_delimiter
     end if
   end if
   the itemDelimiter = tItemDeLim
-  return(((tHours * 60) * 60) + (tMinutes * 60) + tSeconds + tAmPmMod)
+  return((((((tHours * 60) * 60) + (tMinutes * 60)) + tSeconds) + tAmPmMod))
 end
 
 on getDelimiter me, a_string 
@@ -525,7 +525,7 @@ on getDelimiter me, a_string
       temp = tLocaleDelimiters.duplicate().getAt(i)
       return(temp)
     end if
-    i = 1 + i
+    i = (1 + i)
   end repeat
   return(":")
 end
