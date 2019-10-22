@@ -1,4 +1,6 @@
-on construct(me)
+property pFeederList, pIGComponentId, pActiveFlag, pMainThreadId, pListenerList, pTimeoutUpdates, pHiddenUpdates, pUpdateInterval
+
+on construct me 
   pActiveFlag = 0
   pTimeoutUpdates = 0
   pHiddenUpdates = 0
@@ -10,15 +12,14 @@ on construct(me)
   end if
   pFeederList = []
   pListenerList = []
-  return(1)
-  exit
+  return TRUE
 end
 
-on deconstruct(me)
+on deconstruct me 
   me.setContentUpdatePollingTimeout(0)
   me.setActiveFlag(0)
   pListenerList = []
-  repeat while me <= undefined
+  repeat while pFeederList <= undefined
     tServiceId = getAt(undefined, undefined)
     tService = me.getIGComponent(tServiceId)
     if tService <> 0 then
@@ -29,16 +30,14 @@ on deconstruct(me)
   if objectExists(me.getRendererID()) then
     removeObject(me.getRendererID())
   end if
-  return(1)
-  exit
+  return TRUE
 end
 
-on Initialize(me)
-  return(1)
-  exit
+on Initialize me 
+  return TRUE
 end
 
-on setActiveFlag(me, tstate, tHoldUpdates)
+on setActiveFlag me, tstate, tHoldUpdates 
   pActiveFlag = tstate
   if not me.pHiddenUpdates then
     if not tHoldUpdates then
@@ -47,158 +46,141 @@ on setActiveFlag(me, tstate, tHoldUpdates)
       me.setContentUpdatePollingTimeout(0)
     end if
   end if
-  if tstate = 1 then
+  if (tstate = 1) then
     receiveUpdate(me.getID())
   else
     removeUpdate(me.getID())
     me.discardRenderer()
   end if
-  return(1)
-  exit
+  return TRUE
 end
 
-on getActiveFlag(me)
+on getActiveFlag me 
   return(pActiveFlag)
-  exit
 end
 
-on update(me)
-  return(1)
-  exit
+on update me 
+  return TRUE
 end
 
-on displayEvent(me, ttype, tParam)
+on displayEvent me, ttype, tParam 
   tRenderObj = me.getRenderer(1)
   if tRenderObj <> 0 then
     return(tRenderObj.displayEvent(ttype, tParam))
   end if
-  return(0)
-  exit
+  return FALSE
 end
 
-on Remove(me)
+on Remove me 
   me.getComponent().removeIGComponent(pIGComponentId)
-  exit
 end
 
-on getMainThread(me)
+on getMainThread me 
   return(getObject(pMainThreadId))
-  exit
 end
 
-on getHandler(me)
+on getHandler me 
   tMainThreadRef = me.getMainThread()
   if not objectp(tMainThreadRef) then
-    return(0)
+    return FALSE
   end if
   return(tMainThreadRef.getHandler())
-  exit
 end
 
-on getComponent(me)
+on getComponent me 
   tMainThreadRef = me.getMainThread()
   if not objectp(tMainThreadRef) then
-    return(0)
+    return FALSE
   end if
   return(tMainThreadRef.getComponent())
-  exit
 end
 
-on getInterface(me)
+on getInterface me 
   tMainThreadRef = me.getMainThread()
   if not objectp(tMainThreadRef) then
-    return(0)
+    return FALSE
   end if
   return(tMainThreadRef.getInterface())
-  exit
 end
 
-on ChangeWindowView(me, tMode)
+on ChangeWindowView me, tMode 
   tInterface = me.getInterface()
-  if tInterface = 0 then
-    return(0)
+  if (tInterface = 0) then
+    return FALSE
   end if
   return(tInterface.ChangeWindowView(tMode))
-  exit
 end
 
-on renderUI(me, tComponentSpec)
+on renderUI me, tComponentSpec 
   tRenderObj = getObject(me.getRendererID())
-  if tRenderObj = 0 then
-    return(1)
+  if (tRenderObj = 0) then
+    return TRUE
   end if
   return(tRenderObj.renderUI(tComponentSpec))
-  exit
 end
 
-on resetSubComponent(me, tID)
+on resetSubComponent me, tID 
   tRenderObj = getObject(me.getRendererID())
-  if tRenderObj = 0 then
-    return(1)
+  if (tRenderObj = 0) then
+    return TRUE
   end if
   return(tRenderObj.resetSubComponent(tID))
-  exit
 end
 
-on getIGComponent(me, tServiceId)
+on getIGComponent me, tServiceId 
   tMainThreadRef = me.getMainThread()
   if not objectp(tMainThreadRef) then
-    return(0)
+    return FALSE
   end if
   return(tMainThreadRef.getIGComponent(tServiceId))
-  exit
 end
 
-on registerForIGComponentUpdates(me, tServiceId)
+on registerForIGComponentUpdates me, tServiceId 
   tService = me.getIGComponent(tServiceId)
-  if tService = 0 then
-    return(0)
+  if (tService = 0) then
+    return FALSE
   end if
   if tService.registerUpdates(pIGComponentId) then
-    if pFeederList.findPos(tServiceId) = 0 then
+    if (pFeederList.findPos(tServiceId) = 0) then
       pFeederList.append(tServiceId)
     end if
   end if
-  return(1)
-  exit
+  return TRUE
 end
 
-on unregisterFromIGComponentUpdates(me, tServiceId)
+on unregisterFromIGComponentUpdates me, tServiceId 
   tService = me.getIGComponent(tServiceId)
-  if tService = 0 then
-    return(0)
+  if (tService = 0) then
+    return FALSE
   end if
   if tService.unregisterUpdates(pIGComponentId) then
     pFeederList.deleteOne(tServiceId)
   end if
-  return(1)
-  exit
+  return TRUE
 end
 
-on registerUpdates(me, tServiceId)
-  if tServiceId = void() then
-    return(0)
+on registerUpdates me, tServiceId 
+  if (tServiceId = void()) then
+    return FALSE
   end if
   if pListenerList.findPos(tServiceId) then
-    return(1)
+    return TRUE
   end if
   pListenerList.append(tServiceId)
-  return(1)
-  exit
+  return TRUE
 end
 
-on unregisterUpdates(me, tServiceId)
+on unregisterUpdates me, tServiceId 
   pListenerList.deleteOne(tServiceId)
-  return(1)
-  exit
+  return TRUE
 end
 
-on announceUpdate(me, tUpdateId)
+on announceUpdate me, tUpdateId 
   if me.getActiveFlag() then
     me.handleUpdate(tUpdateId, pIGComponentId)
-    return(1)
+    return TRUE
   end if
-  repeat while me <= undefined
+  repeat while pListenerList <= undefined
     tServiceId = getAt(undefined, tUpdateId)
     tService = me.getIGComponent(tServiceId)
     if tService <> 0 then
@@ -207,64 +189,59 @@ on announceUpdate(me, tUpdateId)
       end if
     end if
   end repeat
-  return(1)
-  exit
+  return TRUE
 end
 
-on handleUpdate(me, tUpdateId, tSenderId)
+on handleUpdate me, tUpdateId, tSenderId 
   if not me.getActiveFlag() then
-    return(1)
+    return TRUE
   end if
   tRenderObj = getObject(me.getRendererID())
-  if tRenderObj = 0 then
-    return(1)
+  if (tRenderObj = 0) then
+    return TRUE
   end if
   call(#handleUpdate, [tRenderObj], tUpdateId, tSenderId)
-  exit
 end
 
-on getRenderer(me, tCreateIfMissing)
+on getRenderer me, tCreateIfMissing 
   if not tCreateIfMissing and not me.getActiveFlag() then
-    return(0)
+    return FALSE
   end if
   tRenderObj = getObject(me.getRendererID())
   if objectp(tRenderObj) then
     return(tRenderObj)
   end if
   tRenderObj = createObject(me.getRendererID(), ["IGComponentUI Base Class", "IG" && me.pIGComponentId & "UI Class"])
-  if tRenderObj = 0 then
-    return(0)
+  if (tRenderObj = 0) then
+    return FALSE
   end if
   tRenderObj.define(me.getID(), pMainThreadId)
   return(tRenderObj)
-  exit
 end
 
-on discardRenderer(me)
+on discardRenderer me 
   tID = me.getRendererID()
   tRenderObj = getObject(tID)
   if objectp(tRenderObj) then
     tRenderObj.removeWindows()
     removeObject(tID)
   end if
-  return(1)
-  exit
+  return TRUE
 end
 
-on getRendererID(me)
+on getRendererID me 
   return(me.getID() & "_UI")
-  exit
 end
 
-on setContentUpdatePollingTimeout(me, tstate)
+on setContentUpdatePollingTimeout me, tstate 
   if not pTimeoutUpdates then
-    return(1)
+    return TRUE
   end if
-  if me.pIGComponentId = void() then
+  if (me.pIGComponentId = void()) then
     return(error(me, "IGComponent ID not defined before setting updates!", #setContentUpdatePollingTimeout))
   end if
   tUpdateTimeoutId = pIGComponentId & "_timer"
-  if tstate = 1 or pHiddenUpdates then
+  if (tstate = 1) or pHiddenUpdates then
     if variableExists("ig." & pIGComponentId & ".update.interval") then
       pUpdateInterval = getIntVariable("ig." & pIGComponentId & ".update.interval")
     end if
@@ -277,32 +254,27 @@ on setContentUpdatePollingTimeout(me, tstate)
       removeTimeout(tUpdateTimeoutId)
     end if
   end if
-  return(1)
-  exit
+  return TRUE
 end
 
-on pollContentUpdate(me, tForced)
-  return(0)
-  exit
+on pollContentUpdate me, tForced 
+  return FALSE
 end
 
-on setUpdateTimestamp(me)
+on setUpdateTimestamp me 
   me.pUpdateLastTimestamp = the milliSeconds
-  return(1)
-  exit
+  return TRUE
 end
 
-on isUpdateTimestampExpired(me)
+on isUpdateTimestampExpired me 
   tTolerance = 1.05
-  return(tTolerance * the milliSeconds - me.pUpdateLastTimestamp >= me.pUpdateInterval)
-  exit
+  return((tTolerance * (the milliSeconds - me.pUpdateLastTimestamp)) >= me.pUpdateInterval)
 end
 
-on getOwnPlayerName(me)
+on getOwnPlayerName me 
   tSession = getObject(#session)
-  if tSession = 0 then
-    return(0)
+  if (tSession = 0) then
+    return FALSE
   end if
   return(tSession.GET(#user_name))
-  exit
 end

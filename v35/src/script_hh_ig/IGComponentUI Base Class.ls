@@ -4,25 +4,25 @@ on construct me
   pViewMode = #info
   pViewModeComponents = [:]
   pSubComponentList = [:]
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
   removeUpdate(me.getID())
   tObject = getObject(me.getID())
   tObject.removeWindows()
-  return(1)
+  return TRUE
 end
 
 on define me, tMasterIGComponentId, tMainThreadId 
   pMasterIGComponentId = tMasterIGComponentId
   pMainThreadId = tMainThreadId
   pWindowSetId = me.getID()
-  return(1)
+  return TRUE
 end
 
 on displayEvent me, ttype, tParam 
-  return(0)
+  return FALSE
 end
 
 on removeWindows me 
@@ -30,7 +30,7 @@ on removeWindows me
   me.removeComponents()
   me.removeFlagManager()
   me.removeModalWindow()
-  return(1)
+  return TRUE
 end
 
 on renderUI me, tComponentSpec 
@@ -54,7 +54,7 @@ on renderUI me, tComponentSpec
       end repeat
     end if
   end if
-  return(1)
+  return TRUE
 end
 
 on Remove me 
@@ -80,7 +80,7 @@ end
 on getHandler me 
   tMainThreadRef = me.getMainThread()
   if not objectp(tMainThreadRef) then
-    return(0)
+    return FALSE
   end if
   return(tMainThreadRef.getHandler())
 end
@@ -88,7 +88,7 @@ end
 on getComponent me 
   tMainThreadRef = me.getMainThread()
   if not objectp(tMainThreadRef) then
-    return(0)
+    return FALSE
   end if
   return(tMainThreadRef.getComponent())
 end
@@ -96,7 +96,7 @@ end
 on getInterface me 
   tMainThreadRef = me.getMainThread()
   if not objectp(tMainThreadRef) then
-    return(0)
+    return FALSE
   end if
   return(tMainThreadRef.getInterface())
 end
@@ -104,11 +104,11 @@ end
 on ChangeWindowView me, tMode 
   tMainThreadRef = me.getMainThread()
   if not objectp(tMainThreadRef) then
-    return(0)
+    return FALSE
   end if
   tInterface = tMainThreadRef.getInterface()
-  if tInterface = 0 then
-    return(0)
+  if (tInterface = 0) then
+    return FALSE
   end if
   return(tInterface.ChangeWindowView(tMode))
 end
@@ -116,32 +116,32 @@ end
 on getIGComponent me, tServiceId 
   tMainThreadRef = me.getMainThread()
   if not objectp(tMainThreadRef) then
-    return(0)
+    return FALSE
   end if
   return(tMainThreadRef.getIGComponent(tServiceId))
 end
 
 on getSubComponent me, tID, tAddIfMissing 
-  tObject = me.getaProp(tID)
+  tObject = me.pSubComponentList.getaProp(tID)
   if tObject <> 0 then
     return(tObject)
   end if
   if not tAddIfMissing then
-    return(0)
+    return FALSE
   end if
   tObject = me.initializeSubComponent(tID, me.getSubComponentClass(tID))
-  if tObject = 0 then
-    return(0)
+  if (tObject = 0) then
+    return FALSE
   end if
   return(tObject)
 end
 
 on initializeSubComponent me, tID, tClass 
-  if tID = #modal then
+  if (tID = #modal) then
     tClass = []
   end if
-  if tClass = 0 then
-    return(0)
+  if (tClass = 0) then
+    return FALSE
   end if
   if listp(tClass) then
     tClass.addAt(1, "IGComponentUI Subcomponent Class")
@@ -153,16 +153,16 @@ on initializeSubComponent me, tID, tClass
     end if
   end if
   tObject = createObject(#temp, tClass)
-  if tObject = 0 then
+  if (tObject = 0) then
     return(error(me, "Cannot create subcomponent" && tID & ", class: " && tClass, #initializeSubComponent))
   end if
   tObject.setID(tID)
   tObject.pMainThreadId = me.pMainThreadId
   tObject.pWindowSetId = me.pWindowSetId & "_" & tID
-  me.setaProp(tID, tObject)
+  me.pSubComponentList.setaProp(tID, tObject)
   tFlagManager = me.getFlagManager(1)
-  if tFlagManager = 0 then
-    return(0)
+  if (tFlagManager = 0) then
+    return FALSE
   end if
   tObject.pFlagManagerId = tFlagManager.getID()
   tObject.addWindows()
@@ -179,48 +179,48 @@ on getViewMode me
 end
 
 on resetSubComponent me, tID 
-  tPos = me.findPos(tID)
-  if tPos = 0 then
-    return(0)
+  tPos = me.pSubComponentList.findPos(tID)
+  if (tPos = 0) then
+    return FALSE
   end if
-  tComponent = me.getaProp(tID)
+  tComponent = me.pSubComponentList.getaProp(tID)
   if objectp(tComponent) then
     tComponent.deconstruct()
   end if
-  me.deleteProp(tID)
+  me.pSubComponentList.deleteProp(tID)
   tTopLevelRef = getObject(me.getID())
   tComponent = tTopLevelRef.getSubComponent(tID, 1)
-  if tComponent = 0 then
+  if (tComponent = 0) then
     return(error(me, "Error creating components:" && tID, #resetSubComponent))
   end if
   tNewList = [:]
   i = 1
-  repeat while i <= tPos - 1
-    tNewList.setaProp(me.getPropAt(i), me.getAt(i))
-    i = 1 + i
+  repeat while i <= (tPos - 1)
+    tNewList.setaProp(me.pSubComponentList.getPropAt(i), me.pSubComponentList.getAt(i))
+    i = (1 + i)
   end repeat
   tNewList.setaProp(tID, tComponent)
   i = tPos
-  repeat while i <= me.count(#pSubComponentList) - 1
-    tNewList.setaProp(me.getPropAt(i), me.getAt(i))
-    i = 1 + i
+  repeat while i <= (me.count(#pSubComponentList) - 1)
+    tNewList.setaProp(me.pSubComponentList.getPropAt(i), me.pSubComponentList.getAt(i))
+    i = (1 + i)
   end repeat
   me.pSubComponentList = tNewList
   tComponent.render()
   tWrapObjRef = me.getWindowWrapper()
-  if tWrapObjRef = 0 then
-    return(0)
+  if (tWrapObjRef = 0) then
+    return FALSE
   end if
   tWrapObjRef.render()
-  return(1)
+  return TRUE
 end
 
 on renderSubComponents me, tComponentList 
   tTopLevelRef = getObject(me.getID())
   if not listp(tComponentList) then
     tComponentList = pViewModeComponents.getaProp(pViewMode)
-    if tComponentList = 0 then
-      return(0)
+    if (tComponentList = 0) then
+      return FALSE
     end if
   end if
   if not me.verifyComponentList(tComponentList) then
@@ -232,7 +232,7 @@ on renderSubComponents me, tComponentList
       tCreated = 0
       j = i
       repeat while j <= me.count(#pSubComponentList)
-        if tID = me.getPropAt(j) then
+        if (tID = me.pSubComponentList.getPropAt(j)) then
           tCreated = 1
           next repeat
         end if
@@ -240,7 +240,7 @@ on renderSubComponents me, tComponentList
         if objectp(tObject) then
           tObject.deconstruct()
         end if
-        me.deleteAt(j)
+        me.pSubComponentList.deleteAt(j)
         tRenderFlag = 1
       end repeat
       if not tCreated then
@@ -249,12 +249,12 @@ on renderSubComponents me, tComponentList
           tRenderFlag = 1
         end if
       end if
-      i = 1 + i
+      i = (1 + i)
     end repeat
-    if tRenderFlag = 1 then
+    if (tRenderFlag = 1) then
       tWrapObjRef = me.getWindowWrapper()
-      if tWrapObjRef = 0 then
-        return(0)
+      if (tWrapObjRef = 0) then
+        return FALSE
       end if
       tWrapObjRef.render()
     end if
@@ -277,22 +277,22 @@ on removeComponents me
     end if
   end repeat
   pSubComponentList = [:]
-  return(1)
+  return TRUE
 end
 
 on verifyComponentList me, tComponentList 
   tCount = pSubComponentList.count
   if tCount <> tComponentList.count then
-    return(0)
+    return FALSE
   end if
   i = 1
   repeat while i <= tCount
     if pSubComponentList.getPropAt(i) <> tComponentList.getAt(i) then
-      return(0)
+      return FALSE
     end if
-    i = 1 + i
+    i = (1 + i)
   end repeat
-  return(1)
+  return TRUE
 end
 
 on getFlagManager me, tCreateIfMissing 
@@ -300,49 +300,49 @@ on getFlagManager me, tCreateIfMissing
     return(getObject(pFlagManagerId))
   end if
   if not tCreateIfMissing then
-    return(0)
+    return FALSE
   end if
   return(me.createFlagManager())
 end
 
 on createFlagManager me 
-  if pFlagManagerId = void() then
+  if (pFlagManagerId = void()) then
     pFlagManagerId = me.getID() & "_flagmanager"
   end if
   if objectExists(pFlagManagerId) then
-    return(1)
+    return TRUE
   end if
   if not createObject(pFlagManagerId, "IG FlagManager Class") then
-    return(0)
+    return FALSE
   end if
   return(getObject(pFlagManagerId))
 end
 
 on removeFlagManager me 
   if not objectExists(pFlagManagerId) then
-    return(1)
+    return TRUE
   end if
   removeObject(pFlagManagerId)
-  return(1)
+  return TRUE
 end
 
 on createModalWindow me 
   if pModalSpr > 0 then
-    return(1)
+    return TRUE
   end if
   pModalSpr = reserveSprite(me.getID())
   tsprite = sprite(pModalSpr)
   tsprite.member = member(getmemnum("null"))
   tsprite.blend = 70
-  tsprite.rect = rect(0, 0, undefined.width, undefined.height)
+  tsprite.rect = rect(0, 0, the stage.rect.width, the stage.rect.height)
   tVisualizer = getVisualizer("Room_visualizer")
   if tVisualizer <> 0 then
-    tsprite.locZ = tVisualizer.getProperty(#locZ) + 10000000
+    tsprite.locZ = (tVisualizer.getProperty(#locZ) + 10000000)
   else
     tsprite.locZ = -10000000
   end if
   setEventBroker(tsprite.spriteNum, me.getID() & "_spr")
-  return(1)
+  return TRUE
 end
 
 on removeModalWindow me 
@@ -350,9 +350,9 @@ on removeModalWindow me
     releaseSprite(pModalSpr)
     pModalSpr = void()
   end if
-  return(1)
+  return TRUE
 end
 
 on eventProcMouseDown me, tEvent, tSprID, tParam, tWndID 
-  return(1)
+  return TRUE
 end

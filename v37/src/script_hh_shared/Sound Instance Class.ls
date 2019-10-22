@@ -12,18 +12,18 @@ on define me, tMemName, tPriority, tProps
   else
     pProps = [:]
   end if
-  if pProps.findPos(#volume) = 0 then
+  if (pProps.findPos(#volume) = 0) then
     pProps.setAt(#volume, 255)
   end if
-  return(1)
+  return TRUE
 end
 
 on getProperty me, tProp 
-  if tProp = void() then
-    return(0)
+  if (tProp = void()) then
+    return FALSE
   end if
   if not listp(pProps) then
-    return(0)
+    return FALSE
   end if
   return(pProps.getAt(tProp))
 end

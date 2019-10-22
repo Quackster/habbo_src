@@ -5,13 +5,13 @@ on construct me
   pInvitationData = [:]
   registerMessage(#userlogin, me.getID(), #Init)
   registerMessage(#showInvitation, me.getID(), #setInvitation)
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
   unregisterMessage(#userlogin, me.getID(), #Init)
   unregisterMessage(#showInvitation, me.getID(), #setInvitation)
-  return(1)
+  return TRUE
 end
 
 on setInvitation me, tInvitationData 
@@ -36,8 +36,8 @@ on getState me
 end
 
 on setState me, tstate 
-  if tstate = pState then
-    return(1)
+  if (tstate = pState) then
+    return TRUE
   end if
   pState = tstate
   me.getInterface().update()
@@ -65,11 +65,11 @@ end
 
 on acceptInvitation me 
   if ilk(pInvitationData) <> #propList then
-    return(0)
+    return FALSE
   end if
   tSenderId = pInvitationData.getaProp(#userID)
   if voidp(tSenderId) then
-    return(0)
+    return FALSE
   end if
   if connectionExists(getVariable("connection.info.id")) then
     getConnection(getVariable("connection.info.id")).send("MSG_ACCEPT_TUTOR_INVITATION", [#string:tSenderId])
@@ -80,7 +80,7 @@ end
 on rejectInvitation me 
   tSenderId = pInvitationData.getaProp(#userID)
   if voidp(tSenderId) then
-    return(0)
+    return FALSE
   end if
   if connectionExists(getVariable("connection.info.id")) then
     getConnection(getVariable("connection.info.id")).send("MSG_REJECT_TUTOR_INVITATION", [#string:tSenderId])

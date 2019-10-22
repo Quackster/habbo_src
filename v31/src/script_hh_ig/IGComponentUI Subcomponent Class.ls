@@ -1,19 +1,20 @@
-on construct(me)
+property pID, pWindowSetId, pWriterIdPlain, pWriterIdBold, pWindowIdPrefix, pWindowID, pModalSpr
+
+on construct me 
   pWriterIdPlain = getUniqueID()
   pWriterIdBold = getUniqueID()
   pWindowIdPrefix = "ig"
   pWindowID = ""
-  return(me.construct())
-  exit
+  return(me.ancestor.construct())
 end
 
-on deconstruct(me)
-  if pID = #modal then
+on deconstruct me 
+  if (pID = #modal) then
     return(me.removeModalWindow())
   end if
   tWrapObjRef = me.getWindowWrapper()
-  if tWrapObjRef = 0 then
-    return(0)
+  if (tWrapObjRef = 0) then
+    return FALSE
   end if
   tWrapObjRef.removeMatchingSets(pWindowSetId)
   if writerExists(pWriterIdPlain) then
@@ -22,67 +23,59 @@ on deconstruct(me)
   if writerExists(pWriterIdBold) then
     removeWriter(pWriterIdBold)
   end if
-  return(me.deconstruct())
-  exit
+  return(me.ancestor.deconstruct())
 end
 
-on setID(me, tID)
+on setID me, tID 
   pID = tID
-  exit
 end
 
-on addWindows(me)
-  if pID = #modal then
+on addWindows me 
+  if (pID = #modal) then
     return(me.createModalWindow())
   end if
-  return(1)
-  exit
+  return TRUE
 end
 
-on render(me)
-  exit
+on render me 
 end
 
-on update(me)
-  exit
+on update me 
 end
 
-on getOwnPlayerName(me)
+on getOwnPlayerName me 
   tSession = getObject(#session)
-  if tSession = 0 then
-    return(0)
+  if (tSession = 0) then
+    return FALSE
   end if
   if not tSession.exists(#user_name) then
-    return(0)
+    return FALSE
   end if
   return(tSession.GET(#user_name))
-  exit
 end
 
-on getOwnPlayerGameIndex(me)
+on getOwnPlayerGameIndex me 
   tSession = getObject(#session)
-  if tSession = 0 then
-    return(0)
+  if (tSession = 0) then
+    return FALSE
   end if
   if not tSession.exists("user_game_index") then
     return(-1)
   end if
   tIndex = tSession.GET("user_game_index")
   return(tIndex)
-  exit
 end
 
-on getPlainWriter(me)
+on getPlainWriter me 
   if writerExists(pWriterIdPlain) then
     return(getWriter(pWriterIdPlain))
   end if
   tPlainStruct = getStructVariable("struct.font.plain")
   createWriter(pWriterIdPlain, tPlainStruct)
   return(getWriter(pWriterIdPlain))
-  exit
 end
 
-on getBoldWriter(me)
+on getBoldWriter me 
   if writerExists(pWriterIdBold) then
     return(getWriter(pWriterIdBold))
   end if
@@ -90,30 +83,28 @@ on getBoldWriter(me)
   tBoldStruct.setaProp(#fontStyle, [#underline])
   createWriter(pWriterIdBold, tBoldStruct)
   return(getWriter(pWriterIdBold))
-  exit
 end
 
-on alignIconImage(me, tImage, tWidth, tHeight)
+on alignIconImage me, tImage, tWidth, tHeight 
   if tImage.ilk <> #image then
-    return(0)
+    return FALSE
   end if
   tNewImage = image(tWidth, tHeight, tImage.depth)
-  tOffsetX = tWidth - tImage.width / 2
-  tOffsetY = tHeight - tImage.height
-  tNewImage.copyPixels(tImage, tImage.rect + rect(tOffsetX, tOffsetY, tOffsetX, tOffsetY), tImage.rect)
+  tOffsetX = ((tWidth - tImage.width) / 2)
+  tOffsetY = (tHeight - tImage.height)
+  tNewImage.copyPixels(tImage, (tImage.rect + rect(tOffsetX, tOffsetY, tOffsetX, tOffsetY)), tImage.rect)
   return(tNewImage)
-  exit
 end
 
-on getHeadImage(me, tFigure, tsex, tWidth, tHeight)
+on getHeadImage me, tFigure, tsex, tWidth, tHeight 
   tFigureObj = getObject("Figure_Preview")
-  if tFigureObj = 0 then
-    return(0)
+  if (tFigureObj = 0) then
+    return FALSE
   end if
   if tFigure.ilk <> #propList then
     tParserObj = getObject("Figure_System")
-    if tParserObj = 0 then
-      return(0)
+    if (tParserObj = 0) then
+      return FALSE
     end if
     tFigure = tParserObj.parseFigure(tFigure, tsex)
   end if
@@ -123,87 +114,76 @@ on getHeadImage(me, tFigure, tsex, tWidth, tHeight)
   else
     return(me.alignIconImage(tImage, tWidth, tHeight))
   end if
-  exit
 end
 
-on getWindowWrapper(me)
+on getWindowWrapper me 
   return(getObject(#ig_window_wrapper))
-  exit
 end
 
-on getMainThread(me)
+on getMainThread me 
   return(getObject(me.pMainThreadId))
-  exit
 end
 
-on getIGComponent(me, tID)
+on getIGComponent me, tID 
   tMainThreadRef = me.getMainThread()
   if not objectp(tMainThreadRef) then
-    return(0)
+    return FALSE
   end if
   return(tMainThreadRef.getIGComponent(tID))
-  exit
 end
 
-on getWindowId(me, tParam)
+on getWindowId me, tParam 
   if voidp(tParam) then
     return(pWindowIdPrefix & "_" & pWindowID)
   else
     return(pWindowIdPrefix & "_" & pWindowID & "_" & tParam)
   end if
-  exit
 end
 
-on createModalWindow(me)
+on createModalWindow me 
   if pModalSpr > 0 then
-    return(1)
+    return TRUE
   end if
   pModalSpr = reserveSprite(me.getID())
   tsprite = sprite(pModalSpr)
   tsprite.member = member(getmemnum("null"))
   tsprite.blend = 70
-  tsprite.rect = rect(0, 0, undefined.width, undefined.height)
+  tsprite.rect = rect(0, 0, the stage.rect.width, the stage.rect.height)
   tVisualizer = getVisualizer("Room_visualizer")
   if tVisualizer <> 0 then
-    -- UNK_80 1442
-    -- UNK_2
+    tsprite.locZ = (tVisualizer.getProperty(#locZ) + 10000000)
   else
-    -- UNK_80 2466
-    -- UNK_2
+    tsprite.locZ = -10000000
   end if
   setEventBroker(tsprite.spriteNum, me.getID() & "_spr")
-  return(1)
-  exit
+  return TRUE
 end
 
-on removeModalWindow(me)
+on removeModalWindow me 
   if pModalSpr > 0 then
     releaseSprite(pModalSpr)
     pModalSpr = void()
   end if
-  return(1)
-  exit
+  return TRUE
 end
 
-on removeMatchingSets(me, tWindowSetId, tRender)
-  if tWindowSetId = void() then
-    return(0)
+on removeMatchingSets me, tWindowSetId, tRender 
+  if (tWindowSetId = void()) then
+    return FALSE
   end if
   tIdLength = tWindowSetId.length
   i = 1
   repeat while i <= me.count(#pSetIndex)
     tTestString = me.getProp(#pSetIndex, i)
-    if tTestString.getProp(#char, 1, tIdLength) = tWindowSetId then
+    if (tTestString.getProp(#char, 1, tIdLength) = tWindowSetId) then
       me.removeSet(tTestString, tRender)
       next repeat
     end if
-    i = i + 1
+    i = (i + 1)
   end repeat
-  return(1)
-  exit
+  return TRUE
 end
 
-on eventProcMouseDown(me, tEvent, tSprID, tParam, tWndID)
-  return(1)
-  exit
+on eventProcMouseDown me, tEvent, tSprID, tParam, tWndID 
+  return TRUE
 end

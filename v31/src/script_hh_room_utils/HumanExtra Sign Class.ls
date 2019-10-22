@@ -1,22 +1,21 @@
-on construct(me)
+property pSignSpr, pSignMem
+
+on construct me 
   pSignSpr = sprite(reserveSprite(me.getID()))
-  return(1)
-  exit
+  return TRUE
 end
 
-on deconstruct(me)
+on deconstruct me 
   releaseSprite(pSignSpr.spriteNum)
   pSignSpr = void()
-  return(1)
-  exit
+  return TRUE
 end
 
-on Refresh(me)
+on Refresh me 
   pSignSpr.visible = 0
-  exit
 end
 
-on show_sign(me, tProps)
+on show_sign me, tProps 
   tSignMem = tProps.getAt("signmember")
   tHumanSpr = tProps.getAt("sprite")
   tDirection = tProps.getAt("direction")
@@ -26,19 +25,18 @@ on show_sign(me, tProps)
     pSignMem = tSignMem
   end if
   tSignLoc = tHumanSpr.loc
-  if tDirection = 0 then
-    tSignLoc.locH = tSignLoc.locH - 16
+  if (tDirection = 0) then
+    tSignLoc.locH = (tSignLoc.locH - 16)
   else
-    if tDirection = 4 then
+    if (tDirection = 4) then
       tSignLoc.locH = tSignLoc.locH
     else
-      if tDirection = 6 then
-        tSignLoc.locH = tSignLoc.locH - 18
+      if (tDirection = 6) then
+        tSignLoc.locH = (tSignLoc.locH - 18)
       end if
     end if
   end if
   pSignSpr.loc = tSignLoc
-  pSignSpr.locZ = tHumanSpr.locZ + 1
+  pSignSpr.locZ = (tHumanSpr.locZ + 1)
   pSignSpr.visible = 1
-  exit
 end

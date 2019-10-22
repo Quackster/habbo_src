@@ -7,12 +7,12 @@ on construct me
     return(error(me, "gamesystem.processor.superclass not found.", #defineProcessors))
   end if
   pBaseProcClassList = getClassVariable("gamesystem.processor.superclass")
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
   me.removeAllProcessors()
-  return(1)
+  return TRUE
 end
 
 on defineClient me, tID 
@@ -26,7 +26,7 @@ on distributeEvent me, tTopic, tdata
     call(tStoreMethod, tBaseLogic, tdata)
   end if
   if not pUpdateBrokerList.findPos(tTopic) then
-    return(0)
+    return FALSE
   end if
   tList = pUpdateBrokerList.getProp(tTopic)
   repeat while tList <= tdata
@@ -39,7 +39,7 @@ on distributeEvent me, tTopic, tdata
       tList.deleteOne(tListenerId)
     end if
   end repeat
-  return(1)
+  return TRUE
 end
 
 on defineProcessors me 
@@ -55,7 +55,7 @@ on defineProcessors me
     tProcId = getAt(undefined, undefined)
     me.defineSingleProcessor(tProcId)
   end repeat
-  return(1)
+  return TRUE
 end
 
 on defineSingleProcessor me, tProcId 
@@ -78,18 +78,18 @@ on defineSingleProcessor me, tProcId
   if listp(tProcessorRegList) then
     repeat while tProcessorRegList <= undefined
       tMsg = getAt(undefined, tProcId)
-      if tMsg = void() then
+      if (tMsg = void()) then
         return(error(me, "Invalid format in processor message:" && tProcObjId && tMsg, #defineProcessors))
       end if
       if voidp(pUpdateBrokerList.getAt(tMsg)) then
         pUpdateBrokerList.addProp(tMsg, [])
       end if
-      if pUpdateBrokerList.getAt(tMsg).getPos(tProcId) = 0 then
+      if (pUpdateBrokerList.getAt(tMsg).getPos(tProcId) = 0) then
         pUpdateBrokerList.getAt(tMsg).add(tProcId)
       end if
     end repeat
   end if
-  return(1)
+  return TRUE
 end
 
 on removeSingleProcessor me, tProcId 
@@ -104,7 +104,7 @@ on removeSingleProcessor me, tProcId
   tProcObjectId = tProcObject.getID()
   pProcessorObjList.deleteProp(tProcId)
   removeObject(tProcObjectId)
-  return(1)
+  return TRUE
 end
 
 on getProcessor me, tProcId 
@@ -118,5 +118,5 @@ on removeAllProcessors me
   end repeat
   pProcessorObjList = [:]
   pUpdateBrokerList = [:]
-  return(1)
+  return TRUE
 end

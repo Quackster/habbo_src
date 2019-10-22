@@ -45,7 +45,7 @@ on showPurchaseDialog me
     tWndObj.getElement("buy_gift_ok").hide()
     tWndObj.getElement("shopping_asagift").hide()
   end if
-  if pProps.getAt(#offerType) = #credits then
+  if (pProps.getAt(#offerType) = #credits) then
     tPrice = integer(value(pProps.getAt(#item).getPrice(#credits)))
     tWallet = integer(value(getObject(#session).GET("user_walletbalance")))
     tMsgA = getText(tOfferTypeText.getAt(pProps.getAt(#offerType)), "\\x1 costs \\x2 credits")
@@ -53,7 +53,7 @@ on showPurchaseDialog me
     tMsgA = replaceChunks(tMsgA, "\\x2", tPrice)
     tMsgB = replaceChunks(getText("catalog_credits", "You have \\x credits in your purse."), "\\x", tWallet)
   else
-    if pProps.getAt(#offerType) = #creditsandpixels then
+    if (pProps.getAt(#offerType) = #creditsandpixels) then
       tPriceX = integer(value(pProps.getAt(#item).getPrice(#credits)))
       tPriceY = integer(value(pProps.getAt(#item).getPrice(#pixels)))
       tWalletX = integer(value(getObject(#session).GET("user_walletbalance")))
@@ -66,7 +66,7 @@ on showPurchaseDialog me
       tMsgB = replaceChunks(tMsgB, "\\x", tWalletX)
       tMsgB = replaceChunks(tMsgB, "\\y", tWalletY)
     else
-      if pProps.getAt(#offerType) = #pixels then
+      if (pProps.getAt(#offerType) = #pixels) then
         tPrice = integer(value(pProps.getAt(#item).getPrice(#pixels)))
         tWallet = integer(value(getObject(#session).GET("user_pixelbalance")))
         tMsgA = getText(tOfferTypeText.getAt(pProps.getAt(#offerType)), "\\x1 costs \\x3 pixels")
@@ -77,7 +77,7 @@ on showPurchaseDialog me
     end if
   end if
   activateWindowObj(pWndID)
-  tWndObj.setProperty(#locZ, getWindowManager().pAvailableLocZ + 1)
+  tWndObj.setProperty(#locZ, (getWindowManager().pAvailableLocZ + 1))
   tWndObj.center()
   tWndObj.getElement("habbo_orderinfo_text_a").setText(tMsgA)
   tWndObj.getElement("habbo_orderinfo_text_b").setText(tMsgB)
@@ -105,7 +105,7 @@ on showGiftDialog me
     return(error(me, "Unable to perform merge to purchase info dialog", #showPurchaseDialog, #major))
   end if
   activateWindowObj(pWndID)
-  tWndObj.setProperty(#locZ, getWindowManager().pAvailableLocZ + 1)
+  tWndObj.setProperty(#locZ, (getWindowManager().pAvailableLocZ + 1))
   tWndObj.getElement("habbo_orderinfo_text_a").setText(tMsgA)
   tWndObj.getElement("habbo_orderinfo_text_b").setText(tMsgB)
   tWndObj.registerProcedure(#eventProcKeyDown, me.getID(), #keyDown)
@@ -115,7 +115,7 @@ on finishPurchase me
   if windowExists(pWndID) then
     removeWindow(pWndID)
   end if
-  if me.getaProp(#closeCatalogue) then
+  if me.pProps.getaProp(#closeCatalogue) then
     executeMessage(#hide_catalogue)
   end if
 end
@@ -123,7 +123,7 @@ end
 on eventProcPurchaseDialog me, tEvent, tSprID, tParam, tWndID 
   if tSprID <> "habbo_decision_ok" then
     if tSprID <> "habbo_message_ok" then
-      if tSprID = "button_ok" then
+      if (tSprID = "button_ok") then
         tWndObj = getWindow(pWndID)
         if tWndObj.elementExists("shopping_gift_target") then
           tGiftReceiver = tWndObj.getElement("shopping_gift_target").getText()
@@ -149,20 +149,20 @@ on eventProcPurchaseDialog me, tEvent, tSprID, tParam, tWndID
       else
         if tSprID <> "habbo_decision_cancel" then
           if tSprID <> "button_cancel" then
-            if tSprID = "close" then
+            if (tSprID = "close") then
               tWndObj = getWindow(pWndID)
               tWndObj.close()
               me.finishPurchase()
             else
-              if tSprID = "buy_gift_ok" then
+              if (tSprID = "buy_gift_ok") then
                 me.showGiftDialog()
               else
-                if tSprID = "buy_gift_cancel" then
+                if (tSprID = "buy_gift_cancel") then
                   me.showPurchaseDialog()
                 else
-                  if tSprID = "nobalance_ok" then
+                  if (tSprID = "nobalance_ok") then
                     if not textExists("url_nobalance") then
-                      return(0)
+                      return FALSE
                     end if
                     tSession = getObject(#session)
                     tURL = getText("url_nobalance")
@@ -175,7 +175,7 @@ on eventProcPurchaseDialog me, tEvent, tSprID, tParam, tWndID
                     tWndObj = getWindow(pWndID)
                     tWndObj.close()
                   else
-                    if tSprID = "subscribe" then
+                    if (tSprID = "subscribe") then
                       tSession = getObject(#session)
                       tOwnName = tSession.GET(#userName)
                       tURL = getText("url_subscribe")
@@ -200,12 +200,12 @@ on eventProcPurchaseDialog me, tEvent, tSprID, tParam, tWndID
 end
 
 on eventProcKeyDown me, tEvent, tSprID, tParam 
-  if the key = "\t" then
+  if (the key = "\t") then
     if not windowExists(pWndID) then
-      return(0)
+      return FALSE
     end if
     tWndObj = getWindow(pWndID)
-    if tSprID = "shopping_greeting_field" then
+    if (tSprID = "shopping_greeting_field") then
       tElem = tWndObj.getElement("shopping_gift_target")
       if objectp(tElem) then
         tElem.setFocus(1)

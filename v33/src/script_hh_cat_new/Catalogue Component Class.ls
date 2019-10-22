@@ -26,19 +26,19 @@ end
 
 on updatePageData me, tPageID, tdata 
   if ilk(tdata) <> #propList then
-    return(0)
+    return FALSE
   end if
   tGroups = me.createOfferGroups(tdata.duplicate())
   sendProcessTracking(503)
   if ilk(tGroups) <> #propList then
-    return(0)
+    return FALSE
   end if
   if ilk(pPageCache) <> #propList then
-    return(0)
+    return FALSE
   end if
   pPageCache.setaProp(tPageID, tGroups)
   sendProcessTracking(504)
-  if tPageID = pWaitingForData then
+  if (tPageID = pWaitingForData) then
     me.getInterface().displayPage(tPageID)
   end if
 end
@@ -96,7 +96,7 @@ on prepareFrontPage me
   if not voidp(pCatalogIndex) then
     tNode = me.getFirstNavigateableNode(pCatalogIndex)
     if tNode.ilk <> #propList then
-      return(0)
+      return FALSE
     end if
     me.preparePage(tNode.getAt(#pageid))
     pWaitingForFrontPage = 0
@@ -137,7 +137,7 @@ end
 
 on getPageData me, tPageID 
   if ilk(pPageCache) <> #propList then
-    return(0)
+    return FALSE
   end if
   return(pPageCache.getaProp(tPageID))
 end
@@ -145,7 +145,7 @@ end
 on getPageDataByLayout me, tLayout 
   repeat while pPageCache <= undefined
     tPage = getAt(undefined, tLayout)
-    if tPage.getAt(#layout) = tLayout then
+    if (tPage.getAt(#layout) = tLayout) then
       return(tPage)
     end if
   end repeat
@@ -196,7 +196,7 @@ on getFirstNodeByName me, tName, tNode
     error(me, "Node type was invalid.", #getNodeByName, #major)
     return(void())
   end if
-  if tNode.getAt(#nodename) = tName then
+  if (tNode.getAt(#nodename) = tName) then
     return(tNode)
   else
     if not voidp(tNode.getaProp(#subnodes)) then
@@ -220,12 +220,12 @@ end
 on createOfferGroups me, tPageData 
   if ilk(tPageData) <> #propList then
     error(me, "Page data was not a property list", #createOfferGroups, #major)
-    return(0)
+    return FALSE
   end if
   tGroupedOffers = [:]
   if ilk(tPageData.getAt(#offers)) <> #list then
     error(me, "Offers was not a list", #createOfferGroups, #major)
-    return(0)
+    return FALSE
   end if
   repeat while tPageData.getAt(#offers) <= undefined
     tOffer = getAt(undefined, tPageData)
@@ -241,14 +241,14 @@ on createOfferGroups me, tPageData
 end
 
 on findOfferByOldpageSelection me, tSelectedProduct, tPageID 
-  tPageData = me.getaProp(tPageID)
+  tPageData = me.pPageCache.getaProp(tPageID)
   tOffer = void()
   i = 1
   repeat while i <= tPageData.getAt(#offers).count
-    if tSelectedProduct.getAt("purchaseCode") = tPageData.getAt(#offers).getPropAt(i) then
+    if (tSelectedProduct.getAt("purchaseCode") = tPageData.getAt(#offers).getPropAt(i)) then
       tOffer = tPageData.getAt(#offers).getAt(i).getOffer(1)
     else
-      i = 1 + i
+      i = (1 + i)
     end if
   end repeat
   if voidp(tOffer) then
@@ -271,14 +271,14 @@ on checkProductOrder me, tSelectedProduct
   if voidp(tOffer) then
     return(error(me, "Could not reference an offer by selected product", #checkProductOrder, #major))
   end if
-  if not objectp(pPurchaseProcessor) or pPurchaseProcessor = 0 then
+  if not objectp(pPurchaseProcessor) or (pPurchaseProcessor = 0) then
     pPurchaseProcessor = createObject(getUniqueID(), "Purchase Processor Class")
   end if
   pPurchaseProcessor.startPurchase([#offerType:#credits, #pageid:tPageID, #item:tOffer, #method:#sendPurchaseFromCatalog])
 end
 
 on requestPurchase me, tOfferType, tPageID, tSelectedItem, tMethod, tExtraProps 
-  if not objectp(pPurchaseProcessor) or pPurchaseProcessor = 0 then
+  if not objectp(pPurchaseProcessor) or (pPurchaseProcessor = 0) then
     pPurchaseProcessor = createObject(getUniqueID(), "Purchase Processor Class")
   end if
   tProps = [#offerType:tOfferType, #pageid:tPageID, #item:tSelectedItem, #method:tMethod]
@@ -292,15 +292,15 @@ on requestPurchase me, tOfferType, tPageID, tSelectedItem, tMethod, tExtraProps
 end
 
 on getArePixelsEnabled me 
-  if getStringVariable("pixels.enabled") = "true" then
-    return(1)
+  if (getStringVariable("pixels.enabled") = "true") then
+    return TRUE
   else
-    return(0)
+    return FALSE
   end if
 end
 
 on refreshCatalogue me, tMode 
-  if tMode = #club then
+  if (tMode = #club) then
     me.getInterface().hideCatalogue()
   else
     if me.getInterface().isVisible() then

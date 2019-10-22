@@ -1,16 +1,16 @@
-on construct(me)
+property pDoorbellQueue, pDoorbellWinID, pRingingUser
+
+on construct me 
   pDoorbellQueue = []
   pDoorbellWinID = getText("win_doorbell", "Doorbell")
-  exit
 end
 
-on deconstruct(me)
-  exit
+on deconstruct me 
 end
 
-on addDoorbellRinger(me, tName)
+on addDoorbellRinger me, tName 
   if pDoorbellQueue.getPos(tName) > 0 then
-    return(0)
+    return FALSE
   end if
   if not windowExists(pDoorbellWinID) then
     if not createWindow(pDoorbellWinID, "habbo_basic.window", 250, 200) then
@@ -21,7 +21,7 @@ on addDoorbellRinger(me, tName)
       tWndObj.close()
       return(error(me, "Couldn't create window to show ringing doorbell!", #addDoorbellRinger, #major))
     end if
-    -- UNK_80 16899
+    tWndObj.setProperty(#locZ, 2000000)
     tWndObj.lock(1)
     tWndObj.registerClient(me.getID())
     tWndObj.registerProcedure(#eventProcDoorBell, me.getID(), #mouseUp)
@@ -29,55 +29,50 @@ on addDoorbellRinger(me, tName)
   pDoorbellQueue.append(tName)
   pRingingUser = pDoorbellQueue.count
   me.updateDoorbellWindow()
-  return(1)
-  exit
+  return TRUE
 end
 
-on removeRingingUser(me)
+on removeRingingUser me 
   pDoorbellQueue.deleteAt(pRingingUser)
   me.updateDoorbellWindow()
-  return(1)
-  exit
+  return TRUE
 end
 
-on removeFromList(me, tName)
+on removeFromList me, tName 
   tRemoved = pDoorbellQueue.deleteOne(tName)
   if tRemoved then
     me.updateDoorbellWindow()
   end if
-  exit
 end
 
-on displayNextDoorbellRinger(me)
-  pRingingUser = pRingingUser + 1
+on displayNextDoorbellRinger me 
+  pRingingUser = (pRingingUser + 1)
   if pRingingUser > pDoorbellQueue.count then
     pRingingUser = 1
   end if
   me.updateDoorbellWindow()
-  return(1)
-  exit
+  return TRUE
 end
 
-on displayPreviousDoorbellRinger(me)
-  pRingingUser = pRingingUser - 1
+on displayPreviousDoorbellRinger me 
+  pRingingUser = (pRingingUser - 1)
   if pRingingUser < 1 then
     pRingingUser = pDoorbellQueue.count
   end if
   me.updateDoorbellWindow()
-  return(1)
-  exit
+  return TRUE
 end
 
-on updateDoorbellWindow(me)
-  if pDoorbellQueue = [] then
+on updateDoorbellWindow me 
+  if (pDoorbellQueue = []) then
     me.hideDoorBell()
-    return(1)
+    return TRUE
   end if
   if pRingingUser > pDoorbellQueue.count then
     pRingingUser = pDoorbellQueue.count
   end if
   if not windowExists(pDoorbellWinID) then
-    return(0)
+    return FALSE
   end if
   tWndObj = getWindow(pDoorbellWinID)
   tText = getText("room_doorbell", "rings the doorbell...")
@@ -93,42 +88,39 @@ on updateDoorbellWindow(me)
     tCountText = ""
   end if
   tWndObj.getElement("doorbell_req_num").setText(tCountText)
-  return(1)
-  exit
+  return TRUE
 end
 
-on hideDoorBell(me)
+on hideDoorBell me 
   pRingingUser = 0
   pDoorbellQueue = []
   if not windowExists(pDoorbellWinID) then
-    return(0)
+    return FALSE
   end if
   removeWindow(pDoorbellWinID)
-  return(1)
-  exit
+  return TRUE
 end
 
-on eventProcDoorBell(me, tEvent, tSprID, tParam)
-  if me = "doorbell_yes" then
+on eventProcDoorBell me, tEvent, tSprID, tParam 
+  if (tSprID = "doorbell_yes") then
     getThread(#room).getComponent().getRoomConnection().send("LETUSERIN", [#string:pDoorbellQueue.getAt(pRingingUser), #boolean:1])
     me.removeRingingUser()
   else
-    if me = "doorbell_no" then
+    if (tSprID = "doorbell_no") then
       getThread(#room).getComponent().getRoomConnection().send("LETUSERIN", [#string:pDoorbellQueue.getAt(pRingingUser), #boolean:0])
       me.removeRingingUser()
     else
-      if me = "close" then
+      if (tSprID = "close") then
         me.hideDoorBell()
       else
-        if me = "doorbell_next" then
+        if (tSprID = "doorbell_next") then
           me.displayNextDoorbellRinger()
         else
-          if me = "doorbell_prev" then
+          if (tSprID = "doorbell_prev") then
             me.displayPreviousDoorbellRinger()
           end if
         end if
       end if
     end if
   end if
-  exit
 end

@@ -3,11 +3,11 @@ property pREquiresUpdate, pMask, pMaskList, pMaskImage
 on construct me 
   pMaskList = [:]
   me.initMask()
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
-  return(1)
+  return TRUE
 end
 
 on requiresUpdate me 
@@ -43,8 +43,8 @@ on getItemCount me
 end
 
 on initMask me 
-  tWidth = rect.width
-  tHeight = rect.height
+  tWidth = the stage.rect.width
+  tHeight = the stage.rect.height
   pMaskImage = image(tWidth, tHeight, 8)
   pMaskImage.fill(pMaskImage.rect, rgb("FFFFFF"))
   pIsChanged = 1
@@ -61,7 +61,7 @@ on renderMask me
     tNameTemplate = getVariable("mask.membername.template")
     tMemberName = replaceChunks(tNameTemplate, "%class%", tClass)
     tMemberName = replaceChunks(tMemberName, "%dir%", tdir)
-    if tSize = 32 then
+    if (tSize = 32) then
       tMemberName = "s_" & tMemberName
     end if
     if not memberExists(tMemberName) then
@@ -70,11 +70,11 @@ on renderMask me
       tmember = member(abs(tMemNum))
       tMaskImage = tmember.image
       tRegPoint = tmember.regPoint
-      if tdir = "rightwall" then
-        tRegPoint = point(tMaskImage.width - tRegPoint.getAt(1), tRegPoint.getAt(2))
+      if (tdir = "rightwall") then
+        tRegPoint = point((tMaskImage.width - tRegPoint.getAt(1)), tRegPoint.getAt(2))
       end if
-      tloc = tloc - tRegPoint
-      tBottomRight = tloc + point(tMaskImage.width, tMaskImage.height)
+      tloc = (tloc - tRegPoint)
+      tBottomRight = (tloc + point(tMaskImage.width, tMaskImage.height))
       if tMemNum > 0 then
         tQuad = [tloc, point(tBottomRight.getAt(1), tloc.getAt(2)), tBottomRight, point(tloc.getAt(1), tBottomRight.getAt(2))]
       else
@@ -83,7 +83,7 @@ on renderMask me
       pMaskImage.copyPixels(tMaskImage, tQuad, tMaskImage.rect, [#ink:36])
     end if
   end repeat
-  if ilk(pMaskImage) = #image then
+  if (ilk(pMaskImage) = #image) then
     pMask = pMaskImage.createMask()
   end if
 end

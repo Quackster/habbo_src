@@ -11,7 +11,7 @@ on deconstruct me
   unregisterMessage(#changeRoom, me.getID())
   removeUpdate(me.getID())
   me.hideStars()
-  return(1)
+  return TRUE
 end
 
 on hidePlate me 
@@ -52,7 +52,7 @@ on show me, tName, tDate, tMsg, tWindowName
     registerMessage(#changeRoom, me.getID(), #hidePlate)
     receiveUpdate(me.getID())
   end if
-  return(1)
+  return TRUE
 end
 
 on showStars me 
@@ -63,14 +63,14 @@ on showStars me
     if tSprNum > 0 then
       pStarProps.addProp(f, ["sprite":tSprNum, "frame":1, "loc":point(-10, -10)])
       sprite(tSprNum).ink = 8
-      sprite(tSprNum).locZ = getWindow(pPlateID).getProperty(#locZ) + getWindow(pPlateID).getProperty(#spriteList).count
+      sprite(tSprNum).locZ = (getWindow(pPlateID).getProperty(#locZ) + getWindow(pPlateID).getProperty(#spriteList).count)
     end if
-    f = 1 + f
+    f = (1 + f)
   end repeat
 end
 
 on hideStars me 
-  if pStarProps.ilk = #propList then
+  if (pStarProps.ilk = #propList) then
     if pStarProps.count > 0 then
       f = 1
       repeat while f <= pStarProps.count
@@ -78,7 +78,7 @@ on hideStars me
           tSpr = pStarProps.getAt(f).getAt("sprite")
           releaseSprite(tSpr)
         end if
-        f = 1 + f
+        f = (1 + f)
       end repeat
     end if
   end if
@@ -88,18 +88,18 @@ end
 on update me 
   if windowExists(pPlateID) then
     if pFrameCounter > 1 then
-      if pStarProps.count = 0 then
+      if (pStarProps.count = 0) then
         showStars(me)
       end if
       tWndObj = getWindow(pPlateID)
-      tminX = tWndObj.getProperty(#locX) + 10
-      tMaxX = tWndObj.getProperty(#width) - 10
-      tMinY = tWndObj.getProperty(#locY) + 10
-      tMaxY = tWndObj.getProperty(#height) - 10
+      tminX = (tWndObj.getProperty(#locX) + 10)
+      tMaxX = (tWndObj.getProperty(#width) - 10)
+      tMinY = (tWndObj.getProperty(#locY) + 10)
+      tMaxY = (tWndObj.getProperty(#height) - 10)
       me.animateStars(tminX, tMaxX, tMinY, tMaxY)
       pFrameCounter = 0
     else
-      pFrameCounter = pFrameCounter + 1
+      pFrameCounter = (pFrameCounter + 1)
     end if
   else
     me.deconstruct()
@@ -107,19 +107,19 @@ on update me
 end
 
 on animateStars me, tminX, tMaxX, tMinY, tMaxY 
-  if pStarProps.ilk = #propList then
+  if (pStarProps.ilk = #propList) then
     if pStarProps.count > 0 then
       f = 1
       repeat while f <= pStarProps.count
         tSpr = sprite(pStarProps.getAt(f).getAt("sprite"))
         tFrame = pStarProps.getAt(f).getAt("frame")
-        if tFrame = 1 then
-          pStarProps.getAt(f).setAt("loc", point(tminX + random(tMaxX), tMinY + random(tMaxY)))
-          sprite(tSpr).blend = 40 + random(40)
+        if (tFrame = 1) then
+          pStarProps.getAt(f).setAt("loc", point((tminX + random(tMaxX)), (tMinY + random(tMaxY))))
+          sprite(tSpr).blend = (40 + random(40))
         end if
         if tFrame > 9 then
           sprite(tSpr).blend = 0
-          if random(10) = 1 then
+          if (random(10) = 1) then
             pStarProps.getAt(f).setAt("frame", 1)
           end if
         else
@@ -127,9 +127,9 @@ on animateStars me, tminX, tMaxX, tMinY, tMaxY
           if memberExists("starblink" & tFrame) then
             sprite(tSpr).member = member(getmemnum("starblink" & tFrame))
           end if
-          pStarProps.getAt(f).setAt("frame", tFrame + 1)
+          pStarProps.getAt(f).setAt("frame", (tFrame + 1))
         end if
-        f = 1 + f
+        f = (1 + f)
       end repeat
     end if
   end if

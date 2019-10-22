@@ -7,11 +7,11 @@ on construct me
   pImageRight = image(1, 1, 8)
   pMatteLeft = pimage.createMatte()
   pMatteRight = pimage.createMatte()
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
-  return(1)
+  return TRUE
 end
 
 on define me, tProps 
@@ -21,23 +21,23 @@ on define me, tProps
   pMaxH = tProps.getaProp(#maxh)
   pTurnPoint = tProps.getaProp(#turnpoint)
   tLocX = random(pMaxH)
-  tLocY = pMinV + random(pMaxV - pMinV) - (tLocX / 2)
+  tLocY = ((pMinV + random((pMaxV - pMinV))) - (tLocX / 2))
   if tLocX > pTurnPoint then
-    tLocY = tLocY + (tLocX - pTurnPoint / 2)
+    tLocY = (tLocY + ((tLocX - pTurnPoint) / 2))
   end if
   pLoc = point(tLocX, tLocY)
   pRefLoc = point(tLocX, tLocY)
-  pImageLeft = image.duplicate()
-  pImageRight = image.duplicate()
+  pImageLeft = member(getmemnum("cloud_" & pType & "_left_x")).image.duplicate()
+  pImageRight = member(getmemnum("cloud_" & pType & "_right_x")).image.duplicate()
   pMatteLeft = pImageLeft.createMatte()
   pMatteRight = pImageRight.createMatte()
 end
 
 on updateAnim me 
-  pLoc.setAt(1, pLoc.getAt(1) + 1)
+  pLoc.setAt(1, (pLoc.getAt(1) + 1))
   tLocY = pLoc.getAt(2)
-  if the stage > rect.width then
-    pLoc = point(the stage, random(rect.height))
+  if pLoc.getAt(1) > the stage.rect.width then
+    pLoc = point(0, random(the stage.rect.height))
   end if
 end
 
@@ -47,6 +47,6 @@ on render me, tImage
   else
     tSourceImage = pImageRight
   end if
-  tTargetRect = tSourceImage.rect + rect(pLoc.getAt(1), pLoc.getAt(2), pLoc.getAt(1), pLoc.getAt(2))
+  tTargetRect = (tSourceImage.rect + rect(pLoc.getAt(1), pLoc.getAt(2), pLoc.getAt(1), pLoc.getAt(2)))
   tImage.copyPixels(tSourceImage, tTargetRect, tSourceImage.rect, [#maskImage:tSourceImage.createMatte()])
 end

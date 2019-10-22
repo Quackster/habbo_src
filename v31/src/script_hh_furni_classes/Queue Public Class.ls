@@ -1,19 +1,15 @@
-on prepare(me, tdata)
+on prepare me, tdata 
   me.pCorrectLocZ = 0
-  return(1)
-  exit
+  return TRUE
 end
 
-on updateStuffdata(me, tValue)
-  return(1)
-  exit
+on updateStuffdata me, tValue 
+  return TRUE
 end
 
-on setAnimation(me, tValue)
-  return(1)
-  exit
+on setAnimation me, tValue 
+  return TRUE
 end
 
-on update(me)
-  exit
+on update me 
 end

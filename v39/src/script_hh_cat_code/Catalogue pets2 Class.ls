@@ -1,18 +1,18 @@
 on construct me 
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
-  return(1)
+  return TRUE
 end
 
 on eventProc me, tEvent, tSprID, tProp 
-  if tEvent = #mouseUp then
-    if tSprID = "ctlg_text_3" then
+  if (tEvent = #mouseUp) then
+    if (tSprID = "ctlg_text_3") then
       tURL = getText("url_pets")
       executeMessage(#externalLinkClick, the mouseLoc)
       openNetPage(tURL, "_new")
     end if
   end if
-  return(0)
+  return FALSE
 end

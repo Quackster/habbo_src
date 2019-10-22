@@ -1,12 +1,12 @@
 on construct me 
   me.pItemList = [:]
-  me.sort()
-  return(1)
+  me.pItemList.sort()
+  return TRUE
 end
 
 on deconstruct me 
   me.pItemList = [:]
-  return(1)
+  return TRUE
 end
 
 on create me, tVariable, tValue 
@@ -14,7 +14,7 @@ on create me, tVariable, tValue
     return(error(me, "String or symbol expected:" && tVariable, #create, #major))
   end if
   setaProp(me.pItemList, tVariable, tValue)
-  return(1)
+  return TRUE
 end
 
 on set me, tVariable, tValue 
@@ -22,11 +22,11 @@ on set me, tVariable, tValue
     return(error(me, "String or symbol expected:" && tVariable, #set, #major))
   end if
   setaProp(me.pItemList, tVariable, tValue)
-  return(1)
+  return TRUE
 end
 
 on GET me, tVariable, tDefault 
-  tValue = me.getaProp(tVariable)
+  tValue = me.pItemList.getaProp(tVariable)
   if voidp(tValue) then
     tError = "Variable not found:" && "\"" & tVariable & "\""
     if not voidp(tDefault) then
@@ -41,7 +41,7 @@ on GET me, tVariable, tDefault
 end
 
 on getInt me, tVariable, tDefault 
-  tValue = integer(me.getaProp(tVariable))
+  tValue = integer(me.pItemList.getaProp(tVariable))
   if not integerp(tValue) then
     tError = "Variable not found:" && "\"" & tVariable & "\""
     if not voidp(tDefault) then
@@ -55,7 +55,7 @@ end
 
 on getString me, tVariable, tDefault 
   tValue = ""
-  if me.getaProp(tVariable) = void() then
+  if (me.pItemList.getaProp(tVariable) = void()) then
     tError = "Variable not found:" && "\"" & tVariable & "\""
     if not voidp(tDefault) and stringp(tDefault) then
       tValue = tDefault
@@ -63,14 +63,14 @@ on getString me, tVariable, tDefault
     end if
     error(me, tError, #getString, #minor)
   else
-    tValue = string(me.getaProp(tVariable))
+    tValue = string(me.pItemList.getaProp(tVariable))
   end if
   return(tValue)
 end
 
 on getSymbol me, tVariable, tDefault 
   tValue = ""
-  if me.getaProp(tVariable) = void() then
+  if (me.pItemList.getaProp(tVariable) = void()) then
     tError = "Variable not found:" && "\"" & tVariable & "\""
     if not voidp(tDefault) and stringp(tDefault) then
       tValue = tDefault
@@ -78,13 +78,13 @@ on getSymbol me, tVariable, tDefault
     end if
     error(me, tError, #getString, #minor)
   else
-    tValue = symbol(me.getaProp(tVariable))
+    tValue = symbol(me.pItemList.getaProp(tVariable))
   end if
   return(tValue)
 end
 
 on GetValue me, tVariable, tDefault 
-  tValue = value(me.getaProp(tVariable))
+  tValue = value(me.pItemList.getaProp(tVariable))
   if voidp(tValue) then
     tError = "Variable not found:" && "\"" & tVariable & "\""
     if not voidp(tDefault) then
@@ -93,7 +93,7 @@ on GetValue me, tVariable, tDefault
     end if
     error(me, tError, #GetValue, #minor)
   end if
-  if ilk(tValue) = #list or ilk(tValue) = #propList then
+  if (ilk(tValue) = #list) or (ilk(tValue) = #propList) then
     return(tValue.duplicate())
   else
     error(me, "Using getValue to get something other than list or proplist:" && tVariable, #GetValue, #minor)
@@ -102,11 +102,11 @@ on GetValue me, tVariable, tDefault
 end
 
 on Remove me, tVariable 
-  return(me.deleteProp(tVariable))
+  return(me.pItemList.deleteProp(tVariable))
 end
 
 on exists me, tVariable 
-  return(not voidp(me.getaProp(tVariable)))
+  return(not voidp(me.pItemList.getaProp(tVariable)))
 end
 
 on dump me, tField, tDelimiter, tOverride 
@@ -128,11 +128,11 @@ on dump me, tField, tDelimiter, tOverride
       tValue = tPair.getProp(#item, 2, tPair.count(#item))
       tValue = tValue.getProp(#word, 1, tValue.count(#word))
       if not tValue contains space() then
-        if tValue.getProp(#char, 1) = "#" then
+        if (tValue.getProp(#char, 1) = "#") then
           tValue = symbol(chars(tValue, 2, length(tValue)))
         else
           if integerp(integer(tValue)) then
-            if length(string(integer(tValue))) = length(tValue) then
+            if (length(string(integer(tValue))) = length(tValue)) then
               tValue = integer(tValue)
             end if
           end if
@@ -145,19 +145,19 @@ on dump me, tField, tDelimiter, tOverride
       if stringp(tValue) then
         j = 1
         repeat while j <= length(tValue)
-          j = 1 + j
+          j = (1 + j)
         end repeat
       end if
-      tPos = me.findPos(tProp)
+      tPos = me.pItemList.findPos(tProp)
       if tOverride or voidp(tPos) then
         setaProp(me.pItemList, tProp, tValue)
       end if
       the itemDelimiter = tDelimiter
     end if
-    i = 1 + i
+    i = (1 + i)
   end repeat
   the itemDelimiter = tDelim
-  return(1)
+  return TRUE
 end
 
 on clear me 

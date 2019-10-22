@@ -6,18 +6,18 @@ on construct me
   pDefaultMode = 0
   pmode = pDefaultMode
   registerMessage(#changeRoom, me.getID(), #minimize)
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
   unregisterMessage(#changeRoom, me.getID())
   me.removeUI()
-  return(1)
+  return TRUE
 end
 
 on hide me 
   if not pState then
-    return(1)
+    return TRUE
   end if
   return(me.removeUI())
 end
@@ -32,10 +32,10 @@ end
 
 on minimize me 
   if not pState then
-    return(0)
+    return FALSE
   end if
   if not pmode then
-    return(1)
+    return TRUE
   end if
   pmode = 0
   return(me.updateUI())
@@ -43,10 +43,10 @@ end
 
 on maximize me 
   if not pState then
-    return(0)
+    return FALSE
   end if
   if pmode then
-    return(1)
+    return TRUE
   end if
   pmode = 1
   return(me.updateUI())
@@ -55,7 +55,7 @@ end
 on showItem me, tItemID 
   pItemPointer = tItemID
   me.updateUI()
-  return(1)
+  return TRUE
 end
 
 on itemCreated me, tItemID 
@@ -64,20 +64,20 @@ end
 
 on createUI me 
   if not me.checkContentToDisplay() then
-    return(1)
+    return TRUE
   end if
   if not windowExists(pWindowID) then
     createWindow(pWindowID)
     tWndObj = getWindow(pWindowID)
-    if tWndObj = 0 then
-      return(0)
+    if (tWndObj = 0) then
+      return FALSE
     end if
     tWndObj.registerClient(me.getID())
     tWndObj.registerProcedure(#eventProc, me.getID(), #mouseUp)
     pmode = 0
   end if
   pState = 1
-  return(1)
+  return TRUE
 end
 
 on removeUI me 
@@ -86,12 +86,12 @@ on removeUI me
   end if
   pState = 0
   pmode = pDefaultMode
-  return(1)
+  return TRUE
 end
 
 on updateUI me 
   if not me.checkContentToDisplay() then
-    return(1)
+    return TRUE
   end if
   if not pState then
     me.createUI()
@@ -105,34 +105,34 @@ end
 
 on updateMinUI me 
   tWndObj = getWindow(pWindowID)
-  if tWndObj = 0 then
-    return(0)
+  if (tWndObj = 0) then
+    return FALSE
   end if
   tWndObj.unmerge()
   tItemRef = me.getCurrentItem()
-  if tItemRef = 0 then
+  if (tItemRef = 0) then
     return(me.checkContentToDisplay())
   end if
-  if pLastRead = me.getComponent().getItemCount() then
+  if (pLastRead = me.getComponent().getItemCount()) then
     tItemRef.renderMinDefault(tWndObj)
   else
     tItemRef.renderMin(tWndObj)
   end if
   tWndObj.setProperty(#locZ, -1000000)
   tWndObj.lock(1)
-  tStageWidth = the stageRight - the stageLeft
-  tWndObj.moveTo(tStageWidth - tWndObj.getProperty(#width) + 8, 4)
-  return(1)
+  tStageWidth = (the stageRight - the stageLeft)
+  tWndObj.moveTo((tStageWidth - (tWndObj.getProperty(#width) + 8)), 4)
+  return TRUE
 end
 
 on updateFullUI me 
   tWndObj = getWindow(pWindowID)
-  if tWndObj = 0 then
-    return(0)
+  if (tWndObj = 0) then
+    return FALSE
   end if
   tWndObj.unmerge()
   tItemRef = me.getCurrentItem()
-  if tItemRef = 0 then
+  if (tItemRef = 0) then
     return(me.checkContentToDisplay())
   end if
   tComponent = me.getComponent()
@@ -144,25 +144,25 @@ on updateFullUI me
   end if
   tWndObj.setProperty(#locZ, -1000000)
   tWndObj.lock(1)
-  tStageWidth = the stageRight - the stageLeft
-  tWndObj.moveTo(tStageWidth - tWndObj.getProperty(#width) + 8, 4)
-  return(1)
+  tStageWidth = (the stageRight - the stageLeft)
+  tWndObj.moveTo((tStageWidth - (tWndObj.getProperty(#width) + 8)), 4)
+  return TRUE
 end
 
 on checkContentToDisplay me 
   if me.getCurrentItem() <> 0 then
-    return(1)
+    return TRUE
   end if
   pItemPointer = me.getComponent().getLatestItemId()
   if me.getCurrentItem() <> 0 then
-    return(1)
+    return TRUE
   end if
   me.removeUI()
-  return(0)
+  return FALSE
 end
 
 on getItemPointer me 
-  if me.getComponent().getItemCount() = 0 then
+  if (me.getComponent().getItemCount() = 0) then
     return(-1)
   end if
   return(pItemPointer)
@@ -177,20 +177,20 @@ on showNextItem me
 end
 
 on eventProc me, tEvent, tElemID, tParam 
-  if tEvent = #mouseUp then
-    if tEvent = "if_btn_toggle" then
+  if (tEvent = #mouseUp) then
+    if (tEvent = "if_btn_toggle") then
       return(me.toggleMode())
     else
-      if tEvent = "if_btn_prev" then
+      if (tEvent = "if_btn_prev") then
         tID = me.getComponent().getPreviousFrom(pItemPointer)
         return(me.showItem(tID))
       else
-        if tEvent = "if_btn_next" then
+        if (tEvent = "if_btn_next") then
           tID = me.getComponent().getNextFrom(pItemPointer)
           return(me.showItem(tID))
         end if
       end if
     end if
   end if
-  return(1)
+  return TRUE
 end

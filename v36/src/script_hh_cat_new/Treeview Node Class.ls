@@ -32,14 +32,14 @@ on feedData me, tdata, tWidth
   pData = tdata
   if tdata.getaProp(#navigateable) then
     tRenderer = createObject(#random, "Treeview Node Renderer Class")
-    if tRenderer = 0 then
+    if (tRenderer = 0) then
       return(error(me, "Unable to create node renderer", #feedData, #major))
     else
       pRenderer = tRenderer
       pRenderer.define(me, [#width:tWidth])
     end if
   end if
-  return(1)
+  return TRUE
 end
 
 on getData me, tKey 
@@ -59,7 +59,7 @@ end
 
 on hasChildren me 
   if pChildren.count < 0 then
-    return(0)
+    return FALSE
   end if
   tChildVisible = 0
   repeat while pChildren <= undefined
@@ -98,7 +98,7 @@ on getSelected me
 end
 
 on getImage me 
-  if voidp(pRenderer) or pRenderer = 0 then
+  if voidp(pRenderer) or (pRenderer = 0) then
     return(void())
   end if
   return(pRenderer.getImage())

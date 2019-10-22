@@ -11,23 +11,23 @@ on construct me
   createWriter(tID, getStructVariable("struct.font.plain"))
   pWriter = getWriter(tID)
   registerMessage(#close_performer_song_selector, me.getID(), #close)
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
   unregisterMessage(#close_performer_song_selector, me.getID())
-  return(1)
+  return TRUE
 end
 
 on open me, tSongList 
   if tSongList.ilk <> #propList then
-    return(0)
+    return FALSE
   end if
   pSongList = [0:getText("performer_no_song")]
   i = 1
   repeat while i <= tSongList.count
     pSongList.setaProp(tSongList.getPropAt(i), tSongList.getAt(i))
-    i = 1 + i
+    i = (1 + i)
   end repeat
   tWindow = me.getWindowObj()
   tWindow.registerProcedure(#eventProcSongList, me.getID(), #mouseUp)
@@ -58,11 +58,11 @@ end
 
 on Refresh me 
   if pSongList.ilk <> #propList then
-    return(0)
+    return FALSE
   end if
   tWindow = me.getWindowObj()
   if not tWindow.elementExists("performer_song_list") then
-    return(0)
+    return FALSE
   end if
   tListElem = tWindow.getElement("performer_song_list")
   tListWidth = tListElem.getProperty(#width)
@@ -74,16 +74,16 @@ on Refresh me
   repeat while i <= pSongList.count
     tSongName = pSongList.getAt(i)
     tNameImage = pWriter.render(tSongName).duplicate()
-    tRowRect = rect(0, (i - 1 * pRowHeight), tListWidth, (i * pRowHeight))
-    if pSelectedRow = i then
+    tRowRect = rect(0, ((i - 1) * pRowHeight), tListWidth, (i * pRowHeight))
+    if (pSelectedRow = i) then
       pListImage.fill(tRowRect, pSelectionColor)
     else
       pListImage.fill(tRowRect, rgb("FFFFFF"))
     end if
-    tOffsetY = tRowRect.top + (tRowRect.height - tNameImage.height / 2)
-    tNameTarget = tNameImage.rect + [pOffsetX, tOffsetY, pOffsetX, tOffsetY]
+    tOffsetY = (tRowRect.top + ((tRowRect.height - tNameImage.height) / 2))
+    tNameTarget = (tNameImage.rect + [pOffsetX, tOffsetY, pOffsetX, tOffsetY])
     pListImage.copyPixels(tNameImage, tNameTarget, tNameImage.rect, [#ink:36])
-    i = 1 + i
+    i = (1 + i)
   end repeat
   tListElem.feedImage(pListImage)
   if tWindow.elementExists("performer_song_list_scroll") then
@@ -93,14 +93,14 @@ on Refresh me
 end
 
 on eventProcSongList me, tEvent, tSprID, tParam 
-  if tSprID = "performer_song_list" then
+  if (tSprID = "performer_song_list") then
     if tParam.ilk <> #point then
-      return(0)
+      return FALSE
     end if
-    pSelectedRow = (tParam.getAt(2) / pRowHeight) + 1
+    pSelectedRow = ((tParam.getAt(2) / pRowHeight) + 1)
     me.Refresh()
   else
-    if tSprID = "performer_start_button" then
+    if (tSprID = "performer_start_button") then
       tConn = getConnection(getVariable("connection.info.id"))
       if not tConn then
         return(me.close())

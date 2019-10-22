@@ -1,54 +1,52 @@
-on construct(me)
-  return(1)
-  exit
+property pRoomIndex, pRoomComponentObj
+
+on construct me 
+  return TRUE
 end
 
-on deconstruct(me)
+on deconstruct me 
   me.removeRoomObject()
   pRoomComponentObj = void()
   if not getObject(#session).exists("user_index") then
-    return(1)
+    return TRUE
   end if
-  if pRoomIndex = getObject(#session).GET("user_index") then
+  if (pRoomIndex = getObject(#session).GET("user_index")) then
     getObject(#session).Remove("user_index")
     if getObject(#session).exists("user_game_index") then
       getObject(#session).Remove("user_game_index")
     end if
   end if
-  return(1)
-  exit
+  return TRUE
 end
 
-on define(me, tdata)
+on define me, tdata 
   tdata.setAt(#room_index, tdata.getAt(#roomindex))
   if tdata.getAt(#room_index) < 0 then
     return(error(me, "Invalid room index for avatar:" && tdata, #define))
   end if
   pRoomIndex = string(tdata.getAt(#room_index))
-  if tdata.getAt(#name) = getObject(#session).GET(#userName) then
+  if (tdata.getAt(#name) = getObject(#session).GET(#userName)) then
     getObject(#session).set("user_index", pRoomIndex)
     getObject(#session).set("user_game_index", tdata.getAt(#id))
   end if
   return(me.createRoomObject(tdata))
-  exit
 end
 
-on setLocation(me, tdata)
+on setLocation me, tdata 
   tUserObject = me.getRoomObject()
-  if tUserObject = 0 then
-    return(0)
+  if (tUserObject = 0) then
+    return FALSE
   end if
   if not listp(tdata) then
-    return(0)
+    return FALSE
   end if
   return(tUserObject.resetValues(tdata.getAt(#x), tdata.getAt(#y), tdata.getAt(#z), tdata.getAt(#dirBody), tdata.getAt(#dirBody)))
-  exit
 end
 
-on setTarget(me, tCurrentLoc, tNextLoc)
+on setTarget me, tCurrentLoc, tNextLoc 
   tUserObject = me.getRoomObject()
-  if tUserObject = 0 then
-    return(0)
+  if (tUserObject = 0) then
+    return FALSE
   end if
   if listp(tNextLoc) then
     tParams = "mv " & tNextLoc.getAt(#x) & "," & tNextLoc.getAt(#y) & "," & tNextLoc.getAt(#z)
@@ -57,54 +55,50 @@ on setTarget(me, tCurrentLoc, tNextLoc)
   if listp(tCurrentLoc) then
     tUserObject.Refresh(tCurrentLoc.getAt(#x), tCurrentLoc.getAt(#y), tCurrentLoc.getAt(#z))
   end if
-  return(1)
-  exit
+  return TRUE
 end
 
-on roomObjectAction(me, tAction, tdata)
+on roomObjectAction me, tAction, tdata 
   tUserObject = me.getRoomObject()
-  if tUserObject = 0 then
-    return(0)
+  if (tUserObject = 0) then
+    return FALSE
   end if
   return(tUserObject.roomObjectAction(tAction, tdata))
-  exit
 end
 
-on getPicture(me)
+on getPicture me 
   tUserObject = me.getRoomObject()
-  if tUserObject = 0 then
-    return(0)
+  if (tUserObject = 0) then
+    return FALSE
   end if
   return(tUserObject.getPicture())
-  exit
 end
 
-on getRoomObject(me)
+on getRoomObject me 
   tRoomComponentObj = getObject(#room_component)
-  if tRoomComponentObj = 0 then
+  if (tRoomComponentObj = 0) then
     return(error(me, "Room component unavailable!", #getRoomObject))
   end if
   return(tRoomComponentObj.getUserObject(pRoomIndex))
-  exit
 end
 
-on createRoomObject(me, tdata)
+on createRoomObject me, tdata 
   pRoomComponentObj = getObject(#room_component)
-  if pRoomComponentObj = 0 then
+  if (pRoomComponentObj = 0) then
     return(error(me, "Room component unavailable!", #createRoomObject))
   end if
   tFigureSystemObj = getObject("Figure_System")
-  if tFigureSystemObj = 0 then
+  if (tFigureSystemObj = 0) then
     return(error(me, "Figure system unavailable!", #createRoomObject))
   end if
   if pRoomComponentObj.userObjectExists(pRoomIndex) then
-    return(1)
+    return TRUE
   end if
-  tAvatarStruct = []
+  tAvatarStruct = [:]
   tClassID = "bb_gamesystem.roomobject.player.class"
   tPlayerClass = getVariable(tClassID)
   tClassContainer = pRoomComponentObj.getClassContainer()
-  if tClassContainer = 0 then
+  if (tClassContainer = 0) then
     return(error(me, "Unable to find class container.", #createRoomObject))
   end if
   tClassContainer.set(tClassID, tPlayerClass)
@@ -119,7 +113,7 @@ on createRoomObject(me, tdata)
   tAvatarStruct.addProp(#custom, tdata.getAt(#mission))
   tAvatarStruct.addProp(#sex, tdata.getAt(#sex))
   tAvatarStruct.addProp(#teamId, tdata.getAt(#teamId))
-  if tdata.getAt(#name) = getObject(#session).GET(#userName) then
+  if (tdata.getAt(#name) = getObject(#session).GET(#userName)) then
     getObject(#session).set("user_index", tUserStrId)
   end if
   tFigure = tFigureSystemObj.parseFigure(tdata.getAt(#figure), tdata.getAt(#sex), "user")
@@ -131,19 +125,17 @@ on createRoomObject(me, tdata)
   if not pRoomComponentObj.createUserObject(tAvatarStruct) then
     return(error(me, "BB: Room couldn't create avatar!", #createRoomObject))
   else
-    return(1)
+    return TRUE
   end if
-  exit
 end
 
-on removeRoomObject(me)
+on removeRoomObject me 
   tRoomComponentObj = getObject(#room_component)
-  if tRoomComponentObj = 0 then
+  if (tRoomComponentObj = 0) then
     return(error(me, "Room component unavailable!", #removeRoomObject))
   end if
-  if pRoomIndex = void() then
-    return(0)
+  if (pRoomIndex = void()) then
+    return FALSE
   end if
   return(tRoomComponentObj.removeUserObject(pRoomIndex))
-  exit
 end

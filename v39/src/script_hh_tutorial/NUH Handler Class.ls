@@ -1,10 +1,10 @@
 on construct me 
   me.registerServerMessages(1)
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
-  return(1)
+  return TRUE
 end
 
 on handleHelpItems me, tMsg 
@@ -18,7 +18,7 @@ on handleHelpItems me, tMsg
     if tKey <> 0 then
       tdata.setAt(tKey, 1)
     end if
-    tNo = 1 + tNo
+    tNo = (1 + tNo)
   end repeat
   me.getComponent().setHelpStatusData(tdata)
 end
@@ -27,10 +27,10 @@ on handleTutorsAvailable me, tMsg
   tConn = tMsg.getaProp(#connection)
   tAreAvailable = tConn.GetIntFrom()
   if not tAreAvailable then
-    return(0)
+    return FALSE
   end if
   me.getComponent().showInviteWindow()
-  return(1)
+  return TRUE
 end
 
 on handleInvitingCompleted me, tMsg 
@@ -80,5 +80,5 @@ on registerServerMessages me, tBool
     unregisterListener(getVariable("connection.info.id", #info), me.getID(), tMsgs)
     unregisterCommands(getVariable("connection.info.id", #info), me.getID(), tCmds)
   end if
-  return(1)
+  return TRUE
 end

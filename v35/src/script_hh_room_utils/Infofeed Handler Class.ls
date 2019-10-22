@@ -4,26 +4,26 @@ on construct me
   pAnnouncedBadgeIds = []
   registerMessage(#badgeReceivedAndReady, me.getID(), #badgeReceivedAndReady)
   me.regMsgList(1)
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
   pAnnouncedBadgeIds = []
   unregisterMessage(#badgeReceivedAndReady, me.getID())
   me.regMsgList(0)
-  return(1)
+  return TRUE
 end
 
 on badgeReceivedAndReady me, tBadgeID 
   if pAnnouncedBadgeIds.findPos(tBadgeID) then
-    return(1)
+    return TRUE
   end if
   pAnnouncedBadgeIds.add(tBadgeID)
   tItem = [:]
   tItem.setaProp(#type, #newbadge)
   tItem.setaProp(#value, tBadgeID)
   me.getComponent().createItem(tItem)
-  return(1)
+  return TRUE
 end
 
 on handleActivityPointNotification me, tMsg 
@@ -41,12 +41,12 @@ on handleActivityPointNotification me, tMsg
     end if
   end if
   tSession = getObject(#session)
-  if tSession = 0 then
-    return(0)
+  if (tSession = 0) then
+    return FALSE
   end if
   tSession.set("user_pixelbalance", tAmount)
   executeMessage(#updateCatalogPurse)
-  return(1)
+  return TRUE
 end
 
 on handleRespectNotification me, tMsg 
@@ -54,12 +54,12 @@ on handleRespectNotification me, tMsg
   tReceiverID = tConn.GetIntFrom()
   tAmount = tConn.GetIntFrom()
   tSession = getObject(#session)
-  if tSession = 0 then
-    return(0)
+  if (tSession = 0) then
+    return FALSE
   end if
   executeMessage(#showRespectInRoom, tReceiverID)
   if tReceiverID <> integer(tSession.GET("user_user_id")) then
-    return(1)
+    return TRUE
   else
     tItem = [:]
     tItem.setaProp(#type, #respect)
@@ -67,7 +67,7 @@ on handleRespectNotification me, tMsg
     me.getComponent().createItem(tItem)
     playSound("magic_brimm_low2-1", #cut, [#loopCount:1, #infiniteloop:0, #volume:125])
   end if
-  return(1)
+  return TRUE
 end
 
 on regMsgList me, tBool 
@@ -82,5 +82,5 @@ on regMsgList me, tBool
     unregisterListener(getVariable("connection.room.id"), me.getID(), tMsgs)
     unregisterCommands(getVariable("connection.room.id"), me.getID(), tCmds)
   end if
-  return(1)
+  return TRUE
 end

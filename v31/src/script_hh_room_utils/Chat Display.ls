@@ -1,4 +1,6 @@
-on construct(me)
+property pActiveItemList, pFreeChatItemList, pMessageBuffer, pMarginFromScreenTop, pChatItemCount, pUserCache, pSpeedUpChatBufferLim, pAutoScrollOn, pScrollSpdMultiplier, pAutoScrolledNow, pAutoScrollAmountPx, pMaximumChatBufferSize, pScrollDelayStartTime, pScrollDelayTime
+
+on construct me 
   pActiveItemList = []
   pFreeChatItemList = []
   pMarginFromScreenTop = 108
@@ -16,7 +18,7 @@ on construct(me)
   if variableExists("chat.buffersize.speedup") then
     getVariableValue("chat.buffersize.speedup")
   end if
-  pScrollSpdMultiplier = 0
+  pScrollSpdMultiplier = 1
   pMessageBuffer = []
   pUserCache = []
   registerMessage(#enterRoom, me.getID(), #startUpdate)
@@ -27,10 +29,9 @@ on construct(me)
   registerMessage(#showObjectMessage, me.getID(), #insertObjectMessage)
   registerMessage(#showCustomMessage, me.getID(), #insertCustomMessage)
   registerMessage(#showRespectInRoom, me.getID(), #insertRespectMessage)
-  exit
 end
 
-on deconstruct(me)
+on deconstruct me 
   me.clearAll()
   unregisterMessage(#enterRoom, me.getID())
   unregisterMessage(#leaveRoom, me.getID())
@@ -40,87 +41,79 @@ on deconstruct(me)
   unregisterMessage(#showObjectMessage, me.getID())
   unregisterMessage(#showCustomMessage, me.getID())
   unregisterMessage(#showRespectInRoom, me.getID())
-  exit
 end
 
-on startUpdate(me)
+on startUpdate me 
   receiveUpdate(me.getID())
-  exit
 end
 
-on clearAll(me)
+on clearAll me 
   pMessageBuffer = []
-  repeat while me <= undefined
+  repeat while pActiveItemList <= undefined
     tItem = getAt(undefined, undefined)
     tItem.deconstruct()
   end repeat
   pActiveItemList = []
-  repeat while me <= undefined
+  repeat while pActiveItemList <= undefined
     tItem = getAt(undefined, undefined)
     tItem.deconstruct()
   end repeat
   pFreeChatItemList = []
   me.clearUserCache()
   pChatItemCount = 0
-  exit
 end
 
-on showBalloons(me, tVisible)
+on showBalloons me, tVisible 
   if voidp(tVisible) then
     tVisible = 1
   end if
   pShowBalloons = tVisible
   call(#showBalloon, pActiveItemList, tVisible)
   call(#showBalloon, pFreeChatItemList, tVisible)
-  exit
 end
 
-on insertObjectMessage(me, tMsgProps)
+on insertObjectMessage me, tMsgProps 
   me.insertChatMessage(tMsgProps.getAt(#command), tMsgProps.getAt(#id), tMsgProps.getAt(#message))
-  exit
 end
 
-on insertCustomMessage(me, tMsgProps)
-  if tMsgProps.findPos(#mode) = 0 then
+on insertCustomMessage me, tMsgProps 
+  if (tMsgProps.findPos(#mode) = 0) then
     tMsgProps.setaProp(#mode, "CUSTOM")
   end if
   pMessageBuffer.add(tMsgProps)
-  exit
 end
 
-on insertRespectMessage(me, tUserID)
+on insertRespectMessage me, tUserID 
   tUserObj = getThread(#room).getComponent().getUserObjectByWebID(tUserID)
   if not tUserObj then
-    return(0)
+    return FALSE
   end if
   tUserName = tUserObj.getInfo().getaProp(#name)
   tMessage = getText("chat.respect.bubble.message", "%username% was respected")
   tMessage = replaceChunks(tMessage, "%username%", tUserName)
   tMsgProps = [#mode:"CUSTOM", #message:tMessage, #class:"Chat Bubble Info Respect", #color:rgb("#cc3d13"), #loc:tUserObj.getScrLocation()]
   pMessageBuffer.add(tMsgProps)
-  exit
 end
 
-on insertChatMessage(me, tChatMode, tID, tChatMessage)
-  if me <> "CHAT" then
-    if me <> "SHOUT" then
-      if me <> "WHISPER" then
-        if me = "OBJECT" then
+on insertChatMessage me, tChatMode, tID, tChatMessage 
+  if tChatMode <> "CHAT" then
+    if tChatMode <> "SHOUT" then
+      if tChatMode <> "WHISPER" then
+        if (tChatMode = "OBJECT") then
           pMessageBuffer.add([#mode:tChatMode, #id:tID, #message:tChatMessage])
         else
-          if me = "UNHEARD" then
+          if (tChatMode = "UNHEARD") then
             me.showChatItemUnheard(tID)
           end if
         end if
-        exit
       end if
     end if
   end if
 end
 
-on showNextChatMessage(me)
-  if pMessageBuffer.count = 0 then
-    return(0)
+on showNextChatMessage me 
+  if (pMessageBuffer.count = 0) then
+    return FALSE
   end if
   tMessage = pMessageBuffer.getAt(1)
   pMessageBuffer.deleteAt(1)
@@ -128,42 +121,41 @@ on showNextChatMessage(me)
     tloc = tMessage.getaProp(#loc)
   else
     if tMessage.findPos(#id) > 0 then
-      if tMessage.getAt(#mode) = "OBJECT" then
+      if (tMessage.getAt(#mode) = "OBJECT") then
         tObj = getThread(#room).getComponent().getActiveObject(tMessage.getAt(#id))
-        if not tObj = 0 then
+        if (not tObj = 0) then
           tloc = tObj.getScreenLocation()
         end if
       else
         tObj = getThread(#room).getComponent().getUserObject(tMessage.getAt(#id))
-        if not tObj = 0 then
+        if (not tObj = 0) then
           tloc = tObj.getPartLocation("hd")
         end if
       end if
     end if
   end if
   if voidp(tloc) then
-    return(0)
+    return FALSE
   end if
   tloc = point(tloc.getAt(1), pMarginFromScreenTop)
   tMode = tMessage.getaProp(#mode)
-  if me = "CUSTOM" then
+  if (tMode = "CUSTOM") then
     tChatItem = me.getCustomItem(tMessage)
   else
     tChatItem = me.getChatItem(tMessage.getAt(#mode), tMessage.getAt(#id), tMessage.getAt(#message))
   end if
-  if tChatItem = 0 then
-    return(0)
+  if (tChatItem = 0) then
+    return FALSE
   end if
   tChatItem.setLocation(tloc)
-  exit
 end
 
-on getChatItem(me, tChatMode, tObjID, tChatMessage)
+on getChatItem me, tChatMode, tObjID, tChatMessage 
   tUserID = void()
-  if tChatMode = "OBJECT" then
+  if (tChatMode = "OBJECT") then
     tObj = getThread(#room).getComponent().getActiveObject(tObjID)
     if not tObj then
-      return(0)
+      return FALSE
     end if
     tBalloonColor = rgb(232, 177, 55)
     tObjInfo = tObj.getInfo()
@@ -173,9 +165,9 @@ on getChatItem(me, tChatMode, tObjID, tChatMessage)
   else
     tUserObj = getThread(#room).getComponent().getUserObject(tObjID)
     if not tUserObj then
-      return(0)
+      return FALSE
     end if
-    if tUserObj.getClass() = "pet" then
+    if (tUserObj.getClass() = "pet") then
       tBalloonColor = tUserObj.getPartColor("hd")
       if ilk(tBalloonColor) <> #color then
         tBalloonColor = rgb(232, 177, 55)
@@ -200,18 +192,18 @@ on getChatItem(me, tChatMode, tObjID, tChatMessage)
     if tUserObj.handler(#getCurrentEffectState) then
       tFXState = tUserObj.getCurrentEffectState()
     end if
-    if not tFXState = 0 then
+    if not (tFXState = 0) then
       if tFXState.getaProp(16) then
         tChatItem = createObject("Sing-" & getUniqueID(), "Chat Bubble Sing")
-        pChatItemCount = pChatItemCount + 1
+        pChatItemCount = (pChatItemCount + 1)
         tItemID = pChatItemCount
       end if
     end if
   end if
   if not objectp(tChatItem) then
-    if pFreeChatItemList.count = 0 then
+    if (pFreeChatItemList.count = 0) then
       tChatItem = createObject(#random, "Chat Bubble Normal")
-      pChatItemCount = pChatItemCount + 1
+      pChatItemCount = (pChatItemCount + 1)
       tItemID = pChatItemCount
     else
       tChatItem = pFreeChatItemList.getAt(1)
@@ -222,20 +214,19 @@ on getChatItem(me, tChatMode, tObjID, tChatMessage)
   tChatItem.defineBalloon(tChatMode, tBalloonColor, tUserName, tChatMessage, tItemID, tUserImg, tUserID, tSourceLoc)
   pActiveItemList.add(tChatItem)
   return(tChatItem)
-  exit
 end
 
-on getCustomItem(me, tMessage)
+on getCustomItem me, tMessage 
   if tMessage.findPos(#class) > 0 then
     tClass = ["Chat Bubble Info Basic", tMessage.getaProp(#class)]
   else
     tClass = "Chat Bubble Info Basic"
   end if
   tChatItem = createObject(#random, tClass)
-  if tChatItem = 0 then
-    return(0)
+  if (tChatItem = 0) then
+    return FALSE
   end if
-  pChatItemCount = pChatItemCount + 1
+  pChatItemCount = (pChatItemCount + 1)
   tItemID = pChatItemCount
   tMode = tMessage.getAt(#mode)
   tSourceLoc = tMessage.getaProp(#loc)
@@ -244,27 +235,24 @@ on getCustomItem(me, tMessage)
   tChatItem.defineBalloon(tMode, tBalloonColor, tText, tItemID, tSourceLoc)
   pActiveItemList.add(tChatItem)
   return(tChatItem)
-  exit
 end
 
-on clearUserCache(me)
-  repeat while me <= undefined
+on clearUserCache me 
+  repeat while pUserCache <= undefined
     tUserName = getAt(undefined, undefined)
     tUserMemName = "chat_item_user_" & tUserName
     if memberExists(tUserMemName) then
       removeMember(tUserMemName)
     end if
   end repeat
-  exit
 end
 
-on showChatItemUnheard(me, tRoomUserId)
+on showChatItemUnheard me, tRoomUserId 
   tChatItem = createObject(#random, "Chat Bubble Unheard")
   tChatItem.define(tRoomUserId)
-  exit
 end
 
-on moveAllItemsUpBy(me, tAmount)
+on moveAllItemsUpBy me, tAmount 
   tItemNo = 1
   repeat while tItemNo <= pActiveItemList.count
     tItem = pActiveItemList.getAt(tItemNo)
@@ -272,7 +260,7 @@ on moveAllItemsUpBy(me, tAmount)
     if tLocV < -50 then
       pActiveItemList.deleteAt(tItemNo)
       if tItem.handler(#getType) then
-        if tItem.getType() = "NORMAL" then
+        if (tItem.getType() = "NORMAL") then
           pFreeChatItemList.add(tItem)
         else
           tItem.deconstruct()
@@ -282,14 +270,13 @@ on moveAllItemsUpBy(me, tAmount)
       end if
       next repeat
     end if
-    tItemNo = tItemNo + 1
+    tItemNo = (tItemNo + 1)
   end repeat
-  exit
 end
 
-on getLowestBalloonLocV(me)
+on getLowestBalloonLocV me 
   tLowestPoint = 0
-  repeat while me <= undefined
+  repeat while pActiveItemList <= undefined
     tItem = getAt(undefined, undefined)
     tItemLoc = tItem.getLowPoint()
     if tItemLoc > tLowestPoint then
@@ -297,25 +284,24 @@ on getLowestBalloonLocV(me)
     end if
   end repeat
   return(tLowestPoint)
-  exit
 end
 
-on update(me)
-  if pActiveItemList.count = 0 and pMessageBuffer.count = 0 then
-    return(0)
+on update me 
+  if (pActiveItemList.count = 0) and (pMessageBuffer.count = 0) then
+    return FALSE
   end if
   if pMessageBuffer.count > pSpeedUpChatBufferLim then
-    pScrollSpdMultiplier = 0 + float(pMessageBuffer.count - pSpeedUpChatBufferLim) * 0
+    pScrollSpdMultiplier = (1 + (float((pMessageBuffer.count - pSpeedUpChatBufferLim)) * 0.5))
   else
-    pScrollSpdMultiplier = 0
+    pScrollSpdMultiplier = 1
   end if
   if pAutoScrollOn then
-    tOffV = integer(0 * pScrollSpdMultiplier)
-    if tOffV + pAutoScrolledNow > pAutoScrollAmountPx then
-      tOffV = pAutoScrollAmountPx - pAutoScrolledNow
+    tOffV = integer((3 * pScrollSpdMultiplier))
+    if (tOffV + pAutoScrolledNow) > pAutoScrollAmountPx then
+      tOffV = (pAutoScrollAmountPx - pAutoScrolledNow)
     end if
-    pAutoScrolledNow = pAutoScrolledNow + tOffV
-    me.moveAllItemsUpBy(-1 * tOffV)
+    pAutoScrolledNow = (pAutoScrolledNow + tOffV)
+    me.moveAllItemsUpBy((-1 * tOffV))
     if pAutoScrolledNow >= pAutoScrollAmountPx then
       pAutoScrolledNow = 0
       pAutoScrollOn = 0
@@ -324,7 +310,7 @@ on update(me)
   else
     if pMessageBuffer.count > 0 then
       if pActiveItemList.count > 0 then
-        if me.getLowestBalloonLocV() <= pMarginFromScreenTop - pAutoScrollAmountPx then
+        if me.getLowestBalloonLocV() <= (pMarginFromScreenTop - pAutoScrollAmountPx) then
           tSpaceAvailable = 1
         else
           tSpaceAvailable = 0
@@ -335,12 +321,12 @@ on update(me)
       if not tSpaceAvailable and pMessageBuffer.count > pMaximumChatBufferSize then
         tCount = pMessageBuffer.count
         k = 1
-        repeat while k <= tCount - pMaximumChatBufferSize
-          me.moveAllItemsUpBy(-1 * pAutoScrollAmountPx)
+        repeat while k <= (tCount - pMaximumChatBufferSize)
+          me.moveAllItemsUpBy((-1 * pAutoScrollAmountPx))
           if k <> 1 then
             me.showNextChatMessage()
           end if
-          k = 1 + k
+          k = (1 + k)
         end repeat
         tSpaceAvailable = 1
       end if
@@ -353,11 +339,10 @@ on update(me)
       end if
     else
       tMillis = the milliSeconds
-      tTimeDiff = tMillis - pScrollDelayStartTime
+      tTimeDiff = (tMillis - pScrollDelayStartTime)
       if tTimeDiff >= pScrollDelayTime then
         pAutoScrollOn = 1
       end if
     end if
   end if
-  exit
 end

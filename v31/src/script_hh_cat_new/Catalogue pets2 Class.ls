@@ -1,26 +1,22 @@
-on construct(me)
-  return(1)
-  exit
+on construct me 
+  return TRUE
 end
 
-on deconstruct(me)
-  return(1)
-  exit
+on deconstruct me 
+  return TRUE
 end
 
-on define(me)
-  return(1)
-  exit
+on define me 
+  return TRUE
 end
 
-on eventProc(me, tEvent, tSprID, tProp)
-  if tEvent = #mouseUp then
-    if tSprID = "ctlg_text_3" then
+on eventProc me, tEvent, tSprID, tProp 
+  if (tEvent = #mouseUp) then
+    if (tSprID = "ctlg_text_3") then
       tURL = getText("url_pets")
       executeMessage(#externalLinkClick, the mouseLoc)
       openNetPage(tURL, "_new")
     end if
   end if
-  return(0)
-  exit
+  return FALSE
 end

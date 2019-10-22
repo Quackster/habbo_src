@@ -52,27 +52,27 @@ end
 
 on renderNode me, tNode, tOffsetY 
   sendProcessTracking(603)
-  if pData = 0 or voidp(pData) then
-    return(0)
+  if (pData = 0) or voidp(pData) then
+    return FALSE
   end if
-  if tNode = 0 or voidp(tNode) then
-    return(0)
+  if (tNode = 0) or voidp(tNode) then
+    return FALSE
   end if
   sendProcessTracking(604)
-  if not tNode = pData.getRootNode() and not tNode.getData(#navigateable) then
+  if not (tNode = pData.getRootNode()) and not tNode.getData(#navigateable) then
     return(tOffsetY)
   end if
   sendProcessTracking(605)
   if tNode.getData(#navigateable) then
     tNodeImage = tNode.getImage()
-    me.pimage = me.appendRenderToImage(me.pimage, tNodeImage, tNodeImage.rect + rect(0, tOffsetY, 0, tOffsetY), tNodeImage.rect)
-    pClickAreas.add([#min:tOffsetY, #max:tOffsetY + tNodeImage.height, #data:tNode])
-    tOffsetY = tOffsetY + tNodeImage.height
+    me.pimage = me.appendRenderToImage(me.pimage, tNodeImage, (tNodeImage.rect + rect(0, tOffsetY, 0, tOffsetY)), tNodeImage.rect)
+    pClickAreas.add([#min:tOffsetY, #max:(tOffsetY + tNodeImage.height), #data:tNode])
+    tOffsetY = (tOffsetY + tNodeImage.height)
   end if
   sendProcessTracking(606)
   tChildren = tNode.getChildren()
-  if ilk(tChildren) = #list then
-    if tNode.getState() = #open and tChildren.count > 0 then
+  if (ilk(tChildren) = #list) then
+    if (tNode.getState() = #open) and tChildren.count > 0 then
       repeat while tChildren <= tOffsetY
         tChild = getAt(tOffsetY, tNode)
         tOffsetY = me.renderNode(tChild, tOffsetY)
@@ -88,15 +88,15 @@ on render me
   pimage = image(pwidth, pheight, 32)
   pClickAreas = []
   tOffsetY = 0
-  if pData = 0 or voidp(pData) then
-    return(0)
+  if (pData = 0) or voidp(pData) then
+    return FALSE
   end if
   me.renderNode(pData.getRootNode(), tOffsetY)
 end
 
 on selectNode me, tNode, tSelectedNode 
   sendProcessTracking(620)
-  if tNode = tSelectedNode then
+  if (tNode = tSelectedNode) then
     tNode.select(1)
   else
     tNode.select(0)
@@ -109,8 +109,8 @@ end
 
 on select me, tNodeObj 
   sendProcessTracking(630)
-  if pData = 0 or voidp(pData) then
-    return(0)
+  if (pData = 0) or voidp(pData) then
+    return FALSE
   end if
   me.selectNode(pData.getRootNode(), tNodeObj)
 end
@@ -118,17 +118,17 @@ end
 on simulateClickByName me, tNodeName 
   sendProcessTracking(640)
   if ilk(pClickAreas) <> #list then
-    return(0)
+    return FALSE
   end if
   tClickLoc = point(2, 0)
   i = 1
   repeat while i <= pClickAreas.count
-    if ilk(pClickAreas.getAt(i)) = #propList then
+    if (ilk(pClickAreas.getAt(i)) = #propList) then
       if objectp(pClickAreas.getAt(i).getAt(#data)) then
-        if pClickAreas.getAt(i).getAt(#data).getData(#nodename) = tNodeName then
-          tClickLoc.locV = pClickAreas.getAt(i).getAt(#min) + 1
+        if (pClickAreas.getAt(i).getAt(#data).getData(#nodename) = tNodeName) then
+          tClickLoc.locV = (pClickAreas.getAt(i).getAt(#min) + 1)
         else
-          i = 1 + i
+          i = (1 + i)
         end if
         me.handleClick(tClickLoc)
       end if
@@ -138,8 +138,8 @@ end
 
 on handleClick me, tloc 
   sendProcessTracking(650)
-  if pData = 0 or voidp(pData) then
-    return(0)
+  if (pData = 0) or voidp(pData) then
+    return FALSE
   end if
   if ilk(tloc) <> #point then
     return()
@@ -150,14 +150,14 @@ on handleClick me, tloc
     if pClickAreas.getAt(i).getAt(#min) < tloc.locV and pClickAreas.getAt(i).getAt(#max) > tloc.locV then
       tNode = pClickAreas.getAt(i).getAt(#data)
     else
-      i = 1 + i
+      i = (1 + i)
     end if
   end repeat
   if voidp(tNode) then
-    return(0)
+    return FALSE
   end if
   if tNode.getChildren().count > 0 then
-    if tNode.getState() = #open then
+    if (tNode.getState() = #open) then
       tNode.setState(#closed)
     else
       tNode.setState(#open)
@@ -177,5 +177,5 @@ on handleClick me, tloc
   if tNode.getData(#pageid) <> -1 then
     pData.handlePageRequest(tNode.getData(#pageid))
   end if
-  return(1)
+  return TRUE
 end

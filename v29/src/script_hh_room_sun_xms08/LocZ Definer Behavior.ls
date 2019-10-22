@@ -2,7 +2,7 @@ property locZ
 
 on print me 
   tsprite = sprite(me.spriteNum)
-  put(tsprite && member.name & "\r" & "location:  " && tsprite.loc & "\r" & "-- -- -- -- -- -- -- -- -- -- -- --")
+  put("\r" & "-- -- -- -- -- -- -- -- -- -- -- --" & "\r" & "locZ:      " && locZ & "\r" & "member:    " && tsprite.member.name & "\r" & "location:  " && tsprite.loc & "\r" & "-- -- -- -- -- -- -- -- -- -- -- --")
 end
 
 on getBehaviorDescription me 

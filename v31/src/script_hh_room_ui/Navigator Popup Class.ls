@@ -1,38 +1,37 @@
-on construct(me)
+property pVisible, pPopupWindowID, pTargetElementID, pNodeInfo, pBlend
+
+on construct me 
   pPopupWindowID = "Navigator popup" && getUniqueID()
   pHideTimeoutID = getUniqueID()
   pShowTimeOutID = getUniqueID()
   pVisible = 0
-  pNodeInfo = []
+  pNodeInfo = [:]
   pBlend = 0
   registerMessage(#show_hide_navigator, me.getID(), #hide)
-  return(1)
-  exit
+  return TRUE
 end
 
-on deconstruct(me)
+on deconstruct me 
   unregisterMessage(#show_hide_navigator, me.getID())
-  return(1)
-  exit
+  return TRUE
 end
 
-on Init(me, tTargetElementID)
+on Init me, tTargetElementID 
   pTargetElementID = tTargetElementID
   tNavComponent = getObject(#navigator_component)
   if tNavComponent <> 0 then
     tNavComponent.updateRecomRooms()
   end if
-  exit
 end
 
-on show(me)
+on show me 
   if pVisible then
-    return(1)
+    return TRUE
   end if
   tNavInterface = getObject(#navigator_interface)
   if tNavInterface <> 0 then
     if tNavInterface.isOpen() then
-      return(0)
+      return FALSE
     end if
   end if
   createWindow(pPopupWindowID, "nav_popup_bg.window")
@@ -46,11 +45,11 @@ on show(me)
   tIconLocY = tNavIcon.getProperty(#locY)
   tIconWidth = tNavIcon.getProperty(#width)
   tMargin = 2
-  tLocX = tBarLocX + tIconLocX + tIconWidth / 2 - tWindow.getProperty(#width) / 2
-  tLocY = tBarLocY + tIconLocY - tWindow.getProperty(#height)
-  tOffset = the stage - rect.width - tMargin
+  tLocX = (((tBarLocX + tIconLocX) + (tIconWidth / 2)) - (tWindow.getProperty(#width) / 2))
+  tLocY = ((tBarLocY + tIconLocY) - tWindow.getProperty(#height))
+  tOffset = (((tWindow.getProperty(#width) + tLocX) - the stage.rect.width) - tMargin)
   if tOffset > 0 then
-    tLocX = tLocX - tOffset
+    tLocX = (tLocX - tOffset)
     tPointerElem = tWindow.getElement("pointer")
     tPointerElem.moveBy(tOffset, 0)
   end if
@@ -68,7 +67,7 @@ on show(me)
       tRoomName = tRoom.getaProp(#name)
       tElem.setText(tRoomName)
       if tRoom.getAt(#usercount) and tRoom.getAt(#maxUsers) then
-        tOccupancy = float(tRoom.getAt(#usercount)) / tRoom.getAt(#maxUsers)
+        tOccupancy = (float(tRoom.getAt(#usercount)) / tRoom.getAt(#maxUsers))
       else
         tOccupancy = 0
       end if
@@ -89,56 +88,50 @@ on show(me)
       tImage = member(getmemnum(tmember)).image
       tElem = tWindow.getElement("nav_popup_link_occupancy" & i)
       tElem.feedImage(tImage)
-      i = 1 + i
+      i = (1 + i)
     end if
   end repeat
   tWindow.setBlend(0)
   pBlend = 0
   receiveUpdate(me.getID())
   pVisible = 1
-  exit
 end
 
-on hide(me)
+on hide me 
   if not pVisible then
-    return(1)
+    return TRUE
   end if
   removeUpdate(me.getID())
   removeWindow(pPopupWindowID)
   executeMessage(#popupClosed, me.getID())
   pVisible = 0
-  exit
 end
 
-on fetchNodeInfo(me)
+on fetchNodeInfo me 
   pNodeInfo = getObject(#navigator_component).getRecomNodeInfo()
-  exit
 end
 
-on update(me)
-  pBlend = pBlend + 25
+on update me 
+  pBlend = (pBlend + 25)
   if pBlend >= 100 then
     pBlend = 100
     removeUpdate(me.getID())
   end if
   tWindow = getWindow(pPopupWindowID)
   tWindow.setBlend(pBlend)
-  exit
 end
 
-on popupEntered(me)
+on popupEntered me 
   executeMessage(#popupEntered, pTargetElementID)
-  exit
 end
 
-on popupLeft(me)
+on popupLeft me 
   executeMessage(#popupLeft, pTargetElementID)
-  exit
 end
 
-on eventProc(me, tEvent, tSprID, tParam, tWndID)
+on eventProc me, tEvent, tSprID, tParam, tWndID 
   if tEvent <> #mouseUp then
-    return(0)
+    return FALSE
   end if
   if tSprID contains "nav_popup_link" then
     tLinkNum = value(tSprID.getProp(#char, tSprID.length))
@@ -148,9 +141,8 @@ on eventProc(me, tEvent, tSprID, tParam, tWndID)
       executeMessage(#roomForward, tRoomID, #private)
     end if
   end if
-  if tSprID = "nav_popup_nav_link" then
+  if (tSprID = "nav_popup_nav_link") then
     me.hide()
     executeMessage(#show_navigator)
   end if
-  exit
 end

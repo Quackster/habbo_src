@@ -14,23 +14,23 @@ end
 
 on prepare me, tdata 
   pPrice = tdata.getAt(#stuffdata)
-  return(1)
+  return TRUE
 end
 
 on select me 
   if the doubleClick and getObject(#session).GET("room_owner") then
     me.showRedeemInterface()
   end if
-  return(1)
+  return TRUE
 end
 
 on showRedeemInterface me 
   if objectExists(pUiObjectID) then
-    return(1)
+    return TRUE
   end if
   createObject(pUiObjectID, "Credit Redeem Confirmation Class")
   if objectExists(pUiObjectID) then
     getObject(pUiObjectID).Init(me.getID(), pPrice)
   end if
-  return(1)
+  return TRUE
 end

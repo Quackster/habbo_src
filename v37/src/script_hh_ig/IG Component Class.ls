@@ -8,7 +8,7 @@ on construct me
   registerMessage(#changeRoom, me.getID(), #leaveRoom)
   registerMessage(#roomReady, me.getID(), #enterRoom)
   pIGComponentProps = ["GameList":[#always_on], "LevelList":[#always_on], "GameData":[#always_on]]
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
@@ -22,7 +22,7 @@ on deconstruct me
     tObject = void()
   end repeat
   pIGComponents = void()
-  return(1)
+  return TRUE
 end
 
 on setActiveIGComponent me, tID, tHoldUpdates 
@@ -37,23 +37,23 @@ on setActiveIGComponent me, tID, tHoldUpdates
     end if
   end if
   tService = me.getIGComponent(tID)
-  if tService = 0 then
-    return(0)
+  if (tService = 0) then
+    return FALSE
   end if
-  if tHoldUpdates = #hold_updates then
+  if (tHoldUpdates = #hold_updates) then
     tService.setActiveFlag(0)
   else
     tService.setActiveFlag(1)
   end if
   pActiveMode = tID
-  return(1)
+  return TRUE
 end
 
 on getActiveIGComponent me 
-  if pActiveMode = void() then
-    return(0)
+  if (pActiveMode = void()) then
+    return FALSE
   end if
-  return(me.getaProp(pActiveMode))
+  return(me.pIGComponents.getaProp(pActiveMode))
 end
 
 on getActiveIGComponentId me 
@@ -61,14 +61,14 @@ on getActiveIGComponentId me
 end
 
 on Initialize me 
-  if pSystemState = 0 then
+  if (pSystemState = 0) then
     me.getHandler().send_CHECK_DIRECTORY_STATUS()
   end if
 end
 
 on getInitialData me 
   if pSystemState <> 0 then
-    return(1)
+    return TRUE
   end if
   i = 1
   repeat while i <= pIGComponentProps.count
@@ -76,31 +76,31 @@ on getInitialData me
     if pIGComponentProps.getAt(i).findPos(#always_on) then
       tService = me.getIGComponent(tID)
     end if
-    i = 1 + i
+    i = (1 + i)
   end repeat
   i = 1
   repeat while i <= pIGComponents.count
     pIGComponents.getAt(i).Initialize()
-    i = 1 + i
+    i = (1 + i)
   end repeat
   pActiveMode = "GameList"
   me.setSystemState(#ready)
-  return(1)
+  return TRUE
 end
 
 on leaveRoom me 
   me.removeIGComponent("BottomBar")
   me.removeIGComponent("AfterGame")
   me.removeIGComponent("PreGame")
-  if me.getSystemState() = #enter_arena then
+  if (me.getSystemState() = #enter_arena) then
     nothing()
   else
     if me.getSystemState() <> #pre_game then
       if me.getSystemState() <> #in_game then
-        if me.getSystemState() = #after_game then
+        if (me.getSystemState() = #after_game) then
           tService = me.getIGComponent("GameList")
-          if tService = 0 then
-            return(0)
+          if (tService = 0) then
+            return FALSE
           end if
           tService.leaveJoinedGame(0)
           me.getHandler().send_EXIT_GAME(0)
@@ -108,26 +108,26 @@ on leaveRoom me
           me.getInterface().resetToDefaultAndHide()
         else
           tService = me.getIGComponent("GameList")
-          if tService = 0 then
-            return(0)
+          if (tService = 0) then
+            return FALSE
           end if
-          if tService.getJoinedGameId() = -1 then
+          if (tService.getJoinedGameId() = -1) then
             me.getInterface().resetToDefaultAndHide()
           end if
         end if
-        return(1)
+        return TRUE
       end if
     end if
   end if
 end
 
 on enterRoom me 
-  if me.getSystemState() = #pre_game then
-    return(1)
+  if (me.getSystemState() = #pre_game) then
+    return TRUE
   end if
   tService = me.getIGComponent("GameList")
-  if tService = 0 then
-    return(0)
+  if (tService = 0) then
+    return FALSE
   end if
   tJoinedGame = tService.getJoinedGame()
   if objectp(tJoinedGame) then
@@ -137,7 +137,7 @@ end
 
 on setSystemState me, tstate 
   pSystemState = tstate
-  return(1)
+  return TRUE
 end
 
 on getSystemState me 
@@ -145,22 +145,22 @@ on getSystemState me
 end
 
 on displayIGComponentEvent me, tID, tEventType, tEventData, tCreateIfMissing 
-  if tCreateIfMissing = 1 then
+  if (tCreateIfMissing = 1) then
     tService = me.getIGComponent(tID)
   else
-    tService = me.getaProp(tID)
+    tService = me.pIGComponents.getaProp(tID)
   end if
-  if tService = 0 then
-    return(0)
+  if (tService = 0) then
+    return FALSE
   end if
   return(tService.displayEvent(tEventType, tEventData))
 end
 
 on getIGComponent me, tID 
-  if tID = void() then
+  if (tID = void()) then
     return(error(me, "IGComponent" && tID && "not found!", #getIGComponent))
   end if
-  if pIGComponents.findPos(tID) = 0 then
+  if (pIGComponents.findPos(tID) = 0) then
     if not me.createIGComponent(tID) then
       return(error(me, "IGComponent" && tID && " could not be created!!", #Initialize))
     end if
@@ -173,12 +173,12 @@ on IGComponentExists me, tID
 end
 
 on createIGComponent me, tID 
-  if tID = void() then
-    return(0)
+  if (tID = void()) then
+    return FALSE
   end if
   tServiceId = "ig_" & tID
   if objectExists(tServiceId) then
-    return(1)
+    return TRUE
   end if
   tVarId = "ig.service." & tID & ".class"
   if variableExists(tVarId) then
@@ -197,17 +197,17 @@ on createIGComponent me, tID
   tObject.pIGComponentId = tID
   tObject.Initialize()
   pIGComponents.setaProp(tID, tObject)
-  return(1)
+  return TRUE
 end
 
 on removeIGComponent me, tID 
   tService = pIGComponents.getaProp(tID)
   if not objectp(tService) then
-    return(1)
+    return TRUE
   end if
   tService.setActiveFlag(0)
   tService.deconstruct()
   removeObject("ig_" & tID)
   pIGComponents.deleteProp(tID)
-  return(1)
+  return TRUE
 end

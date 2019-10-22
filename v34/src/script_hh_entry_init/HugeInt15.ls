@@ -2,7 +2,7 @@ property pBase, pNegative, pDigits, pData_NxIhNARqldyJyY2PfT03dK8t9OLUR, pScript
 
 on new me 
   if the traceScript then
-    return(0)
+    return FALSE
   end if
   the traceScript = 0
   _player.traceScript = 0
@@ -10,19 +10,19 @@ on new me
   pData_NxIhNARqldyJyY2PfT03dK8t9OLUR = []
   pNegative = 0
   pBase = 10000
-  pDigits = string(pBase).length - 1
+  pDigits = (string(pBase).length - 1)
   pScript = script("HugeInt15")
   return(me)
 end
 
 on neg me 
   if the traceScript then
-    return(0)
+    return FALSE
   end if
   the traceScript = 0
   _player.traceScript = 0
   _player.traceScript = 0
-  if pNegative = 1 then
+  if (pNegative = 1) then
     pNegative = 0
   else
     pNegative = 1
@@ -31,14 +31,14 @@ end
 
 on assign me, tdata, tLimit, tUseKey 
   if the traceScript then
-    return(0)
+    return FALSE
   end if
   the traceScript = 0
   _player.traceScript = 0
   _player.traceScript = 0
   pData_NxIhNARqldyJyY2PfT03dK8t9OLUR = []
-  if ilk(tdata) = #string then
-    if tdata.getProp(#char, 1) = "-" then
+  if (ilk(tdata) = #string) then
+    if (tdata.getProp(#char, 1) = "-") then
       pNegative = 1
       tdata = tdata.getProp(#char, 2, tdata.length)
     else
@@ -46,13 +46,13 @@ on assign me, tdata, tLimit, tUseKey
     end if
     i = tdata.length
     repeat while i > 0
-      tCoef = tdata.getProp(#char, max(1, i - pDigits - 1), i)
-      i = i - tCoef.length
+      tCoef = tdata.getProp(#char, max(1, (i - (pDigits - 1))), i)
+      i = (i - tCoef.length)
       pData_NxIhNARqldyJyY2PfT03dK8t9OLUR.append(value(tCoef))
     end repeat
     exit repeat
   end if
-  if ilk(tdata) = #list then
+  if (ilk(tdata) = #list) then
     pNegative = 0
     tZeroes = 1
     if voidp(tLimit) then
@@ -62,108 +62,108 @@ on assign me, tdata, tLimit, tUseKey
     end if
     i = 1
     repeat while i <= tLimit
-      if tdata.getAt(i) <> 0 or tZeroes = 0 then
+      if tdata.getAt(i) <> 0 or (tZeroes = 0) then
         if not tUseKey then
-          pData_NxIhNARqldyJyY2PfT03dK8t9OLUR.setAt(tLimit + 1 - i, tdata.getAt(i))
+          pData_NxIhNARqldyJyY2PfT03dK8t9OLUR.setAt(((tLimit + 1) - i), tdata.getAt(i))
         else
-          pData_NxIhNARqldyJyY2PfT03dK8t9OLUR.setAt(tLimit + 1 - i, me.decode(tdata.getAt(i)))
+          pData_NxIhNARqldyJyY2PfT03dK8t9OLUR.setAt(((tLimit + 1) - i), me.decode(tdata.getAt(i)))
         end if
         tZeroes = 0
       end if
-      i = 1 + i
+      i = (1 + i)
     end repeat
   end if
 end
 
 on copyFrom me, tValue 
   if the traceScript then
-    return(0)
+    return FALSE
   end if
   the traceScript = 0
   _player.traceScript = 0
   _player.traceScript = 0
   pNegative = tValue.pNegative
-  pData_NxIhNARqldyJyY2PfT03dK8t9OLUR = pData_NxIhNARqldyJyY2PfT03dK8t9OLUR.duplicate()
+  pData_NxIhNARqldyJyY2PfT03dK8t9OLUR = tValue.pData_NxIhNARqldyJyY2PfT03dK8t9OLUR.duplicate()
   me.trim()
 end
 
 on trim me 
   if the traceScript then
-    return(0)
+    return FALSE
   end if
   the traceScript = 0
   _player.traceScript = 0
   _player.traceScript = 0
   i = pData_NxIhNARqldyJyY2PfT03dK8t9OLUR.count
   repeat while i >= 1
-    if pData_NxIhNARqldyJyY2PfT03dK8t9OLUR.getAt(i) = 0 then
+    if (pData_NxIhNARqldyJyY2PfT03dK8t9OLUR.getAt(i) = 0) then
       pData_NxIhNARqldyJyY2PfT03dK8t9OLUR.deleteAt(i)
     else
       return()
     end if
-    i = 255 + i
+    i = (255 + i)
   end repeat
-  if pData_NxIhNARqldyJyY2PfT03dK8t9OLUR.count = 0 then
+  if (pData_NxIhNARqldyJyY2PfT03dK8t9OLUR.count = 0) then
     pNegative = 0
   end if
 end
 
 on equals me, tValue 
   if the traceScript then
-    return(0)
+    return FALSE
   end if
   the traceScript = 0
   _player.traceScript = 0
   _player.traceScript = 0
   if pNegative <> tValue.pNegative then
-    return(0)
+    return FALSE
   end if
   if pData_NxIhNARqldyJyY2PfT03dK8t9OLUR.count <> tValue.count(#pData_NxIhNARqldyJyY2PfT03dK8t9OLUR) then
-    return(0)
+    return FALSE
   end if
   i = pData_NxIhNARqldyJyY2PfT03dK8t9OLUR.count
   repeat while i >= 1
     if pData_NxIhNARqldyJyY2PfT03dK8t9OLUR.getAt(i) <> tValue.getProp(#pData_NxIhNARqldyJyY2PfT03dK8t9OLUR, i) then
-      return(0)
+      return FALSE
     end if
-    i = 255 + i
+    i = (255 + i)
   end repeat
-  return(1)
+  return TRUE
 end
 
 on greaterThan me, tValue, tUseSign 
   if the traceScript then
-    return(0)
+    return FALSE
   end if
   the traceScript = 0
   _player.traceScript = 0
   _player.traceScript = 0
   if me.equals(tValue) then
-    return(0)
+    return FALSE
   end if
   if voidp(tUseSign) then
     tUseSign = 1
   end if
   if tUseSign then
-    if pNegative = 0 and tValue.pNegative = 1 then
-      return(1)
+    if (pNegative = 0) and (tValue.pNegative = 1) then
+      return TRUE
     end if
-    if pNegative = 1 and tValue.pNegative = 0 then
-      return(0)
+    if (pNegative = 1) and (tValue.pNegative = 0) then
+      return FALSE
     end if
   end if
   if pData_NxIhNARqldyJyY2PfT03dK8t9OLUR.count > tValue.count(#pData_NxIhNARqldyJyY2PfT03dK8t9OLUR) then
     if tUseSign then
       return(not pNegative)
     else
-      return(1)
+      return TRUE
     end if
   else
     if pData_NxIhNARqldyJyY2PfT03dK8t9OLUR.count < tValue.count(#pData_NxIhNARqldyJyY2PfT03dK8t9OLUR) then
       if tUseSign then
         return(pNegative)
       else
-        return(0)
+        return FALSE
       end if
     end if
   end if
@@ -173,38 +173,38 @@ on greaterThan me, tValue, tUseSign
       if tUseSign then
         return(not pNegative)
       else
-        return(1)
+        return TRUE
       end if
     else
       if pData_NxIhNARqldyJyY2PfT03dK8t9OLUR.getAt(i) < tValue.getProp(#pData_NxIhNARqldyJyY2PfT03dK8t9OLUR, i) then
         if tUseSign then
           return(pNegative)
         else
-          return(0)
+          return FALSE
         end if
       end if
     end if
-    i = 255 + i
+    i = (255 + i)
   end repeat
-  return(0)
+  return FALSE
 end
 
 on lessThan me, tValue, tUseSign 
   if the traceScript then
-    return(0)
+    return FALSE
   end if
   the traceScript = 0
   _player.traceScript = 0
   _player.traceScript = 0
   if me.equals(tValue) then
-    return(0)
+    return FALSE
   end if
   return(not me.greaterThan(tValue, tUseSign))
 end
 
 on isZero me 
   if the traceScript then
-    return(0)
+    return FALSE
   end if
   the traceScript = 0
   _player.traceScript = 0
@@ -212,31 +212,31 @@ on isZero me
   i = 1
   repeat while i <= pData_NxIhNARqldyJyY2PfT03dK8t9OLUR.count
     if pData_NxIhNARqldyJyY2PfT03dK8t9OLUR.getAt(i) <> 0 then
-      return(0)
+      return FALSE
     end if
-    i = 1 + i
+    i = (1 + i)
   end repeat
-  return(1)
+  return TRUE
 end
 
 on sum me, tValue 
   if the traceScript then
-    return(0)
+    return FALSE
   end if
   the traceScript = 0
   _player.traceScript = 0
   _player.traceScript = 0
   tResult = new(pScript)
   tNeg = 0
-  if pNegative = 1 and tValue.pNegative = 1 then
+  if (pNegative = 1) and (tValue.pNegative = 1) then
     tNeg = 1
   else
-    if pNegative = 1 then
+    if (pNegative = 1) then
       tResult.copyFrom(me)
       tResult.neg()
       return(tValue.dif(tResult))
     else
-      if tValue.pNegative = 1 then
+      if (tValue.pNegative = 1) then
         tResult.copyFrom(tValue)
         tResult.neg()
         return(me.dif(tResult))
@@ -250,27 +250,27 @@ on sum me, tValue
   i = 1
   repeat while i <= tLen
     if i <= tDataLen and i <= tValueDataLen then
-      tCoef = me.getProp(#pData_NxIhNARqldyJyY2PfT03dK8t9OLUR, i) + tValue.getProp(#pData_NxIhNARqldyJyY2PfT03dK8t9OLUR, i) + tCarry
+      tCoef = ((me.getProp(#pData_NxIhNARqldyJyY2PfT03dK8t9OLUR, i) + tValue.getProp(#pData_NxIhNARqldyJyY2PfT03dK8t9OLUR, i)) + tCarry)
     else
       if i <= tDataLen then
-        tCoef = me.getProp(#pData_NxIhNARqldyJyY2PfT03dK8t9OLUR, i) + tCarry
+        tCoef = (me.getProp(#pData_NxIhNARqldyJyY2PfT03dK8t9OLUR, i) + tCarry)
       else
-        tCoef = tValue.getProp(#pData_NxIhNARqldyJyY2PfT03dK8t9OLUR, i) + tCarry
+        tCoef = (tValue.getProp(#pData_NxIhNARqldyJyY2PfT03dK8t9OLUR, i) + tCarry)
       end if
     end if
     if tCoef < pBase then
       tResult.setProp(#pData_NxIhNARqldyJyY2PfT03dK8t9OLUR, i, tCoef)
       tCarry = 0
     else
-      tResult.setProp(#pData_NxIhNARqldyJyY2PfT03dK8t9OLUR, i, tCoef - pBase)
+      tResult.setProp(#pData_NxIhNARqldyJyY2PfT03dK8t9OLUR, i, (tCoef - pBase))
       tCarry = 1
     end if
-    i = 1 + i
+    i = (1 + i)
   end repeat
   if tCarry > 0 then
-    tResult.setProp(#pData_NxIhNARqldyJyY2PfT03dK8t9OLUR, tLen + 1, tCarry)
+    tResult.setProp(#pData_NxIhNARqldyJyY2PfT03dK8t9OLUR, (tLen + 1), tCarry)
   end if
-  if tNeg = 1 then
+  if (tNeg = 1) then
     tResult.neg()
   end if
   return(tResult)
@@ -278,13 +278,13 @@ end
 
 on dif me, tValue 
   if the traceScript then
-    return(0)
+    return FALSE
   end if
   the traceScript = 0
   _player.traceScript = 0
   _player.traceScript = 0
   tResult = new(pScript)
-  if pNegative = tValue.pNegative then
+  if (pNegative = tValue.pNegative) then
     tNeg = pNegative
     if me.greaterThan(tValue, 0) then
       tBigger = me
@@ -299,36 +299,36 @@ on dif me, tValue
     i = 1
     repeat while i <= tLen
       if i <= tSmallerCount then
-        tCoef = tBigger.getProp(#pData_NxIhNARqldyJyY2PfT03dK8t9OLUR, i) - tSmaller.getProp(#pData_NxIhNARqldyJyY2PfT03dK8t9OLUR, i) + tCarry
+        tCoef = ((tBigger.getProp(#pData_NxIhNARqldyJyY2PfT03dK8t9OLUR, i) - tSmaller.getProp(#pData_NxIhNARqldyJyY2PfT03dK8t9OLUR, i)) + tCarry)
       else
-        tCoef = tBigger.getProp(#pData_NxIhNARqldyJyY2PfT03dK8t9OLUR, i) + tCarry
+        tCoef = (tBigger.getProp(#pData_NxIhNARqldyJyY2PfT03dK8t9OLUR, i) + tCarry)
       end if
       if tCoef >= 0 then
         tResult.setProp(#pData_NxIhNARqldyJyY2PfT03dK8t9OLUR, i, tCoef)
         tCarry = 0
       else
-        tResult.setProp(#pData_NxIhNARqldyJyY2PfT03dK8t9OLUR, i, tCoef + pBase)
+        tResult.setProp(#pData_NxIhNARqldyJyY2PfT03dK8t9OLUR, i, (tCoef + pBase))
         tCarry = -1
       end if
-      i = 1 + i
+      i = (1 + i)
     end repeat
     tResult.trim()
     if tNeg then
       tResult.neg()
     end if
-    if pNegative = 1 then
+    if (pNegative = 1) then
       tResult.neg()
     end if
     return(tResult)
   end if
-  if pNegative = 1 then
+  if (pNegative = 1) then
     tResult.copyFrom(me)
     tResult.neg()
     tResult = tValue.sum(tResult)
     tResult.neg()
     return(tResult)
   else
-    if tValue.pNegative = 1 then
+    if (tValue.pNegative = 1) then
       tResult.copyFrom(tValue)
       tResult.neg()
       tResult = me.sum(tResult)
@@ -339,7 +339,7 @@ end
 
 on prod me, tValue 
   if the traceScript then
-    return(0)
+    return FALSE
   end if
   the traceScript = 0
   _player.traceScript = 0
@@ -354,21 +354,21 @@ on prod me, tValue
     j = 1
     repeat while j <= tValueDataLen
       tProd = (tValue.getProp(#pData_NxIhNARqldyJyY2PfT03dK8t9OLUR, j) * pData_NxIhNARqldyJyY2PfT03dK8t9OLUR.getAt(i))
-      tCoef = (tProd + tCarry mod pBase)
-      tCarry = (tProd + tCarry / pBase)
+      tCoef = ((tProd + tCarry) mod pBase)
+      tCarry = ((tProd + tCarry) / pBase)
       if tIndex <= tResult.count(#pData_NxIhNARqldyJyY2PfT03dK8t9OLUR) then
-        tCoef = tCoef + tResult.getProp(#pData_NxIhNARqldyJyY2PfT03dK8t9OLUR, tIndex)
-        tCarry = tCarry + (tCoef / pBase)
+        tCoef = (tCoef + tResult.getProp(#pData_NxIhNARqldyJyY2PfT03dK8t9OLUR, tIndex))
+        tCarry = (tCarry + (tCoef / pBase))
         tCoef = (tCoef mod pBase)
       end if
       tResult.setProp(#pData_NxIhNARqldyJyY2PfT03dK8t9OLUR, tIndex, tCoef)
-      tIndex = tIndex + 1
-      j = 1 + j
+      tIndex = (tIndex + 1)
+      j = (1 + j)
     end repeat
     if tCarry > 0 then
       tResult.setProp(#pData_NxIhNARqldyJyY2PfT03dK8t9OLUR, tIndex, tCarry)
     end if
-    i = 1 + i
+    i = (1 + i)
   end repeat
   if pNegative <> tValue.pNegative then
     tResult.neg()
@@ -378,7 +378,7 @@ end
 
 on mul me, tMultiplier 
   if the traceScript then
-    return(0)
+    return FALSE
   end if
   the traceScript = 0
   _player.traceScript = 0
@@ -386,24 +386,24 @@ on mul me, tMultiplier
   if tMultiplier < 0 or tMultiplier > pBase then
     return()
   else
-    if tMultiplier = 0 then
+    if (tMultiplier = 0) then
       pData_NxIhNARqldyJyY2PfT03dK8t9OLUR = []
       pNegative = 0
       return()
     end if
   end if
-  if tMultiplier = pBase then
+  if (tMultiplier = pBase) then
     pData_NxIhNARqldyJyY2PfT03dK8t9OLUR.addAt(1, 0)
     return()
   end if
   tCarry = 0
   i = 1
   repeat while i <= pData_NxIhNARqldyJyY2PfT03dK8t9OLUR.count
-    tResult = (pData_NxIhNARqldyJyY2PfT03dK8t9OLUR.getAt(i) * tMultiplier) + tCarry
+    tResult = ((pData_NxIhNARqldyJyY2PfT03dK8t9OLUR.getAt(i) * tMultiplier) + tCarry)
     tCoef = (tResult mod pBase)
     tCarry = (tResult / pBase)
     pData_NxIhNARqldyJyY2PfT03dK8t9OLUR.setAt(i, tCoef)
-    i = 1 + i
+    i = (1 + i)
   end repeat
   if tCarry > 0 then
     pData_NxIhNARqldyJyY2PfT03dK8t9OLUR.add(tCarry)
@@ -412,15 +412,15 @@ end
 
 on pow me, tPower 
   if the traceScript then
-    return(0)
+    return FALSE
   end if
   the traceScript = 0
   _player.traceScript = 0
   _player.traceScript = 0
-  if tPower = 1 then
+  if (tPower = 1) then
     return(me)
   else
-    if (tPower mod 2) = 0 then
+    if ((tPower mod 2) = 0) then
       return(me.pow((tPower / 2)).sqr())
     else
       return(me.prod(me.pow((tPower / 2)).sqr()))
@@ -430,7 +430,7 @@ end
 
 on sqr me 
   if the traceScript then
-    return(0)
+    return FALSE
   end if
   the traceScript = 0
   _player.traceScript = 0
@@ -440,7 +440,7 @@ end
 
 on getIntValue me, tLimit 
   if the traceScript then
-    return(0)
+    return FALSE
   end if
   the traceScript = 0
   _player.traceScript = 0
@@ -451,27 +451,27 @@ on getIntValue me, tLimit
   tLimitLo = ((tLimit / pBase) * 10)
   tLength = pData_NxIhNARqldyJyY2PfT03dK8t9OLUR.count
   tInt = pData_NxIhNARqldyJyY2PfT03dK8t9OLUR.getAt(tLength)
-  tIndex = tLength - 1
+  tIndex = (tLength - 1)
   repeat while tInt < tLimit and tIndex > 0
     tCoef = pData_NxIhNARqldyJyY2PfT03dK8t9OLUR.getAt(tIndex)
     if tInt < tLimitLo then
-      tInt = (tInt * pBase) + tCoef
+      tInt = ((tInt * pBase) + tCoef)
     else
       tCoefMultiplier = 10
       repeat while (tInt * tCoefMultiplier) < tLimit
         tCoefMultiplier = (tCoefMultiplier * 10)
       end repeat
       tCoefDivider = (pBase / tCoefMultiplier)
-      tInt = (tInt * tCoefMultiplier) + (tCoef / tCoefDivider)
+      tInt = ((tInt * tCoefMultiplier) + (tCoef / tCoefDivider))
     end if
-    tIndex = tIndex - 1
+    tIndex = (tIndex - 1)
   end repeat
   return(tInt)
 end
 
 on getLength me 
   if the traceScript then
-    return(0)
+    return FALSE
   end if
   the traceScript = 0
   _player.traceScript = 0
@@ -482,29 +482,29 @@ on getLength me
     return(tLen)
   else
     if tCoef >= (pBase / 100) then
-      return(tLen - 1)
+      return((tLen - 1))
     else
       if tCoef >= (pBase / 1000) then
-        return(tLen - 2)
+        return((tLen - 2))
       end if
     end if
   end if
-  return(tLen - 3)
+  return((tLen - 3))
 end
 
 on div me, tDivider, tReturnModulo, tKeepResult 
   if the traceScript then
-    return(0)
+    return FALSE
   end if
   the traceScript = 0
   _player.traceScript = 0
   _player.traceScript = 0
-  if tDivider.isZero() = 1 then
+  if (tDivider.isZero() = 1) then
     return(void())
   end if
   tResult = new(pScript)
   if me.lessThan(tDivider, 0) then
-    if tReturnModulo = 1 then
+    if (tReturnModulo = 1) then
       tResult.copyFrom(me)
     end if
     return(tResult)
@@ -532,10 +532,10 @@ on div me, tDivider, tReturnModulo, tKeepResult
     tRemainderDigits = tRemainder.getLength()
     tRemainderIntLength = me.getIntLength(tRemainderInt)
     tRemainderIntFirstDigits = tRemainderInt
-    i = tRemainderIntLength - tDividerIntLength
+    i = (tRemainderIntLength - tDividerIntLength)
     repeat while i >= 1
       tRemainderIntFirstDigits = (tRemainderIntFirstDigits / 10)
-      i = 255 + i
+      i = (255 + i)
     end repeat
     if tRemainderIntFirstDigits <> tDividerInt then
       tFastCoef = (tRemainderInt / tDividerInt)
@@ -543,72 +543,72 @@ on div me, tDivider, tReturnModulo, tKeepResult
       tRemainderStr = tRemainder.getString().getProp(#char, 1, tDividerDigits)
       tRemainderTemp.assign(tRemainderStr)
       if tDivider.greaterThan(tRemainderTemp) then
-        tFastCoef = (tRemainderInt / tDividerInt) - 1
+        tFastCoef = ((tRemainderInt / tDividerInt) - 1)
       else
         tFastCoef = (tRemainderInt / tDividerInt)
       end if
     end if
-    tDigitDelta = tRemainderDigits - tDividerDigits
+    tDigitDelta = (tRemainderDigits - tDividerDigits)
     tDigitCount = (tDigitDelta mod pDigits)
     tFastCoefLength = me.getIntLength(tFastCoef)
-    if tFastCoefLength + tDividerIntLength > tRemainderIntLength then
-      tDigitCount = tDigitCount + 1
+    if (tFastCoefLength + tDividerIntLength) > tRemainderIntLength then
+      tDigitCount = (tDigitCount + 1)
     end if
-    if tDigitCount = 0 then
+    if (tDigitCount = 0) then
       tDigitCount = pDigits
     end if
-    i = tFastCoefLength - tDigitCount
+    i = (tFastCoefLength - tDigitCount)
     repeat while i >= 1
       tFastCoef = (tFastCoef / 10)
-      i = 255 + i
+      i = (255 + i)
     end repeat
     tTemp.copyFrom(tDivider)
     tTemp.mul(tFastCoef)
-    tAddCount = tRemainder.count(#pData_NxIhNARqldyJyY2PfT03dK8t9OLUR) - tTemp.count(#pData_NxIhNARqldyJyY2PfT03dK8t9OLUR)
+    tAddCount = (tRemainder.count(#pData_NxIhNARqldyJyY2PfT03dK8t9OLUR) - tTemp.count(#pData_NxIhNARqldyJyY2PfT03dK8t9OLUR))
     i = 1
     repeat while i <= tAddCount
-      pData_NxIhNARqldyJyY2PfT03dK8t9OLUR.addAt(1, 0)
-      i = 1 + i
+      tTemp.pData_NxIhNARqldyJyY2PfT03dK8t9OLUR.addAt(1, 0)
+      i = (1 + i)
     end repeat
     if tTemp.greaterThan(tRemainder) then
       tTemp.copyFrom(tDivider)
-      tTemp.mul(tFastCoef - 1)
-      tAddCountNew = tRemainder.count(#pData_NxIhNARqldyJyY2PfT03dK8t9OLUR) - tTemp.count(#pData_NxIhNARqldyJyY2PfT03dK8t9OLUR)
+      tTemp.mul((tFastCoef - 1))
+      tAddCountNew = (tRemainder.count(#pData_NxIhNARqldyJyY2PfT03dK8t9OLUR) - tTemp.count(#pData_NxIhNARqldyJyY2PfT03dK8t9OLUR))
       i = 1
       repeat while i <= tAddCount
-        pData_NxIhNARqldyJyY2PfT03dK8t9OLUR.addAt(1, 0)
-        i = 1 + i
+        tTemp.pData_NxIhNARqldyJyY2PfT03dK8t9OLUR.addAt(1, 0)
+        i = (1 + i)
       end repeat
       tValidValue = 0
       if not tTemp.greaterThan(tRemainder) then
-        if tAddCountNew = tAddCount then
-          tFastCoef = tFastCoef - 1
+        if (tAddCountNew = tAddCount) then
+          tFastCoef = (tFastCoef - 1)
           tValidValue = 1
         else
           tTemp2.copyFrom(tDivider)
           tTemp2.mul(tFastCoef)
           i = 1
-          repeat while i <= tAddCount - 1
-            pData_NxIhNARqldyJyY2PfT03dK8t9OLUR.addAt(1, 0)
-            i = 1 + i
+          repeat while i <= (tAddCount - 1)
+            tTemp2.pData_NxIhNARqldyJyY2PfT03dK8t9OLUR.addAt(1, 0)
+            i = (1 + i)
           end repeat
           if tTemp2.greaterThan(tTemp) then
-            tAddCount = tAddCount - 1
+            tAddCount = (tAddCount - 1)
           else
-            tFastCoef = tFastCoef - 1
+            tFastCoef = (tFastCoef - 1)
             tValidValue = 1
           end if
         end if
       else
-        tAddCount = tAddCount - 1
+        tAddCount = (tAddCount - 1)
       end if
       if not tValidValue then
         tTemp.copyFrom(tDivider)
         tTemp.mul(tFastCoef)
         i = 1
         repeat while i <= tAddCount
-          pData_NxIhNARqldyJyY2PfT03dK8t9OLUR.addAt(1, 0)
-          i = 1 + i
+          tTemp.pData_NxIhNARqldyJyY2PfT03dK8t9OLUR.addAt(1, 0)
+          i = (1 + i)
         end repeat
       end if
     end if
@@ -618,7 +618,7 @@ on div me, tDivider, tReturnModulo, tKeepResult
       i = 1
       repeat while i <= tAddCount
         tResultData.add(0)
-        i = 1 + i
+        i = (1 + i)
       end repeat
       exit repeat
     end if
@@ -627,40 +627,40 @@ on div me, tDivider, tReturnModulo, tKeepResult
       repeat while 1
         tTemp.copyFrom(tDivider)
         i = 1
-        repeat while i <= tAddCount - tExtraZeroes - 1
-          pData_NxIhNARqldyJyY2PfT03dK8t9OLUR.addAt(1, 0)
-          i = 1 + i
+        repeat while i <= ((tAddCount - tExtraZeroes) - 1)
+          tTemp.pData_NxIhNARqldyJyY2PfT03dK8t9OLUR.addAt(1, 0)
+          i = (1 + i)
         end repeat
         if not tTemp.greaterThan(tRemainder) then
           next repeat
         end if
-        tExtraZeroes = tExtraZeroes + 1
+        tExtraZeroes = (tExtraZeroes + 1)
       end repeat
       i = 1
       repeat while i <= tExtraZeroes
         tResultData.add(0)
-        i = 1 + i
+        i = (1 + i)
       end repeat
       exit repeat
     end if
     tResult.assign(tResultData)
     tDigits = me.getLength()
-    repeat while tResult.getLength() + tDividerDigits < tDigits
-      pData_NxIhNARqldyJyY2PfT03dK8t9OLUR.addAt(1, 0)
+    repeat while (tResult.getLength() + tDividerDigits) < tDigits
+      tResult.pData_NxIhNARqldyJyY2PfT03dK8t9OLUR.addAt(1, 0)
       tResultData.add(0)
     end repeat
-    if pDigits = 1 then
-      if tResult.getLength() + tDividerDigits = tDigits then
+    if (pDigits = 1) then
+      if ((tResult.getLength() + tDividerDigits) = tDigits) then
         tDividerInt = tDivider.getIntValue(1)
         tResultInt = tResult.getIntValue(1)
         tValueInt = me.getIntValue(1)
         tExtraDigit = 0
-        if tDividerInt = 1 or tResultInt = 1 then
+        if (tDividerInt = 1) or (tResultInt = 1) then
           if tValueInt <> 1 then
             tExtraDigit = 1
           end if
         else
-          if tDividerInt = 2 and tResultInt = 2 then
+          if (tDividerInt = 2) and (tResultInt = 2) then
             tExtraDigit = 1
           else
             if (tDividerInt * tResultInt) <= 9 then
@@ -680,11 +680,11 @@ on div me, tDivider, tReturnModulo, tKeepResult
   if tNegResult then
     tResult.neg()
   end if
-  if tReturnModulo = 1 then
-    if tKeepResult = 1 then
+  if (tReturnModulo = 1) then
+    if (tKeepResult = 1) then
       me.copyFrom(tResult)
     end if
-    if tRemainder.count(#pData_NxIhNARqldyJyY2PfT03dK8t9OLUR) = 0 then
+    if (tRemainder.count(#pData_NxIhNARqldyJyY2PfT03dK8t9OLUR) = 0) then
       tRemainder.pData_NxIhNARqldyJyY2PfT03dK8t9OLUR = [0]
     end if
     return(tRemainder)
@@ -695,7 +695,7 @@ end
 
 on getIntLength me, tValue 
   if the traceScript then
-    return(0)
+    return FALSE
   end if
   the traceScript = 0
   _player.traceScript = 0
@@ -705,7 +705,7 @@ on getIntLength me, tValue
     tValue = -tValue
   end if
   repeat while tValue >= 10
-    tLen = tLen + 1
+    tLen = (tLen + 1)
     tValue = (tValue / 10)
   end repeat
   return(tLen)
@@ -713,7 +713,7 @@ end
 
 on Modulo me, tValue 
   if the traceScript then
-    return(0)
+    return FALSE
   end if
   the traceScript = 0
   _player.traceScript = 0
@@ -723,14 +723,14 @@ end
 
 on divBy2 me 
   if the traceScript then
-    return(0)
+    return FALSE
   end if
   the traceScript = 0
   _player.traceScript = 0
   _player.traceScript = 0
   tBasePer2 = (pBase / 2)
   tCount = pData_NxIhNARqldyJyY2PfT03dK8t9OLUR.count
-  if tCount = 0 then
+  if (tCount = 0) then
     return()
   end if
   tCoef = (pData_NxIhNARqldyJyY2PfT03dK8t9OLUR.getAt(1) / 2)
@@ -739,20 +739,20 @@ on divBy2 me
   repeat while i <= tCount
     tCoef = (pData_NxIhNARqldyJyY2PfT03dK8t9OLUR.getAt(i) / 2)
     tMod = (pData_NxIhNARqldyJyY2PfT03dK8t9OLUR.getAt(i) mod 2)
-    if tMod = 1 then
-      pData_NxIhNARqldyJyY2PfT03dK8t9OLUR.setAt(i - 1, pData_NxIhNARqldyJyY2PfT03dK8t9OLUR.getAt(i - 1) + tBasePer2)
+    if (tMod = 1) then
+      pData_NxIhNARqldyJyY2PfT03dK8t9OLUR.setAt((i - 1), (pData_NxIhNARqldyJyY2PfT03dK8t9OLUR.getAt((i - 1)) + tBasePer2))
     end if
     pData_NxIhNARqldyJyY2PfT03dK8t9OLUR.setAt(i, tCoef)
-    i = 1 + i
+    i = (1 + i)
   end repeat
-  if pData_NxIhNARqldyJyY2PfT03dK8t9OLUR.getAt(tCount) = 0 then
+  if (pData_NxIhNARqldyJyY2PfT03dK8t9OLUR.getAt(tCount) = 0) then
     pData_NxIhNARqldyJyY2PfT03dK8t9OLUR.deleteAt(tCount)
   end if
 end
 
 on powMod me, tPower, tDivider 
   if the traceScript then
-    return(0)
+    return FALSE
   end if
   the traceScript = 0
   _player.traceScript = 0
@@ -763,9 +763,9 @@ on powMod me, tPower, tDivider
   tTemp.copyFrom(me)
   tResult = new(pScript)
   tResult.assign("1")
-  repeat while tPowerTemp.isZero() = 0
+  repeat while (tPowerTemp.isZero() = 0)
     tMod = (tPowerTemp.getProp(#pData_NxIhNARqldyJyY2PfT03dK8t9OLUR, 1) mod 2)
-    if tMod = 1 then
+    if (tMod = 1) then
       tResult = tResult.prod(tTemp).Modulo(tDivider)
     end if
     tPowerTemp.divBy2()
@@ -776,12 +776,12 @@ end
 
 on getString me 
   if the traceScript then
-    return(0)
+    return FALSE
   end if
   the traceScript = 0
   _player.traceScript = 0
   _player.traceScript = 0
-  if pData_NxIhNARqldyJyY2PfT03dK8t9OLUR.count = 0 then
+  if (pData_NxIhNARqldyJyY2PfT03dK8t9OLUR.count = 0) then
     return("0")
   end if
   tStr = ""
@@ -794,7 +794,7 @@ on getString me
       end repeat
     end if
     tStr = tValue & tStr
-    i = 1 + i
+    i = (1 + i)
   end repeat
   if pNegative then
     tStr = "-" & tStr
@@ -804,12 +804,12 @@ end
 
 on getByteArray me 
   if the traceScript then
-    return(0)
+    return FALSE
   end if
   the traceScript = 0
   _player.traceScript = 0
   _player.traceScript = 0
-  if pData_NxIhNARqldyJyY2PfT03dK8t9OLUR.count = 0 then
+  if (pData_NxIhNARqldyJyY2PfT03dK8t9OLUR.count = 0) then
     return([0])
   end if
   tDivider = new(pScript)
@@ -832,7 +832,7 @@ end
 
 on getIntArray me, tUseKey 
   if the traceScript then
-    return(0)
+    return FALSE
   end if
   the traceScript = 0
   _player.traceScript = 0
@@ -840,19 +840,19 @@ on getIntArray me, tUseKey
   tdata = []
   i = 1
   repeat while i <= pData_NxIhNARqldyJyY2PfT03dK8t9OLUR.count
-    tVal = pData_NxIhNARqldyJyY2PfT03dK8t9OLUR.getAt(pData_NxIhNARqldyJyY2PfT03dK8t9OLUR.count - i - 1)
+    tVal = pData_NxIhNARqldyJyY2PfT03dK8t9OLUR.getAt((pData_NxIhNARqldyJyY2PfT03dK8t9OLUR.count - (i - 1)))
     if tUseKey then
       tVal = me.encode(tVal)
     end if
     tdata.setAt(i, tVal)
-    i = 1 + i
+    i = (1 + i)
   end repeat
   return(tdata)
 end
 
 on encode me, tPlain 
   if the traceScript then
-    return(0)
+    return FALSE
   end if
   the traceScript = 0
   _player.traceScript = 0
@@ -863,17 +863,17 @@ on encode me, tPlain
   tCipher = tPlain
   i = 1
   repeat while i <= tIterations
-    tSeed = ((69069 * tSeed) + (139 * i) + 92541 mod 10000)
-    tSeed = tSeed + integer(power(i, 3))
-    tSeed = ((tSBox.getAt((i mod tSBox.count) + 1) * tSeed) + 2541 mod 10000)
+    tSeed = ((((69069 * tSeed) + (139 * i)) + 92541) mod 10000)
+    tSeed = (tSeed + integer(power(i, 3)))
+    tSeed = (((tSBox.getAt(((i mod tSBox.count) + 1)) * tSeed) + 2541) mod 10000)
     tCipher = bitXor(tSeed, tCipher)
-    tCipher = bitXor(1379 + tSBox.getAt((i mod tSBox.count) + 1), tCipher)
-    tCipher = bitXor(((14 * tSBox.getAt((i mod tSBox.count) + 1)) + 13 mod 10000), tCipher)
+    tCipher = bitXor((1379 + tSBox.getAt(((i mod tSBox.count) + 1))), tCipher)
+    tCipher = bitXor((((14 * tSBox.getAt(((i mod tSBox.count) + 1))) + 13) mod 10000), tCipher)
     tCipher = (tCipher * 2)
     tHighBit = bitAnd(tCipher, 32768)
     tCipher = bitAnd(tCipher, 32767)
     tCipher = bitOr(tCipher, tHighBit <> 0)
-    i = 1 + i
+    i = (1 + i)
   end repeat
   tCipher = bitXor(7639, tCipher)
   return(tCipher)
@@ -881,7 +881,7 @@ end
 
 on decode me, tInput 
   if the traceScript then
-    return(0)
+    return FALSE
   end if
   the traceScript = 0
   _player.traceScript = 0
@@ -892,11 +892,11 @@ on decode me, tInput
   tSeedCycle = []
   i = 1
   repeat while i <= tIterations
-    tSeed = ((69069 * tSeed) + (139 * i) + 92541 mod 10000)
-    tSeed = tSeed + integer(power(i, 3))
-    tSeed = ((tSBox.getAt((i mod tSBox.count) + 1) * tSeed) + 2541 mod 10000)
+    tSeed = ((((69069 * tSeed) + (139 * i)) + 92541) mod 10000)
+    tSeed = (tSeed + integer(power(i, 3)))
+    tSeed = (((tSBox.getAt(((i mod tSBox.count) + 1)) * tSeed) + 2541) mod 10000)
     tSeedCycle.add(tSeed)
-    i = 1 + i
+    i = (1 + i)
   end repeat
   tCipher = tInput
   tCipher = bitXor(7639, tCipher)
@@ -906,11 +906,11 @@ on decode me, tInput
     tCipher = (tCipher / 2)
     tLowBit = (tLowBit * 16384)
     tCipher = bitOr(tCipher, tLowBit)
-    tOffset = tIterations - i + 1
+    tOffset = ((tIterations - i) + 1)
     tCipher = bitXor(tSeedCycle.getAt(tOffset), tCipher)
-    tCipher = bitXor(1379 + tSBox.getAt((tOffset mod tSBox.count) + 1), tCipher)
-    tCipher = bitXor(((14 * tSBox.getAt((tOffset mod tSBox.count) + 1)) + 13 mod 10000), tCipher)
-    i = 1 + i
+    tCipher = bitXor((1379 + tSBox.getAt(((tOffset mod tSBox.count) + 1))), tCipher)
+    tCipher = bitXor((((14 * tSBox.getAt(((tOffset mod tSBox.count) + 1))) + 13) mod 10000), tCipher)
+    i = (1 + i)
   end repeat
   return(tCipher)
 end

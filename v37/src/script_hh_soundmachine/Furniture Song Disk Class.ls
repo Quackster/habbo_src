@@ -10,12 +10,12 @@ on construct me
   pSongAuthor = ""
   pTextTemplate = getText("song_disk_text_template")
   callAncestor(#construct, [me])
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
   callAncestor(#deconstruct, [me])
-  return(1)
+  return TRUE
 end
 
 on define me, tProps 
@@ -44,7 +44,7 @@ on define me, tProps
       end if
     end if
   end if
-  return(1)
+  return TRUE
 end
 
 on getInfo me 
@@ -58,7 +58,7 @@ on getInfo me
   i = min(tTagList.count, tTextList.count)
   repeat while i >= 1
     tCustom = replaceChunks(tCustom, tTagList.getAt(i), tTextList.getAt(i))
-    i = 255 + i
+    i = (255 + i)
   end repeat
   tInfo.setAt(#custom, tCustom)
   return(tInfo)
@@ -66,7 +66,7 @@ end
 
 on select me 
   return(callAncestor(#select, [me]))
-  return(1)
+  return TRUE
 end
 
 on setState me, tNewState 

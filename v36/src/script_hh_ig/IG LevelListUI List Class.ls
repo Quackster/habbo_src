@@ -5,19 +5,19 @@ on construct me
   pPageVisibleSize = 11
   pPageMaxSize = 20
   pListItemHeight = 25
-  return(me.construct())
+  return(me.ancestor.construct())
 end
 
 on deconstruct me 
   pBackImages = []
-  return(me.deconstruct())
+  return(me.ancestor.deconstruct())
 end
 
 on addWindows me 
   me.pWindowID = "cr"
   tWrapObjRef = me.getWindowWrapper(me)
-  if tWrapObjRef = 0 then
-    return(0)
+  if (tWrapObjRef = 0) then
+    return FALSE
   end if
   tWrapObjRef.moveTo(90, 70)
   tSetID = me.pWindowSetId & "_top"
@@ -28,33 +28,33 @@ on addWindows me
   tWrapObjRef.addOneWindow(me.getWindowId("w1"), "ig_title_choose_lvl.window", tSetID)
   tWrapObjRef.addOneWindow(me.getWindowId("list"), "ig_gamelist.window", tSetID)
   tWrapObjRef.addOneWindow(me.getWindowId("btm"), "ig_frame_blank_btm.window", tSetID)
-  return(1)
+  return TRUE
 end
 
 on render me 
   tWrapObjRef = me.getWindowWrapper(me)
-  if tWrapObjRef = 0 then
-    return(0)
+  if (tWrapObjRef = 0) then
+    return FALSE
   end if
   tElement = tWrapObjRef.getElement("ig_gamelist", me.getWindowId("list"))
   if tElement <> 0 then
     tImage = me.renderListImage()
-    if ilk(tImage) = #image then
+    if (ilk(tImage) = #image) then
       tElement.feedImage(tImage)
     end if
   end if
-  return(1)
+  return TRUE
 end
 
 on getItemIndexFromPoint me, tpoint 
-  tItemID = (tpoint.locV / pListItemHeight) + 1
+  tItemID = ((tpoint.locV / pListItemHeight) + 1)
   return(tItemID)
 end
 
 on renderListImage me 
   tService = me.getIGComponent("LevelList")
-  if tService = 0 then
-    return(0)
+  if (tService = 0) then
+    return FALSE
   end if
   tIDList = tService.getMainListIds(pPageMaxSize)
   tIdCount = tIDList.count
@@ -76,48 +76,48 @@ on renderListImage me
   i = 1
   repeat while i <= tIdCount
     tID = tIDList.getAt(i)
-    if tID = tSelectedLevelId then
+    if (tID = tSelectedLevelId) then
       me.renderSlotBackground(tImage, pBackImages.getAt(3), i)
     else
-      me.renderSlotBackground(tImage, pBackImages.getAt(tBackImage + 1), i)
+      me.renderSlotBackground(tImage, pBackImages.getAt((tBackImage + 1)), i)
     end if
     tItemRef = tService.getListEntry(tID)
     me.renderShort(tImage, tItemRef, i)
     tBackImage = not tBackImage
-    i = 1 + i
+    i = (1 + i)
   end repeat
-  i = tIdCount + 1
+  i = (tIdCount + 1)
   repeat while i <= pPageVisibleSize
-    me.renderSlotBackground(tImage, pBackImages.getAt(tBackImage + 1), i)
+    me.renderSlotBackground(tImage, pBackImages.getAt((tBackImage + 1)), i)
     tBackImage = not tBackImage
-    i = 1 + i
+    i = (1 + i)
   end repeat
   return(tImage)
 end
 
 on renderShort me, tImage, tGameRef, tCount 
-  tOffsetV = (pListItemHeight * tCount - 1)
+  tOffsetV = (pListItemHeight * (tCount - 1))
   tIcon = tGameRef.getProperty(#game_type_icon)
-  if ilk(tIcon) = #image then
-    tPicOffsetH = (19 - tIcon.width / 2) + 8
-    tPicOffsetV = (20 - tIcon.height / 3) + 3
-    tImage.copyPixels(tIcon, tIcon.rect + rect(tPicOffsetH, tOffsetV + tPicOffsetV, tPicOffsetH, tOffsetV + tPicOffsetV), tIcon.rect, [#ink:36])
+  if (ilk(tIcon) = #image) then
+    tPicOffsetH = (((19 - tIcon.width) / 2) + 8)
+    tPicOffsetV = (((20 - tIcon.height) / 3) + 3)
+    tImage.copyPixels(tIcon, (tIcon.rect + rect(tPicOffsetH, (tOffsetV + tPicOffsetV), tPicOffsetH, (tOffsetV + tPicOffsetV))), tIcon.rect, [#ink:36])
   end if
   tGameNameWriter = me.getPlainWriter()
   tTextImage = tGameNameWriter.render(tGameRef.getProperty(#level_name))
-  if ilk(tTextImage) = #image then
+  if (ilk(tTextImage) = #image) then
     tPicOffsetH = 35
     tPicOffsetV = 8
-    tImage.copyPixels(tTextImage, tTextImage.rect + rect(tPicOffsetH, tPicOffsetV + tOffsetV, tPicOffsetH, tPicOffsetV + tOffsetV), tTextImage.rect)
+    tImage.copyPixels(tTextImage, (tTextImage.rect + rect(tPicOffsetH, (tPicOffsetV + tOffsetV), tPicOffsetH, (tPicOffsetV + tOffsetV))), tTextImage.rect)
   end if
-  return(1)
+  return TRUE
 end
 
 on renderSlotBackground me, tImage, tBackImage, tCount 
-  tOffsetY = (tCount - 1 * pListItemHeight)
-  tTargetRect = rect(0, tOffsetY, tImage.width, tOffsetY + pListItemHeight)
+  tOffsetY = ((tCount - 1) * pListItemHeight)
+  tTargetRect = rect(0, tOffsetY, tImage.width, (tOffsetY + pListItemHeight))
   tImage.copyPixels(tBackImage, tTargetRect, tBackImage.rect)
-  return(1)
+  return TRUE
 end
 
 on cacheBackImages me 
@@ -134,8 +134,8 @@ end
 
 on setScrollBar me, tstate 
   tWndObj = getWindow(me.getWindowId("list"))
-  if tWndObj = 0 then
-    return(0)
+  if (tWndObj = 0) then
+    return FALSE
   end if
   tElement = tWndObj.getElement("ig_scrollbar")
   if tElement <> 0 then
@@ -145,5 +145,5 @@ on setScrollBar me, tstate
   if tElement <> 0 then
     tElement.setProperty(#visible, tstate)
   end if
-  return(1)
+  return TRUE
 end

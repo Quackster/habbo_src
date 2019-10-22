@@ -1,19 +1,19 @@
 on construct me 
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
-  return(1)
+  return TRUE
 end
 
 on Refresh me, tTopic, tdata 
-  if tdata = 0 then
-    return(0)
+  if (tdata = 0) then
+    return FALSE
   end if
-  if tdata.getAt(#reason) = "game_deleted" then
+  if (tdata.getAt(#reason) = "game_deleted") then
     tAlertStr = "gs_error_game_deleted"
   else
-    if tdata.getAt(#reason) = "nocredits" then
+    if (tdata.getAt(#reason) = "nocredits") then
       tAlertStr = "gs_error_nocredits"
     else
       tAlertStr = "gs_error_" & tdata.getAt(#request) & "_" & tdata.getAt(#reason)

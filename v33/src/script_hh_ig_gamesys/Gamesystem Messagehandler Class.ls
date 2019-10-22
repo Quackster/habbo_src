@@ -9,16 +9,16 @@ on deconstruct me
 end
 
 on defineClient me, tID 
-  return(1)
+  return TRUE
 end
 
 on handle_message me, tMsg 
   tIdStr = pMsgIds.getaProp(tMsg.getaProp(#subject))
-  if tIdStr = void() then
-    return(0)
+  if (tIdStr = void()) then
+    return FALSE
   end if
   call(#distributeEvent, me.getProcManager(), symbol("msgstruct_" & tIdStr), tMsg)
-  return(1)
+  return TRUE
 end
 
 on regMsgList me, tBool 
@@ -56,7 +56,7 @@ on regMsgList me, tBool
   i = 1
   repeat while i <= pMsgIds.count
     tMsgs.setaProp(pMsgIds.getPropAt(i), #handle_message)
-    i = 1 + i
+    i = (1 + i)
   end repeat
   tCmds = [:]
   tCmds.setaProp("MOVE", 75)
@@ -85,5 +85,5 @@ on regMsgList me, tBool
     unregisterListener(getVariable("connection.info.id", #info), me.getID(), tMsgs)
     unregisterCommands(getVariable("connection.info.id", #info), me.getID(), tCmds)
   end if
-  return(1)
+  return TRUE
 end

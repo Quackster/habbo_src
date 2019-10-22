@@ -37,14 +37,14 @@ end
 
 on createNode me, tdata, tWidth, tLevel 
   if ilk(tdata) <> #propList then
-    return(0)
+    return FALSE
   end if
   tNode = createObject(#random, "Treeview Node Class")
   tNode.feedData([#level:tLevel, #navigateable:tdata.navigateable, #color:tdata.color, #icon:tdata.icon, #pageid:tdata.pageid, #nodename:tdata.nodename], tWidth)
   if not voidp(tdata.getaProp(#subnodes)) then
     repeat while tdata.subnodes <= tWidth
       tSubNodeData = getAt(tWidth, tdata)
-      tSubNode = me.createNode(tSubNodeData, tWidth, tLevel + 1)
+      tSubNode = me.createNode(tSubNodeData, tWidth, (tLevel + 1))
       tNode.addChild(tSubNode)
     end repeat
   end if

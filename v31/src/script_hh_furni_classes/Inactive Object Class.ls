@@ -1,4 +1,3 @@
-on select(me)
-  return(0)
-  exit
+on select me 
+  return FALSE
 end

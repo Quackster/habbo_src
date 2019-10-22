@@ -54,7 +54,7 @@ on parseIndexNode me, tMsg
     i = 1
     repeat while i <= tSubnodeCount
       tNodeProps.getAt(#subnodes).add(me.parseIndexNode(tMsg))
-      i = 1 + i
+      i = (1 + i)
     end repeat
   end if
   return(tNodeProps)
@@ -85,7 +85,7 @@ on parseOffer me, tMsg
     i = 1
     repeat while i <= tProductCount
       tOfferData.getAt(#content).add(me.parseProductData(tMsg))
-      i = 1 + i
+      i = (1 + i)
     end repeat
   end if
   return(tOfferData)
@@ -106,7 +106,7 @@ on handle_catalogpage me, tMsg
   i = 1
   repeat while i <= tImageCount
     tPageData.getAt(#localization).getAt(#images).add(tConn.GetStrFrom())
-    i = 1 + i
+    i = (1 + i)
   end repeat
   tTextCount = tConn.GetIntFrom()
   i = 1
@@ -114,42 +114,42 @@ on handle_catalogpage me, tMsg
     tText = tConn.GetStrFrom()
     tText = replaceChunks(tText, "\\n", "\r")
     tPageData.getAt(#localization).getAt(#texts).add(tText)
-    i = 1 + i
+    i = (1 + i)
   end repeat
   tOfferCount = tConn.GetIntFrom()
   tPageData.setAt(#offers, [])
   i = 1
   repeat while i <= tOfferCount
     tPageData.getAt(#offers).add(me.parseOffer(tMsg))
-    i = 1 + i
+    i = (1 + i)
   end repeat
   me.getComponent().updatePageData(tPageData.getAt(#pageid), tPageData)
 end
 
 on handle_purchasenotallowed me, tMsg 
   if voidp(tMsg.connection) then
-    return(0)
+    return FALSE
   end if
-  tCode = tMsg.GetIntFrom(tMsg)
-  if tCode = 0 then
+  tCode = tMsg.connection.GetIntFrom(tMsg)
+  if (tCode = 0) then
   else
-    if tCode = 1 then
+    if (tCode = 1) then
       return(executeMessage(#alert, [#Msg:"catalog_purchase_not_allowed_hc", #modal:1]))
     end if
   end if
-  return(0)
+  return FALSE
 end
 
 on handle_purse me, tMsg 
   tPlaySnd = getObject(#session).exists("user_walletbalance")
-  tCredits = integer(getLocalFloat(tMsg.getProp(#word, 1)))
+  tCredits = integer(getLocalFloat(tMsg.content.getProp(#word, 1)))
   getObject(#session).set("user_walletbalance", tCredits)
   me.getInterface().updatePurseSaldo()
   executeMessage(#updateCreditCount, tCredits)
   if tPlaySnd then
     playSound("naw_snd_cash_cat", #cut, [#loopCount:1, #infiniteloop:0, #volume:255])
   end if
-  return(1)
+  return TRUE
 end
 
 on handle_purchase_error me, tMsg 
@@ -161,29 +161,29 @@ on handle_purchase_ok me, tMsg
 end
 
 on handle_purchase_nobalance me, tMsg 
-  tNotEnoughCredits = tMsg.GetIntFrom()
-  tNotEnoughPixels = tMsg.GetIntFrom()
+  tNotEnoughCredits = tMsg.connection.GetIntFrom()
+  tNotEnoughPixels = tMsg.connection.GetIntFrom()
   me.getInterface().showNoBalance(tNotEnoughCredits, tNotEnoughPixels)
 end
 
 on handle_tickets me, tMsg 
-  tNum = integer(tMsg.getPropRef(#line, 1).getProp(#word, 1))
+  tNum = integer(tMsg.content.getPropRef(#line, 1).getProp(#word, 1))
   if not integerp(tNum) then
-    return(0)
+    return FALSE
   end if
   getObject(#session).set("user_ph_tickets", tNum)
   executeMessage(#updateTicketCount, tNum)
-  return(1)
+  return TRUE
 end
 
 on handle_voucher_redeem_ok me, tMsg 
-  tProductName = tMsg.GetStrFrom()
-  tProductDesc = tMsg.GetStrFrom()
+  tProductName = tMsg.connection.GetStrFrom()
+  tProductDesc = tMsg.connection.GetStrFrom()
   me.getInterface().showVoucherRedeemOk(tProductName, tProductDesc)
 end
 
 on handle_voucher_redeem_error me, tMsg 
-  tError = tMsg.GetStrFrom()
+  tError = tMsg.connection.GetStrFrom()
   me.getInterface().showVoucherRedeemError(tError)
 end
 
@@ -218,5 +218,5 @@ on regMsgList me, tBool
     unregisterListener(getVariable("connection.info.id"), me.getID(), tMsgs)
     unregisterCommands(getVariable("connection.info.id"), me.getID(), tCmds)
   end if
-  return(1)
+  return TRUE
 end

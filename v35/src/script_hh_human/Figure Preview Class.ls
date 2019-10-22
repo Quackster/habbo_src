@@ -2,10 +2,10 @@ on createTemplateHuman me, tSize, tdir, tAction, tActionProps
   tObjectName = "temp_humanobj"
   tFigure = getObject(#session).GET("user_figure").duplicate()
   tmember = me.createTemplateFigure(tObjectName, tFigure, tSize, tdir)
-  if tAction = "remove" then
+  if (tAction = "remove") then
     removeObject(tObjectName)
   else
-    if tAction = "reset" then
+    if (tAction = "reset") then
       call(#resetTemplateHuman, [getObject(tObjectName)])
     else
       call(symbol("action_" & tAction), [getObject(tObjectName)], tActionProps)
@@ -17,7 +17,7 @@ end
 on getHumanPartImg me, tPartList, tFigure, tdir, tSize 
   if voidp(tFigure) then
     tFigure = getObject(#session).GET("user_figure")
-    if tFigure.ilk = #propList then
+    if (tFigure.ilk = #propList) then
       tFigure = tFigure.duplicate()
     else
       return(error(me, "Figure data not found!", #getHumanPartImg, #major))
@@ -40,7 +40,7 @@ end
 
 on createHumanPartPreview me, tWindowTitle, tElement, tPartList, tFigure, tdir, tSize 
   tTempPartImg = me.getHumanPartImg(tPartList, tFigure, tdir, tSize)
-  if tTempPartImg.ilk = #image then
+  if (tTempPartImg.ilk = #image) then
     me.feedHumanPreview(tWindowTitle, tElement, tTempPartImg)
   end if
 end
@@ -57,7 +57,7 @@ on createTemplateFigure me, tObjectName, tFigure, tSize, tdir
     tProps.setAt(#x, 10000)
     tProps.setAt(#y, 10000)
     tProps.setAt(#h, 10000)
-    if tSize = "sh" then
+    if (tSize = "sh") then
       tProps.setAt(#type, 32)
     else
       tProps.setAt(#type, 64)
@@ -72,13 +72,13 @@ end
 on feedHumanPreview me, tWindowTitle, tElemID, tTempPartImg 
   if windowExists(tWindowTitle) then
     tElem = getWindow(tWindowTitle).getElement(tElemID)
-    if tElem = 0 then
-      return(0)
+    if (tElem = 0) then
+      return FALSE
     end if
     tPrewImg = image(tElem.getProperty(#width), tElem.getProperty(#height), 16)
-    tdestrect = tPrewImg.rect - tTempPartImg.rect
+    tdestrect = (tPrewImg.rect - tTempPartImg.rect)
     tMargins = rect(0, 0, 0, 0)
-    tdestrect = rect((tdestrect.width / 2), (tdestrect.height / 2), tTempPartImg.width + (tdestrect.width / 2), (tdestrect.height / 2) + tTempPartImg.height) + tMargins
+    tdestrect = (rect((tdestrect.width / 2), (tdestrect.height / 2), (tTempPartImg.width + (tdestrect.width / 2)), ((tdestrect.height / 2) + tTempPartImg.height)) + tMargins)
     tPrewImg.copyPixels(tTempPartImg, tdestrect, tTempPartImg.rect, [#ink:8])
     tElem.clearImage()
     tElem.feedImage(tPrewImg)

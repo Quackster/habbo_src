@@ -9,7 +9,7 @@ on construct me
   receivePrepare(me.getID())
   me.prepareRoom()
   me.regMsgList(1)
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
@@ -20,7 +20,7 @@ on deconstruct me
   removeObject(#waterripples)
   closeThread(#mountain)
   closeThread(#paalu)
-  return(1)
+  return TRUE
 end
 
 on prepareRoom me 
@@ -29,8 +29,8 @@ on prepareRoom me
   repeat while f <= 2
     tsprite = getThread(#room).getInterface().getRoomVisualizer().getSprById("curtains" & f)
     pCurtainsLocZ.setAt("curtains" & f, tsprite.locZ)
-    tsprite.locZ = tsprite.locZ - 2000
-    f = 1 + f
+    tsprite.locZ = (tsprite.locZ - 2000)
+    f = (1 + f)
   end repeat
   tProps = [:]
   pSplashs = [:]
@@ -62,27 +62,27 @@ on handle_dressing_room_curtain me, tMsg
   tConn = tMsg.connection
   tID = tConn.GetStrFrom()
   tStateInt = tConn.GetIntFrom()
-  if tStateInt = 0 then
+  if (tStateInt = 0) then
     tmember = member(getmemnum("dew_verho_kiinni"))
-    tlocz = pCurtainsLocZ.getAt(tID) - 1000
+    tlocz = (pCurtainsLocZ.getAt(tID) - 1000)
   else
-    if tStateInt = 1 then
+    if (tStateInt = 1) then
       tmember = member(getmemnum("dew_verho_auki"))
-      tlocz = pCurtainsLocZ.getAt(tID) - 2000
+      tlocz = (pCurtainsLocZ.getAt(tID) - 2000)
     end if
   end if
   tID = "curtains" & tID.getProp(#char, tID.length)
   tRoomVis = getThread(#room).getInterface().getRoomVisualizer()
-  if tRoomVis = 0 then
-    return(0)
+  if (tRoomVis = 0) then
+    return FALSE
   end if
   tSpr = tRoomVis.getSprById(tID)
-  if tSpr = 0 then
-    return(0)
+  if (tSpr = 0) then
+    return FALSE
   end if
   tSpr.setMember(tmember)
   tSpr.locZ = tlocz
-  return(1)
+  return TRUE
 end
 
 on handle_pool_stair_splash me, tMsg 
@@ -100,7 +100,7 @@ on prepare me
     i = 1
     repeat while i <= 3
       tRoomVis.getSprById("putous" && i).member = member(getmemnum("dew_putous" & i & "_" & random(7)))
-      i = 1 + i
+      i = (1 + i)
     end repeat
   end if
   if pSplashs.count > 0 then
@@ -120,5 +120,5 @@ on regMsgList me, tBool
     unregisterListener(getVariable("connection.info.id"), me.getID(), tMsgs)
     unregisterCommands(getVariable("connection.info.id"), me.getID(), tCmds)
   end if
-  return(1)
+  return TRUE
 end

@@ -5,7 +5,7 @@ on construct me
   tMessages.setaProp(353, #handle_webShortcut)
   registerListener(getVariable("connection.info.id"), me.getID(), tMessages)
   registerCommands(getVariable("connection.info.id"), me.getID(), ["CREATEFLAT":29])
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
@@ -15,22 +15,22 @@ on deconstruct me
   tMessages.setaProp(353, #handle_webShortcut)
   unregisterListener(getVariable("connection.info.id"), me.getID(), tMessages)
   unregisterCommands(getVariable("connection.info.id"), me.getID(), ["CREATEFLAT":29])
-  return(1)
+  return TRUE
 end
 
 on handle_flatcreated me, tMsg 
-  tID = content.getPropRef(#line, 1).getProp(#word, 1)
-  tName = content.getProp(#line, 2)
+  tID = tMsg.content.getPropRef(#line, 1).getProp(#word, 1)
+  tName = tMsg.content.getProp(#line, 2)
   me.getInterface().flatcreated(tName, tID)
 end
 
 on handle_error me, tMsg 
   tErr = tMsg.content
-  if tErr = "Error creating a private room" then
+  if (tErr = "Error creating a private room") then
     executeMessage(#alert, [#Msg:getText("roomatic_create_error")])
     return(me.getInterface().showHideRoomKiosk())
   end if
-  return(1)
+  return TRUE
 end
 
 on handle_webShortcut me, tMsg 
@@ -39,9 +39,9 @@ on handle_webShortcut me, tMsg
     return(error(me, "Connection not found.", #handle_webShortcut, #major))
   end if
   tRequestId = tConn.GetIntFrom()
-  if tRequestId = 1 then
+  if (tRequestId = 1) then
     executeMessage(#open_roomkiosk)
-    return(1)
+    return TRUE
   end if
-  return(0)
+  return FALSE
 end

@@ -36,7 +36,7 @@ on mergeWindow me, tParentWndObj
     if pTextElements.count >= i then
       me.setElementText(pWndObj, pTextElements.getAt(i), tTextFields.getAt(i))
     end if
-    i = 1 + i
+    i = (1 + i)
   end repeat
   tBitmaps = me.getPropRef(#pPageData, #localization).getAt(#images)
   pPageItemDownloader.defineCallback(me, #downloadCompleted)
@@ -113,11 +113,11 @@ on downloadCompleted me, tProps
 end
 
 on handleClick me, tEvent, tSprID, tProp 
-  if tEvent = #mouseUp then
-    if tSprID = "ctlg_txt3" then
+  if (tEvent = #mouseUp) then
+    if (tSprID = "ctlg_txt3") then
       getThread(#catalogue).getInterface().followLink(me.getPropRef(#pPageData, #localization).getAt(#texts).getAt(7))
     else
-      if tSprID = "redeem" then
+      if (tSprID = "redeem") then
         if voidp(pWndObj) then
           return("\r", error(me, "Missing handle to window object!", #handleClick, #major))
         end if
@@ -128,8 +128,8 @@ on handleClick me, tEvent, tSprID, tProp
       end if
     end if
   else
-    if tEvent = #keyUp then
-      if tSprID = "voucher_code" then
+    if (tEvent = #keyUp) then
+      if (tSprID = "voucher_code") then
         if voidp(pWndObj) then
           return("\r", error(me, "Missing handle to window object!", #handleClick, #major))
         end if

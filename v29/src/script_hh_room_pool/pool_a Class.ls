@@ -5,7 +5,7 @@ on construct me
   tProps = [:]
   pSplashs = [:]
   initThread("thread.pelle")
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
@@ -16,7 +16,7 @@ on deconstruct me
   end if
   pSplashs = void()
   me.removeArrowCursor()
-  return(1)
+  return TRUE
 end
 
 on prepare me 
@@ -25,8 +25,8 @@ on prepare me
   repeat while f <= 2
     tSpr = getThread(#room).getInterface().getRoomVisualizer().getSprById("curtains" & f)
     pCurtainsLocZ.setAt("curtains" & f, tSpr.locZ)
-    tSpr.locZ = tSpr.locZ - 2000
-    f = 1 + f
+    tSpr.locZ = (tSpr.locZ - 2000)
+    f = (1 + f)
   end repeat
   tProps = [:]
   pSplashs = [:]
@@ -36,7 +36,7 @@ on prepare me
   tProps.setAt(#startFrame, 0)
   tProps.setAt(#MemberName, "splash_")
   tProps.setAt(#id, "Splash0")
-  tProps.setAt(#loc, point(the stageRight + 1000, 0))
+  tProps.setAt(#loc, point((the stageRight + 1000), 0))
   pSplashs.getAt("Splash0").setData(tProps)
   if not objectExists(#waterripples) then
     createObject(#waterripples, "Water Ripple Effects Class")
@@ -57,7 +57,7 @@ end
 
 on showprogram me, tMsg 
   if voidp(tMsg) then
-    return(0)
+    return FALSE
   end if
   tDest = tMsg.getAt(#show_dest)
   tCommand = tMsg.getAt(#show_command)
@@ -72,24 +72,24 @@ on showprogram me, tMsg
 end
 
 on curtains me, tID, tCommand 
-  if tCommand = "open" then
+  if (tCommand = "open") then
     tmember = getMember("verhot auki")
   else
-    if tCommand = "close" then
+    if (tCommand = "close") then
       tmember = getMember("verho kiinni")
     end if
   end if
   tVisObj = getThread(#room).getInterface().getRoomVisualizer()
-  if tVisObj = 0 then
-    return(0)
+  if (tVisObj = 0) then
+    return FALSE
   end if
   tVisObj.getSprById(tID).setMember(tmember)
-  return(1)
+  return TRUE
 end
 
 on splash me, tDest, tCommand 
   if voidp(pSplashs.getAt(tDest)) then
-    return(0)
+    return FALSE
   end if
   call(#Activate, pSplashs.getAt(tDest))
 end
@@ -109,7 +109,7 @@ on poolArrows me
   if tloc.ilk <> #list then
     return(me.removeArrowCursor())
   end if
-  if tStartPos.getAt(1) - tloc.getAt(1) = tStartPos.getAt(2) - tloc.getAt(2) then
+  if ((tStartPos.getAt(1) - tloc.getAt(1)) = (tStartPos.getAt(2) - tloc.getAt(2))) then
     pArrowCursor = 1
     cursor([member(getmemnum("cursor_arrow_r")), member(getmemnum("cursor_arrow_r_mask"))])
   else
@@ -120,13 +120,13 @@ end
 on removeArrowCursor me 
   pArrowCursor = 0
   cursor(-1)
-  return(1)
+  return TRUE
 end
 
 on poolTeleport me, tEvent, tSprID, tParm 
   tMyIndex = getObject(#session).GET("user_index")
   tObject = getThread(#room).getComponent().getUserObject(tMyIndex)
-  if tObject = 0 then
+  if (tObject = 0) then
     return(error(me, "Userobject not found:" && tMyIndex, #poolTeleport))
   end if
   tloc = tObject.getLocation()
@@ -134,7 +134,7 @@ on poolTeleport me, tEvent, tSprID, tParm
   if not tSprID contains "pool_clickarea" and tloc.getAt(3) < 7 then
     getConnection(getVariable("connection.room.id")).send("MOVE", [#short:21, #short:28])
   else
-    if tSprID contains "pool_clickarea" and tloc.getAt(3) = 7 then
+    if tSprID contains "pool_clickarea" and (tloc.getAt(3) = 7) then
       getConnection(getVariable("connection.room.id")).send("MOVE", [#short:20, #short:28])
     end if
   end if

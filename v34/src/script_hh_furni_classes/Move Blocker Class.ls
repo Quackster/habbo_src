@@ -1,4 +1,4 @@
 on select me 
   callAncestor(#select, [me])
-  return(1)
+  return TRUE
 end

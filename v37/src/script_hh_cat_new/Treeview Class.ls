@@ -46,7 +46,7 @@ on createNode me, tdata, tWidth, tLevel
   end if
   sendProcessTracking(523)
   tNode = createObject(#random, "Treeview Node Class")
-  if tNode = 0 then
+  if (tNode = 0) then
     return(error(me, "Unable to create node", #createNode, #major))
   end if
   tNodeData = [:]
@@ -64,7 +64,7 @@ on createNode me, tdata, tWidth, tLevel
       tProp = tNodeData.getPropAt(tNo)
       return(error(me, "Malformed node data" && tProp, #createNode, #major))
     end if
-    tNo = 1 + tNo
+    tNo = (1 + tNo)
   end repeat
   sendProcessTracking(525)
   tSuccess = tNode.feedData(tNodeData, tWidth)
@@ -73,11 +73,11 @@ on createNode me, tdata, tWidth, tLevel
     return(error(me, "Unable to feed node data", #createNode, #major))
   end if
   tSubNodes = tdata.getaProp(#subnodes)
-  if ilk(tSubNodes) = #list then
+  if (ilk(tSubNodes) = #list) then
     sendProcessTracking(527)
     repeat while tSubNodes <= tWidth
       tSubNodeData = getAt(tWidth, tdata)
-      tSubNode = me.createNode(tSubNodeData, tWidth, tLevel + 1)
+      tSubNode = me.createNode(tSubNodeData, tWidth, (tLevel + 1))
       if tSubNode <> 0 then
         tNode.addChild(tSubNode)
       end if

@@ -1,57 +1,55 @@
-on construct(me)
+property pAssetsLoaded, pState, pUpdateCounter, pCastLoadIdList, pCurrentLoadedCasts
+
+on construct me 
   pCurrentLoadedCasts = []
   pCastLoadIdList = []
   registerMessage(#leaveRoom, me.getID(), #leaveRoom)
   pAssetsLoaded = 0
   pState = 0
-  return(1)
-  exit
+  return TRUE
 end
 
-on deconstruct(me)
+on deconstruct me 
   unregisterMessage(#leaveRoom, me.getID())
   if pAssetsLoaded then
     me.unloadAssets()
   end if
   pState = 0
-  return(me.deconstruct())
-  exit
+  return(me.ancestor.deconstruct())
 end
 
-on leaveRoom(me)
+on leaveRoom me 
   if pAssetsLoaded then
     me.unloadAssets()
   end if
-  return(1)
-  exit
+  return TRUE
 end
 
-on update(me)
-  if pState = 0 then
+on update me 
+  if (pState = 0) then
     return(removeUpdate(me.getID()))
   end if
-  pUpdateCounter = pUpdateCounter + 1
+  pUpdateCounter = (pUpdateCounter + 1)
   if pUpdateCounter < 5 then
-    return(1)
+    return TRUE
   end if
   pUpdateCounter = 0
   me.roomCastsProgress()
-  return(1)
-  exit
+  return TRUE
 end
 
-on startCastDownload(me, tdata)
+on startCastDownload me, tdata 
   if not listp(tdata) then
-    return(0)
+    return FALSE
   end if
   tGameType = tdata.getaProp(#game_type)
   tGameTypeService = me.getIGComponent("GameTypes")
-  if tGameTypeService = 0 then
-    return(0)
+  if (tGameTypeService = 0) then
+    return FALSE
   end if
   tCastList = tGameTypeService.getAction(tGameType, #get_casts)
-  if tCastList = 0 then
-    return(0)
+  if (tCastList = 0) then
+    return FALSE
   end if
   tRoomCastVarPrefix = "room.cast."
   tRoomCastList = getObject(#room_component).addToCastDownloadList(tRoomCastVarPrefix)
@@ -73,74 +71,68 @@ on startCastDownload(me, tdata)
     pState = #LOADING
     receiveUpdate(me.getID())
   end if
-  return(1)
-  exit
+  return TRUE
 end
 
-on roomCastsProgress(me, tParam1, tParam2)
+on roomCastsProgress me, tParam1, tParam2 
   tLoadingStatus = me.getLoadingStatus()
-  if tLoadingStatus = 0 then
+  if (tLoadingStatus = 1) then
     return(me.roomCastsLoaded())
   end if
   tHandler = me.getHandler()
-  if tHandler = 0 then
-    return(0)
+  if (tHandler = 0) then
+    return FALSE
   end if
   tHandler.send_LOAD_STAGE_READY(tLoadingStatus)
-  return(1)
-  exit
+  return TRUE
 end
 
-on roomCastsLoaded(me, tParam1, tParam2)
+on roomCastsLoaded me, tParam1, tParam2 
   if me.getLoadingStatus() < 1 then
-    return(1)
+    return TRUE
   end if
   pState = 0
   removeUpdate(me.getID())
   tHandler = me.getHandler()
-  if tHandler = 0 then
-    return(0)
+  if (tHandler = 0) then
+    return FALSE
   end if
   tHandler.send_LOAD_STAGE_READY(1)
-  return(1)
-  exit
+  return TRUE
 end
 
-on queueAssetList(me, tAssetData)
-  return(1)
-  exit
+on queueAssetList me, tAssetData 
+  return TRUE
 end
 
-on cancelLoading(me)
+on cancelLoading me 
   if not pAssetsLoaded then
-    return(1)
+    return TRUE
   end if
   put("* TODO: IG GameAssetImport Class.cancelLoading")
-  return(1)
-  exit
+  return TRUE
 end
 
-on getLoadingStatus(me)
+on getLoadingStatus me 
   if not pAssetsLoaded then
-    return(0)
+    return FALSE
   end if
-  if pCastLoadIdList.count = 0 then
-    return(1)
+  if (pCastLoadIdList.count = 0) then
+    return TRUE
   end if
   tAverage = 0
-  repeat while me <= undefined
+  repeat while pCastLoadIdList <= undefined
     tCastLoadId = getAt(undefined, undefined)
-    tAverage = getCastLoadPercent(tCastLoadId) + tAverage
+    tAverage = (getCastLoadPercent(tCastLoadId) + tAverage)
   end repeat
-  tAverage = tAverage / pCastLoadIdList.count
+  tAverage = (tAverage / pCastLoadIdList.count)
   return(tAverage)
-  exit
 end
 
-on unloadAssets(me)
-  return(1)
+on unloadAssets me 
+  return TRUE
   if not pAssetsLoaded then
-    return(1)
+    return TRUE
   end if
   pAssetsLoaded = 0
   tFinishedList = []
@@ -152,59 +144,52 @@ on unloadAssets(me)
     me.unloadOneCast(tCastName)
     tFinishedList.append(tCastName)
   end repeat
-  return(1)
-  exit
+  return TRUE
 end
 
-on unloadOneCast(me, tCastName)
+on unloadOneCast me, tCastName 
   put("* unloadOneCast" && tCastName)
   tManager = getCastLoadManager()
-  if tManager = 0 then
-    return(0)
+  if (tManager = 0) then
+    return FALSE
   end if
   if not castExists(tCastName) then
     return(error(me, "Cast does not exist:" && tCastName, #unloadOneCast))
   end if
   tCastLib = castLib(tCastName)
   tCastNum = tCastLib.number
-  if tCastLib.number = 0 then
-    return(1)
+  if (tCastLib.number = 0) then
+    return TRUE
   end if
   tResetOk = tManager.ResetOneDynamicCast(tCastNum)
   if not tResetOk then
     error(me, "Cast reset failed:" && tCastNum, #unloadOneCast, #major)
   end if
   pCurrentLoadedCasts.deleteOne(tCastName)
-  if pCurrentLoadedCasts.count = 0 then
+  if (pCurrentLoadedCasts.count = 0) then
     pAssetsLoaded = 0
   end if
-  return(1)
-  exit
+  return TRUE
 end
 
-on createLoadingBar(me)
-  return(1)
-  exit
+on createLoadingBar me 
+  return TRUE
 end
 
-on updateLoadingBarOwnDownload(me)
+on updateLoadingBarOwnDownload me 
   tStatus = me.getLoadingStatus()
   put("* updateLoadingBarOwnLownload status:" && tStatus)
-  return(1)
-  exit
+  return TRUE
 end
 
-on updateLoadingBarOtherItems(me)
-  return(1)
-  exit
+on updateLoadingBarOtherItems me 
+  return TRUE
 end
 
-on removeLoadingBar(me)
-  return(1)
-  exit
+on removeLoadingBar me 
+  return TRUE
 end
 
-on sendLoadingStatus(me)
-  return(1)
-  exit
+on sendLoadingStatus me 
+  return TRUE
 end

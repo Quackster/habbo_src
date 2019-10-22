@@ -1,42 +1,39 @@
-on construct(me)
+property pPageData
+
+on construct me 
   pPageData = void()
-  return(1)
-  exit
+  return TRUE
 end
 
-on deconstruct(me)
+on deconstruct me 
   pPageData = void()
-  return(1)
-  exit
+  return TRUE
 end
 
-on define(me, tdata)
+on define me, tdata 
   pPageData = tdata
-  exit
 end
 
-on getPageId(me)
+on getPageId me 
   return(pPageData.getAt(#pageid))
-  exit
 end
 
-on getClassAsset(me, tClassName)
+on getClassAsset me, tClassName 
   if ilk(tClassName) <> #string then
     return("")
   end if
   tClass = tClassName
   if tClass contains "*" then
-    tClass = tClass.getProp(#char, 1, offset("*", tClass) - 1)
+    tClass = tClass.getProp(#char, 1, (offset("*", tClass) - 1))
   end if
   return(tClass)
-  exit
 end
 
-on renderLargePreviewImage(me, tProps)
+on renderLargePreviewImage me, tProps 
   if not voidp(tProps.getAt("dealList")) then
     if not objectExists("ctlg_dealpreviewObj") then
       tObj = createObject("ctlg_dealpreviewObj", ["Deal Preview Class"])
-      if tObj = 0 then
+      if (tObj = 0) then
         return(error(me, "Failed object creation!", #showHideDialog, #major))
       end if
     else
@@ -71,7 +68,7 @@ on renderLargePreviewImage(me, tProps)
       return(error(me, "PartColors property missing", #showPreviewImage, #minor))
     else
       tpartColors = tProps.getAt("partColors")
-      if tpartColors = "" or tpartColors = "0,0,0" then
+      if (tpartColors = "") or (tpartColors = "0,0,0") then
         tpartColors = "*ffffff"
       end if
     end if
@@ -80,7 +77,7 @@ on renderLargePreviewImage(me, tProps)
     else
       tObjectType = tProps.getAt("objectType")
     end if
-    tdata = []
+    tdata = [:]
     tdata.setAt(#id, "ctlg_previewObj")
     tdata.setAt(#class, tClass)
     tdata.setAt(#name, tClass)
@@ -91,7 +88,7 @@ on renderLargePreviewImage(me, tProps)
     tdata.setAt(#objectType, tObjectType)
     if not objectExists("ctlg_previewObj") then
       tObj = createObject("ctlg_previewObj", ["Product Preview Class"])
-      if tObj = 0 then
+      if (tObj = 0) then
         return(error(me, "Failed object creation!", #showHideDialog, #major))
       end if
     else
@@ -101,12 +98,11 @@ on renderLargePreviewImage(me, tProps)
     tImage = tObj.getPicture()
   end if
   return(tImage)
-  exit
 end
 
-on getPossibleBuyButtonTypes(me, tWndObj)
+on getPossibleBuyButtonTypes me, tWndObj 
   tBuyButtonNames = getStructVariable("layout.buybutton.types")
-  tTypes = []
+  tTypes = [:]
   tElementList = tWndObj.getProperty(#elementList)
   i = 1
   repeat while i <= tElementList.count
@@ -117,13 +113,12 @@ on getPossibleBuyButtonTypes(me, tWndObj)
         tTypes.setaProp(tID, ttype)
       end if
     end if
-    i = 1 + i
+    i = (1 + i)
   end repeat
   return(tTypes)
-  exit
 end
 
-on getOfferTypeList(me, tItemGroup)
+on getOfferTypeList me, tItemGroup 
   tList = []
   if me.getOfferByType(tItemGroup, #credits) <> 0 then
     tList.add(#credits)
@@ -135,10 +130,9 @@ on getOfferTypeList(me, tItemGroup)
     tList.add(#pixels)
   end if
   return(tList)
-  exit
 end
 
-on getOfferByType(me, tItemGroup, tOfferType)
+on getOfferByType me, tItemGroup, tOfferType 
   if not objectp(tItemGroup) then
     return(error(me, "Invalid input format", #getOfferByType, #major))
   end if
@@ -148,30 +142,29 @@ on getOfferByType(me, tItemGroup, tOfferType)
   i = 1
   repeat while i <= tItemGroup.getCount()
     tOffer = tItemGroup.getOffer(i)
-    if me = #credits then
-      if tOffer.getPrice(#pixels) = 0 then
+    if (tOfferType = #credits) then
+      if (tOffer.getPrice(#pixels) = 0) then
         return(tOffer)
       end if
     else
-      if me = #creditsandpixels then
+      if (tOfferType = #creditsandpixels) then
         if tOffer.getPrice(#pixels) <> 0 and tOffer.getPrice(#credits) <> 0 then
           return(tOffer)
         end if
       else
-        if me = #pixels then
-          if tOffer.getPrice(#credits) = 0 then
+        if (tOfferType = #pixels) then
+          if (tOffer.getPrice(#credits) = 0) then
             return(tOffer)
           end if
         end if
       end if
     end if
-    i = 1 + i
+    i = (1 + i)
   end repeat
-  return(0)
-  exit
+  return FALSE
 end
 
-on getOfferPriceTextByType(me, tItemGroup, tOfferType)
+on getOfferPriceTextByType me, tItemGroup, tOfferType 
   if not objectp(tItemGroup) then
     return(error(me, "Invalid input format", #getOfferPriceTextByType, #major))
   end if
@@ -180,31 +173,29 @@ on getOfferPriceTextByType(me, tItemGroup, tOfferType)
   end if
   tOffer = me.getOfferByType(tItemGroup, tOfferType)
   if objectp(tOffer) then
-    if me = #credits then
+    if (tOfferType = #credits) then
       return(tOffer.getPrice(#credits) && getText("credits", "credits"))
     else
-      if me = #creditsandpixels then
+      if (tOfferType = #creditsandpixels) then
         return(tOffer.getPrice(#pixels) && getText("pixels", "pixels") && "&" && tOffer.getPrice(#credits) && getText("credits", "credits"))
       else
-        if me = #pixels then
+        if (tOfferType = #pixels) then
           return(tOffer.getPrice(#pixels) && getText("pixels", "pixels"))
         end if
       end if
     end if
   end if
   return("")
-  exit
 end
 
-on centerRectInRect(me, tSmallrect, tLargeRect)
+on centerRectInRect me, tSmallrect, tLargeRect 
   tpoint = point(0, 0)
-  tpoint.locH = tLargeRect.width - tSmallrect.width / 2
-  tpoint.locV = tLargeRect.height - tSmallrect.height / 2
+  tpoint.locH = ((tLargeRect.width - tSmallrect.width) / 2)
+  tpoint.locV = ((tLargeRect.height - tSmallrect.height) / 2)
   return(tpoint)
-  exit
 end
 
-on centerBlitImageToElement(me, tImage, tElement)
+on centerBlitImageToElement me, tImage, tElement 
   if not objectp(tElement) then
     return(error(me, "Image element was invalid", #centerBlitImageToElement, #minor))
   end if
@@ -212,47 +203,45 @@ on centerBlitImageToElement(me, tImage, tElement)
   tOffset = me.centerRectInRect(tImage.rect, tElement.getProperty(#image).rect)
   tOldImage = tElement.getProperty(#image)
   if tOffset.locH >= 0 and tOffset.locV >= 0 then
-    tOldImage.copyPixels(tImage, tImage.rect + rect(tOffset.locH, tOffset.locV, tOffset.locH, tOffset.locV), tImage.rect)
+    tOldImage.copyPixels(tImage, (tImage.rect + rect(tOffset.locH, tOffset.locV, tOffset.locH, tOffset.locV)), tImage.rect)
   else
     if tOffset.locH < 0 and tOffset.locV >= 0 then
       tOffsetDest = point(0, 0)
       tOffsetSrc = point(0, 0)
-      tOffsetSrc.locH = tImage.width - tOldImage.width / 2
-      tOffsetDest.locV = tOldImage.height - tImage.height / 2
-      tSrcRect = tImage.rect + rect(tOffsetSrc.locH, tOffsetSrc.locV, tOffsetSrc.locH, tOffsetSrc.locV)
-      tdestrect = tImage.rect + rect(tOffsetDest.locH, tOffsetDest.locV, tOffsetDest.locH, tOffsetDest.locV)
+      tOffsetSrc.locH = ((tImage.width - tOldImage.width) / 2)
+      tOffsetDest.locV = ((tOldImage.height - tImage.height) / 2)
+      tSrcRect = (tImage.rect + rect(tOffsetSrc.locH, tOffsetSrc.locV, tOffsetSrc.locH, tOffsetSrc.locV))
+      tdestrect = (tImage.rect + rect(tOffsetDest.locH, tOffsetDest.locV, tOffsetDest.locH, tOffsetDest.locV))
       tOldImage.copyPixels(tImage, tdestrect, tSrcRect)
     else
       if tOffset.locH >= 0 and tOffset.locV < 0 then
         tOffsetDest = point(0, 0)
         tOffsetSrc = point(0, 0)
-        tOffsetSrc.locV = tImage.height - tOldImage.height / 2
-        tOffsetDest.locH = tOldImage.width - tImage.width / 2
-        tSrcRect = tImage.rect + rect(tOffsetSrc.locH, tOffsetSrc.locV, tOffsetSrc.locH, tOffsetSrc.locV)
-        tdestrect = tImage.rect + rect(tOffsetDest.locH, tOffsetDest.locV, tOffsetDest.locH, tOffsetDest.locV)
+        tOffsetSrc.locV = ((tImage.height - tOldImage.height) / 2)
+        tOffsetDest.locH = ((tOldImage.width - tImage.width) / 2)
+        tSrcRect = (tImage.rect + rect(tOffsetSrc.locH, tOffsetSrc.locV, tOffsetSrc.locH, tOffsetSrc.locV))
+        tdestrect = (tImage.rect + rect(tOffsetDest.locH, tOffsetDest.locV, tOffsetDest.locH, tOffsetDest.locV))
         tOldImage.copyPixels(tImage, tdestrect, tSrcRect)
       else
         tOffset = me.centerRectInRect(tElement.getProperty(#image).rect, tImage.rect)
-        tOldImage.copyPixels(tImage, tImage.rect, tImage.rect + rect(tOffset.locH, tOffset.locV, tOffset.locH, tOffset.locV))
+        tOldImage.copyPixels(tImage, tImage.rect, (tImage.rect + rect(tOffset.locH, tOffset.locV, tOffset.locH, tOffset.locV)))
       end if
     end if
   end if
   tElement.feedImage(tOldImage)
-  exit
 end
 
-on setElementText(me, tWndObj, tElemName, tText)
+on setElementText me, tWndObj, tElemName, tText 
   if voidp(tWndObj) then
-    return(0)
+    return FALSE
   end if
   if tWndObj.elementExists(tElemName) then
     tWndObj.getElement(tElemName).setText(tText)
   else
   end if
-  exit
 end
 
-on convertOfferListToDeallist(me, tOffer)
+on convertOfferListToDeallist me, tOffer 
   if not objectp(tOffer) then
     return(error(me, "Invalid input format", #convertOfferListToDeallist, #major))
   end if
@@ -266,48 +255,41 @@ on convertOfferListToDeallist(me, tOffer)
   tDealList = []
   i = 1
   repeat while i <= tOffer.getCount()
-    tFurniProps = me.getProps(tOffer.getContent(i).getType(), tOffer.getContent(i).getClassId())
+    tFurniProps = me.pPersistentFurniData.getProps(tOffer.getContent(i).getType(), tOffer.getContent(i).getClassId())
     if voidp(tFurniProps) then
       tDealList.add([#class:"", #partColors:"", #count:0])
     else
       tClass = tFurniProps.getAt(#class)
-      if tClass = "poster" then
+      if (tClass = "poster") then
         tClass = tClass && tOffer.getContent(i).getExtraParam()
       end if
       tDealList.add([#class:tClass, #partColors:tFurniProps.getAt(#partColors), #count:tOffer.getContent(i).getProductCount()])
     end if
-    i = 1 + i
+    i = (1 + i)
   end repeat
   return(tDealList)
-  exit
 end
 
-on mergeWindow(me)
+on mergeWindow me 
   return(error(me, "Calling virtual function from Catalogpage Base Class, you shouldn't be doing this!"))
-  exit
 end
 
-on downloadCompleted(me)
+on downloadCompleted me 
   return(error(me, "Calling virtual function from Catalogpage Base Class, you shouldn't be doing this!"))
-  exit
 end
 
-on unmergeWindow(me)
+on unmergeWindow me 
   return(error(me, "Calling virtual function from Catalogpage Base Class, you shouldn't be doing this!"))
-  exit
 end
 
-on renderPage(me)
+on renderPage me 
   return(error(me, "Calling virtual function from Catalogpage Base Class, you shouldn't be doing this!"))
-  exit
 end
 
-on getSelectedProduct(me)
+on getSelectedProduct me 
   return(error(me, "Calling virtual function from Catalogpage Base Class, you shouldn't be doing this!"))
-  exit
 end
 
-on handleClick(me, tEvent, tSprID, tProp)
+on handleClick me, tEvent, tSprID, tProp 
   return(error(me, "Calling virtual function from Catalogpage Base Class, you shouldn't be doing this!"))
-  exit
 end

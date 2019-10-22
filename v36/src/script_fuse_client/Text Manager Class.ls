@@ -1,5 +1,5 @@
 on GET me, tKey, tDefault 
-  tText = me.getaProp(tKey)
+  tText = me.pItemList.getaProp(tKey)
   if voidp(tText) then
     tError = "Text not found:" && tKey
     if not voidp(tDefault) then
@@ -25,14 +25,14 @@ on dump me, tField, tDelimiter
   tSpecialChunks = ["\\r":"\r", "\\t":"\t", "\\s":space(), "<BR>":"\r"]
   tLineChunks = []
   tMaxLinesPerChunk = 100
-  tTotalChunkCount = (tRawStr.count(#line) / tMaxLinesPerChunk) + 1
+  tTotalChunkCount = ((tRawStr.count(#line) / tMaxLinesPerChunk) + 1)
   tChunk = 1
   repeat while tChunk <= tTotalChunkCount
-    tStartChunkIndex = (tChunk - 1 * tMaxLinesPerChunk) + 1
-    tEndChunkIndex = tStartChunkIndex + tMaxLinesPerChunk - 1
+    tStartChunkIndex = (((tChunk - 1) * tMaxLinesPerChunk) + 1)
+    tEndChunkIndex = ((tStartChunkIndex + tMaxLinesPerChunk) - 1)
     tLines = tRawStr.getProp(#line, tStartChunkIndex, tEndChunkIndex)
     tLineChunks.setAt(tChunk, tLines)
-    tChunk = 1 + tChunk
+    tChunk = (1 + tChunk)
   end repeat
   tDelim = the itemDelimiter
   the itemDelimiter = "="
@@ -51,16 +51,16 @@ on dump me, tField, tDelimiter
           if tValue contains tMark then
             tValue = tStrServices.replaceChunks(tValue, tMark, tSpecialChunks.getAt(k))
           end if
-          k = 1 + k
+          k = (1 + k)
         end repeat
         me.setProp(#pItemList, tProp, tValue)
       end if
-      tLineNo = 1 + tLineNo
+      tLineNo = (1 + tLineNo)
     end repeat
   end repeat
   the itemDelimiter = tDelim
   finishProfilingTask("Text Manager::dump")
-  return(1)
+  return TRUE
 end
 
 on handlers  

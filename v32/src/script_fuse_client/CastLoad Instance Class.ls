@@ -27,21 +27,21 @@ on Activate me
   pPercent = 0
   pState = #LOADING
   finishProfilingTask("Castload Instance::activate")
-  return(1)
+  return TRUE
 end
 
 on update me 
-  if pState = #done or pState = #failed then
-    return(1)
+  if (pState = #done) or (pState = #failed) then
+    return TRUE
   end if
   tStreamStatus = getStreamStatus(pNetId)
   if not listp(tStreamStatus) then
     return(error(me, "Invalid stream status:" && pFile && "/" && tStreamStatus, #update, #minor))
   end if
-  if tStreamStatus.bytesSoFar > 0 and pState = #LOADING then
+  if tStreamStatus.bytesSoFar > 0 and (pState = #LOADING) then
     tBytesSoFar = tStreamStatus.bytesSoFar
     tBytesTotal = tStreamStatus.bytesTotal
-    if tBytesTotal = 0 then
+    if (tBytesTotal = 0) then
       tBytesTotal = tBytesSoFar
     end if
     pPercent = ((1 * tBytesSoFar) / tBytesTotal)
@@ -51,10 +51,10 @@ on update me
     pBytesSoFar = tStreamStatus.bytesSoFar
     pLoadTime = the milliSeconds
   else
-    if the milliSeconds - pLoadTime > pRetryDelay or pState = #error then
+    if (the milliSeconds - pLoadTime) > pRetryDelay or (pState = #error) then
       tErrorMsg = getCastLoadManager().solveNetErrorMsg(netError(pNetId))
       error(me, "Failed network operation:" & "\r" & pURL & "\r" & tErrorMsg, #update, #minor)
-      ptryCount = ptryCount + 1
+      ptryCount = (ptryCount + 1)
       if ptryCount >= pCastLoadMaxRetryCount then
         pPercent = 1
         pState = #error
@@ -69,7 +69,7 @@ on update me
       end if
       getCastLoadManager().TellStreamState(pFile, pState, 0, pGroupId)
       me.Activate()
-      return(0)
+      return FALSE
     end if
   end if
   if tStreamStatus.error <> "" and tStreamStatus.error <> "OK" then

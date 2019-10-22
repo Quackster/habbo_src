@@ -1,52 +1,52 @@
 on construct me 
-  me.construct()
+  me.ancestor.construct()
   me.pViewMode = #teams
-  me.setaProp(#teams, [#modal, "ProgressBar", "Teams", "Countdown"])
-  me.setaProp(#countdown, ["Countdown"])
-  return(1)
+  me.pViewModeComponents.setaProp(#teams, [#modal, "ProgressBar", "Teams", "Countdown"])
+  me.pViewModeComponents.setaProp(#countdown, ["Countdown"])
+  return TRUE
 end
 
 on deconstruct me 
-  return(me.deconstruct())
+  return(me.ancestor.deconstruct())
 end
 
 on displayPlayer me, tPlayerInfo 
   if me.pViewMode <> #teams then
-    return(1)
+    return TRUE
   end if
   tComponent = me.getSubComponent("Teams")
-  if tComponent = 0 then
-    return(0)
+  if (tComponent = 0) then
+    return FALSE
   end if
   return(tComponent.displayPlayer(tPlayerInfo))
 end
 
 on displayPlayerLeft me, tID 
   if me.pViewMode <> #teams then
-    return(1)
+    return TRUE
   end if
   tComponent = me.getSubComponent("Teams")
-  if tComponent = 0 then
-    return(0)
+  if (tComponent = 0) then
+    return FALSE
   end if
   return(tComponent.displayPlayerLeft(tID))
 end
 
 on displayProgress me, tProgress 
   tComponent = me.getSubComponent("ProgressBar")
-  if tComponent = 0 then
-    return(0)
+  if (tComponent = 0) then
+    return FALSE
   end if
   return(tComponent.render(tProgress))
 end
 
 on displayPlayerDone me, tID, tFigure, tsex 
   if me.pViewMode <> #teams then
-    return(1)
+    return TRUE
   end if
   tComponent = me.getSubComponent("Teams")
-  if tComponent = 0 then
-    return(0)
+  if (tComponent = 0) then
+    return FALSE
   end if
   return(tComponent.displayPlayerDone(tID, tFigure, tsex))
 end
@@ -69,7 +69,7 @@ on update me
   if tComponent <> 0 then
     tComponent.update()
   end if
-  return(1)
+  return TRUE
 end
 
 on getSubComponentClass me, tID 

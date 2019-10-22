@@ -3,12 +3,12 @@ property pUpdateInterval, pConnectionId
 on construct me 
   pConnectionId = getVariableValue("connection.info.id")
   pUpdateInterval = getIntVariable("gamesystem.instancelist.updatetime", 15000)
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
   me.setInstanceListUpdates(0)
-  return(1)
+  return TRUE
 end
 
 on setInstanceListUpdates me, tBoolean 
@@ -18,11 +18,11 @@ on setInstanceListUpdates me, tBoolean
     tVarMgrObj.set(#instancelist_timestamp, 0)
   end if
   if tBoolean then
-    if abs(the milliSeconds - tVarMgrObj.GET(#instancelist_timestamp)) > pUpdateInterval then
+    if abs((the milliSeconds - tVarMgrObj.GET(#instancelist_timestamp))) > pUpdateInterval then
       me.getMessageSender().sendGetInstanceList()
     end if
     if timeoutExists(tTimeoutID) then
-      return(1)
+      return TRUE
     end if
     return(createTimeout(tTimeoutID, pUpdateInterval, #sendGetInstanceList, me.getID()))
   else
@@ -30,7 +30,7 @@ on setInstanceListUpdates me, tBoolean
     if timeoutExists(tTimeoutID) then
       removeTimeout(tTimeoutID)
     end if
-    return(1)
+    return TRUE
   end if
 end
 
@@ -66,7 +66,7 @@ on sendInitiateCreateGame me, tTeamId
   me.setInstanceListUpdates(0)
   me.getVariableManager().set(#game_status, #none)
   if tTeamId <> void() then
-    tTeamId = tTeamId - 1
+    tTeamId = (tTeamId - 1)
     return(getConnection(pConnectionId).send("INITIATECREATEGAME", [#integer:integer(tTeamId)]))
   else
     return(getConnection(pConnectionId).send("INITIATECREATEGAME"))
@@ -74,10 +74,10 @@ on sendInitiateCreateGame me, tTeamId
 end
 
 on sendGameParameterValues me, tParamList, tTeamId 
-  if me.getBaseLogic().getGamestatus() = #create_requested then
-    return(0)
+  if (me.getBaseLogic().getGamestatus() = #create_requested) then
+    return FALSE
   end if
-  tTeamId = tTeamId - 1
+  tTeamId = (tTeamId - 1)
   if not connectionExists(pConnectionId) then
     return(error(me, "Connection not found:" && pConnectionId, #sendGameParameterValues))
   end if
@@ -88,21 +88,21 @@ on sendGameParameterValues me, tParamList, tTeamId
   i = 1
   repeat while i <= tCount
     tValueData = tStruct.getAt(i)
-    if tParamList.findPos(tValueData.getAt(#name)) = 0 then
+    if (tParamList.findPos(tValueData.getAt(#name)) = 0) then
       return(error(me, "Invalid game parameter values!", #sendGameParameterValues))
     end if
     tValue = tParamList.getAt(tValueData.getAt(#name))
     tOutput.addProp(#string, tValueData.getAt(#name))
-    if tValueData.getAt(#type) = #integer then
+    if (tValueData.getAt(#type) = #integer) then
       tOutput.addProp(#integer, 0)
       tOutput.addProp(#integer, tValue)
     else
-      if tValueData.getAt(#type) = #string then
+      if (tValueData.getAt(#type) = #string) then
         tOutput.addProp(#integer, 1)
         tOutput.addProp(#string, string(tValue))
       end if
     end if
-    i = 1 + i
+    i = (1 + i)
   end repeat
   me.getVariableManager().set(#game_status, #create_requested)
   tOutput.addProp(#integer, tTeamId)
@@ -124,52 +124,52 @@ on sendInitiateJoinGame me, tInstanceId, tTeamId
     return(error(me, "Connection not found:" && pConnectionId, #sendInitiateJoinGame))
   end if
   tdata = me.getVariableManager().GET(#observed_instance_data)
-  if tdata.findPos(#id) = 0 then
-    return(0)
+  if (tdata.findPos(#id) = 0) then
+    return FALSE
   end if
-  if tInstanceId = void() then
+  if (tInstanceId = void()) then
     tInstanceId = tdata.getAt(#id)
   end if
-  if tTeamId = void() then
-    return(0)
+  if (tTeamId = void()) then
+    return FALSE
   end if
-  tTeamId = tTeamId - 1
+  tTeamId = (tTeamId - 1)
   me.setInstanceListUpdates(0)
   me.getVariableManager().set(#game_status, #none)
   return(getConnection(pConnectionId).send("INITIATEJOINGAME", [#integer:tInstanceId, #integer:tTeamId]))
 end
 
 on sendJoinParameterValues me, tInstanceId, tTeamId, tParamList 
-  if me.getBaseLogic().getGamestatus() = #join_requested then
-    return(0)
+  if (me.getBaseLogic().getGamestatus() = #join_requested) then
+    return FALSE
   end if
   if not connectionExists(pConnectionId) then
     return(error(me, "Connection not found:" && pConnectionId, #sendJoinParameterValues))
   end if
   tdata = me.getVariableManager().GET(#observed_instance_data)
-  if tInstanceId = void() then
+  if (tInstanceId = void()) then
     tInstanceId = tdata.getAt(#id)
   end if
-  if tInstanceId = void() then
-    return(0)
+  if (tInstanceId = void()) then
+    return FALSE
   end if
-  if tTeamId = void() then
-    return(0)
+  if (tTeamId = void()) then
+    return FALSE
   end if
-  tTeamId = tTeamId - 1
+  tTeamId = (tTeamId - 1)
   tCount = tParamList.count
   tOutput = [#integer:tInstanceId, #integer:tTeamId, #integer:tCount]
   i = 1
   repeat while i <= tCount
     tOutput.addProp(#string, tParamList.getPropAt(i))
-    if ilk(tParamList.getAt(i)) = #integer then
+    if (ilk(tParamList.getAt(i)) = #integer) then
       tOutput.addProp(#integer, 0)
       tOutput.addProp(#integer, tParamList.getAt(i))
     else
       tOutput.addProp(#integer, 1)
       tOutput.addProp(#string, tParamList.getAt(i))
     end if
-    i = 1 + i
+    i = (1 + i)
   end repeat
   me.setInstanceListUpdates(0)
   me.getVariableManager().set(#game_status, #join_requested)

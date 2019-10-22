@@ -3,11 +3,11 @@ property pDateFormat
 on construct me 
   pDateFormat = "dd-mm-yyyy"
   pUseAMPM = 0
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
-  return(1)
+  return TRUE
 end
 
 on define me, tDateFormat 
@@ -19,7 +19,7 @@ end
 
 on getLocalDateFromStr me, tDateStr 
   if not stringp(tDateStr) then
-    return(0)
+    return FALSE
   end if
   tItemDeLim = the itemDelimiter
   the itemDelimiter = "-"

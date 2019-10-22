@@ -54,7 +54,7 @@ on construct me
   registerMessage(#closeConnection, me.getID(), #disconnect)
   registerMessage(#performLogin, me.getID(), #sendLogin)
   registerMessage(#loginIsOk, me.getID(), #setLoginOk)
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
@@ -85,12 +85,12 @@ on deconstruct me
   if connectionExists(getVariable("connection.info.id", #info)) then
     return(me.disconnect())
   else
-    return(1)
+    return TRUE
   end if
 end
 
 on initA me 
-  if getIntVariable("figurepartlist.loaded", 1) = 0 then
+  if (getIntVariable("figurepartlist.loaded", 1) = 0) then
     return(me.delay(250, #initA))
   end if
   return(me.delay(1000, #initB))
@@ -98,7 +98,7 @@ end
 
 on initB me 
   if the traceScript then
-    return(0)
+    return FALSE
   end if
   the traceScript = 0
   _player.traceScript = 0
@@ -114,7 +114,7 @@ on initB me
       end if
     end if
   end if
-  if tUseSSO = 0 then
+  if (tUseSSO = 0) then
     return(me.getInterface().showLogin())
   else
     executeMessage(#alert, [#Msg:"Alert_generic_login_error"])
@@ -123,7 +123,7 @@ end
 
 on sendLogin me, tConnection 
   if the traceScript then
-    return(0)
+    return FALSE
   end if
   the traceScript = 0
   _player.traceScript = 0
@@ -149,13 +149,13 @@ on sendLogin me, tConnection
       if not stringp(tUserName) or not stringp(tPassword) then
         return(removeConnection(tConnection.getID()))
       end if
-      if tUserName = "" or tPassword = "" then
+      if (tUserName = "") or (tPassword = "") then
         return(removeConnection(tConnection.getID()))
       end if
       return(tConnection.send("TRY_LOGIN", [#string:tUserName, #string:tPassword]))
     end if
   end if
-  return(1)
+  return TRUE
 end
 
 on openConnection me 
@@ -165,7 +165,7 @@ end
 
 on connect me 
   if the traceScript then
-    return(0)
+    return FALSE
   end if
   the traceScript = 0
   _player.traceScript = 0
@@ -188,7 +188,7 @@ on connect me
   if not threadExists(#hobba) then
     initThread("thread.hobba")
   end if
-  return(1)
+  return TRUE
 end
 
 on disconnect me 
@@ -210,30 +210,30 @@ end
 
 on initLatencyTest me 
   if pLatencyTestInterval <= 0 then
-    return(0)
+    return FALSE
   end if
   if not timeoutExists(pLatencyTestTimeoutID) then
     createTimeout(pLatencyTestTimeoutID, pLatencyTestInterval, #sendLatencyTest, me.getID(), void(), 0)
   end if
-  return(1)
+  return TRUE
 end
 
 on sendLatencyTest me 
   if not connectionExists(getVariable("connection.info.id")) then
-    return(0)
+    return FALSE
   end if
   tConnection = getConnection(getVariable("connection.info.id"))
   if tConnection.send("TEST_LATENCY", [#integer:pLatencyTestID]) then
     pLatencyTestTimeStampList.addProp(string(pLatencyTestID), the milliSeconds)
-    pLatencyTestID = pLatencyTestID + 1
-    return(1)
+    pLatencyTestID = (pLatencyTestID + 1)
+    return TRUE
   end if
-  return(0)
+  return FALSE
 end
 
 on sendGetBadges me 
   if not connectionExists(getVariable("connection.info.id")) then
-    return(0)
+    return FALSE
   end if
   tOwnUserId = getObject(#session).GET("user_user_id")
   tConnection = getConnection(getVariable("connection.info.id"))
@@ -242,39 +242,39 @@ end
 
 on handleLatencyTest me, tID 
   if voidp(pLatencyTestTimeStampList.getAt(string(tID))) then
-    return(0)
+    return FALSE
   end if
   if not connectionExists(getVariable("connection.info.id")) then
-    return(0)
+    return FALSE
   end if
   tConnection = getConnection(getVariable("connection.info.id"))
-  tDelta = the milliSeconds - pLatencyTestTimeStampList.getAt(string(tID))
+  tDelta = (the milliSeconds - pLatencyTestTimeStampList.getAt(string(tID)))
   pLatencyTestTimeStampList.deleteProp(string(tID))
   pLatencyValueList.add(tDelta)
-  pLatencyValueCount = pLatencyValueCount + 1
-  if pLatencyValueList.count = pLatencyReportIndex and pLatencyReportIndex > 0 then
+  pLatencyValueCount = (pLatencyValueCount + 1)
+  if (pLatencyValueList.count = pLatencyReportIndex) and pLatencyReportIndex > 0 then
     i = 1
     repeat while i <= pLatencyValueList.count
-      pLatencyTotalValue = pLatencyTotalValue + pLatencyValueList.getAt(i)
-      i = 1 + i
+      pLatencyTotalValue = (pLatencyTotalValue + pLatencyValueList.getAt(i))
+      i = (1 + i)
     end repeat
     tLatency = (pLatencyTotalValue / pLatencyValueCount)
     i = 1
     repeat while i <= pLatencyValueList.count
       if pLatencyValueList.getAt(i) < (tLatency * 2) then
-        pLatencyClearedValue = pLatencyClearedValue + pLatencyValueList.getAt(i)
-        pLatencyClearedCount = pLatencyClearedCount + 1
+        pLatencyClearedValue = (pLatencyClearedValue + pLatencyValueList.getAt(i))
+        pLatencyClearedCount = (pLatencyClearedCount + 1)
       end if
-      i = 1 + i
+      i = (1 + i)
     end repeat
     tLatencyCleared = (pLatencyClearedValue / pLatencyClearedCount)
-    if abs(tLatency - pLatencyReported) > pLatencyReportDelta or pLatencyReported = 0 then
+    if abs((tLatency - pLatencyReported)) > pLatencyReportDelta or (pLatencyReported = 0) then
       pLatencyReported = tLatency
       tConnection.send("REPORT_LATENCY", [#integer:tLatency, #integer:tLatencyCleared, #integer:pLatencyValueCount])
     end if
     pLatencyValueList = []
   end if
-  return(1)
+  return TRUE
 end
 
 on SetDisconnectErrorState me, tError 

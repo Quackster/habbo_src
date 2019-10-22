@@ -5,13 +5,13 @@ on construct me
   pFurnisPerPage = 5
   pAcceptBtnActive = 0
   pTimeLeftTimeoutID = "timeLeftTimeout"
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
   removeObject(pProgressAnimation)
   removeObject(pStatusIcon)
-  return(1)
+  return TRUE
 end
 
 on setHostWindowObject me, tHostWindowObj 
@@ -24,15 +24,15 @@ end
 
 on updateView me 
   if voidp(pWindowObj) then
-    return(0)
+    return FALSE
   end if
   tstate = me.getComponent().getState()
-  if tstate = #waiting then
+  if (tstate = #waiting) then
     pWindowObj.unmerge()
     pWindowObj.merge("ctlg_recycler_simple.window")
     tHeaderText = ""
   else
-    if tstate = #open then
+    if (tstate = #open) then
       pWindowObj.unmerge()
       pWindowObj.merge("ctlg_recycler_simple.window")
       if timeoutExists(pTimeLeftTimeoutID) then
@@ -41,18 +41,18 @@ on updateView me
       getThread(#room).getInterface().getContainer().open()
       tHeaderText = getText("recycler_info_open")
     else
-      if tstate = #closed then
+      if (tstate = #closed) then
         pWindowObj.unmerge()
         pWindowObj.merge("ctlg_recycler_simple.window")
         tHeaderText = getText("recycler_info_closed")
       else
-        if tstate = #timeout then
+        if (tstate = #timeout) then
           pWindowObj.unmerge()
           pWindowObj.merge("ctlg_recycler_simple.window")
           tHeaderText = getText("recycler_info_timeout")
           tHeaderText = me.replaceTimeKeys(tHeaderText, me.getComponent().getTimeout())
         else
-          return(0)
+          return FALSE
         end if
       end if
     end if
@@ -75,15 +75,15 @@ end
 
 on updateBg me 
   if voidp(pWindowObj) then
-    return(0)
+    return FALSE
   end if
   tstate = me.getComponent().getState()
-  if tstate = #open then
+  if (tstate = #open) then
     tBlend = 100
   else
     if tstate <> #closed then
       if tstate <> #timeout then
-        if tstate = #waiting then
+        if (tstate = #waiting) then
           tBlend = 30
         end if
         tBg = pWindowObj.getElement("bg")
@@ -100,29 +100,29 @@ on updateBg me
 end
 
 on eventProc me, tEvent, tSprID, tProp 
-  if tEvent = #mouseEnter then
+  if (tEvent = #mouseEnter) then
     tObjMover = getThread(#room).getInterface().getObjectMover()
     if tObjMover <> 0 then
       tObjMover.moveTrade()
     end if
-    return(1)
+    return TRUE
   end if
   if tEvent <> #mouseUp then
-    return(1)
+    return TRUE
   end if
   tstate = me.getComponent().getState()
   if tstate <> #open then
-    return(1)
+    return TRUE
   end if
   if tSprID contains "rec_drop_slot_" then
     me.eventProcSlot(tEvent, tSprID, tProp)
   end if
-  if tSprID = "recycler_recycle_button" then
+  if (tSprID = "recycler_recycle_button") then
     me.getComponent().startRecycling()
   else
     nothing()
   end if
-  return(0)
+  return FALSE
 end
 
 on eventProcSlot me, tEvent, tSprID, tProp 
@@ -131,11 +131,11 @@ on eventProcSlot me, tEvent, tSprID, tProp
   if objectp(tObjMover) then
     tClientObj = tObjMover.getProperty(#clientObj)
     if objectp(tClientObj) then
-      if tObjMover.getProperty(#stripId) = "" then
-        return(0)
+      if (tObjMover.getProperty(#stripId) = "") then
+        return FALSE
       end if
       if me.getComponent().isPoolFull() then
-        return(0)
+        return FALSE
       end if
       tClientProps = tObjMover.getProperty(#clientProps)
       tClass = tClientProps.getAt(#class)
@@ -144,12 +144,12 @@ on eventProcSlot me, tEvent, tSprID, tProp
       if not integer(tClientProps.getAt(#isRecyclable)) then
         executeMessage(#alert, [#Msg:getText("recycler_furni_not_recyclable")])
         me.getComponent().clearObjectMover()
-        return(0)
+        return FALSE
       end if
       me.getComponent().addFurnitureToGivePool(tClass, tClientID, tClientProps)
       me.getComponent().clearObjectMover()
       me.updateDynamicContent()
-      return(1)
+      return TRUE
     else
       tDelim = the itemDelimiter
       the itemDelimiter = "_"
@@ -163,21 +163,21 @@ end
 
 on updateDynamicContent me 
   tstate = me.getComponent().getState()
-  if tstate = "open" then
+  if (tstate = "open") then
     me.updateFurniSlots()
     me.updateAcceptButtonOpenState()
   else
-    if tstate = "progress" then
+    if (tstate = "progress") then
       me.updateCancelButton()
     else
-      if tstate = "ready" then
+      if (tstate = "ready") then
         me.updateAcceptButton()
         me.updateCancelButton()
       else
-        if tstate = "timeout" then
+        if (tstate = "timeout") then
           me.updateCancelButton()
         else
-          if tstate = "disabled" then
+          if (tstate = "disabled") then
             me.hideCancelButton()
           end if
         end if
@@ -223,7 +223,7 @@ on updateFurniSlots me
   repeat while tTemp <= pFurnisPerPage
     tElement = pWindowObj.getElement("rec_drop_slot_" & tTemp)
     tElement.feedImage(tEmptyImage)
-    tTemp = 1 + tTemp
+    tTemp = (1 + tTemp)
   end repeat
   tSlotNo = 1
   tFurniIndex = 1
@@ -236,27 +236,27 @@ on updateFurniSlots me
     tClass = tFurniItem.getAt(#class)
     tMemStr = me.detectMemberName(tClass, tProps)
     tFurniImage = getObject("Preview_renderer").renderPreviewImage(tMemStr, void(), tProps.getAt(#colors), tProps.getAt(#class))
-    tWidthMargin = (tSlotWidth - tFurniImage.width / 2)
-    tHeightMargin = (tSlotHeight - tFurniImage.height / 2)
-    tTargetRect = tFurniImage.rect + rect(tWidthMargin, tHeightMargin, tWidthMargin, tHeightMargin)
+    tWidthMargin = ((tSlotWidth - tFurniImage.width) / 2)
+    tHeightMargin = ((tSlotHeight - tFurniImage.height) / 2)
+    tTargetRect = (tFurniImage.rect + rect(tWidthMargin, tHeightMargin, tWidthMargin, tHeightMargin))
     tIconImage.copyPixels(tFurniImage, tTargetRect, tFurniImage.rect)
     tSlotElement.feedImage(tIconImage)
     tSlotElement.setProperty(#blend, 100)
-    tSlotNo = tSlotNo + 1
-    tFurniIndex = 1 + tFurniIndex
+    tSlotNo = (tSlotNo + 1)
+    tFurniIndex = (1 + tFurniIndex)
   end repeat
 end
 
 on updateRecycleButton me 
   if not objectp(pWindowObj) then
-    return(0)
+    return FALSE
   end if
   tButton = pWindowObj.getElement("recycler_recycle_button")
   if not tButton then
-    return(0)
+    return FALSE
   end if
   tstate = me.getComponent().getState()
-  if me.getComponent().isPoolFull() and tstate = #open then
+  if me.getComponent().isPoolFull() and (tstate = #open) then
     tButton.Activate()
   else
     tButton.deactivate()

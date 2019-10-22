@@ -1,14 +1,14 @@
 on Initialize me 
   me.registerForIGComponentUpdates("GameList")
   me.registerForIGComponentUpdates("LevelList")
-  return(1)
+  return TRUE
 end
 
 on handleUpdate me, tUpdateId, tSenderId 
-  if tUpdateId = #owner_of_game then
+  if (tUpdateId = #owner_of_game) then
     tRenderObj = me.getRenderer()
-    if tRenderObj = 0 then
-      return(0)
+    if (tRenderObj = 0) then
+      return FALSE
     end if
     return(tRenderObj.setViewMode(#info))
   end if

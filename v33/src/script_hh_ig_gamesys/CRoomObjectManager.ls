@@ -7,14 +7,14 @@ on construct me
   m_iAllocationSize = 8
   m_rEmptyFactor = createObject("StubFactor", "CEmptyFactor")
   m_rEmptyVisual = createObject("StubVisual", "CEmptyVisualizer")
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
   me.clearAll()
   removeObject("StubFactor")
   removeObject("StubVisual")
-  return(1)
+  return TRUE
 end
 
 on clearAll me 
@@ -66,14 +66,14 @@ on Reserve me, a_sClass, a_iCount
   i = 1
   repeat while i <= a_iCount
     tNewObject = me.createRoomObject(a_sClass, me.GetNewRef())
-    tNewObject.deconstruct()
-    tNewObject.deconstruct()
+    tNewObject.m_rFactor.deconstruct()
+    tNewObject.m_rVisual.deconstruct()
     tNewObject.SetParam("StandardFactor", tNewObject.GetFactor())
     tNewObject.SetParam("StandardVisual", tNewObject.getVisual())
     tNewObject.m_rFactor = m_rEmptyFactor
     tNewObject.m_rVisual = m_rEmptyVisual
     tClassPool.append(tNewObject)
-    i = 1 + i
+    i = (1 + i)
   end repeat
 end
 
@@ -94,8 +94,8 @@ on newObject me, a_sClass, a_mp_params
   tObject = tClassPool.getAt(tClassPool.count)
   tObject.m_rFactor = tObject.GetParam("StandardFactor")
   tObject.m_rVisual = tObject.GetParam("StandardVisual")
-  tObject.construct()
-  tObject.construct()
+  tObject.m_rFactor.construct()
+  tObject.m_rVisual.construct()
   tClassPool.deleteAt(tClassPool.count)
   tUsePool.append(tObject)
   if not voidp(a_mp_params) then
@@ -104,7 +104,7 @@ on newObject me, a_sClass, a_mp_params
       tKey = a_mp_params.getPropAt(i)
       tValue = a_mp_params.getaProp(tKey)
       tObject.SetParam(tKey, tValue)
-      i = 1 + i
+      i = (1 + i)
     end repeat
   end if
   return(tObject)
@@ -114,19 +114,19 @@ on FreeObject me, a_rObject
   t_sClass = a_rObject.GetParam("CLASS")
   tUsePool = m_mp_ar_rUsepool.getaProp(t_sClass)
   t_iIndex = tUsePool.getOne(a_rObject)
-  if t_iIndex = 0 then
+  if (t_iIndex = 0) then
     return(error(me, "ERROR : Objectpool reference mismatch!", #FreeObject))
   end if
   tUsePool.deleteAt(t_iIndex)
   tClassPool = m_mp_ar_rFreepool.getaProp(t_sClass)
   tClassPool.append(a_rObject)
-  a_rObject.deconstruct()
-  a_rObject.deconstruct()
+  a_rObject.m_rFactor.deconstruct()
+  a_rObject.m_rVisual.deconstruct()
   a_rObject.SetParam("StandardFactor", a_rObject.GetFactor())
   a_rObject.SetParam("StandardVisual", a_rObject.getVisual())
   a_rObject.m_rFactor = m_rEmptyFactor
   a_rObject.m_rVisual = m_rEmptyVisual
-  return(1)
+  return TRUE
 end
 
 on createRoomObject me, a_sClass, a_iRef, a_mp_params 
@@ -145,7 +145,7 @@ on createRoomObject me, a_sClass, a_iRef, a_mp_params
       tKey = a_mp_params.getPropAt(i)
       tValue = a_mp_params.getaProp(tKey)
       tNewObject.SetParam(tKey, tValue)
-      i = 1 + i
+      i = (1 + i)
     end repeat
   end if
   return(tNewObject)
@@ -159,6 +159,6 @@ on removeRoomObject me, a_sClass, a_iRef
 end
 
 on GetNewRef me 
-  m_iRefSource = m_iRefSource + 1
+  m_iRefSource = (m_iRefSource + 1)
   return(m_iRefSource)
 end

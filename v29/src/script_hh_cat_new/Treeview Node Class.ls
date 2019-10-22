@@ -50,7 +50,7 @@ end
 
 on hasChildren me 
   if pChildren.count < 0 then
-    return(0)
+    return FALSE
   end if
   tChildVisible = 0
   repeat while pChildren <= undefined

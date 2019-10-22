@@ -5,7 +5,7 @@ on construct me
   pThisSystem = getUniqueID()
   pScene = void()
   pObjectMoverSprite = void()
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
@@ -79,31 +79,31 @@ on define me, tdata
     else
       tProps.setAt(#height, "")
     end if
-    if tProps.getAt(#radius) = "" then
+    if (tProps.getAt(#radius) = "") then
       tProps.setAt(#radius, 0)
     end if
-    if tProps.getAt(#arcspeed) = "" then
+    if (tProps.getAt(#arcspeed) = "") then
       tProps.setAt(#arcspeed, 0)
     end if
-    if tProps.getAt(#arcoffset) = "" then
+    if (tProps.getAt(#arcoffset) = "") then
       tProps.setAt(#arcoffset, 0)
     end if
-    if tProps.getAt(#height) = "" then
+    if (tProps.getAt(#height) = "") then
       tProps.setAt(#height, 0)
     end if
-    tProps.setAt(#arcoffset, tProps.getAt(#arcoffset) + tArcRandom)
+    tProps.setAt(#arcoffset, (tProps.getAt(#arcoffset) + tArcRandom))
     me.addPlanet(tProps.getAt(#name), tProps.getAt(#parent), tProps)
-    i = 1 + i
+    i = (1 + i)
   end repeat
   if not voidp(pObjectMoverSprite) then
     releaseSprite(pObjectMoverSprite.spriteNum)
     pObjectMoverSprite = void()
   end if
-  return(1)
+  return TRUE
 end
 
 on addPlanet me, tName, tParentName, tProps 
-  if not tParentName = "" then
+  if not (tParentName = "") then
     tParent = me.getPlanetByName(tParentName, pScene)
     if voidp(tParent) then
       return(error(me, "Unable to find parent planet!", #addPlanet, #major))
@@ -142,7 +142,7 @@ on addPlanet me, tName, tParentName, tProps
 end
 
 on getPlanetByName me, tName, tTarget 
-  if tTarget.getID() = tName & pThisSystem then
+  if (tTarget.getID() = tName & pThisSystem) then
     return(tTarget)
   else
     repeat while tTarget.getChildren() <= tTarget
@@ -177,7 +177,7 @@ end
 on getScenePos me, tRootPos, tTarget, tPosTable 
   tItemID = tTarget.getID()
   tItemPos = tTarget.getWorldPosition()
-  tNewPos = [tRootPos.getAt(1) + tItemPos.getAt(1), tRootPos.getAt(2) + tItemPos.getAt(2), tRootPos.getAt(3) + tItemPos.getAt(3)]
+  tNewPos = [(tRootPos.getAt(1) + tItemPos.getAt(1)), (tRootPos.getAt(2) + tItemPos.getAt(2)), (tRootPos.getAt(3) + tItemPos.getAt(3))]
   tPosTable.setaProp(tItemID, tNewPos)
   repeat while tTarget.getChildren() <= tTarget
     tItem = getAt(tTarget, tRootPos)
@@ -190,7 +190,7 @@ on getProjectedPosition me, tloc
   tYOffset = pGeometry.pYOffset
   tZOffset = pGeometry.pZOffset
   tloc = pGeometry.getScreenCoordinate(tloc.getAt(1), tloc.getAt(2), tloc.getAt(3))
-  return([tloc.getAt(1) - tXOffset, tloc.getAt(2) - tYOffset, tloc.getAt(3) - tZOffset])
+  return([(tloc.getAt(1) - tXOffset), (tloc.getAt(2) - tYOffset), (tloc.getAt(3) - tZOffset)])
 end
 
 on updateSprites me, tRootPos, tTarget, tPosTable 
@@ -198,9 +198,9 @@ on updateSprites me, tRootPos, tTarget, tPosTable
   tsprite = tTarget.getSprite()
   if not voidp(tsprite) then
     tProj = me.getProjectedPosition(tPosTable.getAt(tTarget.getID()))
-    tloc = [tProj.getAt(1) + tRootPos.getAt(1), tProj.getAt(2) + tRootPos.getAt(2), tProj.getAt(3) + tRootPos.getAt(3)]
+    tloc = [(tProj.getAt(1) + tRootPos.getAt(1)), (tProj.getAt(2) + tRootPos.getAt(2)), (tProj.getAt(3) + tRootPos.getAt(3))]
     tsprite.loc = point(integer(tloc.getAt(1)), integer(tloc.getAt(2)))
-    tsprite.locZ = integer(tloc.getAt(3)) + tTarget.getZShift()
+    tsprite.locZ = (integer(tloc.getAt(3)) + tTarget.getZShift())
   end if
   repeat while tTarget.getChildren() <= tTarget
     tItem = getAt(tTarget, tRootPos)
@@ -213,7 +213,7 @@ on render me
   tPosTable.sort()
   me.getScenePos([0, 0, 0], pScene, tPosTable)
   tRootPos = pGeometry.getScreenCoordinate(me.pLocX, me.pLocY, me.pLocH)
-  tRootPos.setAt(1, tRootPos.getAt(1) + (pGeometry.pXFactor / 2))
+  tRootPos.setAt(1, (tRootPos.getAt(1) + (pGeometry.pXFactor / 2)))
   me.updateSprites(tRootPos, pScene, tPosTable)
 end
 
@@ -253,14 +253,14 @@ on dumpVariableField me, tField, tDelimiter, tOverride, tPrefix
         tProp = tPrefix & tProp
       end if
       if not tValue contains space() then
-        if tValue.getProp(#char, 1) = "#" then
+        if (tValue.getProp(#char, 1) = "#") then
           tValue = symbol(chars(tValue, 2, length(tValue)))
         end if
       end if
       if stringp(tValue) then
         j = 1
         repeat while j <= length(tValue)
-          j = 1 + j
+          j = (1 + j)
         end repeat
       end if
       tExists = variableExists(tProp)
@@ -269,8 +269,8 @@ on dumpVariableField me, tField, tDelimiter, tOverride, tPrefix
       end if
       the itemDelimiter = tDelimiter
     end if
-    i = 1 + i
+    i = (1 + i)
   end repeat
   the itemDelimiter = tDelim
-  return(1)
+  return TRUE
 end

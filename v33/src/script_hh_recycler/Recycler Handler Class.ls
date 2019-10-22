@@ -10,16 +10,16 @@ end
 on handle_recycler_status me, tMsg 
   tConn = tMsg.getaProp(#connection)
   if not tConn then
-    return(0)
+    return FALSE
   end if
   tstate = tConn.GetIntFrom()
-  if tstate = 1 then
+  if (tstate = 1) then
     tstate = #open
   else
-    if tstate = 2 then
+    if (tstate = 2) then
       tstate = #closed
     else
-      if tstate = 3 then
+      if (tstate = 3) then
         tstate = #timeout
         tTimeout = tConn.GetIntFrom()
       end if
@@ -31,7 +31,7 @@ end
 on handle_recycler_finished me, tMsg 
   tConn = tMsg.getaProp(#connection)
   if not tConn then
-    return(0)
+    return FALSE
   end if
   tSuccess = tConn.GetIntFrom()
   tPrizeID = tConn.GetIntFrom()
@@ -52,5 +52,5 @@ on regMsgList me, tBool
     unregisterListener(getVariable("connection.room.id"), me.getID(), tMsgs)
     unregisterCommands(getVariable("connection.room.id"), me.getID(), tCmds)
   end if
-  return(1)
+  return TRUE
 end

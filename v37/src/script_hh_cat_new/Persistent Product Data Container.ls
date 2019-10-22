@@ -9,7 +9,7 @@ on construct me
   if variableExists("productdata.load.url") then
     tURL = getVariable("productdata.load.url")
     tHash = getSpecialServices().getSessionHash()
-    if tHash = "" then
+    if (tHash = "") then
       tHash = string(random(1000000))
     end if
     tURL = replaceChunks(tURL, "%hash%", tHash)
@@ -60,10 +60,10 @@ on parseCallback me, tArgument
     return(error(me, "Failure with productdata member", #parseCallback, #critical))
   end if
   tLineNo = 1
-  repeat while tLineNo <= tmember.count(#line)
-    tLineTxt = tmember.getProp(#line, tLineNo)
+  repeat while tLineNo <= tmember.text.count(#line)
+    tLineTxt = tmember.text.getProp(#line, tLineNo)
     pDownloadedData.setAt(tLineNo, tLineTxt)
-    tLineNo = 1 + tLineNo
+    tLineNo = (1 + tLineNo)
   end repeat
   me.parseOneLine(tArgument)
 end
@@ -71,13 +71,13 @@ end
 on parseOneLine me, tArgument 
   tStartingLine = tArgument.getAt(#start)
   tLineCount = tArgument.getAt(#count)
-  if tStartingLine + tLineCount > pDownloadedData.count then
-    tLineCount = pDownloadedData.count - tStartingLine
+  if (tStartingLine + tLineCount) > pDownloadedData.count then
+    tLineCount = (pDownloadedData.count - tStartingLine)
   end if
   l = tStartingLine
-  repeat while l <= tStartingLine + tLineCount
+  repeat while l <= (tStartingLine + tLineCount)
     tVal = value(pDownloadedData.getAt(l))
-    if ilk(tVal) = #list then
+    if (ilk(tVal) = #list) then
       repeat while tVal <= undefined
         tItem = getAt(undefined, tArgument)
         tdata = [:]
@@ -88,7 +88,7 @@ on parseOneLine me, tArgument
         pData.setaProp(tItem.getAt(1), tdata)
       end repeat
     else
-      if l = pDownloadedData.count and pDownloadedData.count > 1 and pDownloadedData.getAt(l) = "" then
+      if (l = pDownloadedData.count) and pDownloadedData.count > 1 and (pDownloadedData.getAt(l) = "") then
         nothing()
       else
         gLogVarUrl = string(pDownloadedData)
@@ -96,12 +96,12 @@ on parseOneLine me, tArgument
         return(error(me, "Failure while parsing productdata", #parseOneLine, #critical))
       end if
     end if
-    l = 1 + l
+    l = (1 + l)
   end repeat
-  if tStartingLine + tLineCount >= pDownloadedData.count then
+  if (tStartingLine + tLineCount) >= pDownloadedData.count then
     pDataLoaded = 1
   else
-    tNewArgument = [#start:tStartingLine + tLineCount, #count:tLineCount]
+    tNewArgument = [#start:(tStartingLine + tLineCount), #count:tLineCount]
     createTimeout(getUniqueID(), 250, #parseOneLine, me.getID(), tNewArgument, 1)
   end if
 end

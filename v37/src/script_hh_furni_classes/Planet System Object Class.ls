@@ -9,22 +9,22 @@ on construct me
   pFrameList = []
   pAnimation = []
   pLocalSprite = sprite(reserveSprite(me.getID()))
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
-  if ilk(pLocalSprite) = #sprite then
+  if (ilk(pLocalSprite) = #sprite) then
     releaseSprite(pLocalSprite.spriteNum)
   end if
-  return(1)
+  return TRUE
 end
 
 on getWorldPosition me 
-  return([(pRadius * cos(pPosition + pArcOffset)), (pRadius * sin(pPosition + pArcOffset)), pheight])
+  return([(pRadius * cos((pPosition + pArcOffset))), (pRadius * sin((pPosition + pArcOffset))), pheight])
 end
 
 on updateObject me 
-  pPosition = pPosition + float((pArcSpeed / float(getIntVariable("system.tempo", 30))))
+  pPosition = (pPosition + float((pArcSpeed / float(getIntVariable("system.tempo", 30)))))
 end
 
 on addChild me, tObject 
@@ -36,15 +36,15 @@ on getChildren me
 end
 
 on updateSprite me 
-  pAnimOffset = pAnimOffset + 1
+  pAnimOffset = (pAnimOffset + 1)
   if pAnimOffset > pFrameList.count then
     pAnimOffset = 1
   end if
   pLocalSprite.member = pAnimation.getAt(pFrameList.getAt(pAnimOffset))
   pLocalSprite.ink = pInk
   pLocalSprite.visible = 1
-  pLocalSprite.width = member.width
-  pLocalSprite.height = member.height
+  pLocalSprite.width = pLocalSprite.member.width
+  pLocalSprite.height = pLocalSprite.member.height
   if pBlend <> 100 then
     pLocalSprite.blend = pBlend
   end if
@@ -64,7 +64,7 @@ on setProps me, tProps
   pArcOffset = float((((tProps.getAt(#arcoffset) * pi()) * 2) / 360))
   pFrameList = value(tProps.getAt(#frameList))
   pInk = integer(tProps.getAt(#ink))
-  pBlend = 100 - integer(tProps.getAt(#blend))
+  pBlend = (100 - integer(tProps.getAt(#blend)))
   pZshift = integer(tProps.getAt(#zshift))
   pheight = integer(tProps.getAt(#height))
   tAnimation = value(tProps.getAt(#sprites))

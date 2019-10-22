@@ -1,10 +1,10 @@
 on handleClick me, tEvent, tSprID, tProp 
-  if tEvent = #mouseUp then
-    if tSprID = "ctlg_text_5" then
+  if (tEvent = #mouseUp) then
+    if (tSprID = "ctlg_text_5") then
       executeMessage(#externalLinkClick, the mouseLoc)
       openNetPage(getText("url_purselink"))
     else
-      if tSprID = "ctlg_text_7" then
+      if (tSprID = "ctlg_text_7") then
         tNodeName = me.getPropRef(#pPageData, #localization).getAt(#texts).getAt(8)
         tNode = getThread(#catalogue).getComponent().getNodeByName(tNodeName)
         if voidp(tNode) then

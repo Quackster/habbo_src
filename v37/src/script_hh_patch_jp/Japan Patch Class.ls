@@ -12,10 +12,10 @@ on construct me
   end if
   tui = the environment.uiLanguage
   tos = the environment.osLanguage
-  if tui = "Japanese" and tos = "Japanese" then
+  if (tui = "Japanese") and (tos = "Japanese") then
     setVariable("writer.instance.class", string(["Writer Class", "Writer Patch A"]))
   else
-    if tos = "Japanese" then
+    if (tos = "Japanese") then
       setVariable("writer.instance.class", string(["Writer Class", "Writer Patch A", "Writer Patch B"]))
     end if
   end if
@@ -55,7 +55,7 @@ on construct me
   createObject(#layout_parser, getClassVariable("layout.parser.class"))
   createObject(#string_validator, "String Validator Cls")
   registerMessage(#Initialize, me.getID(), #delayedPatch)
-  return(1)
+  return TRUE
 end
 
 on delayedPatch me 

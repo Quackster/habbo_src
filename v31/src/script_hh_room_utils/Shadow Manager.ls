@@ -1,32 +1,31 @@
-on construct(me)
+property pVisualizer, pShadowWrapper, pRenderDisabled
+
+on construct me 
   pRenderDisabled = 0
-  return(1)
-  exit
+  return TRUE
 end
 
-on deconstruct(me)
-  return(1)
-  exit
+on deconstruct me 
+  return TRUE
 end
 
-on define(me, tWrapID)
+on define me, tWrapID 
   pVisualizer = getThread(#room).getInterface().getRoomVisualizer()
   pShadowWrapper = pVisualizer.createWrapper(tWrapID)
-  tProps = []
+  tProps = [:]
   tProps.setAt(#id, tWrapID)
   tProps.setAt(#offsetx, 0)
   tProps.setAt(#offsety, 0)
-  tProps.setAt(#locZ, pVisualizer.getProperty(#locZ) - 9000)
+  tProps.setAt(#locZ, (pVisualizer.getProperty(#locZ) - 9000))
   tProps.setAt(#typeDef, #other)
   pShadowWrapper.define(tProps)
   pShadowWrapper.setProperty(#blend, 30)
   pShadowWrapper.setProperty(#ink, 41)
   pShadowWrapper.setProperty(#palette, #grayscale)
-  return(1)
-  exit
+  return TRUE
 end
 
-on addShadow(me, tProps)
+on addShadow me, tProps 
   tmember = tProps.getAt(#member)
   if memberExists(tmember) then
     pShadowWrapper.addPart(tProps)
@@ -34,32 +33,28 @@ on addShadow(me, tProps)
   else
     put(tProps.getAt(#member))
   end if
-  exit
 end
 
-on removeShadow(me, tID)
+on removeShadow me, tID 
   if pRenderDisabled then
-    return(0)
+    return FALSE
   end if
   if not voidp(pShadowWrapper) then
     pShadowWrapper.removePart(tID)
   end if
-  exit
 end
 
-on disableRender(me, tDisable)
+on disableRender me, tDisable 
   if tDisable then
     pRenderDisabled = 1
   else
     pRenderDisabled = 0
   end if
-  exit
 end
 
-on render(me)
+on render me 
   if pRenderDisabled then
-    return(0)
+    return FALSE
   end if
   pShadowWrapper.updateWrap()
-  exit
 end

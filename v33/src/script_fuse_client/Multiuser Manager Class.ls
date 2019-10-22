@@ -1,6 +1,6 @@
 on construct me 
   me.pClassString = "multiuser.instance.class"
-  return(1)
+  return TRUE
 end
 
 on handlers  

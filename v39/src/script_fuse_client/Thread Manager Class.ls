@@ -5,7 +5,7 @@ on construct me
   pVarMngrObj = createObject(#temp, getClassVariable("variable.manager.class"))
   pIndexField = getVariable("thread.index.field")
   pObjBaseCls = script(getmemnum("Object Base Class"))
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
@@ -13,7 +13,7 @@ on deconstruct me
   pVarMngrObj = 0
   pIndexField = 0
   pObjBaseCls = 0
-  return(1)
+  return TRUE
 end
 
 on create me, tID, tInitField 
@@ -27,7 +27,7 @@ end
 on GET me, tID 
   tThreadObj = pThreadList.getaProp(tID)
   if voidp(tThreadObj) then
-    return(0)
+    return FALSE
   else
     return(tThreadObj)
   end if
@@ -41,7 +41,7 @@ on initThread me, tCastNumOrMemName, tID
   startProfilingTask("Thread Manager::initThread")
   if stringp(tCastNumOrMemName) then
     tMemNum = getResourceManager().getmemnum(tCastNumOrMemName)
-    if tMemNum = 0 then
+    if (tMemNum = 0) then
       return(error(me, "Thread index field not found:" && tCastNumOrMemName, #initThread, #major))
     else
       tThreadField = tCastNumOrMemName
@@ -56,10 +56,10 @@ on initThread me, tCastNumOrMemName, tID
           if member(tThreadField, i).number > 0 then
             pVarMngrObj.clear()
             pVarMngrObj.dump(member(tThreadField, i).number)
-            if symbol(pVarMngrObj.GET("thread.id")) = tCastNumOrMemName then
+            if (symbol(pVarMngrObj.GET("thread.id")) = tCastNumOrMemName) then
               return(me.initThread(i, tID))
             else
-              i = 1 + i
+              i = (1 + i)
             end if
             if not integerp(tCastNumOrMemName) then
               return(error(me, "Cast number expected:" && tCastNumOrMemName, #initThread, #major))
@@ -71,7 +71,7 @@ on initThread me, tCastNumOrMemName, tID
             tThreadField = pIndexField
             tCastNum = tCastNumOrMemName
             if member(tThreadField, tCastNum).number < 1 then
-              return(0)
+              return FALSE
             end if
             pVarMngrObj.clear()
             pVarMngrObj.dump(member(tThreadField, tCastNum).number)
@@ -105,7 +105,7 @@ on initThread me, tCastNumOrMemName, tID
                   end if
                   if pVarMngrObj.exists(tPreIndex & tModule & ".class") then
                     tClass = pVarMngrObj.GET(tPreIndex & tModule & ".class")
-                    if tClass.getProp(#char, 1) = "[" then
+                    if (tClass.getProp(#char, 1) = "[") then
                       tClass = value(tClass)
                     end if
                     if not listp(tClass) then
@@ -119,7 +119,7 @@ on initThread me, tCastNumOrMemName, tID
               end if
             end repeat
             startProfilingTask("Thread Manager::initThread")
-            return(1)
+            return TRUE
           end if
         end repeat
       end if
@@ -131,9 +131,9 @@ on initAll me
   i = the number of undefineds
   repeat while i >= 1
     me.initThread(i)
-    i = 255 + i
+    i = (255 + i)
   end repeat
-  return(1)
+  return TRUE
 end
 
 on closeThread me, tCastNumOrID 
@@ -147,7 +147,7 @@ on closeThread me, tCastNumOrID
         tThreadKeys = [pVarMngrObj.GET("thread.id")]
       end if
     else
-      return(0)
+      return FALSE
     end if
   else
     if symbolp(tCastNumOrID) then
@@ -164,33 +164,33 @@ on closeThread me, tCastNumOrID
     end if
     tObjMgr = getObjectManager()
     if objectp(tThread.interface) then
-      tObjMgr.Remove(tThread.getID())
+      tObjMgr.Remove(tThread.interface.getID())
     end if
     if objectp(tThread.component) then
-      tObjMgr.Remove(tThread.getID())
+      tObjMgr.Remove(tThread.component.getID())
     end if
     if objectp(tThread.handler) then
-      tObjMgr.Remove(tThread.getID())
+      tObjMgr.Remove(tThread.handler.getID())
     end if
     pThreadList.deleteProp(tID)
   end repeat
-  return(1)
+  return TRUE
 end
 
 on closeAll me 
   i = pThreadList.count
   repeat while i >= 1
     me.closeThread(pThreadList.getPropAt(i))
-    i = 255 + i
+    i = (255 + i)
   end repeat
-  return(1)
+  return TRUE
 end
 
 on print me 
   i = 1
   repeat while i <= pThreadList.count
     put(pThreadList.getPropAt(i))
-    i = 1 + i
+    i = (1 + i)
   end repeat
 end
 

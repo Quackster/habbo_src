@@ -15,7 +15,7 @@ on construct me
   pScaleFlag = 0
   pDragFlag = 0
   pDragOffset = [0, 0]
-  pBoundary = rect(0, 0, undefined.width, undefined.height) + [-20, -20, 20, 20]
+  pBoundary = (rect(0, 0, the stage.rect.width, the stage.rect.height) + [-20, -20, 20, 20])
   pClientID = void()
   pMemberList = [:]
   pElemList = [:]
@@ -23,7 +23,7 @@ on construct me
   pClientRect = [0, 0, 0, 0]
   pSpecialIDList = ["drag", "close", "scale"]
   pProcedures = me.createProcListTemplate()
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
@@ -33,13 +33,13 @@ on deconstruct me
   repeat while i <= pSpriteList.count
     tSprNum = pSpriteList.getAt(i).spriteNum
     releaseSprite(tSprNum)
-    i = 1 + i
+    i = (1 + i)
   end repeat
   call(#deconstruct, pElemList)
   i = 1
   repeat while i <= pMemberList.count
     removeMember(pMemberList.getAt(i).name)
-    i = 1 + i
+    i = (1 + i)
   end repeat
   pElemList = [:]
   pSpriteList = [:]
@@ -47,7 +47,7 @@ on deconstruct me
   pGroupData = []
   pClientID = ""
   pWindowMngr = void()
-  return(1)
+  return TRUE
 end
 
 on define me, tProps 
@@ -57,7 +57,7 @@ on define me, tProps
   pBoundary = tProps.getAt(#boundary)
   pElemClsList = tProps.getAt(#elements)
   pWindowMngr = tProps.getAt(#manager)
-  return(1)
+  return TRUE
 end
 
 on close me 
@@ -67,21 +67,21 @@ end
 on merge me, tLayout 
   me.setDeactive()
   if not me.buildVisual(tLayout) then
-    return(0)
+    return FALSE
   end if
   pSpecialIDList.add("drag" & pGroupData.count)
   pSpecialIDList.add("close" & pGroupData.count)
   pWindowMngr.Activate(me.getID())
-  return(1)
+  return TRUE
 end
 
 on unmerge me 
-  if pGroupData.count = 0 then
+  if (pGroupData.count = 0) then
     return(error(me, "Cant't unmerge window without content!", #unmerge, #minor))
   end if
   tGroupData = pGroupData.getLast()
   call(#deconstruct, tGroupData.getAt(#items))
-  pClientRect = pClientRect - tGroupData.getAt(#border)
+  pClientRect = (pClientRect - tGroupData.getAt(#border))
   repeat while tGroupData.getAt(#items) <= undefined
     tItem = getAt(undefined, undefined)
     pElemList.deleteProp(pElemList.getOne(tItem))
@@ -99,7 +99,7 @@ on unmerge me
   pSpecialIDList.deleteOne("drag" & pGroupData.count)
   pSpecialIDList.deleteOne("drag" & pGroupData.count)
   pGroupData.deleteAt(pGroupData.count)
-  return(1)
+  return TRUE
 end
 
 on lock me, tBoolean 
@@ -107,46 +107,46 @@ on lock me, tBoolean
     tBoolean = 1
   end if
   pLock = tBoolean
-  return(1)
+  return TRUE
 end
 
 on hide me 
-  if pVisible = 1 then
+  if (pVisible = 1) then
     pVisible = 0
     me.moveX(10000)
-    return(1)
+    return TRUE
   end if
-  return(0)
+  return FALSE
 end
 
 on show me 
-  if pVisible = 0 then
+  if (pVisible = 0) then
     pVisible = 1
     me.moveX(-10000)
-    return(1)
+    return TRUE
   end if
-  return(0)
+  return FALSE
 end
 
 on moveTo me, tX, tY 
-  me.moveBy(tX - pLocX, tY - pLocY)
+  me.moveBy((tX - pLocX), (tY - pLocY))
 end
 
 on moveBy me, tOffX, tOffY 
-  if pLocX + tOffX < pBoundary.getAt(1) then
-    tOffX = pBoundary.getAt(1) - pLocX
+  if (pLocX + tOffX) < pBoundary.getAt(1) then
+    tOffX = (pBoundary.getAt(1) - pLocX)
   end if
-  if pLocY + tOffY < pBoundary.getAt(2) then
-    tOffY = pBoundary.getAt(2) - pLocY
+  if (pLocY + tOffY) < pBoundary.getAt(2) then
+    tOffY = (pBoundary.getAt(2) - pLocY)
   end if
-  if pLocX + pwidth + tOffX > pBoundary.getAt(3) then
-    tOffX = pBoundary.getAt(3) - pLocX - pwidth
+  if ((pLocX + pwidth) + tOffX) > pBoundary.getAt(3) then
+    tOffX = ((pBoundary.getAt(3) - pLocX) - pwidth)
   end if
-  if pLocY + pheight + tOffY > pBoundary.getAt(4) then
-    tOffY = pBoundary.getAt(4) - pLocY - pheight
+  if ((pLocY + pheight) + tOffY) > pBoundary.getAt(4) then
+    tOffY = ((pBoundary.getAt(4) - pLocY) - pheight)
   end if
-  pLocX = pLocX + tOffX
-  pLocY = pLocY + tOffY
+  pLocX = (pLocX + tOffX)
+  pLocY = (pLocY + tOffY)
   me.moveXY(tOffX, tOffY)
 end
 
@@ -156,62 +156,62 @@ on moveZ me, tZ
   end if
   i = 1
   repeat while i <= pSpriteList.count
-    pSpriteList.getAt(i).locZ = tZ + i - 1
-    i = 1 + i
+    pSpriteList.getAt(i).locZ = ((tZ + i) - 1)
+    i = (1 + i)
   end repeat
   pLocZ = tZ
 end
 
 on center me 
-  tX = (the stageRight - the stageLeft / 2) - (pwidth / 2)
-  tY = (the stageBottom - the stageTop / 2) - (pheight / 2)
+  tX = (((the stageRight - the stageLeft) / 2) - (pwidth / 2))
+  tY = (((the stageBottom - the stageTop) / 2) - (pheight / 2))
   return(me.moveTo(tX, tY))
 end
 
 on resizeBy me, tOffX, tOffY 
   if tOffX <> 0 or tOffY <> 0 then
-    pwidth = pwidth + tOffX
-    pheight = pheight + tOffY
+    pwidth = (pwidth + tOffX)
+    pheight = (pheight + tOffY)
     call(#resizeBy, pElemList, tOffX, tOffY)
   end if
 end
 
 on resizeTo me, tX, tY 
-  tOffW = tX - pwidth
-  tOffH = tY - pheight
+  tOffW = (tX - pwidth)
+  tOffH = (tY - pheight)
   me.resizeBy(tOffW, tOffH)
 end
 
 on setActive me 
   if not pActive then
     pActive = 1
-    return(1)
+    return TRUE
   else
-    return(0)
+    return FALSE
   end if
 end
 
 on setDeactive me 
   if pLock then
-    return(0)
+    return FALSE
   else
     if pActive then
       pActive = 0
-      return(1)
+      return TRUE
     else
-      return(0)
+      return FALSE
     end if
   end if
 end
 
 on getClientRect me 
-  return(rect(pLocX, pLocY, pLocX + pwidth, pLocY + pheight))
+  return(rect(pLocX, pLocY, (pLocX + pwidth), (pLocY + pheight)))
 end
 
 on getElement me, tID 
   tElement = pElemList.getaProp(tID)
   if voidp(tElement) then
-    return(0)
+    return FALSE
   end if
   return(tElement)
 end
@@ -225,12 +225,12 @@ on registerClient me, tClientID
     return(error(me, "Object not found:" && tClientID, #registerClient, #major))
   end if
   pClientID = tClientID
-  return(1)
+  return TRUE
 end
 
 on removeClient me 
   pClientID = void()
-  return(1)
+  return TRUE
 end
 
 on registerProcedure me, tMethod, tClientID, tEvent 
@@ -244,12 +244,12 @@ on registerProcedure me, tMethod, tClientID, tEvent
     i = 1
     repeat while i <= pProcedures.count
       pProcedures.setAt(i, [tMethod, tClientID])
-      i = 1 + i
+      i = (1 + i)
     end repeat
     exit repeat
   end if
   pProcedures.setAt(tEvent, [tMethod, tClientID])
-  return(1)
+  return TRUE
 end
 
 on removeProcedure me, tEvent 
@@ -260,50 +260,50 @@ on removeProcedure me, tEvent
       pProcedures.setAt(tEvent, [#null, me.getID()])
     end if
   end if
-  return(1)
+  return TRUE
 end
 
 on getProperty me, tProp 
-  if tProp = #locX then
+  if (tProp = #locX) then
     return(pLocX)
   else
-    if tProp = #locY then
+    if (tProp = #locY) then
       return(pLocY)
     else
-      if tProp = #locZ then
+      if (tProp = #locZ) then
         return(pLocZ)
       else
-        if tProp = #boundary then
+        if (tProp = #boundary) then
           return(pBoundary)
         else
-          if tProp = #width then
+          if (tProp = #width) then
             return(pwidth)
           else
-            if tProp = #height then
+            if (tProp = #height) then
               return(pheight)
             else
-              if tProp = #visible then
+              if (tProp = #visible) then
                 return(pVisible)
               else
-                if tProp = #title then
+                if (tProp = #title) then
                   return(pTitle)
                 else
-                  if tProp = #id then
+                  if (tProp = #id) then
                     return(me.getID())
                   else
-                    if tProp = #modal then
+                    if (tProp = #modal) then
                       return(pModal)
                     else
-                      if tProp = #spriteList then
+                      if (tProp = #spriteList) then
                         return(pSpriteList)
                       else
-                        if tProp = #elementList then
+                        if (tProp = #elementList) then
                           return(pElemList)
                         else
-                          if tProp = #Active then
+                          if (tProp = #Active) then
                             return(pActive)
                           else
-                            if tProp = #lock then
+                            if (tProp = #lock) then
                               return(pLock)
                             end if
                           end if
@@ -319,37 +319,37 @@ on getProperty me, tProp
       end if
     end if
   end if
-  return(0)
+  return FALSE
 end
 
 on setProperty me, tProp, tValue 
-  if tProp = #locX then
+  if (tProp = #locX) then
     me.moveX(tValue)
   else
-    if tProp = #locY then
+    if (tProp = #locY) then
       me.moveY(tValue)
     else
-      if tProp = #locZ then
+      if (tProp = #locZ) then
         me.moveZ(tValue)
       else
-        if tProp = #boundary then
+        if (tProp = #boundary) then
           pBoundary = tValue
         else
-          if tProp = #title then
+          if (tProp = #title) then
             pTitle = tValue
           else
-            if tProp = #modal then
+            if (tProp = #modal) then
               pModal = tValue
             else
-              if tProp = #visible then
+              if (tProp = #visible) then
                 if tValue then
                   me.show()
                 else
                   me.hide()
                 end if
               else
-                if tProp = #otherwise then
-                  return(0)
+                if (tProp = #otherwise) then
+                  return FALSE
                 end if
               end if
             end if
@@ -358,7 +358,7 @@ on setProperty me, tProp, tValue
       end if
     end if
   end if
-  return(1)
+  return TRUE
 end
 
 on setBlend me, tNewBlend 
@@ -366,7 +366,7 @@ on setBlend me, tNewBlend
     tsprite = getAt(undefined, tNewBlend)
     tsprite.blend = tNewBlend
   end repeat
-  return(1)
+  return TRUE
 end
 
 on mouseEnter me, tNull, tSprID 
@@ -454,8 +454,8 @@ on redirectEvent me, tEvent, tSprID
   tMethod = pProcedures.getAt(tEvent).getAt(1)
   tTarget = pProcedures.getAt(tEvent).getAt(2)
   tParam = call(tEvent, [pElemList.getAt(tSprID)], tSprID)
-  if tParam = 0 and ilk(tParam) = #integer then
-    return(0)
+  if (tParam = 0) and (ilk(tParam) = #integer) then
+    return FALSE
   end if
   tClient = getObject(tTarget)
   if tClient <> 0 then
@@ -538,14 +538,14 @@ on buildVisual me, tLayout
       if tItem.getAt(#palette) <> tPalette then
         tIsPaletteShared = 0
       end if
-      if tItem.getAt(#type) = "image" then
+      if (tItem.getAt(#type) = "image") then
         tIsPaletteShared = 0
       end if
       if tItem.getAt(#flipH) then
-        tItem.locH = tItem.locH - tItem.width
+        tItem.locH = (tItem.locH - tItem.width)
       end if
       if tItem.getAt(#flipV) then
-        tItem.locV = tItem.locV - tItem.height
+        tItem.locV = (tItem.locV - tItem.height)
       end if
       if tItem.getAt(#locH) < tElemRect.getAt(1) then
         tElemRect.setAt(1, tItem.getAt(#locH))
@@ -553,11 +553,11 @@ on buildVisual me, tLayout
       if tItem.getAt(#locV) < tElemRect.getAt(2) then
         tElemRect.setAt(2, tItem.getAt(#locV))
       end if
-      if tItem.getAt(#locH) + tItem.getAt(#width) > tElemRect.getAt(3) then
-        tElemRect.setAt(3, tItem.getAt(#locH) + tItem.getAt(#width))
+      if (tItem.getAt(#locH) + tItem.getAt(#width)) > tElemRect.getAt(3) then
+        tElemRect.setAt(3, (tItem.getAt(#locH) + tItem.getAt(#width)))
       end if
-      if tItem.getAt(#locV) + tItem.getAt(#height) > tElemRect.getAt(4) then
-        tElemRect.setAt(4, tItem.getAt(#locV) + tItem.getAt(#height))
+      if (tItem.getAt(#locV) + tItem.getAt(#height)) > tElemRect.getAt(4) then
+        tElemRect.setAt(4, (tItem.getAt(#locV) + tItem.getAt(#height)))
       end if
       if not voidp(tItem.getAt(#cursor)) then
         tsprite.setcursor(tItem.getAt(#cursor))
@@ -574,7 +574,7 @@ on buildVisual me, tLayout
       tmember.image = image(tElemRect.width, tElemRect.height, the colorDepth)
     end if
     tmember.regPoint = point(0, 0)
-    if tElement.count = 1 then
+    if (tElement.count = 1) then
       tItem = tElement.getAt(1)
       tItem.setAt(#style, #unique)
       if tIsBlendShared then
@@ -586,8 +586,8 @@ on buildVisual me, tLayout
       tWrapper = me.CreateElement(tProps)
       repeat while tLayout.getAt(#elements) <= undefined
         tItem = getAt(undefined, tLayout)
-        tItem.setAt(#locH, tItem.getAt(#locH) - tElemRect.getAt(1))
-        tItem.setAt(#locV, tItem.getAt(#locV) - tElemRect.getAt(2))
+        tItem.setAt(#locH, (tItem.getAt(#locH) - tElemRect.getAt(1)))
+        tItem.setAt(#locV, (tItem.getAt(#locV) - tElemRect.getAt(2)))
         tItem.setAt(#style, #grouped)
         if tIsBlendShared then
           tItem.setAt(#blend, 100)
@@ -611,62 +611,62 @@ on buildVisual me, tLayout
     if tIsBgColorShared then
       tsprite.bgColor = tBgColor
     end if
-    tsprite.locH = tElemRect.getAt(1) + pClientRect.getAt(1)
-    tsprite.locV = tElemRect.getAt(2) + pClientRect.getAt(2)
+    tsprite.locH = (tElemRect.getAt(1) + pClientRect.getAt(1))
+    tsprite.locV = (tElemRect.getAt(2) + pClientRect.getAt(2))
     tsprite.width = tElemRect.width
     tsprite.height = tElemRect.height
   end repeat
   tGroupData.setAt(#rect, tLayout.getAt(#rect).getAt(1))
   tGroupData.setAt(#border, tLayout.getAt(#border).getAt(1))
-  if tGroupNum = 0 then
-    pLocX = pLocX + tGroupData.getAt(#rect).getAt(1)
-    pLocY = pLocY + tGroupData.getAt(#rect).getAt(2)
+  if (tGroupNum = 0) then
+    pLocX = (pLocX + tGroupData.getAt(#rect).getAt(1))
+    pLocY = (pLocY + tGroupData.getAt(#rect).getAt(2))
     pwidth = tGroupData.getAt(#rect).width
     pheight = tGroupData.getAt(#rect).height
   else
-    tNewW = pClientRect.getAt(1) + pClientRect.getAt(3) + tGroupData.getAt(#rect).width
-    tNewH = pClientRect.getAt(2) + pClientRect.getAt(4) + tGroupData.getAt(#rect).height
+    tNewW = ((pClientRect.getAt(1) + pClientRect.getAt(3)) + tGroupData.getAt(#rect).width)
+    tNewH = ((pClientRect.getAt(2) + pClientRect.getAt(4)) + tGroupData.getAt(#rect).height)
     if tNewW <> pwidth or tNewH <> pheight then
       me.resizeTo(tNewW, tNewH)
     end if
   end if
-  pClientRect = pClientRect + tGroupData.getAt(#border)
+  pClientRect = (pClientRect + tGroupData.getAt(#border))
   i = 1
   repeat while i <= tSpriteList.count
-    tloc = tSpriteList.getAt(i).loc - [tGroupData.getAt(#rect).getAt(1), tGroupData.getAt(#rect).getAt(2)]
-    tSpriteList.getAt(i).loc = point(pLocX, pLocY) + tloc
+    tloc = (tSpriteList.getAt(i).loc - [tGroupData.getAt(#rect).getAt(1), tGroupData.getAt(#rect).getAt(2)])
+    tSpriteList.getAt(i).loc = (point(pLocX, pLocY) + tloc)
     tID = tmemberlist.getPropAt(i)
     pMemberList.addProp(tID, tmemberlist.getaProp(tID))
     pSpriteList.addProp(tID, tSpriteList.getaProp(tID))
-    tSpriteList.getAt(i).locZ = pLocZ + pSpriteList.count - 1
-    i = 1 + i
+    tSpriteList.getAt(i).locZ = (pLocZ + (pSpriteList.count - 1))
+    i = (1 + i)
   end repeat
   i = 1
   repeat while i <= tElemList.count
     pElemList.addProp(tElemList.getPropAt(i), tElemList.getAt(i))
-    i = 1 + i
+    i = (1 + i)
   end repeat
   pGroupData.add(tGroupData)
   call(#prepare, tGroupData.getAt(#items))
   call(#render, tGroupData.getAt(#items))
-  return(1)
+  return TRUE
 end
 
 on prepare me 
-  tOffX = the mouseH - pScaleOffset.getAt(1)
-  tOffY = the mouseV - pScaleOffset.getAt(2)
+  tOffX = (the mouseH - pScaleOffset.getAt(1))
+  tOffY = (the mouseV - pScaleOffset.getAt(2))
   pScaleOffset = the mouseLoc
-  if pwidth + tOffX < 64 then
-    tOffX = 64 - pwidth
+  if (pwidth + tOffX) < 64 then
+    tOffX = (64 - pwidth)
   end if
-  if pheight + tOffY < 64 then
-    tOffY = 64 - pheight
+  if (pheight + tOffY) < 64 then
+    tOffY = (64 - pheight)
   end if
   me.resizeBy(tOffX, tOffY)
 end
 
 on update me 
-  me.moveTo(the mouseH - pDragOffset.getAt(1), the mouseV - pDragOffset.getAt(2))
+  me.moveTo((the mouseH - pDragOffset.getAt(1)), (the mouseV - pDragOffset.getAt(2)))
 end
 
 on CreateElement me, tProps 
@@ -707,31 +707,31 @@ on createProcListTemplate me
 end
 
 on scale me, tBoolean 
-  if tBoolean = 1 and pScaleFlag = 0 then
+  if (tBoolean = 1) and (pScaleFlag = 0) then
     pScaleOffset = the mouseLoc
     receivePrepare(me.getID())
     pScaleFlag = 1
   else
-    if tBoolean = 0 and pScaleFlag = 1 then
+    if (tBoolean = 0) and (pScaleFlag = 1) then
       removePrepare(me.getID())
       pScaleFlag = 0
     end if
   end if
-  return(1)
+  return TRUE
 end
 
 on drag me, tBoolean 
-  if tBoolean = 1 and pDragFlag = 0 then
-    pDragOffset = the mouseLoc - [pLocX, pLocY]
+  if (tBoolean = 1) and (pDragFlag = 0) then
+    pDragOffset = (the mouseLoc - [pLocX, pLocY])
     receiveUpdate(me.getID())
     pDragFlag = 1
   else
-    if tBoolean = 0 and pDragFlag = 1 then
+    if (tBoolean = 0) and (pDragFlag = 1) then
       removeUpdate(me.getID())
       pDragFlag = 0
     end if
   end if
-  return(1)
+  return TRUE
 end
 
 on draw me, tRGB 
@@ -741,35 +741,35 @@ end
 on moveX me, tOffX 
   i = 1
   repeat while i <= pSpriteList.count
-    pSpriteList.getAt(i).locH = pSpriteList.getAt(i).locH + tOffX
-    i = 1 + i
+    pSpriteList.getAt(i).locH = (pSpriteList.getAt(i).locH + tOffX)
+    i = (1 + i)
   end repeat
 end
 
 on moveY me, tOffY 
   i = 1
   repeat while i <= pSpriteList.count
-    pSpriteList.getAt(i).locV = pSpriteList.getAt(i).locV + tOffY
-    i = 1 + i
+    pSpriteList.getAt(i).locV = (pSpriteList.getAt(i).locV + tOffY)
+    i = (1 + i)
   end repeat
 end
 
 on moveXY me, tOffX, tOffY 
   i = 1
   repeat while i <= pSpriteList.count
-    pSpriteList.getAt(i).loc = pSpriteList.getAt(i).loc + [tOffX, tOffY]
-    i = 1 + i
+    pSpriteList.getAt(i).loc = (pSpriteList.getAt(i).loc + [tOffX, tOffY])
+    i = (1 + i)
   end repeat
 end
 
 on null me 
-  return(0)
+  return FALSE
 end
 
 on movePartBy me, ttype, tX, tY, tInverse 
   tsprite = pSpriteList.getAt(ttype)
   if voidp(tsprite) then
-    return(0)
+    return FALSE
   end if
   if tInverse then
     i = 1
@@ -777,18 +777,18 @@ on movePartBy me, ttype, tX, tY, tInverse
       tSymbol = pSpriteList.getPropAt(i)
       if tSymbol <> ttype then
         tsprite = pSpriteList.getAt(tSymbol)
-        tsprite.loc = tsprite.loc + [tX, tY]
+        tsprite.loc = (tsprite.loc + [tX, tY])
       end if
-      i = 1 + i
+      i = (1 + i)
     end repeat
     exit repeat
   end if
-  tsprite.loc = tsprite.loc + [tX, tY]
+  tsprite.loc = (tsprite.loc + [tX, tY])
 end
 
 on movePartTo me, ttype, tX, tY, tInverse 
-  tX = tX - pLocX
-  tY = tY - pLocY
+  tX = (tX - pLocX)
+  tY = (tY - pLocY)
   me.movePartBy(ttype, tX, tY, tInverse)
 end
 

@@ -4,13 +4,13 @@ on construct me
   pWriterClass = getClassVariable("writer.instance.class")
   pPlainStruct = getStructVariable("struct.font.plain")
   pItemList = [:]
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
   call(#deconstruct, pItemList)
   pItemList = [:]
-  return(1)
+  return TRUE
 end
 
 on create me, tID, tMetrics 
@@ -22,9 +22,9 @@ on create me, tID, tMetrics
   end if
   tObj = getObjectManager().create(#temp, pWriterClass)
   if not tObj then
-    return(0)
+    return FALSE
   end if
-  if tMetrics.ilk = #struct then
+  if (tMetrics.ilk = #struct) then
     tObj.setFont(tMetrics)
   else
     tObj.setFont(pPlainStruct)
@@ -32,7 +32,7 @@ on create me, tID, tMetrics
   end if
   pItemList.setAt(tID, tObj)
   tObj.setID(tID)
-  return(1)
+  return TRUE
 end
 
 on Remove me, tID 
@@ -47,7 +47,7 @@ end
 on GET me, tID 
   tObj = pItemList.getaProp(tID)
   if voidp(tObj) then
-    return(0)
+    return FALSE
   end if
   return(tObj)
 end

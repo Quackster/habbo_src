@@ -1,4 +1,4 @@
-on resolveLargePreview(me, tOffer)
+on resolveLargePreview me, tOffer 
   if not objectp(tOffer) then
     return(error(me, "Invalid input format", #resolveLargePreview, #major))
   end if
@@ -15,10 +15,9 @@ on resolveLargePreview(me, tOffer)
     return(getMember("ctlg_fx_prev_" & tClassID).image)
   end if
   return(getMember("no_icon_small").image)
-  exit
 end
 
-on showPreview(me, tOfferGroup)
+on showPreview me, tOfferGroup 
   if voidp(me.pWndObj) then
     return("\r", error(me, "Missing handle to window object!", #showPreview, #major))
   end if
@@ -33,16 +32,16 @@ on showPreview(me, tOfferGroup)
   end if
   tPrevImage = me.resolveLargePreview(tOfferGroup.getOffer(1))
   if ilk(tPrevImage) <> #image then
-    return(0)
+    return FALSE
   end if
-  tPrevImage.centerBlitImageToElement(me, pWndObj.getElement(me.getProp(#pImageElements, 2)))
-  tCatalogProps = me.getProps(tOfferGroup.getOffer(1).getName())
+  me.centerBlitImageToElement(tPrevImage, me.pWndObj.getElement(me.getProp(#pImageElements, 2)))
+  tCatalogProps = me.pPersistentCatalogData.getProps(tOfferGroup.getOffer(1).getName())
   if listp(tCatalogProps) then
     tDesc = tCatalogProps.getAt(#description)
     tExp = tOfferGroup.getOffer(1).getContent(1).getExpiration()
     if tExp <> -1 then
-      tHours = tExp / 60
-      tMins = tExp mod 60
+      tHours = (tExp / 60)
+      tMins = (tExp mod 60)
       tExpText = replaceChunks(getText("expiring_item_postfix", "Lasts %x% hours %y% minutes."), "%x%", tHours)
       tExpText = replaceChunks(tExpText, "%y%", tMins)
       tDesc = tDesc && tExpText
@@ -54,33 +53,32 @@ on showPreview(me, tOfferGroup)
   end if
   i = 1
   repeat while i <= me.count(#pOfferTypesAvailable)
-    tElements = me.getAt(i).getaProp(#elements)
-    tText = me.getOfferPriceTextByType(tOfferGroup, me.getAt(i).getaProp(#type))
-    repeat while me <= undefined
+    tElements = me.pOfferTypesAvailable.getAt(i).getaProp(#elements)
+    tText = me.getOfferPriceTextByType(tOfferGroup, me.pOfferTypesAvailable.getAt(i).getaProp(#type))
+    repeat while tElements <= undefined
       tElement = getAt(undefined, tOfferGroup)
       me.setElementText(me.pWndObj, tElement, tText)
     end repeat
-    i = 1 + i
+    i = (1 + i)
   end repeat
-  exit
 end
 
-on handleClick(me, tEvent, tSprID, tProp)
-  if tEvent = #mouseUp then
-    if me = "ctlg_productstrip" then
+on handleClick me, tEvent, tSprID, tProp 
+  if (tEvent = #mouseUp) then
+    if (tSprID = "ctlg_productstrip") then
       if ilk(tProp) <> #point then
         return()
       end if
       tSelectedItem = void()
       if objectp(me.pProductStrip) then
-        me.selectItemAt(tProp)
-        tSelectedItem = me.getSelectedItem()
+        me.pProductStrip.selectItemAt(tProp)
+        tSelectedItem = me.pProductStrip.getSelectedItem()
       end if
       if not voidp(tSelectedItem) then
-        repeat while me <= tSprID
+        repeat while tSprID <= tSprID
           tElement = getAt(tSprID, tEvent)
-          if pWndObj.elementExists(tElement) then
-            pWndObj.getElement(tElement).hide()
+          if me.pWndObj.elementExists(tElement) then
+            me.pWndObj.getElement(tElement).hide()
           end if
         end repeat
         me.showPreview(tSelectedItem)
@@ -88,13 +86,13 @@ on handleClick(me, tEvent, tSprID, tProp)
         me.setBuyButtonStates(me.getOfferTypeList(tSelectedItem))
       end if
     else
-      if me <> "ctlg_buy_button" then
-        if me <> "ctlg_buy_pixels_credits" then
-          if me = "ctlg_buy_pixels" then
+      if tSprID <> "ctlg_buy_button" then
+        if tSprID <> "ctlg_buy_pixels_credits" then
+          if (tSprID = "ctlg_buy_pixels") then
             if not objectp(me.pProductStrip) then
               return()
             end if
-            tSelectedItem = me.getSelectedItem()
+            tSelectedItem = me.pProductStrip.getSelectedItem()
             if not voidp(tSelectedItem) then
               tOfferType = me.getPropRef(#pOfferTypesAvailable, tSprID).getaProp(#type)
               tOffer = me.getOfferByType(tSelectedItem, tOfferType)
@@ -102,17 +100,17 @@ on handleClick(me, tEvent, tSprID, tProp)
                 return(error(me, "Unable to find offer of type " & tOfferType & " check page offer configuration.", #handleClick, #major))
               end if
               tExtraProps = void()
-              if tSprID = "ctlg_buy_pixels_credits" or tSprID = "ctlg_buy_pixels" then
+              if (tSprID = "ctlg_buy_pixels_credits") or (tSprID = "ctlg_buy_pixels") then
                 tExtraProps = [#disableGift]
               end if
               getThread(#catalogue).getComponent().requestPurchase(tOfferType, me.getProp(#pPageData, #pageid), tOffer, #sendPurchaseFromCatalog, tExtraProps)
             end if
           else
-            if me = "ctlg_buy_andwear" then
+            if (tSprID = "ctlg_buy_andwear") then
               if not objectp(me.pProductStrip) then
                 return()
               end if
-              tSelectedItem = me.getSelectedItem()
+              tSelectedItem = me.pProductStrip.getSelectedItem()
               if not voidp(tSelectedItem) then
                 tOfferType = me.getPropRef(#pOfferTypesAvailable, tSprID).getaProp(#type)
                 tOffer = me.getOfferByType(tSelectedItem, tOfferType)
@@ -135,7 +133,6 @@ on handleClick(me, tEvent, tSprID, tProp)
               end if
             end if
           end if
-          exit
         end if
       end if
     end if

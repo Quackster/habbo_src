@@ -1,8 +1,10 @@
-on deconstruct(me)
+property pNameBase, pLayerDataList, pStateSequenceList, pStateStringList, pInkList, pBlendList, pIsAnimatingList, pFrameRepeatList, pFrameSequenceNumberList, pFrameNumberList, pLoopCountList, pFrameNumberList2, pInitialized, pState
+
+on deconstruct me 
   pStateSequenceList = []
   pStateIndex = 1
   pState = 1
-  pLayerDataList = []
+  pLayerDataList = [:]
   pStateStringList = []
   pFrameSequenceNumberList = []
   pFrameNumberList = []
@@ -17,14 +19,13 @@ on deconstruct(me)
   pIsAnimatingList = []
   pInitialized = 0
   callAncestor(#deconstruct, [me])
-  exit
 end
 
-on define(me, tProps)
+on define me, tProps 
   pStateSequenceList = []
   pStateIndex = 1
   pState = 1
-  pLayerDataList = []
+  pLayerDataList = [:]
   pStateStringList = []
   pFrameSequenceNumberList = []
   pFrameNumberList = []
@@ -40,10 +41,10 @@ on define(me, tProps)
   tClass = tProps.getAt(#class)
   tOffset = offset("*", tClass)
   if tOffset > 0 then
-    tClass = tClass.getProp(#char, 1, tOffset - 1)
+    tClass = tClass.getProp(#char, 1, (tOffset - 1))
   end if
   pNameBase = tClass
-  if getThread(#room).getInterface().getGeometry().pXFactor = 32 then
+  if (getThread(#room).getInterface().getGeometry().pXFactor = 32) then
     pNameBase = "s_" & pNameBase
   end if
   tDataName = pNameBase & ".data"
@@ -52,11 +53,11 @@ on define(me, tProps)
     tText = replaceChunks(tText, "\r", "")
     tdata = value(tText)
     if not voidp(tdata) then
-      if tdata.ilk = #propList then
+      if (tdata.ilk = #propList) then
         pStateSequenceList = tdata.getAt(#states)
         pLayerDataList = tdata.getAt(#layers)
         if voidp(pLayerDataList) then
-          pLayerDataList = []
+          pLayerDataList = [:]
         end if
         i = pLayerDataList.count
         repeat while i >= 1
@@ -69,22 +70,22 @@ on define(me, tProps)
             repeat while j <= tCount
               tID = symbol(tFullId.getProp(#char, j))
               pLayerDataList.setaProp(tID, tValue)
-              j = 1 + j
+              j = (1 + j)
             end repeat
           end if
-          i = 255 + i
+          i = (255 + i)
         end repeat
         pLayerDataList.sort()
-        tLayerDataList = []
+        tLayerDataList = [:]
         i = 1
         repeat while i <= pLayerDataList.count
           tProp = string(pLayerDataList.getPropAt(i))
           if charToNum(tProp) < charToNum("a") then
-            tProp = numToChar(charToNum("a") + charToNum(tProp) - charToNum("A"))
+            tProp = numToChar((charToNum("a") + (charToNum(tProp) - charToNum("A"))))
           end if
           tLayerData = pLayerDataList.getAt(i)
           tLayerDataList.addProp(tProp, tLayerData)
-          i = 1 + i
+          i = (1 + i)
         end repeat
         pLayerDataList = tLayerDataList
         if voidp(pStateSequenceList) then
@@ -114,14 +115,13 @@ on define(me, tProps)
     end if
     pInkList.setAt(tLayer, me.solveInk(tLayerName, pNameBase))
     pBlendList.setAt(tLayer, me.solveBlend(tLayerName, pNameBase))
-    tLayer = 1 + tLayer
+    tLayer = (1 + tLayer)
   end repeat
   pInitialized = 0
   return(callAncestor(#define, [me], tProps))
-  exit
 end
 
-on prepare(me, tdata)
+on prepare me, tdata 
   tstate = tdata.getAt(#stuffdata)
   if pStateStringList.findPos(tstate) > 0 then
     tstate = pStateStringList.findPos(tstate)
@@ -129,24 +129,22 @@ on prepare(me, tdata)
   me.setState(tstate)
   me.resetFrameNumbers()
   callAncestor(#prepare, [me], tdata)
-  return(1)
-  exit
+  return TRUE
 end
 
-on select(me)
+on select me 
   if the doubleClick then
     me.getNextState()
   else
-    return(0)
+    return FALSE
   end if
   callAncestor(#select, [me])
-  return(1)
-  exit
+  return TRUE
 end
 
-on update(me)
-  if pIsAnimatingList.findPos(1) = 0 then
-    return(1)
+on update me 
+  if (pIsAnimatingList.findPos(1) = 0) then
+    return TRUE
   end if
   tIsAnimatingList = []
   tLayer = 1
@@ -175,21 +173,21 @@ on update(me)
             end if
           end if
           if tFrameCount > 0 then
-            if pFrameNumberList.getAt(tLayer) = tFrameCount then
+            if (pFrameNumberList.getAt(tLayer) = tFrameCount) then
               if pLoopCountList.getAt(tLayer) > 0 then
-                pLoopCountList.setAt(tLayer, pLoopCountList.getAt(tLayer) - 1)
+                pLoopCountList.setAt(tLayer, (pLoopCountList.getAt(tLayer) - 1))
               end if
               tLoop = pLoopCountList.getAt(tLayer)
-              if pLoopCountList.getAt(tLayer) = 0 then
+              if (pLoopCountList.getAt(tLayer) = 0) then
                 tIsAnimatingList.setAt(tLayer, 0)
               end if
             end if
             if pFrameNumberList.getAt(tLayer) < tFrameCount or tLoop then
-              if tSequenceCount > 0 and pFrameNumberList.getAt(tLayer) = tFrameCount then
+              if tSequenceCount > 0 and (pFrameNumberList.getAt(tLayer) = tFrameCount) then
                 pFrameSequenceNumberList.setAt(tLayer, random(tSequenceCount))
                 pFrameNumberList.setAt(tLayer, 1)
               else
-                pFrameNumberList.setAt(tLayer, pFrameNumberList.getAt(tLayer) mod tFrameCount + 1)
+                pFrameNumberList.setAt(tLayer, ((pFrameNumberList.getAt(tLayer) mod tFrameCount) + 1))
               end if
               tRandom = 0
               if not voidp(tFrameList.getAt(#random)) then
@@ -197,8 +195,8 @@ on update(me)
               end if
               if tRandom and tFrameCount > 1 then
                 tValue = random(tFrameCount)
-                if tValue = pFrameNumberList2.getAt(tLayer) then
-                  tValue = pFrameNumberList2.getAt(tLayer) mod tFrameCount + 1
+                if (tValue = pFrameNumberList2.getAt(tLayer)) then
+                  tValue = ((pFrameNumberList2.getAt(tLayer) mod tFrameCount) + 1)
                 end if
                 pFrameNumberList2.setAt(tLayer, tValue)
               else
@@ -214,23 +212,22 @@ on update(me)
           end if
           pFrameRepeatList.setAt(tLayer, 1)
         else
-          pFrameRepeatList.setAt(tLayer, pFrameRepeatList.getAt(tLayer) + 1)
+          pFrameRepeatList.setAt(tLayer, (pFrameRepeatList.getAt(tLayer) + 1))
         end if
       end if
     end if
-    tLayer = 1 + tLayer
+    tLayer = (1 + tLayer)
   end repeat
   me.solveMembers()
   tLayer = 1
   repeat while tLayer <= pLayerDataList.count
     pIsAnimatingList.setAt(tLayer, tIsAnimatingList.getAt(tLayer))
-    tLayer = 1 + tLayer
+    tLayer = (1 + tLayer)
   end repeat
-  return(1)
-  exit
+  return TRUE
 end
 
-on solveMembers(me)
+on solveMembers me 
   if not pInitialized then
     callAncestor(#solveMembers, [me])
   end if
@@ -246,7 +243,7 @@ on solveMembers(me)
       tAnimating = pIsAnimatingList.getAt(tLayer)
     end if
     if tAnimating then
-      tLayerName = numToChar(charToNum("a") + tLayer - 1)
+      tLayerName = numToChar(((charToNum("a") + tLayer) - 1))
       if pLayerDataList.count >= tLayer then
         tLayerName = pLayerDataList.getPropAt(tLayer)
       end if
@@ -255,15 +252,15 @@ on solveMembers(me)
         tSpr = sprite(reserveSprite(me.getID()))
         tTargetID = getThread(#room).getInterface().getID()
         tLayerName = pLayerDataList.getPropAt(tLayer)
-        if me.solveTransparency(tLayerName) = 0 then
+        if (me.solveTransparency(tLayerName) = 0) then
           setEventBroker(tSpr.spriteNum, me.getID())
           tSpr.registerProcedure(#eventProcItemObj, tTargetID, #mouseDown)
           tSpr.registerProcedure(#eventProcItemRollOver, tTargetID, #mouseEnter)
           tSpr.registerProcedure(#eventProcItemRollOver, tTargetID, #mouseLeave)
         end if
-        pSprList.add(tSpr)
+        me.pSprList.add(tSpr)
       else
-        tSpr = pSprList.getAt(tLayer)
+        tSpr = me.pSprList.getAt(tLayer)
         if not pInitialized then
           if me.solveTransparency(tLayerName) then
             removeEventBroker(tSpr.spriteNum)
@@ -272,7 +269,7 @@ on solveMembers(me)
       end if
       tMemNum = getmemnum(tMemName)
       if tMemNum <> 0 then
-        tMembersFound = tMembersFound + 1
+        tMembersFound = (tMembersFound + 1)
         tOldRect = tSpr.rect
         if tMemNum < 1 then
           tMemNum = abs(tMemNum)
@@ -312,35 +309,33 @@ on solveMembers(me)
       end if
     else
       if me.count(#pSprList) >= tLayer then
-        tSpr = pSprList.getAt(tLayer)
+        tSpr = me.pSprList.getAt(tLayer)
         if tSpr.castNum <> 0 then
-          tMembersFound = tMembersFound + 1
+          tMembersFound = (tMembersFound + 1)
         end if
       end if
     end if
-    tLayer = 1 + tLayer
+    tLayer = (1 + tLayer)
   end repeat
   pInitialized = 1
-  if tMembersFound = 0 then
-    return(0)
+  if (tMembersFound = 0) then
+    return FALSE
   else
-    return(1)
+    return TRUE
   end if
-  exit
 end
 
-on postProcessLayer(me, tLayer)
-  return(1)
-  exit
+on postProcessLayer me, tLayer 
+  return TRUE
 end
 
-on animatePaletteForLayer(me, tLayerIndex, tSpr)
-  if pLayerDataList.count = 0 then
-    return(1)
+on animatePaletteForLayer me, tLayerIndex, tSpr 
+  if (pLayerDataList.count = 0) then
+    return TRUE
   end if
   tFrameList = me.getFrameList(tLayerIndex)
   if not tFrameList.findPos(#paletteFrames) > 0 then
-    return(1)
+    return TRUE
   end if
   tFrames = tFrameList.getaProp(#paletteFrames)
   tPalettes = tFrameList.getaProp(#paletteIndex)
@@ -365,22 +360,21 @@ on animatePaletteForLayer(me, tLayerIndex, tSpr)
     end if
   end if
   if tFrameNumber > tPalettes.count then
-    return(0)
+    return FALSE
   end if
   if tFrameNumber < 1 then
-    return(0)
+    return FALSE
   end if
   tPalette = tPalettes.getAt(tFrameNumber)
   tMemNum = getmemnum(tPalette)
-  if tMemNum = 0 then
-    return(0)
+  if (tMemNum = 0) then
+    return FALSE
   end if
-  member.paletteRef = member(tMemNum)
-  return(1)
-  exit
+  tSpr.member.paletteRef = member(tMemNum)
+  return TRUE
 end
 
-on getMemberName(me, tLayer)
+on getMemberName me, tLayer 
   tName = pNameBase
   tLayerIndex = pLayerDataList.findPos(tLayer)
   tFrameList = me.getFrameList(tLayer)
@@ -412,10 +406,9 @@ on getMemberName(me, tLayer)
   end if
   tName = tName & "_" & tLayer & "_0_" & me.getProp(#pDimensions, 1) & "_" & me.getProp(#pDimensions, 2) & "_" & tDirection & "_" & tFrame
   return(tName)
-  exit
 end
 
-on getFrameList(me, tLayer)
+on getFrameList me, tLayer 
   if not voidp(tLayer) then
     if not voidp(pLayerDataList.getAt(tLayer)) then
       tLayerData = pLayerDataList.getAt(tLayer)
@@ -430,11 +423,10 @@ on getFrameList(me, tLayer)
     end if
   end if
   return(void())
-  exit
 end
 
-on updateStuffdata(me, tValue)
-  if ilk(tValue) = #string then
+on updateStuffdata me, tValue 
+  if (ilk(tValue) = #string) then
     if pStateStringList.findPos(tValue) > 0 then
       tValue = pStateStringList.findPos(tValue)
     end if
@@ -444,50 +436,49 @@ on updateStuffdata(me, tValue)
     tstate = tValue
   end if
   me.setState(tValue)
-  exit
 end
 
-on setState(me, tNewState)
+on setState me, tNewState 
   tLayer = 1
   repeat while tLayer <= pLayerDataList.count
     pLoopCountList.setAt(tLayer, 0)
-    tLayer = 1 + tLayer
+    tLayer = (1 + tLayer)
   end repeat
-  if tNewState = "" then
+  if (tNewState = "") then
     tNewState = 0
   end if
   if ilk(integer(tNewState)) <> #integer then
-    return(0)
+    return FALSE
   end if
   tNewState = integer(tNewState)
-  tNewState = tNewState + 1
+  tNewState = (tNewState + 1)
   tNewIndex = 0
   tIndex = 1
   repeat while tIndex <= pStateSequenceList.count
     tstate = pStateSequenceList.getAt(tIndex)
-    if ilk(tstate) = #list then
+    if (ilk(tstate) = #list) then
       tIndex2 = 1
       repeat while tIndex2 <= tstate.count
-        if tstate.getAt(tIndex2) = tNewState then
+        if (tstate.getAt(tIndex2) = tNewState) then
           tNewIndex = tIndex
         else
-          tIndex2 = 1 + tIndex2
+          tIndex2 = (1 + tIndex2)
         end if
       end repeat
       exit repeat
     end if
-    if tstate = tNewState then
+    if (tstate = tNewState) then
       tNewIndex = tIndex
     end if
     if tNewIndex <> 0 then
     else
-      tIndex = 1 + tIndex
+      tIndex = (1 + tIndex)
     end if
   end repeat
-  if tNewIndex = 0 then
+  if (tNewIndex = 0) then
     if pStateSequenceList.count > 0 then
       tstate = pStateSequenceList.getAt(1)
-      if ilk(tstate) = #list then
+      if (ilk(tstate) = #list) then
         if tstate.count > 0 then
           tNewState = tstate.getAt(1)
           tNewIndex = 1
@@ -508,31 +499,29 @@ on setState(me, tNewState)
       if not voidp(tFrameList) then
         tLoop = 1
         if not voidp(tFrameList.getAt(#loop)) then
-          tLoop = tFrameList.getAt(#loop) - 1
+          tLoop = (tFrameList.getAt(#loop) - 1)
         end if
         pLoopCountList.setAt(tLayer, tLoop)
       end if
-      tLayer = 1 + tLayer
+      tLayer = (1 + tLayer)
     end repeat
     me.solveMembers()
     me.updateLocation()
-    return(1)
+    return TRUE
   end if
-  return(0)
-  exit
+  return FALSE
 end
 
-on getNextState(me)
+on getNextState me 
   return(getThread(#room).getComponent().getRoomConnection().send("USEFURNITURE", [#integer:integer(me.getID()), #integer:0]))
-  exit
 end
 
-on validateStateSequenceList(me)
+on validateStateSequenceList me 
   tstatelist = []
   tIndex = 1
   repeat while tIndex <= pStateSequenceList.count
     tstate = pStateSequenceList.getAt(tIndex)
-    if ilk(tstate) = #list then
+    if (ilk(tstate) = #list) then
       if tstate.count < 1 then
         return(error(me, "Invalid state sequence list for item" && me.pNameBase, #validateStateSequenceList, #major))
       end if
@@ -549,7 +538,7 @@ on validateStateSequenceList(me)
             return(error(me, "Invalid state sequence list for item" && me.pNameBase, #validateStateSequenceList, #major))
           end if
         end if
-        tIndex2 = 1 + tIndex2
+        tIndex2 = (1 + tIndex2)
       end repeat
       exit repeat
     end if
@@ -565,13 +554,12 @@ on validateStateSequenceList(me)
         tstatelist.setAt(tstate, 1)
       end if
     end if
-    tIndex = 1 + tIndex
+    tIndex = (1 + tIndex)
   end repeat
-  return(1)
-  exit
+  return TRUE
 end
 
-on resetFrameNumbers(me)
+on resetFrameNumbers me 
   pFrameRepeatList = []
   pIsAnimatingList = []
   pFrameNumberList = []
@@ -584,12 +572,11 @@ on resetFrameNumbers(me)
     pFrameNumberList2.setAt(i, 1)
     pFrameRepeatList.setAt(i, 1)
     pIsAnimatingList.setAt(i, 1)
-    i = 1 + i
+    i = (1 + i)
   end repeat
-  exit
 end
 
-on solveTransparency(me, tPart)
+on solveTransparency me, tPart 
   tName = pNameBase
   if memberExists(tName & ".props") then
     tPropList = value(member(getmemnum(tName & ".props")).text)
@@ -603,6 +590,5 @@ on solveTransparency(me, tPart)
       end if
     end if
   end if
-  return(0)
-  exit
+  return FALSE
 end

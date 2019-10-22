@@ -1,20 +1,18 @@
-on Initialize(me)
+on Initialize me 
   me.registerForIGComponentUpdates("GameList")
-  return(1)
-  exit
+  return TRUE
 end
 
-on handleUpdate(me, tUpdateId, tSenderId)
+on handleUpdate me, tUpdateId, tSenderId 
   tService = me.getIGComponent("GameList")
-  if tService = 0 then
-    return(0)
+  if (tService = 0) then
+    return FALSE
   end if
   if tUpdateId <> tService.getObservedGameId() then
-    return(1)
+    return TRUE
   end if
   tRenderObj = getObject(me.getRendererID())
   if tRenderObj <> 0 then
     tRenderObj.render()
   end if
-  exit
 end

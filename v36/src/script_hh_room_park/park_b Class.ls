@@ -1,12 +1,12 @@
 on construct me 
   getThread(#room).getComponent().getClassContainer().set("hububar", ["Passive Object Class", "Hububar Class"])
   initThread("hubu.index")
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
   closeThread(#hubu)
-  return(1)
+  return TRUE
 end
 
 on prepare me 
@@ -20,7 +20,7 @@ end
 
 on showprogram me, tMsg 
   if voidp(tMsg) then
-    return(0)
+    return FALSE
   end if
   tDst = tMsg.getAt(#show_dest)
   tCmd = tMsg.getAt(#show_command)
@@ -29,10 +29,10 @@ end
 
 on busTeleport me, tEvent, tSprID, tParm 
   tConnection = getThread(#room).getComponent().getRoomConnection()
-  if tConnection = 0 then
-    return(0)
+  if (tConnection = 0) then
+    return FALSE
   end if
-  if tSprID = "goawaybus" then
+  if (tSprID = "goawaybus") then
     tConnection.send("CHANGEWORLD", [#integer:0])
   end if
 end

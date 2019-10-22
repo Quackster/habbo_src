@@ -5,27 +5,27 @@ on construct me
   pSprite = void()
   pLastLoc = point(0, 0)
   pLastCrd = void()
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
   pGeometry = void()
-  if ilk(pSprite) = #sprite then
+  if (ilk(pSprite) = #sprite) then
     pSprite.visible = 0
   end if
   pSprite = void()
   pLastLoc = void()
-  return(1)
+  return TRUE
 end
 
 on define me, tdata 
   pGeometry = getObject(tdata.getAt(#geometry))
   pSprite = tdata.getAt(#sprite)
-  return(1)
+  return TRUE
 end
 
 on update me 
-  if the mouseLoc = pLastLoc then
+  if (the mouseLoc = pLastLoc) then
     return()
   end if
   pLastLoc = the mouseLoc

@@ -25,11 +25,11 @@ on deconstruct me
 end
 
 on getProps me, ttype, tID 
-  if ttype = "s" then
+  if (ttype = "s") then
     return(pStuffData.getaProp(tID))
   else
     if ttype <> "i" then
-      if ttype = "e" then
+      if (ttype = "e") then
         return(pWallitemData.getaProp(tID))
       else
         error(me, "invalid item type", #getProps, #minor)
@@ -39,11 +39,11 @@ on getProps me, ttype, tID
 end
 
 on getPropsByClass me, ttype, tClass 
-  if ttype = "s" then
+  if (ttype = "s") then
     return(pStuffDataByClass.getaProp(tClass))
   else
     if ttype <> "i" then
-      if ttype = "e" then
+      if (ttype = "e") then
         return(pWallitemDataByClass.getaProp(tClass))
       else
         error(me, "invalid item type", #getProps, #minor)
@@ -56,7 +56,7 @@ on initDownload me
   tURL = getVariable("furnidata.load.url")
   pMemberName = tURL & "-" & pDownloadRetriesLeft
   tHash = getSpecialServices().getSessionHash()
-  if tHash = "" then
+  if (tHash = "") then
     tHash = string(random(1000000))
   end if
   tURL = replaceChunks(tURL, "%hash%", tHash)
@@ -87,10 +87,10 @@ on parseCallback me, tArgument
     return(error(me, "Failure with furnidata member", #parseCallback, #critical))
   end if
   tLineNo = 1
-  repeat while tmember <= text.count(#line)
-    tLineTxt = text.getProp(#line, tLineNo)
+  repeat while tLineNo <= tmember.text.count(#line)
+    tLineTxt = tmember.text.getProp(#line, tLineNo)
     pDownloadedData.setAt(tLineNo, tLineTxt)
-    tLineNo = 1 + tLineNo
+    tLineNo = (1 + tLineNo)
   end repeat
   me.parseOneLine(tArgument)
 end
@@ -98,13 +98,13 @@ end
 on parseOneLine me, tArgument 
   tStartingLine = tArgument.getAt(#start)
   tLineCount = tArgument.getAt(#count)
-  if tStartingLine + tLineCount > pDownloadedData.count then
-    tLineCount = pDownloadedData.count - tStartingLine
+  if (tStartingLine + tLineCount) > pDownloadedData.count then
+    tLineCount = (pDownloadedData.count - tStartingLine)
   end if
   l = tStartingLine
-  repeat while l <= tStartingLine + tLineCount
+  repeat while l <= (tStartingLine + tLineCount)
     tVal = value(pDownloadedData.getAt(l))
-    if ilk(tVal) = #list then
+    if (ilk(tVal) = #list) then
       repeat while tVal <= undefined
         tItem = getAt(undefined, tArgument)
         tdata = [:]
@@ -118,8 +118,8 @@ on parseOneLine me, tArgument
         tdata.setAt(#partColors, tItem.getAt(8))
         tdata.setAt(#localizedName, decodeUTF8(tItem.getAt(9)))
         tdata.setAt(#localizedDesc, decodeUTF8(tItem.getAt(10)))
-        getThread("dynamicdownloader").getComponent().setFurniRevision(tdata.getAt(#class), tdata.getAt(#revision), tdata.getAt(#type) = "s")
-        if tdata.getAt(#type) = "s" then
+        getThread("dynamicdownloader").getComponent().setFurniRevision(tdata.getAt(#class), tdata.getAt(#revision), (tdata.getAt(#type) = "s"))
+        if (tdata.getAt(#type) = "s") then
           pStuffData.setaProp(tdata.getAt(#classID), tdata)
           pStuffDataByClass.setaProp(tItem.getAt(3), tdata)
         else
@@ -128,13 +128,13 @@ on parseOneLine me, tArgument
         end if
       end repeat
     else
-      if l = pDownloadedData.count and pDownloadedData.count > 1 and pDownloadedData.getAt(l) = "" then
+      if (l = pDownloadedData.count) and pDownloadedData.count > 1 and (pDownloadedData.getAt(l) = "") then
         nothing()
       else
         if pDownloadRetriesLeft > 0 then
-          pDownloadRetriesLeft = pDownloadRetriesLeft - 1
+          pDownloadRetriesLeft = (pDownloadRetriesLeft - 1)
           me.initDownload()
-          return(0)
+          return FALSE
         else
           gLogVarUrl = string(pDownloadedData)
           fatalError(["error":"furnidata_malformed"])
@@ -142,14 +142,14 @@ on parseOneLine me, tArgument
         end if
       end if
     end if
-    l = 1 + l
+    l = (1 + l)
   end repeat
-  if tStartingLine + tLineCount >= pDownloadedData.count then
+  if (tStartingLine + tLineCount) >= pDownloadedData.count then
     getThread("dynamicdownloader").getComponent().setFurniRevision(void())
     sendProcessTracking(25)
     executeMessage(#furnidataReceived)
   else
-    tNewArgument = [#start:tStartingLine + tLineCount, #count:tLineCount]
+    tNewArgument = [#start:(tStartingLine + tLineCount), #count:tLineCount]
     createTimeout(getUniqueID(), 250, #parseOneLine, me.getID(), tNewArgument, 1)
   end if
 end

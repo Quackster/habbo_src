@@ -1,6 +1,8 @@
-on prepare(me, tdata)
+property pChanges, pActive
+
+on prepare me, tdata 
   tValue = integer(tdata.getAt(#stuffdata))
-  if tValue = 0 then
+  if (tValue = 0) then
     me.setOff()
     pChanges = 0
   else
@@ -9,29 +11,27 @@ on prepare(me, tdata)
   end if
   tLayer = 1
   repeat while tLayer <= me.count(#pSprList)
-    tLayerName = numToChar(charToNum("a") + tLayer - 1)
-    tSpr = pSprList.getAt(tLayer)
+    tLayerName = numToChar(((charToNum("a") + tLayer) - 1))
+    tSpr = me.pSprList.getAt(tLayer)
     if me.solveTransparency(tLayerName) then
       removeEventBroker(tSpr.spriteNum)
     end if
-    tLayer = 1 + tLayer
+    tLayer = (1 + tLayer)
   end repeat
-  return(1)
-  exit
+  return TRUE
 end
 
-on updateStuffdata(me, tValue)
+on updateStuffdata me, tValue 
   tValue = integer(tValue)
-  if tValue = 0 then
+  if (tValue = 0) then
     me.setOff()
   else
     me.setOn()
   end if
   pChanges = 1
-  exit
 end
 
-on update(me)
+on update me 
   if not pChanges then
     return()
   end if
@@ -46,12 +46,12 @@ on update(me)
   tScreenLocs = getThread(#room).getInterface().getGeometry().getScreenCoordinate(me.pLocX, me.pLocY, me.pLocH)
   i = 1
   repeat while i <= me.count(#pSprList)
-    tCurName = member.name
-    tNewName = tCurName.getProp(#char, 1, length(tCurName) - 1) & pActive
-    tNewNameReal = tNewName.getProp(#char, 1, tNewName.length - 3) & tDirection & "_" & pActive
+    tCurName = me.getPropRef(#pSprList, i).member.name
+    tNewName = tCurName.getProp(#char, 1, (length(tCurName) - 1)) & pActive
+    tNewNameReal = tNewName.getProp(#char, 1, (tNewName.length - 3)) & tDirection & "_" & pActive
     tMemNum = getmemnum(tNewNameReal)
     tRealMem = 1
-    if tMemNum = 0 then
+    if (tMemNum = 0) then
       tMemNum = getmemnum(tNewName)
       tRealMem = 0
     end if
@@ -66,7 +66,7 @@ on update(me)
         if tMemNum < 0 then
           me.getPropRef(#pSprList, i).rotation = 180
           me.getPropRef(#pSprList, i).skew = 180
-          me.getPropRef(#pSprList, i).locH = me.getPropRef(#pSprList, i).locH + me.pXFactor
+          me.getPropRef(#pSprList, i).locH = (me.getPropRef(#pSprList, i).locH + me.pXFactor)
         else
           me.getPropRef(#pSprList, i).rotation = 0
           me.getPropRef(#pSprList, i).skew = 0
@@ -76,40 +76,36 @@ on update(me)
         tIsGateSprite.append(i)
       end if
     end if
-    i = 1 + i
+    i = (1 + i)
   end repeat
-  tlocz = me.getPropRef(#pLoczList, 1).getAt(tDirection + 1)
+  tlocz = me.getPropRef(#pLoczList, 1).getAt((tDirection + 1))
   tSpriteLocZ = me.getPropRef(#pSprList, 1).locZ
   i = 2
   repeat while i <= me.count(#pSprList)
-    me.getPropRef(#pSprList, i).locZ = tSpriteLocZ + me.getPropRef(#pLoczList, i).getAt(tDirection + 1) - tlocz
-    i = 1 + i
+    me.getPropRef(#pSprList, i).locZ = (tSpriteLocZ + (me.getPropRef(#pLoczList, i).getAt((tDirection + 1)) - tlocz))
+    i = (1 + i)
   end repeat
   pChanges = 0
-  exit
 end
 
-on setOn(me)
+on setOn me 
   pActive = 1
-  exit
 end
 
-on setOff(me)
+on setOff me 
   pActive = 0
-  exit
 end
 
-on select(me)
+on select me 
   if the doubleClick then
     getThread(#room).getComponent().getRoomConnection().send("USEFURNITURE", [#integer:integer(me.getID()), #integer:0])
   end if
-  return(1)
-  exit
+  return TRUE
 end
 
-on solveTransparency(me, tPart)
+on solveTransparency me, tPart 
   tName = me.pClass
-  if me.pXFactor = 32 then
+  if (me.pXFactor = 32) then
     tName = "s_" & tName
   end if
   if memberExists(tName & ".props") then
@@ -124,6 +120,5 @@ on solveTransparency(me, tPart)
       end if
     end if
   end if
-  return(0)
-  exit
+  return FALSE
 end

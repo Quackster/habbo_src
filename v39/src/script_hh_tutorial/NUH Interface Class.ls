@@ -14,7 +14,7 @@ on construct me
   pSearchAnimFrame = 1
   registerMessage(#gamesystem_constructed, me.getID(), #hideInvitationStatusWindow)
   registerMessage(#roomReady, me.getID(), #hideHighlighters)
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
@@ -22,7 +22,7 @@ on deconstruct me
   me.hideInvitationStatusWindow()
   unregisterMessage(#gamesystem_constructed, me.getID())
   unregisterMessage(#roomReady, me.getID())
-  return(1)
+  return TRUE
 end
 
 on removeAll me 
@@ -31,7 +31,7 @@ on removeAll me
   repeat while tItemNo <= pBubbles.count
     tBubble = pBubbles.getAt(tItemNo)
     tBubble.deconstruct()
-    tItemNo = 1 + tItemNo
+    tItemNo = (1 + tItemNo)
   end repeat
   pBubbles = [:]
   me.hideInvitationWindow()
@@ -42,16 +42,16 @@ on showOwnUserHelp me
   tRoomComponent = getThread("room").getComponent()
   tOwnRoomId = tRoomComponent.getUsersRoomId(getObject(#session).GET("user_name"))
   tHumanObj = tRoomComponent.getUserObject(tOwnRoomId)
-  if tHumanObj = 0 then
-    return(0)
+  if (tHumanObj = 0) then
+    return FALSE
   end if
   tRoomComponent = getThread("room").getComponent()
-  if tRoomComponent = 0 then
-    return(0)
+  if (tRoomComponent = 0) then
+    return FALSE
   end if
   tBubble = createObject(#random, getVariableValue("update.bubble.class"))
-  if tBubble = 0 then
-    return(0)
+  if (tBubble = 0) then
+    return FALSE
   end if
   tBubble.setTargetHumanObj(tHumanObj)
   tHelpId = "own_user"
@@ -70,8 +70,8 @@ end
 
 on showSkipOrNotWindow me, tHelpId 
   tRoomID = getThread(#room).getComponent().getRoomID()
-  if tRoomID = "" or tRoomID = #game or tRoomID = "game" then
-    return(0)
+  if (tRoomID = "") or (tRoomID = #game) or (tRoomID = "game") then
+    return FALSE
   end if
   createWindow(pSkipWindowID, "bubble.window")
   tWindow = getWindow(pSkipWindowID)
@@ -88,7 +88,7 @@ on showSkipOrNotWindow me, tHelpId
         tWindow.getElement(tElemName).hide()
       end if
     end if
-    i = 1 + i
+    i = (1 + i)
   end repeat
   tWindow.merge("habbo_decision_plain.window")
   tWindow.registerProcedure(#eventProcSkipTutorial, me.getID(), #mouseUp)
@@ -115,8 +115,8 @@ end
 
 on showGenericHelp me, tHelpId, tTargetLoc, tPointerIndex 
   tRoomID = getThread(#room).getComponent().getRoomID()
-  if tRoomID = "" or tRoomID = #game or tRoomID = "game" then
-    return(0)
+  if (tRoomID = "") or (tRoomID = #game) or (tRoomID = "game") then
+    return FALSE
   end if
   tText = ""
   tText = getText("NUH_" & tHelpId)
@@ -139,16 +139,16 @@ end
 on showGuideArrivedBubble me, tAccountID, tAutoSelected 
   tRoomComponent = getThread("room").getComponent()
   tHumanObj = tRoomComponent.getUserObjectByWebID(tAccountID)
-  if tHumanObj = 0 then
-    return(0)
+  if (tHumanObj = 0) then
+    return FALSE
   end if
   tRoomComponent = getThread("room").getComponent()
-  if tRoomComponent = 0 then
-    return(0)
+  if (tRoomComponent = 0) then
+    return FALSE
   end if
   tBubble = createObject(#random, getVariableValue("tutor.bubble.class"))
-  if tBubble = 0 then
-    return(0)
+  if (tBubble = 0) then
+    return FALSE
   end if
   tBubble.setTargetHumanObj(tHumanObj)
   tHelpId = "guide_info"
@@ -197,19 +197,19 @@ end
 
 on showInvitationStatusWindow me, tstate 
   me.hideInvitationStatusWindow()
-  if tstate = #search then
+  if (tstate = #search) then
     tLayout = "nuh_invitation_status.window"
   else
-    if tstate = #room_left then
+    if (tstate = #room_left) then
       tLayout = "nuh_room_left.window"
     else
-      if tstate = #success then
+      if (tstate = #success) then
         tLayout = "nuh_invitation_success.window"
       else
-        if tstate = #failure then
+        if (tstate = #failure) then
           tLayout = "nuh_invitation_failure.window"
         else
-          return(0)
+          return FALSE
         end if
       end if
     end if
@@ -221,10 +221,10 @@ on showInvitationStatusWindow me, tstate
   if timeoutExists(pInvitationStatusTimeoutID) then
     removeTimeout(pInvitationStatusTimeoutID)
   end if
-  if tstate = #search then
+  if (tstate = #search) then
     createTimeout(pInvitationStatusTimeoutID, 250, #updateInvitationStatusWindow, me.getID(), void(), 0)
   else
-    if tstate = #success then
+    if (tstate = #success) then
       createTimeout(pInvitationStatusTimeoutID, 3000, #hideInvitationStatusWindow, me.getID(), void(), 1)
     end if
   end if
@@ -241,12 +241,12 @@ end
 
 on updateInvitationStatusWindow me 
   if not windowExists(pInvitationStatusWindowID) then
-    return(0)
+    return FALSE
   end if
   tWindow = getWindow(pInvitationStatusWindowID)
   if tWindow.elementExists("nuh_search") then
     tElem = tWindow.getElement("nuh_search")
-    pSearchAnimFrame = pSearchAnimFrame + 1
+    pSearchAnimFrame = (pSearchAnimFrame + 1)
     if pSearchAnimFrame > 3 then
       pSearchAnimFrame = 1
     end if
@@ -265,7 +265,7 @@ end
 
 on getHighlighterList me 
   tRoomBar = getWindow("RoomBarID")
-  if voidp(tRoomBar) or tRoomBar = 0 then
+  if voidp(tRoomBar) or (tRoomBar = 0) then
     return([:])
   end if
   if voidp(pHighlighterList) then
@@ -280,7 +280,7 @@ on getHighlighterList me
           pHighlighterList.setaProp(tKeys.getPropAt(i), tElementName)
         end if
       end if
-      i = 1 + i
+      i = (1 + i)
     end repeat
   end if
   return(pHighlighterList)
@@ -288,7 +288,7 @@ end
 
 on hideHighlighters me 
   tRoomBar = getWindow("RoomBarID")
-  if voidp(tRoomBar) or tRoomBar = 0 then
+  if voidp(tRoomBar) or (tRoomBar = 0) then
     return()
   end if
   tHighlighters = me.getHighlighterList()
@@ -298,14 +298,14 @@ on hideHighlighters me
     if tRoomBar.elementExists(tElementName) then
       tRoomBar.getElement(tElementName).hide()
     end if
-    i = 1 + i
+    i = (1 + i)
   end repeat
   me.removeBlinkTimeout()
 end
 
 on showHighlighter me, tHelpId 
   tRoomBar = getWindow("RoomBarID")
-  if voidp(tRoomBar) or tRoomBar = 0 then
+  if voidp(tRoomBar) or (tRoomBar = 0) then
     return()
   end if
   tHighlighters = me.getHighlighterList()
@@ -334,7 +334,7 @@ end
 
 on blinkHighlighters me 
   tRoomBar = getWindow("RoomBarID")
-  if voidp(tRoomBar) or tRoomBar = 0 then
+  if voidp(tRoomBar) or (tRoomBar = 0) then
     return()
   end if
   tHighlighters = me.getHighlighterList()
@@ -346,22 +346,22 @@ on blinkHighlighters me
         tRoomBar.getElement(tElementName).setProperty(#member, getMember("bar_hilite_icon_" & pHighlighterBlinkPhase))
       end if
     end if
-    i = 1 + i
+    i = (1 + i)
   end repeat
-  pHighlighterBlinkPhase = pHighlighterBlinkPhase + 1
+  pHighlighterBlinkPhase = (pHighlighterBlinkPhase + 1)
   if pHighlighterBlinkPhase > 2 then
     pHighlighterBlinkPhase = 1
   end if
 end
 
 on eventProcInvitation me, tEvent, tSprID 
-  if tSprID = "nuh_invitation_yes" then
+  if (tSprID = "nuh_invitation_yes") then
     me.getComponent().closeInvitation(#yes)
   else
-    if tSprID = "nuh_invitation_no" then
+    if (tSprID = "nuh_invitation_no") then
       me.getComponent().closeInvitation(#no)
     else
-      if tSprID = "nuh_invitation_never" then
+      if (tSprID = "nuh_invitation_never") then
         me.getComponent().closeInvitation(#never)
       end if
     end if
@@ -377,17 +377,17 @@ on eventProcInvitationStatus me, tEvent, tSprID
       executeMessage(tMsg)
       me.hideInvitationStatusWindow()
     end if
-    return(1)
+    return TRUE
   end if
   if tSprID <> "nuh_invitation_status_cancel" then
-    if tSprID = "nuh_invitation_status_close" then
+    if (tSprID = "nuh_invitation_status_close") then
       me.getComponent().cancelInvitations()
       me.hideInvitationStatusWindow()
     else
-      if tSprID = "nuh_room_left_back" then
+      if (tSprID = "nuh_room_left_back") then
         me.getComponent().goToInvitationRoom()
       else
-        if tSprID = "close_button" then
+        if (tSprID = "close_button") then
           me.hideInvitationStatusWindow()
         end if
       end if
@@ -396,11 +396,11 @@ on eventProcInvitationStatus me, tEvent, tSprID
 end
 
 on eventProcSkipTutorial me, tEvent, tSprID 
-  if tSprID = "habbo_decision_ok" then
+  if (tSprID = "habbo_decision_ok") then
     me.getComponent().setAskingSkip(0)
     me.hideSkipOrNotWindow()
   else
-    if tSprID = "habbo_decision_cancel" then
+    if (tSprID = "habbo_decision_cancel") then
       me.getComponent().setTutorialFinished()
       me.hideSkipOrNotWindow()
     end if

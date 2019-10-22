@@ -1,4 +1,6 @@
-on construct(me)
+property pSkipFrames, pHumanObj
+
+on construct me 
   pUpdate = 1
   receiveUpdate(me.getID())
   pSkipFrames = 1
@@ -11,59 +13,54 @@ on construct(me)
   pBubbleId = void()
   pHumanObj = void()
   me.Init()
-  me.registerProcedure(#eventHandler, me.getID(), #mouseUp)
-  return(1)
-  exit
+  me.pWindow.registerProcedure(#eventHandler, me.getID(), #mouseUp)
+  return TRUE
 end
 
-on deconstruct(me)
+on deconstruct me 
   pUpdate = 0
   removeUpdate(me.getID())
   callAncestor(#deconstruct, [me])
-  return(1)
-  exit
+  return TRUE
 end
 
-on setText(me, tText)
+on setText me, tText 
   callAncestor(#setText, [me], tText)
   if not objectp(me.pWindow) then
-    return(0)
+    return FALSE
   end if
   tCloseElemId = "bubble_close"
-  if me.elementExists(tCloseElemId) then
-    tTextElem = me.getElement("bubble_text")
-    tCloseElem = me.getElement(tCloseElemId)
-    tPosX = tTextElem.getProperty(#width) / 2 - tCloseElem.getProperty(#width) / 2 - 10
-    tCloseElem.moveBy(tPosX, tTextElem.getProperty(#height) - 5)
+  if me.pWindow.elementExists(tCloseElemId) then
+    tTextElem = me.pWindow.getElement("bubble_text")
+    tCloseElem = me.pWindow.getElement(tCloseElemId)
+    tPosX = (((tTextElem.getProperty(#width) / 2) - (tCloseElem.getProperty(#width) / 2)) - 10)
+    tCloseElem.moveBy(tPosX, (tTextElem.getProperty(#height) - 5))
   end if
   me.selectPointerAndPosition(me.pDirection)
-  exit
 end
 
-on setTargetHumanObj(me, tHumanObj)
+on setTargetHumanObj me, tHumanObj 
   pHumanObj = tHumanObj
-  exit
 end
 
-on update(me)
+on update me 
   pSkipFrames = not pSkipFrames
-  if pSkipFrames = 1 then
-    return(0)
+  if (pSkipFrames = 1) then
+    return FALSE
   end if
-  if pHumanObj = 0 then
-    return(0)
+  if (pHumanObj = 0) then
+    return FALSE
   end if
   tHumanLoc = pHumanObj.getPartLocation("hd")
   me.setProperty(#targetX, tHumanLoc.getAt(1))
   me.setProperty(#targetY, tHumanLoc.getAt(2))
   tSideThreshold = 200
   if objectp(me.pWindow) then
-    tSideThreshold = me.getProperty(#width) - 10
+    tSideThreshold = (me.pWindow.getProperty(#width) - 10)
   end if
   if tHumanLoc.getAt(1) < tSideThreshold then
     me.selectPointerAndPosition(7)
   else
     me.selectPointerAndPosition(4)
   end if
-  exit
 end

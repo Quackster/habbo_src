@@ -3,18 +3,18 @@ property pReplayAnimWnd, pJumpData, pName, pPlayBackAnimR, pKeyAcceptTime, pKeyc
 on construct me 
   pReplayAnimWnd = "playBackR"
   pPlayBackAnimR = 1
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
   if windowExists(pReplayAnimWnd) then
     removeWindow(pReplayAnimWnd)
   end if
-  if ilk(me.pSpr) = #sprite then
-    releaseSprite(me.spriteNum)
+  if (ilk(me.pSpr) = #sprite) then
+    releaseSprite(me.pSpr.spriteNum)
   end if
   removeUpdate(me.getID())
-  return(1)
+  return TRUE
 end
 
 on initPlayer me, jname, jdata 
@@ -25,12 +25,12 @@ on initPlayer me, jname, jdata
   plastPressKey = void()
   me.openHidePlayBackWindow()
   receiveUpdate(me.getID())
-  return(1)
+  return TRUE
 end
 
 on openHidePlayBackWindow me 
   if pName <> getObject(#session).GET("user_name") then
-    return(0)
+    return FALSE
   end if
   if windowExists(pReplayAnimWnd) then
     removeWindow(pReplayAnimWnd)
@@ -45,13 +45,13 @@ end
 
 on animatePlayBackR me 
   tWndObj = getWindow(pReplayAnimWnd)
-  if tWndObj = 0 then
-    return(0)
+  if (tWndObj = 0) then
+    return FALSE
   end if
   tAnim = [0, 1, 2, 3, 4, 5, 5, 4, 3, 2, 1, 0]
-  tImg = image.duplicate()
+  tImg = member(getmemnum("R_" & tAnim.getAt(pPlayBackAnimR))).image.duplicate()
   tWndObj.getElement("ph_playback_r_img").feedImage(tImg)
-  pPlayBackAnimR = pPlayBackAnimR + 1
+  pPlayBackAnimR = (pPlayBackAnimR + 1)
   if pPlayBackAnimR > tAnim.count then
     pPlayBackAnimR = 1
   end if
@@ -63,22 +63,22 @@ on update me
     if voidp(pKeycounter) then
       pKeycounter = 0
     end if
-    pKeyAcceptTime = the milliSeconds - 101
+    pKeyAcceptTime = (the milliSeconds - 101)
   end if
   if the milliSeconds >= pKeyAcceptTime then
-    pKeycounter = pKeycounter + 1
+    pKeycounter = (pKeycounter + 1)
     if pKeycounter <= pJumpData.length then
       if pJumpData.getProp(#char, pKeycounter) <> "0" then
-        me.MykeyDown(pJumpData.getProp(#char, pKeycounter), the milliSeconds - pKeyAcceptTime, 1)
+        me.MykeyDown(pJumpData.getProp(#char, pKeycounter), (the milliSeconds - pKeyAcceptTime), 1)
       else
-        me.NotKeyDown(the milliSeconds - pKeyAcceptTime, 1)
+        me.NotKeyDown((the milliSeconds - pKeyAcceptTime), 1)
       end if
-      pKeyAcceptTime = the milliSeconds + 100 - the milliSeconds - pKeyAcceptTime
+      pKeyAcceptTime = (the milliSeconds + (100 - (the milliSeconds - pKeyAcceptTime)))
     else
-      if pJumpDone = 0 and pName = getObject(#session).GET("user_name") then
+      if (pJumpDone = 0) and (pName = getObject(#session).GET("user_name")) then
         pJumpDone = 1
-        tSplashPos = getThread(#room).getInterface().getGeometry().getWorldCoordinate(me.locH, me.locV)
-        if tSplashPos = 0 then
+        tSplashPos = getThread(#room).getInterface().getGeometry().getWorldCoordinate(me.pMyLoc.locH, me.pMyLoc.locV)
+        if (tSplashPos = 0) then
           getThread(#room).getComponent().getRoomConnection().send("SPLASH_POSITION", [#integer:21, #integer:19])
         else
           tMessage = [:]

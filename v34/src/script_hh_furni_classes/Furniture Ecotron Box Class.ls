@@ -5,17 +5,17 @@ on prepare me, tdata
   tDate = tdata.getAt(#stuffdata)
   tDateItems = explode(tDate, "-", 3)
   pDate = ""
-  if objectExists(#dateFormatter) and tDateItems.count = 3 then
+  if objectExists(#dateFormatter) and (tDateItems.count = 3) then
     pDate = getObject(#dateFormatter).getLocalDate(tDateItems.getAt(3), tDateItems.getAt(2), tDateItems.getAt(1))
   end if
-  return(1)
+  return TRUE
 end
 
 on select me 
   if the doubleClick then
     me.showCard()
   end if
-  return(1)
+  return TRUE
 end
 
 on showCard me 
@@ -24,5 +24,5 @@ on showCard me
   end if
   createObject(pCardObj, "Ecotron Box Card Class")
   getObject(pCardObj).define([#id:me.getID(), #date:pDate, #loc:me.getPropRef(#pSprList, 1).loc])
-  return(1)
+  return TRUE
 end

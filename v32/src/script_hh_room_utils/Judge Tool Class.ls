@@ -2,12 +2,12 @@ property pWindowID, pVote, pPerformerID
 
 on construct me 
   pWindowID = #judge_tool_window
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
   me.close()
-  return(1)
+  return TRUE
 end
 
 on close me 
@@ -18,22 +18,22 @@ end
 
 on setState me, tstate, tPerformerID 
   if not integerp(tstate) then
-    return(0)
+    return FALSE
   end if
-  if tstate = 0 then
+  if (tstate = 0) then
     return(me.close())
   end if
   if not createWindow(pWindowID) then
     me.close()
-    return(0)
+    return FALSE
   end if
   tWindow = getWindow(pWindowID)
   tWindow.setProperty(#title, getText("judge_tool_title"))
   tWindow.merge("habbo_full.window")
-  if tstate = 1 then
+  if (tstate = 1) then
     tWindow.merge("judge_waiting.window")
   else
-    if tstate = 2 then
+    if (tstate = 2) then
       if not integerp(tPerformerID) then
         me.close()
         return()
@@ -43,13 +43,13 @@ on setState me, tstate, tPerformerID
       tWindow.registerProcedure(#eventProcVote, me.getID(), #mouseUp)
       me.updatePerformerInfo()
     else
-      if tstate = 3 then
+      if (tstate = 3) then
         tWindow.merge("judge_ready.window")
         if tWindow.elementExists("vote_result") then
-          if tstate = -1 then
+          if (tstate = -1) then
             tWindow.getElement("vote_result").setText(getText("judge_voted_no"))
           else
-            if tstate = 1 then
+            if (tstate = 1) then
               tWindow.getElement("vote_result").setText(getText("judge_voted_yes"))
             else
               return(me.close())
@@ -59,7 +59,7 @@ on setState me, tstate, tPerformerID
         me.updatePerformerInfo()
       else
         me.close()
-        return(0)
+        return FALSE
       end if
     end if
   end if
@@ -70,7 +70,7 @@ end
 
 on updatePerformerInfo me 
   if not threadExists(#room) then
-    return(0)
+    return FALSE
   end if
   tuser = getThread(#room).getComponent().getUserObjectByWebID(pPerformerID)
   if not tuser then
@@ -78,7 +78,7 @@ on updatePerformerInfo me
   end if
   tWindow = getWindow(pWindowID)
   if not tWindow then
-    return(0)
+    return FALSE
   end if
   if tWindow.elementExists("performer_name") then
     tWindow.getElement("performer_name").setText(tuser.getName())
@@ -95,12 +95,12 @@ on eventProcVote me, tEvent, tSprID, tParam
   if not tConn then
     return(me.close())
   end if
-  if tSprID = "vote_button_yes" then
+  if (tSprID = "vote_button_yes") then
     pVote = 1
     me.setState(3)
     tConn.send("VOTE_PERFORMANCE", [#integer:1])
   else
-    if tSprID = "vote_button_no" then
+    if (tSprID = "vote_button_no") then
       pVote = -1
       me.setState(3)
       tConn.send("VOTE_PERFORMANCE", [#integer:-1])

@@ -25,7 +25,7 @@ on Initialize me, tdata
   if ilk(tContent) <> #list then
     return(error(me, "Invalid offer content format", #Initialize, #major))
   end if
-  if tContent.count = 0 then
+  if (tContent.count = 0) then
     return(error(me, "Content was empty", #Initialize, #minor))
   end if
   repeat while tContent <= undefined
@@ -51,7 +51,7 @@ on copy me, tAnotherOffer
     tObj = createObject(#random, ["ProductData Class"])
     tObj.copy(tAnotherOffer.getContent(i))
     pContent.add(tObj)
-    i = 1 + i
+    i = (1 + i)
   end repeat
 end
 
@@ -66,7 +66,7 @@ end
 on getPrice me, ttype 
   if ttype <> #credits and ttype <> #pixels then
     error(me, "Invalid price type", #getPrice, #major)
-    return(0)
+    return FALSE
   end if
   return(pPrice.getAt(ttype))
 end

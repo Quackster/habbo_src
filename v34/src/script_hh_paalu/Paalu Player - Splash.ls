@@ -5,7 +5,7 @@ on construct me
   pCounter = 0
   pSprite = sprite(reserveSprite("Paalu splash dir:" && 0))
   pSprite.member = member(getmemnum("splash_" & pCounter))
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
@@ -13,7 +13,7 @@ on deconstruct me
     releaseSprite(pSprite.spriteNum)
   end if
   pSprite = void()
-  return(1)
+  return TRUE
 end
 
 on define me, tPart, tProps 
@@ -22,7 +22,7 @@ on define me, tPart, tProps
   pSprite.member = member(getmemnum("splash_" & pCounter))
   pSprite.visible = 0
   pSprite.ink = 36
-  return(1)
+  return TRUE
 end
 
 on reset me 
@@ -32,7 +32,7 @@ end
 
 on splash me, tloc, tlocz 
   if voidp(pSprite) then
-    return(0)
+    return FALSE
   end if
   pSprite.loc = tloc
   pSprite.locZ = tlocz
@@ -44,7 +44,7 @@ end
 on prepare me 
   if pActive then
     pSprite.member = member(getmemnum("splash_" & pCounter))
-    pCounter = pCounter + 1
+    pCounter = (pCounter + 1)
     if pCounter > 9 then
       pActive = 0
       pCounter = 0

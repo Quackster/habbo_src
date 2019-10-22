@@ -9,16 +9,16 @@ on construct me
 end
 
 on isPriorityTo me, tIs, tThan 
-  if pPriorityList.getPos(tIs) = 0 then
-    return(0)
+  if (pPriorityList.getPos(tIs) = 0) then
+    return FALSE
   else
-    if pPriorityList.getPos(tThan) = 0 then
-      return(1)
+    if (pPriorityList.getPos(tThan) = 0) then
+      return TRUE
     else
       if pPriorityList.getPos(tIs) < pPriorityList.getPos(tThan) then
-        return(1)
+        return TRUE
       else
-        return(0)
+        return FALSE
       end if
     end if
   end if
@@ -36,7 +36,7 @@ on processAction me, tAction
   tActRoot = tAction.getProp(#word, 1)
   if pPriorityList.getPos(tActRoot) <> 0 then
     call(symbol("action_" & tActRoot), [pHostObject], tAction)
-    return(1)
+    return TRUE
   end if
   me.endActions(tActRoot)
   me.addToCurrentActions(tAction)
@@ -53,15 +53,15 @@ on processAction me, tAction
       tActionList.add(tAction)
       tUserActions.deleteAt(i)
     end if
-    if tName = "fx" and not tAllowFX then
+    if (tName = "fx") and not tAllowFX then
       tUserActions.deleteAt(i)
     end if
-    i = 255 + i
+    i = (255 + i)
   end repeat
   tEffect = void()
   repeat while tUserActions <= undefined
     tAction = getAt(undefined, tAction)
-    if tAction.getProp(#word, 1) = "fx" then
+    if (tAction.getProp(#word, 1) = "fx") then
       tEffect = tAction.duplicate()
     else
       tActionList.add(tAction)
@@ -74,7 +74,7 @@ on processAction me, tAction
     tAction = getAt(undefined, tAction)
     call(symbol("action_" & tAction.getProp(#word, 1)), [pHostObject], tAction)
   end repeat
-  return(1)
+  return TRUE
 end
 
 on addToCurrentActions me, tAction 
@@ -90,7 +90,7 @@ on terminateAction me, tAction
     call("action_" & tTermination, [pHostObject], tTermination)
     pCurrentActions.deleteOne(tActRoot)
   end if
-  return(1)
+  return TRUE
 end
 
 on endActions me, tCause 
@@ -104,7 +104,7 @@ on endActions me, tCause
       me.terminateAction(tAct)
     end repeat
   end if
-  return(1)
+  return TRUE
 end
 
 on getActionIndex me, tActionList 

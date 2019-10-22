@@ -7,26 +7,26 @@ on deconstruct me
 end
 
 on handle_purse me, tMsg 
-  if tMsg.subject = 6 then
+  if (tMsg.subject = 6) then
     tPlaySnd = getObject(#session).exists("user_walletbalance")
-    tCredits = integer(getLocalFloat(tMsg.getProp(#word, 1)))
+    tCredits = integer(getLocalFloat(tMsg.content.getProp(#word, 1)))
     getObject(#session).set("user_walletbalance", tCredits)
     me.getInterface().updatePurseSaldo()
     executeMessage(#updateCreditCount, tCredits)
     if tPlaySnd then
       playSound("naw_snd_cash", #cut, [#loopCount:1, #infiniteloop:0, #volume:255])
     end if
-    return(1)
+    return TRUE
   else
-    if tMsg.subject = 209 then
+    if (tMsg.subject = 209) then
       tPages = [[]]
       tPageNum = 1
       tDelim = the itemDelimiter
       the itemDelimiter = "\t"
-      i = tMsg.count(#line) - 1
+      i = (tMsg.content.count(#line) - 1)
       repeat while i >= 1
-        tLine = tMsg.getProp(#line, i)
-        if tLine = "" then
+        tLine = tMsg.content.getProp(#line, i)
+        if (tLine = "") then
         else
           tList = [:]
           tList.setAt("date", tLine.getProp(#item, 1))
@@ -36,15 +36,15 @@ on handle_purse me, tMsg
           tList.setAt("currency", tLine.getProp(#item, 5))
           tList.setAt("transaction_system_name", tLine.getProp(#item, 6))
           tPages.getAt(tPageNum).add(tList)
-          if count(tPages.getAt(tPageNum)) = 10 then
-            tPageNum = tPageNum + 1
+          if (count(tPages.getAt(tPageNum)) = 10) then
+            tPageNum = (tPageNum + 1)
             tPages.add([])
           end if
-          i = 255 + i
+          i = (255 + i)
         end if
       end repeat
       me.getInterface().dataReceived()
-      if count(tPages.getAt(count(tPages))) = 0 then
+      if (count(tPages.getAt(count(tPages))) = 0) then
         tPages.deleteAt(count(tPages))
       end if
       if count(tPages) > 0 then
@@ -55,12 +55,12 @@ on handle_purse me, tMsg
         return(me.getInterface().showPages())
       end if
     else
-      if tMsg.subject = 212 then
+      if (tMsg.subject = 212) then
         me.getInterface().hideVoucherWindow()
         me.getInterface().setVoucherInput(1)
         tConn = tMsg.connection
-        if tConn = void() then
-          return(1)
+        if (tConn = void()) then
+          return TRUE
         end if
         tProductName = tConn.GetStrFrom()
         if tProductName <> "" then
@@ -75,11 +75,11 @@ on handle_purse me, tMsg
           return(executeMessage(#alert, [#Msg:"purse_vouchers_success"]))
         end if
       else
-        if tMsg.subject = 213 then
+        if (tMsg.subject = 213) then
           me.getInterface().setVoucherInput(1)
           tDelim = the itemDelimiter
           the itemDelimiter = "\t"
-          tErrorCode = tMsg.getPropRef(#line, 1).getProp(#item, 1)
+          tErrorCode = tMsg.content.getPropRef(#line, 1).getProp(#item, 1)
           the itemDelimiter = tDelim
           return(executeMessage(#alert, [#Msg:"purse_vouchers_error" & tErrorCode]))
         end if
@@ -89,20 +89,20 @@ on handle_purse me, tMsg
 end
 
 on handle_tickets me, tMsg 
-  getObject(#session).set("user_ph_tickets", integer(tMsg.getProp(#word, 1)))
+  getObject(#session).set("user_ph_tickets", integer(tMsg.content.getProp(#word, 1)))
   me.getInterface().updatePurseTickets()
-  return(1)
+  return TRUE
 end
 
 on handle_ticketsbuy me, tMsg 
-  getObject(#session).set("user_ph_tickets", integer(tMsg.getProp(#word, 1)))
+  getObject(#session).set("user_ph_tickets", integer(tMsg.content.getProp(#word, 1)))
   me.getInterface().updatePurseTickets()
-  return(1)
+  return TRUE
 end
 
 on handle_notickets me, tMsg 
   executeMessage(#show_ticketWindow)
-  return(1)
+  return TRUE
 end
 
 on regMsgList me, tBool 
@@ -125,5 +125,5 @@ on regMsgList me, tBool
     unregisterListener(getVariable("connection.info.id", #info), me.getID(), tMsgs)
     unregisterCommands(getVariable("connection.info.id", #info), me.getID(), tCmds)
   end if
-  return(1)
+  return TRUE
 end

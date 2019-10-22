@@ -1,6 +1,6 @@
 on showprogram me, tMsg 
   if voidp(tMsg) then
-    return(0)
+    return FALSE
   end if
   tDst = tMsg.getAt(#show_dest)
   tCmd = tMsg.getAt(#show_command)

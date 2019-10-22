@@ -1,19 +1,19 @@
-on construct(me)
+property pPageItemDownloader, pTextElements, pWndObj, pImageElements
+
+on construct me 
   pWndObj = void()
   pPageItemDownloader = getThread(#catalogue).getComponent().getPageItemDownloader()
   pImageElements = getStructVariable("layout.fields.image.default")
   pTextElements = getStructVariable("layout.fields.text.default")
   return(callAncestor(#construct, [me]))
-  exit
 end
 
-on deconstruct(me)
+on deconstruct me 
   pPageItemDownloader.removeCallback(me, #downloadCompleted)
   return(callAncestor(#deconstruct, [me]))
-  exit
 end
 
-on define(me, tdata)
+on define me, tdata 
   me.pPageData = tdata
   if variableExists("layout.fields.image." & me.getProp(#pPageData, #layout)) then
     pImageElements = getStructVariable("layout.fields.image." & me.getProp(#pPageData, #layout))
@@ -21,10 +21,9 @@ on define(me, tdata)
   if variableExists("layout.fields.text." & me.getProp(#pPageData, #layout)) then
     pTextElements = getStructVariable("layout.fields.text." & me.getProp(#pPageData, #layout))
   end if
-  exit
 end
 
-on mergeWindow(me, tParentWndObj)
+on mergeWindow me, tParentWndObj 
   tLayoutMember = "ctlg_" & me.getProp(#pPageData, #layout) & ".window"
   if not memberExists(tLayoutMember) then
     return(error(me, "Layout member " & tLayoutMember & " missing.", #mergeWindow))
@@ -37,7 +36,7 @@ on mergeWindow(me, tParentWndObj)
     if pTextElements.count >= i then
       me.setElementText(pWndObj, pTextElements.getAt(i), tTextFields.getAt(i))
     end if
-    i = 1 + i
+    i = (1 + i)
   end repeat
   tBitmaps = me.getPropRef(#pPageData, #localization).getAt(#images)
   pPageItemDownloader.defineCallback(me, #downloadCompleted)
@@ -79,10 +78,9 @@ on mergeWindow(me, tParentWndObj)
       pWndObj.getElement("ctlg_txt2").setFont(tFont)
     end if
   end if
-  exit
 end
 
-on clearVoucherCodeField(me)
+on clearVoucherCodeField me 
   if voidp(pWndObj) then
     return("\r", error(me, "Missing handle to window object!", #clearVoucherCodeField, #major))
   end if
@@ -92,10 +90,9 @@ on clearVoucherCodeField(me)
   if pWndObj.elementExists("redeem") then
     pWndObj.getElement("redeem").deactivate()
   end if
-  exit
 end
 
-on downloadCompleted(me, tProps)
+on downloadCompleted me, tProps 
   if tProps.getAt(#props).getAt(#pageid) <> me.getProp(#pPageData, #pageid) then
     return()
   end if
@@ -113,15 +110,14 @@ on downloadCompleted(me, tProps)
     end if
     me.centerBlitImageToElement(tmember.image, pWndObj.getElement(tDlProps.getAt(#element)))
   end if
-  exit
 end
 
-on handleClick(me, tEvent, tSprID, tProp)
-  if tEvent = #mouseUp then
-    if me = "ctlg_txt3" then
+on handleClick me, tEvent, tSprID, tProp 
+  if (tEvent = #mouseUp) then
+    if (tSprID = "ctlg_txt3") then
       getThread(#catalogue).getInterface().followLink(me.getPropRef(#pPageData, #localization).getAt(#texts).getAt(7))
     else
-      if me = "redeem" then
+      if (tSprID = "redeem") then
         if voidp(pWndObj) then
           return("\r", error(me, "Missing handle to window object!", #handleClick, #major))
         end if
@@ -132,8 +128,8 @@ on handleClick(me, tEvent, tSprID, tProp)
       end if
     end if
   else
-    if tEvent = #keyUp then
-      if me = "voucher_code" then
+    if (tEvent = #keyUp) then
+      if (tSprID = "voucher_code") then
         if voidp(pWndObj) then
           return("\r", error(me, "Missing handle to window object!", #handleClick, #major))
         end if
@@ -147,5 +143,4 @@ on handleClick(me, tEvent, tSprID, tProp)
       end if
     end if
   end if
-  exit
 end

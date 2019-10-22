@@ -5,17 +5,17 @@ on construct me
   pPropsList = [:]
   pScrollList = []
   pScrollStep = -1
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
   me.clearSet()
-  return(1)
+  return TRUE
 end
 
 on update me 
-  if pScrollList.count = 0 then
-    return(0)
+  if (pScrollList.count = 0) then
+    return FALSE
   end if
   i = 1
   repeat while i <= pScrollList.count
@@ -23,30 +23,30 @@ on update me
     tWndObj = getWindow(tWindowID)
     tWindowX = tWndObj.getProperty(#locX)
     if pScrollStep > 0 then
-      tScrollActive = tWindowX + pScrollStep < pLocX
+      tScrollActive = (tWindowX + pScrollStep) < pLocX
       if tScrollActive then
-        tLocX = tWindowX + pScrollStep
+        tLocX = (tWindowX + pScrollStep)
       end if
     else
-      tScrollActive = (pLocX - tWindowX / 2) >= 1
+      tScrollActive = ((pLocX - tWindowX) / 2) >= 1
       if tScrollActive then
-        tLocX = tWindowX + (pLocX - tWindowX / 2)
+        tLocX = (tWindowX + ((pLocX - tWindowX) / 2))
       end if
     end if
     if tScrollActive then
-      i = i + 1
+      i = (i + 1)
     else
       tLocX = pLocX
       pScrollList.deleteOne(tWindowID)
     end if
-    tWndObj.moveBy(tLocX - tWindowX, 0)
+    tWndObj.moveBy((tLocX - tWindowX), 0)
   end repeat
-  return(1)
+  return TRUE
 end
 
 on define me, tSetID 
   pID = tSetID
-  return(1)
+  return TRUE
 end
 
 on show me 
@@ -57,7 +57,7 @@ on show me
       tWndObj.show()
     end if
   end repeat
-  return(1)
+  return TRUE
 end
 
 on hide me 
@@ -68,31 +68,31 @@ on hide me
       tWndObj.hide()
     end if
   end repeat
-  return(1)
+  return TRUE
 end
 
 on Activate me 
   tWndMgr = getWindowManager()
-  if tWndMgr = 0 then
-    return(0)
+  if (tWndMgr = 0) then
+    return FALSE
   end if
   repeat while pItemList <= undefined
     tID = getAt(undefined, undefined)
     tWndMgr.Activate(tID)
   end repeat
-  return(1)
+  return TRUE
 end
 
 on addOneWindow me, tPartId, tOrderNum, tProps 
-  me.setaProp(tOrderNum, tPartId)
-  me.sort()
-  me.setaProp(tPartId, tProps)
-  return(1)
+  me.pItemList.setaProp(tOrderNum, tPartId)
+  me.pItemList.sort()
+  me.pPropsList.setaProp(tPartId, tProps)
+  return TRUE
 end
 
 on removeOneWindow me, tPartId 
-  if tPartId = void() then
-    return(0)
+  if (tPartId = void()) then
+    return FALSE
   end if
   if not removeWindow(tPartId) then
     error(me, "Problems removing window" && tPartId, #removeOneWindow)
@@ -100,14 +100,14 @@ on removeOneWindow me, tPartId
   i = 1
   repeat while i <= me.count(#pItemList)
     tItemID = me.getProp(#pItemList, i)
-    if tItemID = tPartId then
-      me.deleteAt(i)
+    if (tItemID = tPartId) then
+      me.pItemList.deleteAt(i)
     else
-      i = 1 + i
+      i = (1 + i)
     end if
   end repeat
-  me.deleteProp(tPartId)
-  return(1)
+  me.pPropsList.deleteProp(tPartId)
+  return TRUE
 end
 
 on getItems me 
@@ -122,36 +122,36 @@ on getHighestIndex me
   tMaxIndex = -1
   i = 1
   repeat while i <= me.count(#pItemList)
-    tOrderNum = me.getPropAt(i)
+    tOrderNum = me.pItemList.getPropAt(i)
     if tOrderNum > tMaxIndex then
       tMaxIndex = tOrderNum
     end if
-    i = 1 + i
+    i = (1 + i)
   end repeat
   return(tMaxIndex)
 end
 
 on getProperty me, tKey 
-  if tKey = #height then
-    return(me.getAllWindowProperty(#height, #total) + me.getAllDefinitionProperty(#spaceBottom, #total))
+  if (tKey = #height) then
+    return((me.getAllWindowProperty(#height, #total) + me.getAllDefinitionProperty(#spaceBottom, #total)))
   else
-    if tKey = #width then
+    if (tKey = #width) then
       return(me.getAllWindowProperty(#width, #max))
     else
-      if tKey = #locX then
+      if (tKey = #locX) then
         return(me.pLocX)
       else
-        if tKey = #locY then
+        if (tKey = #locY) then
           return(me.pLocY)
         else
-          if tKey = #span_all_columns then
+          if (tKey = #span_all_columns) then
             return(me.getAllDefinitionProperty(#span_all_columns))
           end if
         end if
       end if
     end if
   end if
-  return(0)
+  return FALSE
 end
 
 on render me, tMaxWidth, tMaxHeight 
@@ -167,20 +167,20 @@ on render me, tMaxWidth, tMaxHeight
   repeat while pItemList <= tMaxHeight
     tWindowID = getAt(tMaxHeight, tMaxWidth)
     tWndObj = getWindow(tWindowID)
-    if tWndObj = 0 then
-      return(0)
+    if (tWndObj = 0) then
+      return FALSE
     end if
-    tProps = me.getaProp(tWindowID)
+    tProps = me.pPropsList.getaProp(tWindowID)
     if tProps <> void() then
       j = 1
       repeat while j <= tProps.count
         tKey = tProps.getPropAt(j)
         tValue = tProps.getAt(j)
-        if pItemList = #scaleV then
-          tHeightD = tMaxHeight - tOwnHeight
+        if (pItemList = #scaleV) then
+          tHeightD = (tMaxHeight - tOwnHeight)
           tWndObj.resizeBy(0, tHeightD)
         else
-          if pItemList = #scrollFromLocX then
+          if (pItemList = #scrollFromLocX) then
             if not pScrollList.findPos(tWindowID) then
               pScrollList.append(tWindowID)
               tBoundary = tWndObj.getProperty(#boundary).duplicate()
@@ -190,11 +190,11 @@ on render me, tMaxWidth, tMaxHeight
             end if
           end if
         end if
-        j = 1 + j
+        j = (1 + j)
       end repeat
     end if
   end repeat
-  return(1)
+  return TRUE
 end
 
 on clearSet me 
@@ -206,7 +206,7 @@ on clearSet me
   end repeat
   pItemList = [:]
   pPropsListList = [:]
-  return(1)
+  return TRUE
 end
 
 on getElement me, tElemID 
@@ -214,28 +214,28 @@ on getElement me, tElemID
   repeat while pItemList <= undefined
     tWindowID = getAt(undefined, tElemID)
     tWndObj = getWindow(tWindowID)
-    if tWndObj = 0 then
-      return(0)
+    if (tWndObj = 0) then
+      return FALSE
     end if
     tElem = tWndObj.getElement(tElemID)
     if objectp(tElem) then
       return(tElem)
     end if
   end repeat
-  return(0)
+  return FALSE
 end
 
 on moveZ me, tZ 
   repeat while pItemList <= undefined
     tWindowID = getAt(undefined, tZ)
     tWndObj = getWindow(tWindowID)
-    if tWndObj = 0 then
-      return(0)
+    if (tWndObj = 0) then
+      return FALSE
     end if
     tWndObj.moveZ(tZ)
-    tZ = tZ + 1
+    tZ = (tZ + 1)
   end repeat
-  return(1)
+  return TRUE
 end
 
 on moveTo me, tLocX, tLocY 
@@ -244,10 +244,10 @@ on moveTo me, tLocX, tLocY
   repeat while pItemList <= tLocY
     tWindowID = getAt(tLocY, tLocX)
     tWndObj = getWindow(tWindowID)
-    if tWndObj = 0 then
-      return(0)
+    if (tWndObj = 0) then
+      return FALSE
     end if
-    tProps = me.getaProp(tWindowID)
+    tProps = me.pPropsList.getaProp(tWindowID)
     tLocX = pLocX
     tFixed = 0
     tSpaceBottom = 0
@@ -263,28 +263,28 @@ on moveTo me, tLocX, tLocY
         tSpaceBottom = tProps.getaProp(#spaceBottom)
       end if
     end if
-    if tFixed = 0 then
+    if (tFixed = 0) then
       tWndObj.moveTo(tLocX, tLocY)
     end if
-    tLocY = tLocY + tWndObj.getProperty(#height) + tSpaceBottom
+    tLocY = ((tLocY + tWndObj.getProperty(#height)) + tSpaceBottom)
   end repeat
-  return(1)
+  return TRUE
 end
 
 on getRealLocation me 
-  if pItemList.count = 0 then
+  if (pItemList.count = 0) then
     return(point(pLocX, pLocY))
   end if
   tWindowID = pItemList.getAt(1)
-  tProps = me.getaProp(tWindowID)
+  tProps = me.pPropsList.getaProp(tWindowID)
   if listp(tProps) then
     if tProps.findPos(#scrollFromLocX) then
       return(point(pLocX, pLocY))
     end if
   end if
   tWndObj = getWindow(tWindowID)
-  if tWndObj = 0 then
-    return(0)
+  if (tWndObj = 0) then
+    return FALSE
   end if
   return(point(tWndObj.getProperty(#locX), tWndObj.getProperty(#locY)))
 end
@@ -297,10 +297,10 @@ on getAllDefinitionProperty me, tKey, tMode, tResult
     if listp(tList) then
       if tList.findPos(tKey) then
         tValue = tList.getaProp(tKey)
-        if tMode = #total then
-          tResult = tResult + tValue
+        if (tMode = #total) then
+          tResult = (tResult + tValue)
         else
-          if tMode = #max then
+          if (tMode = #max) then
             if tValue > tResult then
               tResult = tValue
             end if
@@ -310,7 +310,7 @@ on getAllDefinitionProperty me, tKey, tMode, tResult
         end if
       end if
     end if
-    i = 1 + i
+    i = (1 + i)
   end repeat
   return(tResult)
 end
@@ -321,14 +321,14 @@ on getAllWindowProperty me, tKey, tMode, tResult
   repeat while i <= tCount
     tWindowID = pItemList.getAt(i)
     tWndObj = getWindow(tWindowID)
-    if tWndObj = 0 then
-      return(0)
+    if (tWndObj = 0) then
+      return FALSE
     end if
     tValue = tWndObj.getProperty(tKey)
-    if tMode = #total then
-      tResult = tResult + tValue
+    if (tMode = #total) then
+      tResult = (tResult + tValue)
     else
-      if tMode = #max then
+      if (tMode = #max) then
         if tValue > tResult then
           tResult = tValue
         end if
@@ -336,7 +336,7 @@ on getAllWindowProperty me, tKey, tMode, tResult
         return(tValue)
       end if
     end if
-    i = 1 + i
+    i = (1 + i)
   end repeat
   return(tResult)
 end

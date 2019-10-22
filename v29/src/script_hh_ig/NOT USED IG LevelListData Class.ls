@@ -1,7 +1,7 @@
 on construct me 
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
-  return(1)
+  return TRUE
 end

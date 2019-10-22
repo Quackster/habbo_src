@@ -13,7 +13,7 @@ on construct me
   pTileGrid = []
   pTileSpaceReserveList = [:]
   pObjectCache = [:]
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
@@ -22,7 +22,7 @@ on deconstruct me
   pComponentToAngle = void()
   pGeometry = void()
   pTileLineOfSight = void()
-  return(1)
+  return TRUE
 end
 
 on storeHeightMapArray me, tdata, tWorldWidth, tWorldHeight, tTileClass 
@@ -48,16 +48,16 @@ on storeHeightmap me, tStr, tWorldWidth, tWorldHeight, tTileClass
     tLocX = 1
     repeat while tLocX <= pWorldMaxX
       tdata.append(tStr.getPropRef(#line, tLocY).getProp(#char, tLocX))
-      tLocX = 1 + tLocX
+      tLocX = (1 + tLocX)
     end repeat
-    tLocY = 1 + tLocY
+    tLocY = (1 + tLocY)
   end repeat
   return(me.createTileGrid(tdata, tTileClass))
 end
 
 on createTileGrid me, tdata, tTileClass 
   pTileGrid = []
-  if tTileClass = void() then
+  if (tTileClass = void()) then
     tTileClass = []
   end if
   if tTileClass.ilk <> #list then
@@ -73,32 +73,32 @@ on createTileGrid me, tdata, tTileClass
     repeat while tLocX <= pWorldMaxX
       tTile = createObject(#temp, tTileClass)
       pTileGrid.getAt(tLocY).setAt(tLocX, tTile)
-      tTileLocX = tLocX - 1
-      tTileLocY = tLocY - 1
+      tTileLocX = (tLocX - 1)
+      tTileLocY = (tLocY - 1)
       tCenterLocX = (tTileLocX * (pTileWidth * pAccuracyFactor))
       tCenterLocY = (tTileLocY * (pTileWidth * pAccuracyFactor))
       tTile.define(tTileLocX, tTileLocY, tCenterLocX, tCenterLocY, pTileWidth, tdata.getAt(tCount), tFramework)
-      tCount = tCount + 1
-      tLocX = 1 + tLocX
+      tCount = (tCount + 1)
+      tLocX = (1 + tLocX)
     end repeat
-    tLocY = 1 + tLocY
+    tLocY = (1 + tLocY)
   end repeat
   pWorldReady = 1
   if pObjectCache.count > 0 then
     me.storeObjects(pObjectCache)
   end if
   me.getProcManager().distributeEvent(#world_ready)
-  return(1)
+  return TRUE
 end
 
 on storeObjects me, tdata 
-  if pWorldReady = 0 then
+  if (pWorldReady = 0) then
     pObjectCache = tdata
-    return(0)
+    return FALSE
   end if
   repeat while tdata <= undefined
     tItem = getAt(undefined, tdata)
-    if tItem.getAt(#height) = 0 then
+    if (tItem.getAt(#height) = 0) then
       if not listp(tItem.getAt(#dimensions)) then
         tItem.setAt(#height, 0)
       else
@@ -110,12 +110,12 @@ on storeObjects me, tdata
     end if
   end repeat
   me.getProcManager().distributeEvent(#objects_ready)
-  return(1)
+  return TRUE
 end
 
 on initLocation me, tX, tY, tZ 
   tObject = createObject(#temp, pLocationClass)
-  if tObject = 0 then
+  if (tObject = 0) then
     return(error(me, "Cannot initialize location object.", #initLocation))
   end if
   tObject.define(tX, tY, tZ, pTileWidth, pAccuracyFactor)
@@ -124,53 +124,53 @@ end
 
 on initLocationAsTile me, tX, tY, tZ 
   tObject = me.initLocation(tX, tY, tZ)
-  if tObject = 0 then
-    return(0)
+  if (tObject = 0) then
+    return FALSE
   end if
   tObject.setTileLoc(tX, tY, tZ)
   return(tObject)
 end
 
 on getTile me, tLocX, tLocY 
-  tLocX = tLocX + 1
-  tLocY = tLocY + 1
+  tLocX = (tLocX + 1)
+  tLocY = (tLocY + 1)
   if tLocX <= 0 or tLocY <= 0 then
-    return(0)
+    return FALSE
   end if
   if pTileGrid.count < tLocY then
-    return(0)
+    return FALSE
   end if
   tRow = pTileGrid.getAt(tLocY)
   if tRow.count < tLocX then
-    return(0)
+    return FALSE
   end if
   return(tRow.getAt(tLocX))
 end
 
 on getTileNeighborInDirection me, tX, tY, tdir 
-  if tdir = 0 then
-    return(me.getTile(tX, tY - 1))
+  if (tdir = 0) then
+    return(me.getTile(tX, (tY - 1)))
   else
-    if tdir = 1 then
-      return(me.getTile(tX + 1, tY - 1))
+    if (tdir = 1) then
+      return(me.getTile((tX + 1), (tY - 1)))
     else
-      if tdir = 2 then
-        return(me.getTile(tX + 1, tY))
+      if (tdir = 2) then
+        return(me.getTile((tX + 1), tY))
       else
-        if tdir = 3 then
-          return(me.getTile(tX + 1, tY + 1))
+        if (tdir = 3) then
+          return(me.getTile((tX + 1), (tY + 1)))
         else
-          if tdir = 4 then
-            return(me.getTile(tX, tY + 1))
+          if (tdir = 4) then
+            return(me.getTile(tX, (tY + 1)))
           else
-            if tdir = 5 then
-              return(me.getTile(tX - 1, tY + 1))
+            if (tdir = 5) then
+              return(me.getTile((tX - 1), (tY + 1)))
             else
-              if tdir = 6 then
-                return(me.getTile(tX - 1, tY))
+              if (tdir = 6) then
+                return(me.getTile((tX - 1), tY))
               else
-                if tdir = 7 then
-                  return(me.getTile(tX - 1, tY - 1))
+                if (tdir = 7) then
+                  return(me.getTile((tX - 1), (tY - 1)))
                 else
                   return(error(me, "Invalid direction for tile:" && tdir, #getTileNeighborInDirection))
                 end if
@@ -185,8 +185,8 @@ end
 
 on reserveTileForObject me, tLocX, tLocY, tObjectId, tObjectHeight 
   tTile = me.getTile(tLocX, tLocY)
-  if tTile = 0 then
-    return(0)
+  if (tTile = 0) then
+    return FALSE
   end if
   if not listp(pTileSpaceReserveList.getAt(tObjectId)) then
     pTileSpaceReserveList.setaProp(tObjectId, [])
@@ -197,24 +197,24 @@ end
 
 on clearObjectFromTileSpace me, tObjectId 
   if not listp(pTileSpaceReserveList.getAt(tObjectId)) then
-    return(1)
+    return TRUE
   end if
   repeat while pTileSpaceReserveList.getAt(tObjectId) <= undefined
     tTile = getAt(undefined, tObjectId)
     tTile.removeContent(tObjectId)
   end repeat
   pTileSpaceReserveList.setaProp(tObjectId, [])
-  return(1)
+  return TRUE
 end
 
 on getTileAtScreenCoordinate me, tLocX, tLocY 
   tRoomGeometry = me.getRoomGeometry()
-  if tRoomGeometry = 0 then
-    return(0)
+  if (tRoomGeometry = 0) then
+    return FALSE
   end if
   tloc = tRoomGeometry.getWorldCoordinate(tLocX, tLocY)
-  if tloc = 0 then
-    return(0)
+  if (tloc = 0) then
+    return FALSE
   end if
   return(me.getTile(tloc.getAt(1), tloc.getAt(2)))
 end
@@ -222,9 +222,9 @@ end
 on gettileatworldcoordinate me, tLocX, tLocY 
   tMultiplier = (pTileWidth * pAccuracyFactor)
   if tLocX < -(tMultiplier / 2) or tLocY < -(tMultiplier / 2) then
-    return(0)
+    return FALSE
   end if
-  return(me.getTile((tLocX + (tMultiplier / 2) / tMultiplier), (tLocY + (tMultiplier / 2) / tMultiplier)))
+  return(me.getTile(((tLocX + (tMultiplier / 2)) / tMultiplier), ((tLocY + (tMultiplier / 2)) / tMultiplier)))
 end
 
 on convertTileToWorldCoordinate me, tLocX, tLocY, tlocz 
@@ -239,29 +239,29 @@ end
 
 on convertScreenToTileCoordinate me, tLocX, tLocY 
   tRoomGeometry = me.getRoomGeometry()
-  if tRoomGeometry = 0 then
-    return(0)
+  if (tRoomGeometry = 0) then
+    return FALSE
   end if
   tloc = tRoomGeometry.getWorldCoordinate(tLocX, tLocY)
-  if tloc = 0 then
-    return(0)
+  if (tloc = 0) then
+    return FALSE
   end if
   return([#x:tloc.getAt(1), #y:tloc.getAt(2)])
 end
 
 on convertworldtotilecoordinate me, tLocX, tLocY 
   tMultiplier = (pTileWidth * pAccuracyFactor)
-  return([#x:(tLocX + (tMultiplier / 2) / tMultiplier), #y:(tLocY + (tMultiplier / 2) / tMultiplier)])
+  return([#x:((tLocX + (tMultiplier / 2)) / tMultiplier), #y:((tLocY + (tMultiplier / 2)) / tMultiplier)])
 end
 
 on convertWorldToScreenCoordinate me, tX, tY, tZ 
   tRoomGeometry = me.getRoomGeometry()
-  if tRoomGeometry = 0 then
-    return(0)
+  if (tRoomGeometry = 0) then
+    return FALSE
   end if
   tMultiplier = float((pTileWidth * pAccuracyFactor))
-  tX = 0.5 + (tX / tMultiplier)
-  tY = -0.5 + (tY / tMultiplier)
+  tX = (0.5 + (tX / tMultiplier))
+  tY = (-0.5 + (tY / tMultiplier))
   tZ = (tZ / tMultiplier)
   tloc = tRoomGeometry.getScreenCoordinate(tX, tY, tZ)
   return(tloc)
@@ -269,16 +269,16 @@ end
 
 on testForLineOfSightInTileMatrix me, tX1, tY1, tX2, tY2, tBlockingLevel, tExcludeFirst, tExcludeLast 
   tTester = me.getTileLineOfSight()
-  if tTester = 0 then
-    return(0)
+  if (tTester = 0) then
+    return FALSE
   end if
   return(tTester.testForLineOfSight(me, tX1, tY1, tX2, tY2, tBlockingLevel, tExcludeFirst, tExcludeLast))
 end
 
 on isBlockingLineOfSight me, tX, tY, tBlockingLevel 
   tTile = me.getTile(tX, tY)
-  if tTile = 0 then
-    return(0)
+  if (tTile = 0) then
+    return FALSE
   end if
   return(tTile.isBlockingLineOfSight(tBlockingLevel))
 end

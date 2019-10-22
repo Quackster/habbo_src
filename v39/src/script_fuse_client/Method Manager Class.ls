@@ -3,13 +3,13 @@ property pMethodCache
 on construct me 
   pMethodCache = [:]
   pMethodCache.sort()
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
   me.pItemList = [:]
   pMethodCache = [:]
-  return(1)
+  return TRUE
 end
 
 on create me, tID, tObject 
@@ -20,7 +20,7 @@ on create me, tID, tObject
     return(error(me, "Failed to register object:" && tID, #create, #major))
   else
     me.setProp(#pItemList, tID, tObject)
-    return(1)
+    return TRUE
   end if
 end
 
@@ -34,12 +34,12 @@ on getMethod me, tConnectionID, tCommand
 end
 
 on Remove me, tID 
-  if voidp(me.getaProp(tID)) then
+  if voidp(me.pItemList.getaProp(tID)) then
     return(error(me, "Object not found:" && tID, #Remove, #minor))
   else
     me.unregister(tID)
-    me.deleteProp(tID)
-    return(1)
+    me.pItemList.deleteProp(tID)
+    return TRUE
   end if
 end
 
@@ -66,11 +66,11 @@ on register me, tID, tObject
       else
         error(me, "Method" && "#" & tMethodList.getAt(i).getAt(j) && "not found in object:" && tID, #register, #major)
       end if
-      j = 1 + j
+      j = (1 + j)
     end repeat
-    i = 1 + i
+    i = (1 + i)
   end repeat
-  return(1)
+  return TRUE
 end
 
 on unregister me, tObjectOrID 
@@ -88,14 +88,14 @@ on unregister me, tObjectOrID
   repeat while tConnection <= pMethodCache.count
     tCommand = pMethodCache.getAt(tConnection).count
     repeat while tCommand >= 1
-      if pMethodCache.getAt(tConnection).getAt(tCommand).getAt(2) = tID then
+      if (pMethodCache.getAt(tConnection).getAt(tCommand).getAt(2) = tID) then
         pMethodCache.getAt(tConnection).deleteAt(tCommand)
       end if
-      tCommand = 255 + tCommand
+      tCommand = (255 + tCommand)
     end repeat
-    tConnection = 1 + tConnection
+    tConnection = (1 + tConnection)
   end repeat
-  return(1)
+  return TRUE
 end
 
 on handlers  

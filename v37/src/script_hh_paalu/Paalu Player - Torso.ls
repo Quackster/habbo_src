@@ -17,11 +17,11 @@ on define me, tPart, tProps
     pSuitColor = rgb("#EEEEEE")
     pSuitModel = "s01"
   end if
-  if pSuitColor = rgb(0, 0, 0) then
+  if (pSuitColor = rgb(0, 0, 0)) then
     pSuitColor = rgb("#EEEEEE")
   end if
   pCounter = 0
-  return(1)
+  return TRUE
 end
 
 on status me, tAction, tBalance 
@@ -32,9 +32,9 @@ on status me, tAction, tBalance
 end
 
 on prepare me 
-  if pAction = "hit1" or pAction = "hit2" then
+  if (pAction = "hit1") or (pAction = "hit2") then
     pAnimFrm = not pAnimFrm
-    pCounter = pCounter + 1
+    pCounter = (pCounter + 1)
     if pCounter > 2 then
       pCounter = 0
       pAnimFrm = 0
@@ -52,9 +52,9 @@ on render me, tBuffer
       tmember = member(tMemNum)
       tImage = tmember.image
       tRegPnt = tmember.regPoint
-      tX = -tRegPnt.getAt(1) + 6
-      tY = rect.height - tRegPnt.getAt(2) - 10
-      tDstRect = rect(tX, tY, tX + tImage.width, tY + tImage.height)
+      tX = (-tRegPnt.getAt(1) + 6)
+      tY = ((tBuffer.rect.height - tRegPnt.getAt(2)) - 10)
+      tDstRect = rect(tX, tY, (tX + tImage.width), (tY + tImage.height))
       tSrcRect = tImage.rect
       tMaskImg = tImage.createMatte()
       tBuffer.copyPixels(tImage, tDstRect, tSrcRect, [#maskImage:tMaskImg, #ink:41, #bgColor:tmodel.getAt(2)])

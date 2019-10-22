@@ -10,7 +10,7 @@ on construct me
   pHeightMap = [[]]
   pPlaceMap = [[]]
   pFloorMap = [[]]
-  return(1)
+  return TRUE
 end
 
 on define me, tdata 
@@ -20,7 +20,7 @@ on define me, tdata
   pXFactor = getLocalFloat(tdata.getAt(#factorx))
   pYFactor = getLocalFloat(tdata.getAt(#factory))
   pHFactor = getLocalFloat(tdata.getAt(#factorh))
-  return(1)
+  return TRUE
 end
 
 on loadHeightMap me, tdata, tUseFloorMap 
@@ -38,16 +38,16 @@ on loadHeightMap me, tdata, tUseFloorMap
     if tLine <> "" then
       j = 1
       repeat while j <= length(tLine)
-        if tLine.getProp(#char, j) = "x" then
+        if (tLine.getProp(#char, j) = "x") then
           l.add(200000)
           k.add(200000)
         else
-          if tLine.getProp(#char, j) = "y" then
+          if (tLine.getProp(#char, j) = "y") then
             l.add(0)
             k.add(100000)
           else
             if charToNum(tLine.getProp(#char, j)) >= 65 and charToNum(tLine.getProp(#char, j)) < 73 then
-              l.add(charToNum(tLine.getProp(#char, j)) - 65)
+              l.add((charToNum(tLine.getProp(#char, j)) - 65))
               k.add(100000)
             else
               l.add(integer(tLine.getProp(#char, j)))
@@ -55,7 +55,7 @@ on loadHeightMap me, tdata, tUseFloorMap
             end if
           end if
         end if
-        j = 1 + j
+        j = (1 + j)
       end repeat
       if tUseFloorMap then
         pFloorMap.add(l)
@@ -64,17 +64,17 @@ on loadHeightMap me, tdata, tUseFloorMap
         pPlaceMap.add(k)
       end if
     end if
-    i = 1 + i
+    i = (1 + i)
   end repeat
-  return(1)
+  return TRUE
 end
 
 on getScreenCoordinate me, tLocX, tLocY, tHeight 
   tPrecision = the floatPrecision
   the floatPrecision = 2
-  tLocH = (tLocX - tLocY * (pXFactor * 0.5)) + pXOffset
-  tLocV = float(((tLocY + tLocX * pYFactor) * 0.5) + pYOffset) - (tHeight * pHFactor)
-  tlocz = (1000 * tLocX + tLocY + 1) + pZOffset
+  tLocH = (((tLocX - tLocY) * (pXFactor * 0.5)) + pXOffset)
+  tLocV = (float(((((tLocY + tLocX) * pYFactor) * 0.5) + pYOffset)) - (tHeight * pHFactor))
+  tlocz = ((1000 * ((tLocX + tLocY) + 1)) + pZOffset)
   the floatPrecision = tPrecision
   return([integer(tLocH), integer(tLocV), integer(tlocz)])
 end
@@ -83,81 +83,81 @@ on getCoordinateHeight me, tX, tY
   tX = integer(tX)
   tY = integer(tY)
   if tY < 0 or tY >= pHeightMap.count then
-    return(0)
+    return FALSE
   end if
-  tLine = pHeightMap.getAt(integer(tY + 1))
+  tLine = pHeightMap.getAt(integer((tY + 1)))
   if tX < 0 or tX >= tLine.count then
-    return(0)
+    return FALSE
   end if
-  return(tLine.getAt(tX + 1))
+  return(tLine.getAt((tX + 1)))
 end
 
 on getWorldCoordinate me, tLocX, tLocY 
   if voidp(pHeightMap) then
     return(void())
   end if
-  tX = integer((tLocX - pYFactor - pXOffset / pXFactor) + (tLocY - pYOffset / pYFactor))
-  tY = integer((tLocY - pYOffset / pYFactor) - (tLocX - pYFactor - pXOffset / pXFactor))
+  tX = integer(((((tLocX - pYFactor) - pXOffset) / pXFactor) + ((tLocY - pYOffset) / pYFactor)))
+  tY = integer((((tLocY - pYOffset) / pYFactor) - (((tLocX - pYFactor) - pXOffset) / pXFactor)))
   tHeight = -1
   if tY >= 0 and tY < pHeightMap.count then
-    if tX >= 0 and tX < pHeightMap.getAt(tY + 1).count then
-      tHeight = pHeightMap.getAt(tY + 1).getAt(tX + 1)
+    if tX >= 0 and tX < pHeightMap.getAt((tY + 1)).count then
+      tHeight = pHeightMap.getAt((tY + 1)).getAt((tX + 1))
     end if
   end if
-  if tHeight = 0 then
+  if (tHeight = 0) then
     return([tX, tY, 0])
   else
     i = 1
     repeat while i <= 9
-      tX = integer((tLocX - pYFactor - pXOffset / pXFactor) + (tLocY + (i * pHFactor) - pYOffset / pYFactor))
-      tY = integer((tLocY + (i * pHFactor) - pYOffset / pYFactor) - (tLocX - pYFactor - pXOffset / pXFactor))
+      tX = integer(((((tLocX - pYFactor) - pXOffset) / pXFactor) + (((tLocY + (i * pHFactor)) - pYOffset) / pYFactor)))
+      tY = integer(((((tLocY + (i * pHFactor)) - pYOffset) / pYFactor) - (((tLocX - pYFactor) - pXOffset) / pXFactor)))
       tHeight = -1
       if tY >= 0 and tY < pHeightMap.count then
-        if tX >= 0 and tX < pHeightMap.getAt(tY + 1).count then
-          tHeight = pHeightMap.getAt(tY + 1).getAt(tX + 1)
+        if tX >= 0 and tX < pHeightMap.getAt((tY + 1)).count then
+          tHeight = pHeightMap.getAt((tY + 1)).getAt((tX + 1))
         end if
       end if
-      if tHeight = i then
+      if (tHeight = i) then
         return([tX, tY, tHeight])
       end if
-      i = 1 + i
+      i = (1 + i)
     end repeat
   end if
-  return(0)
+  return FALSE
 end
 
 on getFloorCoordinate me, tLocX, tLocY 
   if voidp(pFloorMap) then
     return(void())
   end if
-  tX = integer((tLocX - pYFactor - pXOffset / pXFactor) + (tLocY - pYOffset / pYFactor))
-  tY = integer((tLocY - pYOffset / pYFactor) - (tLocX - pYFactor - pXOffset / pXFactor))
+  tX = integer(((((tLocX - pYFactor) - pXOffset) / pXFactor) + ((tLocY - pYOffset) / pYFactor)))
+  tY = integer((((tLocY - pYOffset) / pYFactor) - (((tLocX - pYFactor) - pXOffset) / pXFactor)))
   tHeight = -1
   if tY >= 0 and tY < pFloorMap.count then
-    if tX >= 0 and tX < pFloorMap.getAt(tY + 1).count then
-      tHeight = pFloorMap.getAt(tY + 1).getAt(tX + 1)
+    if tX >= 0 and tX < pFloorMap.getAt((tY + 1)).count then
+      tHeight = pFloorMap.getAt((tY + 1)).getAt((tX + 1))
     end if
   end if
-  if tHeight = 0 then
+  if (tHeight = 0) then
     return([tX, tY, 0])
   else
     i = 1
     repeat while i <= 9
-      tX = integer((tLocX - pYFactor - pXOffset / pXFactor) + (tLocY + (i * pHFactor) - pYOffset / pYFactor))
-      tY = integer((tLocY + (i * pHFactor) - pYOffset / pYFactor) - (tLocX - pYFactor - pXOffset / pXFactor))
+      tX = integer(((((tLocX - pYFactor) - pXOffset) / pXFactor) + (((tLocY + (i * pHFactor)) - pYOffset) / pYFactor)))
+      tY = integer(((((tLocY + (i * pHFactor)) - pYOffset) / pYFactor) - (((tLocX - pYFactor) - pXOffset) / pXFactor)))
       tHeight = -1
       if tY >= 0 and tY < pFloorMap.count then
-        if tX >= 0 and tX < pFloorMap.getAt(tY + 1).count then
-          tHeight = pFloorMap.getAt(tY + 1).getAt(tX + 1)
+        if tX >= 0 and tX < pFloorMap.getAt((tY + 1)).count then
+          tHeight = pFloorMap.getAt((tY + 1)).getAt((tX + 1))
         end if
       end if
-      if tHeight = i then
+      if (tHeight = i) then
         return([tX, tY, tHeight])
       end if
-      i = 1 + i
+      i = (1 + i)
     end repeat
   end if
-  return(0)
+  return FALSE
 end
 
 on getObjectPlaceMap me 
@@ -177,13 +177,13 @@ on getTileWidth me
 end
 
 on emptyTile me, tX, tY 
-  tX = tX + 1
-  tY = tY + 1
+  tX = (tX + 1)
+  tY = (tY + 1)
   if tY < 1 or tY > pPlaceMap.count then
-    return(0)
+    return FALSE
   end if
   if tX < 1 or tX > pPlaceMap.getAt(tY).count then
-    return(0)
+    return FALSE
   end if
   return(pPlaceMap.getAt(tY).getAt(tX) < 100000)
 end
@@ -214,10 +214,10 @@ on print me
           tStr = tStr & "." & "."
         end if
       end if
-      y = 1 + y
+      y = (1 + y)
     end repeat
     put(space() & space() & tStr & space())
-    x = 1 + x
+    x = (1 + x)
   end repeat
   put()
   put("PlaceMap:")
@@ -236,10 +236,10 @@ on print me
           tStr = tStr & "." & "."
         end if
       end if
-      y = 1 + y
+      y = (1 + y)
     end repeat
     put(space() & space() & tStr & space())
-    x = 1 + x
+    x = (1 + x)
   end repeat
   put()
   put("- - - - - - - - - - - - - - -")
@@ -261,10 +261,10 @@ on printFloor me
           tStr = tStr & "." & "."
         end if
       end if
-      y = 1 + y
+      y = (1 + y)
     end repeat
     put(space() & space() & tStr & space())
-    x = 1 + x
+    x = (1 + x)
   end repeat
   put()
 end

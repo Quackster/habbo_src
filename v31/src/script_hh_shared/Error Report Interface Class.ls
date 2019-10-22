@@ -1,25 +1,25 @@
-on construct(me)
+property pErrorLock, pWindowID, pCurrentErrorIndex
+
+on construct me 
   pWindowID = getText("error_report")
   pCurrentErrorIndex = 1
   pErrorLock = 0
-  return(1)
-  exit
+  return TRUE
 end
 
-on deconstruct(me)
-  return(1)
-  exit
+on deconstruct me 
+  return TRUE
 end
 
-on showErrors(me)
+on showErrors me 
   if pErrorLock then
-    return(1)
+    return TRUE
   end if
   pErrorLock = 1
   tReportLists = me.getComponent().getErrorLists()
-  if tReportLists.count = 0 then
+  if (tReportLists.count = 0) then
     pErrorLock = 0
-    return(0)
+    return FALSE
   end if
   if not windowExists(pWindowID) then
     createWindow(pWindowID, "habbo_full.window")
@@ -33,32 +33,29 @@ on showErrors(me)
   end if
   me.updateErrorView()
   pErrorLock = 0
-  exit
 end
 
-on showPreviousError(me)
-  tTriedErrorIndex = pCurrentErrorIndex - 1
+on showPreviousError me 
+  tTriedErrorIndex = (pCurrentErrorIndex - 1)
   tReportList = me.getComponent().getErrorLists()
-  if tTriedErrorIndex < 1 or tReportList.count = 0 then
-    return(0)
+  if tTriedErrorIndex < 1 or (tReportList.count = 0) then
+    return FALSE
   end if
   pCurrentErrorIndex = tTriedErrorIndex
   me.updateErrorView()
-  exit
 end
 
-on showNextError(me)
-  tTriedErrorIndex = pCurrentErrorIndex + 1
+on showNextError me 
+  tTriedErrorIndex = (pCurrentErrorIndex + 1)
   tReportList = me.getComponent().getErrorLists()
   if tTriedErrorIndex > tReportList.count then
-    return(0)
+    return FALSE
   end if
   pCurrentErrorIndex = tTriedErrorIndex
   me.updateErrorView()
-  exit
 end
 
-on updateErrorView(me)
+on updateErrorView me 
   tWndObj = getWindow(pWindowID)
   tIndexOfCurrentReport = pCurrentErrorIndex
   tReportList = me.getComponent().getErrorLists()
@@ -68,7 +65,7 @@ on updateErrorView(me)
   if tElement <> 0 then
     tElement.setText(tCounts)
   end if
-  tTexts = []
+  tTexts = [:]
   tTexts.setAt("error_report_errorid", "ID:" && tErrorReport.getAt(#errorId))
   tExplainText = ""
   if not voidp(tErrorReport.getAt(#time)) then
@@ -90,37 +87,34 @@ on updateErrorView(me)
       tElement = tWndObj.getElement(tElementName)
       tElement.setText(tText)
     end if
-    tIndex = 1 + tIndex
+    tIndex = (1 + tIndex)
   end repeat
-  exit
 end
 
-on hideErrorReportWindow(me)
+on hideErrorReportWindow me 
   if not windowExists(pWindowID) then
-    return(0)
+    return FALSE
   end if
   me.getComponent().clearErrorLists(pCurrentErrorIndex)
   pCurrentErrorIndex = 1
   tWndObj = getWindow(pWindowID)
   tWndObj.close()
-  exit
 end
 
-on eventProcErrorReport(me, tEvent, tElemID, tParams)
-  if tEvent = #mouseUp then
-    if me <> "error_report_ok" then
-      if me = "close" then
+on eventProcErrorReport me, tEvent, tElemID, tParams 
+  if (tEvent = #mouseUp) then
+    if tElemID <> "error_report_ok" then
+      if (tElemID = "close") then
         me.hideErrorReportWindow()
       else
-        if me = "error_report_prev" then
+        if (tElemID = "error_report_prev") then
           me.showPreviousError()
         else
-          if me = "error_report_next" then
+          if (tElemID = "error_report_next") then
             me.showNextError()
           end if
         end if
       end if
-      exit
     end if
   end if
 end

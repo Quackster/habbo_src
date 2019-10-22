@@ -14,13 +14,13 @@ on construct me
   tSize = tFontMember.fontSize
   tui = the environment.uiLanguage
   tos = the environment.osLanguage
-  if tui = "Other" and tos = "Chinese" then
+  if (tui = "Other") and (tos = "Chinese") then
     setVariable("writer.instance.class", string(["Writer Class", "Writer Patch A"]))
   else
-    if tui = "Chinese" and tos = "Chinese" then
+    if (tui = "Chinese") and (tos = "Chinese") then
       setVariable("writer.instance.class", string(["Writer Class", "Writer Patch A"]))
     else
-      if tos = "Chinese" then
+      if (tos = "Chinese") then
         setVariable("writer.instance.class", string(["Writer Class", "Writer Patch A", "Writer Patch B"]))
       end if
     end if
@@ -33,7 +33,7 @@ on construct me
   tBold = getStructVariable("struct.font.bold")
   tBold.setaProp(#font, tFont)
   tBold.setaProp(#fontSize, tSize)
-  tBold.setaProp(#lineHeight, tLine + 2)
+  tBold.setaProp(#lineHeight, (tLine + 2))
   setVariable("struct.font.bold", string(tBold))
   tItal = getStructVariable("struct.font.italic")
   tItal.setaProp(#font, tFont)
@@ -57,7 +57,7 @@ on construct me
   createObject(#string_validator, "String Validator Cls")
   registerMessage(#Initialize, me.getID(), #delayedPatch)
   registerMessage(#BalloonManagerCreated, me.getID(), #patchBalloonText)
-  return(1)
+  return TRUE
 end
 
 on delayedPatch me 

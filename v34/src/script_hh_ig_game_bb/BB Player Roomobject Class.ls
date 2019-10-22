@@ -9,9 +9,9 @@ on construct me
   me.pLocChange = 1
   pActiveEffects = []
   if not objectp(me.ancestor) then
-    return(0)
+    return FALSE
   end if
-  return(ancestor.construct())
+  return(me.ancestor.construct())
 end
 
 on deconstruct me 
@@ -21,24 +21,24 @@ on deconstruct me
   end repeat
   pActiveEffects = []
   if not objectp(me.ancestor) then
-    return(1)
+    return TRUE
   end if
-  return(ancestor.deconstruct())
+  return(me.ancestor.deconstruct())
 end
 
 on roomObjectAction me, tAction, tdata 
-  if tAction = #set_ball_color then
+  if (tAction = #set_ball_color) then
     tTeamColors = [rgb("#E73929"), rgb("#217BEF"), rgb("#8CE700"), rgb("#FFCE21")]
     me.setBallColor(tTeamColors.getAt(tdata.getAt(#opponentTeamId)))
   else
-    if tAction = #reset_ball_color then
+    if (tAction = #reset_ball_color) then
       me.setBallColor(pOrigBallColor)
     else
-      if tAction = #set_bounce_state then
+      if (tAction = #set_bounce_state) then
         pBounceState = tdata
         me.clearEffectAnimation()
       else
-        if tAction = #set_ball then
+        if (tAction = #set_ball) then
           if tdata then
             pBallState = 1
           else
@@ -50,16 +50,16 @@ on roomObjectAction me, tAction, tdata
             tBodyPart = getAt(tdata, tAction)
             tBodyPart.resetMemberCache()
           end repeat
-          pMember.fill(image.rect, me.pAlphaColor)
+          me.pMember.image.fill(me.pMember.image.rect, me.pAlphaColor)
           me.render()
         else
-          if tAction = #fly_into then
+          if (tAction = #fly_into) then
             me.createEffect(#loop, "bb2_efct_pu_cannon_", [#ink:33], me.pDirection)
             me.pMainAction = "sit"
             me.pMoving = 1
             pBounceAnimCount = 1
-            me.pStartLScreen = pGeometry.getScreenCoordinate(me.pLocX, me.pLocY, me.pLocH)
-            me.pDestLScreen = pGeometry.getScreenCoordinate(tdata.getAt(#x), tdata.getAt(#y), tdata.getAt(#z))
+            me.pStartLScreen = me.pGeometry.getScreenCoordinate(me.pLocX, me.pLocY, me.pLocH)
+            me.pDestLScreen = me.pGeometry.getScreenCoordinate(tdata.getAt(#x), tdata.getAt(#y), tdata.getAt(#z))
             me.pMoveStart = the milliSeconds
             me.definePartListAction(me.getProp(#pPartListSubSet, "sit"), "sit")
             me.definePartListAction(me.getProp(#pPartListSubSet, "handLeft"), "crr")
@@ -72,21 +72,21 @@ on roomObjectAction me, tAction, tdata
 end
 
 on select me 
-  return(0)
+  return FALSE
 end
 
 on prepare me 
-  tScreenLoc = pScreenLoc.duplicate()
+  tScreenLoc = me.pScreenLoc.duplicate()
   if me.pMoving then
-    tFactor = (float(the milliSeconds - me.pMoveStart) / me.pMoveTime)
+    tFactor = (float((the milliSeconds - me.pMoveStart)) / me.pMoveTime)
     if tFactor > 1 then
       tFactor = 1
     end if
-    me.pScreenLoc = (me.pDestLScreen - me.pStartLScreen * tFactor) + me.pStartLScreen
+    me.pScreenLoc = (((me.pDestLScreen - me.pStartLScreen) * tFactor) + me.pStartLScreen)
     me.adjustScreenLoc(1)
     me.pChanges = 1
   else
-    me.pScreenLoc = pGeometry.getScreenCoordinate(me.pLocX, me.pLocY, me.pLocH)
+    me.pScreenLoc = me.pGeometry.getScreenCoordinate(me.pLocX, me.pLocY, me.pLocH)
     me.adjustScreenLoc(0)
     me.pChanges = not me.pChanges
   end if
@@ -97,22 +97,22 @@ end
 
 on adjustScreenLoc me, tMoving 
   if tMoving then
-    if pBounceState = 8 then
+    if (pBounceState = 8) then
       tBounceLocV = [0.7]
     else
-      if pBounceState = 7 then
+      if (pBounceState = 7) then
         me.setEffectAnimationLocations([#screenLoc:me.pScreenLoc])
         tBounceLocV = [0]
       else
-        if pBounceState = 3 then
+        if (pBounceState = 3) then
           tBounceLocV = [0, -1, -2, -2.4, -2, -1, -0]
-          if me.pBounceAnimCount = 3 then
+          if (me.pBounceAnimCount = 3) then
             me.createEffect(#once, "bb2_efct_pu_spring_", [#ink:33])
           end if
         else
-          if pBounceState = 4 then
+          if (pBounceState = 4) then
             tBounceLocV = [0, -0.5, -1, -0, -0.5, -1, -0]
-            if me.pBounceAnimCount = 3 then
+            if (me.pBounceAnimCount = 3) then
               me.createEffect(#once, "bb2_efct_pu_drill_", [#ink:33])
             end if
           else
@@ -122,17 +122,17 @@ on adjustScreenLoc me, tMoving
       end if
     end if
   else
-    if pBounceState = 8 then
+    if (pBounceState = 8) then
       tBounceLocV = [0.7]
     else
       tBounceLocV = [0, -0.3, -0.4, -0.5, -0.4, -0.1]
     end if
   end if
-  me.pBounceAnimCount = me.pBounceAnimCount + 1
+  me.pBounceAnimCount = (me.pBounceAnimCount + 1)
   if me.pBounceAnimCount > tBounceLocV.count then
     me.pBounceAnimCount = 1
   end if
-  me.setProp(#pScreenLoc, 2, me.getProp(#pScreenLoc, 2) + (10 * tBounceLocV.getAt(me.pBounceAnimCount)))
+  me.setProp(#pScreenLoc, 2, (me.getProp(#pScreenLoc, 2) + (10 * tBounceLocV.getAt(me.pBounceAnimCount))))
 end
 
 on update me 
@@ -142,8 +142,8 @@ on update me
   else
     me.render()
   end if
-  if pActiveEffects.count = 0 then
-    return(1)
+  if (pActiveEffects.count = 0) then
+    return TRUE
   end if
   i = 1
   repeat while i <= pActiveEffects.count
@@ -154,75 +154,75 @@ on update me
       tEffect.deconstruct()
       pActiveEffects.deleteAt(i)
     end if
-    i = 1 + i
+    i = (1 + i)
   end repeat
 end
 
 on render me, tForceUpdate 
   if not me.pChanges then
-    return(1)
+    return TRUE
   end if
   me.pChanges = 0
   if me.pLocChange and not me.pDirChange and not tForceUpdate then
     me.pLocChange = 0
     return(me.setHumanSpriteLoc())
   end if
-  if me.pDirChange = 0 and not tForceUpdate then
-    return(1)
+  if (me.pDirChange = 0) and not tForceUpdate then
+    return TRUE
   end if
   me.pDirChange = 0
   tSize = me.getProp(#pCanvasSize, #std)
-  if pShadowSpr.member <> me.pDefShadowMem then
-    pShadowSpr.member = me.pDefShadowMem
+  if me.pShadowSpr.member <> me.pDefShadowMem then
+    me.pShadowSpr.member = me.pDefShadowMem
   end if
-  if me or pBuffer.height <> tSize.getAt(2) then
-    pMember.image = image(tSize.getAt(1), tSize.getAt(2), tSize.getAt(3))
-    pMember.regPoint = point(0, tSize.getAt(2) + tSize.getAt(4))
-    pSprite.width = tSize.getAt(1)
-    pSprite.height = tSize.getAt(2)
-    pMatteSpr.width = tSize.getAt(1)
-    pMatteSpr.height = tSize.getAt(2)
+  if me.pBuffer.width <> tSize.getAt(1) or me.pBuffer.height <> tSize.getAt(2) then
+    me.pMember.image = image(tSize.getAt(1), tSize.getAt(2), tSize.getAt(3))
+    me.pMember.regPoint = point(0, (tSize.getAt(2) + tSize.getAt(4)))
+    me.pSprite.width = tSize.getAt(1)
+    me.pSprite.height = tSize.getAt(2)
+    me.pMatteSpr.width = tSize.getAt(1)
+    me.pMatteSpr.height = tSize.getAt(2)
     me.pBuffer = image(tSize.getAt(1), tSize.getAt(2), tSize.getAt(3))
   end if
-  0.regPoint = point(me, pMember.getProp(#regPoint, 2))
+  me.pMember.regPoint = point(0, me.pMember.getProp(#regPoint, 2))
   me.pShadowFix = 0
-  if pSprite.flipH then
-    pSprite.flipH = 0
-    pMatteSpr.flipH = 0
-    pShadowSpr.flipH = 0
+  if me.pSprite.flipH then
+    me.pSprite.flipH = 0
+    me.pMatteSpr.flipH = 0
+    me.pShadowSpr.flipH = 0
   end if
   me.setHumanSpriteLoc()
   me.pUpdateRect = rect(0, 0, 0, 0)
-  me.fill(pBuffer.rect, me.pAlphaColor)
+  me.pBuffer.fill(me.pBuffer.rect, me.pAlphaColor)
   if pBallState then
     call(#update, me.pPartList)
   else
-    repeat while me <= undefined
+    repeat while me.pPartList <= undefined
       tPart = getAt(undefined, tForceUpdate)
       if tPart.pPart <> "bl" then
         call(#update, tPart)
       end if
     end repeat
   end if
-  image.copyPixels(me.pBuffer, me.pUpdateRect, me.pUpdateRect)
-  return(1)
+  me.pMember.image.copyPixels(me.pBuffer, me.pUpdateRect, me.pUpdateRect)
+  return TRUE
 end
 
 on setHumanSpriteLoc me 
   tOffZ = 2
-  pSprite.locH = me.getProp(#pScreenLoc, 1)
-  pSprite.locV = me.getProp(#pScreenLoc, 2)
-  pSprite.locZ = me.getProp(#pScreenLoc, 3) + tOffZ
-  me.loc = pSprite.loc
-  me.locZ = pSprite.locZ + 1
-  me.loc = pSprite.loc + [me.pShadowFix, 0]
-  me.locZ = pSprite.locZ - 3
-  return(1)
+  me.pSprite.locH = me.getProp(#pScreenLoc, 1)
+  me.pSprite.locV = me.getProp(#pScreenLoc, 2)
+  me.pSprite.locZ = (me.getProp(#pScreenLoc, 3) + tOffZ)
+  me.pMatteSpr.loc = me.pSprite.loc
+  me.pMatteSpr.locZ = (me.pSprite.locZ + 1)
+  me.pShadowSpr.loc = (me.pSprite.loc + [me.pShadowFix, 0])
+  me.pShadowSpr.locZ = (me.pSprite.locZ - 3)
+  return TRUE
 end
 
 on setBallColor me, tColor 
-  if pPartIndex.findPos("bl") = 0 then
-    return(0)
+  if (me.pPartIndex.findPos("bl") = 0) then
+    return FALSE
   end if
   tBallPart = me.getProp(#pPartList, me.getProp(#pPartIndex, "bl"))
   if tBallPart <> void() then
@@ -232,7 +232,7 @@ on setBallColor me, tColor
   me.pChanges = 1
   me.pDirChange = 1
   me.render()
-  return(1)
+  return TRUE
 end
 
 on setPartLists me, tmodels 
@@ -245,7 +245,7 @@ on setPartLists me, tmodels
   me.definePartListAction(me.getProp(#pPartListSubSet, "sit"), "sit")
   me.definePartListAction(me.getProp(#pPartListSubSet, "handLeft"), "crr")
   me.definePartListAction(me.getProp(#pPartListSubSet, "handRight"), "crr")
-  return(1)
+  return TRUE
 end
 
 on arrangeParts me 
@@ -257,7 +257,7 @@ on getPicture me, tImg
 end
 
 on getPartClass me, tPartSymbol 
-  if tPartSymbol = "bl" then
+  if (tPartSymbol = "bl") then
     return(pBallClass)
   else
     return(me.pPartClass)
@@ -272,7 +272,7 @@ on Refresh me, tX, tY, tH
   call(#defineDir, me.pPartList, me.pDirection)
   call(#defineDirMultiple, me.pPartList, me.pDirection, me.getProp(#pPartListSubSet, "head"))
   me.arrangeParts()
-  return(1)
+  return TRUE
 end
 
 on resetValues me, tX, tY, tH, tDirHead, tDirBody 
@@ -289,7 +289,7 @@ on resetValues me, tX, tY, tH, tDirHead, tDirBody
   me.pSleeping = 0
   me.pFx = 0
   me.pLocFix = point(-1, 2)
-  me.pScreenLoc = pGeometry.getScreenCoordinate(tX, tY, tH)
+  me.pScreenLoc = me.pGeometry.getScreenCoordinate(tX, tY, tH)
   me.adjustScreenLoc()
   me.pLocX = tX
   me.pLocY = tY
@@ -301,7 +301,7 @@ on resetValues me, tX, tY, tH, tDirHead, tDirBody
   me.pHeadDir = tDirHead
   me.pChanges = 1
   me.pLocChange = 1
-  return(1)
+  return TRUE
 end
 
 on clearEffectAnimation me 
@@ -312,17 +312,17 @@ on clearEffectAnimation me
 end
 
 on setEffectAnimationLocations me, tlocation 
-  if tlocation.getAt(#screenLoc) = void() then
+  if (tlocation.getAt(#screenLoc) = void()) then
     tX = tlocation.getAt(#x)
     tY = tlocation.getAt(#y)
     tZ = tlocation.getAt(#z)
-    tlocz = 1 + pActiveEffects.count
-    if getObject(#room_interface) = 0 then
-      return(0)
+    tlocz = (1 + pActiveEffects.count)
+    if (getObject(#room_interface) = 0) then
+      return FALSE
     end if
     pGeometry = getObject(#room_interface).getGeometry()
-    if pGeometry = 0 then
-      return(0)
+    if (pGeometry = 0) then
+      return FALSE
     end if
     tScreenLoc = pGeometry.getScreenCoordinate(tX, tY, tZ)
   else
@@ -332,29 +332,29 @@ on setEffectAnimationLocations me, tlocation
     tEffect = getAt(undefined, tlocation)
     tEffect.setLocation(tScreenLoc)
   end repeat
-  return(1)
+  return TRUE
 end
 
 on createEffect me, tMode, tEffectID, tProps, tDirection 
   tX = me.pLocX
   tY = me.pLocY
   tZ = me.pLocH
-  tlocz = 1 + pActiveEffects.count
-  if getObject(#room_interface) = 0 then
-    return(0)
+  tlocz = (1 + pActiveEffects.count)
+  if (getObject(#room_interface) = 0) then
+    return FALSE
   end if
   pGeometry = getObject(#room_interface).getGeometry()
-  if pGeometry = 0 then
-    return(0)
+  if (pGeometry = 0) then
+    return FALSE
   end if
   tScreenLoc = pGeometry.getScreenCoordinate(tX, tY, tZ)
   tEffect = createObject(#temp, "BB Effect Animation Class")
-  if tEffect = 0 then
+  if (tEffect = 0) then
     return(error(me, "Unable to create effect object!", #createEffect))
   end if
   tEffect.define(tMode, tScreenLoc, tlocz, tEffectID, tProps, tDirection)
   pActiveEffects.append(tEffect)
-  return(1)
+  return TRUE
 end
 
 on action_mv me, tProps 
@@ -368,8 +368,8 @@ on action_mv me, tProps
   tLocY = integer(tloc.getProp(#item, 2))
   tLocH = integer(tloc.getProp(#item, 3))
   the itemDelimiter = tDelim
-  me.pStartLScreen = pGeometry.getScreenCoordinate(me.pLocX, me.pLocY, me.pLocH)
-  me.pDestLScreen = pGeometry.getScreenCoordinate(tLocX, tLocY, tLocH)
+  me.pStartLScreen = me.pGeometry.getScreenCoordinate(me.pLocX, me.pLocY, me.pLocH)
+  me.pDestLScreen = me.pGeometry.getScreenCoordinate(tLocX, tLocY, tLocH)
   me.pMoveStart = the milliSeconds
   me.definePartListAction(me.getProp(#pPartListSubSet, "sit"), "sit")
   me.definePartListAction(me.getProp(#pPartListSubSet, "handLeft"), "crr")
@@ -377,5 +377,5 @@ on action_mv me, tProps
 end
 
 on action_fx me, tProps 
-  return(1)
+  return TRUE
 end

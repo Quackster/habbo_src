@@ -3,11 +3,11 @@ property pAnimImage, pState, pFrameCounter, pQuad
 on construct me 
   pState = 0
   pFrameCounter = 0
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
-  return(1)
+  return TRUE
 end
 
 on showLoadingScreen me 
@@ -81,5 +81,5 @@ on update me
     end if
     pFrameCounter = 0
   end if
-  pFrameCounter = pFrameCounter + 1
+  pFrameCounter = (pFrameCounter + 1)
 end

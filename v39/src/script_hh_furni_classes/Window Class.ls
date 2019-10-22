@@ -4,17 +4,17 @@ on deconstruct me
     tRoomComponent = getThread(#room).getComponent()
     tRoomComponent.removeWallMaskItem(me.getID())
   end if
-  return(1)
+  return TRUE
 end
 
 on define me, tProps 
   tReturnValue = callAncestor(#define, [me], tProps)
-  if ilk(me.pSprList) = #list then
+  if (ilk(me.pSprList) = #list) then
     tDefaultLocZ = getIntVariable("visualizer.default.locz", 0)
     tSpriteNum = 1
     repeat while tSpriteNum <= me.count(#pSprList)
-      me.getPropRef(#pSprList, tSpriteNum).locZ = tDefaultLocZ + tSpriteNum - 50000
-      tSpriteNum = 1 + tSpriteNum
+      me.getPropRef(#pSprList, tSpriteNum).locZ = ((tDefaultLocZ + tSpriteNum) - 50000)
+      tSpriteNum = (1 + tSpriteNum)
     end repeat
   end if
   if threadExists(#room) then

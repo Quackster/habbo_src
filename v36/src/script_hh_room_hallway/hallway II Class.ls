@@ -4,14 +4,14 @@ on construct me
   i = 1
   repeat while i <= tMemberCount
     tmember = member(i, tCastLib)
-    if tmember.type = #bitmap then
+    if (tmember.type = #bitmap) then
       tmember.paletteRef = member(getmemnum("Hallway Palette 2"))
     end if
-    i = 1 + i
+    i = (1 + i)
   end repeat
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
-  return(1)
+  return TRUE
 end

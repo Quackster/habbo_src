@@ -7,7 +7,7 @@ on construct me
   pFrames = 0
   pCurrMs = 0
   if not createWindow(pWndID) then
-    return(0)
+    return FALSE
   end if
   tWndObj = getWindow(pWndID)
   tWndObj.merge("performance.window")
@@ -24,16 +24,16 @@ end
 on deconstruct me 
   removeUpdate(me.getID())
   removeWindow(pWndID)
-  return(1)
+  return TRUE
 end
 
 on update me 
-  pFrames = (pFrames + 1 mod the frameTempo)
-  tTime = the milliSeconds - pTimerA
+  pFrames = ((pFrames + 1) mod the frameTempo)
+  tTime = (the milliSeconds - pTimerA)
   tWndObj = getWindow(pWndID)
   tWndObj.getElement("perf_per_frm").setText(tTime && "ms.")
-  if pFrames = 0 then
-    tCurrMs = the milliSeconds - pTimerB
+  if (pFrames = 0) then
+    tCurrMs = (the milliSeconds - pTimerB)
     if tCurrMs <> pCurrMs then
       pCurrMs = tCurrMs
       tWndObj.getElement("perf_total").setText(pCurrMs && "ms.")
@@ -44,10 +44,10 @@ on update me
 end
 
 on eventProc me, tEvent, tElemID, tParam 
-  if tElemID = "close" then
+  if (tElemID = "close") then
     return(removeObject(me.getID()))
   else
-    return(0)
+    return FALSE
   end if
 end
 

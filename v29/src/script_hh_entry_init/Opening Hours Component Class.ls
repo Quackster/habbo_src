@@ -6,22 +6,22 @@ on construct me
   registerMessage(#getHotelClosingStatus, me.getID(), #getHotelClosingStatus)
   registerMessage(#getHotelClosedDisconnectStatus, me.getID(), #getHotelClosedDisconnectStatus)
   registerMessage(#getAvailabilityTime, me.getID(), #sendGetAvailabilityTime)
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
   unregisterMessage(#getHotelClosingStatus, me.getID())
   unregisterMessage(#getOpeningHours, me.getID())
   unregisterMessage(#getHotelClosedDisconnectStatus, me.getID())
-  return(1)
+  return TRUE
 end
 
 on getHotelClosingStatus me, tList 
   tValue = 0
-  if pHotelClosingStatus = 1 then
+  if (pHotelClosingStatus = 1) then
     tValue = 1
   end if
-  if ilk(tList) = #propList then
+  if (ilk(tList) = #propList) then
     tList.setAt("retval", tValue)
     if tValue and tList.getAt("showDialog") then
       me.getInterface().showHotelClosingNotice()
@@ -32,10 +32,10 @@ end
 
 on getHotelAvailabilityStatus me, tList 
   tValue = 1
-  if pHotelClosingStatus = 2 then
+  if (pHotelClosingStatus = 2) then
     tValue = 0
   end if
-  if ilk(tList) = #propList then
+  if (ilk(tList) = #propList) then
     tList.setAt("retval", tValue)
   end if
   return(tValue)
@@ -43,7 +43,7 @@ end
 
 on getHotelClosedDisconnectStatus me, tList 
   tValue = pHotelClosedDisconnectStatus
-  if ilk(tList) = #propList then
+  if (ilk(tList) = #propList) then
     tList.setAt("retval", tValue)
   end if
   return(tValue)

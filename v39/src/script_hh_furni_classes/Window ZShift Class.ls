@@ -4,7 +4,7 @@ on deconstruct me
     tRoomComponent = getThread(#room).getComponent()
     tRoomComponent.removeWallMaskItem(me.getID())
   end if
-  return(1)
+  return TRUE
 end
 
 on define me, tProps 

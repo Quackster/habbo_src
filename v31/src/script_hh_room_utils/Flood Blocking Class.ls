@@ -1,49 +1,48 @@
-on Init(me, tWindowID, tElementId, tBlockTime)
+property pWindowID, pElementID, pUpdateTimer, pBlockTime
+
+on Init me, tWindowID, tElementId, tBlockTime 
   pWindowID = tWindowID
   pElementID = tElementId
-  pBlockTime = the milliSeconds + tBlockTime
-  pUpdateTimer = the milliSeconds - 999
+  pBlockTime = (the milliSeconds + tBlockTime)
+  pUpdateTimer = (the milliSeconds - 999)
   tWndObj = getWindow(pWindowID)
-  if tWndObj = 0 then
+  if (tWndObj = 0) then
     return(removeObject(me.getID()))
   end if
   tElem = tWndObj.getElement(pElementID)
-  if tElem = 0 then
+  if (tElem = 0) then
     return(removeObject(me.getID()))
   end if
   tElem.setEdit(0)
   receiveUpdate(me.getID())
-  return(1)
-  exit
+  return TRUE
 end
 
-on deconstruct(me)
+on deconstruct me 
   removeUpdate(me.getID())
-  return(1)
-  exit
+  return TRUE
 end
 
-on update(me)
+on update me 
   if pUpdateTimer > the milliSeconds then
     return()
   else
-    pUpdateTimer = the milliSeconds + 1000
+    pUpdateTimer = (the milliSeconds + 1000)
   end if
   tWndObj = getWindow(pWindowID)
-  if tWndObj = 0 then
+  if (tWndObj = 0) then
     return(removeObject(me.getID()))
   end if
   tElem = tWndObj.getElement(pElementID)
-  if tElem = 0 then
+  if (tElem = 0) then
     return(removeObject(me.getID()))
   end if
   if the milliSeconds < pBlockTime then
     tText = getText("floodblocking", "YOU TYPE TOO FAST! YOU MUST WAIT A MOMENT")
-    tElem.setText(tText && pBlockTime - the milliSeconds / 1000)
+    tElem.setText(tText && ((pBlockTime - the milliSeconds) / 1000))
   else
     tElem.setText("")
     tElem.setEdit(1)
     removeObject(me.getID())
   end if
-  exit
 end

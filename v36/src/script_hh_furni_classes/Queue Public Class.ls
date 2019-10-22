@@ -1,14 +1,14 @@
 on prepare me, tdata 
   me.pCorrectLocZ = 0
-  return(1)
+  return TRUE
 end
 
 on updateStuffdata me, tValue 
-  return(1)
+  return TRUE
 end
 
 on setAnimation me, tValue 
-  return(1)
+  return TRUE
 end
 
 on update me 

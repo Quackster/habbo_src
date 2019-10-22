@@ -22,7 +22,7 @@ on construct me
   pSprite = sprite(tSpriteNum)
   pSprite.member = pMember
   me.resetImage()
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
@@ -35,7 +35,7 @@ on deconstruct me
   if pSprite <> void() then
     releaseSprite(pSprite.spriteNum)
   end if
-  return(1)
+  return TRUE
 end
 
 on define me, tdata, tTurnOffsetList 
@@ -47,14 +47,14 @@ on define me, tdata, tTurnOffsetList
   pLandscapeType = tdata.getaProp(#landscape)
   pAnimMemberId = "lsd_" & pLandscapeType & "_cloud_"
   tMemNum = getmemnum(pAnimMemberId & "0_left")
-  if tMemNum = 0 then
+  if (tMemNum = 0) then
     pAnimMemberId = "landscape_cloud_"
     pAnimMemberCount = 3
   else
     pAnimMemberCount = 0
     repeat while tMemNum <> 0
-      pAnimMemberCount = pAnimMemberCount + 1
-      tMemNum = getmemnum(pAnimMemberId & pAnimMemberCount + 1 & "_left")
+      pAnimMemberCount = (pAnimMemberCount + 1)
+      tMemNum = getmemnum(pAnimMemberId & (pAnimMemberCount + 1) & "_left")
     end repeat
   end if
   pTurnPointList = tTurnOffsetList
@@ -67,13 +67,13 @@ end
 
 on initAnimation me 
   me.resetImage()
-  if pAnimMemberCount = 0 then
+  if (pAnimMemberCount = 0) then
     return(me.stop())
   end if
   i = 1
   repeat while i <= pMaxItemAmount
     tProps = [:]
-    tProps.setaProp(#type, random(pAnimMemberCount) - 1)
+    tProps.setaProp(#type, (random(pAnimMemberCount) - 1))
     tProps.setaProp(#memberid, pAnimMemberId)
     tProps.setaProp(#turnPointList, pTurnPointList)
     tProps.setaProp(#wallheight, pWallHeight)
@@ -82,7 +82,7 @@ on initAnimation me
     if tCloud.define(tProps) then
       pAnimInstanceList.append(tCloud)
     end if
-    i = 1 + i
+    i = (1 + i)
   end repeat
 end
 
@@ -102,13 +102,13 @@ end
 
 on update me 
   if pStopped then
-    return(0)
+    return FALSE
   end if
-  pSkip = pSkip - 1
+  pSkip = (pSkip - 1)
   if pSkip <= 0 then
     pSkip = pSkippedFrames
   else
-    return(0)
+    return FALSE
   end if
   me.renderFrame()
 end
@@ -125,7 +125,7 @@ on resetSprite me, tVisSpr, tMaskImage
   pMember.regPoint = point(0, 0)
   pSprite.locH = tVisSpr.locH
   pSprite.locV = tVisSpr.locV
-  pSprite.locZ = tVisSpr.locZ + 1
+  pSprite.locZ = (tVisSpr.locZ + 1)
   pSprite.member = pMember
   pSprite.width = tVisSpr.width
   pSprite.height = tVisSpr.height
@@ -139,8 +139,8 @@ on renderFrame me
     tAnimInstance.updateAnim()
     tAnimInstance.render(pAnimImage)
   end repeat
-  pMember.fill(image.rect, rgb(255, 255, 255))
-  image.copyPixels(pAnimImage, pAnimImage.rect, pAnimImage.rect, [#maskImage:pMaskImage])
+  pMember.image.fill(pMember.image.rect, rgb(255, 255, 255))
+  pMember.image.copyPixels(pAnimImage, pAnimImage.rect, pAnimImage.rect, [#maskImage:pMaskImage])
   pSprite.member = pMember
   pREquiresUpdate = 1
 end

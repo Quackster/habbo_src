@@ -17,7 +17,7 @@ on handle_error_report me, tMsg
     if listp(tSpecialErrorArray) then
       if tSpecialErrorArray.getPos(tErrorList.getAt(#errorId)) <> 0 then
         gotoNetPage(getVariable("client.reload.url"))
-        return(1)
+        return TRUE
       end if
     end if
   end if
@@ -37,5 +37,5 @@ on regMsgList me, tBool
     unregisterListener(getVariable("connection.info.id"), me.getID(), tMsgs)
     unregisterCommands(getVariable("connection.info.id"), me.getID(), tCmds)
   end if
-  return(1)
+  return TRUE
 end

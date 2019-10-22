@@ -17,7 +17,7 @@ end
 on handle_jumpdata me, tMsg 
   tConn = tMsg.getaProp(#connection)
   if not tConn then
-    return(0)
+    return FALSE
   end if
   tRoomIndex = tConn.GetIntFrom()
   tJumpData = tConn.GetStrFrom()
@@ -48,5 +48,5 @@ on regMsgList me, tBool
     unregisterListener(getVariable("connection.room.id"), me.getID(), tMsgs)
     unregisterCommands(getVariable("connection.room.id"), me.getID(), tCmds)
   end if
-  return(1)
+  return TRUE
 end

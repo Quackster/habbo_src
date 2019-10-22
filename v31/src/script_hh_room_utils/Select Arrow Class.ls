@@ -1,4 +1,6 @@
-on construct(me)
+property pArrowSpr, pCounter, pUserId, pLastLoc, pLastDir, pSize, pAnimFlag, pAnimCntr
+
+on construct me 
   pArrowSpr = sprite(reserveSprite(me.getID()))
   pArrowSpr.ink = 8
   pArrowSpr.visible = 0
@@ -7,30 +9,27 @@ on construct(me)
   pUserId = ""
   pAnimFlag = 0
   pAnimCntr = 0
-  return(1)
-  exit
+  return TRUE
 end
 
-on deconstruct(me)
+on deconstruct me 
   removeUpdate(me.getID())
   releaseSprite(pArrowSpr.spriteNum)
-  return(1)
-  exit
+  return TRUE
 end
 
-on Init(me)
+on Init me 
   tXFactor = getThread(#room).getInterface().getGeometry().pXFactor
-  pArrowSpr.locZ = getIntVariable("window.default.locz") - 2020
+  pArrowSpr.locZ = (getIntVariable("window.default.locz") - 2020)
   pArrowSpr.visible = 0
   if integer(tXFactor) > 32 then
     pSize = "h"
   else
     pSize = "sh"
   end if
-  exit
 end
 
-on show(me, tUserID, tAnimFlag)
+on show me, tUserID, tAnimFlag 
   if stringp(tUserID) then
     pUserId = tUserID
   else
@@ -42,27 +41,25 @@ on show(me, tUserID, tAnimFlag)
   pLastLoc = void()
   pLastDir = void()
   pAnimCntr = 0
-  pAnimFlag = tAnimFlag = 1
+  pAnimFlag = (tAnimFlag = 1)
   receiveUpdate(me.getID())
-  return(1)
-  exit
+  return TRUE
 end
 
-on hide(me)
+on hide me 
   removeUpdate(me.getID())
   pArrowSpr.loc = point(-1000, -1000)
   pArrowSpr.visible = 0
-  return(1)
-  exit
+  return TRUE
 end
 
-on update(me)
+on update me 
   pCounter = not pCounter
   if pCounter then
-    return(0)
+    return FALSE
   end if
   tHumanObj = getThread(#room).getComponent().getUserObject(pUserId)
-  if tHumanObj = 0 then
+  if (tHumanObj = 0) then
     return(me.hide())
   end if
   tHumanLoc = tHumanObj.getPartLocation("hd")
@@ -75,13 +72,13 @@ on update(me)
     tChanges = 1
   end if
   if ilk(tHumanLoc) <> #point or ilk(pLastLoc) <> #point then
-    return(0)
+    return FALSE
   else
     if tHumanLoc <> pLastLoc then
       if tHumanLoc.getAt(1) <> pLastLoc.getAt(1) then
         tChanges = 1
       else
-        if abs(tHumanLoc.getAt(2) - pLastLoc.getAt(2)) > 1 then
+        if abs((tHumanLoc.getAt(2) - pLastLoc.getAt(2))) > 1 then
           tChanges = 1
         end if
       end if
@@ -97,23 +94,22 @@ on update(me)
       pArrowSpr.flipH = 1
     end if
     pArrowSpr.member = member(getmemnum("puppet_hilite_" & pSize & "_" & tdir))
-    if pSize = "h" then
+    if (pSize = "h") then
       tLocV = 60
     else
       tLocV = 40
     end if
-    pArrowSpr.loc = point(tHumanLoc.getAt(1), tHumanLoc.getAt(2) - tLocV)
-    return(1)
+    pArrowSpr.loc = point(tHumanLoc.getAt(1), (tHumanLoc.getAt(2) - tLocV))
+    return TRUE
   end if
-  if pSize = "h" then
+  if (pSize = "h") then
     tLocV = 60
   else
     tLocV = 40
   end if
   if pAnimFlag then
-    pAnimCntr = pAnimCntr + 4 mod 32
-    tOffY = tHumanLoc.getAt(2) + -8 * sin(float(pAnimCntr) / 10)
-    pArrowSpr.locV = tOffY - tLocV
+    pAnimCntr = ((pAnimCntr + 4) mod 32)
+    tOffY = (tHumanLoc.getAt(2) + (-8 * sin((float(pAnimCntr) / 10))))
+    pArrowSpr.locV = (tOffY - tLocV)
   end if
-  exit
 end

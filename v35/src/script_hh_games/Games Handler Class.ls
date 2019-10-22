@@ -8,7 +8,7 @@ end
 
 on handle_opengameboard me, tMsg 
   tDelim = the itemDelimiter
-  tLine = tMsg.getProp(#line, 1)
+  tLine = tMsg.content.getProp(#line, 1)
   if tLine contains "\t" then
     the itemDelimiter = "\t"
   else
@@ -17,14 +17,14 @@ on handle_opengameboard me, tMsg
   tProps = [:]
   tProps.setAt(#id, tLine.getProp(#item, 1))
   tProps.setAt(#name, tLine.getProp(#item, 2))
-  tProps.setAt(#data, tMsg.getProp(#line, 1, tMsg.count(#line)))
+  tProps.setAt(#data, tMsg.content.getProp(#line, 1, tMsg.content.count(#line)))
   the itemDelimiter = tDelim
   me.getComponent().openGameBoard(tProps)
 end
 
 on handle_closegameboard me, tMsg 
   tDelim = the itemDelimiter
-  tLine = tMsg.getProp(#line, 1)
+  tLine = tMsg.content.getProp(#line, 1)
   if tLine contains "\t" then
     the itemDelimiter = "\t"
   else
@@ -33,16 +33,16 @@ on handle_closegameboard me, tMsg
   tProps = [:]
   tProps.setAt(#id, tLine.getProp(#item, 1))
   tProps.setAt(#name, tLine.getProp(#item, 2))
-  tProps.setAt(#data, tMsg.getProp(#line, 1, tMsg.count(#line)))
+  tProps.setAt(#data, tMsg.content.getProp(#line, 1, tMsg.content.count(#line)))
   the itemDelimiter = tDelim
   me.getComponent().closeGameBoard(tProps)
 end
 
 on handle_itemmsg me, tMsg 
   tProps = [:]
-  tProps.setAt(#id, tMsg.getProp(#line, 1))
-  tProps.setAt(#command, tMsg.getProp(#line, 2))
-  tProps.setAt(#data, tMsg.getProp(#line, 3, tMsg.count(#line)))
+  tProps.setAt(#id, tMsg.content.getProp(#line, 1))
+  tProps.setAt(#command, tMsg.content.getProp(#line, 2))
+  tProps.setAt(#data, tMsg.content.getProp(#line, 3, tMsg.content.count(#line)))
   me.getComponent().processItemMessage(tProps)
 end
 
@@ -60,5 +60,5 @@ on regMsgList me, tBool
     unregisterListener(getVariable("connection.room.id"), me.getID(), tList)
     unregisterCommands(getVariable("connection.room.id"), me.getID(), tCmds)
   end if
-  return(1)
+  return TRUE
 end

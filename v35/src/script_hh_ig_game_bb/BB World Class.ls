@@ -14,15 +14,15 @@ on construct me
     tstate = 1
     repeat while tstate <= 4
       tTemp.add(member("tile" & tTeamId & "_" & tstate).image)
-      tstate = 1 + tstate
+      tstate = (1 + tstate)
     end repeat
     pTileImages.add(tTemp)
-    tTeamId = 1 + tTeamId
+    tTeamId = (1 + tTeamId)
   end repeat
   pEmptyTileImage = member(getmemnum("tile0")).image
   pTileImageRect = pEmptyTileImage.rect
   pGeometryCache = []
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
@@ -35,26 +35,26 @@ on deconstruct me
 end
 
 on Refresh me, tTopic, tdata 
-  if tTopic = #fullgamestatus_tiles then
+  if (tTopic = #fullgamestatus_tiles) then
     me.initBuffer()
     receiveUpdate(me.getID())
     me.Refresh(#gamestatus_flood, tdata)
   else
-    if tTopic = #gamereset then
+    if (tTopic = #gamereset) then
       me.initBuffer()
       receiveUpdate(me.getID())
     else
-      if tTopic = #world_ready then
+      if (tTopic = #world_ready) then
         pWorldReady = 1
       else
-        if tTopic = #gamestatus_tiles then
+        if (tTopic = #gamestatus_tiles) then
           repeat while tTopic <= tdata
             tTileProps = getAt(tdata, tTopic)
             pPriorityTaskList.add(tTileProps)
             me.removeSecondaryTask(tTileProps)
           end repeat
         else
-          if tTopic = #gamestatus_flood then
+          if (tTopic = #gamestatus_flood) then
             repeat while tTopic <= tdata
               tTileProps = getAt(tdata, tTopic)
               pSecondaryTaskList.add(tTileProps)
@@ -67,22 +67,22 @@ on Refresh me, tTopic, tdata
 end
 
 on update me 
-  if pWorldReady = 0 then
-    return(0)
+  if (pWorldReady = 0) then
+    return FALSE
   end if
-  if pPriorityTaskList.count = 0 then
-    if pSecondaryTaskList.count = 0 then
-      return(1)
+  if (pPriorityTaskList.count = 0) then
+    if (pSecondaryTaskList.count = 0) then
+      return TRUE
     end if
     tTilesToRender = 1
     repeat while tTilesToRender <= pSecondaryTilesPerUpdate
-      if pSecondaryTaskList.count = 0 then
-        return(1)
+      if (pSecondaryTaskList.count = 0) then
+        return TRUE
       end if
       tProps = pSecondaryTaskList.getAt(1)
       pSecondaryTaskList.deleteAt(1)
       me.render(tProps)
-      tTilesToRender = 1 + tTilesToRender
+      tTilesToRender = (1 + tTilesToRender)
     end repeat
     exit repeat
   end if
@@ -91,12 +91,12 @@ on update me
     tProps = pPriorityTaskList.getAt(1)
     pPriorityTaskList.deleteAt(1)
     me.render(tProps)
-    if pPriorityTaskList.count = 0 then
+    if (pPriorityTaskList.count = 0) then
       return(me.update())
     end if
-    tTilesToRender = 1 + tTilesToRender
+    tTilesToRender = (1 + tTilesToRender)
   end repeat
-  return(1)
+  return TRUE
 end
 
 on removeSecondaryTask me, tProps 
@@ -105,18 +105,18 @@ on removeSecondaryTask me, tProps
   i = 1
   repeat while i <= pSecondaryTaskList.count
     tItem = pSecondaryTaskList.getAt(i)
-    if tItem.getAt(#x) = tLocX and tItem.getAt(#y) = tLocY then
+    if (tItem.getAt(#x) = tLocX) and (tItem.getAt(#y) = tLocY) then
       pSecondaryTaskList.deleteAt(i)
-      return(1)
+      return TRUE
     end if
-    i = 1 + i
+    i = (1 + i)
   end repeat
-  return(1)
+  return TRUE
 end
 
 on render me, tProps 
-  if not ilk(tProps) = #propList then
-    return(0)
+  if not (ilk(tProps) = #propList) then
+    return FALSE
   end if
   tstate = tProps.getAt(#jumps)
   tTeamId = tProps.getAt(#teamId)
@@ -128,23 +128,23 @@ on render me, tProps
     end if
     tImage = pTileImages.getAt(tTeamId).getAt(tstate)
   end if
-  if tImage = void() then
-    return(0)
+  if (tImage = void()) then
+    return FALSE
   end if
   tTargetRect = me.getTileRect(tProps.getAt(#x), tProps.getAt(#y))
-  if random(2) = 1 then
+  if (random(2) = 1) then
     pBuffer.copyPixels(tImage, tTargetRect, tImage.rect, [#ink:36, #paletteRef:member("bb_colors_1")])
   else
     pBuffer.copyPixels(tImage, tTargetRect, tImage.rect, [#ink:36])
   end if
-  return(1)
+  return TRUE
 end
 
 on getTileRect me, tX, tY 
-  tIndexX = tX + 1
-  tIndexY = tY + 1
+  tIndexX = (tX + 1)
+  tIndexY = (tY + 1)
   if pGeometryCache.count >= tIndexY then
-    if pGeometryCache.getAt(tIndexY) = 0 then
+    if (pGeometryCache.getAt(tIndexY) = 0) then
       pGeometryCache.setAt(tIndexY, [])
     end if
     if pGeometryCache.getAt(tIndexY).count >= tIndexX then
@@ -157,8 +157,8 @@ on getTileRect me, tX, tY
   end if
   tHeight = 0
   tGameSystem = me.getGameSystem()
-  if tGameSystem = 0 then
-    return(0)
+  if (tGameSystem = 0) then
+    return FALSE
   end if
   tWorld = tGameSystem.getWorld()
   tTile = tWorld.getTile(tX, tY)
@@ -173,12 +173,12 @@ on getTileRect me, tX, tY
     return(error(me, "Invalid tile coordinates:" && tX && tY, #getTileProperties))
   end if
   tScreenLoc = pGeometry.getScreenCoordinate(tX, tY, tHeight)
-  if pSprite = void() then
-    return(0)
+  if (pSprite = void()) then
+    return FALSE
   end if
-  tScreenLoc.setAt(1, tScreenLoc.getAt(1) - pSprite.left + 2)
-  tScreenLoc.setAt(2, tScreenLoc.getAt(2) - pSprite.top - (pTileImageRect.height / 2) - 1)
-  tTargetRect = pTileImageRect + rect(tScreenLoc.getAt(1), tScreenLoc.getAt(2), tScreenLoc.getAt(1), tScreenLoc.getAt(2))
+  tScreenLoc.setAt(1, ((tScreenLoc.getAt(1) - pSprite.left) + 2))
+  tScreenLoc.setAt(2, (((tScreenLoc.getAt(2) - pSprite.top) - (pTileImageRect.height / 2)) - 1))
+  tTargetRect = (pTileImageRect + rect(tScreenLoc.getAt(1), tScreenLoc.getAt(2), tScreenLoc.getAt(1), tScreenLoc.getAt(2)))
   pGeometryCache.getAt(tIndexY).setAt(tIndexX, tTargetRect)
   return(tTargetRect)
 end
@@ -189,31 +189,31 @@ on initBuffer me
   tName = "bin_image"
   pMember = member(getmemnum(tName))
   tVisObj = getObject(#room_interface).getRoomVisualizer()
-  if tVisObj = 0 then
+  if (tVisObj = 0) then
     return(error(me, "Room visualizer not found.", #initBuffer))
   end if
   pSprite = tVisObj.getSprById("floor")
-  if pSprite = 0 then
+  if (pSprite = 0) then
     return(error(me, "Arena floor not found.", #initBuffer))
   end if
-  if pOrigMemberName = void() then
-    pOrigMemberName = member.name
+  if (pOrigMemberName = void()) then
+    pOrigMemberName = pSprite.member.name
   end if
   tOrigMember = member(getmemnum(pOrigMemberName))
   tImg = tOrigMember.image
   pMember.image = image(tImg.width, tImg.height, 8)
   pMember.paletteRef = tOrigMember.paletteRef
-  image.copyPixels(tImg, tImg.rect, tImg.rect)
+  pMember.image.copyPixels(tImg, tImg.rect, tImg.rect)
   pMember.regPoint = tOrigMember.regPoint
   pBuffer = pMember.image
   pSprite.setMember(pMember)
 end
 
 on clearAll me 
-  if pMember.ilk = #member then
+  if (pMember.ilk = #member) then
     pMember.image = image(1, 1, 8)
   end if
   pBuffer = void()
   pMember = void()
-  return(1)
+  return TRUE
 end

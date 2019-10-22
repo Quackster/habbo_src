@@ -12,7 +12,7 @@ end
 on handle_recycler_configuration me, tMsg 
   tConn = tMsg.connection
   if not tConn then
-    return(0)
+    return FALSE
   end if
   if voidp(pPersistentFurniData) then
     pPersistentFurniData = getThread("dynamicdownloader").getComponent().getPersistentFurniDataObject()
@@ -28,7 +28,7 @@ on handle_recycler_configuration me, tMsg
     tItem = [:]
     tItem.setAt(#furniValue, tConn.GetIntFrom())
     tItem.setAt(#type, tConn.GetIntFrom())
-    if tItem.getAt(#type) = 0 then
+    if (tItem.getAt(#type) = 0) then
       tClassID = tConn.GetIntFrom()
       tFurniProps = pPersistentFurniData.getProps("s", tClassID)
       if voidp(tFurniProps) then
@@ -43,7 +43,7 @@ on handle_recycler_configuration me, tMsg
         tItem.setAt(#name, tFurniProps.getAt(#localizedName))
       end if
     else
-      if tItem.getAt(#type) = 1 then
+      if (tItem.getAt(#type) = 1) then
         tClassID = tConn.GetIntFrom()
         tFurniProps = pPersistentFurniData.getProps("i", tClassID)
         if voidp(tFurniProps) then
@@ -54,13 +54,13 @@ on handle_recycler_configuration me, tMsg
           tItem.setAt(#name, tFurniProps.getAt(#localizedName))
         end if
       else
-        if tItem.getAt(#type) = 2 then
+        if (tItem.getAt(#type) = 2) then
           tItem.setAt(#name, tConn.GetStrFrom())
         end if
       end if
     end if
     tRewardItems.add(tItem)
-    tNo = 1 + tNo
+    tNo = (1 + tNo)
   end repeat
   tComponent = me.getComponent()
   tComponent.enableService(tServiceEnabled)
@@ -72,21 +72,21 @@ end
 on handle_recycler_status me, tMsg 
   tConn = tMsg.connection
   if not tConn then
-    return(0)
+    return FALSE
   end if
   if voidp(pPersistentFurniData) then
     pPersistentFurniData = getThread("dynamicdownloader").getComponent().getPersistentFurniDataObject()
   end if
   tStatus = tConn.GetIntFrom()
-  if tStatus = 0 then
+  if (tStatus = 0) then
     tStatus = "open"
   else
-    if tStatus = 1 then
+    if (tStatus = 1) then
       tStatus = "progress"
       tRewardType = tConn.GetIntFrom()
       tClassID = tConn.GetIntFrom()
       tMinutesLeft = tConn.GetIntFrom()
-      if tRewardType = 0 then
+      if (tRewardType = 0) then
         tRewardType = #roomItem
         ttype = "s"
       else
@@ -102,15 +102,15 @@ on handle_recycler_status me, tMsg
       tFurniName = tFurniProps.getAt(#localizedName)
       me.getComponent().setRewardProps(tRewardType, tFurniClass, tFurniName)
       me.getComponent().setTimeLeftProps(tMinutesLeft)
-      tTimeoutTime = ((tMinutesLeft + 1 * 60) * 1000)
+      tTimeoutTime = (((tMinutesLeft + 1) * 60) * 1000)
       createTimeout("recycler_status_request", tTimeoutTime, #statusRequestTimeout, me.getID(), void(), 1)
     else
-      if tStatus = 2 then
+      if (tStatus = 2) then
         tStatus = "ready"
         tRewardType = tConn.GetIntFrom()
         tClassID = tConn.GetIntFrom()
         tMinutesLeft = tConn.GetIntFrom()
-        if tRewardType = 0 then
+        if (tRewardType = 0) then
           tRewardType = #roomItem
           ttype = "s"
         else
@@ -126,7 +126,7 @@ on handle_recycler_status me, tMsg
         tFurniName = tFurniProps.getAt(#localizedName)
         me.getComponent().setRewardProps(tRewardType, tFurniClass, tFurniName)
       else
-        if tStatus = 3 then
+        if (tStatus = 3) then
           tStatus = "timeout"
         end if
       end if
@@ -138,7 +138,7 @@ end
 on handle_approve_recycling_result me, tMsg 
   tConn = tMsg.connection
   if not tConn then
-    return(0)
+    return FALSE
   end if
   tResult = tConn.GetIntFrom()
   if not tResult then
@@ -151,7 +151,7 @@ end
 on handle_start_recycling_result me, tMsg 
   tConn = tMsg.connection
   if not tConn then
-    return(0)
+    return FALSE
   end if
   tResult = tConn.GetIntFrom()
   if not tResult then
@@ -164,7 +164,7 @@ end
 on handle_confirm_recycling_result me, tMsg 
   tConn = tMsg.connection
   if not tConn then
-    return(0)
+    return FALSE
   end if
   tResult = tConn.GetIntFrom()
   if not tResult then
@@ -198,5 +198,5 @@ on regMsgList me, tBool
     unregisterListener(getVariable("connection.room.id"), me.getID(), tMsgs)
     unregisterCommands(getVariable("connection.room.id"), me.getID(), tCmds)
   end if
-  return(1)
+  return TRUE
 end

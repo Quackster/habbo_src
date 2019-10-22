@@ -4,7 +4,7 @@ on construct me
   pAnimCounter = 0
   pCurrentFrame = 1
   pAnimList = [2, 3, 4, 5, 6, 7]
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
@@ -24,10 +24,10 @@ on update me
     tmember = member(getmemnum("fountain_" & pCurrentFrame))
     tVisual = getThread(#room).getInterface().getRoomVisualizer()
     if not tVisual then
-      return(0)
+      return FALSE
     end if
     tVisual.getSprById("fountain").setMember(tmember)
     pAnimCounter = 0
   end if
-  pAnimCounter = pAnimCounter + 1
+  pAnimCounter = (pAnimCounter + 1)
 end

@@ -9,7 +9,7 @@ end
 on handle_cannot_enter_bus me, tMsg 
   tConn = tMsg.getaProp(#connection)
   if not tConn then
-    return(0)
+    return FALSE
   end if
   tReason = tConn.GetStrFrom()
   me.getInterface().showBusClosed(tReason)
@@ -18,7 +18,7 @@ end
 on handle_vote_question me, tMsg 
   tConn = tMsg.getaProp(#connection)
   if not tConn then
-    return(0)
+    return FALSE
   end if
   tQuestion = tConn.GetStrFrom()
   tChoices = []
@@ -28,7 +28,7 @@ on handle_vote_question me, tMsg
     tChoiceIndex = tConn.GetIntFrom()
     tChoice = tConn.GetStrFrom()
     tChoices.add(tChoice)
-    i = 1 + i
+    i = (1 + i)
   end repeat
   me.getInterface().showVoteQuestion(tQuestion, tChoices)
 end
@@ -36,7 +36,7 @@ end
 on handle_vote_results me, tMsg 
   tConn = tMsg.getaProp(#connection)
   if not tConn then
-    return(0)
+    return FALSE
   end if
   tQuestion = tConn.GetStrFrom()
   tChoiceCount = tConn.GetIntFrom()
@@ -47,7 +47,7 @@ on handle_vote_results me, tMsg
     tChoice = tConn.GetStrFrom()
     tVotes = tConn.GetIntFrom()
     tChoiceVotes.add(tVotes)
-    i = 1 + i
+    i = (1 + i)
   end repeat
   tTotalVotes = tConn.GetIntFrom()
   me.getInterface().showVoteResults(tTotalVotes, tChoiceVotes)
@@ -69,5 +69,5 @@ on regMsgList me, tBool
     unregisterListener(getVariable("connection.room.id"), me.getID(), tMsgs)
     unregisterCommands(getVariable("connection.room.id"), me.getID(), tCmds)
   end if
-  return(1)
+  return TRUE
 end

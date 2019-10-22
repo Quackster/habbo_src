@@ -3,19 +3,19 @@ property pSkillLevelList
 on construct me 
   pSkillLevelList = [:]
   registerMessage(#create_user, me.getID(), #storeCreatedAvatarInfo)
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
   unregisterMessage(#create_user, me.getID())
-  return(1)
+  return TRUE
 end
 
 on Refresh me, tTopic, tdata 
-  if tTopic = #users then
-    return(1)
+  if (tTopic = #users) then
+    return TRUE
   else
-    if tTopic = #gameplayerinfo then
+    if (tTopic = #gameplayerinfo) then
       return(me.storeSkillLevels(tdata))
     end if
   end if
@@ -25,7 +25,7 @@ on storeCreatedAvatarInfo me, tName, tStrId
   if pSkillLevelList.findPos(tStrId) <> 0 then
     return(me.showSkillLevel(pSkillLevelList.getAt(tStrId)))
   end if
-  return(1)
+  return TRUE
 end
 
 on storeSkillLevels me, tdata 
@@ -35,7 +35,7 @@ on storeSkillLevels me, tdata
       pSkillLevelList.addProp(string(tuser.getAt(#id)), tuser)
     end if
   end repeat
-  return(1)
+  return TRUE
 end
 
 on showSkillLevel me, tdata 
@@ -43,17 +43,17 @@ on showSkillLevel me, tdata
   tSkillValue = tdata.getAt(#skillvalue)
   tSkillLevel = tdata.getAt(#skilllevel)
   tRoomComponent = getObject(#room_component)
-  if tRoomComponent = 0 then
-    return(0)
+  if (tRoomComponent = 0) then
+    return FALSE
   end if
   tUserObj = tRoomComponent.getUserObject(tStrId)
-  if tUserObj = 0 then
-    return(0)
+  if (tUserObj = 0) then
+    return FALSE
   end if
   tSkillStr = replaceChunks(getText("bb_user_skill"), "\\x", tSkillLevel)
   tSkillStr = replaceChunks(tSkillStr, "\\y", tSkillValue)
   tSkillStr = replaceChunks(tSkillStr, "\\r", "\r")
   tUserObj.pCustom = tSkillStr
   tUserObj.setProp(#pInfoStruct, #custom, tSkillStr)
-  return(1)
+  return TRUE
 end

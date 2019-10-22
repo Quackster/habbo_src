@@ -1,6 +1,6 @@
 on initializeAndRun  
   if the traceScript then
-    return(0)
+    return FALSE
   end if
   the traceScript = 0
   the traceLogFile = ""
@@ -10,13 +10,13 @@ on initializeAndRun
     return(stopMovie())
   end if
   if [member(5, 1)].getV("lkjsdlfjg23r098rsadfjj3490f3qf90jfasjdfoasidjoijjj") <> "dfsjbniou3n403q9fksadkjfash439h8f98hsadf98h938hfaskjhf34" then
-    return(0)
+    return FALSE
   end if
   if not constructObjectManager() then
-    return(0)
+    return FALSE
   end if
   if not constructProfileManager() then
-    return(0)
+    return FALSE
   end if
   startProfilingTask("Client Initialization::initCore")
   if not dumpVariableField("System Props") then
@@ -35,13 +35,13 @@ on initializeAndRun
     return(stopClient())
   end if
   finishProfilingTask("Client Initialization::initCore")
-  return(1)
+  return TRUE
 end
 
 on stopClient  
   if the runMode contains "Author" then
     if voidp(gCore) then
-      return(0)
+      return FALSE
     end if
     if the runMode contains "Author" then
       deconstructConnectionManager()
@@ -49,7 +49,7 @@ on stopClient
       deconstructErrorManager()
     end if
   end if
-  return(0)
+  return FALSE
 end
 
 on resetClient  
@@ -64,7 +64,7 @@ on resetClient
     end if
     gotoNetPage(tURL)
   end if
-  return(1)
+  return TRUE
 end
 
 on handlers  

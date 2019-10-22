@@ -7,7 +7,7 @@ on define me, tX, tY, tZ, tTileWidth, tAccuracyFactor
   pTileWidth = tTileWidth
   pAccuracyFactor = tAccuracyFactor
   pTileFactor = (pTileWidth * pAccuracyFactor)
-  return(1)
+  return TRUE
 end
 
 on setLocation me, tX, tY, tZ 
@@ -35,31 +35,31 @@ on setTileLoc me, tX, tY, tZ
 end
 
 on getTileLoc me 
-  return([#x:(x + (pTileFactor / 2) / pTileFactor), #y:(y + (pTileFactor / 2) / pTileFactor)])
+  return([#x:((x + (pTileFactor / 2)) / pTileFactor), #y:((y + (pTileFactor / 2)) / pTileFactor)])
 end
 
 on getTileX me 
-  return((x + (pTileFactor / 2) / pTileFactor))
+  return(((x + (pTileFactor / 2)) / pTileFactor))
 end
 
 on getTileY me 
-  return((y + (pTileFactor / 2) / pTileFactor))
+  return(((y + (pTileFactor / 2)) / pTileFactor))
 end
 
 on getTileZ me 
-  return((z + (pTileFactor / 2) / pTileFactor))
+  return(((z + (pTileFactor / 2)) / pTileFactor))
 end
 
 on isInDistance me, tLocX, tLocY, tDistance 
-  tDistanceX = abs(tLocX - x)
-  tDistanceY = abs(tLocY - y)
+  tDistanceX = abs((tLocX - x))
+  tDistanceY = abs((tLocY - y))
   if tDistanceY > tDistance or tDistanceX > tDistance then
-    return(0)
+    return FALSE
   end if
-  if (tDistanceX * tDistanceX) + (tDistanceY * tDistanceY) < (tDistance * tDistance) then
-    return(1)
+  if ((tDistanceX * tDistanceX) + (tDistanceY * tDistanceY)) < (tDistance * tDistance) then
+    return TRUE
   end if
-  return(0)
+  return FALSE
 end
 
 on dump me 

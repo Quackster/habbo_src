@@ -1,24 +1,23 @@
-on construct(me)
+property pTrackingURL
+
+on construct me 
   pTrackingURL = getVariable("stats.tracking.url")
-  if pTrackingURL = 0 or pTrackingURL = "" then
+  if (pTrackingURL = 0) or (pTrackingURL = "") then
     error(me, "Stats tracking URL not found!", #construct, #minor)
   end if
   registerListener(getVariable("connection.info.id", #info), me.getID(), [166:#updateStats])
   registerMessage(#sendTrackingData, me.getID(), #updateStats)
-  return(1)
-  exit
+  return TRUE
 end
 
-on deconstruct(me)
+on deconstruct me 
   unregisterListener(getVariable("connection.info.id", #info), me.getID(), [166:#updateStats])
-  return(1)
-  exit
+  return TRUE
 end
 
-on updateStats(me, tMsg)
+on updateStats me, tMsg 
   tNetThing = replaceChunks(pTrackingURL, "\\TCODE", tMsg.content)
-  if pTrackingURL.ilk = #string then
+  if (pTrackingURL.ilk = #string) then
     preloadNetThing(tNetThing)
   end if
-  exit
 end

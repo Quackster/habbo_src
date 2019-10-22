@@ -5,20 +5,20 @@ on construct me
   m_iNumber = -1
   m_bTested = 0
   m_iChecksum = 0
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
   m_ar_subturns = []
-  return(1)
+  return TRUE
 end
 
 on AddElement me, i_iSubturn, i_rElement 
   if m_ar_subturns.count < i_iSubturn then
-    i = m_ar_subturns.count + 1
+    i = (m_ar_subturns.count + 1)
     repeat while i <= i_iSubturn
       m_ar_subturns.append([])
-      i = 1 + i
+      i = (1 + i)
     end repeat
   end if
   if not voidp(i_rElement) then

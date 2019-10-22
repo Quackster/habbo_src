@@ -7,8 +7,8 @@ on deconstruct me
 end
 
 on handleAvailabilityStatus me, tMsg 
-  tIsOpen = connection.GetIntFrom()
-  tShutDown = connection.GetIntFrom()
+  tIsOpen = tMsg.connection.GetIntFrom()
+  tShutDown = tMsg.connection.GetIntFrom()
   tClosingState = 0
   if not tIsOpen then
     if tShutDown then
@@ -21,14 +21,14 @@ on handleAvailabilityStatus me, tMsg
 end
 
 on handleInfoHotelClosing me, tMsg 
-  tMinutesUntil = connection.GetIntFrom()
+  tMinutesUntil = tMsg.connection.GetIntFrom()
   me.getInterface().showHotelClosingAlert(tMinutesUntil)
 end
 
 on handleInfoHotelClosed me, tMsg 
-  tOpenHour = connection.GetIntFrom()
-  tOpenMinute = connection.GetIntFrom()
-  tDisconnect = connection.GetIntFrom()
+  tOpenHour = tMsg.connection.GetIntFrom()
+  tOpenMinute = tMsg.connection.GetIntFrom()
+  tDisconnect = tMsg.connection.GetIntFrom()
   if tDisconnect then
     me.getComponent().setHotelClosedDisconnect(tOpenHour, tOpenMinute)
   else
@@ -37,14 +37,14 @@ on handleInfoHotelClosed me, tMsg
 end
 
 on handleAvailabilityTime me, tMsg 
-  tIsOpen = connection.GetIntFrom()
-  tTimeUntil = connection.GetIntFrom()
+  tIsOpen = tMsg.connection.GetIntFrom()
+  tTimeUntil = tMsg.connection.GetIntFrom()
   executeMessage(#hotelAvailabilityTime, tIsOpen, tTimeUntil)
 end
 
 on handleLoginFailedHotelClosed me, tMsg 
-  tOpenHour = connection.GetIntFrom()
-  tOpenMinute = connection.GetIntFrom()
+  tOpenHour = tMsg.connection.GetIntFrom()
+  tOpenMinute = tMsg.connection.GetIntFrom()
   me.getComponent().setHotelClosedDisconnect(tOpenHour, tOpenMinute)
 end
 
@@ -65,5 +65,5 @@ on regMsgList me, tBool
     unregisterListener(tConn, me.getID(), tMsgs)
     unregisterCommands(tConn, me.getID(), tCmds)
   end if
-  return(1)
+  return TRUE
 end

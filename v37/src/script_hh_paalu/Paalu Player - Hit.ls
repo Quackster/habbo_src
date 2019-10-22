@@ -7,7 +7,7 @@ on construct me
   pSprite.ink = 36
   pActive = 0
   pCounter = 0
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
@@ -17,12 +17,12 @@ on deconstruct me
   pSprite = void()
   pActive = 0
   pCounter = 0
-  return(1)
+  return TRUE
 end
 
 on define me, tPart, tProps 
   pDirection = tProps.getAt(#Dir)
-  if pDirection = 0 then
+  if (pDirection = 0) then
     pAnimOffset = point(0, 0)
     pLocOffset = point(-24, -8)
   else
@@ -32,7 +32,7 @@ on define me, tPart, tProps
   pSprite.visible = 0
   pActive = 0
   pCounter = 0
-  return(1)
+  return TRUE
 end
 
 on reset me 
@@ -43,8 +43,8 @@ on prepare me
     return()
   end if
   if pActive then
-    pSprite.loc = pSprite.loc + pAnimOffset
-    pCounter = pCounter + 1
+    pSprite.loc = (pSprite.loc + pAnimOffset)
+    pCounter = (pCounter + 1)
     if pCounter > 4 then
       pActive = 0
       pCounter = 0
@@ -60,8 +60,8 @@ on status me, tAction, tBalance, tSprLoc, tSprLocZ, tHit
   if tHit then
     pActive = 1
     pSprite.member = member(getmemnum("paalu hit" && pDirection && random(4)))
-    pSprite.loc = tSprLoc + pLocOffset
-    pSprite.locZ = tSprLocZ - 1
+    pSprite.loc = (tSprLoc + pLocOffset)
+    pSprite.locZ = (tSprLocZ - 1)
     pSprite.visible = 1
     pCounter = 0
   end if

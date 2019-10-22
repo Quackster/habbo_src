@@ -4,7 +4,7 @@ on construct me
   pTipID = "help_tooltip"
   pTipWidth = 150
   registerMessage(#helptooltip, me.getID(), #createHelpTooltip)
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
@@ -12,7 +12,7 @@ on deconstruct me
   if windowExists(pTipID) then
     removeWindow(pTipID)
   end if
-  return(1)
+  return TRUE
 end
 
 on createHelpTooltip me, tParams 
@@ -27,10 +27,10 @@ on createHelpTooltip me, tParams
     tMsg = getText(tMsg)
   end if
   tPos = getProp(tParams, #pos)
-  if ilk(tPos) = #point then
+  if (ilk(tPos) = #point) then
     me.createTooltipToPoint(tMsg, tPos)
   else
-    if ilk(tPos) = #rect then
+    if (ilk(tPos) = #rect) then
       me.createTooltipToRect(tMsg, tPos)
     end if
   end if
@@ -38,27 +38,27 @@ end
 
 on createTooltipToRect me, tMsg, tRect 
   if voidp(tMsg) then
-    return(0)
+    return FALSE
   end if
   if voidp(tRect) then
-    return(0)
+    return FALSE
   end if
   if ilk(tRect) <> #rect then
     return(error(me, "No rect", #createTooltipToRect, #major))
   end if
   tSpacing = 7
-  tStageWidth = the stageRight - the stageLeft
+  tStageWidth = (the stageRight - the stageLeft)
   if not me.createTooltipToPoint(tMsg, point(0, 0)) then
-    return(0)
+    return FALSE
   end if
   tWndObj = getWindow(pTipID)
-  if tRect.top - tWndObj.pheight - tSpacing > 0 then
-    tWndObj.moveTo(tRect.left + tSpacing, tRect.top - tWndObj.pheight - tSpacing)
+  if ((tRect.top - tWndObj.pheight) - tSpacing) > 0 then
+    tWndObj.moveTo((tRect.left + tSpacing), ((tRect.top - tWndObj.pheight) - tSpacing))
   else
-    tWndObj.moveTo(tRect.left + tSpacing, tRect.bottom + tSpacing)
+    tWndObj.moveTo((tRect.left + tSpacing), (tRect.bottom + tSpacing))
   end if
-  if tWndObj.pLocX + tWndObj.pwidth > tStageWidth then
-    tWndObj.moveTo(tStageWidth - tWndObj.pwidth, tWndObj.pLocY)
+  if (tWndObj.pLocX + tWndObj.pwidth) > tStageWidth then
+    tWndObj.moveTo((tStageWidth - tWndObj.pwidth), tWndObj.pLocY)
   end if
 end
 
@@ -82,27 +82,27 @@ on createTooltipToPoint me, tMsg, tloc
   tmember.text = tMsg & " "
   tmember.lineHeight = tFontStruct.getaProp(#fontSize)
   tLineCount = tmember.lineCount
-  tHelpHeight = (2 * 11) + (tLineCount * tFontStruct.getaProp(#fontSize))
+  tHelpHeight = ((2 * 11) + (tLineCount * tFontStruct.getaProp(#fontSize)))
   if tHelpHeight < 40 then
     tHelpHeight = 40
   end if
   if not createWindow(pTipID, tLayout, tloc.locH, tloc.locV) then
-    return(0)
+    return FALSE
   end if
   tWndObj = getWindow(pTipID)
-  tWndObj.resizeTo(tLineWidth + 30, tHelpHeight)
+  tWndObj.resizeTo((tLineWidth + 30), tHelpHeight)
   if tWndObj.elementExists("tt_text") then
     tWndObj.getElement("tt_text").setText(tMsg)
   end if
   repeat while tWndObj.pSpriteList <= tloc
     tSpr = getAt(tloc, tMsg)
-    tSpr.locZ = tSpr.locZ + 1000
+    tSpr.locZ = (tSpr.locZ + 1000)
   end repeat
   tTimeOutList = [2500, (tMsg.length * 100), 10000]
   tTimeOutList.sort()
   me.createTipTimeout(tTimeOutList.getAt(2))
   tWndObj.registerProcedure(#eventProcHelpTooltip, me.getID(), #mouseUp)
-  return(1)
+  return TRUE
 end
 
 on removeTip me, tTipID 

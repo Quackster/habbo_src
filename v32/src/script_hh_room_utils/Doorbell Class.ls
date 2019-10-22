@@ -10,7 +10,7 @@ end
 
 on addDoorbellRinger me, tName 
   if pDoorbellQueue.getPos(tName) > 0 then
-    return(0)
+    return FALSE
   end if
   if not windowExists(pDoorbellWinID) then
     if not createWindow(pDoorbellWinID, "habbo_basic.window", 250, 200) then
@@ -29,13 +29,13 @@ on addDoorbellRinger me, tName
   pDoorbellQueue.append(tName)
   pRingingUser = pDoorbellQueue.count
   me.updateDoorbellWindow()
-  return(1)
+  return TRUE
 end
 
 on removeRingingUser me 
   pDoorbellQueue.deleteAt(pRingingUser)
   me.updateDoorbellWindow()
-  return(1)
+  return TRUE
 end
 
 on removeFromList me, tName 
@@ -46,33 +46,33 @@ on removeFromList me, tName
 end
 
 on displayNextDoorbellRinger me 
-  pRingingUser = pRingingUser + 1
+  pRingingUser = (pRingingUser + 1)
   if pRingingUser > pDoorbellQueue.count then
     pRingingUser = 1
   end if
   me.updateDoorbellWindow()
-  return(1)
+  return TRUE
 end
 
 on displayPreviousDoorbellRinger me 
-  pRingingUser = pRingingUser - 1
+  pRingingUser = (pRingingUser - 1)
   if pRingingUser < 1 then
     pRingingUser = pDoorbellQueue.count
   end if
   me.updateDoorbellWindow()
-  return(1)
+  return TRUE
 end
 
 on updateDoorbellWindow me 
-  if pDoorbellQueue = [] then
+  if (pDoorbellQueue = []) then
     me.hideDoorBell()
-    return(1)
+    return TRUE
   end if
   if pRingingUser > pDoorbellQueue.count then
     pRingingUser = pDoorbellQueue.count
   end if
   if not windowExists(pDoorbellWinID) then
-    return(0)
+    return FALSE
   end if
   tWndObj = getWindow(pDoorbellWinID)
   tText = getText("room_doorbell", "rings the doorbell...")
@@ -88,35 +88,35 @@ on updateDoorbellWindow me
     tCountText = ""
   end if
   tWndObj.getElement("doorbell_req_num").setText(tCountText)
-  return(1)
+  return TRUE
 end
 
 on hideDoorBell me 
   pRingingUser = 0
   pDoorbellQueue = []
   if not windowExists(pDoorbellWinID) then
-    return(0)
+    return FALSE
   end if
   removeWindow(pDoorbellWinID)
-  return(1)
+  return TRUE
 end
 
 on eventProcDoorBell me, tEvent, tSprID, tParam 
-  if tSprID = "doorbell_yes" then
+  if (tSprID = "doorbell_yes") then
     getThread(#room).getComponent().getRoomConnection().send("LETUSERIN", [#string:pDoorbellQueue.getAt(pRingingUser), #boolean:1])
     me.removeRingingUser()
   else
-    if tSprID = "doorbell_no" then
+    if (tSprID = "doorbell_no") then
       getThread(#room).getComponent().getRoomConnection().send("LETUSERIN", [#string:pDoorbellQueue.getAt(pRingingUser), #boolean:0])
       me.removeRingingUser()
     else
-      if tSprID = "close" then
+      if (tSprID = "close") then
         me.hideDoorBell()
       else
-        if tSprID = "doorbell_next" then
+        if (tSprID = "doorbell_next") then
           me.displayNextDoorbellRinger()
         else
-          if tSprID = "doorbell_prev" then
+          if (tSprID = "doorbell_prev") then
             me.displayPreviousDoorbellRinger()
           end if
         end if

@@ -24,7 +24,7 @@ on define me, tdata
       me.setProp(#pPartListSubSet, tSubSet, getVariableValue(tSetName))
     end if
   end repeat
-  return(1)
+  return TRUE
 end
 
 on changeFigureAndData me, tdata 
@@ -61,14 +61,14 @@ on resetValues me, tX, tY, tH, tDirHead, tDirBody
   i = 1
   repeat while i <= me.count(#pExtraObjsActive)
     me.setProp(#pExtraObjsActive, i, 0)
-    i = 1 + i
+    i = (1 + i)
   end repeat
   me.pLocFix = point(0, 0)
   call(#reset, me.pPartList)
-  if me.pMainAction = "sit" then
-    me.pScreenLoc = pGeometry.getScreenCoordinate(tX, tY, me.pRestingHeight)
+  if (me.pMainAction = "sit") then
+    me.pScreenLoc = me.pGeometry.getScreenCoordinate(tX, tY, me.pRestingHeight)
   else
-    me.pScreenLoc = pGeometry.getScreenCoordinate(tX, tY, tH)
+    me.pScreenLoc = me.pGeometry.getScreenCoordinate(tX, tY, tH)
   end if
   call(#defineDir, me.pPartList, tDirBody)
   call(#defineDirMultiple, me.pPartList, tDirHead, me.getProp(#pPartListSubSet, "head"))
@@ -82,7 +82,7 @@ on resetValues me, tX, tY, tH, tDirHead, tDirBody
   if me.count(#pExtraObjs) > 0 then
     call(#Refresh, me.pExtraObjs)
   end if
-  return(1)
+  return TRUE
 end
 
 on Refresh me, tX, tY, tH 
@@ -91,13 +91,13 @@ on Refresh me, tX, tY, tH
   me.pChanges = 1
   i = 1
   repeat while i <= me.count(#pExtraObjsActive)
-    if me.getProp(#pExtraObjsActive, i) = 0 then
+    if (me.getProp(#pExtraObjsActive, i) = 0) then
       me.getPropRef(#pExtraObjs, i).deconstruct()
-      pExtraObjs.deleteAt(i)
-      pExtraObjsActive.deleteAt(i)
+      me.pExtraObjs.deleteAt(i)
+      me.pExtraObjsActive.deleteAt(i)
       next repeat
     end if
-    i = i + 1
+    i = (i + 1)
   end repeat
 end
 
@@ -128,7 +128,7 @@ on setPartLists me, tmodels
     else
       tPartObj.setUnderWater(1)
     end if
-    i = 1 + i
+    i = (1 + i)
   end repeat
   me.pDirection = tDirectionOld
   me.pMainAction = tActionOld
@@ -136,7 +136,7 @@ on setPartLists me, tmodels
   if not me.isSwimming() then
     me.resumeAnimation()
   end if
-  return(1)
+  return TRUE
 end
 
 on prepare me 
@@ -151,15 +151,15 @@ on prepare me
       me.definePartListAction(me.getProp(#pPartListSubSet, "swim"), "sws")
     end if
     tSwimAnim = [0, 1, 2, 3, 2, 1]
-    pSwimAnimCount = pSwimAnimCount + 1
+    pSwimAnimCount = (pSwimAnimCount + 1)
     if pSwimAnimCount > tSwimAnim.count then
       pSwimAnimCount = 1
     end if
     me.pAnimCounter = tSwimAnim.getAt(pSwimAnimCount)
-    if objectExists(#waterripples) and random(2) = 1 then
+    if objectExists(#waterripples) and (random(2) = 1) then
       tPos = me.getTileCenter()
-      tPos.setAt(1, tPos.getAt(1) - me.pXFactor)
-      tPos.setAt(2, tPos.getAt(2) - me.pXFactor)
+      tPos.setAt(1, (tPos.getAt(1) - me.pXFactor))
+      tPos.setAt(2, (tPos.getAt(2) - me.pXFactor))
       getObject(#waterripples).NewRipple(tPos)
     end if
     me.pChanges = 1
@@ -167,17 +167,17 @@ on prepare me
     if me.pMoving then
       me.definePartListAction(me.getProp(#pPartListSubSet, "walk"), "wlk")
     end if
-    me.pAnimCounter = (me.pAnimCounter + 1 mod 4)
+    me.pAnimCounter = ((me.pAnimCounter + 1) mod 4)
   end if
   if me.pEyesClosed and not me.pSleeping then
     me.openEyes()
   else
-    if random(30) = 3 then
+    if (random(30) = 3) then
       me.closeEyes()
     end if
   end if
   if me.pTalking and random(3) > 1 then
-    if me.pMainAction = "lay" then
+    if (me.pMainAction = "lay") then
       me.definePartListAction(me.getProp(#pPartListSubSet, "speak"), "lsp")
     else
       me.definePartListAction(me.getProp(#pPartListSubSet, "speak"), "spk")
@@ -197,11 +197,11 @@ on prepare me
     end if
   end if
   if me.pMoving then
-    tFactor = (float(the milliSeconds - me.pMoveStart) / (me.pMoveTime * 1))
+    tFactor = (float((the milliSeconds - me.pMoveStart)) / (me.pMoveTime * 1))
     if tFactor > 1 then
       tFactor = 1
     end if
-    me.pScreenLoc = ((me.pDestLScreen - me.pStartLScreen * 1) * tFactor) + me.pStartLScreen
+    me.pScreenLoc = ((((me.pDestLScreen - me.pStartLScreen) * 1) * tFactor) + me.pStartLScreen)
     me.pChanges = 1
   end if
   if me.pWaving then
@@ -221,57 +221,57 @@ on render me
     return()
   end if
   me.pChanges = 0
-  if me.pMainAction = "sit" then
-    pShadowSpr.castNum = getmemnum(me.pPeopleSize & "_sit_sd_1_" & me.getProp(#pFlipList, me.pDirection + 1) & "_0")
+  if (me.pMainAction = "sit") then
+    me.pShadowSpr.castNum = getmemnum(me.pPeopleSize & "_sit_sd_1_" & me.getProp(#pFlipList, (me.pDirection + 1)) & "_0")
   else
-    if pShadowSpr.member <> me.pDefShadowMem then
-      me.castNum = pDefShadowMem.number
+    if me.pShadowSpr.member <> me.pDefShadowMem then
+      me.pShadowSpr.castNum = me.pDefShadowMem.number
     end if
   end if
-  if me.pMainAction = "swm" then
+  if (me.pMainAction = "swm") then
     tSize = me.getProp(#pCanvasSize, #swm)
   else
     tSize = me.getProp(#pCanvasSize, #std)
   end if
-  if me or pBuffer.height <> tSize.getAt(2) then
-    pMember.image = image(tSize.getAt(1), tSize.getAt(2), tSize.getAt(3))
-    pMember.regPoint = point(0, tSize.getAt(2) + tSize.getAt(4))
-    pSprite.width = tSize.getAt(1)
-    pSprite.height = tSize.getAt(2)
-    pMatteSpr.width = tSize.getAt(1)
-    pMatteSpr.height = tSize.getAt(2)
+  if me.pBuffer.width <> tSize.getAt(1) or me.pBuffer.height <> tSize.getAt(2) then
+    me.pMember.image = image(tSize.getAt(1), tSize.getAt(2), tSize.getAt(3))
+    me.pMember.regPoint = point(0, (tSize.getAt(2) + tSize.getAt(4)))
+    me.pSprite.width = tSize.getAt(1)
+    me.pSprite.height = tSize.getAt(2)
+    me.pMatteSpr.width = tSize.getAt(1)
+    me.pMatteSpr.height = tSize.getAt(2)
     me.pBuffer = image(tSize.getAt(1), tSize.getAt(2), tSize.getAt(3))
   end if
-  pSprite.flipH = 0
-  pMatteSpr.flipH = 0
-  pShadowSpr.flipH = 0
+  me.pSprite.flipH = 0
+  me.pMatteSpr.flipH = 0
+  me.pShadowSpr.flipH = 0
   me.pShadowFix = 0
-  0.regPoint = point(me, pMember.getProp(#regPoint, 2))
-  pSprite.locH = me.getProp(#pScreenLoc, 1)
-  pSprite.locV = me.getProp(#pScreenLoc, 2)
-  pSprite.locZ = me.getProp(#pScreenLoc, 3) + 2
+  me.pMember.regPoint = point(0, me.pMember.getProp(#regPoint, 2))
+  me.pSprite.locH = me.getProp(#pScreenLoc, 1)
+  me.pSprite.locV = me.getProp(#pScreenLoc, 2)
+  me.pSprite.locZ = (me.getProp(#pScreenLoc, 3) + 2)
   me.updateTypingSpriteLoc()
-  me.loc = pSprite.loc
-  me.locZ = pSprite.locZ + 1
-  me.loc = pSprite.loc + [me.pShadowFix, 0]
-  me.locZ = pSprite.locZ - 3
-  if me.pMainAction = "swm" then
-    me.locH = pSprite.locH - 12
-    me.locH = pSprite.locH
+  me.pMatteSpr.loc = me.pSprite.loc
+  me.pMatteSpr.locZ = (me.pSprite.locZ + 1)
+  me.pShadowSpr.loc = (me.pSprite.loc + [me.pShadowFix, 0])
+  me.pShadowSpr.locZ = (me.pSprite.locZ - 3)
+  if (me.pMainAction = "swm") then
+    me.pSprite.locH = (me.pSprite.locH - 12)
+    me.pMatteSpr.locH = me.pSprite.locH
   end if
   pUpdateRect = rect(0, 0, 0, 0)
-  me.fill(pBuffer.rect, me.pAlphaColor)
-  if me.pMainAction = "swm" then
+  me.pBuffer.fill(me.pBuffer.rect, me.pAlphaColor)
+  if (me.pMainAction = "swm") then
     tRectMod = rect(14, 0, 14, 0)
   else
     tRectMod = rect(0, 0, 0, 0)
   end if
   call(#update, me.pPartList, 0, tRectMod)
-  image.copyPixels(me.pBuffer, me.pUpdateRect, me.pUpdateRect)
+  me.pMember.image.copyPixels(me.pBuffer, me.pUpdateRect, me.pUpdateRect)
 end
 
 on isInSwimsuit me 
-  return(1)
+  return TRUE
 end
 
 on fixSwimmerFigure me, tFigure 
@@ -282,17 +282,17 @@ on fixSwimmerFigure me, tFigure
     tItemNo = 1
     repeat while tItemNo <= tFigure.count
       tPartType = tFigure.getPropAt(tItemNo)
-      if tPartType = tPrePart then
-        tOccurrenceCount = tOccurrenceCount + 1
+      if (tPartType = tPrePart) then
+        tOccurrenceCount = (tOccurrenceCount + 1)
         if tOccurrenceCount > 1 then
           tFigure.deleteAt(tItemNo)
-          tItemNo = tItemNo - 1
+          tItemNo = (tItemNo - 1)
         end if
       end if
-      tItemNo = 1 + tItemNo
+      tItemNo = (1 + tItemNo)
     end repeat
   end repeat
-  if me.pSex = "F" then
+  if (me.pSex = "F") then
     tphModel = "s01"
   else
     tphModel = "s02"
@@ -332,15 +332,15 @@ on action_mv me, tProps
   tLocY = integer(tloc.getProp(#item, 2))
   tLocH = getLocalFloat(tloc.getProp(#item, 3))
   the itemDelimiter = tDelim
-  me.pStartLScreen = pGeometry.getScreenCoordinate(me.pLocX, me.pLocY, me.pLocH)
-  me.pDestLScreen = pGeometry.getScreenCoordinate(tLocX, tLocY, tLocH)
+  me.pStartLScreen = me.pGeometry.getScreenCoordinate(me.pLocX, me.pLocY, me.pLocH)
+  me.pDestLScreen = me.pGeometry.getScreenCoordinate(tLocX, tLocY, tLocH)
   me.pMoveStart = the milliSeconds
 end
 
 on action_fx me, tProps 
-  return(1)
+  return TRUE
 end
 
 on persist_fx me, ttype 
-  return(1)
+  return TRUE
 end

@@ -9,7 +9,7 @@ end
 on handle_get_pending_response me, tMsg 
   tConn = tMsg.getaProp(#connection)
   tCount = tConn.GetIntFrom()
-  if tCount = 0 then
+  if (tCount = 0) then
     me.getComponent().openCfhWindow()
   else
     me.getComponent().openPendingCFHWindow(tMsg)
@@ -23,7 +23,7 @@ end
 on handle_cfh_sending_response me, tMsg 
   tConn = tMsg.getaProp(#connection)
   tStatus = tConn.GetIntFrom()
-  if tStatus = 0 then
+  if (tStatus = 0) then
     me.getComponent().showAlertSentWindow()
   end if
 end
@@ -43,5 +43,5 @@ on regMsgList me, tBool
     unregisterListener(getVariable("connection.info.id", #info), me.getID(), tMsgs)
     unregisterCommands(getVariable("connection.info.id", #info), me.getID(), tCmds)
   end if
-  return(1)
+  return TRUE
 end

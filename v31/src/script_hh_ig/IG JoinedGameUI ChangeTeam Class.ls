@@ -1,4 +1,3 @@
-on render(me)
-  return(me.render(#change))
-  exit
+on render me 
+  return(me.ancestor.render(#change))
 end

@@ -8,14 +8,14 @@ end
 
 on handleInvitation me, tMsg 
   tConn = tMsg.connection
-  if tConn = 0 then
-    return(0)
+  if (tConn = 0) then
+    return FALSE
   end if
   tInvitationData = [:]
   tInvitationData.setaProp(#userID, tConn.GetStrFrom())
   tInvitationData.setaProp(#name, tConn.GetStrFrom())
   me.getComponent().setInvitation(tInvitationData)
-  return(1)
+  return TRUE
 end
 
 on handleInvitationFollowFailed me, tMsg 
@@ -29,13 +29,13 @@ end
 on handleInitTutorServiceStatus me, tMsg 
   tConn = tMsg.getaProp(#connection)
   tstate = tConn.GetIntFrom()
-  if tstate = 1 then
+  if (tstate = 1) then
     me.getComponent().setState(#enabled)
   else
-    if tstate = 2 then
+    if (tstate = 2) then
       me.getComponent().setState(#disabled)
     else
-      if tstate = 3 then
+      if (tstate = 3) then
         me.getComponent().setState(#disabled)
       end if
     end if
@@ -45,15 +45,15 @@ end
 on handleEnableTutorServiceStatus me, tMsg 
   tConn = tMsg.getaProp(#connection)
   tstate = tConn.GetIntFrom()
-  if tstate = 2 then
+  if (tstate = 2) then
     executeMessage(#alert, "guide_tool_friendlist_full")
     me.getComponent().setState(#enabled)
   else
-    if tstate = 3 then
+    if (tstate = 3) then
       executeMessage(#alert, "guide_tool_service_disabled")
       me.getComponent().setState(#disabled)
     else
-      if tstate = 4 then
+      if (tstate = 4) then
         executeMessage(#alert, "guide_tool_max_newbies")
         me.getComponent().setState(#disabled)
       end if
@@ -82,5 +82,5 @@ on regMsgList me, tBool
     unregisterListener(getVariable("connection.info.id"), me.getID(), tMsgs)
     unregisterCommands(getVariable("connection.info.id"), me.getID(), tCmds)
   end if
-  return(1)
+  return TRUE
 end

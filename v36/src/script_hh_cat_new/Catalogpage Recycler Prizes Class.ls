@@ -51,7 +51,7 @@ end
 
 on setPrizes me, tPrizes 
   if tPrizes.ilk <> #propList then
-    return(0)
+    return FALSE
   end if
   pPrizes = tPrizes
   me.renderStripBg()
@@ -61,7 +61,7 @@ end
 
 on downloadFurniCasts me 
   if pPrizes.ilk <> #propList then
-    return(0)
+    return FALSE
   end if
   if voidp(pPersistentFurniData) then
     pPersistentFurniData = getThread("dynamicdownloader").getComponent().getPersistentFurniDataObject()
@@ -80,7 +80,7 @@ on downloadFurniCasts me
       end if
       tClass = me.removeColorFromClassName(tFurniProps.getAt(#class))
       pPageItemDownloader.registerDownload(#furni, tClass, [#category:tCategory.getAt(#id), #item:i])
-      i = 1 + i
+      i = (1 + i)
     end repeat
   end repeat
 end
@@ -97,7 +97,7 @@ end
 
 on renderStripItems me 
   if pPrizes.ilk <> #propList then
-    return(0)
+    return FALSE
   end if
   i = 1
   repeat while i <= pPrizes.count
@@ -105,9 +105,9 @@ on renderStripItems me
     j = 1
     repeat while j <= tFurniList.count
       me.renderStripItem(pPrizes.getAt(i).getAt(#id), j)
-      j = 1 + j
+      j = (1 + j)
     end repeat
-    i = 1 + i
+    i = (1 + i)
   end repeat
   me.setImage(pStripBg, "ctlg_productstrip")
 end
@@ -123,9 +123,9 @@ on renderStripItem me, tCategoryId, tIndex, tIsSelected
   end if
   tSlotRect = me.getSlotRect(tCategoryId, tIndex)
   if not tSlotRect then
-    return(0)
+    return FALSE
   end if
-  if tSlotBg.ilk = #image then
+  if (tSlotBg.ilk = #image) then
     pStripBg.copyPixels(tSlotBg, tSlotRect, tSlotBg.rect)
   end if
   tCategoryData = pPrizes.getaProp(tCategoryId)
@@ -140,29 +140,29 @@ on renderStripItem me, tCategoryId, tIndex, tIsSelected
     tImage = getObject("Preview_renderer").renderPreviewImage(void(), void(), tColors, tClass)
   else
     tIconMem = member(getmemnum("ctlg_loading_icon2"))
-    if tIconMem.type = #bitmap then
+    if (tIconMem.type = #bitmap) then
       tImage = tIconMem.image
     end if
   end if
   if tImage.ilk <> #image then
-    return(0)
+    return FALSE
   end if
-  tOffsetX = tSlotRect.width + (tImage - rect.width / 2)
-  tOffsetY = tSlotRect.height + (tImage - rect.height / 2)
-  tRect = rect.offset(tOffsetX, tOffsetY)
+  tOffsetX = (tSlotRect.getAt(1) + ((tSlotRect.width - tImage.rect.width) / 2))
+  tOffsetY = (tSlotRect.getAt(2) + ((tSlotRect.height - tImage.rect.height) / 2))
+  tRect = tImage.rect.offset(tOffsetX, tOffsetY)
   pStripBg.copyPixels(tImage, tRect, tImage.rect, [#ink:36])
 end
 
 on renderStripBg me 
   if pPrizes.ilk <> #propList then
-    return(0)
+    return FALSE
   end if
   if voidp(pWndObj) then
-    return(0)
+    return FALSE
   end if
   tStripElem = pWndObj.getElement("ctlg_productstrip")
   if not tStripElem then
-    return(0)
+    return FALSE
   end if
   tStripWidth = tStripElem.getProperty(#width)
   pStripBg = image(tStripWidth, 2000, 32)
@@ -181,32 +181,32 @@ on renderStripBg me
     tFurniList = pPrizes.getAt(i).getAt(#furniList)
     if not listp(tFurniList) then
     else
-      if tFurniList.count = 0 then
+      if (tFurniList.count = 0) then
       else
         tID = pPrizes.getAt(i).getAt(#id)
         tTitle = getText("recycler_prize_category_" & tID)
         tTitleImage = pWriter.render(tTitle).duplicate()
-        tTargetRect = rect(0, tOffsetY, tTitleImage.width, tOffsetY + tTitleImage.height)
+        tTargetRect = rect(0, tOffsetY, tTitleImage.width, (tOffsetY + tTitleImage.height))
         pStripBg.copyPixels(tTitleImage, tTargetRect, tTitleImage.rect)
-        tOffsetY = tOffsetY + tTitleImage.height + tTitleMargin
+        tOffsetY = ((tOffsetY + tTitleImage.height) + tTitleMargin)
         tRowCount = 1
         tOffsetX = 0
         j = 1
         repeat while j <= tFurniList.count
-          if tOffsetX + tSlotBg.width > tStripWidth then
+          if (tOffsetX + tSlotBg.width) > tStripWidth then
             tOffsetX = 0
-            tOffsetY = tOffsetY + tSlotBg.height
+            tOffsetY = (tOffsetY + tSlotBg.height)
           end if
-          tTargetRect = rect(tOffsetX, tOffsetY, tOffsetX + tSlotBg.width, tOffsetY + tSlotBg.height)
+          tTargetRect = rect(tOffsetX, tOffsetY, (tOffsetX + tSlotBg.width), (tOffsetY + tSlotBg.height))
           pStripBg.copyPixels(tSlotBg, tTargetRect, tSlotBg.rect)
           me.setSlotRect(pPrizes.getAt(i).getAt(#id), j, tTargetRect)
-          tOffsetX = tOffsetX + tSlotBg.width
-          j = 1 + j
+          tOffsetX = (tOffsetX + tSlotBg.width)
+          j = (1 + j)
         end repeat
-        tOffsetY = tOffsetY + tSlotBg.height + tTitleMargin
+        tOffsetY = ((tOffsetY + tSlotBg.height) + tTitleMargin)
       end if
     end if
-    i = 1 + i
+    i = (1 + i)
   end repeat
   pStripBg = pStripBg.crop(rect(0, 0, tStripWidth, tOffsetY))
   me.setImage(pStripBg, "ctlg_productstrip")
@@ -224,24 +224,24 @@ end
 
 on getSlotRect me, tCategoryId, tIndex 
   if pSlotRects.ilk <> #propList then
-    return(0)
+    return FALSE
   end if
   tCategory = pSlotRects.getaProp(tCategoryId)
   if not listp(tCategory) then
-    return(0)
+    return FALSE
   end if
   if tIndex < 1 or tIndex > tCategory.count then
-    return(0)
+    return FALSE
   end if
   return(tCategory.getAt(tIndex))
 end
 
 on setImage me, tImage, tElemID 
   if voidp(pWndObj) then
-    return(0)
+    return FALSE
   end if
   if not pWndObj.elementExists(tElemID) then
-    return(0)
+    return FALSE
   end if
   tElem = pWndObj.getElement(tElemID)
   tElem.feedImage(tImage)
@@ -249,18 +249,18 @@ end
 
 on updateStripScroll me 
   if voidp(pWndObj) then
-    return(0)
+    return FALSE
   end if
   tStrip = pWndObj.getElement("ctlg_productstrip")
   if not tStrip then
-    return(0)
+    return FALSE
   end if
   tScroll = pWndObj.getElement("ctlg_products_scroll")
   if not tScroll then
-    return(0)
+    return FALSE
   end if
   if pStripBg.ilk <> #image then
-    return(0)
+    return FALSE
   end if
   tShowScroll = pStripBg.height > tStrip.getProperty(#height)
   tScroll.setProperty(#visible, tShowScroll)
@@ -279,7 +279,7 @@ on mergeWindow me, tParentWndObj
     if pTextElements.count >= i then
       me.setElementText(pWndObj, pTextElements.getAt(i), tTextFields.getAt(i))
     end if
-    i = 1 + i
+    i = (1 + i)
   end repeat
   tBitmaps = me.getPropRef(#pPageData, #localization).getAt(#images)
   tObjectLoadList = []
@@ -295,7 +295,7 @@ on mergeWindow me, tParentWndObj
         end if
       end if
     end if
-    i = 1 + i
+    i = (1 + i)
   end repeat
   if tObjectLoadList.count > 0 then
     pPageItemDownloader.defineCallback(me, #downloadCompleted)
@@ -308,7 +308,7 @@ end
 
 on setElementText me, tWndObj, tElemName, tText 
   if voidp(tWndObj) then
-    return(0)
+    return FALSE
   end if
   if tWndObj.elementExists(tElemName) then
     tWndObj.getElement(tElemName).setText(tText)
@@ -343,7 +343,7 @@ on showPreview me, tCategory, tItem
   tPreviewProps.setAt("partColors", tProps.getAt(#partColors))
   tPreviewImage = me.renderLargePreviewImage(tPreviewProps)
   if tPreviewImage.ilk <> #image then
-    return(0)
+    return FALSE
   end if
   if pWndObj.elementExists(pImageElements.getAt(2)) then
     me.centerBlitImageToElement(tPreviewImage, pWndObj.getElement(pImageElements.getAt(2)))
@@ -380,7 +380,7 @@ on downloadCompleted me, tProps
     if not voidp(tSelectedItem) then
       tFurniProps = pPersistentFurniData.getProps(tSelectedItem.getOffer(1).getType(), tSelectedItem.getOffer(1).getClassId())
       if not voidp(tFurniProps) then
-        if tProps.getAt(#assetId) = me.getClassAsset(tFurniProps.getAt(#class)) then
+        if (tProps.getAt(#assetId) = me.getClassAsset(tFurniProps.getAt(#class))) then
           me.showPreview(tSelectedItem)
         end if
       end if
@@ -398,13 +398,13 @@ end
 
 on handleClick me, tEvent, tSprID, tProp 
   if tEvent <> #mouseUp then
-    return(0)
+    return FALSE
   end if
   if tSprID <> "ctlg_productstrip" then
-    return(0)
+    return FALSE
   end if
   if ilk(tProp) <> #point then
-    return(0)
+    return FALSE
   end if
   i = 1
   repeat while i <= pSlotRects.count
@@ -418,9 +418,9 @@ on handleClick me, tEvent, tSprID, tProp
         if tProp.inside(tRect) then
           me.showPreview(tCategoryId, j)
         else
-          j = 1 + j
+          j = (1 + j)
         end if
-        i = 1 + i
+        i = (1 + i)
       end if
     end repeat
   end repeat

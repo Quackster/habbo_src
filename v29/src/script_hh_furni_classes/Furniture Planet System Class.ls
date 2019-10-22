@@ -5,7 +5,7 @@ on construct me
   pThisSystem = getUniqueID()
   pScene = void()
   pObjectMoverSprite = void()
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
@@ -28,7 +28,7 @@ on define me, tdata
     tProps.setAt(#parent, readValueFromField(tFieldName, "\r", "object." & i & ".parent"))
     tProps.setAt(#radius, readValueFromField(tFieldName, "\r", "object." & i & ".radius"))
     tProps.setAt(#arcspeed, readValueFromField(tFieldName, "\r", "object." & i & ".arcspeed"))
-    tProps.setAt(#arcoffset, readValueFromField(tFieldName, "\r", "object." & i & ".arcoffset") + tArcRandom)
+    tProps.setAt(#arcoffset, (readValueFromField(tFieldName, "\r", "object." & i & ".arcoffset") + tArcRandom))
     tProps.setAt(#sprites, readValueFromField(tFieldName, "\r", "object." & i & ".sprites"))
     tProps.setAt(#frameList, readValueFromField(tFieldName, "\r", "object." & i & ".framelist"))
     tProps.setAt(#ink, readValueFromField(tFieldName, "\r", "object." & i & ".ink"))
@@ -36,17 +36,17 @@ on define me, tdata
     tProps.setAt(#zshift, readValueFromField(tFieldName, "\r", "object." & i & ".zshift"))
     tProps.setAt(#height, readValueFromField(tFieldName, "\r", "object." & i & ".height"))
     me.addPlanet(tProps.getAt(#name), tProps.getAt(#parent), tProps)
-    i = 1 + i
+    i = (1 + i)
   end repeat
   if not voidp(pObjectMoverSprite) then
     releaseSprite(pObjectMoverSprite.spriteNum)
     pObjectMoverSprite = void()
   end if
-  return(1)
+  return TRUE
 end
 
 on addPlanet me, tName, tParentName, tProps 
-  if not tParentName = 0 then
+  if not (tParentName = 0) then
     tParent = me.getPlanetByName(tParentName, pScene)
     if voidp(tParent) then
       return(error(me, "Unable to find parent planet!", #addPlanet, #major))
@@ -85,7 +85,7 @@ on addPlanet me, tName, tParentName, tProps
 end
 
 on getPlanetByName me, tName, tTarget 
-  if tTarget.getID() = tName & pThisSystem then
+  if (tTarget.getID() = tName & pThisSystem) then
     return(tTarget)
   else
     repeat while tTarget.getChildren() <= tTarget
@@ -120,7 +120,7 @@ end
 on getScenePos me, tRootPos, tTarget, tPosTable 
   tItemID = tTarget.getID()
   tItemPos = tTarget.getWorldPosition()
-  tNewPos = [tRootPos.getAt(1) + tItemPos.getAt(1), tRootPos.getAt(2) + tItemPos.getAt(2), tRootPos.getAt(3) + tItemPos.getAt(3)]
+  tNewPos = [(tRootPos.getAt(1) + tItemPos.getAt(1)), (tRootPos.getAt(2) + tItemPos.getAt(2)), (tRootPos.getAt(3) + tItemPos.getAt(3))]
   tPosTable.setaProp(tItemID, tNewPos)
   repeat while tTarget.getChildren() <= tTarget
     tItem = getAt(tTarget, tRootPos)
@@ -133,7 +133,7 @@ on getProjectedPosition me, tloc
   tYOffset = pGeometry.pYOffset
   tZOffset = pGeometry.pZOffset
   tloc = pGeometry.getScreenCoordinate(tloc.getAt(1), tloc.getAt(2), tloc.getAt(3))
-  return([tloc.getAt(1) - tXOffset, tloc.getAt(2) - tYOffset, tloc.getAt(3) - tZOffset])
+  return([(tloc.getAt(1) - tXOffset), (tloc.getAt(2) - tYOffset), (tloc.getAt(3) - tZOffset)])
 end
 
 on updateSprites me, tRootPos, tTarget, tPosTable 
@@ -141,9 +141,9 @@ on updateSprites me, tRootPos, tTarget, tPosTable
   tsprite = tTarget.getSprite()
   if not voidp(tsprite) then
     tProj = me.getProjectedPosition(tPosTable.getAt(tTarget.getID()))
-    tloc = [tProj.getAt(1) + tRootPos.getAt(1), tProj.getAt(2) + tRootPos.getAt(2), tProj.getAt(3) + tRootPos.getAt(3)]
+    tloc = [(tProj.getAt(1) + tRootPos.getAt(1)), (tProj.getAt(2) + tRootPos.getAt(2)), (tProj.getAt(3) + tRootPos.getAt(3))]
     tsprite.loc = point(integer(tloc.getAt(1)), integer(tloc.getAt(2)))
-    tsprite.locZ = integer(tloc.getAt(3)) + tTarget.getZShift()
+    tsprite.locZ = (integer(tloc.getAt(3)) + tTarget.getZShift())
   end if
   repeat while tTarget.getChildren() <= tTarget
     tItem = getAt(tTarget, tRootPos)
@@ -156,7 +156,7 @@ on render me
   tPosTable.sort()
   me.getScenePos([0, 0, 0], pScene, tPosTable)
   tRootPos = pGeometry.getScreenCoordinate(me.pLocX, me.pLocY, me.pLocH)
-  tRootPos.setAt(1, tRootPos.getAt(1) + (pGeometry.pXFactor / 2))
+  tRootPos.setAt(1, (tRootPos.getAt(1) + (pGeometry.pXFactor / 2)))
   me.updateSprites(tRootPos, pScene, tPosTable)
 end
 

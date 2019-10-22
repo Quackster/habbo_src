@@ -17,7 +17,7 @@ on deconstruct me
   i = 1
   repeat while i <= pHumanTimeoutList.count
     timeout(pHumanTimeoutList.getPropAt(i)).forget()
-    i = 1 + i
+    i = (1 + i)
   end repeat
 end
 
@@ -35,7 +35,7 @@ end
 
 on setAvatarSpeakAndGesture me, tUserID, tSpeakTimeout, tGesture 
   tObj = getThread(#room).getComponent().getUserObject(tUserID)
-  if tObj = 0 then
+  if (tObj = 0) then
     return()
   end if
   tObj.action_talk("talk")
@@ -51,7 +51,7 @@ on stopAvatarSpeak me, tTimeout
   pHumanTimeoutList.deleteProp(tTimeout.name)
   timeout(tTimeout.name).forget()
   tObj = getThread(#room).getComponent().getUserObject(tUserID)
-  if tObj = 0 then
+  if (tObj = 0) then
     return()
   end if
   call(#stop_action_talk, [tObj], "talk")
@@ -69,7 +69,7 @@ on stopAvatarGesture me, tTimeout
   pHumanTimeoutList.deleteProp(tTimeout.name)
   timeout(tTimeout.name).forget()
   tObj = getThread(#room).getComponent().getUserObject(tUserID)
-  if tObj = 0 then
+  if (tObj = 0) then
     return()
   end if
   tObj.stop_action_gest()
@@ -95,32 +95,32 @@ on handle_chat me, tMsg
   tuser = string(tConn.GetIntFrom())
   tChat = tConn.GetStrFrom()
   tGest = tConn.GetIntFrom()
-  if tMsg.getaProp(#subject) = 24 then
+  if (tMsg.getaProp(#subject) = 24) then
     tMode = "CHAT"
   else
-    if tMsg.getaProp(#subject) = 25 then
+    if (tMsg.getaProp(#subject) = 25) then
       tMode = "WHISPER"
     else
-      if tMsg.getaProp(#subject) = 26 then
+      if (tMsg.getaProp(#subject) = 26) then
         tMode = "SHOUT"
       end if
     end if
   end if
-  if tChat = "" then
+  if (tChat = "") then
     tMode = "UNHEARD"
   end if
   me.enterChatMessage(tMode, tuser, tChat)
   tSpeakingLength = (tChat.length * 100)
-  if tMsg.getaProp(#subject) = 1 then
+  if (tMsg.getaProp(#subject) = 1) then
     tGestStr = "gest sml"
   else
-    if tMsg.getaProp(#subject) = 2 then
+    if (tMsg.getaProp(#subject) = 2) then
       tGestStr = "gest agr"
     else
-      if tMsg.getaProp(#subject) = 3 then
+      if (tMsg.getaProp(#subject) = 3) then
         tGestStr = "gest srp"
       else
-        if tMsg.getaProp(#subject) = 4 then
+        if (tMsg.getaProp(#subject) = 4) then
           tGestStr = "gest sad"
         else
           tGestStr = ""
@@ -148,5 +148,5 @@ on regMsgList me, tBool
     unregisterListener(getVariable("connection.room.id"), me.getID(), tMsgs)
     unregisterCommands(getVariable("connection.room.id"), me.getID(), tCmds)
   end if
-  return(1)
+  return TRUE
 end

@@ -5,7 +5,7 @@ on prepare me
   if not listp(pTokenList) then
     pTokenList = [7]
   end if
-  return(1)
+  return TRUE
 end
 
 on select me 
@@ -16,10 +16,10 @@ on select me
   if not tUserObj then
     return(error(me, "User object not found:" && getObject(#session).GET("user_name"), #select))
   end if
-  if abs(me.pLocX - tUserObj.pLocX) < 2 and abs(me.pLocY - tUserObj.pLocY) < 2 then
+  if abs((me.pLocX - tUserObj.pLocX)) < 2 and abs((me.pLocY - tUserObj.pLocY)) < 2 then
     me.giveItem()
   end if
-  return(1)
+  return TRUE
 end
 
 on giveItem me 

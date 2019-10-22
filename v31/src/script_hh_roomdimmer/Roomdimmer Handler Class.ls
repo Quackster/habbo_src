@@ -1,21 +1,19 @@
-on construct(me)
+on construct me 
   return(me.regMsgList(1))
-  exit
 end
 
-on deconstruct(me)
+on deconstruct me 
   return(me.regMsgList(0))
-  exit
 end
 
-on handleDimmerPresets(me, tMsg)
+on handleDimmerPresets me, tMsg 
   tConn = tMsg.getaProp(#connection)
   tNumOfPresets = tConn.GetIntFrom()
   tSelectedPresetID = tConn.GetIntFrom()
-  tPresets = []
+  tPresets = [:]
   tPresetNum = 1
   repeat while tPresetNum <= tNumOfPresets
-    tPresetData = []
+    tPresetData = [:]
     tPresetID = tConn.GetIntFrom()
     tEffectID = tConn.GetIntFrom()
     tColor = tConn.GetStrFrom()
@@ -24,17 +22,16 @@ on handleDimmerPresets(me, tMsg)
     tPresetData.setaProp(#color, rgb(tColor))
     tPresetData.setaProp(#lightness, tLightness)
     tPresets.setaProp(tPresetID, tPresetData)
-    tPresetNum = 1 + tPresetNum
+    tPresetNum = (1 + tPresetNum)
   end repeat
   me.getComponent().setPresets(tPresets)
   return(tPresets)
-  exit
 end
 
-on regMsgList(me, tBool)
-  tMsgs = []
+on regMsgList me, tBool 
+  tMsgs = [:]
   tMsgs.setaProp(365, #handleDimmerPresets)
-  tCmds = []
+  tCmds = [:]
   tCmds.setaProp("MSG_ROOMDIMMER_GET_PRESETS", 341)
   tCmds.setaProp("MSG_ROOMDIMMER_SET_PRESET", 342)
   tCmds.setaProp("MSG_ROOMDIMMER_CHANGE_STATE", 343)
@@ -45,6 +42,5 @@ on regMsgList(me, tBool)
     unregisterListener(getVariable("connection.info.id"), me.getID(), tMsgs)
     unregisterCommands(getVariable("connection.info.id"), me.getID(), tCmds)
   end if
-  return(1)
-  exit
+  return TRUE
 end

@@ -6,7 +6,7 @@ on construct me
   registerMessage(#ig_clear_game_info, me.getID(), #clear)
   registerMessage(#ig_store_gameplayer_info, me.getID(), #storeUser)
   registerMessage(#ig_user_left_game, me.getID(), #userLeftGame)
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
@@ -15,12 +15,12 @@ on deconstruct me
   unregisterMessage(#ig_store_gameplayer_info, me.getID())
   unregisterMessage(#ig_user_left_game, me.getID())
   me.clear()
-  return(me.deconstruct())
+  return(me.ancestor.deconstruct())
 end
 
 on storeUser me, tdata 
   if not listp(tdata) then
-    return(0)
+    return FALSE
   end if
   tID = tdata.getaProp(#id)
   pPlayerData.setaProp(tID, tdata)
@@ -28,19 +28,19 @@ on storeUser me, tdata
   if not voidp(tRoomIndex) then
     pRoomIndexIndex.setaProp(tRoomIndex, tID)
   end if
-  return(1)
+  return TRUE
 end
 
 on userLeftGame me, tRoomIndex 
   if voidp(tRoomIndex) then
-    return(0)
+    return FALSE
   end if
   tPlayerData = me.getPlayerInfoByRoomIndex(tRoomIndex)
-  if tPlayerData = 0 then
-    return(0)
+  if (tPlayerData = 0) then
+    return FALSE
   end if
   tPlayerData.setaProp(#disconnected, 1)
-  return(1)
+  return TRUE
 end
 
 on clear me 
@@ -61,11 +61,11 @@ on getPlayerIdByRoomIndex me, tRoomIndex
 end
 
 on getPlayerInfo me, tPlayerId 
-  if pPlayerData.getaProp(tPlayerId) = 0 then
+  if (pPlayerData.getaProp(tPlayerId) = 0) then
     put("Not found!" && pPlayerData)
   end if
   if voidp(tPlayerId) then
-    return(0)
+    return FALSE
   end if
   return(pPlayerData.getaProp(tPlayerId))
 end

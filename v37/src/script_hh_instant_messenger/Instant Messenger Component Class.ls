@@ -4,9 +4,9 @@ on construct me
   tStamp = ""
   tNo = 1
   repeat while tNo <= 100
-    tChar = numToChar(random(48) + 74)
+    tChar = numToChar((random(48) + 74))
     tStamp = tStamp & tChar
-    tNo = 1 + tNo
+    tNo = (1 + tNo)
   end repeat
   tFuseReceipt = getSpecialServices().getReceipt(tStamp)
   tReceipt = []
@@ -14,13 +14,13 @@ on construct me
   repeat while tCharNo <= tStamp.length
     tChar = chars(tStamp, tCharNo, tCharNo)
     tChar = charToNum(tChar)
-    tChar = (tChar * tCharNo) + 309203
+    tChar = ((tChar * tCharNo) + 309203)
     tReceipt.setAt(tCharNo, tChar)
-    tCharNo = 1 + tCharNo
+    tCharNo = (1 + tCharNo)
   end repeat
   if tReceipt <> tFuseReceipt then
     error(me, "Invalid build structure", #checkDataLoaded, #critical)
-    return(0)
+    return FALSE
   end if
   pChats = [:]
   pFriends = [:]
@@ -29,12 +29,12 @@ on construct me
   registerMessage(#startIMChat, me.getID(), #startIMChat)
   registerMessage(#friendDataUpdated, me.getID(), #updateChat)
   pShowModNotification = 1
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
   unregisterMessage(#startIMChat, me.getID())
-  return(1)
+  return TRUE
 end
 
 on setUserID me 
@@ -43,15 +43,15 @@ end
 
 on startIMChat me, tReceiverName, tText 
   if not threadExists(#friend_list) then
-    return(0)
+    return FALSE
   end if
   tFriend = getThread(#friend_list).getComponent().getFriendByName(tReceiverName)
   if not tFriend then
-    return(0)
+    return FALSE
   end if
   tReceiverID = tFriend.getaProp(#id)
-  if tReceiverID = 0 then
-    return(0)
+  if (tReceiverID = 0) then
+    return FALSE
   end if
   me.addChat(tReceiverID, 1)
   if tText <> "" then
@@ -64,15 +64,15 @@ end
 
 on inviteFriends me, tIDList 
   if not listp(tIDList) then
-    return(0)
+    return FALSE
   end if
   pInvitees = tIDList
   me.getInterface().showInvitationWindow(pInvitees.count)
 end
 
 on sendInvitation me, tInvitationText 
-  if pInvitees.count = 0 then
-    return(0)
+  if (pInvitees.count = 0) then
+    return FALSE
   end if
   tMsg = [:]
   tMsg.addProp(#integer, pInvitees.count)
@@ -86,11 +86,11 @@ end
 
 on addChat me, tChatID, tDontPlaySound 
   if not voidp(pChats.getaProp(tChatID)) then
-    return(0)
+    return FALSE
   end if
   tFriend = me.updateFriend(tChatID)
   if not tFriend then
-    return(0)
+    return FALSE
   end if
   tFriendID = tFriend.getaProp(#id)
   pFriends.setaProp(tFriendID, tFriend)
@@ -101,24 +101,24 @@ on addChat me, tChatID, tDontPlaySound
     me.receiveNotification(tChatID, #moderation)
     pShowModNotification = 0
   end if
-  return(1)
+  return TRUE
 end
 
 on updateChat me, tChatID 
   if voidp(tChatID) then
-    return(0)
+    return FALSE
   end if
   if voidp(pChats.findPos(tChatID)) then
-    return(0)
+    return FALSE
   end if
   tFriend = pFriends.getaProp(tChatID)
   if ilk(tFriend) <> #propList then
-    return(0)
+    return FALSE
   end if
   tOnline = tFriend.getaProp(#online)
   tFriendUpdated = me.updateFriend(tChatID)
   if ilk(tFriendUpdated) <> #propList then
-    return(0)
+    return FALSE
   end if
   tOnlineUpdated = tFriendUpdated.getaProp(#online)
   if tOnlineUpdated <> tOnline then
@@ -133,11 +133,11 @@ on updateChat me, tChatID
 end
 
 on removeChat me, tChatID 
-  if pChats.findPos(tChatID) = 0 then
-    return(0)
+  if (pChats.findPos(tChatID) = 0) then
+    return FALSE
   end if
   me.getInterface().removeChat(tChatID)
-  return(1)
+  return TRUE
 end
 
 on removeAllChats me 
@@ -149,7 +149,7 @@ on getChat me, tChatID
   tChat = pChats.getaProp(tChatID)
   if voidp(tChat) then
     if not me.addChat(tChatID) then
-      return(0)
+      return FALSE
     end if
     tChat = pChats.getaProp(tChatID)
   end if
@@ -166,19 +166,19 @@ on receiveMessage me, tSenderId, tText
 end
 
 on receiveError me, tChatID, ttype 
-  if ttype = 3 then
+  if (ttype = 3) then
     tTextKey = "im_error_receiver_muted"
   else
-    if ttype = 4 then
+    if (ttype = 4) then
       tTextKey = "im_error_sender_muted"
     else
-      if ttype = 5 then
+      if (ttype = 5) then
         tTextKey = "im_error_offline"
       else
-        if ttype = 6 then
+        if (ttype = 6) then
           tTextKey = "im_error_not_friend"
         else
-          if ttype = 7 then
+          if (ttype = 7) then
             tTextKey = "im_error_busy"
           else
             tTextKey = "im_error_undefined"
@@ -215,7 +215,7 @@ end
 
 on sendMessage me, tReceiverID, tText 
   if voidp(tReceiverID) then
-    return(0)
+    return FALSE
   end if
   tEntry = [:]
   tEntry.setaProp(#type, #message)
@@ -233,7 +233,7 @@ end
 on addMessage me, tChatID, tEntry 
   tChat = me.getChat(tChatID)
   if not tChat then
-    return(0)
+    return FALSE
   end if
   tChat.add(tEntry)
   me.getInterface().addMessage(tChatID, tEntry)

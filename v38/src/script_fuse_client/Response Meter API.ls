@@ -8,7 +8,7 @@ end
 on stopResponseMeter  
   if not objectp(g_meterObj) then
     put("Error : Response meter not started yet!")
-    return(0)
+    return FALSE
   end if
   g_meterObj.stopMeasuring()
 end
@@ -16,7 +16,7 @@ end
 on printResponseMeterGraph  
   if not objectp(g_meterObj) then
     put("Error : Response meter not started yet!")
-    return(0)
+    return FALSE
   end if
   g_meterObj.printGraph()
 end

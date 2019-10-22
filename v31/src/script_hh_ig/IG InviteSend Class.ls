@@ -1,112 +1,100 @@
-on construct(me)
+property pUserList, pUserListFilter, pTicketsLeft
+
+on construct me 
   pUserList = void()
   pExcludeList = []
   pUserListFilter = 1
   pTicketsLeft = 0
-  return(1)
-  exit
+  return TRUE
 end
 
-on deconstruct(me)
-  return(me.deconstruct())
-  exit
+on deconstruct me 
+  return(me.ancestor.deconstruct())
 end
 
-on getUserList(me)
-  if pUserList = void() then
+on getUserList me 
+  if (pUserList = void()) then
     return(me.getHandler().send_LIST_POSSIBLE_INVITEES(pUserListFilter))
   end if
   return(pUserList)
-  exit
 end
 
-on changeUserListFilter(me, tFilter)
-  if tFilter = void() then
-    return(0)
+on changeUserListFilter me, tFilter 
+  if (tFilter = void()) then
+    return FALSE
   end if
-  if tFilter = pUserListFilter then
-    return(1)
+  if (tFilter = pUserListFilter) then
+    return TRUE
   end if
   pUserListFilter = tFilter
   return(me.getHandler().send_LIST_POSSIBLE_INVITEES(pUserListFilter))
-  exit
 end
 
-on getUserListFilter(me)
+on getUserListFilter me 
   return(pUserListFilter)
-  exit
 end
 
-on sendInviteToListIndex(me, tIndex, tMessage)
-  if tIndex = void() then
-    return(0)
+on sendInviteToListIndex me, tIndex, tMessage 
+  if (tIndex = void()) then
+    return FALSE
   end if
-  if pUserList = void() then
-    return(0)
+  if (pUserList = void()) then
+    return FALSE
   end if
   if pUserList.count < tIndex then
-    return(0)
+    return FALSE
   end if
   tUserName = pUserList.getAt(tIndex)
   me.getHandler().send_INVITE_USER(tUserName, tMessage)
-  me.append(tUserName)
-  return(1)
-  exit
+  me.pExcludeList.append(tUserName)
+  return TRUE
 end
 
-on sendInviteToName(me, tUserName, tMessage)
-  if tUserName = "" then
-    return(0)
+on sendInviteToName me, tUserName, tMessage 
+  if (tUserName = "") then
+    return FALSE
   end if
   me.getHandler().send_INVITE_USER(tUserName, tMessage)
-  me.append(tUserName)
-  return(1)
-  exit
+  me.pExcludeList.append(tUserName)
+  return TRUE
 end
 
-on excludeListIndex(me, tIndex)
-  if tIndex = void() then
-    return(0)
+on excludeListIndex me, tIndex 
+  if (tIndex = void()) then
+    return FALSE
   end if
-  if pUserList = void() then
-    return(0)
+  if (pUserList = void()) then
+    return FALSE
   end if
   if pUserList.count < tIndex then
-    return(0)
+    return FALSE
   end if
   tUserName = pUserList.getAt(tIndex)
-  me.append(tUserName)
-  return(1)
-  exit
+  me.pExcludeList.append(tUserName)
+  return TRUE
 end
 
-on saveInviteTicketCount(me, tNum)
+on saveInviteTicketCount me, tNum 
   pTicketsLeft = tNum
-  return(1)
-  exit
+  return TRUE
 end
 
-on getInviteTicketCount(me)
+on getInviteTicketCount me 
   return(pTicketsLeft)
-  exit
 end
 
-on showInviteResponse(me, tdata)
-  return(1)
-  exit
+on showInviteResponse me, tdata 
+  return TRUE
 end
 
-on saveInviteData(me, tdata)
+on saveInviteData me, tdata 
   pUserListFilter = tdata.getaProp(#list_type)
   pUserList = tdata.getaProp(#invitee_list)
-  return(1)
-  exit
+  return TRUE
 end
 
-on update(me)
-  exit
+on update me 
 end
 
-on render(me)
-  exit
+on render me 
 end

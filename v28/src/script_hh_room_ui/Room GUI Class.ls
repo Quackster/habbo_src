@@ -11,7 +11,7 @@ on construct me
   createObject(pObjectDispID, "Room Object Displayer Class")
   createObject(pBadgeObjID, "Badge Manager Class")
   createObject(pFxInvObjID, "Effect Inventory Class")
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
@@ -20,7 +20,7 @@ on deconstruct me
   removeObject(pObjectDispID)
   removeObject(pBadgeObjID)
   removeObject(pFxInvObjID)
-  return(1)
+  return TRUE
 end
 
 on getBadgeObject me 
@@ -33,11 +33,11 @@ end
 
 on showRoomBar me, tLayout 
   tRoomInfoObj = getObject(pRoomInfoID)
-  if not voidp(tRoomInfoObj) and not tRoomInfoObj = 0 then
+  if not voidp(tRoomInfoObj) and (not tRoomInfoObj = 0) then
     tRoomInfoObj.showRoomInfo()
   end if
   tRoomBarObj = getObject(pRoomBarID)
-  if not voidp(tRoomBarObj) and not tRoomBarObj = 0 then
+  if not voidp(tRoomBarObj) and (not tRoomBarObj = 0) then
     tRoomBarObj.showRoomBar(tLayout)
   end if
   if threadExists("new_user_help") then
@@ -50,18 +50,18 @@ end
 
 on hideRoomBar me 
   tRoomInfoObj = getObject(pRoomInfoID)
-  if not voidp(tRoomInfoObj) and not tRoomInfoObj = 0 then
+  if not voidp(tRoomInfoObj) and (not tRoomInfoObj = 0) then
     tRoomInfoObj.hideRoomInfo()
   end if
   tRoomBarObj = getObject(pRoomBarID)
-  if not voidp(tRoomBarObj) and not tRoomBarObj = 0 then
+  if not voidp(tRoomBarObj) and (not tRoomBarObj = 0) then
     tRoomBarObj.hideRoomBar()
   end if
 end
 
 on setRollOverInfo me, tInfoText 
   tRoomBarObj = getObject(pRoomBarID)
-  if not voidp(tRoomBarObj) and not tRoomBarObj = 0 then
+  if not voidp(tRoomBarObj) and (not tRoomBarObj = 0) then
     tRoomBarObj.setRollOverInfo(tInfoText)
   end if
 end
@@ -82,7 +82,7 @@ end
 
 on showVote me 
   tRoomBarObj = getObject(pRoomBarID)
-  if not voidp(tRoomBarObj) and not tRoomBarObj = 0 then
+  if not voidp(tRoomBarObj) and (not tRoomBarObj = 0) then
     tRoomBarObj.showVote()
   end if
 end

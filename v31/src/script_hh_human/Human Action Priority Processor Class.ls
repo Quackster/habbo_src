@@ -1,35 +1,34 @@
-on construct(me)
+property pPriorityList, pHostObject, pCurrentActions, pTerminationList, pEndList
+
+on construct me 
   pPriorityList = ["fx", "wave", "dance", "mv", "sit", "lay"]
   pEndList = ["std":["mv", "sit", "lay"], "wave":["dance"], "mv":["sit", "lay"], "sit":["lay"]]
   pTerminationList = ["dance":"std"]
   pCurrentActions = []
   pHostObject = void()
-  exit
 end
 
-on isPriorityTo(me, tIs, tThan)
-  if pPriorityList.getPos(tIs) = 0 then
-    return(0)
+on isPriorityTo me, tIs, tThan 
+  if (pPriorityList.getPos(tIs) = 0) then
+    return FALSE
   else
-    if pPriorityList.getPos(tThan) = 0 then
-      return(1)
+    if (pPriorityList.getPos(tThan) = 0) then
+      return TRUE
     else
       if pPriorityList.getPos(tIs) < pPriorityList.getPos(tThan) then
-        return(1)
+        return TRUE
       else
-        return(0)
+        return FALSE
       end if
     end if
   end if
-  exit
 end
 
-on setHumanObject(me, tHumanObj)
+on setHumanObject me, tHumanObj 
   pHostObject = tHumanObj
-  exit
 end
 
-on processAction(me, tAction)
+on processAction me, tAction 
   if voidp(pHostObject) then
     return(error(me, "Host object not set", #processAction, #major))
   end if
@@ -37,7 +36,7 @@ on processAction(me, tAction)
   tActRoot = tAction.getProp(#word, 1)
   if pPriorityList.getPos(tActRoot) <> 0 then
     call(symbol("action_" & tActRoot), [pHostObject], tAction)
-    return(1)
+    return TRUE
   end if
   me.endActions(tActRoot)
   me.addToCurrentActions(tAction)
@@ -54,15 +53,15 @@ on processAction(me, tAction)
       tActionList.add(tAction)
       tUserActions.deleteAt(i)
     end if
-    if tName = "fx" and not tAllowFX then
+    if (tName = "fx") and not tAllowFX then
       tUserActions.deleteAt(i)
     end if
-    i = 255 + i
+    i = (255 + i)
   end repeat
   tEffect = void()
-  repeat while me <= undefined
+  repeat while tUserActions <= undefined
     tAction = getAt(undefined, tAction)
-    if tAction.getProp(#word, 1) = "fx" then
+    if (tAction.getProp(#word, 1) = "fx") then
       tEffect = tAction.duplicate()
     else
       tActionList.add(tAction)
@@ -71,19 +70,17 @@ on processAction(me, tAction)
   if tEffect <> void() then
     tActionList.add(tEffect)
   end if
-  repeat while me <= undefined
+  repeat while tUserActions <= undefined
     tAction = getAt(undefined, tAction)
     call(symbol("action_" & tAction.getProp(#word, 1)), [pHostObject], tAction)
   end repeat
-  return(1)
-  exit
+  return TRUE
 end
 
-on addToCurrentActions(me, tAction)
-  exit
+on addToCurrentActions me, tAction 
 end
 
-on terminateAction(me, tAction)
+on terminateAction me, tAction 
   if voidp(pHostObject) then
     return(error(me, "Host object not set", #processAction, #major))
   end if
@@ -93,31 +90,28 @@ on terminateAction(me, tAction)
     call("action_" & tTermination, [pHostObject], tTermination)
     pCurrentActions.deleteOne(tActRoot)
   end if
-  return(1)
-  exit
+  return TRUE
 end
 
-on endActions(me, tCause)
+on endActions me, tCause 
   if voidp(pHostObject) then
     return(error(me, "Host object not set", #processAction, #major))
   end if
   tActRoot = tCause.getProp(#word, 1)
   if not voidp(pEndList.getaProp(tActRoot)) then
-    repeat while me <= undefined
+    repeat while pEndList.getaProp(tActRoot) <= undefined
       tAct = getAt(undefined, tCause)
       me.terminateAction(tAct)
     end repeat
   end if
-  return(1)
-  exit
+  return TRUE
 end
 
-on getActionIndex(me, tActionList)
+on getActionIndex me, tActionList 
   tOut = []
-  repeat while me <= undefined
+  repeat while tActionList <= undefined
     tAction = getAt(undefined, tActionList)
     tOut.add(tAction.getProp(#word, 1))
   end repeat
   return(tOut)
-  exit
 end

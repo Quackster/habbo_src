@@ -9,7 +9,7 @@ on prepare me
   pUpdateLock = 0
   me.pDepth = the colorDepth
   me.pimage = image(me.pwidth, me.pheight, me.pDepth)
-  if me.getProp(#pProps, #style) = #unique then
+  if (me.getProp(#pProps, #style) = #unique) then
     pOwnX = 0
     pOwnY = 0
   else
@@ -22,30 +22,30 @@ on prepare me
   if me.getProp(#pProps, #flipV) then
     me.flipV()
   end if
-  return(1)
+  return TRUE
 end
 
 on feedImage me, tImage 
-  if not ilk(tImage) = #image then
+  if not (ilk(tImage) = #image) then
     return(error(me, "Image object expected!" && tImage, #feedImage, #minor))
   end if
-  tTargetRect = rect(pOwnX, pOwnY, pOwnX + pOwnW, pOwnY + pOwnH)
-  undefined.fill(tTargetRect, me.getProp(#pProps, #bgColor))
+  tTargetRect = rect(pOwnX, pOwnY, (pOwnX + pOwnW), (pOwnY + pOwnH))
+  me.pBuffer.image.fill(tTargetRect, me.getProp(#pProps, #bgColor))
   me.pimage = tImage
   me.render()
   pUpdateLock = 1
   me.registerScroll()
   pUpdateLock = 0
-  return(1)
+  return TRUE
 end
 
 on clearImage me 
-  tTargetRect = rect(pOwnX, pOwnY, pOwnX + pOwnW, pOwnY + pOwnH)
-  return(undefined.fill(tTargetRect, me.getProp(#pProps, #bgColor)))
+  tTargetRect = rect(pOwnX, pOwnY, (pOwnX + pOwnW), (pOwnY + pOwnH))
+  return(me.pBuffer.image.fill(tTargetRect, me.getProp(#pProps, #bgColor)))
 end
 
 on clearBuffer me 
-  return(me.fill(me.rect, me.getProp(#pProps, #bgColor)))
+  return(me.pimage.fill(me.pimage.rect, me.getProp(#pProps, #bgColor)))
 end
 
 on registerScroll me, tID 
@@ -53,22 +53,22 @@ on registerScroll me, tID
     me.prepare()
   end if
   if not voidp(tID) then
-    if pScrolls.getPos(tID) = 0 then
+    if (pScrolls.getPos(tID) = 0) then
       pScrolls.add(tID)
     end if
   else
-    if pScrolls.count = 0 then
-      return(0)
+    if (pScrolls.count = 0) then
+      return FALSE
     end if
   end if
-  tSourceRect = rect(pOffX, pOffY, pOffX + pOwnW, pOffY + pOwnH)
+  tSourceRect = rect(pOffX, pOffY, (pOffX + pOwnW), (pOffY + pOwnH))
   tScrollList = []
   tWndObj = getWindowManager().GET(me.pMotherId)
   repeat while pScrolls <= undefined
     tScrollId = getAt(undefined, tID)
     tScrollList.add(tWndObj.getElement(tScrollId))
   end repeat
-  call(#updateData, tScrollList, tSourceRect, me.rect)
+  call(#updateData, tScrollList, tSourceRect, me.pimage.rect)
 end
 
 on adjustOffsetTo me, tX, tY 
@@ -81,8 +81,8 @@ on adjustOffsetTo me, tX, tY
 end
 
 on adjustOffsetBy me, tOffX, tOffY 
-  pOffX = pOffX + tOffX
-  pOffY = pOffY + tOffY
+  pOffX = (pOffX + tOffX)
+  pOffY = (pOffY + tOffY)
   if not pUpdateLock then
     me.clearImage()
     me.render()
@@ -115,36 +115,36 @@ end
 
 on resizeBy me, tOffH, tOffV, tForcedTag 
   if tOffH <> 0 or tOffV <> 0 then
-    if me.getProp(#pProps, #style) = #unique then
-      if me.pScaleH = #move then
+    if (me.getProp(#pProps, #style) = #unique) then
+      if (me.pScaleH = #move) then
         me.moveBy(tOffH, 0)
       else
-        if me.pScaleH = #scale then
-          me.pwidth = me.pwidth + tOffH
+        if (me.pScaleH = #scale) then
+          me.pwidth = (me.pwidth + tOffH)
         else
-          if me.pScaleH = #center then
+          if (me.pScaleH = #center) then
             me.moveBy((tOffH / 2), 0)
           else
-            if me.pScaleH = #fixed then
+            if (me.pScaleH = #fixed) then
               if tForcedTag then
-                me.pwidth = me.pwidth + tOffH
+                me.pwidth = (me.pwidth + tOffH)
               end if
             end if
           end if
         end if
       end if
-      if me.pScaleH = #move then
+      if (me.pScaleH = #move) then
         me.moveBy(0, tOffV)
       else
-        if me.pScaleH = #scale then
-          me.pheight = me.pheight + tOffV
+        if (me.pScaleH = #scale) then
+          me.pheight = (me.pheight + tOffV)
         else
-          if me.pScaleH = #center then
+          if (me.pScaleH = #center) then
             me.moveBy(0, (tOffV / 2))
           else
-            if me.pScaleH = #fixed then
+            if (me.pScaleH = #fixed) then
               if tForcedTag then
-                me.pheight = me.pheight + tOffV
+                me.pheight = (me.pheight + tOffV)
               end if
             end if
           end if
@@ -158,42 +158,42 @@ on resizeBy me, tOffH, tOffV, tForcedTag
       end if
       pOwnW = me.pwidth
       pOwnH = me.pheight
-      me.image = image(pOwnW, pOwnH, me.pDepth)
-      me.regPoint = point(0, 0)
-      pSprite.width = pOwnW
-      pSprite.height = pOwnH
+      me.pBuffer.image = image(pOwnW, pOwnH, me.pDepth)
+      me.pBuffer.regPoint = point(0, 0)
+      me.pSprite.width = pOwnW
+      me.pSprite.height = pOwnH
     else
-      if me.pScaleH = #move then
-        pOwnX = pOwnX + tOffH
+      if (me.pScaleH = #move) then
+        pOwnX = (pOwnX + tOffH)
       else
-        if me.pScaleH = #scale then
-          pOwnW = pOwnW + tOffH
+        if (me.pScaleH = #scale) then
+          pOwnW = (pOwnW + tOffH)
         else
-          if me.pScaleH = #center then
-            pOwnX = pOwnX + (tOffH / 2)
+          if (me.pScaleH = #center) then
+            pOwnX = (pOwnX + (tOffH / 2))
           else
-            if me.pScaleH = #fixed then
+            if (me.pScaleH = #fixed) then
               if tForcedTag then
-                me.width = pSprite.width + tOffH
-                pOwnW = pSprite.width
+                me.pSprite.width = (me.pSprite.width + tOffH)
+                pOwnW = me.pSprite.width
               end if
             end if
           end if
         end if
       end if
-      if me.pScaleH = #move then
-        pOwnY = pOwnY + tOffV
+      if (me.pScaleH = #move) then
+        pOwnY = (pOwnY + tOffV)
       else
-        if me.pScaleH = #scale then
-          pOwnH = pOwnH + tOffV
+        if (me.pScaleH = #scale) then
+          pOwnH = (pOwnH + tOffV)
         else
-          if me.pScaleH = #center then
-            pOwnY = pOwnY + (tOffV / 2)
+          if (me.pScaleH = #center) then
+            pOwnY = (pOwnY + (tOffV / 2))
           else
-            if me.pScaleH = #fixed then
+            if (me.pScaleH = #fixed) then
               if tForcedTag then
-                me.height = pSprite.height + tOffV
-                pOwnV = pSprite.height
+                me.pSprite.height = (me.pSprite.height + tOffV)
+                pOwnV = me.pSprite.height
               end if
             end if
           end if
@@ -209,21 +209,21 @@ on render me
   if not me.pVisible then
     return()
   end if
-  tTargetRect = rect(pOwnX, pOwnY, pOwnX + pOwnW, pOwnY + pOwnH)
-  tSourceRect = rect(pOffX, pOffY, pOffX + pOwnW, pOffY + pOwnH)
-  undefined.copyPixels(me.pimage, tTargetRect, tSourceRect, me.pParams)
+  tTargetRect = rect(pOwnX, pOwnY, (pOwnX + pOwnW), (pOwnY + pOwnH))
+  tSourceRect = rect(pOffX, pOffY, (pOffX + pOwnW), (pOffY + pOwnH))
+  me.pBuffer.image.copyPixels(me.pimage, tTargetRect, tSourceRect, me.pParams)
 end
 
 on mouseDown me 
-  return(point(the mouseV, the mouseH - pSprite.locV + pOwnY + pOffY))
+  return(point((((the mouseH - me.pSprite.locH) + pOwnX) + pOffX), (((the mouseV - me.pSprite.locV) + pOwnY) + pOffY)))
 end
 
 on mouseUp me 
-  return(point(the mouseV, the mouseH - pSprite.locV + pOwnY + pOffY))
+  return(point((((the mouseH - me.pSprite.locH) + pOwnX) + pOffX), (((the mouseV - me.pSprite.locV) + pOwnY) + pOffY)))
 end
 
 on mouseWithin me 
-  return(point(the mouseV, the mouseH - pSprite.locV + pOwnY + pOffY))
+  return(point((((the mouseH - me.pSprite.locH) + pOwnX) + pOffX), (((the mouseV - me.pSprite.locV) + pOwnY) + pOffY)))
 end
 
 on handlers  

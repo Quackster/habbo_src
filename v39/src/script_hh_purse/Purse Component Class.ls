@@ -5,7 +5,7 @@ on construct me
   registerMessage(#enterRoom, me.getID(), #hidePurse)
   registerMessage(#leaveRoom, me.getID(), #hidePurse)
   registerMessage(#changeRoom, me.getID(), #hidePurse)
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
@@ -15,12 +15,12 @@ on deconstruct me
   unregisterMessage(#enterRoom, me.getID())
   unregisterMessage(#leaveRoom, me.getID())
   unregisterMessage(#changeRoom, me.getID())
-  return(1)
+  return TRUE
 end
 
 on sendVoucherCode me, tCode 
   getConnection(getVariable("connection.info.id")).send("REDEEM_VOUCHER", [#string:tCode])
-  return(1)
+  return TRUE
 end
 
 on showPurse me 

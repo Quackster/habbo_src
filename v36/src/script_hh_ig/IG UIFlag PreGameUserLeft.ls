@@ -1,5 +1,5 @@
 on showInfo me, tWindowList, tdata, tMode 
-  return(1)
+  return TRUE
 end
 
 on getTitleText me 

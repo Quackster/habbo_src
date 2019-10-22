@@ -6,7 +6,7 @@ on deconstruct me
   if memberExists(pCanvasName) and pCanvasName <> void() then
     removeMember(pCanvasName)
   end if
-  return(1)
+  return TRUE
 end
 
 on define me, tdata 
@@ -32,9 +32,9 @@ on define me, tdata
   end if
   tSize = me.getProp(#pCanvasSize, #std)
   me.pMember = member(getmemnum(pCanvasName))
-  pMember.image = image(tSize.getAt(1), tSize.getAt(2), tSize.getAt(3))
-  me.regPoint = point(pMember, image.height + tSize.getAt(4))
-  me.pBuffer = pMember.image
+  me.pMember.image = image(tSize.getAt(1), tSize.getAt(2), tSize.getAt(3))
+  me.pMember.regPoint = point(0, (me.pMember.image.height + tSize.getAt(4)))
+  me.pBuffer = me.pMember.image
   tPartSymbols = tdata.getAt(#parts)
   if not me.setPartLists(tdata.getAt(#figure)) then
     return(error(me, "Couldn't create part lists!", #define, #major))
@@ -105,6 +105,6 @@ on render me
   end if
   me.pChanges = 0
   me.pUpdateRect = rect(0, 0, 0, 0)
-  me.fill(pBuffer.rect, me.pAlphaColor)
+  me.pBuffer.fill(me.pBuffer.rect, me.pAlphaColor)
   call(#update, me.pPartList)
 end

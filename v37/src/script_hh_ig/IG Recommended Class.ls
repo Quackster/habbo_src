@@ -1,6 +1,6 @@
 on construct me 
   me.pTimeoutUpdates = 1
-  return(1)
+  return TRUE
 end
 
 on Initialize me 
@@ -10,15 +10,15 @@ end
 
 on pollContentUpdate me, tForced 
   tMainThread = me.getMainThread()
-  if tMainThread = 0 then
-    return(0)
+  if (tMainThread = 0) then
+    return FALSE
   end if
   tService = me.getIGComponent("GameList")
-  if tService = 0 then
-    return(0)
+  if (tService = 0) then
+    return FALSE
   end if
   if not tService.isUpdateTimestampExpired() then
-    return(0)
+    return FALSE
   end if
   tService.pollContentUpdate(1)
 end

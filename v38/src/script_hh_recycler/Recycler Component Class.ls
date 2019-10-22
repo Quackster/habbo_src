@@ -13,7 +13,7 @@ on construct me
   pRecyclingTimeoutMinutes = 0
   pGivePoolSize = 5
   registerMessage(#userloggedin, me.getID(), #Initialize)
-  return(1)
+  return TRUE
 end
 
 on deconstruct me 
@@ -21,7 +21,7 @@ on deconstruct me
   if objectExists(#recyclingFinished) then
     removeTimeout(#recyclingFinished)
   end if
-  return(1)
+  return TRUE
 end
 
 on Initialize me 
@@ -44,7 +44,7 @@ end
 
 on recyclingFinished me, tSuccess 
   if not tSuccess then
-    return(1)
+    return TRUE
   end if
   if threadExists(#catalogue) then
     getThread(#catalogue).getInterface().showPurchaseOk()
@@ -63,7 +63,7 @@ on openRecycler me
 end
 
 on openRecyclerWithState me, tstate 
-  if pOpeningRequestPending = 1 then
+  if (pOpeningRequestPending = 1) then
     pIsVisible = 1
     pOpeningRequestPending = 0
   end if
@@ -85,13 +85,13 @@ end
 
 on startRecycling me 
   if not me.isPoolFull() then
-    return(0)
+    return FALSE
   end if
   tSafeTrader = getThread(#room).getInterface().getSafeTrader()
   if not voidp(tSafeTrader) then
-    if tSafeTrader.getState() = #open then
+    if (tSafeTrader.getState() = #open) then
       executeMessage(#alert, [#Msg:getText("recycler_trader_open_alert"), #modal:1])
-      return(0)
+      return FALSE
     end if
   end if
   me.setState(#closed)
@@ -102,7 +102,7 @@ on startRecycling me
     tItem = pGiveFurniPool.getAt(tIndexNo)
     tStripID = tItem.getAt(#props).getAt(#stripId)
     tMessage.addProp(#integer, integer(tStripID))
-    tIndexNo = 1 + tIndexNo
+    tIndexNo = (1 + tIndexNo)
   end repeat
   getConnection(getVariable("connection.info.id")).send("RECYCLE_ITEMS", tMessage)
 end
@@ -117,7 +117,7 @@ on clearObjectMover me
 end
 
 on isRecyclerOpenAndVisible me 
-  return(pRecyclerState = #open and pIsVisible)
+  return((pRecyclerState = #open) and pIsVisible)
 end
 
 on getGiveFurniPool me 
@@ -141,10 +141,10 @@ end
 
 on addFurnitureToGivePool me, tClass, tID, tProps 
   if me.isFurniInRecycler(tID) then
-    return(0)
+    return FALSE
   end if
   if me.isPoolFull() then
-    return(0)
+    return FALSE
   end if
   pGiveFurniPool.add([#class:tClass, #id:tID, #props:tProps])
   me.getInterface().updateSlots()
@@ -155,28 +155,28 @@ on isPoolFull me
 end
 
 on isFurniInRecycler me, tStripID 
-  if pRecyclerState <> #open or pGiveFurniPool.count = 0 then
-    return(0)
+  if pRecyclerState <> #open or (pGiveFurniPool.count = 0) then
+    return FALSE
   end if
   tNo = 1
   repeat while tNo <= pGiveFurniPool.count
-    if pGiveFurniPool.getAt(tNo).getAt(#props).getAt(#stripId) = tStripID then
-      return(1)
+    if (pGiveFurniPool.getAt(tNo).getAt(#props).getAt(#stripId) = tStripID) then
+      return TRUE
     end if
-    tNo = 1 + tNo
+    tNo = (1 + tNo)
   end repeat
-  return(0)
+  return FALSE
 end
 
 on setStateTo me, tstate 
   pRecyclerState = tstate
   pStateRequestPending = 0
   if not threadExists(#room) then
-    return(0)
+    return FALSE
   end if
   tRoomInterface = getThread(#room).getInterface()
   tObjMover = tRoomInterface.getObjectMover()
-  if tstate = #open then
+  if (tstate = #open) then
     pGiveFurniPool = []
     tRoomInterface.cancelObjectMover()
     tRoomInterface.setProperty(#clickAction, "tradeItem")
@@ -184,10 +184,10 @@ on setStateTo me, tstate
       tObjMover.moveTrade()
     end if
   else
-    if tstate = #closed then
+    if (tstate = #closed) then
       me.clearObjectMover()
     else
-      if tstate = #timeout then
+      if (tstate = #timeout) then
         me.clearObjectMover()
       end if
     end if

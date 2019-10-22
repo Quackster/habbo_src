@@ -1,40 +1,38 @@
-on construct(me)
+property pProgressAnimation, pStatusIcon, pWindowObj, pTimeLeftTimeoutID, pHeaderMemberName, pFurnisPerPage
+
+on construct me 
   pWindowObj = void()
   pFurnisPerPage = 5
   pAcceptBtnActive = 0
   pTimeLeftTimeoutID = "timeLeftTimeout"
-  return(1)
-  exit
+  return TRUE
 end
 
-on deconstruct(me)
+on deconstruct me 
   removeObject(pProgressAnimation)
   removeObject(pStatusIcon)
-  return(1)
-  exit
+  return TRUE
 end
 
-on setHostWindowObject(me, tHostWindowObj)
+on setHostWindowObject me, tHostWindowObj 
   pWindowObj = tHostWindowObj
-  exit
 end
 
-on setHeaderMemberName(me, tMemberName)
+on setHeaderMemberName me, tMemberName 
   pHeaderMemberName = tMemberName
-  exit
 end
 
-on updateView(me)
+on updateView me 
   if voidp(pWindowObj) then
-    return(0)
+    return FALSE
   end if
   tstate = me.getComponent().getState()
-  if me = #waiting then
+  if (tstate = #waiting) then
     pWindowObj.unmerge()
     pWindowObj.merge("ctlg_recycler_simple.window")
     tHeaderText = ""
   else
-    if me = #open then
+    if (tstate = #open) then
       pWindowObj.unmerge()
       pWindowObj.merge("ctlg_recycler_simple.window")
       if timeoutExists(pTimeLeftTimeoutID) then
@@ -43,18 +41,18 @@ on updateView(me)
       getThread(#room).getInterface().getContainer().open()
       tHeaderText = getText("recycler_info_open")
     else
-      if me = #closed then
+      if (tstate = #closed) then
         pWindowObj.unmerge()
         pWindowObj.merge("ctlg_recycler_simple.window")
         tHeaderText = getText("recycler_info_closed")
       else
-        if me = #timeout then
+        if (tstate = #timeout) then
           pWindowObj.unmerge()
           pWindowObj.merge("ctlg_recycler_simple.window")
           tHeaderText = getText("recycler_info_timeout")
           tHeaderText = me.replaceTimeKeys(tHeaderText, me.getComponent().getTimeout())
         else
-          return(0)
+          return FALSE
         end if
       end if
     end if
@@ -73,20 +71,19 @@ on updateView(me)
   if tHeaderTextElement <> 0 then
     tHeaderTextElement.setText(tHeaderText)
   end if
-  exit
 end
 
-on updateBg(me)
+on updateBg me 
   if voidp(pWindowObj) then
-    return(0)
+    return FALSE
   end if
   tstate = me.getComponent().getState()
-  if me = #open then
+  if (tstate = #open) then
     tBlend = 100
   else
-    if me <> #closed then
-      if me <> #timeout then
-        if me = #waiting then
+    if tstate <> #closed then
+      if tstate <> #timeout then
+        if (tstate = #waiting) then
           tBlend = 30
         end if
         tBg = pWindowObj.getElement("bg")
@@ -97,50 +94,48 @@ on updateBg(me)
         if tSlotBg <> 0 then
           tSlotBg.setProperty(#blend, tBlend)
         end if
-        exit
       end if
     end if
   end if
 end
 
-on eventProc(me, tEvent, tSprID, tProp)
-  if tEvent = #mouseEnter then
+on eventProc me, tEvent, tSprID, tProp 
+  if (tEvent = #mouseEnter) then
     tObjMover = getThread(#room).getInterface().getObjectMover()
     if tObjMover <> 0 then
       tObjMover.moveTrade()
     end if
-    return(1)
+    return TRUE
   end if
   if tEvent <> #mouseUp then
-    return(1)
+    return TRUE
   end if
   tstate = me.getComponent().getState()
   if tstate <> #open then
-    return(1)
+    return TRUE
   end if
   if tSprID contains "rec_drop_slot_" then
     me.eventProcSlot(tEvent, tSprID, tProp)
   end if
-  if me = "recycler_recycle_button" then
+  if (tSprID = "recycler_recycle_button") then
     me.getComponent().startRecycling()
   else
     nothing()
   end if
-  return(0)
-  exit
+  return FALSE
 end
 
-on eventProcSlot(me, tEvent, tSprID, tProp)
+on eventProcSlot me, tEvent, tSprID, tProp 
   tObjMover = getThread(#room).getInterface().getObjectMover()
   tContainer = getThread(#room).getInterface().getContainer()
   if objectp(tObjMover) then
     tClientObj = tObjMover.getProperty(#clientObj)
     if objectp(tClientObj) then
-      if tObjMover.getProperty(#stripId) = "" then
-        return(0)
+      if (tObjMover.getProperty(#stripId) = "") then
+        return FALSE
       end if
       if me.getComponent().isPoolFull() then
-        return(0)
+        return FALSE
       end if
       tClientProps = tObjMover.getProperty(#clientProps)
       tClass = tClientProps.getAt(#class)
@@ -149,12 +144,12 @@ on eventProcSlot(me, tEvent, tSprID, tProp)
       if not integer(tClientProps.getAt(#isRecyclable)) then
         executeMessage(#alert, [#Msg:getText("recycler_furni_not_recyclable")])
         me.getComponent().clearObjectMover()
-        return(0)
+        return FALSE
       end if
       me.getComponent().addFurnitureToGivePool(tClass, tClientID, tClientProps)
       me.getComponent().clearObjectMover()
       me.updateDynamicContent()
-      return(1)
+      return TRUE
     else
       tDelim = the itemDelimiter
       the itemDelimiter = "_"
@@ -164,66 +159,61 @@ on eventProcSlot(me, tEvent, tSprID, tProp)
     end if
     tContainer.Refresh()
   end if
-  exit
 end
 
-on updateDynamicContent(me)
+on updateDynamicContent me 
   tstate = me.getComponent().getState()
-  if me = "open" then
+  if (tstate = "open") then
     me.updateFurniSlots()
     me.updateAcceptButtonOpenState()
   else
-    if me = "progress" then
+    if (tstate = "progress") then
       me.updateCancelButton()
     else
-      if me = "ready" then
+      if (tstate = "ready") then
         me.updateAcceptButton()
         me.updateCancelButton()
       else
-        if me = "timeout" then
+        if (tstate = "timeout") then
           me.updateCancelButton()
         else
-          if me = "disabled" then
+          if (tstate = "disabled") then
             me.hideCancelButton()
           end if
         end if
       end if
     end if
   end if
-  exit
 end
 
-on replaceTimeKeys(me, tText, tTotalSeconds, tKeyPrefix)
+on replaceTimeKeys me, tText, tTotalSeconds, tKeyPrefix 
   tTotalSeconds = integer(tTotalSeconds)
   if voidp(tTotalSeconds) then
     return(tText)
   end if
-  tTotalMinutes = tTotalSeconds / 60
-  tHours = tTotalMinutes / 60
-  tMinutes = tTotalMinutes mod 60
-  tSeconds = tTotalSeconds mod 60
+  tTotalMinutes = (tTotalSeconds / 60)
+  tHours = (tTotalMinutes / 60)
+  tMinutes = (tTotalMinutes mod 60)
+  tSeconds = (tTotalSeconds mod 60)
   tText = replaceChunks(tText, "%" & tKeyPrefix & "hours%", tHours)
   tText = replaceChunks(tText, "%" & tKeyPrefix & "minutes%", tMinutes)
   tText = replaceChunks(tText, "%" & tKeyPrefix & "seconds%", tSeconds)
   return(tText)
-  exit
 end
 
-on removeItemFromSlot(me, tSlotNo)
+on removeItemFromSlot me, tSlotNo 
   tSlotNo = integer(tSlotNo)
   me.getComponent().removeFurniFromGivePool(tSlotNo)
   me.updateDynamicContent()
   me.updateSlots()
-  exit
 end
 
-on updateSlots(me)
+on updateSlots me 
   me.updateFurniSlots()
   me.updateRecycleButton()
-  exit
 end
 
-on updateFurniSlots(me)
+on updateFurniSlots me 
   tGiveFurniPool = me.getComponent().getGiveFurniPool()
   tFurniAmount = tGiveFurniPool.count
   tSlotWidth = pWindowObj.getElement("rec_drop_slot_1").getProperty(#width)
@@ -233,7 +223,7 @@ on updateFurniSlots(me)
   repeat while tTemp <= pFurnisPerPage
     tElement = pWindowObj.getElement("rec_drop_slot_" & tTemp)
     tElement.feedImage(tEmptyImage)
-    tTemp = 1 + tTemp
+    tTemp = (1 + tTemp)
   end repeat
   tSlotNo = 1
   tFurniIndex = 1
@@ -246,43 +236,41 @@ on updateFurniSlots(me)
     tClass = tFurniItem.getAt(#class)
     tMemStr = me.detectMemberName(tClass, tProps)
     tFurniImage = getObject("Preview_renderer").renderPreviewImage(tMemStr, void(), tProps.getAt(#colors), tProps.getAt(#class))
-    tWidthMargin = tSlotWidth - tFurniImage.width / 2
-    tHeightMargin = tSlotHeight - tFurniImage.height / 2
-    tTargetRect = tFurniImage.rect + rect(tWidthMargin, tHeightMargin, tWidthMargin, tHeightMargin)
+    tWidthMargin = ((tSlotWidth - tFurniImage.width) / 2)
+    tHeightMargin = ((tSlotHeight - tFurniImage.height) / 2)
+    tTargetRect = (tFurniImage.rect + rect(tWidthMargin, tHeightMargin, tWidthMargin, tHeightMargin))
     tIconImage.copyPixels(tFurniImage, tTargetRect, tFurniImage.rect)
     tSlotElement.feedImage(tIconImage)
     tSlotElement.setProperty(#blend, 100)
-    tSlotNo = tSlotNo + 1
-    tFurniIndex = 1 + tFurniIndex
+    tSlotNo = (tSlotNo + 1)
+    tFurniIndex = (1 + tFurniIndex)
   end repeat
-  exit
 end
 
-on updateRecycleButton(me)
+on updateRecycleButton me 
   if not objectp(pWindowObj) then
-    return(0)
+    return FALSE
   end if
   tButton = pWindowObj.getElement("recycler_recycle_button")
   if not tButton then
-    return(0)
+    return FALSE
   end if
   tstate = me.getComponent().getState()
-  if me.getComponent().isPoolFull() and tstate = #open then
+  if me.getComponent().isPoolFull() and (tstate = #open) then
     tButton.Activate()
   else
     tButton.deactivate()
   end if
-  exit
 end
 
-on detectMemberName(me, tClass, tProps)
+on detectMemberName me, tClass, tProps 
   tMemStr = "no_icon_small"
   tDelim = the itemDelimiter
   the itemDelimiter = "*"
   tClass = tClass.getProp(#item, 1)
   the itemDelimiter = tDelim
   if tClass contains "post.it" then
-    tCount = integer(value(tProps.getAt(#props)) / 0 / 0)
+    tCount = integer((value(tProps.getAt(#props)) / (20 / 6)))
     if tCount > 6 then
       tCount = 6
     end if
@@ -316,5 +304,4 @@ on detectMemberName(me, tClass, tProps)
     end if
   end if
   return(tMemStr)
-  exit
 end

@@ -3,7 +3,7 @@ property pDontProfile, pCache
 on construct me 
   pCache = [:]
   me.setProfiling()
-  return(1)
+  return TRUE
 end
 
 on setProfiling  
@@ -64,21 +64,21 @@ on parse_window me, tFieldName
     tList = []
     i = 1
     repeat while i <= tdata.count(#line)
-      if tdata.getPropRef(#line, i).getProp(#word, 1) = tOpen then
-        i = i + 1
+      if (tdata.getPropRef(#line, i).getProp(#word, 1) = tOpen) then
+        i = (i + 1)
         repeat while i <= tdata.count(#line)
           tLine = tdata.getProp(#line, i)
-          if tLine.getProp(#word, 1) = tClose then
+          if (tLine.getProp(#word, 1) = tClose) then
           else
             tList.add(value(tLine))
-            i = 1 + i
+            i = (1 + i)
           end if
         end repeat
       end if
-      i = 1 + i
+      i = (1 + i)
     end repeat
     tLayDefinition.setAt(tTag, tList)
-    x = 1 + x
+    x = (1 + x)
   end repeat
   tElements = [:]
   repeat while tLayDefinition.getAt(#elements) <= undefined
@@ -123,7 +123,7 @@ on parse_window me, tFieldName
       end if
       tElem.setAt(#palette, tPalette && "Duplicate")
     end if
-    if tElem.getAt(#type) = "text" then
+    if (tElem.getAt(#type) = "text") then
       tFontStruct = getStructVariable("struct.font.plain")
       if voidp(tElem.getAt(#wordWrap)) then
         tElem.setAt(#wordWrap, 1)
@@ -153,49 +153,49 @@ on parse_window me, tFieldName
     if not voidp(tElem.getAt(#strech)) then
       tElem.setAt(#scaleH, #fixed)
       tElem.setAt(#scaleV, #fixed)
-      if tLayDefinition.getAt(#elements) = #moveH then
+      if (tLayDefinition.getAt(#elements) = #moveH) then
         tElem.setAt(#scaleH, #move)
       else
-        if tLayDefinition.getAt(#elements) = #moveV then
+        if (tLayDefinition.getAt(#elements) = #moveV) then
           tElem.setAt(#scaleV, #move)
         else
-          if tLayDefinition.getAt(#elements) = #strechH then
+          if (tLayDefinition.getAt(#elements) = #strechH) then
             tElem.setAt(#scaleH, #scale)
           else
-            if tLayDefinition.getAt(#elements) = #strechV then
+            if (tLayDefinition.getAt(#elements) = #strechV) then
               tElem.setAt(#scaleV, #scale)
             else
-              if tLayDefinition.getAt(#elements) = #centerH then
+              if (tLayDefinition.getAt(#elements) = #centerH) then
                 tElem.setAt(#scaleH, #center)
               else
-                if tLayDefinition.getAt(#elements) = #centerV then
+                if (tLayDefinition.getAt(#elements) = #centerV) then
                   tElem.setAt(#scaleV, #center)
                 else
-                  if tLayDefinition.getAt(#elements) = #moveHV then
+                  if (tLayDefinition.getAt(#elements) = #moveHV) then
                     tElem.setAt(#scaleH, #move)
                     tElem.setAt(#scaleV, #move)
                   else
-                    if tLayDefinition.getAt(#elements) = #strechHV then
+                    if (tLayDefinition.getAt(#elements) = #strechHV) then
                       tElem.setAt(#scaleH, #scale)
                       tElem.setAt(#scaleV, #scale)
                     else
-                      if tLayDefinition.getAt(#elements) = #centerHV then
+                      if (tLayDefinition.getAt(#elements) = #centerHV) then
                         tElem.setAt(#scaleH, #center)
                         tElem.setAt(#scaleV, #center)
                       else
-                        if tLayDefinition.getAt(#elements) = #moveHstrechV then
+                        if (tLayDefinition.getAt(#elements) = #moveHstrechV) then
                           tElem.setAt(#scaleH, #move)
                           tElem.setAt(#scaleV, #scale)
                         else
-                          if tLayDefinition.getAt(#elements) = #moveVstrechH then
+                          if (tLayDefinition.getAt(#elements) = #moveVstrechH) then
                             tElem.setAt(#scaleH, #scale)
                             tElem.setAt(#scaleV, #move)
                           else
-                            if tLayDefinition.getAt(#elements) = #moveHcenterV then
+                            if (tLayDefinition.getAt(#elements) = #moveHcenterV) then
                               tElem.setAt(#scaleH, #move)
                               tElem.setAt(#scaleV, #center)
                             else
-                              if tLayDefinition.getAt(#elements) = #moveVcenterH then
+                              if (tLayDefinition.getAt(#elements) = #moveVcenterH) then
                                 tElem.setAt(#scaleH, #center)
                                 tElem.setAt(#scaleV, #move)
                               end if
@@ -214,7 +214,7 @@ on parse_window me, tFieldName
       tElem.deleteProp(#strech)
     end if
   end repeat
-  if tLayDefinition.getAt(#rect).count = 0 then
+  if (tLayDefinition.getAt(#rect).count = 0) then
     tRect = rect(10000, 10000, -10000, -10000)
     repeat while tLayDefinition.getAt(#elements) <= undefined
       tElement = getAt(undefined, tFieldName)
@@ -226,11 +226,11 @@ on parse_window me, tFieldName
         if tItem.locV < tRect.getAt(2) then
           tRect.setAt(2, tItem.locV)
         end if
-        if tItem.locH + tItem.width > tRect.getAt(3) then
-          tRect.setAt(3, tItem.locH + tItem.width)
+        if (tItem.locH + tItem.width) > tRect.getAt(3) then
+          tRect.setAt(3, (tItem.locH + tItem.width))
         end if
-        if tItem.locV + tItem.height > tRect.getAt(4) then
-          tRect.setAt(4, tItem.locV + tItem.height)
+        if (tItem.locV + tItem.height) > tRect.getAt(4) then
+          tRect.setAt(4, (tItem.locV + tItem.height))
         end if
       end repeat
     end repeat
@@ -239,8 +239,8 @@ on parse_window me, tFieldName
       tElement = getAt(undefined, tFieldName)
       repeat while tLayDefinition.getAt(#elements) <= undefined
         tItem = getAt(undefined, tFieldName)
-        tItem.locH = tItem.locH - tRect.getAt(1)
-        tItem.locV = tItem.locV - tRect.getAt(2)
+        tItem.locH = (tItem.locH - tRect.getAt(1))
+        tItem.locV = (tItem.locV - tRect.getAt(2))
       end repeat
     end repeat
   else
@@ -249,13 +249,13 @@ on parse_window me, tFieldName
   end if
   tOffX = tLayDefinition.getAt(#rect).getAt(1).getAt(1)
   tOffY = tLayDefinition.getAt(#rect).getAt(1).getAt(2)
-  tLayDefinition.getAt(#rect).setAt(1, tLayDefinition.getAt(#rect).getAt(1) - [tOffX, tOffY, tOffX, tOffY])
-  if tLayDefinition.getAt(#border).count = 0 then
+  tLayDefinition.getAt(#rect).setAt(1, (tLayDefinition.getAt(#rect).getAt(1) - [tOffX, tOffY, tOffX, tOffY]))
+  if (tLayDefinition.getAt(#border).count = 0) then
     if tLayDefinition.getAt(#clientrect).count > 0 then
       tClientRect = tLayDefinition.getAt(#clientrect).getAt(1)
       tWinWidth = tLayDefinition.getAt(#rect).getAt(1).getAt(3)
       tWinHeight = tLayDefinition.getAt(#rect).getAt(1).getAt(4)
-      tBorder = [tClientRect.getAt(1), tClientRect.getAt(2), tWinWidth - tClientRect.getAt(3), tWinHeight - tClientRect.getAt(4)]
+      tBorder = [tClientRect.getAt(1), tClientRect.getAt(2), (tWinWidth - tClientRect.getAt(3)), (tWinHeight - tClientRect.getAt(4))]
       tLayDefinition.getAt(#border).add(tBorder)
     else
       tLayDefinition.getAt(#border).add([0, 0, 0, 0])
@@ -283,7 +283,7 @@ on parse_element me, tFieldName
         tProps.addProp(tValue.getAt(#state), tValue)
       end if
     end if
-    f = 1 + f
+    f = (1 + f)
   end repeat
   if not pDontProfile then
     finishProfilingTask("Layout Parser::parse_element")
@@ -308,30 +308,30 @@ on parse_visual me, tFieldName
     tList = []
     i = 1
     repeat while i <= tdata.count(#line)
-      if tdata.getPropRef(#line, i).getProp(#word, 1) = tOpen then
-        i = i + 1
+      if (tdata.getPropRef(#line, i).getProp(#word, 1) = tOpen) then
+        i = (i + 1)
         repeat while i <= tdata.count(#line)
-          if tdata.getPropRef(#line, i).getProp(#word, 1) = tClose then
+          if (tdata.getPropRef(#line, i).getProp(#word, 1) = tClose) then
           else
             if not voidp(value(tdata.getProp(#line, i))) then
               tList.add(value(tdata.getProp(#line, i)))
             end if
-            i = 1 + i
+            i = (1 + i)
           end if
         end repeat
       end if
-      i = 1 + i
+      i = (1 + i)
     end repeat
     if tList.count > 0 then
       tLayDefinition.setAt(tTag, tList)
     end if
-    x = 1 + x
+    x = (1 + x)
   end repeat
   if voidp(tLayDefinition.getAt(#version)) then
     error(me, "Old visualizer definition:" && tFieldName, #parse_room, #minor)
     repeat while tLayDefinition.getAt(#elements) <= undefined
       tElem = getAt(undefined, tFieldName)
-      if tElem.getAt(#media) = #field or tElem.getAt(#media) = #text then
+      if (tElem.getAt(#media) = #field) or (tElem.getAt(#media) = #text) then
         tElem.setAt(#txtColor, tElem.getAt(#color))
         tElem.setAt(#txtBgColor, tElem.getAt(#bgColor))
         tElem.setAt(#color, "#000000")
@@ -349,7 +349,7 @@ on parse_visual me, tFieldName
     if voidp(tElem.getAt(#bgColor)) then
       tElem.setAt(#bgColor, "#FFFFFF")
     end if
-    if tElem.getAt(#type) = "button" then
+    if (tElem.getAt(#type) = "button") then
       tElem.setAt(#Active, 1)
     end if
   end repeat

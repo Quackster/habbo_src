@@ -21,7 +21,7 @@ on finish me
     return(error(me, "Cannot finish task " & pID & " because it has not been started yet!", #finish))
   end if
   tTime = the milliSeconds
-  pAccumulatedTime = pAccumulatedTime + tTime - pLastStartTime
+  pAccumulatedTime = (pAccumulatedTime + (tTime - pLastStartTime))
   pLastStartTime = void()
 end
 
