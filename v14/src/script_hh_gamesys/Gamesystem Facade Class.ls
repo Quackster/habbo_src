@@ -127,11 +127,11 @@ on sendGetInstanceList me
   return(pThread.getMessageSender().sendGetInstanceList())
 end
 
-on observeInstance me, tid 
+on observeInstance me, tID 
   if (pThread = 0) then
     return FALSE
   end if
-  return(pThread.getMessageSender().sendObserveInstance(tid))
+  return(pThread.getMessageSender().sendObserveInstance(tID))
 end
 
 on unobserveInstance me 
@@ -254,27 +254,27 @@ on sendHabboRoomMove me, tLocX, tLocY
   return(pThread.getMessageSender().sendHabboRoomMove(tLocX, tLocY))
 end
 
-on createGameObject me, tid, ttype, tDataToStore 
+on createGameObject me, tID, ttype, tDataToStore 
   if (pThread = 0) then
     return FALSE
   end if
-  return(pThread.getComponent().createGameObject(tid, ttype, tDataToStore))
+  return(pThread.getComponent().createGameObject(tID, ttype, tDataToStore))
 end
 
-on getGameObject me, tid 
+on getGameObject me, tID 
   if (pThread = 0) then
     return FALSE
   end if
-  return(pThread.getComponent().getGameObject(tid))
+  return(pThread.getComponent().getGameObject(tID))
 end
 
-on getGameObjectProperty me, tid, tProp 
+on getGameObjectProperty me, tID, tProp 
   if (pThread = 0) then
     return FALSE
   end if
-  tObject = pThread.getComponent().getGameObject(tid)
+  tObject = pThread.getComponent().getGameObject(tID)
   if (tObject = 0) then
-    return(error(me, "Game object doesn't exist:" && tid, #getGameObjectProperty))
+    return(error(me, "Game object doesn't exist:" && tID, #getGameObjectProperty))
   end if
   return(tObject.getGameObjectProperty(tProp))
 end
@@ -286,18 +286,18 @@ on getGameObjectIdsOfType me, ttype
   return(pThread.getComponent().getGameObjectIdsOfType(ttype))
 end
 
-on updateGameObject me, tid, tdata 
+on updateGameObject me, tID, tdata 
   if (pThread = 0) then
     return FALSE
   end if
-  return(pThread.getComponent().updateGameObject(tid, tdata))
+  return(pThread.getComponent().updateGameObject(tID, tdata))
 end
 
-on removeGameObject me, tid 
+on removeGameObject me, tID 
   if (pThread = 0) then
     return FALSE
   end if
-  return(pThread.getComponent().removeGameObject(tid))
+  return(pThread.getComponent().removeGameObject(tID))
 end
 
 on clearTurnBuffer me 
@@ -307,11 +307,11 @@ on clearTurnBuffer me
   return(pThread.getTurnManager()._ClearTurnBuffer())
 end
 
-on executeGameObjectEvent me, tid, tEvent, tdata 
+on executeGameObjectEvent me, tID, tEvent, tdata 
   if (pThread = 0) then
     return FALSE
   end if
-  return(pThread.getComponent().executeGameObjectEvent(tid, tEvent, tdata))
+  return(pThread.getComponent().executeGameObjectEvent(tID, tEvent, tdata))
 end
 
 on get360AngleFromComponents me, tX, tY 

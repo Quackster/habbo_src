@@ -311,16 +311,16 @@ on handle_parentchain me, tMsg
   tNodeName = tConn.GetStrFrom()
   tCategoryIndex = [:]
   repeat while tConn <> void()
-    tid = tConn.GetIntFrom()
-    if tid <= 0 then
+    tID = tConn.GetIntFrom()
+    if tID <= 0 then
     else
-      tid = string(tid)
+      tID = string(tID)
       tName = tConn.GetStrFrom()
       if tCategoryIndex.getAt(tChildId) <> void() then
-        tCategoryIndex.getAt(tChildId).setaProp(#parentid, tid)
+        tCategoryIndex.getAt(tChildId).setaProp(#parentid, tID)
       end if
-      tCategoryIndex.addProp(tid, [#name:tName, #parentid:tid, #children:[tChildId]])
-      tChildId = tid
+      tCategoryIndex.addProp(tID, [#name:tName, #parentid:tID, #children:[tChildId]])
+      tChildId = tID
     end if
   end repeat
   return(me.getComponent().updateCategoryIndex(tCategoryIndex))

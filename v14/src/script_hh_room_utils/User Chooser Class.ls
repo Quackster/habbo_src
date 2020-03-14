@@ -67,8 +67,8 @@ on update me
   pObjList = [:]
   pObjList.sort()
   tObjList = getThread(#room).getComponent().getUserObject(#list)
-  repeat while tObjList <= undefined
-    tObj = getAt(undefined, undefined)
+  repeat while tObjList <= 1
+    tObj = getAt(1, count(tObjList))
     pObjList.setaProp(tObj.getName(), tObj.getID())
   end repeat
   tObjStr = ""

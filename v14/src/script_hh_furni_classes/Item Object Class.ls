@@ -21,8 +21,8 @@ on construct me
 end
 
 on deconstruct me 
-  repeat while pSprList <= undefined
-    tSpr = getAt(undefined, undefined)
+  repeat while pSprList <= 1
+    tSpr = getAt(1, count(pSprList))
     releaseSprite(tSpr.spriteNum)
   end repeat
   pParentWallLocZ = void()
@@ -316,8 +316,8 @@ on updateLocation me
   if (pFormatVer = #old) then
     tGeometry = getThread(#room).getInterface().getGeometry()
     tScreenLocs = tGeometry.getScreenCoordinate(pLocX, pLocY, ((pLocH * 18) / 32))
-    repeat while pFormatVer <= undefined
-      tSpr = getAt(undefined, undefined)
+    repeat while pFormatVer <= count(pFormatVer)
+      tSpr = getAt(count(pFormatVer), pSprList)
       tSpr.locH = tScreenLocs.getAt(1)
       tSpr.locV = tScreenLocs.getAt(2)
     end repeat
@@ -326,12 +326,12 @@ on updateLocation me
       tWallObjs = getThread(#room).getComponent().getPassiveObject(#list)
       tWallObjFound = 0
       if tWallObjs.count > 0 then
-        repeat while pFormatVer <= undefined
-          tWallObj = getAt(undefined, undefined)
+        repeat while pFormatVer <= count(pFormatVer)
+          tWallObj = getAt(count(pFormatVer), tWallObjs)
           if (tWallObj.getLocation().getAt(1) = pWallX) and (tWallObj.getLocation().getAt(2) = pWallY) then
             tWallSprites = tWallObj.getSprites()
-            repeat while pFormatVer <= undefined
-              tSpr = getAt(undefined, undefined)
+            repeat while pFormatVer <= count(pFormatVer)
+              tSpr = getAt(count(pFormatVer), tWallObjs)
               tSpr.locH = ((tWallSprites.getAt(1).locH - tWallSprites.getAt(1).member.getProp(#regPoint, 1)) + pLocalX)
               tSpr.locV = ((tWallSprites.getAt(1).locV - tWallSprites.getAt(1).member.getProp(#regPoint, 2)) + pLocalY)
             end repeat
@@ -357,8 +357,8 @@ on updateLocation me
           tPartProps = tVisualizer.getPartAtLocation(pWallX, pWallY, tPartTypes)
           if (ilk(tPartProps) = #propList) then
             tWallObjFound = 1
-            repeat while pFormatVer <= undefined
-              tSpr = getAt(undefined, undefined)
+            repeat while pFormatVer <= count(pFormatVer)
+              tSpr = getAt(count(pFormatVer), pSprList)
               tMem = member(getmemnum(tPartProps.member))
               tFixNegativeLoc = 0
               if (tLounge = "model_b.room") then
@@ -416,8 +416,8 @@ on updateLocation me
     end repeat
     exit repeat
   end if
-  repeat while pFormatVer <= undefined
-    tSpr = getAt(undefined, undefined)
+  repeat while pSprList <= 1
+    tSpr = getAt(1, count(pSprList))
     if (tSpr.member = member(0, 0)) then
       return(error(me, "Spritelist contains empty sprite!", #updateLocation, #minor))
     end if

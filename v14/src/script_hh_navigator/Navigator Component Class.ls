@@ -1,4 +1,4 @@
-property pRootUnitCatId, pRootFlatCatId, pRoomCatagoriesReady, pState, pInfoBroker, pNodeCache, pCategoryIndex, pNaviHistory, pHideFullRoomsFlag, pNodeCacheExpList, pUpdateInterval, pConnectionId, pDefaultUnitCatId, pDefaultFlatCatId
+property pRootUnitCatId, pRootFlatCatId, pUpdateInterval, pRoomCatagoriesReady, pState, pInfoBroker, pNodeCache, pCategoryIndex, pNaviHistory, pHideFullRoomsFlag, pNodeCacheExpList, pConnectionId, pDefaultUnitCatId, pDefaultFlatCatId
 
 on construct me 
   pRootUnitCatId = string(getIntVariable("navigator.visible.public.root"))
@@ -18,7 +18,10 @@ on construct me
   pNodeCacheExpList = [:]
   pNaviHistory = []
   pHideFullRoomsFlag = 0
-  pUpdateInterval = getIntVariable("navigator.updatetime")
+  pUpdateInterval = (getIntVariable("navigator.cache.duration") * 1000)
+  if (pUpdateInterval = 0) then
+    pUpdateInterval = getIntVariable("navigator.updatetime")
+  end if
   pConnectionId = getVariableValue("connection.info.id", #info)
   pInfoBroker = createObject(#navigator_infobroker, "Navigator Info Broker Class")
   getObject(#session).set("lastroom", "Entry")
@@ -108,8 +111,8 @@ on getNodeInfo me, tNodeId, tCategoryId
   if pNodeCache.getAt(tNodeId) <> void() then
     return(pNodeCache.getAt(tNodeId))
   end if
-  repeat while pNodeCache <= tCategoryId
-    tList = getAt(tCategoryId, tNodeId)
+  repeat while pNodeCache <= 1
+    tList = getAt(1, count(pNodeCache))
     if tList.getAt(#children) <> void() then
       if tList.getAt(#children).getAt(tNodeId) <> void() then
         return(tList.getAt(#children).getAt(tNodeId))
@@ -119,19 +122,19 @@ on getNodeInfo me, tNodeId, tCategoryId
   return FALSE
 end
 
-on getTreeInfoFor me, tid 
-  if (tid = void()) then
+on getTreeInfoFor me, tID 
+  if (tID = void()) then
     return FALSE
   end if
-  if (pCategoryIndex.getAt(tid) = void()) then
+  if (pCategoryIndex.getAt(tID) = void()) then
     return FALSE
   end if
-  return(pCategoryIndex.getAt(tid))
+  return(pCategoryIndex.getAt(tID))
 end
 
 on setNodeProperty me, tNodeId, tProp, tValue 
-  repeat while pNodeCache <= tProp
-    myList = getAt(tProp, tNodeId)
+  repeat while pNodeCache <= 1
+    myList = getAt(1, count(pNodeCache))
     if myList.getAt(#children).getAt(tNodeId) <> void() then
       myList.getAt(#children).getAt(tNodeId).setaProp(tProp, tValue)
     end if
@@ -150,11 +153,15 @@ on getNodeProperty me, tNodeId, tProp
   return(tNodeInfo.getaProp(tProp))
 end
 
-on updateInterface me, tid 
-  if (tid = #own) or (tid = #src) or (tid = #fav) then
-    return(me.feedNewRoomList(tid))
+on getUpdateInterval me 
+  return(pUpdateInterval)
+end
+
+on updateInterface me, tID 
+  if (tID = #own) or (tID = #src) or (tID = #fav) then
+    return(me.feedNewRoomList(tID))
   else
-    return(me.feedNewRoomList(tid & "/" & me.getCurrentNodeMask()))
+    return(me.feedNewRoomList(tID & "/" & me.getCurrentNodeMask()))
   end if
 end
 
@@ -365,12 +372,12 @@ on checkCacheForNode me, tNodeId
   return FALSE
 end
 
-on feedNewRoomList me, tid 
-  if (tid = void()) then
+on feedNewRoomList me, tID 
+  if (tID = void()) then
     return FALSE
   end if
-  tNodeInfo = me.getNodeInfo(tid)
-  if not listp(tNodeInfo) or not me.checkCacheForNode(tid) then
+  tNodeInfo = me.getNodeInfo(tID)
+  if not listp(tNodeInfo) or not me.checkCacheForNode(tID) then
     return(me.callNodeUpdate())
   end if
   me.getInterface().updateRoomList(tNodeInfo.getAt(#id), tNodeInfo.getAt(#children))
@@ -381,9 +388,9 @@ on purgeNodeCacheExpList me
   i = 1
   repeat while i <= pNodeCacheExpList.count
     if (the milliSeconds - pNodeCacheExpList.getAt(i)) > pUpdateInterval then
-      tid = pNodeCacheExpList.getPropAt(i)
+      tID = pNodeCacheExpList.getPropAt(i)
       pNodeCacheExpList.deleteAt(i)
-      pNodeCache.deleteProp(tid)
+      pNodeCache.deleteProp(tID)
     end if
     i = (1 + i)
   end repeat
@@ -432,8 +439,8 @@ on updateSingleSubNodeInfo me, tdata
   if listp(tdata) then
     tStored = 0
     tNodeId = tdata.getAt(#id)
-    repeat while pNodeCache <= undefined
-      myList = getAt(undefined, tdata)
+    repeat while pNodeCache <= 1
+      myList = getAt(1, count(pNodeCache))
       if listp(myList.getAt(#children)) then
         if myList.getAt(#children).getAt(tNodeId) <> void() then
           f = 1
@@ -604,8 +611,8 @@ on sendupdateFlatInfo me, tPropList
     return(error(me, "Cant send updateFlatInfo", #sendupdateFlatInfo, #major))
   end if
   tFlatMsg = ""
-  repeat while [#flatId, #name, #door, #showownername] <= undefined
-    tProp = getAt(undefined, tPropList)
+  repeat while [#flatId, #name, #door, #showownername] <= 1
+    tProp = getAt(1, count([#flatId, #name, #door, #showownername]))
     tFlatMsg = tFlatMsg & tPropList.getAt(tProp) & "/"
   end repeat
   tFlatMsg = tFlatMsg.getProp(#char, 1, (length(tFlatMsg) - 1))

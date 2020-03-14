@@ -45,8 +45,8 @@ on createRoom me
   pRoomProps.setAt(#description, getStringServices().convertSpecialChars(pRoomProps.getAt(#description), 1))
   pRoomProps.setAt(#marker, "model_" & pRoomProps.getAt("model"))
   tFlatData = "/first floor/"
-  repeat while [#name, #marker, #door, #showownername] <= undefined
-    f = getAt(undefined, undefined)
+  repeat while [#name, #marker, #door, #showownername] <= 1
+    f = getAt(1, count([#name, #marker, #door, #showownername]))
     tFlatData = tFlatData & replaceChars(pRoomProps.getAt(f), "/", space()) & "/"
   end repeat
   tFlatData = tFlatData.getProp(#char, 1, (length(tFlatData) - 1))
@@ -90,8 +90,8 @@ on updateRadioButton me, tElement, tListOfOtherElements
   if tWindowObj.elementExists(tElement) then
     tWindowObj.getElement(tElement).feedImage(tOnImg)
   end if
-  repeat while tListOfOtherElements <= tListOfOtherElements
-    tElement = getAt(tListOfOtherElements, tElement)
+  repeat while tListOfOtherElements <= 1
+    tElement = getAt(1, count(tListOfOtherElements))
     if tWindowObj.elementExists(tElement) then
       tWindowObj.getElement(tElement).feedImage(tOffImg)
     end if
@@ -280,8 +280,8 @@ on showPasswordFields me, tVisible
     return(error(me, "No window!", #showPasswordFields, #minor))
   end if
   tElems = ["roomatic_password2_field", "roomatic_password_field", "roomatic_pwdfieldsbg", "roomatic_pwd_desc"]
-  repeat while tElems <= undefined
-    tElemID = getAt(undefined, tVisible)
+  repeat while tElems <= 1
+    tElemID = getAt(1, count(tElems))
     tElem = tWndObj.getElement(tElemID)
     if not voidp(tElem) then
       tElem.setProperty(#visible, tVisible)
@@ -296,6 +296,7 @@ on eventProc me, tEvent, tSprID, tParm
   if (tEvent = #mouseUp) then
     if (tSprID = "roomatic_1_button_start") then
       me.ChangeWindowView("roomatic2.window")
+      executeMessage(#tutorial_roommatic_start_ready)
     else
       if (tSprID = "roomatic_1_button_cancel") then
         me.showHideRoomKiosk()
@@ -317,6 +318,7 @@ on eventProc me, tEvent, tSprID, tParm
               pRoomProps.setAt(#name, tRoomName)
               pRoomProps.setAt(#description, getWindow(pWindowTitle).getElement("romatic_roomdescription_field").getText())
               me.ChangeWindowView("roomatic3.window")
+              executeMessage(#tutorial_roommatic_details_ready)
             else
               if (tSprID = "roomatic_namedisplayed_yes_check") then
                 pRoomProps.setAt(#showownername, 1)
@@ -342,6 +344,7 @@ on eventProc me, tEvent, tSprID, tParm
                     else
                       if (tSprID = "roomatic_3_button_next") then
                         me.ChangeWindowView("roomatic4.window")
+                        executeMessage(#tutorial_roommatic_layout_ready)
                       else
                         if (tSprID = "roomatic_3_button_previous") then
                           me.ChangeWindowView("roomatic2.window")
@@ -359,6 +362,7 @@ on eventProc me, tEvent, tSprID, tParm
                             end if
                             me.createRoom()
                             me.ChangeWindowView("roomatic6.window")
+                            executeMessage(#tutorial_roommatic_security_ready)
                           else
                             if (tSprID = "roomatic_4_button_previous") then
                               me.ChangeWindowView("roomatic3.window")
@@ -468,8 +472,8 @@ on eventProc me, tEvent, tSprID, tParm
             end if
           end if
           tStr = ""
-          repeat while tSprID <= tSprID
-            tChar = getAt(tSprID, tEvent)
+          repeat while pTempPassword.getAt(tSprID) <= 1
+            tChar = getAt(1, count(pTempPassword.getAt(tSprID)))
           end repeat
           getWindow(pWindowTitle).getElement(tSprID).setText(tStr)
           the selStart = pTempPassword.getAt(tSprID).count

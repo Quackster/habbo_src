@@ -26,9 +26,9 @@ on handle_sound_data me, tMsg
           tSample = tChannelData.getProp(#item, j)
           the itemDelimiter = ","
           if tSample.count(#item) >= 2 then
-            tid = value(tSample.getProp(#item, 1))
+            tID = value(tSample.getProp(#item, 1))
             tCount = value(tSample.getProp(#item, 2))
-            tdata.getAt(tChannelNumber).setAt((tdata.getAt(tChannelNumber).count + 1), [#id:tid, #length:tCount])
+            tdata.getAt(tChannelNumber).setAt((tdata.getAt(tChannelNumber).count + 1), [#id:tID, #length:tCount])
           end if
           the itemDelimiter = ";"
           j = (1 + j)
@@ -52,7 +52,7 @@ on handle_machine_sound_packages me, tMsg
   i = 1
   repeat while i <= tFilledSlots
     tSlotIndex = tMsg.connection.GetIntFrom()
-    tid = tMsg.connection.GetIntFrom()
+    tID = tMsg.connection.GetIntFrom()
     tSampleList = []
     tSampleCount = tMsg.connection.GetIntFrom()
     j = 1
@@ -61,7 +61,7 @@ on handle_machine_sound_packages me, tMsg
       tSampleList.add(tSampleID)
       j = (1 + j)
     end repeat
-    me.getComponent().updateSoundSet(tSlotIndex, tid, tSampleList)
+    me.getComponent().updateSoundSet(tSlotIndex, tID, tSampleList)
     i = (1 + i)
   end repeat
   me.getComponent().removeSoundSetInsertLock()
@@ -76,8 +76,8 @@ on handle_user_sound_packages me, tMsg
   tList = []
   i = 1
   repeat while i <= tCount
-    tid = tMsg.connection.GetIntFrom()
-    tList.append(tid)
+    tID = tMsg.connection.GetIntFrom()
+    tList.append(tID)
     i = (1 + i)
   end repeat
   return(me.getComponent().updateSetList(tList))

@@ -125,14 +125,14 @@ on handle_status me, tMsg
     i = (1 + i)
   end repeat
   the itemDelimiter = tDelim
-  repeat while tList <= undefined
-    tuser = getAt(undefined, tMsg)
+  repeat while tList <= 1
+    tuser = getAt(1, count(tList))
     if not pRemoteControlledUsers.getOne(tuser.getAt(#id)) > 0 then
       tUserObj = me.getComponent().getUserObject(tuser.getAt(#id))
       if tUserObj <> 0 then
         tUserObj.resetValues(tuser.getAt(#x), tuser.getAt(#y), tuser.getAt(#h), tuser.getAt(#dirHead), tuser.getAt(#dirBody))
-        repeat while tList <= undefined
-          tAction = getAt(undefined, tMsg)
+        repeat while tList <= 1
+          tAction = getAt(1, count(tList))
           call(symbol("action_" & tAction.getAt(#name)), [tUserObj], tAction.getAt(#params))
         end repeat
         tUserObj.Refresh(tuser.getAt(#x), tuser.getAt(#y), tuser.getAt(#h))
@@ -253,8 +253,8 @@ on handle_users me, tMsg
     f = (1 + f)
   end repeat
   tFigureParser = getObject("Figure_System")
-  repeat while tProp <= undefined
-    tObject = getAt(undefined, tMsg)
+  repeat while tList <= 1
+    tObject = getAt(1, count(tList))
     tObject.setAt(#figure, tFigureParser.parseFigure(tObject.getAt(#figure), tObject.getAt(#sex), tObject.getAt(#class)))
   end repeat
   the itemDelimiter = tDelim
@@ -262,8 +262,8 @@ on handle_users me, tMsg
     me.getComponent().validateUserObjects(0)
   else
     tName = getObject(#session).GET(#userName)
-    repeat while tProp <= undefined
-      tuser = getAt(undefined, tMsg)
+    repeat while tList <= 1
+      tuser = getAt(1, count(tList))
       if (tuser.getAt(#name) = tName) then
         getObject(#session).set("user_index", tuser.getAt(#id))
       end if
@@ -336,8 +336,8 @@ on handle_OBJECTS me, tMsg
     i = (1 + i)
   end repeat
   if count(tList) > 0 then
-    repeat while tList <= undefined
-      tObj = getAt(undefined, tMsg)
+    repeat while tList <= 1
+      tObj = getAt(1, count(tList))
       me.getComponent().validatePassiveObjects(tObj)
     end repeat
   else
@@ -389,8 +389,8 @@ on handle_activeobjects me, tMsg
     i = (1 + i)
   end repeat
   if count(tList) > 0 then
-    repeat while tList <= undefined
-      tObj = getAt(undefined, tMsg)
+    repeat while tList <= 1
+      tObj = getAt(1, count(tList))
       me.getComponent().validateActiveObjects(tObj)
     end repeat
     executeMessage(#activeObjectsUpdated)
@@ -491,8 +491,8 @@ on handle_items me, tMsg
   end repeat
   the itemDelimiter = tDelim
   if count(tList) > 0 then
-    repeat while tDirChar <= undefined
-      tItem = getAt(undefined, tMsg)
+    repeat while tList <= 1
+      tItem = getAt(1, count(tList))
       me.getComponent().validateItemObjects(tItem)
     end repeat
     executeMessage(#itemObjectsUpdated)
@@ -600,6 +600,12 @@ on handle_stripinfo me, tMsg
           tObj.setAt(#stuffdata, tItem.getProp(#item, 9))
           tObj.setAt(#colors, tItem.getProp(#item, 10))
           tObj.setAt(#isRecyclable, tItem.getProp(#item, 11))
+          if tItem.getProp(#item, 12) <> "" and tItem.count(#item) >= 12 then
+            tObj.setAt(#slotID, tItem.getProp(#item, 12))
+          end if
+          if tItem.getProp(#item, 13) <> "" and tItem.count(#item) >= 13 then
+            tObj.setAt(#songID, tItem.getProp(#item, 13))
+          end if
           the itemDelimiter = ","
           if (tObj.getAt(#colors).getProp(#char, 1) = "#") then
             if tObj.getAt(#colors).count(#item) > 1 then
@@ -634,18 +640,18 @@ on handle_stripinfo me, tMsg
   tInventory = me.getInterface().getContainer()
   tInventory.setHandButton("next", tTotalItemCount > integer(tStripMax))
   tInventory.setHandButton("prev", integer(tStripMax) > 8)
-  if (tObj.getAt(#striptype) = 140) then
+  if (tMsg.subject = 140) then
     tInventory.updateStripItems(tProps.getAt(#objects))
     tInventory.setStripItemCount(tProps.getAt(#count))
     tInventory.open(1)
     tInventory.Refresh()
   else
-    if (tObj.getAt(#striptype) = 98) then
+    if (tMsg.subject = 98) then
       tInventory.appendStripItem(tProps.getAt(#objects).getAt(1))
       tInventory.open(1)
       tInventory.Refresh()
     else
-      if (tObj.getAt(#striptype) = 108) then
+      if (tMsg.subject = 108) then
         return(tProps)
       end if
     end if
@@ -672,11 +678,11 @@ end
 on handle_idata me, tMsg 
   tDelim = the itemDelimiter
   the itemDelimiter = "\t"
-  tid = integer(tMsg.content.getPropRef(#line, 1).getProp(#item, 1))
+  tID = integer(tMsg.content.getPropRef(#line, 1).getProp(#item, 1))
   ttype = tMsg.content.getPropRef(#line, 1).getProp(#item, 2)
   tText = tMsg.content.getPropRef(#line, 1).getProp(#item, 2) & "\r" & tMsg.content.getProp(#line, 2, tMsg.content.count(#line))
   the itemDelimiter = tDelim
-  executeMessage(symbol("itemdata_received" & tid), [#id:tid, #text:tText, #type:ttype])
+  executeMessage(symbol("itemdata_received" & tID), [#id:tID, #text:tText, #type:ttype])
 end
 
 on handle_trade_items me, tMsg 
@@ -767,17 +773,17 @@ on handle_doordeleted me, tMsg
 end
 
 on handle_dice_value me, tMsg 
-  tid = tMsg.content.getProp(#word, 1)
+  tID = tMsg.content.getProp(#word, 1)
   if (tMsg.content.count(#word) = 1) then
     tValue = -1
   else
-    tValue = integer((tMsg.content.getProp(#word, 2) - (tid * 38)))
+    tValue = integer((tMsg.content.getProp(#word, 2) - (tID * 38)))
     if tValue > 6 then
       tValue = 0
     end if
   end if
-  if me.getComponent().activeObjectExists(tid) then
-    call(#diceThrown, [me.getComponent().getActiveObject(tid)], tValue)
+  if me.getComponent().activeObjectExists(tID) then
+    call(#diceThrown, [me.getComponent().getActiveObject(tID)], tValue)
   end if
 end
 
@@ -900,8 +906,8 @@ on handle_slideobjectbundle me, tMsg
       call(symbol("action_" & tMoveType), [tUserObj], tCommandStr)
     end if
   end if
-  repeat while tMoveType <= undefined
-    tObj = getAt(undefined, tMsg)
+  repeat while tObjList <= 1
+    tObj = getAt(1, count(tObjList))
     tComponent.addSlideObject(tObj.getAt(1), tObj.getAt(2), tObj.getAt(3), tTimeNow, tHasCharacter)
   end repeat
 end
@@ -1007,9 +1013,19 @@ on handle_group_membership_update me, tMsg
   tStatus = tConn.GetIntFrom()
   tuser = me.getComponent().getUserObject(tUserIndex)
   if not voidp(tuser) then
-    tuser.setProperty(#groupid, tGroupId)
-    tuser.setProperty(#groupstatus, tStatus)
+    if tuser <> 0 then
+      tuser.setProperty(#groupid, tGroupId)
+      tuser.setProperty(#groupstatus, tStatus)
+    end if
   end if
+end
+
+on handle_room_rating me, tMsg 
+  tConn = tMsg.connection
+  tRoomRating = tConn.GetIntFrom()
+  tRoomRatingPercent = tConn.GetIntFrom()
+  me.getComponent().setRoomRating(tRoomRating, tRoomRatingPercent)
+  executeMessage(#roomRatingChanged)
 end
 
 on regMsgList me, tBool 
@@ -1079,6 +1095,7 @@ on regMsgList me, tBool
   tMsgs.setaProp(309, #handle_group_badges)
   tMsgs.setaProp(310, #handle_group_membership_update)
   tMsgs.setaProp(311, #handle_group_details)
+  tMsgs.setaProp(345, #handle_room_rating)
   tCmds = [:]
   tCmds.setaProp(#room_directory, 2)
   tCmds.setaProp("GETDOORFLAT", 28)
@@ -1137,6 +1154,8 @@ on regMsgList me, tBool
   tCmds.setaProp("GET_SPECTATOR_AMOUNT", 216)
   tCmds.setaProp("GET_GROUP_BADGES", 230)
   tCmds.setaProp("GET_GROUP_DETAILS", 231)
+  tCmds.setaProp("SPIN_WHEEL_OF_FORTUNE", 247)
+  tCmds.setaProp("RATEFLAT", 261)
   if tBool then
     registerListener(getVariable("connection.room.id"), me.getID(), tMsgs)
     registerCommands(getVariable("connection.room.id"), me.getID(), tCmds)

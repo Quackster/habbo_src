@@ -146,8 +146,8 @@ on getStoredCookies tDomain
     tThisDomainCookies = [:]
   end if
   tFlatCookieList = []
-  repeat while tDomain <= undefined
-    tUniqueCookie = getAt(undefined, undefined)
+  repeat while tThisDomainCookies <= 1
+    tUniqueCookie = getAt(1, count(tThisDomainCookies))
     tFlatCookieList.add(tUniqueCookie)
   end repeat
   return(tFlatCookieList)
@@ -171,8 +171,8 @@ on setStoredCookies tDomain, tNewCookies
   if ilk(tThisDomainCookies) <> #propList then
     tThisDomainCookies = [:]
   end if
-  repeat while tDomain <= undefined
-    tNewCookie = getAt(undefined, tNewCookies)
+  repeat while tNewCookies <= 1
+    tNewCookie = getAt(1, count(tNewCookies))
     tNewCookieID = tNewCookie.getAt(1)
     tThisDomainCookies.setAt(tNewCookieID, tNewCookie)
   end repeat
@@ -184,14 +184,18 @@ on createNetRequest me
   tCmd = ""
   tHeaders = []
   tBody = ""
-  tHeaders.add("Host: " & pServer & ":" & pPort)
+  tPort = ":" & pPort
+  if (tPort = ":80") then
+    tPort = ""
+  end if
+  tHeaders.add("Host: " & pServer & tPort)
   tHeaders.add("User-Agent:" && pUserAgent)
   tHeaders.add("Accept: text/*")
   tHeaders.add("Accept-Charset: ISO-8859-1")
   pCookies = getStoredCookies(pServer)
   tCookieString = ""
-  repeat while pCookies <= undefined
-    tCookie = getAt(undefined, undefined)
+  repeat while pCookies <= 1
+    tCookie = getAt(1, count(pCookies))
     if pDestination starts tCookie.getAt("path") then
       if tCookieString <> "" then
       end if
@@ -235,8 +239,8 @@ end
 on handleHelloResponse me, tMsg 
   pNetRequest = me.createNetRequest()
   tHttpStr = pNetRequest.getAt("cmd") & pCRLF
-  repeat while pNetRequest.getAt("headers") <= undefined
-    tHeader = getAt(undefined, tMsg)
+  repeat while pNetRequest.getAt("headers") <= 1
+    tHeader = getAt(1, count(pNetRequest.getAt("headers")))
   end repeat
   pMUXtra.sendNetMessage("system", "", tHttpStr)
 end

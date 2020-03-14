@@ -211,8 +211,8 @@ on renderFinalScoresText me
     return FALSE
   end if
   if me.getGameSystem().getSpectatorModeFlag() then
-    repeat while ["gs_button_rejoin", "gs_button_leaveGame2"] <= undefined
-      tButtonID = getAt(undefined, undefined)
+    repeat while ["gs_button_rejoin", "gs_button_leaveGame2"] <= 1
+      tButtonID = getAt(1, count(["gs_button_rejoin", "gs_button_leaveGame2"]))
       tWndObj.getElement(tButtonID).hide()
     end repeat
   end if
@@ -344,8 +344,8 @@ on showJoinedPlayers me
   if not listp(pJoinedPlayers) then
     return TRUE
   end if
-  repeat while pJoinedPlayers <= undefined
-    tPlayer = getAt(undefined, undefined)
+  repeat while pJoinedPlayers <= 1
+    tPlayer = getAt(1, count(pJoinedPlayers))
     tHumanId = string(tPlayer.getAt("human_id"))
     me.showPlayerIcon(#joined, [#id:tHumanId])
   end repeat

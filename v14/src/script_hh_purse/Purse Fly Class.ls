@@ -87,16 +87,16 @@ on animateFly me
     end if
     pFlyMember = (1 + (pFlyMember = 1))
   end if
-  if (1 = 1) then
+  if (pMyDir = 1) then
     pElement.moveTo((tLocX + 7), (tLocY + tY))
   else
-    if (1 = 2) then
+    if (pMyDir = 2) then
       pElement.moveTo((tLocX - 7), (tLocY + tY))
     else
-      if (1 = 3) then
+      if (pMyDir = 3) then
         pElement.moveTo((tLocX + tX), (tLocY - 3))
       else
-        if (1 = 4) then
+        if (pMyDir = 4) then
           pElement.moveTo((tLocX + tX), (tLocY + 3))
         end if
       end if

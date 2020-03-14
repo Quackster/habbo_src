@@ -28,6 +28,8 @@ end
 on deconstruct me 
   removeWriter("gs_plain_norm_left")
   pWriterPlainNormLeft = void()
+  removeWriter("gs_list_plain_norm_left")
+  pWriterListPlainNormLeft = void()
   removeWriter("gs_plain_norm_right")
   pWriterPlainNormRight = void()
   removeWriter("gs_plain_bold_left")
@@ -39,15 +41,15 @@ on deconstruct me
   return TRUE
 end
 
-on defineWindow me, tid 
-  pMainWindowId = tid
+on defineWindow me, tID 
+  pMainWindowId = tID
   return TRUE
 end
 
 on renderButtonImages me 
   pGoButtonImages = [:]
-  repeat while ["created", "started", "finished"] <= undefined
-    tstate = getAt(undefined, undefined)
+  repeat while ["created", "started", "finished"] <= 1
+    tstate = getAt(1, count(["created", "started", "finished"]))
     tButtonImage = image(92, 12, 8)
     tImage = pWriterLinkRight.render(getText("gs_button_go_" & tstate))
     tLocH = (80 - tImage.width)
@@ -371,8 +373,8 @@ on updateRadioButton me, tElement, tListOfOthersElements
   if tWndObj.elementExists(tElement) then
     tWndObj.getElement(tElement).setProperty(#image, tOnImg)
   end if
-  repeat while tListOfOthersElements <= tListOfOthersElements
-    tRadioElement = getAt(tListOfOthersElements, tElement)
+  repeat while tListOfOthersElements <= 1
+    tRadioElement = getAt(1, count(tListOfOthersElements))
     if tWndObj.elementExists(tRadioElement) then
       tWndObj.getElement(tRadioElement).setProperty(#image, tOffImg)
     end if

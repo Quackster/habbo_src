@@ -37,8 +37,8 @@ on processRoomReady me
   tBaseLocZ = tVisObj.getProperty(#locZ)
   tBaseLocZ = tVisObj.getSprById("floor").locZ
   tHiliterLocZ = tVisObj.getSprById("hiliter").locZ
-  repeat while tList <= undefined
-    tObject = getAt(undefined, undefined)
+  repeat while tList <= 1
+    tObject = getAt(1, count(tList))
     tSprites = tObject.getSprites()
     if tSprites.count > 0 then
       tSpr = tSprites.getAt(1)

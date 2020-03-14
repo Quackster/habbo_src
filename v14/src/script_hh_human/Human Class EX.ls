@@ -120,8 +120,8 @@ on changeFigureAndData me, tdata
   pSex = tdata.getAt(#sex)
   pCustom = tdata.getAt(#custom)
   tmodels = tdata.getAt(#figure)
-  repeat while pPartList <= undefined
-    tPart = getAt(undefined, tdata)
+  repeat while pPartList <= 1
+    tPart = getAt(1, count(pPartList))
     tPartId = tPart.getPartID()
     tNewModelItem = tmodels.getAt(tPartId)
     if (ilk(tNewModelItem) = #propList) then
@@ -337,8 +337,8 @@ on getPicture me, tImg
   end if
   tPartDefinition = getVariableValue("human.parts." & pPeopleSize)
   tTempPartList = []
-  repeat while tPartDefinition <= undefined
-    tPartSymbol = getAt(undefined, tImg)
+  repeat while tPartDefinition <= 1
+    tPartSymbol = getAt(1, count(tPartDefinition))
     if not voidp(pPartIndex.getAt(tPartSymbol)) then
       tTempPartList.append(pPartList.getAt(pPartIndex.getAt(tPartSymbol)))
     end if
@@ -733,7 +733,7 @@ on arrangeParts me
     pPartList.deleteAt(pPartIndex.getAt("ls"))
     pPartList.deleteAt(pPartIndex.getAt("lh"))
     pPartList.deleteAt(pPartIndex.getAt("li"))
-    if (pMainAction = 3) then
+    if (pDirection = 3) then
       pPartList.addAt(8, tLI)
       pPartList.addAt(9, tLH)
       pPartList.addAt(10, tLS)
@@ -758,7 +758,7 @@ on flipImage me, tImg_a
 end
 
 on getCanvasName me 
-  return(pClass && pName & me.getID() && "Canvas")
+  return(pClass && pName && me.getID() && "Canvas")
 end
 
 on action_mv me, tProps 
@@ -812,22 +812,29 @@ end
 on action_lay me, tProps 
   pMainAction = "lay"
   pCarrying = 0
-  pRestingHeight = (getLocalFloat(tProps.getProp(#word, 2)) - 1)
+  tRestingHeight = getLocalFloat(tProps.getProp(#word, 2))
+  if tRestingHeight < 0 then
+    pRestingHeight = (abs(tRestingHeight) - 1)
+    tZOffset = 0
+  else
+    pRestingHeight = (tRestingHeight - 1)
+    tZOffset = 2000
+  end if
   pScreenLoc = pGeometry.getScreenCoordinate(pLocX, pLocY, (pLocH + pRestingHeight))
   if pXFactor < 33 then
     if (pFlipList.getAt((pDirection + 1)) = 2) then
-      pScreenLoc = (pScreenLoc + [-10, 18, 2000])
+      pScreenLoc = (pScreenLoc + [-10, 18, tZOffset])
     else
       if (pFlipList.getAt((pDirection + 1)) = 0) then
-        pScreenLoc = (pScreenLoc + [-17, 18, 2000])
+        pScreenLoc = (pScreenLoc + [-17, 18, tZOffset])
       end if
     end if
   else
     if (pFlipList.getAt((pDirection + 1)) = 2) then
-      pScreenLoc = (pScreenLoc + [10, 30, 2000])
+      pScreenLoc = (pScreenLoc + [10, 30, tZOffset])
     else
       if (pFlipList.getAt((pDirection + 1)) = 0) then
-        pScreenLoc = (pScreenLoc + [-47, 32, 2000])
+        pScreenLoc = (pScreenLoc + [-47, 32, tZOffset])
       end if
     end if
   end if

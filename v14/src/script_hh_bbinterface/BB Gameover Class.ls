@@ -165,8 +165,8 @@ on renderFinalScoresText me
     return FALSE
   end if
   if me.getGameSystem().getSpectatorModeFlag() then
-    repeat while ["bb_button_playAgn", "bb_button_leaveGam2", "gs_button_buytickets"] <= undefined
-      tButtonID = getAt(undefined, undefined)
+    repeat while ["bb_button_playAgn", "bb_button_leaveGam2", "gs_button_buytickets"] <= 1
+      tButtonID = getAt(1, count(["bb_button_playAgn", "bb_button_leaveGam2", "gs_button_buytickets"]))
       tWndObj.getElement(tButtonID).hide()
     end repeat
   end if

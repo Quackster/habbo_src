@@ -1,4 +1,4 @@
-property pGeometryId, pContainerID, pSafeTraderID, pArrowObjID, pObjMoverID, pBadgeObjID, pDoorBellID, pInfoStandId, pLoaderBarID, pRoomSpaceId, pHiliterId, pSwapAnimations, pBottomBarId, pSelectedObj, pModBadgeList, pIgnoreListObj, pInterfaceId, pTradeTimeout, pLoadingBarID, pQueueCollection, pCoverSpr, pClickAction, pSelectedType, pDelConfirmID, pPlcConfirmID, pMessengerFlash, pNewMsgCount, pNewBuddyReq, pFloodblocking, pFloodTimer, pFloodEnterCount, pDeleteType, pDeleteObjID, pBannerLink, pInfoConnID
+property pGeometryId, pContainerID, pSafeTraderID, pArrowObjID, pObjMoverID, pBadgeObjID, pDoorBellID, pRoomGuiID, pInfoStandId, pLoaderBarID, pRoomSpaceId, pHiliterId, pSwapAnimations, pSelectedObj, pModBadgeList, pIgnoreListObj, pInterfaceId, pTradeTimeout, pLoadingBarID, pQueueCollection, pCoverSpr, pClickAction, pSelectedType, pDelConfirmID, pPlcConfirmID, pDeleteType, pDeleteObjID, pBannerLink, pInfoConnID
 
 on construct me 
   pInfoConnID = getVariable("connection.info.id")
@@ -13,8 +13,8 @@ on construct me
   pDoorBellID = "Room_doorbell"
   pPreviewObjID = "Preview_renderer"
   pInfoStandId = "Room_info_stand"
+  pRoomGuiID = "Room_gui_program"
   pRoomSpaceId = "Room_visualizer"
-  pBottomBarId = "Room_bar"
   pInterfaceId = "Room_interface"
   pDelConfirmID = getText("win_delete_item", "Delete item?")
   pLoaderBarID = "Loading room"
@@ -40,28 +40,21 @@ on construct me
   createObject(pBadgeObjID, "Badge Manager Class")
   createObject(pPreviewObjID, "Preview Renderer Class")
   createObject(pDoorBellID, "Doorbell Class")
+  createObject(pRoomGuiID, "Room GUI Class")
   createObject(pInfoStandId, "Info Stand Class")
   pIgnoreListObj = createObject(#temp, "Ignore List Class")
   getObject(pObjMoverID).setProperty(#geometry, getObject(pGeometryId))
-  registerMessage(#notify, me.getID(), #notify)
-  registerMessage(#updateMessageCount, me.getID(), #updateMessageCount)
-  registerMessage(#updateBuddyrequestCount, me.getID(), #updateBuddyrequestCount)
   registerMessage(#objectFinalized, me.getID(), #objectFinalized)
-  registerMessage(#soundSettingChanged, me.getID(), #updateSoundButton)
   return TRUE
 end
 
 on deconstruct me 
   pClickAction = #null
-  unregisterMessage(#notify, me.getID())
-  unregisterMessage(#updateMessageCount, me.getID())
-  unregisterMessage(#updateBuddyrequestCount, me.getID())
-  unregisterMessage(#objectFinalized, me.getID())
-  unregisterMessage(#soundSettingChanged, me.getID())
   pIgnoreListObj = void()
   removeObject(pBadgeObjID)
   removeObject(pDoorBellID)
   removeObject(pInfoStandId)
+  removeObject(pRoomGuiID)
   return(me.hideAll())
 end
 
@@ -100,8 +93,8 @@ on showRoom me, tRoomID
   end if
   tAnimations = tVisObj.getProperty(#swapAnims)
   if tAnimations <> 0 then
-    repeat while tAnimations <= undefined
-      tAnimation = getAt(undefined, tRoomID)
+    repeat while tAnimations <= 1
+      tAnimation = getAt(1, count(tAnimations))
       tObj = createObject(#random, getVariableValue("swap.animation.class"))
       if (tObj = 0) then
         error(me, "Error creating swap animation", #showRoom, #minor)
@@ -123,8 +116,8 @@ on hideRoom me
   pSelectedObj = ""
   me.hideArrowHiliter()
   me.hideTrashCover()
-  repeat while pSwapAnimations <= undefined
-    tAnim = getAt(undefined, undefined)
+  repeat while pSwapAnimations <= 1
+    tAnim = getAt(1, count(pSwapAnimations))
     tAnim.deconstruct()
   end repeat
   pSwapAnimations = []
@@ -135,83 +128,16 @@ on hideRoom me
 end
 
 on showRoomBar me 
-  if not windowExists(pBottomBarId) then
-    createWindow(pBottomBarId, "empty.window", 0, 452)
-  end if
-  tWndObj = getWindow(pBottomBarId)
-  if (tWndObj = 0) then
-    return FALSE
-  end if
-  tWndObj.lock(1)
-  tWndObj.unmerge()
-  if me.getComponent().getSpectatorMode() then
-    tLayout = "room_bar_spectator.window"
-  else
-    tLayout = "room_bar.window"
-  end if
-  if not tWndObj.merge(tLayout) then
-    return FALSE
-  end if
-  me.updateSoundButton()
-  tWndObj.registerClient(me.getID())
-  tWndObj.registerProcedure(#eventProcRoomBar, me.getID(), #mouseUp)
-  tWndObj.registerProcedure(#eventProcRoomBar, me.getID(), #keyDown)
-  tWndObj.registerProcedure(#eventProcRoomBar, me.getID(), #mouseEnter)
-  tWndObj.registerProcedure(#eventProcRoomBar, me.getID(), #mouseLeave)
-  executeMessage(#messageUpdateRequest)
-  executeMessage(#buddyUpdateRequest)
-  if (me.getComponent().getRoomData().type = #private) then
-    tRoomData = me.getComponent().pSaveData
-    tRoomTxt = getText("room_name") && tRoomData.getAt(#name) & "\r" & getText("room_owner") && tRoomData.getAt(#owner)
-    tWndObj.getElement("room_info_text").setText(tRoomTxt)
-  else
-    tWndObj.getElement("room_info_text").hide()
-  end if
-  return TRUE
-end
-
-on updateSoundButton me 
-  tWndObj = getWindow(pBottomBarId)
-  if (tWndObj = 0) then
-    return FALSE
-  end if
-  tstate = getSoundState()
-  tElem = tWndObj.getElement("int_sound_image")
-  if tElem <> 0 then
-    if tstate then
-      tMemNum = getmemnum("sounds_on_icon")
-      if tMemNum > 0 then
-        tElem.feedImage(member(tMemNum).image)
-      end if
-    else
-      tMemNum = getmemnum("sounds_off_icon")
-      if tMemNum > 0 then
-        tElem.feedImage(member(tMemNum).image)
-      end if
-    end if
-  end if
-  tElem = tWndObj.getElement("int_sound_bg_image")
-  if tElem <> 0 then
-    if tstate then
-      tMemNum = getmemnum("sounds_on_icon_sd")
-      if tMemNum > 0 then
-        tElem.feedImage(member(tMemNum).image)
-      end if
-    else
-      tMemNum = getmemnum("sounds_off_icon_sd")
-      if tMemNum > 0 then
-        tElem.feedImage(member(tMemNum).image)
-      end if
-    end if
+  tGUI = getObject(pRoomGuiID)
+  if not voidp(tGUI) and (not tGUI = 0) then
+    tGUI.showRoomBar()
   end if
 end
 
 on hideRoomBar me 
-  if timeoutExists(#flash_messenger_icon) then
-    removeTimeout(#flash_messenger_icon)
-  end if
-  if windowExists(pBottomBarId) then
-    removeWindow(pBottomBarId)
+  tGUI = getObject(pRoomGuiID)
+  if not voidp(tGUI) and (not tGUI = 0) then
+    tGUI.hideRoomBar()
   end if
 end
 
@@ -366,13 +292,13 @@ on showInterface me, tObjType
   else
     tWndObj.show()
   end if
-  repeat while tWndObj.getProperty(#spriteList) <= undefined
-    tSpr = getAt(undefined, tObjType)
+  repeat while tWndObj.getProperty(#spriteList) <= 1
+    tSpr = getAt(1, count(tWndObj.getProperty(#spriteList)))
     tSpr.visible = 0
   end repeat
   tRightMargin = 4
-  repeat while tWndObj.getProperty(#spriteList) <= undefined
-    tAction = getAt(undefined, tObjType)
+  repeat while tButtonList <= 1
+    tAction = getAt(1, count(tButtonList))
     tElem = tWndObj.getElement(tAction & ".button")
     if tElem <> 0 then
       tSpr = tElem.getProperty(#sprite)
@@ -589,8 +515,10 @@ on resizeInterstitialWindow me
   if tAdHeight > tAdMaxH then
     tAdHeight = tAdMaxH
   end if
-  tAdImage = image(tAdWidth, tAdHeight, 32)
-  tAdImage.copyPixels(tAdMember.image, rect(0, 0, tAdWidth, tAdHeight), rect(0, 0, tAdWidth, tAdHeight))
+  if (tAdMember.type = #bitmap) then
+    tAdImage = image(tAdWidth, tAdHeight, 32)
+    tAdImage.copyPixels(tAdMember.image, rect(0, 0, tAdWidth, tAdHeight), rect(0, 0, tAdWidth, tAdHeight))
+  end if
   tWndWidth = 240
   tBorderWidth = 25
   tAdLocX = 0
@@ -606,8 +534,8 @@ on resizeInterstitialWindow me
   tWndObj.resizeBy(tOffX, tOffY)
   tWndObj.center()
   tElementList = ["general_loader_text", "queue_text", "second_queue_title", "queue_text_2"]
-  repeat while tElementList <= undefined
-    tElemID = getAt(undefined, undefined)
+  repeat while tElementList <= 1
+    tElemID = getAt(1, count(tElementList))
     tElem = tWndObj.getElement(tElemID)
     if tElem <> 0 then
       tElem.setText(tElem.getText())
@@ -836,19 +764,6 @@ on dancingStoppedExternally me
   return TRUE
 end
 
-on setSpeechDropdown me, tMode 
-  tWndObj = getWindow(pBottomBarId)
-  if (tWndObj = 0) then
-    return TRUE
-  end if
-  tElem = tWndObj.getElement("int_speechmode_dropmenu")
-  if (tElem = 0) then
-    return TRUE
-  end if
-  tElem.setSelection(tMode, 1)
-  return TRUE
-end
-
 on getKeywords me 
   return([deobfuscate("$cMgMXLrlJM|OI-9"), deobfuscate("%bl&-ym3Lj-|.I-)"), deobfuscate("EBLFM9M2,KM|oH/h")])
 end
@@ -871,18 +786,15 @@ on notify me, ttype
           else
             if (ttype = 405) then
               executeMessage(#alert, [#Msg:"room_alert_furni_limit", #id:"roomfullfurni", #modal:1])
+            else
+              if (ttype = 406) then
+                executeMessage(#alert, [#Msg:"room_sound_furni_limit"])
+              end if
             end if
           end if
         end if
       end if
     end if
-  end if
-end
-
-on setRollOverInfo me, tInfo 
-  tWndObj = getWindow(pBottomBarId)
-  if tWndObj.elementExists("room_tooltip_text") then
-    tWndObj.getElement("room_tooltip_text").setText(tInfo)
   end if
 end
 
@@ -1059,66 +971,21 @@ on placeFurniture me, tObjID, tObjType
   end if
 end
 
-on showCfhSenderDelayed me, tid 
-  return(createTimeout(#highLightCfhSender, 3000, #highLightCfhSender, me.getID(), tid, 1))
+on setSpeechDropdown me, tMode 
+  tGUI = getObject(pRoomGuiID)
+  if not voidp(tGUI) and (not tGUI = 0) then
+    tGUI.setSpeechDropdown(tMode)
+  end if
 end
 
-on highLightCfhSender me, tid 
-  if not voidp(tid) then
-    me.showArrowHiliter(tid)
-  end if
-  return TRUE
+on showCfhSenderDelayed me, tID 
+  return(createTimeout(#highLightCfhSender, 3000, #highLightCfhSender, me.getID(), tID, 1))
 end
 
-on updateMessageCount me, tMsgCount 
-  if windowExists(pBottomBarId) then
-    pNewMsgCount = value(tMsgCount)
-    me.flashMessengerIcon()
+on highLightCfhSender me, tID 
+  if not voidp(tID) then
+    me.showArrowHiliter(tID)
   end if
-  return TRUE
-end
-
-on updateBuddyrequestCount me, tReqCount 
-  if windowExists(pBottomBarId) then
-    pNewBuddyReq = value(tReqCount)
-    me.flashMessengerIcon()
-  end if
-  return TRUE
-end
-
-on flashMessengerIcon me 
-  tWndObj = getWindow(pBottomBarId)
-  if (tWndObj = 0) then
-    return FALSE
-  end if
-  if not tWndObj.elementExists("int_messenger_image") then
-    return FALSE
-  end if
-  if pMessengerFlash then
-    tmember = "mes_lite_icon"
-    pMessengerFlash = 0
-  else
-    tmember = "mes_dark_icon"
-    pMessengerFlash = 1
-  end if
-  if (pNewMsgCount = 0) and (pNewBuddyReq = 0) then
-    tmember = "mes_dark_icon"
-    if timeoutExists(#flash_messenger_icon) then
-      removeTimeout(#flash_messenger_icon)
-    end if
-  else
-    if pNewMsgCount > 0 then
-      if not timeoutExists(#flash_messenger_icon) then
-        createTimeout(#flash_messenger_icon, 500, #flashMessengerIcon, me.getID(), void(), 0)
-      end if
-    else
-      tmember = "mes_lite_icon"
-      if timeoutExists(#flash_messenger_icon) then
-        removeTimeout(#flash_messenger_icon)
-      end if
-    end if
-  end if
-  tWndObj.getElement("int_messenger_image").getProperty(#sprite).setMember(member(getmemnum(tmember)))
   return TRUE
 end
 
@@ -1147,8 +1014,8 @@ on validateEvent me, tEvent, tSprID, tloc
   return TRUE
 end
 
-on objectFinalized me, tid 
-  if (pSelectedObj = tid) then
+on objectFinalized me, tID 
+  if (pSelectedObj = tID) then
     if objectExists(pInfoStandId) then
       getObject(pInfoStandId).showObjectInfo(pSelectedType)
     end if
@@ -1160,12 +1027,16 @@ on showRemoveSpecsNotice me
 end
 
 on eventProcActiveRollOver me, tEvent, tSprID, tProp 
+  tGUI = getObject(pRoomGuiID)
+  if voidp(tGUI) or (tGUI = 0) then
+    return FALSE
+  end if
   if (me.getComponent().getRoomData().type = #private) then
     if (tEvent = #mouseEnter) then
-      me.setRollOverInfo(me.getComponent().getActiveObject(tSprID).getCustom())
+      tGUI.setRollOverInfo(me.getComponent().getActiveObject(tSprID).getCustom())
     else
       if (tEvent = #mouseLeave) then
-        me.setRollOverInfo("")
+        tGUI.setRollOverInfo("")
       end if
     end if
   end if
@@ -1179,212 +1050,33 @@ on eventProcUserRollOver me, tEvent, tSprID, tProp
       me.showArrowHiliter(void())
     end if
   end if
+  tGUI = getObject(pRoomGuiID)
+  if voidp(tGUI) or (tGUI = 0) then
+    return FALSE
+  end if
   if (tEvent = #mouseEnter) then
     tObject = me.getComponent().getUserObject(tSprID)
     if (tObject = 0) then
       return()
     end if
-    me.setRollOverInfo(tObject.getInfo().getaProp(#name))
+    tGUI.setRollOverInfo(tObject.getInfo().getaProp(#name))
   else
     if (tEvent = #mouseLeave) then
-      me.setRollOverInfo("")
+      tGUI.setRollOverInfo("")
     end if
   end if
 end
 
 on eventProcItemRollOver me, tEvent, tSprID, tProp 
+  tGUI = getObject(pRoomGuiID)
+  if voidp(tGUI) or (tGUI = 0) then
+    return FALSE
+  end if
   if (tEvent = #mouseEnter) then
-    me.setRollOverInfo(me.getComponent().getItemObject(tSprID).getCustom())
+    tGUI.setRollOverInfo(me.getComponent().getItemObject(tSprID).getCustom())
   else
     if (tEvent = #mouseLeave) then
-      me.setRollOverInfo("")
-    end if
-  end if
-end
-
-on eventProcRoomBar me, tEvent, tSprID, tParam 
-  if (tEvent = #keyDown) and (tSprID = "chat_field") then
-    tChatField = getWindow(pBottomBarId).getElement(tSprID)
-    if the commandDown and (the keyCode = 8) or (the keyCode = 9) then
-      if not getObject(#session).GET("user_rights").getOne("fuse_debug_window") then
-        tChatField.setText("")
-        return TRUE
-      end if
-    end if
-    if the keyCode <> 36 then
-      if (the keyCode = 76) then
-        if (tChatField.getText() = "") then
-          return TRUE
-        end if
-        if pFloodblocking then
-          if the milliSeconds < pFloodTimer then
-            return FALSE
-          else
-            pFloodEnterCount = void()
-          end if
-        end if
-        if voidp(pFloodEnterCount) then
-          pFloodEnterCount = 0
-          pFloodblocking = 0
-          pFloodTimer = the milliSeconds
-        else
-          pFloodEnterCount = (pFloodEnterCount + 1)
-          if pFloodEnterCount > 2 then
-            if the milliSeconds < (pFloodTimer + 3000) then
-              tChatField.setText("")
-              createObject("FloodBlocking", "Flood Blocking Class")
-              getObject("FloodBlocking").Init(pBottomBarId, tSprID, 30000)
-              pFloodblocking = 1
-              pFloodTimer = (the milliSeconds + 30000)
-            else
-              pFloodEnterCount = void()
-            end if
-          end if
-        end if
-        me.getComponent().sendChat(tChatField.getText())
-        tChatField.setText("")
-        return TRUE
-      else
-        if (the keyCode = 117) then
-          tChatField.setText("")
-        end if
-      end if
-      return FALSE
-      if (getWindow(pBottomBarId).getElement(tSprID).getProperty(#blend) = 100) then
-        if (the keyCode = "int_help_image") then
-          if (tEvent = #mouseUp) then
-            executeMessage(#openGeneralDialog, #help)
-          end if
-          if (tEvent = #mouseEnter) then
-            tInfo = getText("interface_icon_help", "interface_icon_help")
-            me.setRollOverInfo(tInfo)
-          else
-            if (tEvent = #mouseLeave) then
-              me.setRollOverInfo("")
-            end if
-          end if
-        else
-          if (the keyCode = "int_hand_image") then
-            if (tEvent = #mouseUp) then
-              me.getContainer().openClose()
-            end if
-            if (tEvent = #mouseEnter) then
-              tInfo = getText("interface_icon_hand", "interface_icon_hand")
-              me.setRollOverInfo(tInfo)
-            else
-              if (tEvent = #mouseLeave) then
-                me.setRollOverInfo("")
-              end if
-            end if
-          else
-            if (the keyCode = "int_brochure_image") then
-              if (tEvent = #mouseUp) then
-                executeMessage(#show_hide_catalogue)
-              end if
-              if (tEvent = #mouseEnter) then
-                tInfo = getText("interface_icon_catalog", "interface_icon_catalog")
-                me.setRollOverInfo(tInfo)
-              else
-                if (tEvent = #mouseLeave) then
-                  me.setRollOverInfo("")
-                end if
-              end if
-            else
-              if (the keyCode = "int_purse_image") then
-                if (tEvent = #mouseUp) then
-                  executeMessage(#openGeneralDialog, #purse)
-                end if
-                if (tEvent = #mouseEnter) then
-                  tInfo = getText("interface_icon_purse", "interface_icon_purse")
-                  me.setRollOverInfo(tInfo)
-                else
-                  if (tEvent = #mouseLeave) then
-                    me.setRollOverInfo("")
-                  end if
-                end if
-              else
-                if (the keyCode = "int_nav_image") then
-                  if (tEvent = #mouseUp) then
-                    executeMessage(#show_hide_navigator)
-                  end if
-                  if (tEvent = #mouseEnter) then
-                    tInfo = getText("interface_icon_navigator", "interface_icon_navigator")
-                    me.setRollOverInfo(tInfo)
-                  else
-                    if (tEvent = #mouseLeave) then
-                      me.setRollOverInfo("")
-                    end if
-                  end if
-                else
-                  if (the keyCode = "int_messenger_image") then
-                    if (tEvent = #mouseUp) then
-                      executeMessage(#show_hide_messenger)
-                    end if
-                    if (tEvent = #mouseEnter) then
-                      tInfo = getText("interface_icon_messenger", "interface_icon_messenger")
-                      me.setRollOverInfo(tInfo)
-                    else
-                      if (tEvent = #mouseLeave) then
-                        me.setRollOverInfo("")
-                      end if
-                    end if
-                  else
-                    if (the keyCode = "int_hand_image") then
-                      if (tEvent = #mouseUp) then
-                        me.getContainer().openClose()
-                      end if
-                    else
-                      if (the keyCode = "get_credit_text") then
-                        if (tEvent = #mouseUp) then
-                          executeMessage(#openGeneralDialog, #purse)
-                        end if
-                      else
-                        if (the keyCode = "int_speechmode_dropmenu") then
-                          if (tEvent = #mouseUp) then
-                            me.getComponent().setChatMode(tParam)
-                          end if
-                        else
-                          if (the keyCode = "int_tv_close") then
-                            if (tEvent = #mouseUp) then
-                              me.getComponent().setSpectatorMode(0)
-                            end if
-                            if (tEvent = #mouseEnter) then
-                              tInfo = getText("interface_icon_tv_close")
-                              me.setRollOverInfo(tInfo)
-                            else
-                              if (tEvent = #mouseLeave) then
-                                me.setRollOverInfo("")
-                              end if
-                            end if
-                          else
-                            if the keyCode <> "int_sound_image" then
-                              if (the keyCode = "int_sound_bg_image") then
-                                if (tEvent = #mouseUp) then
-                                  setSoundState(not getSoundState())
-                                  me.getComponent().getRoomConnection().send("SET_SOUND_SETTING", [#integer:getSoundState()])
-                                  me.updateSoundButton()
-                                end if
-                                if (tEvent = #mouseEnter) then
-                                  tInfo = getText("interface_icon_sound", "interface_icon_sound")
-                                  me.setRollOverInfo(tInfo)
-                                else
-                                  if (tEvent = #mouseLeave) then
-                                    me.setRollOverInfo("")
-                                  end if
-                                end if
-                              end if
-                            end if
-                          end if
-                        end if
-                      end if
-                    end if
-                  end if
-                end if
-              end if
-            end if
-          end if
-        end if
-      end if
+      tGUI.setRollOverInfo("")
     end if
   end if
 end
@@ -1442,10 +1134,10 @@ on eventProcInterface me, tEvent, tSprID, tParam
             return(tComponent.getActiveObject(pSelectedObj).rotate())
           else
             if (tSprID = "pick.button") then
-              if (tSprID = "active") then
+              if (pSelectedType = "active") then
                 ttype = "stuff"
               else
-                if (tSprID = "item") then
+                if (pSelectedType = "item") then
                   ttype = "item"
                 else
                   return(me.hideInterface(#hide))
@@ -1453,12 +1145,12 @@ on eventProcInterface me, tEvent, tSprID, tParam
               end if
               return(tComponent.getRoomConnection().send("ADDSTRIPITEM", "new" && ttype && pSelectedObj))
             else
-              if (tSprID = "delete.button") then
+              if (pSelectedType = "delete.button") then
                 pDeleteObjID = pSelectedObj
                 pDeleteType = pSelectedType
                 return(me.showConfirmDelete())
               else
-                if (tSprID = "kick.button") then
+                if (pSelectedType = "kick.button") then
                   if tComponent.userObjectExists(pSelectedObj) then
                     tUserName = tComponent.getUserObject(pSelectedObj).getName()
                   else
@@ -1467,7 +1159,7 @@ on eventProcInterface me, tEvent, tSprID, tParam
                   tComponent.getRoomConnection().send("KICKUSER", tUserName)
                   return(me.hideInterface(#hide))
                 else
-                  if (tSprID = "give_rights.button") then
+                  if (pSelectedType = "give_rights.button") then
                     if tComponent.userObjectExists(pSelectedObj) then
                       tUserName = tComponent.getUserObject(pSelectedObj).getName()
                     else
@@ -1482,7 +1174,7 @@ on eventProcInterface me, tEvent, tSprID, tParam
                     me.hideArrowHiliter()
                     return TRUE
                   else
-                    if (tSprID = "take_rights.button") then
+                    if (pSelectedType = "take_rights.button") then
                       if tComponent.userObjectExists(pSelectedObj) then
                         tUserName = tComponent.getUserObject(pSelectedObj).getName()
                       else
@@ -1497,7 +1189,7 @@ on eventProcInterface me, tEvent, tSprID, tParam
                       me.hideArrowHiliter()
                       return TRUE
                     else
-                      if (tSprID = "friend.button") then
+                      if (pSelectedType = "friend.button") then
                         if tComponent.userObjectExists(pSelectedObj) then
                           tUserName = tComponent.getUserObject(pSelectedObj).getName()
                         else
@@ -1506,7 +1198,7 @@ on eventProcInterface me, tEvent, tSprID, tParam
                         executeMessage(#externalBuddyRequest, tUserName)
                         return TRUE
                       else
-                        if (tSprID = "trade.button") then
+                        if (pSelectedType = "trade.button") then
                           tList = [:]
                           tList.setAt("showDialog", 1)
                           executeMessage(#getHotelClosingStatus, tList)
@@ -1523,7 +1215,7 @@ on eventProcInterface me, tEvent, tSprID, tParam
                           me.startTradeButtonTimeout()
                           return TRUE
                         else
-                          if (tSprID = "ignore.button") then
+                          if (pSelectedType = "ignore.button") then
                             if tComponent.userObjectExists(pSelectedObj) then
                               tUserName = tComponent.getUserObject(pSelectedObj).getName()
                               pIgnoreListObj.setIgnoreStatus(tUserName, 1)
@@ -1531,7 +1223,7 @@ on eventProcInterface me, tEvent, tSprID, tParam
                             me.hideInterface(#hide)
                             pSelectedObj = ""
                           else
-                            if (tSprID = "unignore.button") then
+                            if (pSelectedType = "unignore.button") then
                               if tComponent.userObjectExists(pSelectedObj) then
                                 tUserName = tComponent.getUserObject(pSelectedObj).getName()
                                 pIgnoreListObj.setIgnoreStatus(tUserName, 0)
@@ -1539,12 +1231,12 @@ on eventProcInterface me, tEvent, tSprID, tParam
                               me.hideInterface(#hide)
                               pSelectedObj = ""
                             else
-                              if (tSprID = "badge.button") then
+                              if (pSelectedType = "badge.button") then
                                 if objectExists(pBadgeObjID) then
                                   getObject(pBadgeObjID).openBadgeWindow()
                                 end if
                               else
-                                if (tSprID = "userpage.button") then
+                                if (pSelectedType = "userpage.button") then
                                   if variableExists("link.format.userpage") then
                                     tWebID = tComponent.getUserObject(pSelectedObj).getWebID()
                                     if not voidp(tWebID) then
@@ -1595,7 +1287,7 @@ on eventProcRoom me, tEvent, tSprID, tParam
   end if
   tDragging = 0
   if (tEvent = #mouseDown) or tDragging then
-    if (tCmd = "moveHuman") then
+    if (pClickAction = "moveHuman") then
       if tParam <> "object_selection" then
         pSelectedObj = ""
         if objectExists(pInfoStandId) then
@@ -1609,7 +1301,7 @@ on eventProcRoom me, tEvent, tSprID, tParam
         return(me.getComponent().getRoomConnection().send("MOVE", [#short:tloc.getAt(1), #short:tloc.getAt(2)]))
       end if
     else
-      if (tCmd = "moveActive") then
+      if (pClickAction = "moveActive") then
         tloc = getObject(pObjMoverID).getProperty(#loc)
         if not tloc then
           return FALSE
@@ -1621,7 +1313,7 @@ on eventProcRoom me, tEvent, tSprID, tParam
         me.getComponent().getRoomConnection().send("MOVESTUFF", pSelectedObj && tloc.getAt(1) && tloc.getAt(2) && tObj.getProp(#pDirection, 1))
         me.stopObjectMover()
       else
-        if (tCmd = "placeActive") then
+        if (pClickAction = "placeActive") then
           if getObject(#session).GET("room_controller") or getObject(#session).GET("user_rights").getOne("fuse_any_room_controller") then
             tCanPlace = 1
           end if
@@ -1648,7 +1340,7 @@ on eventProcRoom me, tEvent, tSprID, tParam
             end if
           end if
         else
-          if (tCmd = "placeItem") then
+          if (pClickAction = "placeItem") then
             if getObject(#session).GET("room_controller") or getObject(#session).GET("user_rights").getOne("fuse_any_room_controller") then
               tCanPlace = 1
             end if
@@ -1676,7 +1368,7 @@ on eventProcRoom me, tEvent, tSprID, tParam
               end if
             end if
           else
-            if (tCmd = "tradeItem") then
+            if (pClickAction = "tradeItem") then
             else
               return(error(me, "Unsupported click action:" && pClickAction, #eventProcRoom, #minor))
             end if
@@ -1705,6 +1397,9 @@ on eventProcUserObj me, tEvent, tSprID, tParam
   if tObject.select() then
     if (tObject.getClass() = "user") then
       executeMessage(#userClicked, tObject.getName())
+    end if
+    if (tObject.getClass() = "user") and (tEvent = #mouseDown) then
+      executeMessage(#tutorial_userClicked)
     end if
     if pSelectedObj <> tSprID then
       pSelectedObj = tSprID
@@ -1960,18 +1655,18 @@ on outputObjectInfo me, tSprID, tObjType, tSprNum
   tdata.setAt(#x, tObj.pLocX)
   tdata.setAt(#y, tObj.pLocY)
   tdata.setAt(#h, tObj.pLocH)
-  tdata.setAt(#dir, tObj.pDirection)
+  tdata.setAt(#Dir, tObj.pDirection)
   tdata.setAt(#locH, sprite(tSprNum).locH)
   tdata.setAt(#locV, sprite(tSprNum).locV)
   tdata.setAt(#locZ, "")
   tSprList = tObj.getSprites()
-  repeat while tObjType <= tObjType
-    tSpr = getAt(tObjType, tSprID)
+  repeat while tSprList <= 1
+    tSpr = getAt(1, count(tSprList))
     tdata.setAt(#locZ, tdata.getAt(#locZ) & tSpr.locZ && "")
   end repeat
   tdata.setAt(#sprNumList, "")
-  repeat while tObjType <= tObjType
-    tSpr = getAt(tObjType, tSprID)
+  repeat while tSprList <= 1
+    tSpr = getAt(1, count(tSprList))
     tdata.setAt(#sprNumList, tdata.getAt(#sprNumList) & tSpr.spriteNum && "")
   end repeat
   put("- - - - - - - - - - - - - - - - - - - - - -")
@@ -1982,7 +1677,7 @@ on outputObjectInfo me, tSprID, tObjType, tSprNum
   put("World X       " & tdata.getAt(#x))
   put("World Y       " & tdata.getAt(#y))
   put("World H       " & tdata.getAt(#h))
-  put("Dir           " & tdata.getAt(#dir))
+  put("Dir           " & tdata.getAt(#Dir))
   put("Scr X         " & tdata.getAt(#locH))
   put("Scr Y         " & tdata.getAt(#locV))
   put("Scr Z         " & tdata.getAt(#locZ))

@@ -25,14 +25,14 @@ on requestRoomData me, tRoomID, ttype, tCallback
     return(error(me, "Callback list in format [obj, handler] expected.", #requestRoomData, #major))
   end if
   if (ttype = #private) and not tRoomID contains "f_" then
-    tid = "f_" & tRoomID
+    tID = "f_" & tRoomID
   else
-    tid = tRoomID
+    tID = tRoomID
   end if
-  if (pClientList.findPos(tid) = 0) then
-    pClientList.addProp(tid, [])
+  if (pClientList.findPos(tID) = 0) then
+    pClientList.addProp(tID, [])
   end if
-  tList = pClientList.getAt(tid)
+  tList = pClientList.getAt(tID)
   tList.append(tCallback)
   if (ttype = #private) then
     return(tNavComponent.sendGetFlatInfo(tRoomID))
@@ -50,8 +50,8 @@ on processNavigatorData me, tdata
   if (tList = void()) then
     return TRUE
   end if
-  repeat while tList <= undefined
-    tCallback = getAt(undefined, tdata)
+  repeat while tList <= 1
+    tCallback = getAt(1, count(tList))
     tTargetObject = getObject(tCallback.getAt(1))
     tTargetMethod = tCallback.getAt(2)
     if tTargetObject <> 0 then

@@ -30,20 +30,20 @@ on show me, tName, tDate, tMsg, tWindowName
   else
     tWndObj = getWindow(pPlateID)
     tWndObj.center()
-    repeat while ["dedication_text_1", "dedication_text_2"] <= tDate
-      tElemID = getAt(tDate, tName)
+    repeat while ["dedication_text_1", "dedication_text_2"] <= 1
+      tElemID = getAt(1, count(["dedication_text_1", "dedication_text_2"]))
       if tWndObj.elementExists(tElemID) then
         tWndObj.getElement(tElemID).setText(tMsg)
       end if
     end repeat
-    repeat while ["dedication_text_1", "dedication_text_2"] <= tDate
-      tElemID = getAt(tDate, tName)
+    repeat while ["plate_name_1", "plate_name_2"] <= 1
+      tElemID = getAt(1, count(["plate_name_1", "plate_name_2"]))
       if tWndObj.elementExists(tElemID) then
         tWndObj.getElement(tElemID).setText(tName)
       end if
     end repeat
-    repeat while ["dedication_text_1", "dedication_text_2"] <= tDate
-      tElemID = getAt(tDate, tName)
+    repeat while ["plate_date_1", "plate_date_2"] <= 1
+      tElemID = getAt(1, count(["plate_date_1", "plate_date_2"]))
       if tWndObj.elementExists(tElemID) then
         tWndObj.getElement(tElemID).setText(tDate)
       end if

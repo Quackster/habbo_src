@@ -245,25 +245,25 @@ on eventProcLogin me, tEvent, tSprID, tParam
         me.tryLogin()
         return TRUE
       end if
-      if (tEvent = "login_password") then
-        if (tEvent = 48) then
+      if (tSprID = "login_password") then
+        if (tSprID = 48) then
           return FALSE
         else
-          if (tEvent = 49) then
+          if (tSprID = 49) then
             return TRUE
           else
-            if (tEvent = 51) then
+            if (tSprID = 51) then
               if pTempPassword.length > 0 then
                 pTempPassword = chars(pTempPassword, 1, (pTempPassword.length - 1))
               end if
             else
-              if tEvent <> 123 then
-                if tEvent <> 124 then
-                  if tEvent <> 125 then
-                    if (tEvent = 126) then
+              if tSprID <> 123 then
+                if tSprID <> 124 then
+                  if tSprID <> 125 then
+                    if (tSprID = 126) then
                       return TRUE
                     else
-                      if (tEvent = 117) then
+                      if (tSprID = 117) then
                         if windowExists(#login_b) then
                           tWndObj.getElement(tSprID).setText("")
                           pTempPassword = ""

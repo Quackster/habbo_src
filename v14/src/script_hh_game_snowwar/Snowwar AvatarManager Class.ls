@@ -82,12 +82,12 @@ on Refresh me, tTopic, tdata
   return TRUE
 end
 
-on setAvatarEventListener me, tName, tid 
+on setAvatarEventListener me, tName, tID 
   tRoom = getObject(#room_component)
   if (tRoom = 0) then
     return FALSE
   end if
-  tObject = tRoom.getUserObject(tid)
+  tObject = tRoom.getUserObject(tID)
   if (tObject = 0) then
     return FALSE
   end if
@@ -95,12 +95,12 @@ on setAvatarEventListener me, tName, tid
   return TRUE
 end
 
-on eventProcSnowwarUserRollOver me, tEvent, tid, tProp 
+on eventProcSnowwarUserRollOver me, tEvent, tID, tProp 
   tRoom = getObject(#room_component)
   if (tRoom = 0) then
     return FALSE
   end if
-  tObject = tRoom.getUserObject(tid)
+  tObject = tRoom.getUserObject(tID)
   if (tObject = 0) then
     return FALSE
   end if

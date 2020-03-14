@@ -23,7 +23,7 @@ on update me
         if (tObj = 0) then
           return FALSE
         end if
-        if (pAnimPhase = 1) then
+        if (tMode = 1) then
           tSp = tObj.getSprById("valentinebear_eyes")
           if (tSp = 0) then
             return FALSE
@@ -31,7 +31,7 @@ on update me
           tSp.blend = 100
           pAnimPhase = 3
         else
-          if (pAnimPhase = 2) then
+          if (tMode = 2) then
             tSp = tObj.getSprById("valentinebear_ears")
             if (tSp = 0) then
               return FALSE
@@ -39,7 +39,7 @@ on update me
             tSp.blend = 100
             pAnimPhase = 3
           else
-            if (pAnimPhase = 3) then
+            if (tMode = 3) then
               tSp1 = tObj.getSprById("valentinebear_ears")
               tSp2 = tObj.getSprById("valentinebear_eyes")
               if (tSp1 = 0) or (tSp2 = 0) then
@@ -49,7 +49,7 @@ on update me
               tSp2.blend = 100
               pAnimPhase = 3
             else
-              if (pAnimPhase = 4) then
+              if (tMode = 4) then
                 tSp = tObj.getSprById("valentinebear_eyes")
                 if (tSp = 0) then
                   return FALSE
@@ -64,7 +64,7 @@ on update me
       end if
     end if
   else
-    if (pAnimPhase = 1) then
+    if (tMode = 1) then
       if the timer > (pAnimTimer + 10) then
         tObj = getThread(#room).getInterface().getRoomVisualizer()
         if (tObj = 0) then
@@ -78,7 +78,7 @@ on update me
         pAnimPhase = 2
       end if
     else
-      if (pAnimPhase = 2) then
+      if (tMode = 2) then
         if the timer > (pAnimTimer + 20) then
           tObj = getThread(#room).getInterface().getRoomVisualizer()
           if (tObj = 0) then
@@ -92,7 +92,7 @@ on update me
           pAnimPhase = 3
         end if
       else
-        if (pAnimPhase = 3) then
+        if (tMode = 3) then
           if the timer > (pAnimTimer + 30) then
             tObj = getThread(#room).getInterface().getRoomVisualizer()
             if (tObj = 0) then

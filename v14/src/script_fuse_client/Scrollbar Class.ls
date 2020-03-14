@@ -286,8 +286,11 @@ on sendAdjustOffsetTo me, tNewOffset
   if abs((pScrollOffset - tNewOffset)) < pScrollStep and tNewOffset < pMaxOffset and tNewOffset > 0 then
     return TRUE
   end if
-  if tNewOffset <= pMaxOffset then
+  if tNewOffset < pMaxOffset then
     pScrollOffset = tNewOffset
+    if pScrollStep > 0 then
+      pScrollOffset = ((pScrollOffset / pScrollStep) * pScrollStep)
+    end if
   else
     pScrollOffset = pMaxOffset
   end if
@@ -309,10 +312,10 @@ on UpdateImageObjects me, tPalette, tListStates
       tPalette = member(getmemnum(tPalette))
     end if
   end if
-  repeat while [#top, #lift, #bottom, #bar] <= tListStates
-    f = getAt(tListStates, tPalette)
-    repeat while [#top, #lift, #bottom, #bar] <= tListStates
-      i = getAt(tListStates, tPalette)
+  repeat while [#top, #lift, #bottom, #bar] <= 1
+    f = getAt(1, count([#top, #lift, #bottom, #bar]))
+    repeat while [#top, #lift, #bottom, #bar] <= 1
+      i = getAt(1, count([#top, #lift, #bottom, #bar]))
       tDesc = pParts.getAt(i).getAt(#members).getAt(f)
       if not voidp(tDesc) then
         tmember = member(getmemnum(tDesc.getAt(#member)))
@@ -377,8 +380,8 @@ on DrawSpecificRect me, tdestrect, tElementPart, tstate
 end
 
 on UpdateScrollBar me, tElementPartList, tstate 
-  repeat while tElementPartList <= tstate
-    f = getAt(tstate, tElementPartList)
+  repeat while tElementPartList <= 1
+    f = getAt(1, count(tElementPartList))
     tDstRect = pRects.getAt(f)
     tImgPropName = f & "_" & tstate
     me.pimage.copyPixels(pButtonImg.getProp(tImgPropName), tDstRect, pButtonImg.getProp(tImgPropName).rect, [#ink:36])
@@ -530,13 +533,13 @@ on resizeBy me, tOffH, tOffV
         end if
       end if
     end if
-    if (me.pScaleH = #move) then
+    if (me.pScaleV = #move) then
       me.pSprite.locV = (me.pSprite.locV + tOffV)
     else
-      if (me.pScaleH = #scale) then
+      if (me.pScaleV = #scale) then
         me.pSprite.height = (me.pSprite.height + tOffV)
       else
-        if (me.pScaleH = #center) then
+        if (me.pScaleV = #center) then
           me.pSprite.locV = (me.pSprite.locV + (tOffV / 2))
         end if
       end if

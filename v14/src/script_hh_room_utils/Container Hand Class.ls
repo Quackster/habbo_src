@@ -59,6 +59,7 @@ on open me, tStripInfo
       tConnection.send("GETSTRIP", "new")
     end if
   end if
+  executeMessage(#tutorial_hand_opened)
   return TRUE
 end
 
@@ -92,8 +93,8 @@ on updateStripItems me, tList
   else
     pItemList = [:]
   end if
-  repeat while tList <= undefined
-    tItem = getAt(undefined, tList)
+  repeat while tList <= 1
+    tItem = getAt(1, count(tList))
     me.createStripItem(tItem)
   end repeat
   return TRUE
@@ -196,8 +197,8 @@ on stripItemDownloadCallback me, tDownloadedClass
   if (chars(tDownloadedClass, 1, tSmallScalePrefix.length) = tSmallScalePrefix) then
     tDownloadedClass = chars(tDownloadedClass, (tSmallScalePrefix.length + 1), tDownloadedClass.length)
   end if
-  repeat while pItemList <= undefined
-    tItem = getAt(undefined, tDownloadedClass)
+  repeat while pItemList <= 1
+    tItem = getAt(1, count(pItemList))
     tTrueMem = tItem.getAt(#truemember)
     if not voidp(tTrueMem) then
       if (chars(tTrueMem, ((tTrueMem.length - tIconSuffix.length) + 1), tTrueMem.length) = tIconSuffix) then
@@ -212,25 +213,25 @@ on stripItemDownloadCallback me, tDownloadedClass
   me.showContainerItems()
 end
 
-on removeStripItem me, tid 
-  return(pItemList.deleteProp(tid))
+on removeStripItem me, tID 
+  return(pItemList.deleteProp(tID))
 end
 
-on getStripItem me, tid 
-  if voidp(tid) then
-    tid = ""
+on getStripItem me, tID 
+  if voidp(tID) then
+    tID = ""
   end if
-  if (tid = #list) then
+  if (tID = #list) then
     return(pItemList)
   end if
-  if voidp(pItemList.getAt(tid)) then
+  if voidp(pItemList.getAt(tID)) then
     return FALSE
   end if
-  return(pItemList.getAt(tid))
+  return(pItemList.getAt(tID))
 end
 
-on stripItemExists me, tid 
-  return(not voidp(pItemList.getAt(tid)))
+on stripItemExists me, tID 
+  return(not voidp(pItemList.getAt(tID)))
 end
 
 on setStripItemCount me, tCount 
@@ -245,14 +246,14 @@ on setStripItemCount me, tCount
   return TRUE
 end
 
-on placeItemToRoom me, tid 
+on placeItemToRoom me, tID 
   if getThread(#room).getComponent().getRoomID() <> "private" then
     return FALSE
   end if
-  if not me.stripItemExists(tid) then
-    return(error(me, "Attempted to access unexisting stripitem:" && tid, #placeItemToRoom, #major))
+  if not me.stripItemExists(tID) then
+    return(error(me, "Attempted to access unexisting stripitem:" && tID, #placeItemToRoom, #major))
   end if
-  tdata = me.getStripItem(tid).duplicate()
+  tdata = me.getStripItem(tID).duplicate()
   tdata.setAt(#x, 0)
   tdata.setAt(#y, 0)
   tdata.setAt(#h, 0)
@@ -268,7 +269,7 @@ on placeItemToRoom me, tid
       return FALSE
     end if
     getThread(#room).getComponent().getActiveObject(tdata.getAt(#id)).setaProp(#stripId, tdata.getAt(#stripId))
-    removeStripItem(me, tid)
+    removeStripItem(me, tID)
     return TRUE
   else
     if (tdata.getAt(#striptype) = "item") then
@@ -285,21 +286,21 @@ on placeItemToRoom me, tid
               end if
               getThread(#room).getComponent().getItemObject(tdata.getAt(#id)).setaProp(#stripId, tdata.getAt(#stripId))
               if not tdata.getAt(#class) contains "post.it" then
-                me.removeStripItem(tid)
+                me.removeStripItem(tID)
               end if
               return TRUE
             else
               if tdata.getAt(#class) <> "floor" then
                 if (tdata.getAt(#class) = "wallpaper") then
                   getThread(#room).getComponent().getRoomConnection().send("FLATPROPBYITEM", tdata.getAt(#class) & "/" & tdata.getAt(#stripId))
-                  removeStripItem(me, tid)
+                  removeStripItem(me, tID)
                   return FALSE
                 else
                   if (tdata.getAt(#class) = "Chess") then
                     tdata.setAt(#direction, [0, 0, 0])
                     getThread(#room).getComponent().createItemObject(tdata)
                     getThread(#room).getComponent().getItemObject(tdata.getAt(#id)).setaProp(#stripId, tdata.getAt(#stripId))
-                    removeStripItem(me, tid)
+                    removeStripItem(me, tID)
                     return TRUE
                   else
                     tdata.setAt(#direction, "leftwall")
@@ -307,7 +308,7 @@ on placeItemToRoom me, tid
                       return FALSE
                     end if
                     getThread(#room).getComponent().getItemObject(tdata.getAt(#id)).setaProp(#stripId, tdata.getAt(#stripId))
-                    me.removeStripItem(tid)
+                    me.removeStripItem(tID)
                     return TRUE
                   end if
                 end if
@@ -325,8 +326,8 @@ on getVisual me
 end
 
 on print me 
-  repeat while pItemList <= undefined
-    tItem = getAt(undefined, undefined)
+  repeat while pItemList <= 1
+    tItem = getAt(1, count(pItemList))
     put(tItem)
   end repeat
 end

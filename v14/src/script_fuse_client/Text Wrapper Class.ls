@@ -81,13 +81,13 @@ on getFont me
   return(tStruct)
 end
 
-on registerScroll me, tid 
+on registerScroll me, tID 
   if voidp(me.pScrolls) then
     me.prepare()
   end if
-  if not voidp(tid) then
-    if (me.pScrolls.getPos(tid) = 0) then
-      me.pScrolls.add(tid)
+  if not voidp(tID) then
+    if (me.pScrolls.getPos(tID) = 0) then
+      me.pScrolls.add(tID)
     end if
   else
     if (me.count(#pScrolls) = 0) then
@@ -97,8 +97,8 @@ on registerScroll me, tid
   tSourceRect = rect(me.pOffX, me.pOffY, (me.pOffX + me.pOwnW), (me.pOffY + me.pOwnH))
   tScrollList = []
   tWndObj = getWindowManager().GET(me.pMotherId)
-  repeat while me.pScrolls <= undefined
-    tScrollId = getAt(undefined, tid)
+  repeat while me.pScrolls <= 1
+    tScrollId = getAt(1, count(me.pScrolls))
     tScrollList.add(tWndObj.getElement(tScrollId))
   end repeat
   me.createImgFromTxt()

@@ -11,9 +11,9 @@ on deconstruct me
 end
 
 on handle_flatcreated me, tMsg 
-  tid = tMsg.content.getPropRef(#line, 1).getProp(#word, 1)
+  tID = tMsg.content.getPropRef(#line, 1).getProp(#word, 1)
   tName = tMsg.content.getProp(#line, 2)
-  me.getInterface().flatcreated(tName, tid)
+  me.getInterface().flatcreated(tName, tID)
 end
 
 on handle_error me, tMsg 

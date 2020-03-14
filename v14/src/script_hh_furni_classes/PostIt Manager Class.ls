@@ -13,15 +13,15 @@ on deconstruct me
   return TRUE
 end
 
-on open me, tid, tColor, tLocX, tLocY 
+on open me, tID, tColor, tLocX, tLocY 
   pcolor = tColor
   pLocX = tLocX
   pLocY = tLocY
   if windowExists(pWindowID) then
     removeWindow(pWindowID)
   end if
-  registerMessage(symbol("itemdata_received" & tid), #postit_manager, #setItemData)
-  getThread(#room).getComponent().getRoomConnection().send("G_IDATA", tid)
+  registerMessage(symbol("itemdata_received" & tID), #postit_manager, #setItemData)
+  getThread(#room).getComponent().getRoomConnection().send("G_IDATA", tID)
   pIsController = getObject(#session).GET("room_controller")
   if getObject(#session).GET("user_rights").getOne("fuse_any_room_controller") then
     pIsController = 1
@@ -57,14 +57,14 @@ on delete me
 end
 
 on setItemData me, tMsg 
-  tid = tMsg.getAt(#id)
+  tID = tMsg.getAt(#id)
   ttype = tMsg.getAt(#type)
   tText = tMsg.getAt(#text).getProp(#word, 2, tMsg.getAt(#text).count(#word))
-  unregisterMessage(symbol("itemdata_received" & tid), #postit_manager)
+  unregisterMessage(symbol("itemdata_received" & tID), #postit_manager)
   if windowExists(pWindowID) then
     removeWindow(pWindowID)
   end if
-  pActivePostItId = tid
+  pActivePostItId = tID
   pText = tText
   tObject = getThread(#room).getComponent().getItemObject(string(pActivePostItId))
   if (tObject = 0) then

@@ -62,8 +62,8 @@ on Init me, tName, tMemberModels, tplayerMode, tKeyList
   pjumpBoardStart = 523
   pJumpSpeed = 2
   pAnimFixV = [[0, 0, 1, 0], [0, 1, 0, 1], [0, 1, 0, 1], [0, 0, 0, 0], [0, 1, 0, 1], [0, 1, 0, 1], [0, 0, 0, 1], [0, 0, 0, 0]]
-  repeat while ["lh", "bd", "ch", "hd", "fc", "hr", "rh"] <= tMemberModels
-    tParts = getAt(tMemberModels, tName)
+  repeat while ["lh", "bd", "ch", "hd", "fc", "hr", "rh"] <= 1
+    tParts = getAt(1, count(["lh", "bd", "ch", "hd", "fc", "hr", "rh"]))
     pModels.setAt(tParts, tMemberModels.getAt(tParts).getAt("model"))
     pColors.setAt(tParts, tMemberModels.getAt(tParts).getAt("color"))
   end repeat
@@ -72,8 +72,8 @@ on Init me, tName, tMemberModels, tplayerMode, tKeyList
   pBgScreenBuffer = image(member(getmemnum("pelle_bg3")).width, member(getmemnum("pelle_bg3")).height, 16, rgb(157, 206, 255))
   pBgScreenBuffer.fill(pBgScreenBuffer.rect, rgb(157, 206, 255))
   tPilvet = [point((141 + random(250)), random(100)), point((141 + random(250)), (random(30) + 150)), point((141 + random(250)), (random(20) + 240))]
-  repeat while ["lh", "bd", "ch", "hd", "fc", "hr", "rh"] <= tMemberModels
-    tPilvi = getAt(tMemberModels, tName)
+  repeat while tPilvet <= 1
+    tPilvi = getAt(1, count(tPilvet))
     tCloud = member(getmemnum("pilvi" & random(5)))
     tRect = (tCloud.rect + rect(tPilvi.locH, tPilvi.locV, tPilvi.locH, tPilvi.locV))
     pBgScreenBuffer.copyPixels(tCloud.image, tRect, tCloud.rect, [#maskImage:tCloud.image.createMatte(), #ink:8])
@@ -169,8 +169,8 @@ end
 
 on UpdatePelle me 
   pPelleImg.fill(pPelleImg.rect, rgb(255, 255, 255))
-  repeat while ["bd", "lh", "hd", "fc", "hr", "ch", "rh"] <= undefined
-    f = getAt(undefined, undefined)
+  repeat while ["bd", "lh", "hd", "fc", "hr", "ch", "rh"] <= 1
+    f = getAt(1, count(["bd", "lh", "hd", "fc", "hr", "ch", "rh"]))
     if (["bd", "lh", "hd", "fc", "hr", "ch", "rh"] = "ey") then
       pInk = 36
     else
@@ -187,21 +187,21 @@ on UpdatePelle me
     tColor = pColors.getProp(f)
     if (f = "bd") or (f = "lh") or (f = "ch") or (f = "rh") then
       if jumpAction contains "jd" then
-        dir = 0
+        Dir = 0
       else
-        dir = 2
+        Dir = 2
       end if
-      tMemNum = getmemnum("sh_" & jumpAction & "_" & f & "_" & pModels.getProp(f) & "_" & dir & "_" & jumpAnimFrame)
+      tMemNum = getmemnum("sh_" & jumpAction & "_" & f & "_" & pModels.getProp(f) & "_" & Dir & "_" & jumpAnimFrame)
       if tMemNum < 0 then
         tMemNum = getmemnum("sh_" & "std" & "_" & f & "_" & pModels.getProp(f) & "_" & 2 & "_" & 0)
       end if
     else
       if (pJumpDirection = "d") or jumpAction contains "jus" and (jumpAnimFrame = 2) then
-        dir = 0
+        Dir = 0
       else
-        dir = 2
+        Dir = 2
       end if
-      tMemNum = getmemnum("sh_" & "std" & "_" & f & "_" & pModels.getProp(f) & "_" & dir & "_0")
+      tMemNum = getmemnum("sh_" & "std" & "_" & f & "_" & pModels.getProp(f) & "_" & Dir & "_0")
     end if
     if tMemNum <> 0 then
       tImage = member(tMemNum).image

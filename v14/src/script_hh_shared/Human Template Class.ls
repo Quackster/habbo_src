@@ -329,7 +329,7 @@ on arrangeParts me
     pPartList.deleteAt(pPartIndex.getAt("ls"))
     pPartList.deleteAt(pPartIndex.getAt("lh"))
     pPartList.deleteAt(pPartIndex.getAt("li"))
-    if (pMainAction = 3) then
+    if (pDirection = 3) then
       pPartList.addAt(8, tLI)
       pPartList.addAt(9, tLH)
       pPartList.addAt(10, tLS)

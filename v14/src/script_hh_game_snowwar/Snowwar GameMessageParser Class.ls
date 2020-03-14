@@ -205,8 +205,8 @@ on handle_msgstruct_fullgamestatus me, tMsg
   tGameSystem.sendGameSystemEvent(#fullgamestatus_time, tdata.getAt(#time))
   tGameSystem.clearTurnBuffer()
   tGameSystem.sendGameSystemEvent(#verify_game_object_id_list, tObjectIdList)
-  repeat while tdata.getAt(#game_objects) <= undefined
-    tGameObject = getAt(undefined, tMsg)
+  repeat while tdata.getAt(#game_objects) <= 1
+    tGameObject = getAt(1, count(tdata.getAt(#game_objects)))
     if (tGameSystem.getGameObject(tGameObject.getAt(#id)) = 0) then
       tGameSystem.sendGameSystemEvent(#create_game_object, tGameObject)
     else
@@ -275,8 +275,8 @@ on handle_msgstruct_gamereset me, tMsg
   tGameSystem = me.getGameSystem()
   tGameSystem.clearTurnBuffer()
   tGameSystem.sendGameSystemEvent(#verify_game_object_id_list, tObjectIdList)
-  repeat while tdata.getAt(#game_objects) <= undefined
-    tGameObject = getAt(undefined, tMsg)
+  repeat while tdata.getAt(#game_objects) <= 1
+    tGameObject = getAt(1, count(tdata.getAt(#game_objects)))
     if (tGameSystem.getGameObject(tGameObject.getAt(#id)) = 0) then
       tGameSystem.sendGameSystemEvent(#create_game_object, tGameObject)
     else
@@ -293,10 +293,10 @@ on handle_msgstruct_gameplayerinfo me, tMsg
   tNumPlayers = tConn.GetIntFrom()
   i = 1
   repeat while i <= tNumPlayers
-    tid = tConn.GetIntFrom()
+    tID = tConn.GetIntFrom()
     tValue = tConn.GetStrFrom()
     tSkill = tConn.GetStrFrom()
-    tdata.addProp(string(tid), [#id:tid, #skillvalue:tValue, #skilllevel:tSkill])
+    tdata.addProp(string(tID), [#id:tID, #skillvalue:tValue, #skilllevel:tSkill])
     i = (1 + i)
   end repeat
   return(me.getGameSystem().sendGameSystemEvent(#gameplayerinfo, tdata))
@@ -346,9 +346,9 @@ end
 on parse_snowwar_gameobject me, tConn 
   tdata = [:]
   tdata.addProp(#type, tConn.GetIntFrom())
-  tid = tConn.GetIntFrom()
-  tdata.addProp(#int_id, tid)
-  tdata.addProp(#id, string(tid))
+  tID = tConn.GetIntFrom()
+  tdata.addProp(#int_id, tID)
+  tdata.addProp(#id, string(tID))
   if (tdata.getAt(#type) = 0) then
     tObjectData = me.parse_snowwar_player_gameobjectvariables(tdata.duplicate(), tConn)
     tdata.addProp(#objectDataStruct, tObjectData)
@@ -396,8 +396,8 @@ on parse_snowwar_gameobject me, tConn
     end if
   end if
   tExtraProps = ["collisionshape_type", "height", "collisionshape_radius"]
-  repeat while tdata.getAt(#type) <= undefined
-    tProp = getAt(undefined, tConn)
+  repeat while tExtraProps <= 1
+    tProp = getAt(1, count(tExtraProps))
     if variableExists("snowwar.object_" & tdata.getAt(#str_type) & "." & tProp) then
       tdata.addProp(symbol("gameobject_" & tProp), getVariable("snowwar.object_" & tdata.getAt(#str_type) & "." & tProp))
     end if
@@ -514,8 +514,8 @@ on parse_event me, tConn
   end if
   if listp(tIntKeyList) then
     tEvent = [#event_type:tEventType]
-    repeat while tEventType <= undefined
-      tKey = getAt(undefined, tConn)
+    repeat while tIntKeyList <= 1
+      tKey = getAt(1, count(tIntKeyList))
       tEvent.addProp(tKey, tConn.GetIntFrom())
     end repeat
     if tEvent.findPos(#int_id) > 0 then

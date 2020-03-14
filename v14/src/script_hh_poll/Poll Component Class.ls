@@ -312,8 +312,8 @@ on validateQuestion me, tdata
     return FALSE
   end if
   tList = [#pollID, #pollHeadLine, #questionID, #questionNumber, #questionCount, #questionType, #questionText]
-  repeat while tList <= undefined
-    tItem = getAt(undefined, tdata)
+  repeat while tList <= 1
+    tItem = getAt(1, count(tList))
     if voidp(tdata.getAt(tItem)) then
       return FALSE
     end if
@@ -324,8 +324,8 @@ on validateQuestion me, tdata
     end if
     tSelectionData = tdata.getAt(#selectionData)
     tListSelection = [#minSelect, #maxSelect, #questions]
-    repeat while tList <= undefined
-      tItem = getAt(undefined, tdata)
+    repeat while tListSelection <= 1
+      tItem = getAt(1, count(tListSelection))
       if voidp(tSelectionData.getAt(tItem)) then
         return FALSE
       end if

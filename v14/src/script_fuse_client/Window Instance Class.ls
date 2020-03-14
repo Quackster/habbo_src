@@ -82,17 +82,17 @@ on unmerge me
   tGroupData = pGroupData.getLast()
   call(#deconstruct, tGroupData.getAt(#items))
   pClientRect = (pClientRect - tGroupData.getAt(#border))
-  repeat while tGroupData.getAt(#items) <= undefined
-    tItem = getAt(undefined, undefined)
+  repeat while tGroupData.getAt(#items) <= 1
+    tItem = getAt(1, count(tGroupData.getAt(#items)))
     pElemList.deleteProp(pElemList.getOne(tItem))
   end repeat
-  repeat while tGroupData.getAt(#items) <= undefined
-    tsprite = getAt(undefined, undefined)
+  repeat while tGroupData.getAt(#sprites) <= 1
+    tsprite = getAt(1, count(tGroupData.getAt(#sprites)))
     pSpriteList.deleteProp(pSpriteList.getOne(tsprite))
     releaseSprite(tsprite.spriteNum)
   end repeat
-  repeat while tGroupData.getAt(#items) <= undefined
-    tmember = getAt(undefined, undefined)
+  repeat while tGroupData.getAt(#members) <= 1
+    tmember = getAt(1, count(tGroupData.getAt(#members)))
     pMemberList.deleteProp(pMemberList.getOne(tmember))
     removeMember(tmember.name)
   end repeat
@@ -208,16 +208,16 @@ on getClientRect me
   return(rect(pLocX, pLocY, (pLocX + pwidth), (pLocY + pheight)))
 end
 
-on getElement me, tid 
-  tElement = pElemList.getAt(tid)
+on getElement me, tID 
+  tElement = pElemList.getAt(tID)
   if voidp(tElement) then
     return FALSE
   end if
   return(tElement)
 end
 
-on elementExists me, tid 
-  return(not voidp(pElemList.getAt(tid)))
+on elementExists me, tID 
+  return(not voidp(pElemList.getAt(tID)))
 end
 
 on registerClient me, tClientID 
@@ -296,6 +296,18 @@ on getProperty me, tProp
                     else
                       if (tProp = #spriteList) then
                         return(pSpriteList)
+                      else
+                        if (tProp = #elementList) then
+                          return(pElemList)
+                        else
+                          if (tProp = #Active) then
+                            return(pActive)
+                          else
+                            if (tProp = #lock) then
+                              return(pLock)
+                            end if
+                          end if
+                        end if
                       end if
                     end if
                   end if
@@ -456,35 +468,35 @@ on buildVisual me, tLayout
   tGroupData = [#members:[], #sprites:[], #items:[], #rect:[], #border:[]]
   tSprManager = getSpriteManager()
   tResManager = getResourceManager()
-  repeat while tLayout.getAt(#elements) <= undefined
-    tElement = getAt(undefined, tLayout)
-    tid = tElement.getAt(1).getAt(#id)
-    if not voidp(pElemList.getAt(tid)) then
-      tid = tid & tGroupNum
+  repeat while tLayout.getAt(#elements) <= 1
+    tElement = getAt(1, count(tLayout.getAt(#elements)))
+    tID = tElement.getAt(1).getAt(#id)
+    if not voidp(pElemList.getAt(tID)) then
+      tID = tID & tGroupNum
     end if
-    tmember = member(tResManager.createMember(me.getID() & "_" & tid, #bitmap))
+    tmember = member(tResManager.createMember(me.getID() & "_" & tID, #bitmap))
     tsprite = sprite(tSprManager.reserveSprite(me.getID()))
     if tsprite.spriteNum < 1 then
-      repeat while tLayout.getAt(#elements) <= undefined
-        t_rSpr = getAt(undefined, tLayout)
+      repeat while tLayout.getAt(#elements) <= 1
+        t_rSpr = getAt(1, count(tLayout.getAt(#elements)))
         releaseSprite(t_rSpr.spriteNum, me.getID())
       end repeat
       tSpriteList = [:]
-      repeat while tLayout.getAt(#elements) <= undefined
-        t_rMem = getAt(undefined, tLayout)
+      repeat while tLayout.getAt(#elements) <= 1
+        t_rMem = getAt(1, count(tLayout.getAt(#elements)))
         removeMember(t_rMem.name)
       end repeat
       tmemberlist = [:]
       return(error(me, "Failed to build window. System out of sprites!", #buildVisual, #major))
     end if
-    tmemberlist.setAt(tid, tmember)
-    tSpriteList.setAt(tid, tsprite)
+    tmemberlist.setAt(tID, tmember)
+    tSpriteList.setAt(tID, tsprite)
     tsprite.castNum = tmember.number
     tsprite.ink = 8
     tElemRect = rect(2000, 2000, -2000, -2000)
     tGroupData.getAt(#members).add(tmember)
     tGroupData.getAt(#sprites).add(tsprite)
-    tSprManager.setEventBroker(tsprite.spriteNum, tid)
+    tSprManager.setEventBroker(tsprite.spriteNum, tID)
     tsprite.registerProcedure(void(), me.getID(), void())
     tBlend = tElement.getAt(1).getAt(#blend)
     tInk = tElement.getAt(1).getAt(#ink)
@@ -496,9 +508,9 @@ on buildVisual me, tLayout
     tIsBgColorShared = 1
     tIsInkShared = 1
     tIsPaletteShared = 1
-    repeat while tLayout.getAt(#elements) <= undefined
-      tItem = getAt(undefined, tLayout)
-      tItem.setAt(#id, tid)
+    repeat while tLayout.getAt(#elements) <= 1
+      tItem = getAt(1, count(tLayout.getAt(#elements)))
+      tItem.setAt(#id, tID)
       tItem.setAt(#mother, me.getID())
       tItem.setAt(#buffer, tmember)
       tItem.setAt(#sprite, tsprite)
@@ -561,10 +573,10 @@ on buildVisual me, tLayout
       end if
       tWrapper = me.CreateElement(tItem)
     else
-      tProps = [#id:tid, #type:#wrapper, #style:#wrapper, #buffer:tmember, #sprite:tsprite, #locX:tElemRect.getAt(1), #locY:tElemRect.getAt(2)]
+      tProps = [#id:tID, #type:#wrapper, #style:#wrapper, #buffer:tmember, #sprite:tsprite, #locX:tElemRect.getAt(1), #locY:tElemRect.getAt(2)]
       tWrapper = me.CreateElement(tProps)
-      repeat while tLayout.getAt(#elements) <= undefined
-        tItem = getAt(undefined, tLayout)
+      repeat while tLayout.getAt(#elements) <= 1
+        tItem = getAt(1, count(tLayout.getAt(#elements)))
         tItem.setAt(#locH, (tItem.getAt(#locH) - tElemRect.getAt(1)))
         tItem.setAt(#locV, (tItem.getAt(#locV) - tElemRect.getAt(2)))
         tItem.setAt(#style, #grouped)
@@ -575,7 +587,7 @@ on buildVisual me, tLayout
       end repeat
     end if
     if objectp(tWrapper) then
-      tElemList.addProp(tid, tWrapper)
+      tElemList.addProp(tID, tWrapper)
       tGroupData.getAt(#items).add(tWrapper)
     end if
     if tIsBlendShared then
@@ -614,9 +626,9 @@ on buildVisual me, tLayout
   repeat while i <= tSpriteList.count
     tloc = (tSpriteList.getAt(i).loc - [tGroupData.getAt(#rect).getAt(1), tGroupData.getAt(#rect).getAt(2)])
     tSpriteList.getAt(i).loc = (point(pLocX, pLocY) + tloc)
-    tid = tmemberlist.getPropAt(i)
-    pMemberList.addProp(tid, tmemberlist.getAt(tid))
-    pSpriteList.addProp(tid, tSpriteList.getAt(tid))
+    tID = tmemberlist.getPropAt(i)
+    pMemberList.addProp(tID, tmemberlist.getAt(tID))
+    pSpriteList.addProp(tID, tSpriteList.getAt(tID))
     i = (1 + i)
   end repeat
   i = 1
@@ -677,8 +689,8 @@ end
 
 on createProcListTemplate me 
   tList = [:]
-  repeat while me.supportedEvents() <= undefined
-    tEvent = getAt(undefined, undefined)
+  repeat while me.supportedEvents() <= 1
+    tEvent = getAt(1, count(me.supportedEvents()))
     tList.setAt(tEvent, [#null, me.getID()])
   end repeat
   return(tList)

@@ -1,4 +1,4 @@
-property pWindowTitle, pOpenWindow, pProps, pHistoryItemHeight, pWriterPlainBoldLeft, pWriterPlainNormWrap, pResourcesReady, pWriterPlainBoldCent, pWriterPrivPlain, pListItemHeight, pWriterBackTabs, pWriterUnderNormLeft, pHideFullLinkImages, pRoomBackImages, pCatBackImages, pWriterPlainNormLeft, pRoomInfoHeight, pBufferDepth
+property pWindowTitle, pOpenWindow, pProps, pHistoryItemHeight, pDefaultPrivateRoomIcon, pWriterPlainBoldLeft, pWriterPlainNormWrap, pResourcesReady, pWriterPlainBoldCent, pWriterPrivPlain, pListItemHeight, pWriterBackTabs, pWriterUnderNormLeft, pHideFullLinkImages, pRoomBackImages, pCatBackImages, pWriterPlainNormLeft, pRoomInfoHeight, pBufferDepth
 
 on construct me 
   pWindowTitle = getText("navigator", "Hotel Navigator")
@@ -8,7 +8,25 @@ on construct me
   pListItemHeight = 18
   pHistoryItemHeight = 18
   pBufferDepth = 32
-  pOpenWindow = "nav_pr"
+  pOpenWindow = "nav_gr0"
+  if variableExists("navigator.default.view") then
+    tDefView = getVariable("navigator.default.view")
+    if (tDefView = "public") then
+      pOpenWindow = "nav_pr"
+    else
+      if (tDefView = "private") then
+        pOpenWindow = "nav_gr0"
+      else
+        pOpenWindow = "nav_gr0"
+      end if
+    end if
+  end if
+  pDefaultPrivateRoomIcon = "nav_ico_def_gr"
+  if variableExists("navigator.private.room.default.icon") then
+    if memberExists(getVariable("navigator.private.room.default.icon")) then
+      pDefaultPrivateRoomIcon = getVariable("navigator.private.room.default.icon")
+    end if
+  end if
   pResourcesReady = 0
   pLastWindowName = ""
   return(me.createImgResources())
@@ -196,7 +214,7 @@ on ChangeWindowView me, tWindowName
         return TRUE
       end if
       tNaviView = me.getNaviView()
-      if (tWindowName = #unit) then
+      if (tNaviView = #unit) then
         tWndObj.registerProcedure(#eventProcNavigatorPublic, me.getID(), #mouseDown)
         tWndObj.registerProcedure(#eventProcNavigatorPublic, me.getID(), #mouseUp)
         tWndObj.registerProcedure(#eventProcNavigatorPublic, me.getID(), #keyDown)
@@ -210,10 +228,10 @@ on ChangeWindowView me, tWindowName
         end if
         return TRUE
       else
-        if tWindowName <> #flat then
-          if tWindowName <> #src then
-            if tWindowName <> #own then
-              if (tWindowName = #fav) then
+        if tNaviView <> #flat then
+          if tNaviView <> #src then
+            if tNaviView <> #own then
+              if (tNaviView = #fav) then
                 tWndObj.registerProcedure(#eventProcNavigatorPrivate, me.getID(), #mouseDown)
                 tWndObj.registerProcedure(#eventProcNavigatorPrivate, me.getID(), #mouseUp)
                 tWndObj.registerProcedure(#eventProcNavigatorPrivate, me.getID(), #keyDown)
@@ -231,7 +249,7 @@ on ChangeWindowView me, tWindowName
                 end if
                 return TRUE
               else
-                if (tWindowName = #mod) then
+                if (tNaviView = #mod) then
                   tWndObj.registerProcedure(#eventProcNavigatorModify, me.getID(), #mouseDown)
                   tWndObj.registerProcedure(#eventProcNavigatorModify, me.getID(), #mouseUp)
                   tWndObj.registerProcedure(#eventProcNavigatorModify, me.getID(), #keyDown)
@@ -301,7 +319,7 @@ on setUpdates me, tBoolean
     if timeoutExists(#navigator_update) then
       return TRUE
     end if
-    tUpdateInterval = getIntVariable("navigator.updatetime")
+    tUpdateInterval = me.getComponent().getUpdateInterval()
     return(createTimeout(#navigator_update, tUpdateInterval, #setUpdates, me.getID(), 1, 0))
   else
     if timeoutExists(#navigator_update) then
@@ -417,9 +435,12 @@ on showNodeInfo me, tNodeId
             tRoomDesc = getText("nav_ownrooms_helptext")
             tHeaderTxt = getText("nav_private_helptext_hd")
           else
-            tIconName = "nav_ico_def_gr"
+            tIconName = pDefaultPrivateRoomIcon
             tRoomDesc = getText("nav_private_helptext")
             tHeaderTxt = getText("nav_private_helptext_hd")
+            if textExists("nav_private_helptext_hd_main") then
+              tHeaderTxt = getText("nav_private_helptext_hd_main")
+            end if
           end if
         end if
       end if
@@ -901,9 +922,5 @@ on updatePasswordAsterisks me, tParams
 end
 
 on sendTrackingCall me 
-  tTrackingHeader = getObject(#session).GET("tracking_header")
-  if (tTrackingHeader = 0) then
-    return(error(me, "Tracking header not in session.", #sendTrackingCall, #minor))
-  end if
-  executeMessage(#sendTrackingData, [#content:tTrackingHeader & "/navigator"])
+  executeMessage(#sendTrackingPoint, "/navigator")
 end

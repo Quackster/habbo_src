@@ -144,8 +144,8 @@ on rotateWallLights me
 end
 
 on removeWallLights me 
-  repeat while pWallLightSprites <= undefined
-    tWallSprite = getAt(undefined, undefined)
+  repeat while pWallLightSprites <= 1
+    tWallSprite = getAt(1, count(pWallLightSprites))
     if (tWallSprite.ilk = #sprite) then
       releaseSprite(tWallSprite.spriteNum)
     end if

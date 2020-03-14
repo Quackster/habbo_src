@@ -7,8 +7,8 @@ on construct me
 end
 
 on deconstruct me 
-  repeat while pActiveEffects <= undefined
-    tEffect = getAt(undefined, undefined)
+  repeat while pActiveEffects <= 1
+    tEffect = getAt(1, count(pActiveEffects))
     tEffect.deconstruct()
   end repeat
   pActiveEffects = []
@@ -436,8 +436,8 @@ on checkForSnowballCollisions me
   end if
   tOwnId = me.getObjectId()
   tlocation = me.getLocation()
-  repeat while tBallObjectIdList <= undefined
-    tBallObjectId = getAt(undefined, undefined)
+  repeat while tBallObjectIdList <= 1
+    tBallObjectId = getAt(1, count(tBallObjectIdList))
     tBallObject = tGameSystem.getGameObject(tBallObjectId)
     tThrowerId = string(tBallObject.getGameObjectProperty(#int_thrower_id))
     if tThrowerId <> tOwnId and tBallObject.getActive() then

@@ -150,8 +150,8 @@ on implode me, tList, tDelim
     return FALSE
   end if
   tStr = ""
-  repeat while tList <= tDelim
-    tListItem = getAt(tDelim, tList)
+  repeat while tList <= 1
+    tListItem = getAt(1, count(tList))
     tStr = tStr & tListItem & tDelim
   end repeat
   tStr = chars(tStr, 1, (tStr.length - tDelim.length))

@@ -96,6 +96,7 @@ on handleRoomListClicked me, tParm
   if (tNodeInfo.getAt(#nodeType) = 0) then
     me.setLoadingCursor(1)
     me.getComponent().expandNode(tNodeInfo.getAt(#id))
+    executeMessage(#tutorial_roomcategory_expanded)
   else
     if the shiftDown then
       if (tNodeInfo.getAt(#nodeType) = 1) then
@@ -232,8 +233,8 @@ end
 on hidePasswordFields me, tHidden 
   tPassWordElements = ["nav_modify_door_pw", "nav_modify_door_pw2", "nav_pwfields", "nav_pwdescr"]
   tWndObj = getWindow(me.pWindowTitle)
-  repeat while tPassWordElements <= undefined
-    tElemID = getAt(undefined, tHidden)
+  repeat while tPassWordElements <= 1
+    tElemID = getAt(1, count(tPassWordElements))
     tElem = tWndObj.getElement(tElemID)
     tElem.setProperty(#visible, not tHidden)
   end repeat
@@ -266,8 +267,8 @@ on updateRadioButton me, tElement, tListOfOthersElements
   if tWndObj.elementExists(tElement) then
     tWndObj.getElement(tElement).feedImage(tOnImg)
   end if
-  repeat while tListOfOthersElements <= tListOfOthersElements
-    tRadioElement = getAt(tListOfOthersElements, tElement)
+  repeat while tListOfOthersElements <= 1
+    tRadioElement = getAt(1, count(tListOfOthersElements))
     if tWndObj.elementExists(tRadioElement) then
       tWndObj.getElement(tRadioElement).feedImage(tOffImg)
     end if
@@ -385,6 +386,7 @@ on eventProcNavigatorPrivate me, tEvent, tSprID, tParm
             if (tSprID = "nav_tab_own") then
               me.setLoadingCursor(1)
               me.ChangeWindowView("nav_gr_own")
+              executeMessage(#tutorial_ownrooms_tab_clicked)
             else
               if (tSprID = "nav_tab_fav") then
                 me.setLoadingCursor(1)
@@ -639,13 +641,13 @@ on eventProcNavigatorModify me, tEvent, tSprID, tParm
                             return FALSE
                           end if
                           if tSprID contains "nav_delete_room_ok_" then
-                            if (tSprID = 1) then
+                            if (tSprID.getProp(#char, length(tSprID)) = 1) then
                               me.ChangeWindowView("nav_gr_modify_delete2")
                             else
-                              if (tSprID = 2) then
+                              if (tSprID.getProp(#char, length(tSprID)) = 2) then
                                 me.ChangeWindowView("nav_gr_modify_delete3")
                               else
-                                if (tSprID = 3) then
+                                if (tSprID.getProp(#char, length(tSprID)) = 3) then
                                   me.setProperty(#viewedNodeId, void(), #own)
                                   me.getComponent().sendDeleteFlat(tNodeId)
                                   me.getComponent().sendGetOwnFlats()
@@ -683,8 +685,8 @@ on eventProcNavigatorModify me, tEvent, tSprID, tParm
             if tSprID <> "nav_modify_roomdescription_field" then
               if (tSprID = "nav_modify_roomnamefield") then
                 tKeyCode = the keyCode
-                if tSprID <> 36 then
-                  if (tSprID = 76) then
+                if tKeyCode <> 36 then
+                  if (tKeyCode = 76) then
                     return TRUE
                   end if
                 end if

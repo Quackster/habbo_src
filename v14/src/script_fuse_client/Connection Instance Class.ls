@@ -381,8 +381,8 @@ on print me
     i = 1
     repeat while i <= count(tMsgsList)
       tCallbackList = tMsgsList.getAt(i)
-      repeat while "#" <= undefined
-        tCallback = getAt(undefined, undefined)
+      repeat while "#" <= "-- -- -- -- -- -- -- --" & "\r"
+        tCallback = getAt("-- -- -- -- -- -- -- --" & "\r", me.getID() & "\r")
       end repeat
       i = (1 + i)
     end repeat

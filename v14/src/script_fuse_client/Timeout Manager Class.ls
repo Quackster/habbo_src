@@ -7,9 +7,9 @@ on deconstruct me
   tObjMngr = getObjectManager()
   i = 1
   repeat while i <= me.count(#pItemList)
-    tid = me.getPropRef(#pItemList, i).getAt(#timerid)
-    if tObjMngr.exists(tid) then
-      tObjMngr.GET(tid).forget()
+    tID = me.getPropRef(#pItemList, i).getAt(#timerid)
+    if tObjMngr.exists(tID) then
+      tObjMngr.GET(tID).forget()
     end if
     i = (1 + i)
   end repeat
@@ -17,9 +17,9 @@ on deconstruct me
   return TRUE
 end
 
-on create me, tid, tTime, tHandler, tClientID, tArgument, tIterations 
-  if me.exists(tid) then
-    return(error(me, "Timeout already registered:" && tid, #create, #major))
+on create me, tID, tTime, tHandler, tClientID, tArgument, tIterations 
+  if me.exists(tID) then
+    return(error(me, "Timeout already registered:" && tID, #create, #major))
   end if
   if not integerp(tTime) then
     return(error(me, "Integer expected:" && tTime, #create, #major))
@@ -46,15 +46,15 @@ on create me, tid, tTime, tHandler, tClientID, tArgument, tIterations
   tList.setAt(#argument, tArgument)
   tList.setAt(#iterations, tIterations)
   tList.setAt(#count, 0)
-  me.setProp(#pItemList, tid, tList)
+  me.setProp(#pItemList, tID, tList)
   return TRUE
 end
 
-on GET me, tid 
-  if not me.exists(tid) then
-    return(error(me, "Item not found:" && tid, #GET, #minor))
+on GET me, tID 
+  if not me.exists(tID) then
+    return(error(me, "Item not found:" && tID, #GET, #minor))
   end if
-  tTask = me.getProp(#pItemList, tid)
+  tTask = me.getProp(#pItemList, tID)
   if voidp(tTask.getAt(#client)) then
     value(tTask.getAt(#handler) & "(" & tTask.getAt(#argument) & ")")
   else
@@ -62,47 +62,47 @@ on GET me, tid
     if tObjMngr.exists(tTask.getAt(#client)) then
       call(tTask.getAt(#handler), tObjMngr.GET(tTask.getAt(#client)), tTask.getAt(#argument))
     else
-      return(me.Remove(tid))
+      return(me.Remove(tID))
     end if
   end if
 end
 
-on Remove me, tid 
-  if not me.exists(tid) then
-    return(error(me, "Item not found:" && tid, #Remove, #minor))
+on Remove me, tID 
+  if not me.exists(tID) then
+    return(error(me, "Item not found:" && tID, #Remove, #minor))
   end if
   tObjMngr = getObjectManager()
-  tObject = tObjMngr.GET(me.getPropRef(#pItemList, tid).getAt(#uniqueid))
+  tObject = tObjMngr.GET(me.getPropRef(#pItemList, tID).getAt(#uniqueid))
   if tObject <> 0 then
     tObject.target = void()
     tObject.forget()
     tObject = void()
-    tObjMngr.Remove(me.getPropRef(#pItemList, tid).getAt(#uniqueid))
+    tObjMngr.Remove(me.getPropRef(#pItemList, tID).getAt(#uniqueid))
   end if
-  return(me.pItemList.deleteProp(tid))
+  return(me.pItemList.deleteProp(tID))
 end
 
-on exists me, tid 
-  return(listp(me.getProp(#pItemList, tid)))
+on exists me, tID 
+  return(listp(me.getProp(#pItemList, tID)))
 end
 
 on executeTimeOut me, tTimeout 
   i = 1
   repeat while i <= me.count(#pItemList)
     if (me.getPropRef(#pItemList, i).getAt(#uniqueid) = tTimeout.name) then
-      tid = me.pItemList.getPropAt(i)
-      tTask = me.getProp(#pItemList, tid)
+      tID = me.pItemList.getPropAt(i)
+      tTask = me.getProp(#pItemList, tID)
     else
       i = (1 + i)
     end if
   end repeat
-  if voidp(tid) then
+  if voidp(tID) then
     tTimeout.forget()
     return FALSE
   end if
-  me.getPropRef(#pItemList, tid).setAt(#count, (me.getPropRef(#pItemList, tid).getAt(#count) + 1))
-  if (me.getPropRef(#pItemList, tid).getAt(#count) = me.getPropRef(#pItemList, tid).getAt(#iterations)) then
-    me.Remove(tid)
+  me.getPropRef(#pItemList, tID).setAt(#count, (me.getPropRef(#pItemList, tID).getAt(#count) + 1))
+  if (me.getPropRef(#pItemList, tID).getAt(#count) = me.getPropRef(#pItemList, tID).getAt(#iterations)) then
+    me.Remove(tID)
   end if
   if voidp(tTask.getAt(#client)) then
     value(tTask.getAt(#handler) & "(" & tTask.getAt(#argument) & ")")
@@ -111,7 +111,7 @@ on executeTimeOut me, tTimeout
     if objectp(tObject) then
       call(tTask.getAt(#handler), tObject, tTask.getAt(#argument))
     else
-      return(me.Remove(tid))
+      return(me.Remove(tID))
     end if
   end if
   return TRUE

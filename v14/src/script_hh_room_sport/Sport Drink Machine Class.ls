@@ -17,8 +17,8 @@ on select me
   if not tUserObj then
     return(error(me, "User object not found:" && getObject(#session).GET("user_name"), #select))
   end if
-  repeat while pActiveSpots <= undefined
-    tSpot = getAt(undefined, undefined)
+  repeat while pActiveSpots <= 1
+    tSpot = getAt(1, count(pActiveSpots))
     if ((me.pLocX + tSpot.getAt(1)) = tUserObj.pLocX) and ((me.pLocY + tSpot.getAt(2)) = tUserObj.pLocY) then
       me.giveItem()
     end if

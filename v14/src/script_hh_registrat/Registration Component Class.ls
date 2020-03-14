@@ -168,8 +168,8 @@ on sendFigureUpdateToServer me, tPropList
         return(error(me, "Password was reseted, abort update!", #sendFigureUpdateToServer, #minor))
       end if
       tMsg = [:]
-      repeat while tPropList.getAt("password") <= undefined
-        tProp = getAt(undefined, tPropList)
+      repeat while ["figure", "sex", "customData", "directMail", "has_read_agreement", "parentagree"] <= 1
+        tProp = getAt(1, count(["figure", "sex", "customData", "directMail", "has_read_agreement", "parentagree"]))
         tValue = tPropList.getAt(tProp)
         if getObject(#session).exists("user_" & tProp) then
           tStoredValue = getObject(#session).GET("user_" & tProp)

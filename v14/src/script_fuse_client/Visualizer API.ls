@@ -14,20 +14,20 @@ on getVisualizerManager
   return(tMgr.getManager(#visualizer_manager))
 end
 
-on createVisualizer tid, tLayout 
-  return(getVisualizerManager().create(tid, tLayout))
+on createVisualizer tID, tLayout 
+  return(getVisualizerManager().create(tID, tLayout))
 end
 
-on removeVisualizer tid 
-  return(getVisualizerManager().Remove(tid))
+on removeVisualizer tID 
+  return(getVisualizerManager().Remove(tID))
 end
 
-on getVisualizer tid 
-  return(getVisualizerManager().GET(tid))
+on getVisualizer tID 
+  return(getVisualizerManager().GET(tID))
 end
 
-on visualizerExists tid 
-  return(getVisualizerManager().exists(tid))
+on visualizerExists tID 
+  return(getVisualizerManager().exists(tID))
 end
 
 on printVisualizers  

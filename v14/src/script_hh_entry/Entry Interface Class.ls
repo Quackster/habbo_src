@@ -26,8 +26,8 @@ end
 on deconstruct me 
   unregisterMessage(#userlogin, me.getID())
   unregisterMessage(#messenger_ready, me.getID())
-  repeat while pSwapAnimations <= undefined
-    tAnimation = getAt(undefined, undefined)
+  repeat while pSwapAnimations <= 1
+    tAnimation = getAt(1, count(pSwapAnimations))
     tAnimation.deconstruct()
   end repeat
   pSwapAnimations = []
@@ -46,8 +46,8 @@ on showHotel me
     pSignSprLocV = pSignSprList.getAt(1).locV
     tAnimations = tVisObj.getProperty(#swapAnims)
     if tAnimations <> 0 then
-      repeat while tAnimations <= undefined
-        tAnimation = getAt(undefined, undefined)
+      repeat while tAnimations <= 1
+        tAnimation = getAt(1, count(tAnimations))
         tObj = createObject(#random, getVariableValue("swap.animation.class"))
         if (tObj = 0) then
           error(me, "Error creating swap animation", #showHotel, #minor)
@@ -96,8 +96,8 @@ on hideHotel me
   end if
   pItemObjList = []
   removePrepare(me.getID())
-  repeat while pSwapAnimations <= undefined
-    tAnim = getAt(undefined, undefined)
+  repeat while pSwapAnimations <= 1
+    tAnim = getAt(1, count(pSwapAnimations))
     tAnim.deconstruct()
   end repeat
   pSwapAnimations = []
@@ -156,8 +156,8 @@ on prepare me
 end
 
 on update me 
-  repeat while pUpdateTasks.duplicate() <= undefined
-    tMethod = getAt(undefined, undefined)
+  repeat while pUpdateTasks.duplicate() <= 1
+    tMethod = getAt(1, count(pUpdateTasks.duplicate()))
     call(tMethod, me)
   end repeat
 end
@@ -214,8 +214,8 @@ on animSign me
   if (tVisObj = 0) then
     return(me.remAnimTask(#animSign))
   end if
-  repeat while pSignSprList <= undefined
-    tSpr = getAt(undefined, undefined)
+  repeat while pSignSprList <= 1
+    tSpr = getAt(1, count(pSignSprList))
     tSpr.locV = (tSpr.locV + 30)
   end repeat
   if pSignSprList.getAt(1).locV >= 0 then
@@ -428,8 +428,8 @@ end
 on deActivateAllIcons me 
   tIcons = ["messenger"]
   if windowExists(pBottomBar) then
-    repeat while tIcons <= undefined
-      tIcon = getAt(undefined, undefined)
+    repeat while tIcons <= 1
+      tIcon = getAt(1, count(tIcons))
       getWindow(pBottomBar).getElement(tIcon & "_icon_image").setProperty(#blend, pInActiveIconBlend)
     end repeat
   end if

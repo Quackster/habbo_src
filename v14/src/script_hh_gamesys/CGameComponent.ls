@@ -185,8 +185,8 @@ end
 on ProcessSubTurn me, i_iSubturn 
   if i_iSubturn <= m_rCurrentTurn.GetNSubTurns() then
     t_ar_events = m_rCurrentTurn.GetSubTurn(i_iSubturn)
-    repeat while t_ar_events <= undefined
-      tEvent = getAt(undefined, i_iSubturn)
+    repeat while t_ar_events <= 1
+      tEvent = getAt(1, count(t_ar_events))
       t_iEvent = tEvent.getAt(#event_type)
       t_ar_iData = []
       if tEvent.count > 1 then

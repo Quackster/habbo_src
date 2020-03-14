@@ -87,16 +87,16 @@ on update me
     pXFix = (pXFix * tSizeMultiplier)
     pYFix = (pYFix * tSizeMultiplier)
   else
-    if tAncestorDir <> "bd" then
-      if tAncestorDir <> "lg" then
-        if (tAncestorDir = "sh") then
+    if pPart <> "bd" then
+      if pPart <> "lg" then
+        if (pPart = "sh") then
           tUnderWater = 1
           if (pAction = "wlk") or (pAction = "swm") or (pAction = "sws") then
             tAnimCounter = me.pAnimCounter
           end if
         else
-          if tAncestorDir <> "lh" then
-            if (tAncestorDir = "ls") then
+          if pPart <> "lh" then
+            if (pPart = "ls") then
               tUnderWater = 1
               if (pDirection = tdir) then
                 if not voidp(pActionLh) then
@@ -122,8 +122,8 @@ on update me
                 end if
               end if
             else
-              if tAncestorDir <> "rh" then
-                if (tAncestorDir = "rs") then
+              if pPart <> "rh" then
+                if (pPart = "rs") then
                   tUnderWater = 1
                   if (pDirection = tdir) then
                     if not voidp(pActionRh) then
@@ -145,8 +145,8 @@ on update me
                     end if
                   end if
                 else
-                  if tAncestorDir <> "hd" then
-                    if (tAncestorDir = "fc") then
+                  if pPart <> "hd" then
+                    if (pPart = "fc") then
                       tUnderWater = 0
                       if me.pTalking then
                         if (pAction = "lay") then
@@ -157,13 +157,13 @@ on update me
                         tAnimCounter = (me.pAnimCounter mod 2)
                       end if
                     else
-                      if (tAncestorDir = "ey") then
+                      if (pPart = "ey") then
                         tUnderWater = 0
                         if me.pTalking and pAction <> "lay" and ((me.pAnimCounter mod 2) = 0) then
                           pYFix = -1
                         end if
                       else
-                        if (tAncestorDir = "hr") then
+                        if (pPart = "hr") then
                           tUnderWater = 0
                           if me.pTalking and ((me.pAnimCounter mod 2) = 0) then
                             if pAction <> "lay" then
@@ -171,14 +171,14 @@ on update me
                             end if
                           end if
                         else
-                          if (tAncestorDir = "ri") then
+                          if (pPart = "ri") then
                             if not me.pCarrying then
                               return()
                             end if
                             tAction = pActionRh
                             tdir = pDirection
                           else
-                            if (tAncestorDir = "li") then
+                            if (pPart = "li") then
                               tAction = pActionLh
                               tdir = pDirection
                             else

@@ -515,8 +515,8 @@ on updateBattleShipBoard me, tBoardData
   end if
   tBuffer = tElem.getProperty(#image)
   tSquareSize = 19
-  repeat while tBoardData <= undefined
-    tShoot = getAt(undefined, tBoardData)
+  repeat while tBoardData <= 1
+    tShoot = getAt(1, count(tBoardData))
     tX = tShoot.getAt(1)
     tY = tShoot.getAt(2)
     ttype = tShoot.getAt(3)

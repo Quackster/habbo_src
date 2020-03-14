@@ -14,20 +14,20 @@ on getWriterManager
   return(tMgr.getManager(#writer_manager))
 end
 
-on createWriter tid, tMetrics 
-  return(getWriterManager().create(tid, tMetrics))
+on createWriter tID, tMetrics 
+  return(getWriterManager().create(tID, tMetrics))
 end
 
-on removeWriter tid 
-  return(getWriterManager().Remove(tid))
+on removeWriter tID 
+  return(getWriterManager().Remove(tID))
 end
 
-on getWriter tid, tDefault 
-  return(getWriterManager().GET(tid, tDefault))
+on getWriter tID, tDefault 
+  return(getWriterManager().GET(tID, tDefault))
 end
 
-on writerExists tid 
-  return(getWriterManager().exists(tid))
+on writerExists tID 
+  return(getWriterManager().exists(tID))
 end
 
 on printWriters  

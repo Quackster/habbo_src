@@ -48,13 +48,13 @@ on clearBuffer me
   return(me.pimage.fill(me.pimage.rect, me.getProp(#pProps, #bgColor)))
 end
 
-on registerScroll me, tid 
+on registerScroll me, tID 
   if voidp(pScrolls) then
     me.prepare()
   end if
-  if not voidp(tid) then
-    if (pScrolls.getPos(tid) = 0) then
-      pScrolls.add(tid)
+  if not voidp(tID) then
+    if (pScrolls.getPos(tID) = 0) then
+      pScrolls.add(tID)
     end if
   else
     if (pScrolls.count = 0) then
@@ -64,8 +64,8 @@ on registerScroll me, tid
   tSourceRect = rect(pOffX, pOffY, (pOffX + pOwnW), (pOffY + pOwnH))
   tScrollList = []
   tWndObj = getWindowManager().GET(me.pMotherId)
-  repeat while pScrolls <= undefined
-    tScrollId = getAt(undefined, tid)
+  repeat while pScrolls <= 1
+    tScrollId = getAt(1, count(pScrolls))
     tScrollList.add(tWndObj.getElement(tScrollId))
   end repeat
   call(#updateData, tScrollList, tSourceRect, me.pimage.rect)
@@ -113,7 +113,7 @@ on getOffsetY me
   return(pOffY)
 end
 
-on resizeBy me, tOffH, tOffV 
+on resizeBy me, tOffH, tOffV, tForcedTag 
   if tOffH <> 0 or tOffV <> 0 then
     if (me.getProp(#pProps, #style) = #unique) then
       if (me.pScaleH = #move) then
@@ -124,17 +124,29 @@ on resizeBy me, tOffH, tOffV
         else
           if (me.pScaleH = #center) then
             me.moveBy((tOffH / 2), 0)
+          else
+            if (me.pScaleH = #fixed) then
+              if tForcedTag then
+                me.pwidth = (me.pwidth + tOffH)
+              end if
+            end if
           end if
         end if
       end if
-      if (me.pScaleH = #move) then
+      if (me.pScaleV = #move) then
         me.moveBy(0, tOffV)
       else
-        if (me.pScaleH = #scale) then
+        if (me.pScaleV = #scale) then
           me.pheight = (me.pheight + tOffV)
         else
-          if (me.pScaleH = #center) then
+          if (me.pScaleV = #center) then
             me.moveBy(0, (tOffV / 2))
+          else
+            if (me.pScaleV = #fixed) then
+              if tForcedTag then
+                me.pheight = (me.pheight + tOffV)
+              end if
+            end if
           end if
         end if
       end if
@@ -159,17 +171,31 @@ on resizeBy me, tOffH, tOffV
         else
           if (me.pScaleH = #center) then
             pOwnX = (pOwnX + (tOffH / 2))
+          else
+            if (me.pScaleH = #fixed) then
+              if tForcedTag then
+                me.pSprite.width = (me.pSprite.width + tOffH)
+                pOwnW = me.pSprite.width
+              end if
+            end if
           end if
         end if
       end if
-      if (me.pScaleH = #move) then
+      if (me.pScaleV = #move) then
         pOwnY = (pOwnY + tOffV)
       else
-        if (me.pScaleH = #scale) then
+        if (me.pScaleV = #scale) then
           pOwnH = (pOwnH + tOffV)
         else
-          if (me.pScaleH = #center) then
+          if (me.pScaleV = #center) then
             pOwnY = (pOwnY + (tOffV / 2))
+          else
+            if (me.pScaleV = #fixed) then
+              if tForcedTag then
+                me.pSprite.height = (me.pSprite.height + tOffV)
+                pOwnV = me.pSprite.height
+              end if
+            end if
           end if
         end if
       end if

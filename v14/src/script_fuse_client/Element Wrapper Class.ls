@@ -91,16 +91,16 @@ on resizeBy me, tOffW, tOffH
     if pScaleH <> #scale then
       tOffW = 0
     end if
-    if (pScaleH = #fixed) then
+    if (pScaleV = #fixed) then
       tOffH = 0
     else
-      if (pScaleH = #scale) then
+      if (pScaleV = #scale) then
         pheight = (pheight + tOffH)
       else
-        if (pScaleH = #move) then
+        if (pScaleV = #move) then
           me.moveBy(0, tOffH)
         else
-          if (pScaleH = #center) then
+          if (pScaleV = #center) then
             me.moveBy(0, (tOffH / 2))
           end if
         end if

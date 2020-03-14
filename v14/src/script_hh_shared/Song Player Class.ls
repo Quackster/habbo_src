@@ -41,8 +41,8 @@ on stopSong me
   if voidp(tChannelList) then
     return TRUE
   end if
-  repeat while tChannelList <= undefined
-    tChannel = getAt(undefined, undefined)
+  repeat while tChannelList <= 1
+    tChannel = getAt(1, count(tChannelList))
     if tChannel >= 1 and tChannel <= pSongChannels.count then
       stopSoundChannel(pSongChannels.getAt(tChannel))
     end if
@@ -93,8 +93,8 @@ on reserveSongChannels me
   if voidp(tChannelList) then
     return TRUE
   end if
-  repeat while tChannelList <= undefined
-    tChannel = getAt(undefined, undefined)
+  repeat while tChannelList <= 1
+    tChannel = getAt(1, count(tChannelList))
     if tChannel >= 1 and tChannel <= pSongChannels.count then
       queueSound("sound_machine_sample_0", pSongChannels.getAt(tChannel))
       startSoundChannel(pSongChannels.getAt(tChannel))
@@ -110,8 +110,8 @@ on queueChannels me
   if voidp(tChannelList) then
     return TRUE
   end if
-  repeat while tChannelList <= undefined
-    tChannel = getAt(undefined, undefined)
+  repeat while tChannelList <= 1
+    tChannel = getAt(1, count(tChannelList))
     if tChannel >= 1 and tChannel <= pSongChannels.count then
       stopSoundChannel(pSongChannels.getAt(tChannel))
     end if

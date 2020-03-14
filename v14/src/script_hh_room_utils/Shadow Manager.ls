@@ -35,12 +35,12 @@ on addShadow me, tProps
   end if
 end
 
-on removeShadow me, tid 
+on removeShadow me, tID 
   if pRenderDisabled then
     return FALSE
   end if
   if not voidp(pShadowWrapper) then
-    pShadowWrapper.removePart(tid)
+    pShadowWrapper.removePart(tID)
   end if
 end
 

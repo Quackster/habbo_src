@@ -347,21 +347,21 @@ end
 
 on updateSetList me, tList 
   pSoundSetInventoryList = []
-  repeat while tList <= undefined
-    tid = getAt(undefined, tList)
-    tItem = [#id:tid]
+  repeat while tList <= 1
+    tID = getAt(1, count(tList))
+    tItem = [#id:tID]
     pSoundSetInventoryList.add(tItem)
   end repeat
   me.changeSetListPage(0)
   me.getInterface().updateSoundSetList()
 end
 
-on updateSoundSet me, tIndex, tid, tSampleList 
+on updateSoundSet me, tIndex, tID, tSampleList 
   if tIndex >= 1 and tIndex <= pSoundSetLimit then
-    tSoundSet = [#id:tid]
+    tSoundSet = [#id:tID]
     tMachineSampleList = []
-    repeat while tSampleList <= tid
-      tSampleID = getAt(tid, tIndex)
+    repeat while tSampleList <= 1
+      tSampleID = getAt(1, count(tSampleList))
       tMachineSampleList.add([#id:tSampleID, #length:0])
     end repeat
     tSoundSet.setAt(#samples, tMachineSampleList)
@@ -402,8 +402,8 @@ on checkSoundSetReferences me, tIndex
   if voidp(pSoundSetList.getAt(tIndex)) then
     return FALSE
   end if
-  repeat while pTimeLineData <= undefined
-    tChannel = getAt(undefined, tIndex)
+  repeat while pTimeLineData <= 1
+    tChannel = getAt(1, count(pTimeLineData))
     tSlot = 1
     repeat while tSlot <= tChannel.count
       if not voidp(tChannel.getAt(tSlot)) then
@@ -418,10 +418,10 @@ on checkSoundSetReferences me, tIndex
       tSlot = (1 + tSlot)
     end repeat
   end repeat
-  repeat while pTimeLineData <= undefined
-    tChannel = getAt(undefined, tIndex)
-    repeat while pTimeLineData <= undefined
-      tSample = getAt(undefined, tIndex)
+  repeat while pSongData <= 1
+    tChannel = getAt(1, count(pSongData))
+    repeat while pSongData <= 1
+      tSample = getAt(1, count(pSongData))
       if not voidp(tSample) then
         tSampleID = tSample.getAt(#id)
         if (me.getSampleSetNumber(tSampleID) = tIndex) then
@@ -483,8 +483,8 @@ on removeSoundSet me, tIndex
   if voidp(pSoundSetList.getAt(tIndex)) then
     return FALSE
   end if
-  repeat while pTimeLineData <= undefined
-    tChannel = getAt(undefined, tIndex)
+  repeat while pTimeLineData <= 1
+    tChannel = getAt(1, count(pTimeLineData))
     tSlot = 1
     repeat while tSlot <= tChannel.count
       if not voidp(tChannel.getAt(tSlot)) then
@@ -500,8 +500,8 @@ on removeSoundSet me, tIndex
       tSlot = (1 + tSlot)
     end repeat
   end repeat
-  repeat while pTimeLineData <= undefined
-    tChannel = getAt(undefined, tIndex)
+  repeat while pSongData <= 1
+    tChannel = getAt(1, count(pSongData))
     tSlot = 1
     repeat while tSlot <= tChannel.count
       tSample = tChannel.getAt(tSlot)
@@ -618,12 +618,12 @@ on timeLineEvent me, tX, tY, tEvent
   else
     if (tEvent = #mouseWithin) then
       if tX <> pTimeLineCursorX or tY <> pTimeLineCursorY then
-        tid = 0
+        tID = 0
         tSample = me.getSample(pSelectedSoundSetSample, pSelectedSoundSet)
         if tSample <> 0 then
-          tid = tSample.getAt(#id)
+          tID = tSample.getAt(#id)
         end if
-        tInsert = me.getCanInsertSample(tX, tY, tid)
+        tInsert = me.getCanInsertSample(tX, tY, tID)
         if tInsert and pTimeLineCursorX <> tX or pTimeLineCursorY <> tY then
           pTimeLineCursorX = tX
           pTimeLineCursorY = tY
@@ -943,17 +943,17 @@ on getSampleName me, tSampleID
 end
 
 on insertSample me, tSlot, tChannel 
-  tid = 0
+  tID = 0
   tSample = me.getSample(pSelectedSoundSetSample, pSelectedSoundSet)
   if tSample <> 0 then
-    tid = tSample.getAt(#id)
+    tID = tSample.getAt(#id)
   else
     return FALSE
   end if
-  tInsert = me.getCanInsertSample(tSlot, tChannel, tid)
+  tInsert = me.getCanInsertSample(tSlot, tChannel, tID)
   if tInsert then
     pSongChanged = 1
-    pTimeLineData.getAt(tChannel).setAt(tSlot, tid)
+    pTimeLineData.getAt(tChannel).setAt(tSlot, tID)
     me.stopSong()
     return TRUE
   end if
@@ -1011,8 +1011,8 @@ on getSampleIndex me, tSampleID
   return FALSE
 end
 
-on getCanInsertSample me, tX, tY, tid 
-  tLength = me.getSampleLength(tid)
+on getCanInsertSample me, tX, tY, tID 
+  tLength = me.getSampleLength(tID)
   if tLength <> 0 then
     if tX >= 1 and (tX + (tLength - 1)) <= pTimeLineSlotCount and tY >= 1 and tY <= pTimeLineData.count then
       tChannel = pTimeLineData.getAt(tY)
@@ -1165,9 +1165,9 @@ on parseSongData me, tdata, tPlayTime
     if i <= pSongData.count then
       tSongChannel = pSongData.getAt(i)
       tSlot = 1
-      repeat while tChannel <= tPlayTime
-        tSample = getAt(tPlayTime, tdata)
-        tid = tSample.getAt(#id)
+      repeat while tChannel <= 1
+        tSample = getAt(1, count(tChannel))
+        tID = tSample.getAt(#id)
         tLength = tSample.getAt(#length)
         if tSlot <= tSongChannel.count then
           pSongData.getAt(i).setAt(tSlot, tSample.duplicate())
@@ -1202,22 +1202,22 @@ on processSongData me, tPlayTime
     repeat while j <= tSongChannel.count
       tSample = tSongChannel.getAt(j)
       if not voidp(tSample) then
-        tid = tSample.getAt(#id)
+        tID = tSample.getAt(#id)
         tLength = tSample.getAt(#length)
-        tSampleLength = me.getSampleLength(tid)
+        tSampleLength = me.getSampleLength(tID)
         tWasReady = 1
         if (tSampleLength = 0) then
           tSampleLength = 1
-          tid = -tid
+          tID = -tID
           tReady = 0
           tWasReady = 0
         end if
-        if tid <> 0 then
+        if tID <> 0 then
           tRepeats = (tLength / tSampleLength)
           k = 1
           repeat while k <= tRepeats
-            if me.getCanInsertSample((j + ((k - 1) * tSampleLength)), i, tid) then
-              tTimeLineChannel.setAt((j + ((k - 1) * tSampleLength)), tid)
+            if me.getCanInsertSample((j + ((k - 1) * tSampleLength)), i, tID) then
+              tTimeLineChannel.setAt((j + ((k - 1) * tSampleLength)), tID)
             end if
             k = (1 + k)
           end repeat
@@ -1321,8 +1321,8 @@ on encodeTimeLineData me
         j = (j + 1)
       end repeat
       tChannelStr = ""
-      repeat while tChannelData <= undefined
-        tSample = getAt(undefined, undefined)
+      repeat while tChannelData <= 1
+        tSample = getAt(1, count(tChannelData))
         if tChannelStr <> "" then
           tChannelStr = tChannelStr & ";"
         end if

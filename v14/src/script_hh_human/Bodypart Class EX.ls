@@ -80,15 +80,15 @@ on update me, tForcedUpdate
     pXFix = (pXFix * tSizeMultiplier)
     pYFix = (pYFix * tSizeMultiplier)
   else
-    if me.pDirection <> "bd" then
-      if me.pDirection <> "lg" then
-        if (me.pDirection = "sh") then
+    if pPart <> "bd" then
+      if pPart <> "lg" then
+        if (pPart = "sh") then
           if (pAction = "wlk") then
             tAnimCntr = me.pAnimCounter
           end if
         else
-          if me.pDirection <> "lh" then
-            if (me.pDirection = "ls") then
+          if pPart <> "lh" then
+            if (pPart = "ls") then
               if (pDirection = tdir) then
                 if not voidp(pActionLh) then
                   tAction = pActionLh
@@ -114,8 +114,8 @@ on update me, tForcedUpdate
                 end if
               end if
             else
-              if me.pDirection <> "rh" then
-                if (me.pDirection = "rs") then
+              if pPart <> "rh" then
+                if (pPart = "rs") then
                   if (pDirection = tdir) then
                     if not voidp(pActionRh) then
                       tAction = pActionRh
@@ -142,8 +142,8 @@ on update me, tForcedUpdate
                     end if
                   end if
                 else
-                  if me.pDirection <> "hd" then
-                    if (me.pDirection = "fc") then
+                  if pPart <> "hd" then
+                    if (pPart = "fc") then
                       if me.pTalking then
                         if (pAction = "lay") then
                           tAction = "lsp"
@@ -153,19 +153,19 @@ on update me, tForcedUpdate
                         tAnimCntr = (me.pAnimCounter mod 2)
                       end if
                     else
-                      if (me.pDirection = "ey") then
+                      if (pPart = "ey") then
                         if me.pTalking and pAction <> "lay" and ((me.pAnimCounter mod 2) = 0) then
                           pYFix = -1
                         end if
                       else
-                        if (me.pDirection = "hr") then
+                        if (pPart = "hr") then
                           if me.pTalking and ((me.pAnimCounter mod 2) = 0) then
                             if pAction <> "lay" then
                               tAction = "spk"
                             end if
                           end if
                         else
-                          if (me.pDirection = "ri") then
+                          if (pPart = "ri") then
                             if not me.pCarrying then
                               pMemString = ""
                               if pCacheRectA.width > 0 then
@@ -178,7 +178,7 @@ on update me, tForcedUpdate
                               tdir = pDirection
                             end if
                           else
-                            if (me.pDirection = "li") then
+                            if (pPart = "li") then
                               tAction = pActionLh
                               tdir = pDirection
                             end if

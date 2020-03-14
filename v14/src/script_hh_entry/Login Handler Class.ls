@@ -27,30 +27,30 @@ on handleSessionParameters me, tMsg
     if tPairsCount > 0 then
       i = 1
       repeat while i <= tPairsCount
-        tid = tMsg.connection.GetIntFrom()
+        tID = tMsg.connection.GetIntFrom()
         tSession = getObject(#session)
-        if (tid = 0) then
+        if (tID = 0) then
           tValue = tMsg.connection.GetIntFrom()
           tSession.set("conf_coppa", tValue > 0)
           tSession.set("conf_strong_coppa_required", tValue > 1)
         else
-          if (tid = 1) then
+          if (tID = 1) then
             tValue = tMsg.connection.GetIntFrom()
             tSession.set("conf_voucher", tValue > 0)
           else
-            if (tid = 2) then
+            if (tID = 2) then
               tValue = tMsg.connection.GetIntFrom()
               tSession.set("conf_parent_email_request", tValue > 0)
             else
-              if (tid = 3) then
+              if (tID = 3) then
                 tValue = tMsg.connection.GetIntFrom()
                 tSession.set("conf_parent_email_request_reregistration", tValue > 0)
               else
-                if (tid = 4) then
+                if (tID = 4) then
                   tValue = tMsg.connection.GetIntFrom()
                   tSession.set("conf_allow_direct_mail", tValue > 0)
                 else
-                  if (tid = 5) then
+                  if (tID = 5) then
                     tValue = tMsg.connection.GetStrFrom()
                     if not objectExists(#dateFormatter) then
                       createObject(#dateFormatter, ["Date Class"])
@@ -60,17 +60,22 @@ on handleSessionParameters me, tMsg
                       tDateForm.define(tValue)
                     end if
                   else
-                    if (tid = 6) then
+                    if (tID = 6) then
                       tValue = tMsg.connection.GetIntFrom()
                       tSession.set("conf_partner_integration", tValue > 0)
                     else
-                      if (tid = 7) then
+                      if (tID = 7) then
                         tValue = tMsg.connection.GetIntFrom()
                         tSession.set("allow_profile_editing", tValue > 0)
                       else
-                        if (tid = 8) then
+                        if (tID = 8) then
                           tValue = tMsg.connection.GetStrFrom()
                           tSession.set("tracking_header", tValue)
+                        else
+                          if (tID = 9) then
+                            tValue = tMsg.connection.GetIntFrom()
+                            tSession.set("tutorial_enabled", tValue)
+                          end if
                         end if
                       end if
                     end if
@@ -185,7 +190,7 @@ on handleEPSnotify me, tMsg
     f = (1 + f)
   end repeat
   the itemDelimiter = tDelim
-  if (tProp = 580) then
+  if (ttype = 580) then
     if not createObject("lang_test", "CLangTest") then
       return(error(me, "Failed to init lang tester!", #handleEPSnotify, #minor))
     else

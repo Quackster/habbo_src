@@ -8,8 +8,8 @@ on deconstruct me
   return TRUE
 end
 
-on setID me, tid, tFacadeId 
-  pID = tid
+on setID me, tID, tFacadeId 
+  pID = tID
   pFacadeId = tFacadeId
   return TRUE
 end

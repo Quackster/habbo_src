@@ -36,15 +36,15 @@ on Refresh me, tTopic, tdata
       receiveUpdate(me.getID())
     else
       if (tTopic = #gamestatus_tiles) then
-        repeat while tTopic <= tdata
-          tTileProps = getAt(tdata, tTopic)
+        repeat while tTopic <= count(tTopic)
+          tTileProps = getAt(count(tTopic), tdata)
           pPriorityTaskList.add(tTileProps)
           me.removeSecondaryTask(tTileProps)
         end repeat
       else
         if (tTopic = #gamestatus_flood) then
-          repeat while tTopic <= tdata
-            tTileProps = getAt(tdata, tTopic)
+          repeat while tTopic <= count(tTopic)
+            tTileProps = getAt(count(tTopic), tdata)
             pSecondaryTaskList.add(tTileProps)
           end repeat
         end if

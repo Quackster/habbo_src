@@ -115,8 +115,8 @@ on UpdateImageObjects me, tPalette, tstate
       tPalette = member(getmemnum(tPalette))
     end if
   end if
-  repeat while [#left, #middle, #right] <= tstate
-    f = getAt(tstate, tPalette)
+  repeat while [#left, #middle, #right] <= 1
+    f = getAt(1, count([#left, #middle, #right]))
     tDesc = pProp.getAt(tstate).getAt(#members).getAt(f)
     tmember = member(getmemnum(tDesc.getAt(#member)))
     if not voidp(tDesc.getAt(#palette)) then
@@ -203,8 +203,8 @@ on createButtonImg me, tText, tstate
   tEndPointY = tNewImg.height
   tStartPointX = 0
   tEndPointX = 0
-  repeat while [#left, #middle, #right] <= tstate
-    i = getAt(tstate, tText)
+  repeat while [#left, #middle, #right] <= 1
+    i = getAt(1, count([#left, #middle, #right]))
     tStartPointX = tEndPointX
     if ([#left, #middle, #right] = #left) then
       tEndPointX = (tEndPointX + pButtonImg.getProp(i).width)
@@ -221,13 +221,13 @@ on createButtonImg me, tText, tstate
     tNewImg.copyPixels(pButtonImg.getProp(i), tdestrect, pButtonImg.getProp(i).rect)
   end repeat
   tDstRect = (tTextImg.rect + rect(0, tMarginV, 0, tMarginV))
-  if ([#left, #middle, #right] = #left) then
+  if (tFontDesc.getAt(#alignment) = #left) then
     tDstRect = (tDstRect + rect(pButtonImg.getProp(#left).width, 0, pButtonImg.getProp(#left).width, 0))
   else
-    if ([#left, #middle, #right] = #center) then
+    if (tFontDesc.getAt(#alignment) = #center) then
       tDstRect = ((tDstRect + rect((tNewImg.width / 2), 0, (tNewImg.width / 2), 0)) - rect((tTextWidth / 2), 0, (tTextWidth / 2), 0))
     else
-      if ([#left, #middle, #right] = #right) then
+      if (tFontDesc.getAt(#alignment) = #right) then
         tDstRect = ((tDstRect + rect(tNewImg.width, 0, tNewImg.width, 0)) - rect((tTextWidth + pButtonImg.getProp(#right).width), 0, (tTextWidth + pButtonImg.getProp(#right).width), 0))
       end if
     end if

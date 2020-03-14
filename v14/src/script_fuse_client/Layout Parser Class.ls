@@ -66,8 +66,8 @@ on parse_window me, tFieldName
     x = (1 + x)
   end repeat
   tElements = [:]
-  repeat while tLayDefinition.getAt(#elements) <= undefined
-    tElem = getAt(undefined, tFieldName)
+  repeat while tLayDefinition.getAt(#elements) <= 1
+    tElem = getAt(1, count(tLayDefinition.getAt(#elements)))
     if voidp(tElem.getAt(#id)) then
       tSymbol = "null"
     else
@@ -79,8 +79,8 @@ on parse_window me, tFieldName
     tElements.getAt(tSymbol).add(tElem)
   end repeat
   tResMngr = getResourceManager()
-  repeat while tLayDefinition.getAt(#elements) <= undefined
-    tElem = getAt(undefined, tFieldName)
+  repeat while tLayDefinition.getAt(#elements) <= 1
+    tElem = getAt(1, count(tLayDefinition.getAt(#elements)))
     if stringp(tElem.getAt(#txtColor)) then
       tElem.setAt(#txtColor, rgb(tElem.getAt(#txtColor)))
     end if
@@ -201,10 +201,10 @@ on parse_window me, tFieldName
   end repeat
   if (tLayDefinition.getAt(#rect).count = 0) then
     tRect = rect(10000, 10000, -10000, -10000)
-    repeat while tLayDefinition.getAt(#elements) <= undefined
-      tElement = getAt(undefined, tFieldName)
-      repeat while tLayDefinition.getAt(#elements) <= undefined
-        tItem = getAt(undefined, tFieldName)
+    repeat while tElements <= 1
+      tElement = getAt(1, count(tElements))
+      repeat while tElements <= 1
+        tItem = getAt(1, count(tElements))
         if tItem.locH < tRect.getAt(1) then
           tRect.setAt(1, tItem.locH)
         end if
@@ -220,10 +220,10 @@ on parse_window me, tFieldName
       end repeat
     end repeat
     tLayDefinition.getAt(#rect).add(tRect)
-    repeat while tLayDefinition.getAt(#elements) <= undefined
-      tElement = getAt(undefined, tFieldName)
-      repeat while tLayDefinition.getAt(#elements) <= undefined
-        tItem = getAt(undefined, tFieldName)
+    repeat while tElements <= 1
+      tElement = getAt(1, count(tElements))
+      repeat while tElements <= 1
+        tItem = getAt(1, count(tElements))
         tItem.locH = (tItem.locH - tRect.getAt(1))
         tItem.locV = (tItem.locV - tRect.getAt(2))
       end repeat
@@ -302,8 +302,8 @@ on parse_visual me, tFieldName
   end repeat
   if voidp(tLayDefinition.getAt(#version)) then
     error(me, "Old visualizer definition:" && tFieldName, #parse_room, #minor)
-    repeat while tLayDefinition.getAt(#elements) <= undefined
-      tElem = getAt(undefined, tFieldName)
+    repeat while tLayDefinition.getAt(#elements) <= 1
+      tElem = getAt(1, count(tLayDefinition.getAt(#elements)))
       if (tElem.getAt(#media) = #field) or (tElem.getAt(#media) = #text) then
         tElem.setAt(#txtColor, tElem.getAt(#color))
         tElem.setAt(#txtBgColor, tElem.getAt(#bgColor))
@@ -314,8 +314,8 @@ on parse_visual me, tFieldName
       tElem.deleteProp(#backColor)
     end repeat
   end if
-  repeat while tLayDefinition.getAt(#elements) <= undefined
-    tElem = getAt(undefined, tFieldName)
+  repeat while tLayDefinition.getAt(#elements) <= 1
+    tElem = getAt(1, count(tLayDefinition.getAt(#elements)))
     if voidp(tElem.getAt(#color)) then
       tElem.setAt(#color, "#000000")
     end if

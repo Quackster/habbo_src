@@ -56,8 +56,8 @@ on createHumanPartPreview me, tWindowTitle, tElement, tPartList, tFigure
 end
 
 on setParts me, tFigure, tPartList 
-  repeat while tPartList <= tPartList
-    tPart = getAt(tPartList, tFigure)
+  repeat while tPartList <= 1
+    tPart = getAt(1, count(tPartList))
     if not tPart contains "it" then
       tmodel = tFigure.getAt(tPart).getAt("model")
       tColor = tFigure.getAt(tPart).getAt("color")
@@ -83,8 +83,8 @@ on createTemplateParts me, tFigure, tPartList, tdir, tSize
   pBuffer = image(1, 1, 8)
   pFlipList = [0, 1, 2, 3, 2, 1, 0, 7]
   pBodyPartObjects = [:]
-  repeat while tPartList <= tPartList
-    tPart = getAt(tPartList, tFigure)
+  repeat while tPartList <= 1
+    tPart = getAt(1, count(tPartList))
     if not tPart contains "it" then
       tmodel = tFigure.getAt(tPart).getAt("model")
       tColor = tFigure.getAt(tPart).getAt("color")
@@ -125,8 +125,8 @@ on getPartImg me, tPartList, tImg, tdir, tSize
   if tPartList.ilk <> #list then
     list(tPartList)
   end if
-  repeat while tPartList <= tImg
-    tPart = getAt(tImg, tPartList)
+  repeat while tPartList <= 1
+    tPart = getAt(1, count(tPartList))
     if not tPart contains "it" then
       call(#copyPicture, [pBodyPartObjects.getAt(tPart)], tImg, tdir, tSize)
     end if

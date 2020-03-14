@@ -282,8 +282,8 @@ on getPicture me, tImg
   if voidp(pInfoStruct.getAt(#image)) then
     tPartDefinition = ["tl", "bd", "hd"]
     tTempPartList = []
-    repeat while tPartDefinition <= undefined
-      tPartSymbol = getAt(undefined, tImg)
+    repeat while tPartDefinition <= 1
+      tPartSymbol = getAt(1, count(tPartDefinition))
       if not voidp(pPartIndex.getAt(tPartSymbol)) then
         tTempPartList.append(pPartList.getAt(pPartIndex.getAt(tPartSymbol)))
       end if

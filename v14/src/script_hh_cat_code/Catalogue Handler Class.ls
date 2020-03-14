@@ -152,8 +152,8 @@ on handle_catalogpage me, tMsg
     tLineNum = (1 + tLineNum)
   end repeat
   tTempTextList = []
-  repeat while tProp <= undefined
-    tText = getAt(undefined, tMsg)
+  repeat while tTextList <= 1
+    tText = getAt(1, count(tTextList))
     tTempTextList.add(tText)
   end repeat
   tList.setAt("textList", tTempTextList)

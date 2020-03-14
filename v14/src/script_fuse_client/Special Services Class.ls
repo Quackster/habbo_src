@@ -175,18 +175,14 @@ on getUniqueID me
 end
 
 on getMachineID me 
-  tMachineID = getPref(getVariable("pref.value.id"))
+  tMachineID = string(getPref(getVariable("pref.value.id")))
   tMaxLength = 24
-  if voidp(tMachineID) or (tMachineID = "") or string(tMachineID).count(#char) > tMaxLength then
+  tMinLength = 10
+  if (chars(tMachineID, 1, 1) = "#") then
+    tMachineID = chars(tMachineID, 2, tMachineID.length)
+  else
     tMachineID = me.generateMachineId(tMaxLength)
-    setPref(getVariable("pref.value.id"), tMachineID)
-  end if
-  if string(tMachineID).length < 10 then
-    tMachineID = tMachineID & string(random(9999999999))
-  end if
-  if (string(tMachineID).getProp(#char, 1, 4) = "uid:") then
-    tMachineID = me.generateMachineId(tMaxLength)
-    setPref(getVariable("pref.value.id"), tMachineID)
+    setPref(getVariable("pref.value.id"), "#" & tMachineID)
   end if
   return(tMachineID)
 end
@@ -316,10 +312,10 @@ on print me, tObj, tMsg
 end
 
 on generateMachineId me, tMaxLength 
-  tMachineID = string(the milliSeconds) & string(the date) & string(the time)
-  tLocaleDelimiters = [".", ",", ":", ";", "/", "\\", "am", "pm", " ", "-"]
-  repeat while tLocaleDelimiters <= undefined
-    tDelimiter = getAt(undefined, tMaxLength)
+  tMachineID = string(the milliSeconds) & string(the time) & string(the date)
+  tLocaleDelimiters = [".", ",", ":", ";", "/", "\\", "am", "pm", " ", "-", "AM", "PM"]
+  repeat while tLocaleDelimiters <= 1
+    tDelimiter = getAt(1, count(tLocaleDelimiters))
     tMachineID = replaceChunks(tMachineID, tDelimiter, "")
   end repeat
   tMachineID = chars(tMachineID, 1, tMaxLength)

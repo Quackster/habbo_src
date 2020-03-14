@@ -90,9 +90,6 @@ on createRoomObject me, tdata
   if (tFigureSystemObj = 0) then
     return(error(me, "Figure system unavailable!", #createRoomObject))
   end if
-  if tRoomComponentObj.userObjectExists(pRoomIndex) then
-    return TRUE
-  end if
   tAvatarStruct = tdata.duplicate()
   tAvatarStruct.setAt(#id, pRoomIndex)
   tAvatarStruct.setaProp(#direction, [tdata.getAt(#dirBody), tdata.getAt(#dirBody)])
@@ -110,6 +107,9 @@ on createRoomObject me, tdata
     tAvatarStruct.setaProp(#h, 0)
   else
     tAvatarStruct.setaProp(#h, tdata.getAt(#next_tile_z))
+  end if
+  if (tdata.getAt(#figure) = "") then
+    return(error(me, "Figure not found in human data, server probably didn't send it in GAMERESET (249)", #createRoomObject))
   end if
   tAvatarStruct.setaProp(#custom, tdata.getAt(#mission))
   tFigure = tFigureSystemObj.parseFigure(tdata.getAt(#figure), tdata.getAt(#sex), "user")

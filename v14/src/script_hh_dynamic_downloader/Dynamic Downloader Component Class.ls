@@ -31,8 +31,8 @@ on construct me
 end
 
 on isAssetDownloaded me, tAssetId 
-  repeat while pBypassList <= undefined
-    tBypassItem = getAt(undefined, tAssetId)
+  repeat while pBypassList <= 1
+    tBypassItem = getAt(1, count(pBypassList))
     tBypassWildLength = tBypassItem.length
     tBypassItem = replaceChunks(tBypassItem, "?", "")
     if (tAssetId = tBypassItem) then
@@ -43,8 +43,8 @@ on isAssetDownloaded me, tAssetId
     end if
   end repeat
   tStatus = me.checkDownloadStatus(tAssetId)
-  if pBypassList <> #downloaded then
-    if (pBypassList = #failed) then
+  if tStatus <> #downloaded then
+    if (tStatus = #failed) then
       return TRUE
     else
       return FALSE

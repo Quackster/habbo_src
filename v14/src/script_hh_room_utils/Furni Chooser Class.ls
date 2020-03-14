@@ -75,16 +75,16 @@ on update me
     tClickAction = getThread(#room).getInterface().getProperty(#clickAction)
   end if
   tAdminChooser = getObject(#session).GET("user_rights").getOne("fuse_any_room_controller")
-  repeat while tActiveObjList <= undefined
-    tObj = getAt(undefined, undefined)
+  repeat while tActiveObjList <= 1
+    tObj = getAt(1, count(tActiveObjList))
     if tAdminChooser then
       pObjList.setaProp("a" & tObj.getID(), "Id:" & tObj.getID() && tObj.getLocation() && tObj.getInfo().name)
     else
       pObjList.setaProp("a" & tObj.getID(), tObj.getInfo().name)
     end if
   end repeat
-  repeat while tActiveObjList <= undefined
-    tObj = getAt(undefined, undefined)
+  repeat while tItemObjList <= 1
+    tObj = getAt(1, count(tItemObjList))
     if tAdminChooser then
       pObjList.setaProp("i" & tObj.getID(), "Id:" & tObj.getID() && tObj.getLocation() && tObj.getInfo().name)
     else

@@ -202,8 +202,8 @@ on getPicture me, tImg
   end if
   tPartDefinition = getVariableValue("human.parts.sh")
   tTempPartList = []
-  repeat while tPartDefinition <= undefined
-    tPartSymbol = getAt(undefined, tImg)
+  repeat while tPartDefinition <= 1
+    tPartSymbol = getAt(1, count(tPartDefinition))
     if not voidp(me.getProp(#pPartIndex, tPartSymbol)) then
       tTempPartList.append(me.getProp(#pPartList, me.getProp(#pPartIndex, tPartSymbol)))
     end if

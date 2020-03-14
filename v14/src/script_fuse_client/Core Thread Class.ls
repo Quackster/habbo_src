@@ -185,8 +185,8 @@ on updateState me, tstate
               end if
             end repeat
             if count(tCastList) > 0 then
-              repeat while tstate <= undefined
-                tCast = getAt(undefined, tstate)
+              repeat while tCastList <= 1
+                tCast = getAt(1, count(tCastList))
                 if not castExists(tCast) then
                   tNewList.add(tCast)
                 end if
@@ -202,7 +202,7 @@ on updateState me, tstate
               return(me.updateState("init_threads"))
             end if
           else
-            if (tstate = "init_threads") then
+            if (count(tCastList) = "init_threads") then
               pState = tstate
               cursor(0)
               the stage.title = getVariable("client.window.title")

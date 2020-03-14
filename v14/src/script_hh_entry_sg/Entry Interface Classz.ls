@@ -160,8 +160,8 @@ on prepare me
 end
 
 on update me 
-  repeat while pUpdateTasks.duplicate() <= undefined
-    tMethod = getAt(undefined, undefined)
+  repeat while pUpdateTasks.duplicate() <= 1
+    tMethod = getAt(1, count(pUpdateTasks.duplicate()))
     call(tMethod, me)
   end repeat
 end
@@ -218,8 +218,8 @@ on animSign me
   if (tVisObj = 0) then
     return(me.remAnimTask(#animSign))
   end if
-  repeat while pSignSprList <= undefined
-    tSpr = getAt(undefined, undefined)
+  repeat while pSignSprList <= 1
+    tSpr = getAt(1, count(pSignSprList))
     tSpr.locV = (tSpr.locV + 30)
   end repeat
   if pSignSprList.getAt(1).locV >= 0 then
@@ -432,8 +432,8 @@ end
 on deActivateAllIcons me 
   tIcons = ["messenger"]
   if windowExists(pBottomBar) then
-    repeat while tIcons <= undefined
-      tIcon = getAt(undefined, undefined)
+    repeat while tIcons <= 1
+      tIcon = getAt(1, count(tIcons))
       getWindow(pBottomBar).getElement(tIcon & "_icon_image").setProperty(#blend, pInActiveIconBlend)
     end repeat
   end if

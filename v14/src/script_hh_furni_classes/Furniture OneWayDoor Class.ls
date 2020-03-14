@@ -42,8 +42,8 @@ on setDoor me, tStatus
     error(me, "Invalid door status:" && tStatus, #setDoor, #minor)
     return FALSE
   end if
-  repeat while me.pSprList <= undefined
-    tsprite = getAt(undefined, tStatus)
+  repeat while me.pSprList <= 1
+    tsprite = getAt(1, count(me.pSprList))
     tCurName = tsprite.member.name
     tNewName = tCurName.getProp(#char, 1, (length(tCurName) - 1)) & tStatus
     if memberExists(tNewName) then

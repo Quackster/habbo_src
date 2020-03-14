@@ -45,7 +45,7 @@ on initCloud me
   if pSprite.left > (the stageRight - the stageLeft) then
     pVertDir = -1
     pSprite.locH = -40
-    pSprite.locV = (260 - random(40))
+    pSprite.locV = (260 - random(30))
     pMemName = pMemName.getProp(#char, 1, (pMemName.length - 1)) & (random(4) - 1)
     pCurrentTurnPoint = 1
     pTurnPoint = pTurnPointList.getAt(1)
@@ -55,7 +55,7 @@ on initCloud me
   else
     tdir = "right"
   end if
-  tTempImg = member(getmemnum(pMemName & "_" & tdir)).image
+  tTempImg = member(getmemnum(pMemName & "_" & tdir)).image.duplicate()
   pCloudMember.image = image(tTempImg.width, 60, 8)
   tdestrect = (pCloudMember.image.rect - tTempImg.rect)
   tdestrect = rect((tdestrect.width / 2), (tdestrect.height / 2), (tTempImg.width + (tdestrect.width / 2)), ((tdestrect.height / 2) + tTempImg.height))

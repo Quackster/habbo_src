@@ -16,9 +16,9 @@ end
 
 on prepare me 
   tRoomVis = getThread(#room).getInterface().getRoomVisualizer()
-  repeat while ["bus", "hubu_kiosk_1", "hubu_kiosk_2", "hubu_kiosk_3", "hubu_kiosk_4", "hubu_kiosk_5"] <= undefined
-    tid = getAt(undefined, undefined)
-    tsprite = tRoomVis.getSprById(tid)
+  repeat while ["bus", "hubu_kiosk_1", "hubu_kiosk_2", "hubu_kiosk_3", "hubu_kiosk_4", "hubu_kiosk_5"] <= 1
+    tID = getAt(1, count(["bus", "hubu_kiosk_1", "hubu_kiosk_2", "hubu_kiosk_3", "hubu_kiosk_4", "hubu_kiosk_5"]))
+    tsprite = tRoomVis.getSprById(tID)
     registerProcedure(tsprite, #parkAEventProc, me.getID(), #mouseDown)
   end repeat
 end
@@ -35,7 +35,7 @@ on showprogram me, tMsg
   end if
 end
 
-on busDoor me, tid, tCommand 
+on busDoor me, tID, tCommand 
   if (tCommand = "open") then
     tMem = member(getmemnum("park_bussioviopen"))
   else
@@ -47,7 +47,7 @@ on busDoor me, tid, tCommand
   if (tRoomVis = 0) then
     return FALSE
   end if
-  tRoomVis.getSprById(tid).setMember(tMem)
+  tRoomVis.getSprById(tID).setMember(tMem)
 end
 
 on parkAEventProc me, tEvent, tSprID, tParm 

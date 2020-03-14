@@ -217,32 +217,32 @@ on changeModtoolView me, tWndName, tAction
     if not tWndObj.merge("habbo_modtool_user.window") then
       return(removeWindow(pModtoolWindowID))
     end if
-    if (tWndName = "kick") then
+    if (tAction = "kick") then
       tHeader = getText("modtool_kickuser")
     else
-      if (tWndName = "alert") then
+      if (tAction = "alert") then
         tHeader = getText("modtool_alertuser")
       else
-        if (tWndName = "ban") then
+        if (tAction = "ban") then
           tHeader = getText("modtool_banuser")
         end if
       end if
     end if
     tWndObj.getElement("modtool_subtitle").setText(getText("modtool_message"))
   else
-    if (tWndName = "room") then
+    if (tAction = "room") then
       if not tWndObj.merge("habbo_modtool_room.window") then
         return(removeWindow(pModtoolWindowID))
       end if
-      if (tWndName = "roomalert") then
+      if (tAction = "roomalert") then
         tHeader = getText("modtool_roomalert")
       else
-        if (tWndName = "roomkick") then
+        if (tAction = "roomkick") then
           tHeader = getText("modtool_roomkick")
         end if
       end if
     else
-      if (tWndName = "ban") then
+      if (tAction = "ban") then
         tWndObj.merge("habbo_modtool_ban.window")
         me.InitializeBanCheckBoxes()
         me.initializeBanDropDown()

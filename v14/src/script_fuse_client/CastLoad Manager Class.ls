@@ -37,15 +37,15 @@ on startCastLoad me, tCasts, tPermanentFlag, tAdd, tDoIndexing
     exit repeat
   end if
   if (tCasts.ilk = #list) then
-    repeat while tCasts.ilk <= tPermanentFlag
-      tCastName = getAt(tPermanentFlag, tCasts)
+    repeat while tCasts.ilk <= count(tCasts.ilk)
+      tCastName = getAt(count(tCasts.ilk), tCasts)
       tCastList.add(tCastName)
       me.addOneCastToWaitList(tCastName, tPermanentFlag)
     end repeat
   else
     tCasts = list(tCasts)
-    repeat while tCasts.ilk <= tPermanentFlag
-      tCastName = getAt(tPermanentFlag, tCasts)
+    repeat while tCasts.ilk <= count(tCasts.ilk)
+      tCastName = getAt(count(tCasts.ilk), tCasts)
       tCastList.add(tCastName)
       me.addOneCastToWaitList(tCastName, tPermanentFlag)
     end repeat
@@ -56,13 +56,13 @@ on startCastLoad me, tCasts, tPermanentFlag, tAdd, tDoIndexing
   if voidp(tAdd) then
     tAdd = 0
   end if
-  tid = getUniqueID()
-  pLatestTaskID = tid
+  tID = getUniqueID()
+  pLatestTaskID = tID
   if (tAdd = 0) then
     me.removeTemporaryCast(tCastList)
   end if
   if pTempWaitList.count > 0 then
-    pWaitList.setAt(tid, pTempWaitList.duplicate())
+    pWaitList.setAt(tID, pTempWaitList.duplicate())
   end if
   if (pWaitList.count = 0) then
     tStatus = #ready
@@ -71,29 +71,29 @@ on startCastLoad me, tCasts, tPermanentFlag, tAdd, tDoIndexing
     tStatus = #LOADING
     tPercent = 0
   end if
-  pTaskList.setAt(tid, createObject(#temp, getClassVariable("castload.task.class")))
+  pTaskList.setAt(tID, createObject(#temp, getClassVariable("castload.task.class")))
   tProps = [:]
-  tProps.setAt(#id, tid)
+  tProps.setAt(#id, tID)
   tProps.setAt(#status, tStatus)
   tProps.setAt(#Percent, tPercent)
   tProps.setAt(#sofar, 0)
   tProps.setAt(#casts, pTempWaitList.duplicate())
   tProps.setAt(#callback, void())
   tProps.setAt(#doindexing, tDoIndexing)
-  pTaskList.getAt(tid).define(tProps)
+  pTaskList.getAt(tID).define(tProps)
   i = 1
   repeat while i <= getIntVariable("net.operation.count", 2)
     me.AddNextpreloadNetThing()
     i = (1 + i)
   end repeat
-  return(tid)
+  return(tID)
 end
 
-on registerCallback me, tid, tMethod, tClientID, tArgument 
-  if voidp(pTaskList.findPos(tid)) then
+on registerCallback me, tID, tMethod, tClientID, tArgument 
+  if voidp(pTaskList.findPos(tID)) then
     return FALSE
   else
-    return(call(#addCallBack, pTaskList.getAt(tid), tid, tMethod, tClientID, tArgument))
+    return(call(#addCallBack, pTaskList.getAt(tID), tID, tMethod, tClientID, tArgument))
   end if
 end
 
@@ -137,15 +137,15 @@ on resetCastLibs me, tClean, tForced
   return(me.InitPreloader())
 end
 
-on getLoadPercent me, tid 
-  if voidp(tid) then
-    tid = pLatestTaskID
+on getLoadPercent me, tID 
+  if voidp(tID) then
+    tID = pLatestTaskID
   end if
-  if not voidp(pTaskList.getAt(tid)) then
-    if (pTaskList.getAt(tid).getTaskState() = #ready) then
+  if not voidp(pTaskList.getAt(tID)) then
+    if (pTaskList.getAt(tID).getTaskState() = #ready) then
       return TRUE
     else
-      return(pTaskList.getAt(tid).getTaskPercent())
+      return(pTaskList.getAt(tID).getTaskPercent())
     end if
   else
     return TRUE
@@ -185,8 +185,8 @@ on print me
     put(castLib(i).name)
     i = (1 + i)
   end repeat
-  repeat while pCurrentDownLoads <= undefined
-    tObj = getAt(undefined, undefined)
+  repeat while pCurrentDownLoads <= 1
+    tObj = getAt(1, count(pCurrentDownLoads))
     put(tObj.getAt(#pFile) && tObj.getAt(#pPercent))
   end repeat
 end
@@ -241,14 +241,14 @@ on AddNextpreloadNetThing me
         else
           tURL = tParsedFile & tFileExtension & tParamString
         end if
-        tid = pWaitList.getPropAt(1)
+        tID = pWaitList.getPropAt(1)
         pWaitList.getAt(1).deleteAt(1)
         if (count(pWaitList.getAt(1)) = 0) then
           pWaitList.deleteProp(pWaitList.getPropAt(1))
         end if
         pCurrentDownLoads.setAt(tFile, createObject(#temp, getClassVariable("castload.instance.class")))
-        pCurrentDownLoads.getAt(tFile).define(tFile, tURL, tid)
-        pTaskList.getAt(tid).changeLoadingCount(1)
+        pCurrentDownLoads.getAt(tFile).define(tFile, tURL, tID)
+        pTaskList.getAt(tID).changeLoadingCount(1)
         receivePrepare(me.getID())
         return TRUE
       end if
@@ -257,13 +257,13 @@ on AddNextpreloadNetThing me
   return FALSE
 end
 
-on DoneCurrentDownLoad me, tFile, tURL, tid, tstate 
+on DoneCurrentDownLoad me, tFile, tURL, tID, tstate 
   if voidp(pCurrentDownLoads.getAt(tFile)) then
-    return(error(me, "CastLoad task was lost!" && tFile && tid, #DoneCurrentDownLoad, #major))
+    return(error(me, "CastLoad task was lost!" && tFile && tID, #DoneCurrentDownLoad, #major))
   end if
-  tTask = pTaskList.getAt(tid)
+  tTask = pTaskList.getAt(tID)
   if (tTask = void()) then
-    return(error(me, "Task list item was lost!" && tFile && tid, #DoneCurrentDownLoad, #major))
+    return(error(me, "Task list item was lost!" && tFile && tID, #DoneCurrentDownLoad, #major))
   end if
   if tstate <> #error then
     tCastNumber = me.getAvailableEmptyCast()
@@ -277,7 +277,7 @@ on DoneCurrentDownLoad me, tFile, tURL, tid, tstate
   tTask.changeLoadingCount(-1)
   pCurrentDownLoads.getAt(tFile).deconstruct()
   me.delay(50, #removeCastLoadInstance, tFile)
-  me.removeCastLoadTask(tid)
+  me.removeCastLoadTask(tID)
   return TRUE
 end
 
@@ -292,23 +292,23 @@ on removeCastLoadInstance me, tFile
   end if
 end
 
-on removeCastLoadTask me, tid 
-  if (pTaskList.getAt(tid).getTaskState() = #ready) then
-    pTaskList.getAt(tid).DoCallBack()
-    pTaskList.getAt(tid).deconstruct()
-    pTaskList.deleteProp(tid)
+on removeCastLoadTask me, tID 
+  if (pTaskList.getAt(tID).getTaskState() = #ready) then
+    pTaskList.getAt(tID).DoCallBack()
+    pTaskList.getAt(tID).deconstruct()
+    pTaskList.deleteProp(tID)
     if (count(pTaskList) = 0) then
       removePrepare(me.getID())
     end if
   end if
 end
 
-on TellStreamState me, tFileName, tstate, tPercent, tid 
-  tObject = pTaskList.getAt(tid)
+on TellStreamState me, tFileName, tstate, tPercent, tID 
+  tObject = pTaskList.getAt(tID)
   if tObject <> void() then
     call(#UpdateTaskPercent, tObject, tPercent, tFileName)
   else
-    return(error(me, "Task list instance was lost!" && tFileName && tid, #TellStreamState, #major))
+    return(error(me, "Task list instance was lost!" && tFileName && tID, #TellStreamState, #major))
   end if
 end
 

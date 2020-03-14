@@ -325,47 +325,47 @@ on eventProcMainWindow me, tEvent, tSprID, tParam
                                   if (tSprID = "bb_link_gameInfo") then
                                     tParams = tGameSystemObj.getObservedInstance()
                                     tAction = me.getInstanceDetailButtonState(tParams.getAt(#state))
-                                    if tSprID <> #start then
-                                      if (tSprID = #start_dimmed) then
+                                    if tAction <> #start then
+                                      if (tAction = #start_dimmed) then
                                         return(tGameSystemObj.startGame())
                                       else
-                                        if (tSprID = #spectate) then
+                                        if (tAction = #spectate) then
                                           return(tGameSystemObj.watchGame())
                                         else
                                           return TRUE
                                         end if
                                       end if
-                                      if (tSprID = "bb_link_team1") then
+                                      if (tAction = "bb_link_team1") then
                                         me.getComponent().joinGame(1)
                                       else
-                                        if (tSprID = "bb_link_team2") then
+                                        if (tAction = "bb_link_team2") then
                                           me.getComponent().joinGame(2)
                                         else
-                                          if (tSprID = "bb_link_team3") then
+                                          if (tAction = "bb_link_team3") then
                                             me.getComponent().joinGame(3)
                                           else
-                                            if (tSprID = "bb_link_team4") then
+                                            if (tAction = "bb_link_team4") then
                                               me.getComponent().joinGame(4)
                                             else
-                                              if tSprID <> "bb_kick1_1" then
-                                                if tSprID <> "bb_kick1_2" then
-                                                  if tSprID <> "bb_kick1_3" then
-                                                    if tSprID <> "bb_kick1_4" then
-                                                      if tSprID <> "bb_kick1_5" then
-                                                        if tSprID <> "bb_kick1_6" then
-                                                          if tSprID <> "bb_kick2_1" then
-                                                            if tSprID <> "bb_kick2_2" then
-                                                              if tSprID <> "bb_kick2_3" then
-                                                                if tSprID <> "bb_kick2_4" then
-                                                                  if tSprID <> "bb_kick2_5" then
-                                                                    if tSprID <> "bb_kick2_6" then
-                                                                      if tSprID <> "bb_kick3_1" then
-                                                                        if tSprID <> "bb_kick3_2" then
-                                                                          if tSprID <> "bb_kick3_3" then
-                                                                            if tSprID <> "bb_kick3_4" then
-                                                                              if tSprID <> "bb_kick4_1" then
-                                                                                if tSprID <> "bb_kick4_2" then
-                                                                                  if (tSprID = "bb_kick4_3") then
+                                              if tAction <> "bb_kick1_1" then
+                                                if tAction <> "bb_kick1_2" then
+                                                  if tAction <> "bb_kick1_3" then
+                                                    if tAction <> "bb_kick1_4" then
+                                                      if tAction <> "bb_kick1_5" then
+                                                        if tAction <> "bb_kick1_6" then
+                                                          if tAction <> "bb_kick2_1" then
+                                                            if tAction <> "bb_kick2_2" then
+                                                              if tAction <> "bb_kick2_3" then
+                                                                if tAction <> "bb_kick2_4" then
+                                                                  if tAction <> "bb_kick2_5" then
+                                                                    if tAction <> "bb_kick2_6" then
+                                                                      if tAction <> "bb_kick3_1" then
+                                                                        if tAction <> "bb_kick3_2" then
+                                                                          if tAction <> "bb_kick3_3" then
+                                                                            if tAction <> "bb_kick3_4" then
+                                                                              if tAction <> "bb_kick4_1" then
+                                                                                if tAction <> "bb_kick4_2" then
+                                                                                  if (tAction = "bb_kick4_3") then
                                                                                     tTeamNum = integer(string(tSprID).getProp(#char, 8))
                                                                                     tPlayerNum = integer(string(tSprID).getProp(#char, 10))
                                                                                     tdata = tGameSystemObj.getObservedInstance()
@@ -378,17 +378,17 @@ on eventProcMainWindow me, tEvent, tSprID, tParam
                                                                                     end if
                                                                                     return(tGameSystemObj.kickPlayer(tTeam.getAt(tPlayerNum).getAt(#id)))
                                                                                   else
-                                                                                    if (tSprID = "bb_link_gameRul") then
+                                                                                    if (tAction = "bb_link_gameRul") then
                                                                                       openNetPage(getText("bb_link_gameRules_url"))
                                                                                     else
-                                                                                      if (tSprID = "bb_link_highScr") then
+                                                                                      if (tAction = "bb_link_highScr") then
                                                                                         if tGameSystemObj.getTournamentFlag() then
                                                                                           openNetPage(getText("bb_link_tournament_highScores_url"))
                                                                                         else
                                                                                           openNetPage(getText("bb_link_highScores_url"))
                                                                                         end if
                                                                                       else
-                                                                                        if (tSprID = "bb_logo_tournament") then
+                                                                                        if (tAction = "bb_logo_tournament") then
                                                                                           if pTournamentLogoClickURL <> void() then
                                                                                             openNetPage(pTournamentLogoClickURL)
                                                                                           end if
@@ -485,8 +485,8 @@ on setGameCreationDefaults me
   if (tWndObj = 0) then
     return FALSE
   end if
-  repeat while tStruct <= undefined
-    tItem = getAt(undefined, undefined)
+  repeat while tStruct <= 1
+    tItem = getAt(1, count(tStruct))
     pGameParameters.addProp(tItem.getAt(#name), tItem.getAt(#default))
     if (tStruct = "name") then
       tWndObj.getElement("bb_field_gameNaming").setText(tItem.getAt(#default))
@@ -569,7 +569,7 @@ on showErrorMessage me, tErrorType, tRequestStr, tExtra
       end if
     end if
   end if
-  if (tErrorType = "create") then
+  if (tRequestStr = "create") then
     me.ChangeWindowView(#gameList)
   end if
   if (tErrorType = 6) then

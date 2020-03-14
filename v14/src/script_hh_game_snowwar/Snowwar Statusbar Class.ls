@@ -3,11 +3,7 @@ property pMaxHealth, pBottomBarId, pLastBallcount, pBallCountAnimTimer, pBallCre
 on construct me 
   pBallCountAnimTimer = 0
   pBallCreateAnimTimer = 0
-  tRoomInt = getObject(#room_interface)
-  if (tRoomInt = 0) then
-    return FALSE
-  end if
-  pBottomBarId = tRoomInt.pBottomBarId
+  pBottomBarId = "RoomBarID"
   registerMessage(#roomReady, me.getID(), #replaceRoomBar)
   pMaxHealth = getIntVariable("snowwar.health.maximum")
   pMaxBallcount = getIntVariable("snowwar.snowball.maximum")
@@ -290,7 +286,7 @@ on eventProcRoomBar me, tEvent, tSprID, tParam
       end if
     end if
   end if
-  tRoomInt = getObject(#room_interface)
+  tRoomInt = getObject("RoomBarProgram")
   if (tRoomInt = 0) then
     return FALSE
   end if

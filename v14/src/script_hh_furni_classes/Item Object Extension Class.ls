@@ -134,8 +134,11 @@ on update me
               else
                 pFrameNumberList2.setAt(tLayer, pFrameNumberList.getAt(tLayer))
               end if
-              if pFrameNumberList2.getAt(tLayer) < 0 then
-                pFrameNumberList2.setAt(tLayer, random(abs(pFrameNumberList2.getAt(tLayer))))
+              if not voidp(tFrameList.getAt(#blend)) then
+                tBlendList = tFrameList.getAt(#blend)
+                if tBlendList.count >= pFrameNumberList2.getAt(tLayer) then
+                  me.getPropRef(#pSprList, tLayer).blend = tBlendList.getAt(pFrameNumberList2.getAt(tLayer))
+                end if
               end if
             end if
           end if
@@ -346,25 +349,42 @@ on setState me, tNewState
       tNewIndex = tIndex
     end if
     if tNewIndex <> 0 then
-      pStateIndex = tNewIndex
-      pState = tNewState
-      me.resetFrameNumbers()
-      tLayer = 1
-      repeat while tLayer <= pLayerDataList.count
-        tFrameList = me.getFrameList(pLayerDataList.getPropAt(tLayer))
-        if not voidp(tFrameList) then
-          tLoop = 1
-          if not voidp(tFrameList.getAt(#loop)) then
-            tLoop = (tFrameList.getAt(#loop) - 1)
-          end if
-          pLoopCountList.setAt(tLayer, tLoop)
-        end if
-        tLayer = (1 + tLayer)
-      end repeat
-      return TRUE
+    else
+      tIndex = (1 + tIndex)
     end if
-    tIndex = (1 + tIndex)
   end repeat
+  if (tNewIndex = 0) then
+    if pStateSequenceList.count > 0 then
+      tstate = pStateSequenceList.getAt(1)
+      if (ilk(tstate) = #list) then
+        if tstate.count > 0 then
+          tNewState = tstate.getAt(1)
+          tNewIndex = 1
+        end if
+      else
+        tNewState = tstate
+        tNewIndex = 1
+      end if
+    end if
+  end if
+  if tNewIndex <> 0 then
+    pStateIndex = tNewIndex
+    pState = tNewState
+    me.resetFrameNumbers()
+    tLayer = 1
+    repeat while tLayer <= pLayerDataList.count
+      tFrameList = me.getFrameList(pLayerDataList.getPropAt(tLayer))
+      if not voidp(tFrameList) then
+        tLoop = 1
+        if not voidp(tFrameList.getAt(#loop)) then
+          tLoop = (tFrameList.getAt(#loop) - 1)
+        end if
+        pLoopCountList.setAt(tLayer, tLoop)
+      end if
+      tLayer = (1 + tLayer)
+    end repeat
+    return TRUE
+  end if
   return FALSE
 end
 
@@ -438,7 +458,7 @@ on resetFrameNumbers me
   pFrameNumberList2 = []
   i = 1
   repeat while i <= max(me.count(#pLocShiftList), pLayerDataList.count)
-    pFrameNumberList.setAt(i, 1)
+    pFrameNumberList.setAt(i, 0)
     pFrameNumberList2.setAt(i, 1)
     pFrameRepeatList.setAt(i, 1)
     pIsAnimatingList.setAt(i, 1)

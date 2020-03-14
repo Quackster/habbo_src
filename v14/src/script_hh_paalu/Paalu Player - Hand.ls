@@ -5,7 +5,7 @@ on define me, tPart, tProps
   pBalance = 2
   pAnimFrm = 0
   pPart = tPart
-  pDirection = tProps.getAt(#dir)
+  pDirection = tProps.getAt(#Dir)
   pBodyColor = tProps.getAt(#figure).getAt(pPart).getAt("color")
   pCounter = 0
   return TRUE

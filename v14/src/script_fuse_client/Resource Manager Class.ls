@@ -302,12 +302,12 @@ on emptyDynamicBin me
 end
 
 on deleteDynamicMembers me 
-  repeat while pDynMemNumList <= undefined
-    tMemNum = getAt(undefined, undefined)
+  repeat while pDynMemNumList <= 1
+    tMemNum = getAt(1, count(pDynMemNumList))
     member(tMemNum).erase()
   end repeat
-  repeat while pDynMemNumList <= undefined
-    tMemNum = getAt(undefined, undefined)
+  repeat while pBmpMemNumList <= 1
+    tMemNum = getAt(1, count(pBmpMemNumList))
     member(tMemNum).erase()
   end repeat
   pDynMemNumList = []

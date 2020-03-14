@@ -150,20 +150,38 @@ on Refresh me, tdata
     if not voidp(pItemListMe.getAt(i).getAt(#props)) then
       tClass = tClass & "_" & pItemListMe.getAt(i).getAt(#props)
     end if
-    if voidp(pMySlotProps.getAt(tClass)) then
+    tSlotID = tClass
+    if not voidp(pItemListMe.getAt(i).getAt(#slotID)) then
+      tSlotID = pItemListMe.getAt(i).getAt(#slotID)
+    end if
+    if voidp(pMySlotProps.getAt(tSlotID)) then
       tAddToSlot = (pMySlotProps.count + 1)
       if tWndObj.elementExists("trading_mystuff_" & tAddToSlot) then
-        pMySlotProps.addProp(tClass, ["count":1, "slot":tAddToSlot, "name":pItemListMe.getAt(i).getAt(#name)])
-        tWndObj.getElement("trading_mycount_" & tAddToSlot).setText(pMySlotProps.getAt(tClass).getAt("count"))
+        tSlotData = ["count":1, "slot":tAddToSlot, "name":pItemListMe.getAt(i).getAt(#name)]
+        if not voidp(pItemListMe.getAt(i).getAt(#songID)) then
+          tSlotData.setAt("songID", pItemListMe.getAt(i).getAt(#songID))
+          if not voidp(pItemListMe.getAt(i).getAt(#stuffdata)) then
+            tArray = [#source:pItemListMe.getAt(i).getAt(#stuffdata)]
+            executeMessage(#get_disk_data, tArray)
+            if not voidp(tArray.getAt(#author)) and not voidp(tArray.getAt(#songName)) then
+              tText = getText("song_disk_trade_info")
+              tText = replaceChunks(tText, "%author%", tArray.getAt(#author))
+              tText = replaceChunks(tText, "%name%", tArray.getAt(#songName))
+              tSlotData.setAt("name", tText)
+            end if
+          end if
+        end if
+        pMySlotProps.addProp(tSlotID, tSlotData)
+        tWndObj.getElement("trading_mycount_" & tAddToSlot).setText(pMySlotProps.getAt(tSlotID).getAt("count"))
         tImage = me.createItemImg(pItemListMe.getAt(i))
         tWndObj.getElement("trading_mystuff_" & tAddToSlot).feedImage(tImage)
         tWndObj.getElement("trading_mystuff_" & tAddToSlot).draw(rgb(64, 64, 64))
       end if
     else
-      tCount = pMySlotProps.getAt(tClass).getAt("count")
-      tSlot = pMySlotProps.getAt(tClass).getAt("slot")
-      pMySlotProps.getAt(tClass).setAt("count", (tCount + 1))
-      tWndObj.getElement("trading_mycount_" & tSlot).setText(pMySlotProps.getAt(tClass).getAt("count"))
+      tCount = pMySlotProps.getAt(tSlotID).getAt("count")
+      tSlot = pMySlotProps.getAt(tSlotID).getAt("slot")
+      pMySlotProps.getAt(tSlotID).setAt("count", (tCount + 1))
+      tWndObj.getElement("trading_mycount_" & tSlot).setText(pMySlotProps.getAt(tSlotID).getAt("count"))
     end if
     pMyStripItems.add(pItemListMe.getAt(i).getAt(#stripId))
     if getThread(#room).getComponent().isCreditFurniClass(pItemListMe.getAt(i).getAt(#class)) then
@@ -182,20 +200,42 @@ on Refresh me, tdata
     if not voidp(pItemListHe.getAt(i).getAt(#props)) then
       tClass = tClass & pItemListHe.getAt(i).getAt(#props)
     end if
-    if voidp(pHerSlotProps.getAt(tClass)) then
+    tSlotID = tClass
+    if not voidp(pItemListHe.getAt(i).getAt(#slotID)) then
+      tSlotID = pItemListHe.getAt(i).getAt(#slotID)
+    end if
+    if voidp(pHerSlotProps.getAt(tSlotID)) then
       tAddToSlot = (pHerSlotProps.count + 1)
       if tWndObj.elementExists("trading_herstuff_" & tAddToSlot) then
-        pHerSlotProps.addProp(tClass, ["count":1, "slot":tAddToSlot, "name":pItemListHe.getAt(i).getAt(#name)])
-        tWndObj.getElement("trading_hercount_" & tAddToSlot).setText(pHerSlotProps.getAt(tClass).getAt("count"))
+        tSlotData = ["count":1, "slot":tAddToSlot, "name":pItemListHe.getAt(i).getAt(#name)]
+        if not voidp(pItemListHe.getAt(i).getAt(#songID)) then
+          tSlotData.setAt("songID", pItemListHe.getAt(i).getAt(#songID))
+          if not voidp(pItemListHe.getAt(i).getAt(#stuffdata)) then
+            tArray = [#source:pItemListHe.getAt(i).getAt(#stuffdata)]
+            executeMessage(#get_disk_data, tArray)
+            if not voidp(tArray.getAt(#author)) and not voidp(tArray.getAt(#songName)) then
+              tText = getText("song_disk_trade_info")
+              tText = replaceChunks(tText, "%author%", tArray.getAt(#author))
+              tText = replaceChunks(tText, "%name%", tArray.getAt(#songName))
+              tSlotData.setAt("name", tText)
+              if not voidp(tArray.getAt(#playIcon)) then
+                tSlotData.setAt(#hiliteImage, me.cropToFit(tArray.getAt(#playIcon)))
+              end if
+            end if
+          end if
+        end if
+        pHerSlotProps.addProp(tSlotID, tSlotData)
+        tWndObj.getElement("trading_hercount_" & tAddToSlot).setText(pHerSlotProps.getAt(tSlotID).getAt("count"))
         tImage = me.createItemImg(pItemListHe.getAt(i))
+        tSlotData.setAt(#image, tImage)
         tWndObj.getElement("trading_herstuff_" & tAddToSlot).feedImage(tImage)
         tWndObj.getElement("trading_herstuff_" & tAddToSlot).draw(rgb(64, 64, 64))
       end if
     else
-      tCount = pHerSlotProps.getAt(tClass).getAt("count")
-      tSlot = pHerSlotProps.getAt(tClass).getAt("slot")
-      pHerSlotProps.getAt(tClass).setAt("count", (tCount + 1))
-      tWndObj.getElement("trading_hercount_" & tSlot).setText(pHerSlotProps.getAt(tClass).getAt("count"))
+      tCount = pHerSlotProps.getAt(tSlotID).getAt("count")
+      tSlot = pHerSlotProps.getAt(tSlotID).getAt("slot")
+      pHerSlotProps.getAt(tSlotID).setAt("count", (tCount + 1))
+      tWndObj.getElement("trading_hercount_" & tSlot).setText(pHerSlotProps.getAt(tSlotID).getAt("count"))
     end if
     if getThread(#room).getComponent().isCreditFurniClass(pItemListHe.getAt(i).getAt(#class)) then
       tCreditFurniPrice.setAt(#he, (tCreditFurniPrice.getAt(#he) + integer(pItemListHe.getAt(i).getAt(#stuffdata))))
@@ -468,16 +508,24 @@ on eventProcTrading me, tEvent, tSprID, tParam
             end if
           end if
         end if
+        if tSprID contains "trading_herstuff" then
+          if integer(tSprID.getProp(#char, length(tSprID))) <= pHerSlotProps.count then
+            tSongID = pHerSlotProps.getAt(integer(tSprID.getProp(#char, length(tSprID)))).getAt(#songID)
+            if not voidp(tSongID) then
+              executeMessage(#listen_song, value(tSongID))
+            end if
+          end if
+        end if
         if (tEvent = #mouseEnter) then
           tObjMover = getThread(#room).getInterface().getObjectMover()
           if tObjMover <> 0 then
             tObjMover.moveTrade()
           end if
-          if (tEvent = "trading_confirm_check") then
+          if (tSprID = "trading_confirm_check") then
             return(me.showInfo(getText("trading_youagree")))
           else
-            if tEvent <> "close" then
-              if (tEvent = "trading_cancel") then
+            if tSprID <> "close" then
+              if (tSprID = "trading_cancel") then
                 return(me.showInfo(getText("trading_cancel")))
               end if
               if tSprID contains "trading_mystuff" and not pAcceptFlagMe then
@@ -490,15 +538,23 @@ on eventProcTrading me, tEvent, tSprID, tParam
                 if tSprID contains "trading_herstuff" then
                   if integer(tSprID.getProp(#char, length(tSprID))) <= pHerSlotProps.count then
                     me.showInfo(pHerSlotProps.getAt(integer(tSprID.getProp(#char, length(tSprID)))).getAt(#name))
+                    if integer(tSprID.getProp(#char, length(tSprID))) <= pHerSlotProps.count then
+                      tSlotIndex = integer(tSprID.getProp(#char, length(tSprID)))
+                      tImage = pHerSlotProps.getAt(tSlotIndex).getAt(#hiliteImage)
+                      if not voidp(tImage) then
+                        getWindow(pTraderWndID).getElement(tSprID).feedImage(tImage)
+                        getWindow(pTraderWndID).getElement(tSprID).draw(rgb(64, 64, 64))
+                      end if
+                    end if
                   end if
                 end if
               end if
-              if (tEvent = #mouseLeave) then
-                if (tEvent = "trading_confirm_check") then
+              if (tSprID = #mouseLeave) then
+                if (tSprID = "trading_confirm_check") then
                   return(me.showInfo(void()))
                 else
-                  if tEvent <> "close" then
-                    if (tEvent = "trading_cancel") then
+                  if tSprID <> "close" then
+                    if (tSprID = "trading_cancel") then
                       return(me.showInfo(void()))
                     end if
                     if tSprID contains "trading_mystuff" and not pAcceptFlagMe then
@@ -515,6 +571,18 @@ on eventProcTrading me, tEvent, tSprID, tParam
                     else
                       if tSprID contains "trading_herstuff" then
                         me.showInfo(void())
+                        tSlotIndex = integer(tSprID.getProp(#char, length(tSprID)))
+                        if tSlotIndex <= pHerSlotProps.count then
+                          tSongID = pHerSlotProps.getAt(tSlotIndex).getAt(#songID)
+                          if not voidp(tSongID) then
+                            executeMessage(#do_not_listen_song, value(tSongID))
+                          end if
+                          tImage = pHerSlotProps.getAt(tSlotIndex).getAt(#image)
+                          if not voidp(tImage) then
+                            getWindow(pTraderWndID).getElement(tSprID).feedImage(tImage)
+                            getWindow(pTraderWndID).getElement(tSprID).draw(rgb(64, 64, 64))
+                          end if
+                        end if
                       end if
                     end if
                   end if

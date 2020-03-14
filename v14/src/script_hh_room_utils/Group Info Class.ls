@@ -25,16 +25,16 @@ on updateGroupInformation me, tGroupsArr
   if not listp(tGroupsArr) then
     return FALSE
   end if
-  repeat while tGroupsArr <= undefined
-    tIncomingGroupData = getAt(undefined, tGroupsArr)
-    tid = string(tIncomingGroupData.getAt(#id))
+  repeat while tGroupsArr <= 1
+    tIncomingGroupData = getAt(1, count(tGroupsArr))
+    tID = string(tIncomingGroupData.getAt(#id))
     tCombinedData = [:]
-    if not voidp(pGroupData.getAt(tid)) then
-      tCombinedData = pGroupData.getAt(tid)
+    if not voidp(pGroupData.getAt(tID)) then
+      tCombinedData = pGroupData.getAt(tID)
     end if
     tKeyList = [#id, #name, #desc, #logo]
-    repeat while tGroupsArr <= undefined
-      tKey = getAt(undefined, tGroupsArr)
+    repeat while tGroupsArr <= 1
+      tKey = getAt(1, count(tGroupsArr))
       if not voidp(tIncomingGroupData.getAt(tKey)) then
         tCombinedData.setAt(tKey, tIncomingGroupData.getAt(tKey))
         if (tKey = #logo) then
@@ -42,10 +42,10 @@ on updateGroupInformation me, tGroupsArr
         end if
       end if
     end repeat
-    pGroupData.setAt(tid, tCombinedData)
-    if (pLastPendingData.getAt(#groupid) = tid) then
+    pGroupData.setAt(tID, tCombinedData)
+    if (pLastPendingData.getAt(#groupid) = tID) then
       me.showUsersInfo(pLastPendingData.getAt(#userindex))
-      pGroupData.getAt(tid).setAt(#download, #done)
+      pGroupData.getAt(tID).setAt(#download, #done)
       pLastPendingData = [:]
     end if
   end repeat

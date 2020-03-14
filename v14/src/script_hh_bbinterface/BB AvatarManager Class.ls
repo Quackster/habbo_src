@@ -24,8 +24,8 @@ end
 
 on Refresh me, tTopic, tdata 
   if (tTopic = #gamestatus_events) then
-    repeat while tTopic <= tdata
-      tEvent = getAt(tdata, tTopic)
+    repeat while tTopic <= count(tTopic)
+      tEvent = getAt(count(tTopic), tdata)
       if (tTopic = 0) then
         me.createRoomObject(tEvent.getAt(#data))
       else
@@ -41,21 +41,21 @@ on Refresh me, tTopic, tdata
   else
     if (tTopic = #gamestatus_players) then
       tUpdatedPlayers = []
-      repeat while tTopic <= tdata
-        tPlayer = getAt(tdata, tTopic)
+      repeat while tTopic <= count(tTopic)
+        tPlayer = getAt(count(tTopic), tdata)
         me.updateRoomObjectLocation(tPlayer)
         tUpdatedPlayers.add(tPlayer.getAt(#id))
       end repeat
     else
       if (tTopic = #fullgamestatus_players) then
-        repeat while tTopic <= tdata
-          tPlayer = getAt(tdata, tTopic)
+        repeat while tTopic <= count(tTopic)
+          tPlayer = getAt(count(tTopic), tdata)
           me.createRoomObject(tPlayer)
         end repeat
       else
         if (tTopic = #gamereset) then
-          repeat while tTopic <= tdata
-            tPlayer = getAt(tdata, tTopic)
+          repeat while tTopic <= count(tTopic)
+            tPlayer = getAt(count(tTopic), tdata.getAt(#players))
             pGoalLocationList.deleteProp(string(tPlayer.getAt(#id)))
             me.updateRoomObjectLocation(tPlayer)
           end repeat
@@ -110,11 +110,11 @@ on createRoomObject me, tdata
   end if
 end
 
-on deleteRoomObject me, tid 
+on deleteRoomObject me, tID 
   if (pRoomComponentObj = 0) then
     return FALSE
   end if
-  tUserStrId = string(tid)
+  tUserStrId = string(tID)
   pGoalLocationList.deleteProp(tUserStrId)
   pCurrentLocationList.deleteProp(tUserStrId)
   pExpectedLocationList.deleteProp(tUserStrId)

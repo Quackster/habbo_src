@@ -111,8 +111,8 @@ on createButtonImg me, tText, tstate
   tEndPointY = tNewImg.height
   tStartPointX = 0
   tEndPointX = 0
-  repeat while [#left, #middle, #right] <= tstate
-    i = getAt(tstate, tText)
+  repeat while [#left, #middle, #right] <= 1
+    i = getAt(1, count([#left, #middle, #right]))
     tStartPointX = tEndPointX
     if ([#left, #middle, #right] = #left) then
       tEndPointX = (tEndPointX + me.pButtonImg.getProp(i).width)
@@ -133,13 +133,13 @@ on createButtonImg me, tText, tstate
     tOptImgRect = pIconImg.rect
     tOptImgMargH = me.getPropRef(#pProp, #icon).getAt(#props).getAt(tAlignment).getAt(#marginH)
     tOptImgMargV = ((tNewImg.height / 2) - (tOptImgRect.height / 2))
-    if ([#left, #middle, #right] = #right) then
+    if (tAlignment = #right) then
       tDstRect = (tOptImgRect + rect(((me.pwidth - tOptImgMargH) - tOptImgRect.width), tOptImgMargV, ((me.pwidth - tOptImgMargH) - tOptImgRect.width), tOptImgMargV))
     else
-      if ([#left, #middle, #right] = #left) then
+      if (tAlignment = #left) then
         tDstRect = (tOptImgRect + rect(tOptImgMargH, tOptImgMargV, tOptImgMargH, tOptImgMargV))
       else
-        if ([#left, #middle, #right] = #center) then
+        if (tAlignment = #center) then
           tDstRect = ((tOptImgRect + rect((tNewImg.width / 2), 0, (tNewImg.width / 2), 0)) - rect((pIconImg / 2), 0, (pIconImg / 2), 0))
         end if
       end if
@@ -151,13 +151,13 @@ on createButtonImg me, tText, tstate
     tNewImg.copyPixels(pIconImg, tDstRect, tOptImgRect, [#ink:tInk])
   end if
   tDstRect = (tTextImg.rect + rect(1, tMarginV, 1, tMarginV))
-  if ([#left, #middle, #right] = #left) then
+  if (tFontDesc.getAt(#alignment) = #left) then
     tDstRect = (tDstRect + rect(me.pButtonImg.getProp(#left).width, 0, me.pButtonImg.getProp(#left).width, 0))
   else
-    if ([#left, #middle, #right] = #center) then
+    if (tFontDesc.getAt(#alignment) = #center) then
       tDstRect = ((tDstRect + rect((tNewImg.width / 2), 0, (tNewImg.width / 2), 0)) - rect((tTextWidth / 2), 0, (tTextWidth / 2), 0))
     else
-      if ([#left, #middle, #right] = #right) then
+      if (tFontDesc.getAt(#alignment) = #right) then
         tDstRect = ((tDstRect + rect(tNewImg.width, 0, tNewImg.width, 0)) - rect((tTextWidth + me.pButtonImg.getProp(#right).width), 0, (tTextWidth + me.pButtonImg.getProp(#right).width), 0))
       end if
     end if

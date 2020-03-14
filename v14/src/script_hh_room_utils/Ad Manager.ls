@@ -122,6 +122,10 @@ on adReady me
   if (tVisObj = 0) then
     return FALSE
   end if
+  if (member(pAdMemNum).type = #empty) then
+    unregisterMember(pMemberID)
+    return FALSE
+  end if
   if tVisObj.spriteExists("billboard_img") then
     if tVisObj.pLayout <> pRegisteredLayout then
       return FALSE
@@ -206,8 +210,8 @@ on createToolTipMember me
   tmember.text = tText
   tList = ["left":"ad.tooltip.left", "middle":"ad.tooltip.middle", "right":"ad.tooltip.right"]
   tImgs = [:]
-  repeat while ["left", "middle", "right"] <= undefined
-    i = getAt(undefined, undefined)
+  repeat while ["left", "middle", "right"] <= 1
+    i = getAt(1, count(["left", "middle", "right"]))
     tImgs.addProp(i, member(getmemnum(tList.getAt(i))).image)
   end repeat
   tTextWidth = (tmember.charPosToLoc(tmember.count(#char)).locH + (tImgs.getAt("left").width * 2))
@@ -219,8 +223,8 @@ on createToolTipMember me
   tEndPointY = tNewImg.height
   tStartPointX = 0
   tEndPointX = 0
-  repeat while ["left", "middle", "right"] <= undefined
-    i = getAt(undefined, undefined)
+  repeat while ["left", "middle", "right"] <= 1
+    i = getAt(1, count(["left", "middle", "right"]))
     tStartPointX = tEndPointX
     if (["left", "middle", "right"] = "left") then
       tEndPointX = (tEndPointX + tImgs.getProp(i).width)

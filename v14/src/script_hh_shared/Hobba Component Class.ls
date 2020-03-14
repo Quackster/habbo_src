@@ -28,8 +28,8 @@ on receive_pickedCry me, tMsg
   return TRUE
 end
 
-on deleteCry me, tid 
-  pCryDataBase.deleteProp(tid)
+on deleteCry me, tID 
+  pCryDataBase.deleteProp(tID)
   me.getInterface().updateCryWnd()
   return TRUE
 end
@@ -136,8 +136,7 @@ on send_CfhReply me, tCryID, tMsg
   repeat while i <= tMsg.count(#char)
     tCharsCounted = (tCharsCounted + 1)
     if tCharsCounted > 45 and (tMsg.getProp(#char, i) = space()) then
-      -- UNK_21
-      ERROR.setContents()
+      #char.setContents(i.getPropRef())
       tCharsCounted = 0
     end if
     i = (1 + i)

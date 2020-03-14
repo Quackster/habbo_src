@@ -107,6 +107,9 @@ on adLoaded me
   if (pAdError = 1) then
     return FALSE
   end if
+  if (getMember(pMemberID).type = #empty) then
+    return(me.adImportError())
+  end if
   pAdLoaded = 1
   tThread = getThread(#room)
   if (tThread = 0) then
@@ -119,6 +122,14 @@ on adLoaded me
   tRoomInt.resizeInterstitialWindow()
   createTimeout(pShowTimeOutID, pShowAdTime, #adFinished, me.getID(), void(), 1)
   pShowCounter = (pShowCounter + 1)
+end
+
+on adImportError me 
+  error(me, "Interstitial resource error", #adImportError, #minor)
+  unregisterMember(pMemberID)
+  pAdError = 1
+  me.adFinished()
+  return FALSE
 end
 
 on adDownloadError me 
@@ -177,8 +188,8 @@ on createToolTipMember me
   tmember.text = tText
   tList = ["left":"ad.tooltip.left", "middle":"ad.tooltip.middle", "right":"ad.tooltip.right"]
   tImgs = [:]
-  repeat while ["left", "middle", "right"] <= undefined
-    i = getAt(undefined, undefined)
+  repeat while ["left", "middle", "right"] <= 1
+    i = getAt(1, count(["left", "middle", "right"]))
     tImgs.addProp(i, member(getmemnum(tList.getAt(i))).image)
   end repeat
   tTextWidth = (tmember.charPosToLoc(tmember.count(#char)).locH + (tImgs.getAt("left").width * 2))
@@ -190,8 +201,8 @@ on createToolTipMember me
   tEndPointY = tNewImg.height
   tStartPointX = 0
   tEndPointX = 0
-  repeat while ["left", "middle", "right"] <= undefined
-    i = getAt(undefined, undefined)
+  repeat while ["left", "middle", "right"] <= 1
+    i = getAt(1, count(["left", "middle", "right"]))
     tStartPointX = tEndPointX
     if (["left", "middle", "right"] = "left") then
       tEndPointX = (tEndPointX + tImgs.getProp(i).width)

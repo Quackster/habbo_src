@@ -14,8 +14,8 @@ on getBinaryManager
   return(tMgr.getManager(#binary_data_manager))
 end
 
-on retrieveBinaryData tid, tAuth, tCallBackObject 
-  return(getBinaryManager().retrieveData(tid, tAuth, tCallBackObject))
+on retrieveBinaryData tID, tAuth, tCallBackObject 
+  return(getBinaryManager().retrieveData(tID, tAuth, tCallBackObject))
 end
 
 on storeBinaryData tdata, tCallBackObject 

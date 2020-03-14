@@ -52,8 +52,8 @@ on createStoredObjects me
   if (pObjectCache = void()) then
     return TRUE
   end if
-  repeat while pObjectCache <= undefined
-    tDataObject = getAt(undefined, undefined)
+  repeat while pObjectCache <= 1
+    tDataObject = getAt(1, count(pObjectCache))
     me.createGameObject(tDataObject)
   end repeat
   pObjectCache = void()
@@ -106,8 +106,8 @@ end
 on verifyGameObjectList me, tObjectIdList 
   tGameSystem = me.getGameSystem()
   tAllGameObjectIds = tGameSystem.getGameObjectIdsOfType(#all)
-  repeat while tAllGameObjectIds <= undefined
-    tObjectID = getAt(undefined, tObjectIdList)
+  repeat while tAllGameObjectIds <= 1
+    tObjectID = getAt(1, count(tAllGameObjectIds))
     if tObjectIdList.getPos(tObjectID) < 1 then
       tGameSystem.removeGameObject(tObjectID)
     end if

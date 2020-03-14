@@ -58,8 +58,8 @@ on storeObjects me, tdata
     pObjectCache = tdata
     return FALSE
   end if
-  repeat while tdata <= undefined
-    tItem = getAt(undefined, tdata)
+  repeat while tdata <= 1
+    tItem = getAt(1, count(tdata))
     if (tItem.getAt(#height) = 0) then
       if not listp(tItem.getAt(#dimensions)) then
         tItem.setAt(#height, 0)
@@ -160,8 +160,8 @@ on clearObjectFromTileSpace me, tObjectID
   if not listp(pTileSpaceReserveList.getAt(tObjectID)) then
     return TRUE
   end if
-  repeat while pTileSpaceReserveList.getAt(tObjectID) <= undefined
-    tTile = getAt(undefined, tObjectID)
+  repeat while pTileSpaceReserveList.getAt(tObjectID) <= 1
+    tTile = getAt(1, count(pTileSpaceReserveList.getAt(tObjectID)))
     tTile.removeContent(tObjectID)
   end repeat
   pTileSpaceReserveList.setaProp(tObjectID, [])

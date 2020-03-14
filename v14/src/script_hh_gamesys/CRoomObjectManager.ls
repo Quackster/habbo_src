@@ -18,22 +18,22 @@ on deconstruct me
 end
 
 on clearAll me 
-  repeat while m_mp_ar_rUsepool <= undefined
-    t_ar_pool = getAt(undefined, undefined)
+  repeat while m_mp_ar_rUsepool <= 1
+    t_ar_pool = getAt(1, count(m_mp_ar_rUsepool))
     if t_ar_pool.count > 0 then
-      repeat while m_mp_ar_rUsepool <= undefined
-        tObject = getAt(undefined, undefined)
+      repeat while m_mp_ar_rUsepool <= 1
+        tObject = getAt(1, count(m_mp_ar_rUsepool))
         me.removeRoomObject(tObject.GetParam("CLASS"), tObject.GetParam("REF"))
       end repeat
       t_ar_pool = []
     end if
   end repeat
   m_mp_ar_rUsepool = [:]
-  repeat while m_mp_ar_rUsepool <= undefined
-    t_ar_pool = getAt(undefined, undefined)
+  repeat while m_mp_ar_rFreepool <= 1
+    t_ar_pool = getAt(1, count(m_mp_ar_rFreepool))
     if t_ar_pool.count > 0 then
-      repeat while m_mp_ar_rUsepool <= undefined
-        tObject = getAt(undefined, undefined)
+      repeat while m_mp_ar_rFreepool <= 1
+        tObject = getAt(1, count(m_mp_ar_rFreepool))
         me.removeRoomObject(tObject.GetParam("CLASS"), tObject.GetParam("REF"))
       end repeat
       t_ar_pool = []
@@ -43,11 +43,11 @@ on clearAll me
 end
 
 on FreeAll me 
-  repeat while m_mp_ar_rUsepool <= undefined
-    t_ar_pool = getAt(undefined, undefined)
+  repeat while m_mp_ar_rUsepool <= 1
+    t_ar_pool = getAt(1, count(m_mp_ar_rUsepool))
     if t_ar_pool.count > 0 then
-      repeat while m_mp_ar_rUsepool <= undefined
-        tObject = getAt(undefined, undefined)
+      repeat while m_mp_ar_rUsepool <= 1
+        tObject = getAt(1, count(m_mp_ar_rUsepool))
         me.FreeObject(tObject)
       end repeat
     end if

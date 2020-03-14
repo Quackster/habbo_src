@@ -68,8 +68,8 @@ on getOccupiedHeight me
     return FALSE
   end if
   tMaxHeight = 0
-  repeat while pContent <= undefined
-    tItem = getAt(undefined, undefined)
+  repeat while pContent <= 1
+    tItem = getAt(1, count(pContent))
     if tItem.getAt(#height) > tMaxHeight then
       tMaxHeight = tItem.getAt(#height)
     end if

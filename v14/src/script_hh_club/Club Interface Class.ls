@@ -237,7 +237,7 @@ end
 
 on openBuyInHabboWeb me 
   if (getText("club_buy_url") = "club_buy_url") then
-    return(error(me, "key club_buy_url not defined!", #eventProcDialogMousedown, #major))
+    return(error(me, "key club_buy_url not defined!", #eventProcDialogMousedown))
   else
     openNetPage("club_buy_url")
   end if

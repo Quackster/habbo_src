@@ -69,7 +69,7 @@ on update me
     end if
   end if
   if (netDone(pNetId) = 1) then
-    if (netError(pNetId) = "OK") and tStreamStatus.getAt(#bytesSoFar) > 0 then
+    if (netError(pNetId) = "OK") then
       me.importFileToCast()
       getDownloadManager().removeActiveTask(pMemName, pCallBack)
       pStatus = #complete

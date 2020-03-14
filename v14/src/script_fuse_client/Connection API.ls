@@ -14,38 +14,38 @@ on getConnectionManager
   return(tMgr.getManager(#connection_manager))
 end
 
-on createConnection tid, tHost, tPort 
-  return(getConnectionManager().create(tid, tHost, tPort))
+on createConnection tID, tHost, tPort 
+  return(getConnectionManager().create(tID, tHost, tPort))
 end
 
-on removeConnection tid 
-  return(getConnectionManager().Remove(tid))
+on removeConnection tID 
+  return(getConnectionManager().Remove(tID))
 end
 
-on getConnection tid 
-  return(getConnectionManager().GET(tid))
+on getConnection tID 
+  return(getConnectionManager().GET(tID))
 end
 
-on connectionExists tid 
-  return(getConnectionManager().exists(tid))
+on connectionExists tID 
+  return(getConnectionManager().exists(tID))
 end
 
 on printConnections  
   return(getConnectionManager().print())
 end
 
-on registerListener tid, tObjID, tMsgList 
-  return(getConnectionManager().registerListener(tid, tObjID, tMsgList))
+on registerListener tID, tObjID, tMsgList 
+  return(getConnectionManager().registerListener(tID, tObjID, tMsgList))
 end
 
-on unregisterListener tid, tObjID, tMsgList 
-  return(getConnectionManager().unregisterListener(tid, tObjID, tMsgList))
+on unregisterListener tID, tObjID, tMsgList 
+  return(getConnectionManager().unregisterListener(tID, tObjID, tMsgList))
 end
 
-on registerCommands tid, tObjID, tCmdList 
-  return(getConnectionManager().registerCommands(tid, tObjID, tCmdList))
+on registerCommands tID, tObjID, tCmdList 
+  return(getConnectionManager().registerCommands(tID, tObjID, tCmdList))
 end
 
-on unregisterCommands tid, tObjID, tCmdList 
-  return(getConnectionManager().unregisterCommands(tid, tObjID, tCmdList))
+on unregisterCommands tID, tObjID, tCmdList 
+  return(getConnectionManager().unregisterCommands(tID, tObjID, tCmdList))
 end

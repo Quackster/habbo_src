@@ -612,11 +612,11 @@ on getPassiveObjectIntersectingRect me, tItemR
   tPieceObjUnder = void()
   tPieceSprUnder = 0
   tPieceUnderLocZ = -1000000000
-  repeat while tPieceList <= undefined
-    tPiece = getAt(undefined, tItemR)
+  repeat while tPieceList <= 1
+    tPiece = getAt(1, count(tPieceList))
     tSprites = tPiece.getSprites()
-    repeat while tPieceList <= undefined
-      tPieceSpr = getAt(undefined, tItemR)
+    repeat while tPieceList <= 1
+      tPieceSpr = getAt(1, count(tPieceList))
       tRp = sprite(tPieceSpr).member.regPoint
       tR = (rect(sprite(tPieceSpr).locH, sprite(tPieceSpr).locV, sprite(tPieceSpr).locH, sprite(tPieceSpr).locV) + rect(-tRp.getAt(1), -tRp.getAt(2), (sprite(tPieceSpr).member.width - tRp.getAt(1)), (sprite(tPieceSpr).member.height - tRp.getAt(2))))
       if intersect(tItemR, tR) <> rect(0, 0, 0, 0) and tPieceUnderLocZ < tPieceSpr.locZ then
@@ -636,8 +636,8 @@ on checkObjectExists me
   end if
 end
 
-on objectFinalized me, tid 
-  if pActive and (pClientID = tid) then
+on objectFinalized me, tID 
+  if pActive and (pClientID = tID) then
     tClientID = pClientID
     tStripID = pStripID
     tObjType = pObjType

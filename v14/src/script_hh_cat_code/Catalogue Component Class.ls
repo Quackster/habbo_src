@@ -227,8 +227,8 @@ on solveCatalogueMembers me, tdata
     tImageNameList = tdata.getAt("teaserImgList")
     tMemList = []
     if tImageNameList.count > 0 then
-      repeat while tImageNameList <= undefined
-        tImg = getAt(undefined, tdata)
+      repeat while tImageNameList <= 1
+        tImg = getAt(1, count(tImageNameList))
         if memberExists(tImg) then
           tMemList.add(getmemnum(tImg))
         else
@@ -292,8 +292,8 @@ on processCataloguePage me, tdata
   tPageID = tdata.getAt("id")
   tObjectLoadList = []
   if not voidp(tdata.getAt("productList")) and not voidp(tPageID) then
-    repeat while tdata.getAt("productList") <= undefined
-      tProduct = getAt(undefined, tdata)
+    repeat while tdata.getAt("productList") <= 1
+      tProduct = getAt(1, count(tdata.getAt("productList")))
       tClass = me.getClassName(tProduct.getAt("class"))
       if not voidp(tClass) and tClass <> "" then
         if (tObjectLoadList.findPos(tClass) = 0) then
@@ -304,8 +304,8 @@ on processCataloguePage me, tdata
       end if
       tDeal = tProduct.getAt("dealList")
       if not voidp(tDeal) then
-        repeat while tdata.getAt("productList") <= undefined
-          tDealProduct = getAt(undefined, tdata)
+        repeat while tdata.getAt("productList") <= 1
+          tDealProduct = getAt(1, count(tdata.getAt("productList")))
           tClass = me.getClassName(tDealProduct.getAt("class"))
           if not voidp(tClass) and tClass <> "" then
             if (tObjectLoadList.findPos(tClass) = 0) then
@@ -346,8 +346,8 @@ on processCataloguePage me, tdata
     end if
   end if
   if (ilk(tTeaserImgList) = #list) then
-    repeat while tdata.getAt("productList") <= undefined
-      tTeaserImg = getAt(undefined, tdata)
+    repeat while tTeaserImgList <= 1
+      tTeaserImg = getAt(1, count(tTeaserImgList))
       if string(tTeaserImg).length > 0 then
         if not memberExists(tTeaserImg) then
           tSourceURL = pImageLibraryURL & "catalogue/" & tTeaserImg & "_" & me.getLanguage() & ".gif"

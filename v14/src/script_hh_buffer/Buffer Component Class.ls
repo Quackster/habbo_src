@@ -26,8 +26,8 @@ end
 
 on processObject me, tObj, ttype 
   tClass = me.getClassName(tObj.getAt(#class), tObj.getAt(#type))
-  tid = tObj.getAt(#id)
-  if voidp(tClass) or voidp(tid) then
+  tID = tObj.getAt(#id)
+  if voidp(tClass) or voidp(tID) then
     return(tObj)
   end if
   if ttype <> "active" and ttype <> "item" then
@@ -47,10 +47,10 @@ on processObject me, tObj, ttype
       pPlaceHolderList.setAt(ttype, [:])
     end if
     tObjCopy = tObj.duplicate()
-    if voidp(pPlaceHolderList.getAt(ttype).findPos(tid)) then
-      pPlaceHolderList.getAt(ttype).addProp(tid, tObjCopy)
+    if voidp(pPlaceHolderList.getAt(ttype).findPos(tID)) then
+      pPlaceHolderList.getAt(ttype).addProp(tID, tObjCopy)
     else
-      pPlaceHolderList.getAt(ttype).setAt(tid, tObjCopy)
+      pPlaceHolderList.getAt(ttype).setAt(tID, tObjCopy)
     end if
     tAssetType = ""
     if (ttype = "active") then
@@ -80,35 +80,35 @@ on downloadCompleted me, tClassID, tSuccess
       tObj = tPlaceHolderList.getAt(tIndex)
       tClass = me.getClassName(tObj.getAt(#class), tObj.getAt(#type))
       if (tClass = tClassID) then
-        tid = tObj.getAt(#id)
+        tID = tObj.getAt(#id)
         tExists = 0
         if (tTypeName = "active") then
-          tExists = getThread(#room).getComponent().activeObjectExists(tid)
+          tExists = getThread(#room).getComponent().activeObjectExists(tID)
         else
           if (tTypeName = "item") then
-            tExists = getThread(#room).getComponent().itemObjectExists(tid)
+            tExists = getThread(#room).getComponent().itemObjectExists(tID)
           end if
         end if
         if tExists and tSuccess then
           if (tTypeName = "active") then
             getThread(#room).getComponent().validateActiveObjects(tObj)
             if not voidp(tObj.findPos(#stripId)) then
-              getThread(#room).getComponent().getActiveObject(tid).setaProp(#stripId, tObj.getAt(#stripId))
+              getThread(#room).getComponent().getActiveObject(tID).setaProp(#stripId, tObj.getAt(#stripId))
             end if
           else
             if (tTypeName = "item") then
               getThread(#room).getComponent().validateItemObjects(tObj)
               if not voidp(tObj.findPos(#stripId)) then
-                getThread(#room).getComponent().getItemObject(tid).setaProp(#stripId, tObj.getAt(#stripId))
+                getThread(#room).getComponent().getItemObject(tID).setaProp(#stripId, tObj.getAt(#stripId))
               end if
             end if
           end if
-          me.processMessageBuffer(tid, ttype)
+          me.processMessageBuffer(tID, ttype)
           tUpdated = 1
-          executeMessage(#objectFinalized, tid)
+          executeMessage(#objectFinalized, tID)
         else
           if not voidp(pMessageBuffer.getAt(ttype)) then
-            pMessageBuffer.getAt(ttype).deleteProp(tid)
+            pMessageBuffer.getAt(ttype).deleteProp(tID)
           end if
         end if
         tPlaceHolderList.deleteAt(tIndex)
@@ -147,31 +147,31 @@ on downloadObject me, tdata
   return TRUE
 end
 
-on removeObject me, tid, ttype 
+on removeObject me, tID, ttype 
   if not voidp(pPlaceHolderList.getAt(ttype)) then
-    pPlaceHolderList.getAt(ttype).deleteProp(tid)
+    pPlaceHolderList.getAt(ttype).deleteProp(tID)
   end if
   if not voidp(pMessageBuffer.getAt(ttype)) then
-    pMessageBuffer.getAt(ttype).deleteProp(tid)
+    pMessageBuffer.getAt(ttype).deleteProp(tID)
   end if
 end
 
-on bufferMessage me, tMsg, tid, ttype 
+on bufferMessage me, tMsg, tID, ttype 
   if not listp(tMsg) then
     return FALSE
   end if
   tSubject = tMsg.getAt(#subject)
-  if voidp(tid) or voidp(ttype) or voidp(tSubject) then
+  if voidp(tID) or voidp(ttype) or voidp(tSubject) then
     return FALSE
   end if
   if voidp(pPlaceHolderList.getAt(ttype)) or voidp(pMessageBuffer.getAt(ttype)) then
     return FALSE
   end if
-  if not voidp(pPlaceHolderList.getAt(ttype).findPos(tid)) then
-    if voidp(pMessageBuffer.getAt(ttype).findPos(tid)) then
-      pMessageBuffer.getAt(ttype).setAt(tid, [])
+  if not voidp(pPlaceHolderList.getAt(ttype).findPos(tID)) then
+    if voidp(pMessageBuffer.getAt(ttype).findPos(tID)) then
+      pMessageBuffer.getAt(ttype).setAt(tID, [])
     end if
-    tBuffer = pMessageBuffer.getAt(ttype).getAt(tid)
+    tBuffer = pMessageBuffer.getAt(ttype).getAt(tID)
     tIndex = 1
     repeat while tIndex <= tBuffer.count
       tMsg_old = tBuffer.getAt(tIndex)
@@ -182,21 +182,21 @@ on bufferMessage me, tMsg, tid, ttype
         tIndex = (1 + tIndex)
       end if
     end repeat
-    pMessageBuffer.getAt(ttype).getAt(tid).add(tMsg)
+    pMessageBuffer.getAt(ttype).getAt(tID).add(tMsg)
   end if
 end
 
-on processMessageBuffer me, tid, ttype 
-  if voidp(tid) or voidp(ttype) then
+on processMessageBuffer me, tID, ttype 
+  if voidp(tID) or voidp(ttype) then
     return FALSE
   end if
   if voidp(pMessageBuffer.getAt(ttype)) then
     return FALSE
   end if
-  tBuffer = pMessageBuffer.getAt(ttype).getaProp(tid)
+  tBuffer = pMessageBuffer.getAt(ttype).getaProp(tID)
   if not voidp(tBuffer) then
-    repeat while tBuffer <= ttype
-      tMsg = getAt(ttype, tid)
+    repeat while tBuffer <= 1
+      tMsg = getAt(1, count(tBuffer))
       tSubject = tMsg.getAt(#subject)
       tContent = tMsg.content
       tConn = tMsg.connection
@@ -231,7 +231,7 @@ on processMessageBuffer me, tid, ttype
         end repeat
       end if
     end repeat
-    pMessageBuffer.getAt(ttype).deleteProp(tid)
+    pMessageBuffer.getAt(ttype).deleteProp(tID)
   end if
   return TRUE
 end

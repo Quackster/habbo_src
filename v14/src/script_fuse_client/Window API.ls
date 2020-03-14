@@ -14,55 +14,59 @@ on getWindowManager
   return(tMgr.getManager(#window_manager))
 end
 
-on createWindow tid, tLayout, tLocX, tLocY, tSpecial 
-  return(getWindowManager().create(tid, tLayout, tLocX, tLocY, tSpecial))
+on createWindow tID, tLayout, tLocX, tLocY, tSpecial 
+  return(getWindowManager().create(tID, tLayout, tLocX, tLocY, tSpecial))
 end
 
-on removeWindow tid 
-  return(getWindowManager().Remove(tid))
+on removeWindow tID 
+  return(getWindowManager().Remove(tID))
 end
 
-on getWindow tid 
-  return(getWindowManager().GET(tid))
+on getWindow tID 
+  return(getWindowManager().GET(tID))
 end
 
-on windowExists tid 
-  return(getWindowManager().exists(tid))
+on getWindowIDList  
+  return(getWindowManager().getIDList())
 end
 
-on mergeWindow tid, tLayout 
-  if windowExists(tid) then
-    return(getWindow(tid).merge(tLayout))
+on windowExists tID 
+  return(getWindowManager().exists(tID))
+end
+
+on mergeWindow tID, tLayout 
+  if windowExists(tID) then
+    return(getWindow(tID).merge(tLayout))
   else
     return FALSE
   end if
 end
 
-on activateWindow tid 
-  if voidp(tid) then
+on activateWindow tID 
+  if voidp(tID) then
     return FALSE
   end if
-  return(getWindowManager().Activate(tid))
+  return(getWindowManager().Activate(tID))
 end
 
-on deactivateWindow tid 
-  if voidp(tid) then
+on deactivateWindow tID 
+  if voidp(tID) then
     return FALSE
   end if
-  return(getWindowManager().deactivate(tid))
+  return(getWindowManager().deactivate(tID))
 end
 
-on registerClient tid, tClientID 
-  if windowExists(tid) then
-    return(getWindow(tid).registerClient(tClientID))
+on registerClient tID, tClientID 
+  if windowExists(tID) then
+    return(getWindow(tID).registerClient(tClientID))
   else
     return FALSE
   end if
 end
 
-on registerProcedure tid, tHandler, tClientID, tEvent 
-  if windowExists(tid) then
-    return(getWindow(tid).registerProcedure(tHandler, tClientID, tEvent))
+on registerProcedure tID, tHandler, tClientID, tEvent 
+  if windowExists(tID) then
+    return(getWindow(tID).registerProcedure(tHandler, tClientID, tEvent))
   else
     return FALSE
   end if

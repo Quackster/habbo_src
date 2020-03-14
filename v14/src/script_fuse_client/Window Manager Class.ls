@@ -25,41 +25,41 @@ on construct me
   return TRUE
 end
 
-on create me, tid, tLayout, tLocX, tLocY, tSpecial 
+on create me, tID, tLayout, tLocX, tLocY, tSpecial 
   if (tSpecial = #modal) then
-    return(me.modal(tid, tLayout))
+    return(me.modal(tID, tLayout))
   else
     if (tSpecial = #modalcorner) then
-      return(me.modal(tid, tLayout, #corner))
+      return(me.modal(tID, tLayout, #corner))
     end if
   end if
   if voidp(tLayout) then
     tLayout = "empty.window"
   end if
-  if me.exists(tid) then
+  if me.exists(tID) then
     if voidp(tLocX) then
-      tLocX = me.GET(tid).getProperty(#locX)
+      tLocX = me.GET(tID).getProperty(#locX)
     end if
     if voidp(tLocY) then
-      tLocY = me.GET(tid).getProperty(#locY)
+      tLocY = me.GET(tID).getProperty(#locY)
     end if
-    me.Remove(tid)
+    me.Remove(tID)
   end if
   if integerp(tLocX) and integerp(tLocY) then
     tX = tLocX
     tY = tLocY
   else
-    if not voidp(me.getProp(#pPosCache, tid)) then
-      tX = me.getPropRef(#pPosCache, tid).getAt(1)
-      tY = me.getPropRef(#pPosCache, tid).getAt(2)
+    if not voidp(me.getProp(#pPosCache, tID)) then
+      tX = me.getPropRef(#pPosCache, tID).getAt(1)
+      tY = me.getPropRef(#pPosCache, tID).getAt(2)
     else
       tX = pDefLocX
       tY = pDefLocY
     end if
   end if
-  tItem = getObjectManager().create(tid, me.pInstanceClass)
+  tItem = getObjectManager().create(tID, me.pInstanceClass)
   if not tItem then
-    return(error(me, "Failed to create window object:" && tid, #create, #major))
+    return(error(me, "Failed to create window object:" && tID, #create, #major))
   end if
   tProps = [:]
   tProps.setAt(#locX, tX)
@@ -69,28 +69,28 @@ on create me, tid, tLayout, tLocX, tLocY, tSpecial
   tProps.setAt(#elements, pClsList)
   tProps.setAt(#manager, me)
   if not tItem.define(tProps) then
-    getObjectManager().Remove(tid)
+    getObjectManager().Remove(tID)
     return FALSE
   end if
   if not tItem.merge(tLayout) then
-    getObjectManager().Remove(tid)
+    getObjectManager().Remove(tID)
     return FALSE
   end if
-  me.pItemList.add(tid)
+  me.pItemList.add(tID)
   pAvailableLocZ = (pAvailableLocZ + tItem.getProperty(#sprCount))
   me.Activate()
   return TRUE
 end
 
-on Remove me, tid 
-  tWndObj = me.GET(tid)
+on Remove me, tID 
+  tWndObj = me.GET(tID)
   if (tWndObj = 0) then
     return FALSE
   end if
-  me.setProp(#pPosCache, tid, [tWndObj.getProperty(#locX), tWndObj.getProperty(#locY)])
-  getObjectManager().Remove(tid)
-  me.pItemList.deleteOne(tid)
-  if (me.pActiveItem = tid) then
+  me.setProp(#pPosCache, tID, [tWndObj.getProperty(#locX), tWndObj.getProperty(#locY)])
+  getObjectManager().Remove(tID)
+  me.pItemList.deleteOne(tID)
+  if (me.pActiveItem = tID) then
     tNextActive = me.pItemList.getLast()
   else
     tNextActive = me.pActiveItem
@@ -99,10 +99,10 @@ on Remove me, tid
     tModals = 0
     i = me.count(#pItemList)
     repeat while i >= 1
-      tid = me.getProp(#pItemList, i)
-      if me.GET(tid).getProperty(#modal) then
+      tID = me.getProp(#pItemList, i)
+      if me.GET(tID).getProperty(#modal) then
         tModals = 1
-        tNextActive = tid
+        tNextActive = tID
       else
         i = (255 + i)
       end if
@@ -115,7 +115,7 @@ on Remove me, tid
   return TRUE
 end
 
-on Activate me, tid 
+on Activate me, tID 
   if pLockLocZ then
     return FALSE
   end if
@@ -124,42 +124,59 @@ on Activate me, tid
   end if
   if me.exists(me.pActiveItem) then
     if me.GET(me.pActiveItem).getProperty(#modal) then
-      tid = me.pActiveItem
+      tID = me.pActiveItem
       if me.exists(pModalID) then
         me.pItemList.deleteOne(pModalID)
         me.pItemList.append(pModalID)
       end if
     end if
   end if
-  if voidp(tid) then
-    tid = me.pItemList.getLast()
+  if voidp(tID) then
+    tID = me.pItemList.getLast()
   else
-    if not me.exists(tid) then
+    if not me.exists(tID) then
       return FALSE
     end if
   end if
-  me.pItemList.deleteOne(tid)
-  me.pItemList.append(tid)
+  me.pItemList.deleteOne(tID)
+  me.pItemList.append(tID)
   me.pAvailableLocZ = me.pDefaultLocZ
-  repeat while me.pItemList <= undefined
-    tCurrID = getAt(undefined, tid)
+  repeat while me.pItemList <= 1
+    tCurrID = getAt(1, count(me.pItemList))
     tWndObj = me.GET(tCurrID)
     tWndObj.setDeactive()
-    repeat while me.pItemList <= undefined
-      tSpr = getAt(undefined, tid)
+    repeat while me.pItemList <= 1
+      tSpr = getAt(1, count(me.pItemList))
       tSpr.locZ = me.pAvailableLocZ
       me.pAvailableLocZ = (me.pAvailableLocZ + 1)
     end repeat
   end repeat
-  me.pActiveItem = tid
-  return(me.GET(tid).setActive())
+  me.pActiveItem = tID
+  return(me.GET(tID).setActive())
 end
 
-on deactivate me, tid 
-  if me.exists(tid) then
-    if not me.GET(tid).getProperty(#modal) then
-      me.pItemList.deleteOne(tid)
-      me.pItemList.addAt(1, tid)
+on reorder me, tNewOrder 
+  if (tNewOrder = me.pItemList) then
+    return TRUE
+  end if
+  me.pItemList = tNewOrder
+  me.pAvailableLocZ = me.pDefaultLocZ
+  repeat while me.pItemList <= 1
+    tCurrID = getAt(1, count(me.pItemList))
+    tWndObj = me.GET(tCurrID)
+    repeat while me.pItemList <= 1
+      tSpr = getAt(1, count(me.pItemList))
+      tSpr.locZ = me.pAvailableLocZ
+      me.pAvailableLocZ = (me.pAvailableLocZ + 1)
+    end repeat
+  end repeat
+end
+
+on deactivate me, tID 
+  if me.exists(tID) then
+    if not me.GET(tID).getProperty(#modal) then
+      me.pItemList.deleteOne(tID)
+      me.pItemList.addAt(1, tID)
       me.Activate()
       return TRUE
     end if
@@ -177,14 +194,14 @@ on unlock me
   return TRUE
 end
 
-on modal me, tid, tLayout, tPosition 
+on modal me, tID, tLayout, tPosition 
   if voidp(tPosition) then
     tPosition = #center
   end if
-  if not me.create(tid, tLayout) then
+  if not me.create(tID, tLayout) then
     return FALSE
   end if
-  tWndObj = me.GET(tid)
+  tWndObj = me.GET(tID)
   if (tPosition = #center) then
     tWndObj.center()
   else
@@ -206,7 +223,7 @@ on modal me, tid, tLayout, tPosition
     end if
   end if
   the keyboardFocusSprite = 0
-  me.pActiveItem = tid
-  me.Activate(tid)
+  me.pActiveItem = tID
+  me.Activate(tID)
   return TRUE
 end

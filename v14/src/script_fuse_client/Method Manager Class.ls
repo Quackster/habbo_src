@@ -12,11 +12,11 @@ on deconstruct me
   return TRUE
 end
 
-on create me, tid, tObject 
-  if not me.register(tid, tObject) then
-    return(error(me, "Failed to register object:" && tid, #create, #major))
+on create me, tID, tObject 
+  if not me.register(tID, tObject) then
+    return(error(me, "Failed to register object:" && tID, #create, #major))
   else
-    me.setProp(#pItemList, tid, tObject)
+    me.setProp(#pItemList, tID, tObject)
     return TRUE
   end if
 end
@@ -30,23 +30,23 @@ on getMethod me, tConnectionID, tCommand
   end if
 end
 
-on Remove me, tid 
-  if voidp(me.getProp(#pItemList, tid)) then
-    return(error(me, "Object not found:" && tid, #Remove, #minor))
+on Remove me, tID 
+  if voidp(me.getProp(#pItemList, tID)) then
+    return(error(me, "Object not found:" && tID, #Remove, #minor))
   else
-    me.unregister(tid)
-    me.pItemList.deleteProp(tid)
+    me.unregister(tID)
+    me.pItemList.deleteProp(tID)
     return TRUE
   end if
 end
 
-on register me, tid, tObject 
+on register me, tID, tObject 
   if not tObject.handler(#getCommands) then
-    return(error(me, "Invalid method object:" && tid, #register, #major))
+    return(error(me, "Invalid method object:" && tID, #register, #major))
   end if
   tMethodList = tObject.getCommands()
   if not ilk(tMethodList, #propList) then
-    return(error(me, "Invalid method object:" && tid, #register, #major))
+    return(error(me, "Invalid method object:" && tID, #register, #major))
   end if
   i = 1
   repeat while i <= tMethodList.count
@@ -59,9 +59,9 @@ on register me, tid, tObject
     j = 1
     repeat while j <= tMethodList.getAt(i).count
       if tObject.handler(tMethodList.getAt(i).getAt(j)) then
-        tCurrentList.setAt(tMethodList.getAt(i).getPropAt(j), [tMethodList.getAt(i).getAt(j), tid])
+        tCurrentList.setAt(tMethodList.getAt(i).getPropAt(j), [tMethodList.getAt(i).getAt(j), tID])
       else
-        error(me, "Method" && "#" & tMethodList.getAt(i).getAt(j) && "not found in object:" && tid, #register, #major)
+        error(me, "Method" && "#" & tMethodList.getAt(i).getAt(j) && "not found in object:" && tID, #register, #major)
       end if
       j = (1 + j)
     end repeat
@@ -72,20 +72,20 @@ end
 
 on unregister me, tObjectOrID 
   if objectp(tObjectOrID) then
-    tid = tObjectOrID.getID()
+    tID = tObjectOrID.getID()
   else
     if stringp(tObjectOrID) or symbolp(tObjectOrID) then
       if not me.GET(tObjectOrID) then
         return(error(me, "Object not found:" && tObjectOrID, #unregister, #minor))
       end if
-      tid = tObjectOrID
+      tID = tObjectOrID
     end if
   end if
   tConnection = 1
   repeat while tConnection <= pMethodCache.count
     tCommand = pMethodCache.getAt(tConnection).count
     repeat while tCommand >= 1
-      if (pMethodCache.getAt(tConnection).getAt(tCommand).getAt(2) = tid) then
+      if (pMethodCache.getAt(tConnection).getAt(tCommand).getAt(2) = tID) then
         pMethodCache.getAt(tConnection).deleteAt(tCommand)
       end if
       tCommand = (255 + tCommand)

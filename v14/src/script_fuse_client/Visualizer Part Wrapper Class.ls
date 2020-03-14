@@ -179,8 +179,8 @@ on fitRectToWall me, tRect, tSlope
     tLowestPoint = point(tRect.getAt(3), tRect.getAt(4))
     tdir = "rightwall"
   end if
-  repeat while pPartList <= tSlope
-    tPart = getAt(tSlope, tRect)
+  repeat while pPartList <= 1
+    tPart = getAt(1, count(pPartList))
     if (pTypeDef = #wallleft) then
       tSlopeSpace = abs((tPart.width * tSlope))
     else
@@ -198,8 +198,8 @@ on fitRectToWall me, tRect, tSlope
       if voidp(tPartForHighest) then
         return([#insideWall:0])
       end if
-      repeat while pPartList <= tSlope
-        tPart = getAt(tSlope, tRect)
+      repeat while pPartList <= 1
+        tPart = getAt(1, count(pPartList))
         if (pTypeDef = #wallleft) then
           tSlopeSpace = 0
         else
@@ -244,8 +244,8 @@ on setPartPattern me, tPatternType, tPalette, tColor, tWrapType
   end if
   tDelim = the itemDelimiter
   the itemDelimiter = "_"
-  repeat while pPartList <= tPalette
-    tPart = getAt(tPalette, tPatternType)
+  repeat while pPartList <= 1
+    tPart = getAt(1, count(pPartList))
     tMem = tPart.getAt(#member)
     tClass = tMem.getProp(#item, 1) & "_" & tMem.getProp(#item, 2) & "_"
     ttype = tPatternType & "_"
@@ -276,8 +276,8 @@ on updateWrap me
 end
 
 on getPartAt me, tLocX, tLocY 
-  repeat while pPartList <= tLocY
-    tPart = getAt(tLocY, tLocX)
+  repeat while pPartList <= 1
+    tPart = getAt(1, count(pPartList))
     if (tPart.getAt(#locX) = tLocX) and (tPart.getAt(#locY) = tLocY) then
       tPartValues = [:]
       tPartValues.setAt(#member, tPart.getAt(#member))
@@ -316,8 +316,8 @@ on updateBounds me
     return TRUE
   end if
   tLocs = [#X1:[], #X2:[], #Y1:[], #Y2:[]]
-  repeat while pPartList <= undefined
-    tPart = getAt(undefined, undefined)
+  repeat while pPartList <= 1
+    tPart = getAt(1, count(pPartList))
     tPartMem = member(abs(getmemnum(tPart.getAt(#member))))
     tX1 = (tPart.locH - tPartMem.getProp(#regPoint, 1))
     tY1 = (tPart.locV - tPartMem.getProp(#regPoint, 2))
@@ -362,8 +362,8 @@ on renderImage me
   tStageWidth = (the stageRight - the stageLeft)
   tStageHeight = (the stageBottom - the stageTop)
   tTargetImage = image(tStageWidth, tStageHeight, 32)
-  repeat while pPartList <= undefined
-    tPart = getAt(undefined, undefined)
+  repeat while pPartList <= 1
+    tPart = getAt(1, count(pPartList))
     tPartMem = member(getmemnum(tPart.getAt(#member)))
     tPalette = pSpriteProps.getAt(#palette)
     if (ilk(tPalette) = #symbol) then

@@ -23,9 +23,9 @@ on eventProcChessPlacer me, tEvent, tSprID, tParam
   pSpr.visible = 0
   tsprite = rollover()
   pSpr.visible = 1
-  tid = call(#getID, sprite(tsprite).scriptInstanceList)
-  if (tid = "close") then
-    getThread(#games).getInterface().eventProcChess(tEvent, tid)
+  tID = call(#getID, sprite(tsprite).scriptInstanceList)
+  if (tID = "close") then
+    getThread(#games).getInterface().eventProcChess(tEvent, tID)
   end if
 end
 

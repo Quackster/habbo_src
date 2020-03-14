@@ -92,8 +92,8 @@ on openCloseDoor me, tOpen
   else
     tFrame = 0
   end if
-  repeat while me.pSprList <= undefined
-    tsprite = getAt(undefined, tOpen)
+  repeat while me.pSprList <= 1
+    tsprite = getAt(1, count(me.pSprList))
     tCurName = tsprite.member.name
     tNewName = tCurName.getProp(#char, 1, (length(tCurName) - 1)) & tFrame
     if memberExists(tNewName) then

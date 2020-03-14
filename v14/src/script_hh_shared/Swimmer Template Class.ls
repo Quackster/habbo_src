@@ -113,8 +113,8 @@ on setPartLists me, tmodels
   end if
   tColor = pPhFigure.getAt("color")
   tmodels.setAt("ch", ["model":tphModel, "color":tColor])
-  repeat while ["bd", "lh", "rh"] <= undefined
-    f = getAt(undefined, tmodels)
+  repeat while ["bd", "lh", "rh"] <= 1
+    f = getAt(1, count(["bd", "lh", "rh"]))
     if voidp(tmodels.getAt(f)) then
       tmodels.setAt(f, ["model":"001", "color":rgb("#EEEEEE")])
     end if

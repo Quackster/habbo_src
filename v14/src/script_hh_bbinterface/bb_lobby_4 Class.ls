@@ -9,14 +9,14 @@ on deconstruct me
   return TRUE
 end
 
-on setLoungePalette me, tid 
+on setLoungePalette me, tID 
   tExcludeList = ["adframe_bb_game_right", "bb_spot_blue", "bb_spot_yellow", "bb_spot_red", "bb_spot_green"]
   tCastLib = "hh_room_bb_game"
   tMemberCount = the number of castMembers
-  if (getmemnum("bb_colors_" & tid) = 0) then
-    return(error(me, "Cannot determine palette for lounge" && tid, #setLoungePalette))
+  if (getmemnum("bb_colors_" & tID) = 0) then
+    return(error(me, "Cannot determine palette for lounge" && tID, #setLoungePalette))
   end if
-  tPaletteMem = member(getmemnum("bb_colors_" & tid))
+  tPaletteMem = member(getmemnum("bb_colors_" & tID))
   i = 1
   repeat while i <= tMemberCount
     tmember = member(i, tCastLib)

@@ -15,8 +15,8 @@ end
 on purgeCallbacks me, tSuccess 
   tTimeoutName = "dyndownload" & the milliSeconds
   tCounter = 1
-  repeat while pListenerList <= undefined
-    tListener = getAt(undefined, tSuccess)
+  repeat while pListenerList <= 1
+    tListener = getAt(1, count(pListenerList))
     tObject = getObject(tListener.getAt(#objectID))
     tHandler = tListener.getAt(#handlerName)
     tCallbackParams = tListener.getAt(#callbackParams)

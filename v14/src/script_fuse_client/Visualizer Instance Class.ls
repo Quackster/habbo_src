@@ -31,8 +31,8 @@ on deconstruct me
   pSpriteData = []
   pActSprList = [:]
   pBoundary = []
-  repeat while pWrappedParts <= undefined
-    tWrapper = getAt(undefined, undefined)
+  repeat while pWrappedParts <= 1
+    tWrapper = getAt(1, count(pWrappedParts))
     tWrapper.deconstruct()
   end repeat
   pWrappedParts = [:]
@@ -112,42 +112,42 @@ on moveZ me, tZ
     pSpriteList.getAt(i).locZ = ((tZ + i) - 1)
     i = (1 + i)
   end repeat
-  repeat while pWrappedParts <= undefined
-    tPart = getAt(undefined, tZ)
+  repeat while pWrappedParts <= 1
+    tPart = getAt(1, count(pWrappedParts))
     tPart.setProperty(#visLocZ, tZ)
   end repeat
   pLocZ = tZ
 end
 
-on getSprite me, tid 
-  return(pActSprList.getAt(tid))
+on getSprite me, tID 
+  return(pActSprList.getAt(tID))
 end
 
-on getSprById me, tid 
-  return(pActSprList.getAt(tid))
+on getSprById me, tID 
+  return(pActSprList.getAt(tID))
 end
 
-on getSpriteByID me, tid 
-  return(pActSprList.getAt(tid))
+on getSpriteByID me, tID 
+  return(pActSprList.getAt(tID))
 end
 
-on spriteExists me, tid 
-  return(not voidp(pActSprList.getAt(tid)))
+on spriteExists me, tID 
+  return(not voidp(pActSprList.getAt(tID)))
 end
 
-on moveSprBy me, tid, tX, tY 
-  tsprite = pActSprList.getAt(tid)
+on moveSprBy me, tID, tX, tY 
+  tsprite = pActSprList.getAt(tID)
   if voidp(tsprite) then
-    return(error(me, "Sprite not found:" && tid, #moveSprBy, #minor))
+    return(error(me, "Sprite not found:" && tID, #moveSprBy, #minor))
   end if
   tsprite.loc = (tsprite.loc + [tX, tY])
   return(me.Refresh())
 end
 
-on moveSprTo me, tid, tX, tY 
-  tsprite = pActSprList.getAt(tid)
+on moveSprTo me, tID, tX, tY 
+  tsprite = pActSprList.getAt(tID)
   if voidp(tsprite) then
-    return(error(me, "Sprite not found:" && tid, #moveSprTo, #minor))
+    return(error(me, "Sprite not found:" && tID, #moveSprTo, #minor))
   end if
   tsprite.loc = point(tX, tY)
   return(me.Refresh())
@@ -297,8 +297,8 @@ on getWrappedParts me, tWrapTypes
     return(pWrappedParts)
   end if
   tWrappedParts = [:]
-  repeat while pWrappedParts <= undefined
-    tWrap = getAt(undefined, tWrapTypes)
+  repeat while pWrappedParts <= 1
+    tWrap = getAt(1, count(pWrappedParts))
     if tWrapTypes.getPos(tWrap.getProperty(#type)) > 0 then
       tWrappedParts.setAt(tWrap.getProperty(#id), tWrap)
     end if
@@ -315,8 +315,8 @@ on getPartAtLocation me, tLocX, tLocY, tWrapperTypes
   if not (ilk(tWrapperTypes) = #list) then
     tWrapperTypes = [tWrapperTypes]
   end if
-  repeat while pWrappedParts <= tLocY
-    tWrap = getAt(tLocY, tLocX)
+  repeat while pWrappedParts <= 1
+    tWrap = getAt(1, count(pWrappedParts))
     if tWrapperTypes.getOne(tWrap.getProperty(#type)) then
       tPart = tWrap.getPartAt(tLocX, tLocY)
       if (ilk(tPart) = #propList) then
@@ -342,8 +342,8 @@ on createWrapper me, tWrapID
 end
 
 on getWallPartUnderRect me, tRect, tSlope 
-  repeat while pWrappedParts <= tSlope
-    tWrap = getAt(tSlope, tRect)
+  repeat while pWrappedParts <= 1
+    tWrap = getAt(1, count(pWrappedParts))
     tWrapType = tWrap.getProperty(#type)
     if (tWrapType = #wallleft) or (tWrapType = #wallright) then
       tPart = tWrap.fitRectToWall(tRect, tSlope)
@@ -385,12 +385,12 @@ end
 
 on Refresh me 
   tRect = rect(100000, 100000, -100000, -100000)
-  repeat while pWrappedParts <= undefined
-    tWrapper = getAt(undefined, undefined)
+  repeat while pWrappedParts <= 1
+    tWrapper = getAt(1, count(pWrappedParts))
     tWrapper.updateWrap()
   end repeat
-  repeat while pWrappedParts <= undefined
-    tSpr = getAt(undefined, undefined)
+  repeat while pSpriteList <= 1
+    tSpr = getAt(1, count(pSpriteList))
     if tSpr.locH < tRect.getAt(1) then
       tRect.setAt(1, tSpr.locH)
     end if
@@ -460,8 +460,8 @@ on buildVisual me, tLayout
       else
         tSpr = sprite(getSpriteManager().reserveSprite(me.getID()))
         if tSpr.spriteNum < 1 then
-          repeat while tSpriteList <= undefined
-            t_rSpr = getAt(undefined, tLayout)
+          repeat while tSpriteList <= 1
+            t_rSpr = getAt(1, count(tSpriteList))
             releaseSprite(t_rSpr.spriteNum, me.getID())
           end repeat
           tSpriteList = [:]
@@ -548,12 +548,12 @@ on buildVisual me, tLayout
     end if
     i = (1 + i)
   end repeat
-  repeat while tSpriteList <= undefined
-    tSpr = getAt(undefined, tLayout)
+  repeat while tSpriteList <= 1
+    tSpr = getAt(1, count(tSpriteList))
     pSpriteList.append(tSpr)
   end repeat
-  repeat while tSpriteList <= undefined
-    tWrapper = getAt(undefined, tLayout)
+  repeat while pWrappedParts <= 1
+    tWrapper = getAt(1, count(pWrappedParts))
     if tWrapper.getProperty(#Active) then
       me.activateWrap(tWrapper)
     end if

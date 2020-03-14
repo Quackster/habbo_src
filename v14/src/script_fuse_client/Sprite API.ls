@@ -22,8 +22,8 @@ on releaseSprite tSprNum
   return(getSpriteManager().releaseSprite(tSprNum))
 end
 
-on setEventBroker tSprNum, tid 
-  return(getSpriteManager().setEventBroker(tSprNum, tid))
+on setEventBroker tSprNum, tID 
+  return(getSpriteManager().setEventBroker(tSprNum, tID))
 end
 
 on removeEventBroker tSprNum 

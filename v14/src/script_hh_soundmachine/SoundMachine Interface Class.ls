@@ -216,13 +216,13 @@ on updateSoundSetTabs me
   tIndex = me.getComponent().getSoundSetLimit()
   repeat while tIndex >= 1
     tVisible = 1
-    tid = me.getComponent().getSoundSetID(tIndex)
-    if tid <> 0 then
+    tID = me.getComponent().getSoundSetID(tIndex)
+    if tID <> 0 then
       tElem = tWndObj.getElement("sound_set_tab_text_" & tIndex)
       if tElem <> 0 then
         tElem.setProperty(#visible, 1)
         if tIndex <> tHooveredTab then
-          tText = getText("furni_sound_set_" & tid & "_name")
+          tText = getText("furni_sound_set_" & tID & "_name")
         else
           tText = getText("sound_machine_eject")
         end if
@@ -232,8 +232,8 @@ on updateSoundSetTabs me
       tVisible = 0
     end if
     tElemList = ["sound_set_tab_" & tIndex, "sound_set_tab_text_" & tIndex]
-    repeat while tElemList <= undefined
-      tElemName = getAt(undefined, undefined)
+    repeat while tElemList <= 1
+      tElemName = getAt(1, count(tElemList))
       tElem = tWndObj.getElement(tElemName)
       if tElem <> 0 then
         tElem.setProperty(#visible, tVisible)
@@ -252,17 +252,17 @@ on updateSoundSetList me
   tSetsReady = 1
   tIndex = me.getComponent().getSoundSetListPageSize()
   repeat while tIndex >= 1
-    tid = me.getComponent().getSoundSetListID(tIndex)
-    if tid <> 0 then
+    tID = me.getComponent().getSoundSetListID(tIndex)
+    if tID <> 0 then
       tElem = tWndObj.getElement("set_list_text_" & tIndex)
       if tElem <> 0 then
-        tText = getText("furni_sound_set_" & tid & "_name")
+        tText = getText("furni_sound_set_" & tID & "_name")
         tElem.setText(tText)
       end if
       tElem = tWndObj.getElement("set_list_icon_" & tIndex)
       if tElem <> 0 then
         if objectExists("Preview_renderer") then
-          tSoundSetName = "sound_set_" & tid
+          tSoundSetName = "sound_set_" & tID
           tdata = [#class:tSoundSetName, #type:#Active]
           executeMessage(#downloadObject, tdata)
           if (tdata.getAt(#ready) = 0) then
@@ -316,8 +316,8 @@ on updateSoundSetList me
     tVisible = 1
   end if
   tElemList = ["set_list_left", "set_list_right"]
-  repeat while tElemList <= undefined
-    tName = getAt(undefined, undefined)
+  repeat while tElemList <= 1
+    tName = getAt(1, count(tElemList))
     tElem = tWndObj.getElement(tName)
     if tElem <> 0 then
       tElem.setProperty(#visible, tVisible)
@@ -457,8 +457,8 @@ on updatePlayHead me, tManualUpdate
     if tElem <> 0 then
       tLocX = tElem.getProperty(#locX)
       tNameList = ["sound_timeline_playhead", "sound_timeline_playhead_drag"]
-      repeat while tNameList <= undefined
-        tName = getAt(undefined, tManualUpdate)
+      repeat while tNameList <= 1
+        tName = getAt(1, count(tNameList))
         tElem = tWndObj.getElement(tName)
         if tElem <> 0 then
           tElem.setProperty(#visible, 1)
@@ -474,8 +474,8 @@ on updatePlayHead me, tManualUpdate
       return FALSE
     end if
     tNameList = ["sound_timeline_playhead", "sound_timeline_playhead_drag"]
-    repeat while tNameList <= undefined
-      tName = getAt(undefined, tManualUpdate)
+    repeat while tNameList <= 1
+      tName = getAt(1, count(tNameList))
       tElem = tWndObj.getElement(tName)
       if tElem <> 0 then
         tElem.setProperty(#visible, 0)

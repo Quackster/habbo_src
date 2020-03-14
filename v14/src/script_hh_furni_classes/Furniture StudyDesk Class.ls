@@ -23,8 +23,8 @@ on setState me, tValue
     tValue = pToggleParts.getPropAt(1)
   end if
   pState = tValue
-  repeat while tPartStates <= undefined
-    tPart = getAt(undefined, tValue)
+  repeat while tPartStates <= 1
+    tPart = getAt(1, count(tPartStates))
     tPartId = tPart.sprite
     tmember = tPart.member
     if tmember <> void() then

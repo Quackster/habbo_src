@@ -68,14 +68,14 @@ end
 
 on releaseAllSprites me 
   pFreeSprList = []
-  repeat while pTotalSprList.count <= undefined
-    tSprNum = getAt(undefined, undefined)
+  repeat while pTotalSprList.count <= 1
+    tSprNum = getAt(1, count(pTotalSprList.count))
     me.releaseSprite(tSprNum)
   end repeat
   return TRUE
 end
 
-on setEventBroker me, tSprNum, tid 
+on setEventBroker me, tSprNum, tID 
   if pTotalSprList.getPos(tSprNum) < 1 then
     return(error(me, "Sprite not marked as usable:" && tSprNum, #setEventBroker, #major))
   end if
@@ -84,7 +84,7 @@ on setEventBroker me, tSprNum, tid
   end if
   tsprite = sprite(tSprNum)
   tsprite.scriptInstanceList = [new(pEventBroker)]
-  tsprite.setID(tid)
+  tsprite.setID(tID)
   return TRUE
 end
 
@@ -111,8 +111,8 @@ on print me, tCount
     end repeat
     exit repeat
   end if
-  repeat while pTotalSprList <= undefined
-    tNum = getAt(undefined, tCount)
+  repeat while pTotalSprList <= 1
+    tNum = getAt(1, count(pTotalSprList))
     if pFreeSprList.getPos(tNum) < 1 then
       tSymbol = "#"
     else

@@ -18,8 +18,8 @@ on deconstruct me
   return(removeMultiuser(pConnectionId))
 end
 
-on retrieveData me, tid, tAuth, tCallBackObj 
-  pQueue.add([#type:#retrieve, #id:tid, #auth:tAuth, #callback:tCallBackObj])
+on retrieveData me, tID, tAuth, tCallBackObj 
+  pQueue.add([#type:#retrieve, #id:tID, #auth:tAuth, #callback:tCallBackObj])
   if (count(pQueue) = 1) or not multiuserExists(pConnectionId) then
     me.next()
   end if

@@ -138,16 +138,16 @@ on setWallPaper me, ttype, tChange
   pWallProps = tWallData
   tDelim = the itemDelimiter
   the itemDelimiter = "_"
-  repeat while pWallPreviewIdList <= tChange
-    tid = getAt(tChange, ttype)
-    tPiece = tid.getProp(#item, tid.count(#item))
+  repeat while pWallPreviewIdList <= 1
+    tID = getAt(1, count(pWallPreviewIdList))
+    tPiece = tID.getProp(#item, tID.count(#item))
     tMem = "catalog_spaces_wall" & ttype & "_" & tPiece
     if memberExists(tMem) then
-      if tWndObj.elementExists(tid) then
+      if tWndObj.elementExists(tID) then
         tmember = member(getmemnum(tMem))
         tmember.paletteRef = member(getmemnum(tPalette))
         tImg = tmember.image
-        tElem = tWndObj.getElement(tid)
+        tElem = tWndObj.getElement(tID)
         tDestImg = tElem.getProperty(#image)
         tRect = tDestImg.rect
         tMatte = tImg.createMatte()
@@ -211,16 +211,16 @@ on setFloorPattern me, ttype, tChange
   if not tWndObj then
     return(error(me, "Couldn't access catalogue window!", #setFloorPattern, #major))
   end if
-  repeat while pFloorModel <= tChange
-    tid = getAt(tChange, ttype)
-    tPiece = tid.getProp(#item, tid.count(#item))
+  repeat while pFloorModel <= pFloorPatterns.getProp(#line, pFloorPattern)
+    tID = getAt(pFloorPatterns.getProp(#line, pFloorPattern), pFloorPatterns.getProp(#line, pFloorPattern))
+    tPiece = tID.getProp(#item, tID.count(#item))
     tMem = "catalog_spaces_floor" & ttype & "_" & tPiece
     if memberExists(tMem) then
-      if tWndObj.elementExists(tid) then
+      if tWndObj.elementExists(tID) then
         tmember = member(getmemnum(tMem))
         tmember.paletteRef = member(getmemnum(tPalette))
         tImg = tmember.image
-        tElem = tWndObj.getElement(tid)
+        tElem = tWndObj.getElement(tID)
         tDestImg = tElem.getProperty(#image)
         tRect = tDestImg.rect
         tMatte = tImg.createMatte()

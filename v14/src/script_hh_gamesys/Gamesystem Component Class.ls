@@ -33,7 +33,7 @@ on deconstruct me
   return TRUE
 end
 
-on defineClient me, tid 
+on defineClient me, tID 
   return TRUE
 end
 
@@ -45,17 +45,17 @@ on update me
   call(#update, pObjects)
 end
 
-on executeGameObjectEvent me, tid, tEvent, tdata 
-  if (tid = #all) then
-    repeat while pObjects <= tEvent
-      tGameObject = getAt(tEvent, tid)
+on executeGameObjectEvent me, tID, tEvent, tdata 
+  if (tID = #all) then
+    repeat while pObjects <= 1
+      tGameObject = getAt(1, count(pObjects))
       call(#executeGameObjectEvent, tGameObject, tEvent, tdata)
     end repeat
     return TRUE
   end if
-  tGameObject = me.getGameObject(tid)
+  tGameObject = me.getGameObject(tID)
   if (tGameObject = 0) then
-    return(error(me, "Cannot execute game object event:" && tEvent && "on:" && tid, #executeGameObjectEvent))
+    return(error(me, "Cannot execute game object event:" && tEvent && "on:" && tID, #executeGameObjectEvent))
   end if
   call(#executeGameObjectEvent, tGameObject, tEvent, tdata)
   return TRUE
@@ -63,8 +63,8 @@ end
 
 on calculateChecksum me, tSeed 
   tCheckSum = tSeed
-  repeat while pObjects <= undefined
-    tObject = getAt(undefined, tSeed)
+  repeat while pObjects <= 1
+    tObject = getAt(1, count(pObjects))
     tCheckSum = (tCheckSum + tObject.addChecksum())
   end repeat
   return(tCheckSum)
@@ -72,8 +72,8 @@ end
 
 on dumpChecksumValues me 
   tText = ""
-  repeat while pObjects <= undefined
-    tObject = getAt(undefined, undefined)
+  repeat while pObjects <= 1
+    tObject = getAt(1, count(pObjects))
     tText = tText & tObject.dump() & "\r"
   end repeat
   return(tText)
@@ -167,8 +167,8 @@ on executeSubturnMoves me
     end if
     i = (1 + i)
   end repeat
-  repeat while tRemoveList <= undefined
-    tObjectID = getAt(undefined, undefined)
+  repeat while tRemoveList <= 1
+    tObjectID = getAt(1, count(tRemoveList))
     me.removeGameObject(tObjectID)
   end repeat
   return TRUE
@@ -200,8 +200,8 @@ end
 
 on dump me 
   tText = ""
-  repeat while pObjects <= undefined
-    tObject = getAt(undefined, undefined)
+  repeat while pObjects <= 1
+    tObject = getAt(1, count(pObjects))
     tText = tText & tObject.dump() & "\r"
   end repeat
   return(tText)

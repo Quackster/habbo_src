@@ -40,15 +40,15 @@ on reset me
     end if
   else
     if (pDirection = #left) then
-      repeat while pSprite <= undefined
-        tSpr = getAt(undefined, undefined)
+      repeat while pSprite <= 1
+        tSpr = getAt(1, count(pSprite))
         tSpr.flipH = 1
         tSpr.loc = pProps.getAt(#left)
       end repeat
       pOffset = [2, 1]
     else
-      repeat while pSprite <= undefined
-        tSpr = getAt(undefined, undefined)
+      repeat while pSprite <= 1
+        tSpr = getAt(1, count(pSprite))
         tSpr.flipH = 0
         tSpr.loc = pProps.getAt(#right)
       end repeat
@@ -70,8 +70,8 @@ on update me
       return(me.reset())
     end if
   else
-    repeat while pSprite <= undefined
-      tSpr = getAt(undefined, undefined)
+    repeat while pSprite <= 1
+      tSpr = getAt(1, count(pSprite))
       tSpr.loc = (tSpr.loc + pOffset)
     end repeat
     if (pDirection = #left) and pSprite.getAt(1).locV > pProps.getAt(#leftlimit) or (pDirection = #right) and pSprite.getAt(1).locV < pProps.getAt(#rightlimit) then
@@ -80,14 +80,14 @@ on update me
     if pSprite.getAt(1).locH > pProps.getAt(#turn) then
       if (pDirection = #left) then
         pOffset = [-2, 1]
-        repeat while pSprite <= undefined
-          tSpr = getAt(undefined, undefined)
+        repeat while pSprite <= 1
+          tSpr = getAt(1, count(pSprite))
           tSpr.flipH = 0
         end repeat
       else
         pOffset = [-2, -1]
-        repeat while pSprite <= undefined
-          tSpr = getAt(undefined, undefined)
+        repeat while pSprite <= 1
+          tSpr = getAt(1, count(pSprite))
           tSpr.flipH = 1
         end repeat
       end if

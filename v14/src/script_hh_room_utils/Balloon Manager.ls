@@ -56,6 +56,7 @@ on construct me
   registerMessage(#leaveRoom, me.getID(), #removeBalloons)
   registerMessage(#changeRoom, me.getID(), #removeBalloons)
   executeMessage(#BalloonManagerCreated, [#objectPointer:me])
+  registerMessage(#show_balloon, me.getID(), #createBalloon)
   me.resetBalloons()
   return TRUE
 end
@@ -77,12 +78,12 @@ on deconstruct me
   if not voidp(pBalloonPulse) then
     call(#deconstruct, pBalloonPulse)
   end if
-  repeat while pReservedSprites <= undefined
-    tSpr = getAt(undefined, undefined)
+  repeat while pReservedSprites <= 1
+    tSpr = getAt(1, count(pReservedSprites))
     releaseSprite(tSpr)
   end repeat
-  repeat while pReservedSprites <= undefined
-    tMem = getAt(undefined, undefined)
+  repeat while pTextMembers <= 1
+    tMem = getAt(1, count(pTextMembers))
     removeMember(tMem.name)
   end repeat
   pReservedSprites = []
@@ -90,6 +91,7 @@ on deconstruct me
   pAvailableBalloons = void()
   pVisibleBalloons = void()
   pBalloonBuffer = void()
+  unregisterMessage(#show_balloon, me.getID())
   return TRUE
 end
 
@@ -127,8 +129,8 @@ on createballoonImg me, tName, tText, tBalloonColor, tChatMode
   tEndPointY = tNewImg.height
   tStartPointX = 0
   tEndPointX = 0
-  repeat while [#left, #middle, #right] <= tText
-    i = getAt(tText, tName)
+  repeat while [#left, #middle, #right] <= 1
+    i = getAt(1, count([#left, #middle, #right]))
     tStartPointX = tEndPointX
     if ([#left, #middle, #right] = #left) then
       tEndPointX = (tEndPointX + pBalloonImg.getProp(i).width)
@@ -220,11 +222,11 @@ on removeBalloons me
   end repeat
 end
 
-on removeVisibleBalloon me, tid 
-  if not voidp(pVisibleBalloons.getAt(tid)) then
-    pAvailableBalloons.setAt(tid, pVisibleBalloons.getAt(tid))
-    pAvailableBalloons.getAt(tid).set(#loc, point(0, -1000))
-    pVisibleBalloons.deleteProp(tid)
+on removeVisibleBalloon me, tID 
+  if not voidp(pVisibleBalloons.getAt(tID)) then
+    pAvailableBalloons.setAt(tID, pVisibleBalloons.getAt(tID))
+    pAvailableBalloons.getAt(tID).set(#loc, point(0, -1000))
+    pVisibleBalloons.deleteProp(tID)
     return TRUE
   end if
 end
@@ -232,16 +234,26 @@ end
 on createBalloon me, tMsg 
   if (pState = #normal) then
     if pAvailableBalloons.count > 0 then
-      tUserObj = getThread(#room).getComponent().getUserObject(tMsg.getAt(#id))
-      if not tUserObj then
-        return(error(me, "User object not found:" && tMsg.getAt(#id), #createBalloon, #major))
-      end if
-      pBalloonColor = tUserObj.getPartColor("ch")
-      if ilk(pBalloonColor) <> #color then
+      if tMsg.getAt(#furni) then
+        tActiveObj = getThread(#room).getComponent().getActiveObject(tMsg.getAt(#id))
+        if not tActiveObj then
+          return(error(me, "Acitve object not found:" && tMsg.getAt(#id), #createBalloon, #major))
+        end if
         pBalloonColor = rgb(232, 177, 55)
+        pHumanLoc = tActiveObj.getScreenLocation()
+        tMsg.setaProp(#name, tActiveObj.getInfo().getaProp(#name))
+      else
+        tUserObj = getThread(#room).getComponent().getUserObject(tMsg.getAt(#id))
+        if not tUserObj then
+          return(error(me, "User object not found:" && tMsg.getAt(#id), #createBalloon, #major))
+        end if
+        pBalloonColor = tUserObj.getPartColor("ch")
+        if ilk(pBalloonColor) <> #color then
+          pBalloonColor = rgb(232, 177, 55)
+        end if
+        pHumanLoc = tUserObj.getPartLocation("hd")
+        tMsg.setaProp(#name, tUserObj.getInfo().getaProp(#name))
       end if
-      pHumanLoc = tUserObj.getPartLocation("hd")
-      tMsg.setaProp(#name, tUserObj.getInfo().getaProp(#name))
       pLastBalloonId = pAvailableBalloons.getPropAt(1)
       pLastMsg = tMsg
       pBalloonPulse.set(#humanLoc, pHumanLoc)

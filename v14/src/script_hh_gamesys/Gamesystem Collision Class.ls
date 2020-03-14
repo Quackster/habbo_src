@@ -14,37 +14,37 @@ on testForObjectToObjectCollision me, tThisObject, tOtherObject, tDump
     return FALSE
   else
     if (tOtherObject.getGameObjectProperty(#gameobject_collisionshape_type) = #point) then
-      if (tOtherObject.getGameObjectProperty(#gameobject_collisionshape_type) = #none) then
+      if (tThisObject.getGameObjectProperty(#gameobject_collisionshape_type) = #none) then
         return FALSE
       else
-        if (tOtherObject.getGameObjectProperty(#gameobject_collisionshape_type) = #point) then
+        if (tThisObject.getGameObjectProperty(#gameobject_collisionshape_type) = #point) then
           return FALSE
         else
-          if (tOtherObject.getGameObjectProperty(#gameobject_collisionshape_type) = #circle) then
+          if (tThisObject.getGameObjectProperty(#gameobject_collisionshape_type) = #circle) then
             return(me.TestPointToCircleCollision(tOtherObject, tThisObject))
           else
-            if (tOtherObject.getGameObjectProperty(#gameobject_collisionshape_type) = #triplecircle) then
+            if (tThisObject.getGameObjectProperty(#gameobject_collisionshape_type) = #triplecircle) then
             else
-              if (tOtherObject.getGameObjectProperty(#gameobject_collisionshape_type) = #box) then
+              if (tThisObject.getGameObjectProperty(#gameobject_collisionshape_type) = #box) then
               end if
             end if
           end if
         end if
       end if
     else
-      if (tOtherObject.getGameObjectProperty(#gameobject_collisionshape_type) = #circle) then
-        if (tOtherObject.getGameObjectProperty(#gameobject_collisionshape_type) = #none) then
+      if (tThisObject.getGameObjectProperty(#gameobject_collisionshape_type) = #circle) then
+        if (tThisObject.getGameObjectProperty(#gameobject_collisionshape_type) = #none) then
           return FALSE
         else
-          if (tOtherObject.getGameObjectProperty(#gameobject_collisionshape_type) = #point) then
+          if (tThisObject.getGameObjectProperty(#gameobject_collisionshape_type) = #point) then
             return(me.TestPointToCircleCollision(tThisObject, tOtherObject))
           else
-            if (tOtherObject.getGameObjectProperty(#gameobject_collisionshape_type) = #circle) then
+            if (tThisObject.getGameObjectProperty(#gameobject_collisionshape_type) = #circle) then
               return(me.TestCircleToCircleCollision(tThisObject, tOtherObject, tDump))
             else
-              if (tOtherObject.getGameObjectProperty(#gameobject_collisionshape_type) = #triplecircle) then
+              if (tThisObject.getGameObjectProperty(#gameobject_collisionshape_type) = #triplecircle) then
               else
-                if (tOtherObject.getGameObjectProperty(#gameobject_collisionshape_type) = #box) then
+                if (tThisObject.getGameObjectProperty(#gameobject_collisionshape_type) = #box) then
                   return FALSE
                 end if
               end if
@@ -52,28 +52,28 @@ on testForObjectToObjectCollision me, tThisObject, tOtherObject, tDump
           end if
         end if
       else
-        if (tOtherObject.getGameObjectProperty(#gameobject_collisionshape_type) = #triplecircle) then
-          if (tOtherObject.getGameObjectProperty(#gameobject_collisionshape_type) = #none) then
+        if (tThisObject.getGameObjectProperty(#gameobject_collisionshape_type) = #triplecircle) then
+          if (tThisObject.getGameObjectProperty(#gameobject_collisionshape_type) = #none) then
             return FALSE
           else
-            if (tOtherObject.getGameObjectProperty(#gameobject_collisionshape_type) = #box) then
+            if (tThisObject.getGameObjectProperty(#gameobject_collisionshape_type) = #box) then
               return FALSE
             end if
           end if
         else
-          if (tOtherObject.getGameObjectProperty(#gameobject_collisionshape_type) = #box) then
-            if (tOtherObject.getGameObjectProperty(#gameobject_collisionshape_type) = #none) then
+          if (tThisObject.getGameObjectProperty(#gameobject_collisionshape_type) = #box) then
+            if (tThisObject.getGameObjectProperty(#gameobject_collisionshape_type) = #none) then
               return FALSE
             else
-              if (tOtherObject.getGameObjectProperty(#gameobject_collisionshape_type) = #point) then
+              if (tThisObject.getGameObjectProperty(#gameobject_collisionshape_type) = #point) then
               else
-                if (tOtherObject.getGameObjectProperty(#gameobject_collisionshape_type) = #circle) then
+                if (tThisObject.getGameObjectProperty(#gameobject_collisionshape_type) = #circle) then
                   return FALSE
                 else
-                  if (tOtherObject.getGameObjectProperty(#gameobject_collisionshape_type) = #triplecircle) then
+                  if (tThisObject.getGameObjectProperty(#gameobject_collisionshape_type) = #triplecircle) then
                     return FALSE
                   else
-                    if (tOtherObject.getGameObjectProperty(#gameobject_collisionshape_type) = #box) then
+                    if (tThisObject.getGameObjectProperty(#gameobject_collisionshape_type) = #box) then
                       return FALSE
                     end if
                   end if

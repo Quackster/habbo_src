@@ -40,8 +40,8 @@ on gameCanStart me
     return TRUE
   end if
   tOneTeamOK = 0
-  repeat while tdata.getAt(#teams) <= undefined
-    tTeam = getAt(undefined, undefined)
+  repeat while tdata.getAt(#teams) <= 1
+    tTeam = getAt(1, count(tdata.getAt(#teams)))
     if tTeam.getAt(#players).count > 0 then
       if (tOneTeamOK = 1) then
         return TRUE
@@ -129,8 +129,8 @@ on getPlayerTeamIndex me, tSearchData
     if not listp(tTeam) then
       tTeam = []
     end if
-    repeat while tTeam <= undefined
-      tPlayer = getAt(undefined, tSearchData)
+    repeat while tTeam <= 1
+      tPlayer = getAt(1, count(tTeam))
       if (tPlayer.getAt(#name) = tSearchData.getAt(#name)) and tSearchData.getAt(#name) <> void() then
         return(tTeamNum)
       end if

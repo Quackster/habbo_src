@@ -21,7 +21,7 @@ on deconstruct me
 end
 
 on define me, tPart, tProps 
-  pDirection = tProps.getAt(#dir)
+  pDirection = tProps.getAt(#Dir)
   if (pDirection = 0) then
     pAnimOffset = point(0, 0)
     pLocOffset = point(-24, -8)

@@ -35,13 +35,13 @@ on resizeBy me, tOffH, tOffV
         end if
       end if
     end if
-    if (me.pScaleH = #move) then
+    if (me.pScaleV = #move) then
       me.pLocY = (me.pLocY + tOffV)
     else
-      if (me.pScaleH = #scale) then
+      if (me.pScaleV = #scale) then
         me.pheight = (me.pheight + tOffV)
       else
-        if (me.pScaleH = #center) then
+        if (me.pScaleV = #center) then
           me.pLocY = (me.pLocY + (tOffV / 2))
         end if
       end if

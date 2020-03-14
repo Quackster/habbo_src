@@ -8,7 +8,7 @@ on deconstruct me
   return(me.regMsgList(0))
 end
 
-on defineClient me, tid 
+on defineClient me, tID 
   return TRUE
 end
 

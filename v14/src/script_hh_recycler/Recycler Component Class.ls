@@ -98,13 +98,13 @@ on startRecycling me
   end repeat
   tParams = [:]
   tParams.addProp(#integer, tRoomItemIds.count)
-  repeat while tRoomItemIds <= undefined
-    tItem = getAt(undefined, undefined)
+  repeat while tRoomItemIds <= 1
+    tItem = getAt(1, count(tRoomItemIds))
     tParams.addProp(#integer, tItem)
   end repeat
   tParams.addProp(#integer, tWallItemIds.count)
-  repeat while tRoomItemIds <= undefined
-    tItem = getAt(undefined, undefined)
+  repeat while tWallItemIds <= 1
+    tItem = getAt(1, count(tWallItemIds))
     tParams.addProp(#integer, tItem)
   end repeat
   getConnection(getVariable("connection.info.id")).send("START_FURNI_RECYCLING", tParams)
@@ -266,11 +266,11 @@ on getMinutesLeftToRecycle me
   return(tMinutesLeft)
 end
 
-on addFurnitureToGivePool me, tClass, tid, tProps 
-  if me.isFurniInRecycler(tid) then
+on addFurnitureToGivePool me, tClass, tID, tProps 
+  if me.isFurniInRecycler(tID) then
     return FALSE
   end if
-  pGiveFurniPool.add([#class:tClass, #id:tid, #props:tProps])
+  pGiveFurniPool.add([#class:tClass, #id:tID, #props:tProps])
 end
 
 on isFurniInRecycler me, tStripID 

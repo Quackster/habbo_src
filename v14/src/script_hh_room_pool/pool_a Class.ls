@@ -41,9 +41,9 @@ on prepare me
     createObject(#waterripples, "Water Ripple Effects Class")
   end if
   getObject(#waterripples).Init("vesi1")
-  repeat while ["pool_clickarea", "floor", "hiliter", "vesi1", "portaat0"] <= undefined
-    tid = getAt(undefined, undefined)
-    tSpr = getThread(#room).getInterface().getRoomVisualizer().getSprById(tid)
+  repeat while ["pool_clickarea", "floor", "hiliter", "vesi1", "portaat0"] <= 1
+    tID = getAt(1, count(["pool_clickarea", "floor", "hiliter", "vesi1", "portaat0"]))
+    tSpr = getThread(#room).getInterface().getRoomVisualizer().getSprById(tID)
     registerProcedure(tSpr, #poolTeleport, me.getID(), #mouseDown)
   end repeat
   pArrowCursor = 0
@@ -70,7 +70,7 @@ on showprogram me, tMsg
   end if
 end
 
-on curtains me, tid, tCommand 
+on curtains me, tID, tCommand 
   if (tCommand = "open") then
     tmember = getMember("verhot auki")
   else
@@ -82,7 +82,7 @@ on curtains me, tid, tCommand
   if (tVisObj = 0) then
     return FALSE
   end if
-  tVisObj.getSprById(tid).setMember(tmember)
+  tVisObj.getSprById(tID).setMember(tmember)
   return TRUE
 end
 

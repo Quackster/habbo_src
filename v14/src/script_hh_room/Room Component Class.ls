@@ -1,4 +1,4 @@
-property pChatProps, pClassContId, pBalloonId, pAdSystemID, pInterstitialSystemID, pSpectatorSystemID, pShadowManagerID, pGroupInfoID, pOneWayDoorManagerID, pRoomConnID, pUserObjList, pActiveObjList, pPassiveObjList, pItemObjList, pRoomPrgID, pActiveFlag, pRoomId, pSaveData, pPrvRoomsReady, pTrgDoorID, pCacheFlag, pCacheKey, pFurniChooserID, pCurrentSlidingObjects, pCastLoaded, pPickedCryName, pProcessList, pRoomPollerID, pHeightMapData, pEnterRoomAlert
+property pChatProps, pClassContId, pBalloonId, pAdSystemID, pInterstitialSystemID, pSpectatorSystemID, pShadowManagerID, pGroupInfoID, pOneWayDoorManagerID, pRoomConnID, pUserObjList, pActiveObjList, pPassiveObjList, pItemObjList, pRoomPrgID, pActiveFlag, pRoomId, pSaveData, pPrvRoomsReady, pTrgDoorID, pCacheFlag, pCacheKey, pFlatRatings, pFurniChooserID, pCurrentSlidingObjects, pCastLoaded, pPickedCryName, pProcessList, pRoomPollerID, pHeightMapData, pEnterRoomAlert
 
 on construct me 
   pInfoConnID = getVariable("connection.info.id")
@@ -15,6 +15,7 @@ on construct me
   pActiveObjList = [:]
   pPassiveObjList = [:]
   pItemObjList = [:]
+  pFlatRatings = [#rate:-1, #Percent:0]
   pBalloonId = "Room Balloon"
   pClassContId = "Room Classes"
   pRoomPrgID = "Room Program"
@@ -169,6 +170,9 @@ on enterDoor me, tdata
   getObject(#session).set("lastroom", pSaveData.duplicate())
   if (me.getRoomScale(pSaveData.getAt(#marker)) = #small) and (tCurrentScale = #large) and not pPrvRoomsReady then
     pSaveData.setAt(#casts, tCurrentRoomCasts)
+    if voidp(tCurrentRoomCasts) then
+      pSaveData.setAt(#casts, ["hh_room_private"])
+    end if
     me.loadRoomCasts()
     pPrvRoomsReady = 1
     return FALSE
@@ -264,16 +268,16 @@ on createUserObject me, tdata
   end if
 end
 
-on removeUserObject me, tid 
-  if me.removeRoomObject(tid, pUserObjList) then
-    return(executeMessage(#remove_user, tid))
+on removeUserObject me, tID 
+  if me.removeRoomObject(tID, pUserObjList) then
+    return(executeMessage(#remove_user, tID))
   else
     return FALSE
   end if
 end
 
-on getUserObject me, tid 
-  return(me.getRoomObject(tid, pUserObjList))
+on getUserObject me, tID 
+  return(me.getRoomObject(tID, pUserObjList))
 end
 
 on getUsersRoomId me, tUserName 
@@ -292,8 +296,8 @@ on getUsersRoomId me, tUserName
   end repeat
 end
 
-on userObjectExists me, tid 
-  return(me.roomObjectExists(tid, pUserObjList))
+on userObjectExists me, tID 
+  return(me.roomObjectExists(tID, pUserObjList))
 end
 
 on createActiveObject me, tdata 
@@ -303,16 +307,16 @@ on createActiveObject me, tdata
   return(me.createRoomObject(tdata, pActiveObjList, "active"))
 end
 
-on removeActiveObject me, tid 
-  return(me.removeRoomObject(tid, pActiveObjList))
+on removeActiveObject me, tID 
+  return(me.removeRoomObject(tID, pActiveObjList))
 end
 
-on getActiveObject me, tid 
-  return(me.getRoomObject(tid, pActiveObjList))
+on getActiveObject me, tID 
+  return(me.getRoomObject(tID, pActiveObjList))
 end
 
-on activeObjectExists me, tid 
-  return(me.roomObjectExists(tid, pActiveObjList))
+on activeObjectExists me, tID 
+  return(me.roomObjectExists(tID, pActiveObjList))
 end
 
 on releaseSpritesFromActiveObjects me 
@@ -338,16 +342,16 @@ on createPassiveObject me, tdata
   return(me.createRoomObject(tdata, pPassiveObjList, "passive"))
 end
 
-on removePassiveObject me, tid 
-  return(me.removeRoomObject(tid, pPassiveObjList))
+on removePassiveObject me, tID 
+  return(me.removeRoomObject(tID, pPassiveObjList))
 end
 
-on getPassiveObject me, tid 
-  return(me.getRoomObject(tid, pPassiveObjList))
+on getPassiveObject me, tID 
+  return(me.getRoomObject(tID, pPassiveObjList))
 end
 
-on passiveObjectExists me, tid 
-  return(me.roomObjectExists(tid, pPassiveObjList))
+on passiveObjectExists me, tID 
+  return(me.roomObjectExists(tID, pPassiveObjList))
 end
 
 on createItemObject me, tdata 
@@ -357,16 +361,25 @@ on createItemObject me, tdata
   return(me.createRoomObject(tdata, pItemObjList, "item"))
 end
 
-on removeItemObject me, tid 
-  return(me.removeRoomObject(tid, pItemObjList))
+on removeItemObject me, tID 
+  return(me.removeRoomObject(tID, pItemObjList))
 end
 
-on getItemObject me, tid 
-  return(me.getRoomObject(tid, pItemObjList))
+on getItemObject me, tID 
+  return(me.getRoomObject(tID, pItemObjList))
 end
 
-on itemObjectExists me, tid 
-  return(me.roomObjectExists(tid, pItemObjList))
+on itemObjectExists me, tID 
+  return(me.roomObjectExists(tID, pItemObjList))
+end
+
+on setRoomRating me, tRoomRating, tRoomRatingPercent 
+  pFlatRatings.setAt(#rate, tRoomRating)
+  pFlatRatings.setAt(#Percent, tRoomRatingPercent)
+end
+
+on getRoomRating me 
+  return(pFlatRatings)
 end
 
 on getRoomPrg me 
@@ -476,92 +489,80 @@ on sendChat me, tChat
             return(performance())
           end if
         else
-          if tChat.getProp(#word, 1) <> ":debug" then
-            if tChat.getProp(#word, 1) <> ":log" then
-              if (tChat.getProp(#word, 1) = ":usestaffrights") then
-                if getObject(#session).GET("user_rights").getOne("fuse_debug_window") then
-                  if not the runMode contains "Author" then
-                    me.sendChat(":log")
-                  end if
-                end if
-              else
-                if (tChat.getProp(#word, 1) = ":editcatalogue") then
-                  if getObject(#session).GET("user_rights").getOne("fuse_catalog_editor") then
-                    return(executeMessage("edit_catalogue"))
-                  end if
-                else
-                  if (tChat.getProp(#word, 1) = ":copypaste") then
-                    if getObject(#session).GET("user_rights").getOne("fuse_debug_window") then
-                      the editShortcutsEnabled = 1
-                      return TRUE
-                    end if
-                  else
-                    if (tChat.getProp(#word, 1) = ":petcontrol") then
-                      if getObject(#session).GET("user_rights").getOne("fuse_debug_window") then
-                        petcontrol()
-                        return TRUE
-                      end if
-                    end if
-                  end if
-                end if
-              end if
+          if (tChat.getProp(#word, 1) = ":editcatalogue") then
+            if getObject(#session).GET("user_rights").getOne("fuse_catalog_editor") then
+              return(executeMessage("edit_catalogue"))
+            end if
+          else
+            if (tChat.getProp(#word, 1) = ":copypaste") then
               if getObject(#session).GET("user_rights").getOne("fuse_debug_window") then
-                tKeywords = me.getInterface().getKeywords()
-                if tChat.getProp(#word, 1) <> "!!" & tKeywords.getAt(1) then
-                  if (tChat.getProp(#word, 1) = "!!" & tKeywords.getAt(2)) then
-                    tInfoID = getVariable("connection.info.id")
-                    getConnection(#info).pD = 1
-                    the debugPlaybackEnabled = 1
-                    if (tChat.getProp(#word, 1) = tKeywords.getAt(1)) then
-                      if connectionExists(tInfoID) then
-                        getConnection(tInfoID).setLogMode(1)
-                      end if
-                    else
-                      if (tChat.getProp(#word, 1) = tKeywords.getAt(2)) then
-                        if connectionExists(tInfoID) then
-                          getConnection(tInfoID).setLogMode(0)
-                        end if
-                      end if
-                    end if
-                    return TRUE
-                  end if
-                  tKeywords = void()
-                  if the shiftDown then
-                    tMode = "SHOUT"
-                  else
-                    tMode = pChatProps.getAt("mode")
-                  end if
-                  tSelected = me.getInterface().getSelectedObject()
-                  if me.userObjectExists(tSelected) then
-                    tSelected = me.getUserObject(tSelected).getName()
-                  else
-                    tSelected = ""
-                  end if
-                  if pChatProps.getAt("hobbaCmds").getOne(tChat.getProp(#word, 1, 2)) then
-                    tMode = "CHAT"
-                    if (tChat.getProp(#word, 2) = "x") then
-                      if (tSelected = "") then
-                        tMode = "WHISPER"
-                        tMsg = "User not found."
-                        tid = getObject(#session).GET("user_index")
-                        me.getComponent().getBalloon().createBalloon([#command:tMode, #id:tid, #message:tMsg])
-                        return TRUE
-                      end if
-                      tOffsetX = offset("x", tChat)
-                      tChat = tChat.getProp(#char, 1, (tOffsetX - 1)) & tSelected & tChat.getProp(#char, (tOffsetX + 1), tChat.length)
-                    end if
-                  else
-                    if (tMode = "WHISPER") then
-                      tChat = tSelected && tChat
-                    end if
-                  end if
-                  return(me.getRoomConnection().send(tMode, [#string:tChat]))
+                the editShortcutsEnabled = 1
+                return TRUE
+              end if
+            else
+              if (tChat.getProp(#word, 1) = ":petcontrol") then
+                if getObject(#session).GET("user_rights").getOne("fuse_debug_window") then
+                  petcontrol()
+                  return TRUE
                 end if
               end if
             end if
           end if
         end if
       end if
+    end if
+  end if
+  if getObject(#session).GET("user_rights").getOne("fuse_debug_window") then
+    tKeywords = me.getInterface().getKeywords()
+    if tChat.getProp(#word, 1) <> "!!" & tKeywords.getAt(1) then
+      if (tChat.getProp(#word, 1) = "!!" & tKeywords.getAt(2)) then
+        tInfoID = getVariable("connection.info.id")
+        getConnection(#info).pD = 1
+        the debugPlaybackEnabled = 1
+        if (tChat.getProp(#word, 1) = tKeywords.getAt(1)) then
+          if connectionExists(tInfoID) then
+            getConnection(tInfoID).setLogMode(1)
+          end if
+        else
+          if (tChat.getProp(#word, 1) = tKeywords.getAt(2)) then
+            if connectionExists(tInfoID) then
+              getConnection(tInfoID).setLogMode(0)
+            end if
+          end if
+        end if
+        return TRUE
+      end if
+      tKeywords = void()
+      if the shiftDown then
+        tMode = "SHOUT"
+      else
+        tMode = pChatProps.getAt("mode")
+      end if
+      tSelected = me.getInterface().getSelectedObject()
+      if me.userObjectExists(tSelected) then
+        tSelected = me.getUserObject(tSelected).getName()
+      else
+        tSelected = ""
+      end if
+      if pChatProps.getAt("hobbaCmds").getOne(tChat.getProp(#word, 1, 2)) then
+        tMode = "CHAT"
+        if (tChat.getProp(#word, 2) = "x") then
+          if (tSelected = "") then
+            tMode = "WHISPER"
+            tMsg = "User not found."
+            tID = getObject(#session).GET("user_index")
+            me.getComponent().getBalloon().createBalloon([#command:tMode, #id:tID, #message:tMsg])
+            return TRUE
+          end if
+          tOffsetX = offset("x", tChat)
+          tChat = tChat.getProp(#char, 1, (tOffsetX - 1)) & tSelected & tChat.getProp(#char, (tOffsetX + 1), tChat.length)
+        end if
+      else
+        if (tMode = "WHISPER") then
+          tChat = tSelected && tChat
+        end if
+      end if
+      return(me.getRoomConnection().send(tMode, [#string:tChat]))
     end if
   end if
 end
@@ -603,28 +604,28 @@ on print me
   end repeat
 end
 
-on addSlideObject me, tid, tFromLoc, tToLoc, tTimeNow, tHasCharacter 
+on addSlideObject me, tID, tFromLoc, tToLoc, tTimeNow, tHasCharacter 
   if the paramCount < 4 then
     return(error(me, "Wrong parameter count", #addSlideObject, #major))
   end if
-  tid = tid.string
+  tID = tID.string
   if voidp(tTimeNow) then
     tTimeNow = the milliSeconds
   end if
   if voidp(tHasCharacter) then
     tHasCharacter = 0
   end if
-  if not voidp(pActiveObjList.getAt(tid)) then
-    tObj = pActiveObjList.getAt(tid)
+  if not voidp(pActiveObjList.getAt(tID)) then
+    tObj = pActiveObjList.getAt(tID)
     tObj.setSlideTo(tFromLoc, tToLoc, tTimeNow, tHasCharacter)
-    pCurrentSlidingObjects.setAt(tid, tObj)
+    pCurrentSlidingObjects.setAt(tID, tObj)
   end if
 end
 
-on removeSlideObject me, tid 
-  tid = tid.string
-  if not voidp(pCurrentSlidingObjects.getAt(tid)) then
-    pCurrentSlidingObjects.deleteProp(tid)
+on removeSlideObject me, tID 
+  tID = tID.string
+  if not voidp(pCurrentSlidingObjects.getAt(tID)) then
+    pCurrentSlidingObjects.deleteProp(tID)
   end if
 end
 
@@ -686,9 +687,9 @@ on getPickedCryName me
   return(pPickedCryName)
 end
 
-on showCfhSenderDelayed me, tid 
+on showCfhSenderDelayed me, tID 
   pPickedCryName = ""
-  return(me.getInterface().showCfhSenderDelayed(tid))
+  return(me.getInterface().showCfhSenderDelayed(tID))
 end
 
 on updateCharacterFigure me, tUserID, tUserFigure, tsex, tUserCustomInfo 
@@ -792,8 +793,8 @@ on roomCastLoaded me
     end if
     me.getInterface().showLoaderBar(void(), "\"" & pSaveData.getAt(#name) & "\"" & "\r" & tTxt)
     tRoomCasts = pSaveData.getAt(#casts)
-    repeat while tRoomCasts <= undefined
-      tCast = getAt(undefined, undefined)
+    repeat while tRoomCasts <= 1
+      tCast = getAt(1, count(tRoomCasts))
       if not castExists(tCast) then
         error(me, "Cast required by room not found:" && tCast, #roomCastLoaded, #major)
         return(executeMessage(#leaveRoom))
@@ -937,8 +938,7 @@ on updateHeightMap me, tdata
         i = (i + 1)
         a = (a + charToNum(tdata.getProp(#char, i)))
       else
-        -- UNK_21
-        ERROR.setContents()
+        #char.setContents(a.getPropRef())
         a = (a + 1)
       end if
       i = (1 + i)
@@ -1023,8 +1023,8 @@ on updateProcess me, tKey, tValue
   if (pProcessList.getAt(tKey) = 0) then
     pProcessList.setAt(tKey, tValue)
   end if
-  repeat while pProcessList <= tValue
-    tProcess = getAt(tValue, tKey)
+  repeat while pProcessList <= 1
+    tProcess = getAt(1, count(pProcessList))
     if not tProcess then
     else
     end if
@@ -1034,23 +1034,23 @@ on updateProcess me, tKey, tValue
       removeTimeout(pRoomPollerID)
     end if
     tCache = getObject(#cache).GET(pCacheKey)
-    repeat while pProcessList <= tValue
-      tdata = getAt(tValue, tKey)
+    repeat while tCache.getAt(#passive) <= 1
+      tdata = getAt(1, count(tCache.getAt(#passive)))
       me.createPassiveObject(tdata)
     end repeat
     me.getShadowManager().disableRender(1)
-    repeat while pProcessList <= tValue
-      tdata = getAt(tValue, tKey)
+    repeat while tCache.getAt(#Active) <= 1
+      tdata = getAt(1, count(tCache.getAt(#Active)))
       me.createActiveObject(tdata)
     end repeat
     me.getShadowManager().disableRender(0)
     me.getShadowManager().render()
-    repeat while pProcessList <= tValue
-      tdata = getAt(tValue, tKey)
+    repeat while tCache.getAt(#items) <= 1
+      tdata = getAt(1, count(tCache.getAt(#items)))
       me.createItemObject(tdata)
     end repeat
-    repeat while pProcessList <= tValue
-      tdata = getAt(tValue, tKey)
+    repeat while tCache.getAt(#users) <= 1
+      tdata = getAt(1, count(tCache.getAt(#users)))
       me.createUserObject(tdata)
     end repeat
     tCache.setAt(#users, [])
@@ -1116,40 +1116,40 @@ on createRoomObject me, tdata, tList, tClass
   return TRUE
 end
 
-on removeRoomObject me, tid, tList 
-  if voidp(tList.getAt(tid)) then
-    return(error(me, "Object not found:" && tid, #removeRoomObject, #minor))
+on removeRoomObject me, tID, tList 
+  if voidp(tList.getAt(tID)) then
+    return(error(me, "Object not found:" && tID, #removeRoomObject, #minor))
   end if
-  tList.getAt(tid).deconstruct()
-  tList.deleteProp(tid)
+  tList.getAt(tID).deconstruct()
+  tList.deleteProp(tID)
   return TRUE
 end
 
-on getRoomObject me, tid, tList 
-  if (tid = #list) then
+on getRoomObject me, tID, tList 
+  if (tID = #list) then
     return(tList)
   end if
-  if voidp(tList.getaProp(tid)) then
+  if voidp(tList.getaProp(tID)) then
     return FALSE
   else
-    return(tList.getaProp(tid))
+    return(tList.getaProp(tID))
   end if
 end
 
-on roomObjectExists me, tid, tList 
-  if not listp(tList) or voidp(tid) then
+on roomObjectExists me, tID, tList 
+  if not listp(tList) or voidp(tID) then
     return FALSE
   end if
-  if (ilk(tid) = #string) then
-    if (tid = "") then
+  if (ilk(tID) = #string) then
+    if (tID = "") then
       return FALSE
     end if
   else
-    if tid < 1 then
+    if tID < 1 then
       return FALSE
     end if
   end if
-  return(not voidp(tList.getAt(tid)))
+  return(not voidp(tList.getAt(tID)))
 end
 
 on startTeleport me, tTeleId, tFlatID 
@@ -1207,8 +1207,8 @@ on getRoomScale me, tRoomMarker
     return FALSE
   end if
   tRoomKey = chars(tRoomMarker, tRoomMarker.length, tRoomMarker.length)
-  repeat while tRoomProps <= undefined
-    tRoom = getAt(undefined, tRoomMarker)
+  repeat while tRoomProps <= 1
+    tRoom = getAt(1, count(tRoomProps))
     if (tRoom.getAt(#model) = tRoomKey) then
       return(tRoom.getAt(#charScale))
     end if

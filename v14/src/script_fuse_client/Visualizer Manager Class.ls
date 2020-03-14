@@ -14,19 +14,19 @@ on construct me
   return TRUE
 end
 
-on create me, tid, tLayout, tLocX, tLocY 
+on create me, tID, tLayout, tLocX, tLocY 
   if not integerp(tLocX) then
     tLocX = 0
   end if
   if not integerp(tLocY) then
     tLocY = 0
   end if
-  if me.exists(tid) then
-    me.Remove(tid)
+  if me.exists(tID) then
+    me.Remove(tID)
   end if
-  tItem = getObjectManager().create(tid, pInstanceClass)
+  tItem = getObjectManager().create(tID, pInstanceClass)
   if not tItem then
-    return(error(me, "Item creation failed:" && tid, #create, #major))
+    return(error(me, "Item creation failed:" && tID, #create, #major))
   end if
   tProps = [:]
   tProps.setAt(#locX, tLocX)
@@ -35,43 +35,43 @@ on create me, tid, tLayout, tLocX, tLocY
   tProps.setAt(#layout, tLayout)
   tProps.setAt(#boundary, pBoundary)
   if not tItem.define(tProps) then
-    getObjectManager().Remove(tid)
+    getObjectManager().Remove(tID)
     return FALSE
   end if
-  me.pItemList.add(tid)
+  me.pItemList.add(tID)
   pAvailableLocZ = (pAvailableLocZ + tItem.getProperty(#sprCount))
   return TRUE
 end
 
-on Remove me, tid 
-  if not me.exists(tid) then
+on Remove me, tID 
+  if not me.exists(tID) then
     return FALSE
   end if
-  tItem = me.GET(tid)
+  tItem = me.GET(tID)
   pAvailableLocZ = (pAvailableLocZ - tItem.getProperty(#sprCount))
-  pPosCache.setAt(tid, [tItem.getProperty(#locX), tItem.getProperty(#locY)])
-  me.pItemList.deleteOne(tid)
-  if (pActiveItem = tid) then
+  pPosCache.setAt(tID, [tItem.getProperty(#locX), tItem.getProperty(#locY)])
+  me.pItemList.deleteOne(tID)
+  if (pActiveItem = tID) then
     pActiveItem = me.pItemList.getLast()
   end if
-  getObjectManager().Remove(tid)
+  getObjectManager().Remove(tID)
   me.Activate(me.pItemList.getLast())
   return TRUE
 end
 
-on Activate me, tid 
-  if me.exists(tid) then
-    pActiveItem = tid
-    me.GET(tid).setActive()
+on Activate me, tID 
+  if me.exists(tID) then
+    pActiveItem = tID
+    me.GET(tID).setActive()
     return TRUE
   else
     return FALSE
   end if
 end
 
-on deactivate me, tid 
-  if me.exists(tid) then
-    me.GET(tid).setDeactive()
+on deactivate me, tID 
+  if me.exists(tID) then
+    me.GET(tID).setDeactive()
     return TRUE
   else
     return FALSE
@@ -79,8 +79,8 @@ on deactivate me, tid
 end
 
 on hideAll me 
-  repeat while me.pItemList <= undefined
-    tItem = getAt(undefined, undefined)
+  repeat while me.pItemList <= 1
+    tItem = getAt(1, count(me.pItemList))
     tObj = me.GET(tItem)
     if tObj.getProperty(#visible) then
       tObj.hide()
@@ -91,8 +91,8 @@ on hideAll me
 end
 
 on showAll me 
-  repeat while pHideList <= undefined
-    tItem = getAt(undefined, undefined)
+  repeat while pHideList <= 1
+    tItem = getAt(1, count(pHideList))
     tObj = me.GET(tItem)
     if tObj <> 0 then
       tObj.show()

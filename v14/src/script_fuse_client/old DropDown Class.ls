@@ -22,8 +22,8 @@ on define me, tProps
   pLineHeight = tProps.getAt(#height)
   pFixedSize = tProps.getAt(#fixedsize)
   pTextlist = []
-  repeat while pTextKeys <= undefined
-    tKey = getAt(undefined, tProps)
+  repeat while pTextKeys <= 1
+    tKey = getAt(1, count(pTextKeys))
     if textExists(tKey) then
       pTextlist.add(getText(tKey))
     end if
@@ -263,10 +263,10 @@ on UpdateImageObjects me, tPalette, tstate
       tPalette = member(getmemnum(tPalette))
     end if
   end if
-  repeat while [#top, #middle, #bottom] <= tstate
-    tV = getAt(tstate, tPalette)
-    repeat while [#top, #middle, #bottom] <= tstate
-      tH = getAt(tstate, tPalette)
+  repeat while [#top, #middle, #bottom] <= 1
+    tV = getAt(1, count([#top, #middle, #bottom]))
+    repeat while [#top, #middle, #bottom] <= 1
+      tH = getAt(1, count([#top, #middle, #bottom]))
       tSymbol = symbol(tV & tH)
       tDesc = pProp.getAt(tstate).getAt(#members).getAt(tSymbol)
       tmember = member(getmemnum(tDesc.getAt(#member)))
@@ -388,8 +388,8 @@ on createDropImg me, tItemsList, tListOfAllItemsOrNot, tstate
   tEndPointY = 0
   tLastX = 0
   tStartPoint = 0
-  repeat while ["top", "middle", "bottom"] <= tListOfAllItemsOrNot
-    f = getAt(tListOfAllItemsOrNot, tItemsList)
+  repeat while ["top", "middle", "bottom"] <= 1
+    f = getAt(1, count(["top", "middle", "bottom"]))
     tStartPoint = tEndPointY
     tEndPointX = 0
     if (["top", "middle", "bottom"] = "top") then
@@ -403,8 +403,8 @@ on createDropImg me, tItemsList, tListOfAllItemsOrNot, tstate
         end if
       end if
     end if
-    repeat while ["top", "middle", "bottom"] <= tListOfAllItemsOrNot
-      i = getAt(tListOfAllItemsOrNot, tItemsList)
+    repeat while ["top", "middle", "bottom"] <= 1
+      i = getAt(1, count(["top", "middle", "bottom"]))
       tLastX = tEndPointX
       if (["top", "middle", "bottom"] = "left") then
         tEndPointX = (tEndPointX + pDropDownImg.getProp(f & "_" & i).width)
@@ -450,13 +450,13 @@ on createDropImg me, tItemsList, tListOfAllItemsOrNot, tstate
     end repeat
   end if
   tdestrect = (tTextImg.rect + rect(0, pMarginTop, 0, pMarginTop))
-  if (["top", "middle", "bottom"] = #left) then
+  if (tFontDesc.getAt(#alignment) = #left) then
     tdestrect = (tdestrect + rect(pMarginLeft, 0, pMarginLeft, 0))
   else
-    if (["top", "middle", "bottom"] = #center) then
+    if (tFontDesc.getAt(#alignment) = #center) then
       tdestrect = ((tdestrect + rect((tNewImg.width / 2), 0, (tNewImg.width / 2), 0)) - rect((pTextWidth / 2), 0, (pTextWidth / 2), 0))
     else
-      if (["top", "middle", "bottom"] = #right) then
+      if (tFontDesc.getAt(#alignment) = #right) then
         tdestrect = ((tdestrect + rect(tNewImg.width, 0, tNewImg.width, 0)) - rect((pTextWidth + pDropDownImg.getProp("top_right").width), 0, (pTextWidth + pDropDownImg.getProp("top_right").width), 0))
       end if
     end if

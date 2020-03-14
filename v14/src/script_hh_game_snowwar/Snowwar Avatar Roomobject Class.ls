@@ -218,8 +218,8 @@ on gameObjectAction me, tAction, tdata
                 if pAvatarAction.getAt(#tag) <> "dead" then
                   return(me.gameObjectAction("reset_figure"))
                 end if
-                repeat while tAction <= tdata
-                  tPart = getAt(tdata, tAction)
+                repeat while me.pPartList <= 1
+                  tPart = getAt(1, count(me.pPartList))
                   tPart.pAction = "foo"
                 end repeat
                 pAvatarAction.setAt(#frame, 2)
@@ -229,7 +229,7 @@ on gameObjectAction me, tAction, tdata
                 me.arrangeParts()
                 me.render()
               else
-                if (tAction = "start_invincible") then
+                if (count(me.pPartList) = "start_invincible") then
                   pAvatarAction.setAt(#tag, "")
                   me.gameObjectAction("reset_figure")
                   me.pInvincible = 1
@@ -313,8 +313,8 @@ on render me
     me.pMatteSpr.width = tSize.getAt(1)
     me.pMatteSpr.height = tSize.getAt(2)
     me.pBuffer = image(tSize.getAt(1), tSize.getAt(2), tSize.getAt(3))
-    repeat while me.pPartList <= undefined
-      tPart = getAt(undefined, undefined)
+    repeat while me.pPartList <= 1
+      tPart = getAt(1, count(me.pPartList))
       tPart.pMemString = ""
     end repeat
   end if
@@ -338,32 +338,32 @@ on render me
   if (pAvatarAction.getAt(#tag) = "dead") then
     if (pAvatarAction.getAt(#frame) = 1) then
       if pAvatarAction.getAt(#facedown) then
-        if (me.pPartList = 0) then
+        if (pAvatarAction.getAt(#direction) = 0) then
           tpoint = point(-8, 0)
         else
-          if (me.pPartList = 2) then
+          if (pAvatarAction.getAt(#direction) = 2) then
             tpoint = point(-10, -2)
           else
-            if (me.pPartList = 4) then
+            if (pAvatarAction.getAt(#direction) = 4) then
               tpoint = point(-40, -2)
             else
-              if (me.pPartList = 6) then
+              if (pAvatarAction.getAt(#direction) = 6) then
                 tpoint = point(-36, 0)
               end if
             end if
           end if
         end if
       else
-        if (me.pPartList = 0) then
+        if (pAvatarAction.getAt(#direction) = 0) then
           tpoint = point(10, -3)
         else
-          if (me.pPartList = 2) then
+          if (pAvatarAction.getAt(#direction) = 2) then
             tpoint = point(30, 0)
           else
-            if (me.pPartList = 4) then
+            if (pAvatarAction.getAt(#direction) = 4) then
               tpoint = point(0, 0)
             else
-              if (me.pPartList = 6) then
+              if (pAvatarAction.getAt(#direction) = 6) then
                 tpoint = point(-20, -3)
               end if
             end if
@@ -372,32 +372,32 @@ on render me
       end if
     else
       if pAvatarAction.getAt(#facedown) then
-        if (me.pPartList = 0) then
+        if (pAvatarAction.getAt(#direction) = 0) then
           tpoint = point(-15, -10)
         else
-          if (me.pPartList = 2) then
+          if (pAvatarAction.getAt(#direction) = 2) then
             tpoint = point(-16, -40)
           else
-            if (me.pPartList = 4) then
+            if (pAvatarAction.getAt(#direction) = 4) then
               tpoint = point(-46, -40)
             else
-              if (me.pPartList = 6) then
+              if (pAvatarAction.getAt(#direction) = 6) then
                 tpoint = point(-46, -10)
               end if
             end if
           end if
         end if
       else
-        if (me.pPartList = 0) then
+        if (pAvatarAction.getAt(#direction) = 0) then
           tpoint = point(38, -27)
         else
-          if (me.pPartList = 2) then
+          if (pAvatarAction.getAt(#direction) = 2) then
             tpoint = point(37, -3)
           else
-            if (me.pPartList = 4) then
+            if (pAvatarAction.getAt(#direction) = 4) then
               tpoint = point(7, -3)
             else
-              if (me.pPartList = 6) then
+              if (pAvatarAction.getAt(#direction) = 6) then
                 tpoint = point(10, -29)
               end if
             end if
@@ -488,6 +488,9 @@ on arrangeParts me
   if (me.pPartList = void()) then
     return FALSE
   end if
+  if (me.count(#pPartList) = 0) then
+    return FALSE
+  end if
   if (1 = (pAvatarAction.getAt(#tag) = "dead")) then
     me.arrangeParts_Death()
   else
@@ -509,8 +512,8 @@ on arrangeParts_Normal me
   if (me.pPartList = void()) then
     return FALSE
   end if
-  repeat while ["hd", "fc", "ey", "hr", "sh", "bd"] <= undefined
-    tPartId = getAt(undefined, undefined)
+  repeat while ["hd", "fc", "ey", "hr", "sh", "bd"] <= 1
+    tPartId = getAt(1, count(["hd", "fc", "ey", "hr", "sh", "bd"]))
     if me.count(#pPartList) < me.getProp(#pPartIndex, tPartId) then
       return FALSE
     end if
@@ -524,9 +527,9 @@ on arrangeParts_Normal me
   tSH = me.getProp(#pPartList, me.getProp(#pPartIndex, "sh"))
   me.pPartList.deleteOne(tBD)
   me.pPartList.deleteOne(tSH)
-  if ["hd", "fc", "ey", "hr", "sh", "bd"] <> 0 then
-    if ["hd", "fc", "ey", "hr", "sh", "bd"] <> 7 then
-      if (["hd", "fc", "ey", "hr", "sh", "bd"] = 6) then
+  if me.pDirection <> 0 then
+    if me.pDirection <> 7 then
+      if (me.pDirection = 6) then
         me.pPartList.append(tBD)
         me.pPartList.append(tSH)
       else
@@ -542,8 +545,8 @@ on arrangeParts_Pick me, tXFix, tYFix
   if (me.pPartList = void()) then
     return FALSE
   end if
-  repeat while ["hd", "fc", "ey", "hr"] <= tYFix
-    tPartId = getAt(tYFix, tXFix)
+  repeat while ["hd", "fc", "ey", "hr"] <= 1
+    tPartId = getAt(1, count(["hd", "fc", "ey", "hr"]))
     tPart = me.getProp(#pPartList, me.getProp(#pPartIndex, tPartId))
     if tPart <> void() then
       tPart.pXFix = 3
@@ -606,8 +609,8 @@ on arrangeParts_Death me
     me.pPartList.addAt(1, tBD)
     me.pPartList.addAt(2, tSH)
   end if
-  repeat while pAvatarAction.getAt(#direction) <= undefined
-    tPart = getAt(undefined, undefined)
+  repeat while me.pPartList <= 1
+    tPart = getAt(1, count(me.pPartList))
     if tPart <> tBD and tPart <> tSH then
       tPart.pTalking = 0
       tPart.pXFix = tFace.locH
@@ -709,8 +712,8 @@ on getPicture me, tImg
   end if
   tPartDefinition = getVariableValue("snowwar.human.parts.sh")
   tTempPartList = []
-  repeat while tPartDefinition <= undefined
-    tPartSymbol = getAt(undefined, tImg)
+  repeat while tPartDefinition <= 1
+    tPartSymbol = getAt(1, count(tPartDefinition))
     if not voidp(me.getProp(#pPartIndex, tPartSymbol)) then
       tTempPartList.append(me.getProp(#pPartList, me.getProp(#pPartIndex, tPartSymbol)))
     end if

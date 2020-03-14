@@ -57,7 +57,7 @@ end
 
 on define me, tProps 
   pName = tProps.getAt(#name)
-  pDirection = tProps.getAt(#dir)
+  pDirection = tProps.getAt(#Dir)
   tUserObj = getThread(#room).getComponent().getUserObject(pName)
   if not tUserObj then
     return(error(me, "User object not found:" && pName & "!", #define))
@@ -70,7 +70,7 @@ on define me, tProps
   pSprite.locZ = (tScrLoc.getAt(3) + 1000)
   pSprite.visible = 1
   tFigureData = tUserObj.getPelleFigure()
-  tProps = [#dir:pDirection, #figure:tFigureData, #buffer:pBuffer]
+  tProps = [#Dir:pDirection, #figure:tFigureData, #buffer:pBuffer]
   pPartList.getAt("fx").define("fx", tProps)
   pPartList.getAt("lh").define("lh", tProps)
   pPartList.getAt("bd").define("bd", tProps)

@@ -238,20 +238,20 @@ end
 
 on print me 
   tListList = [pActiveTasks, pTaskQueue, pReceivedTasks]
-  repeat while tListList <= undefined
-    tList = getAt(undefined, undefined)
+  repeat while tListList <= 1
+    tList = getAt(1, count(tListList))
     tListMode = ilk(tList)
     i = 1
     repeat while i <= tList.count
       if (tListMode = #list) then
-        tid = i
+        tID = i
       else
-        tid = tList.getPropAt(i)
+        tID = tList.getPropAt(i)
       end if
-      if symbolp(tid) then
-        tid = "#" & tid
+      if symbolp(tID) then
+        tID = "#" & tID
       end if
-      put(tid && ":" && tList.getAt(i))
+      put(tID && ":" && tList.getAt(i))
       i = (1 + i)
     end repeat
   end repeat

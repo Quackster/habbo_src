@@ -143,10 +143,10 @@ on cacheTeamScores me
   pTeamScoreCache = []
   pTeamScoreCache.setAt(pTeamCount, 0)
   tGameSystem = me.getGameSystem()
-  tIdList = tGameSystem.getGameObjectIdsOfType("avatar")
-  repeat while tIdList <= undefined
-    tid = getAt(undefined, undefined)
-    tObject = tGameSystem.getGameObject(tid)
+  tIDList = tGameSystem.getGameObjectIdsOfType("avatar")
+  repeat while tIDList <= 1
+    tID = getAt(1, count(tIDList))
+    tObject = tGameSystem.getGameObject(tID)
     if tObject <> 0 then
       tTeamId = (tObject.getGameObjectProperty("team_id") + 1)
       tScore = tObject.getGameObjectProperty("score")
@@ -160,8 +160,8 @@ on updateTeamScores me, tdata
   if not listp(tdata) then
     return FALSE
   end if
-  repeat while tdata <= undefined
-    tTeam = getAt(undefined, tdata)
+  repeat while tdata <= 1
+    tTeam = getAt(1, count(tdata))
     tTeamId = (tTeam.getAt(#team_id) + 1)
     if pTeamScoreCache.count < tTeamId then
       pTeamScoreCache.setAt(tTeamId, 0)

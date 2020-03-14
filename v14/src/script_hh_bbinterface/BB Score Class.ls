@@ -100,8 +100,8 @@ on renderScore me, tdata
   end if
   tMaxWidth = (tElapsedTimePct * 159)
   tHighest = 0
-  repeat while tdata <= undefined
-    tTeamScore = getAt(undefined, tdata)
+  repeat while tdata <= 1
+    tTeamScore = getAt(1, count(tdata))
     if tTeamScore > tHighest then
       tHighest = float(tTeamScore)
     end if

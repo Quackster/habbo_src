@@ -3,7 +3,7 @@ property pSuitColor, pAction, pAnimFrm, pCounter, pBodyColor, pSuitModel, pBalan
 on define me, tPart, tProps 
   pAction = "std"
   pBalance = 2
-  pDirection = tProps.getAt(#dir)
+  pDirection = tProps.getAt(#Dir)
   pAnimFrm = 0
   pBodyColor = tProps.getAt(#figure).getAt("bd").getAt("color")
   pSuitColor = tProps.getAt(#figure).getAt("ch").getAt("color")
@@ -35,8 +35,8 @@ on prepare me
 end
 
 on render me, tBuffer 
-  repeat while [["bd", pBodyColor, "s01"], ["ch", pSuitColor, pSuitModel]] <= undefined
-    tmodel = getAt(undefined, tBuffer)
+  repeat while [["bd", pBodyColor, "s01"], ["ch", pSuitColor, pSuitModel]] <= 1
+    tmodel = getAt(1, count([["bd", pBodyColor, "s01"], ["ch", pSuitColor, pSuitModel]]))
     tMemName = "shp_" & pAction & "_" & pBalance & "_" & tmodel.getAt(1) & "_" & tmodel.getAt(3) & "_" & pDirection & "_" & pAnimFrm
     tMemNum = getmemnum(tMemName)
     if tMemNum > 0 then

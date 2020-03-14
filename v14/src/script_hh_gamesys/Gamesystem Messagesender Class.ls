@@ -42,11 +42,11 @@ on sendGetInstanceList me
   return(getConnection(pConnectionId).send("GETINSTANCELIST"))
 end
 
-on sendObserveInstance me, tid 
+on sendObserveInstance me, tID 
   if not connectionExists(pConnectionId) then
     return(error(me, "Connection not found:" && pConnectionId, #sendObserveInstance))
   end if
-  return(getConnection(pConnectionId).send("OBSERVEINSTANCE", [#integer:tid]))
+  return(getConnection(pConnectionId).send("OBSERVEINSTANCE", [#integer:tID]))
 end
 
 on sendUnobserveInstance me 

@@ -59,7 +59,7 @@ on sendAcceptGift me
   me.resetGiftList()
   tConnection = getConnection(getVariable("connection.info.id"))
   if (tConnection = 0) then
-    return(error(me, "Couldn't find connection:" && getVariable("connection.info.id"), #sendAcceptGift, #major))
+    return(error(me, "Couldn't find connection:" && getVariable("connection.info.id"), #sendAcceptGift))
   end if
   return(tConnection.send("SCR_GIFT_APPROVAL", [#integer:tAcceptedGifts]))
 end
@@ -91,7 +91,7 @@ on subscribe me, tChosenLength
     tList = [#string:"club_habbo", #integer:tChosenLength]
     return(getConnection(getVariable("connection.info.id")).send("SCR_BUY", tList))
   else
-    return(error(me, "Couldn't find connection:" && getVariable("connection.info.id"), #subscribe, #major))
+    return(error(me, "Couldn't find connection:" && getVariable("connection.info.id"), #subscribe))
   end if
 end
 
@@ -99,7 +99,7 @@ on askforBadgeUpdate me
   if connectionExists(getVariable("connection.info.id")) then
     return(getConnection(getVariable("connection.info.id")).send("GETAVAILABLEBADGES"))
   else
-    return(error(me, "Couldn't find connection:" && getVariable("connection.info.id"), #askforBadgeUpdate, #major))
+    return(error(me, "Couldn't find connection:" && getVariable("connection.info.id"), #askforBadgeUpdate))
   end if
 end
 

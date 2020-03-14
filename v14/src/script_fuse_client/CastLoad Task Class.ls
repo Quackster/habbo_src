@@ -13,8 +13,8 @@ on define me, tdata
   pCurLoadCount = 0
   pTmpLoadCount = 0
   pCastList = [:]
-  repeat while tdata.getAt(#casts) <= undefined
-    tCast = getAt(undefined, tdata)
+  repeat while tdata.getAt(#casts) <= 1
+    tCast = getAt(1, count(tdata.getAt(#casts)))
     pCastList.setAt(tCast, 0)
   end repeat
   return TRUE
@@ -80,8 +80,8 @@ end
 on DoCallBack me 
   if (pStatus = #ready) then
     if listp(pCallBack) then
-      repeat while pCallBack <= undefined
-        tCall = getAt(undefined, undefined)
+      repeat while pCallBack <= 1
+        tCall = getAt(1, count(pCallBack))
         if objectExists(tCall.getAt(#client)) then
           call(tCall.getAt(#method), getObject(tCall.getAt(#client)), tCall.getAt(#argument))
         end if
@@ -90,7 +90,7 @@ on DoCallBack me
   end if
 end
 
-on addCallBack me, tid, tMethod, tClientID, tArgument 
+on addCallBack me, tID, tMethod, tClientID, tArgument 
   if not symbolp(tMethod) then
     return(error(me, "Symbol referring to handler expected:" && tMethod, #addCallBack, #major))
   end if

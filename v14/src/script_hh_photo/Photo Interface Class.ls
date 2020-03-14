@@ -269,19 +269,19 @@ end
 
 on hilite me, tElements 
   tWndObj = getWindow(pWindowID)
-  repeat while tElements <= undefined
-    tid = getAt(undefined, tElements)
-    tName = tid & "_hi"
-    tWndObj.getElement(tid).setProperty(#buffer, member(getmemnum(tName)))
+  repeat while tElements <= 1
+    tID = getAt(1, count(tElements))
+    tName = tID & "_hi"
+    tWndObj.getElement(tID).setProperty(#buffer, member(getmemnum(tName)))
   end repeat
 end
 
 on unhilite me, tElements 
   tWndObj = getWindow(pWindowID)
-  repeat while tElements <= undefined
-    tid = getAt(undefined, tElements)
-    tName = tid
-    tWndObj.getElement(tid).getProperty(#buffer, member(getmemnum(tName)))
+  repeat while tElements <= 1
+    tID = getAt(1, count(tElements))
+    tName = tID
+    tWndObj.getElement(tID).getProperty(#buffer, member(getmemnum(tName)))
   end repeat
 end
 

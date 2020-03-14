@@ -11,9 +11,9 @@ end
 
 on prepare me 
   tRoomVis = getThread(#room).getInterface().getRoomVisualizer()
-  repeat while ["goawaybus"] <= undefined
-    tid = getAt(undefined, undefined)
-    tsprite = tRoomVis.getSprById(tid)
+  repeat while ["goawaybus"] <= 1
+    tID = getAt(1, count(["goawaybus"]))
+    tsprite = tRoomVis.getSprById(tID)
     registerProcedure(tsprite, #busTeleport, me.getID(), #mouseDown)
   end repeat
 end

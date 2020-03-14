@@ -18,11 +18,11 @@ on deconstruct me
   return TRUE
 end
 
-on setID me, tid 
+on setID me, tID 
   if voidp(me.id) then
-    id = tid
+    id = tID
   else
-    error(me, "Attempted to redefine object's ID:" & "\r" & me.id && "->" && tid, #setID, #minor)
+    error(me, "Attempted to redefine object's ID:" & "\r" & me.id && "->" && tID, #setID, #minor)
   end if
 end
 
@@ -61,8 +61,8 @@ on print me
 end
 
 on executeDelay me, tTimeout 
-  tid = tTimeout.name
-  tTask = delays.getAt(tid)
-  me.Cancel(tid)
+  tID = tTimeout.name
+  tTask = delays.getAt(tID)
+  me.Cancel(tID)
   call(tTask.getAt(#method), me, tTask.getAt(#argument))
 end

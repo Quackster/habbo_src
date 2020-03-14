@@ -14,40 +14,40 @@ on getVariableManager
   return(tMgr.getManager(#variable_manager))
 end
 
-on createVariable tid, tValue 
-  return(getVariableManager().create(tid, tValue))
+on createVariable tID, tValue 
+  return(getVariableManager().create(tID, tValue))
 end
 
-on removeVariable tid 
-  return(getVariableManager().Remove(tid))
+on removeVariable tID 
+  return(getVariableManager().Remove(tID))
 end
 
-on setVariable tid, tValue 
-  return(getVariableManager().create(tid, tValue))
+on setVariable tID, tValue 
+  return(getVariableManager().create(tID, tValue))
 end
 
-on getVariable tid, tDefault 
-  return(getVariableManager().GET(tid, tDefault))
+on getVariable tID, tDefault 
+  return(getVariableManager().GET(tID, tDefault))
 end
 
-on getIntVariable tid, tDefault 
-  return(getVariableManager().getInt(tid, tDefault))
+on getIntVariable tID, tDefault 
+  return(getVariableManager().getInt(tID, tDefault))
 end
 
-on getStructVariable tid, tDefault 
-  return(getVariableManager().GetValue(tid, tDefault))
+on getStructVariable tID, tDefault 
+  return(getVariableManager().GetValue(tID, tDefault))
 end
 
-on getClassVariable tid, tDefault 
-  return(getVariableManager().GetValue(tid, tDefault))
+on getClassVariable tID, tDefault 
+  return(getVariableManager().GetValue(tID, tDefault))
 end
 
-on getVariableValue tid, tDefault 
-  return(getVariableManager().GetValue(tid, tDefault))
+on getVariableValue tID, tDefault 
+  return(getVariableManager().GetValue(tID, tDefault))
 end
 
-on variableExists tid 
-  return(getVariableManager().exists(tid))
+on variableExists tID 
+  return(getVariableManager().exists(tID))
 end
 
 on printVariables  

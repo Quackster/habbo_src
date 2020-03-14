@@ -13,8 +13,8 @@ on construct me
   pNumOfColorBoxies = 0
   f = 1
   repeat while f <= 50
-    tid = "ctlg_selectcolor_bg_" & f
-    if tCataloguePage.elementExists(tid) then
+    tID = "ctlg_selectcolor_bg_" & f
+    if tCataloguePage.elementExists(tID) then
       pNumOfColorBoxies = (pNumOfColorBoxies + 1)
     else
     end if
@@ -90,10 +90,10 @@ on renderSmallIcons me, tstate, tPram
     tLast = pPageData.count
     f = 1
     repeat while f <= pPageData.count
-      tid = "ctlg_small_img_" & f
-      if tWndObj.elementExists(tid) then
-        tWndObj.getElement(tid).clearImage()
-        tWndObj.getElement(tid).setProperty(#ink, 36)
+      tID = "ctlg_small_img_" & f
+      if tWndObj.elementExists(tID) then
+        tWndObj.getElement(tID).clearImage()
+        tWndObj.getElement(tID).setProperty(#ink, 36)
       end if
       f = (1 + f)
     end repeat
@@ -116,9 +116,9 @@ on renderSmallIcons me, tstate, tPram
     repeat while f <= tLast
       if not voidp(pPageData.getAt(f).getAt(1).getAt("smallPrewImg")) then
         tmember = pPageData.getAt(f).getAt(1).getAt("smallPrewImg")
-        tid = "ctlg_small_img_" & f
+        tID = "ctlg_small_img_" & f
         if tmember <> 0 then
-          if tWndObj.elementExists(tid) then
+          if tWndObj.elementExists(tID) then
             pSmallImg.fill(pSmallImg.rect, rgb(255, 255, 255))
             if not voidp(tstate) then
               if (tstate = #hilite) and memberExists("ctlg_small_active2_bg") then
@@ -131,8 +131,8 @@ on renderSmallIcons me, tstate, tPram
             tMargins = rect(0, 0, 0, 0)
             tdestrect = (rect((tdestrect.width / 2), (tdestrect.height / 2), (tTempSmallImg.width + (tdestrect.width / 2)), ((tdestrect.height / 2) + tTempSmallImg.height)) + tMargins)
             pSmallImg.copyPixels(tTempSmallImg, tdestrect, tTempSmallImg.rect, [#ink:36])
-            tWndObj.getElement(tid).clearImage()
-            tWndObj.getElement(tid).feedImage(pSmallImg)
+            tWndObj.getElement(tID).clearImage()
+            tWndObj.getElement(tID).feedImage(pSmallImg)
           end if
         end if
       end if
@@ -155,15 +155,15 @@ on renderProductColors me, tOrderNum
   tWndObj = tCataloguePage
   f = 1
   repeat while f <= pNumOfColorBoxies
-    tid = "ctlg_selectcolor_bg_" & f
-    if tCataloguePage.elementExists(tid) then
+    tID = "ctlg_selectcolor_bg_" & f
+    if tCataloguePage.elementExists(tID) then
       tColor = paletteIndex(0)
-      tWndObj.getElement(tid).setProperty(#bgColor, tColor)
-      tWndObj.getElement(tid).setProperty(#blend, 30)
+      tWndObj.getElement(tID).setProperty(#bgColor, tColor)
+      tWndObj.getElement(tID).setProperty(#blend, 30)
     end if
-    tid = "ctlg_selectcolor_" & f
-    if tCataloguePage.elementExists(tid) then
-      tWndObj.getElement(tid).setProperty(#blend, 30)
+    tID = "ctlg_selectcolor_" & f
+    if tCataloguePage.elementExists(tID) then
+      tWndObj.getElement(tID).setProperty(#blend, 30)
     end if
     f = (1 + f)
   end repeat
@@ -181,14 +181,14 @@ on renderProductColors me, tOrderNum
         else
           tColor = paletteIndex(integer(tColor))
         end if
-        tid = "ctlg_selectcolor_bg_" & f
-        if tWndObj.elementExists(tid) then
-          tWndObj.getElement(tid).setProperty(#bgColor, tColor)
-          tWndObj.getElement(tid).setProperty(#blend, 100)
+        tID = "ctlg_selectcolor_bg_" & f
+        if tWndObj.elementExists(tID) then
+          tWndObj.getElement(tID).setProperty(#bgColor, tColor)
+          tWndObj.getElement(tID).setProperty(#blend, 100)
         end if
-        tid = "ctlg_selectcolor_" & f
-        if tCataloguePage.elementExists(tid) then
-          tWndObj.getElement(tid).setProperty(#blend, 100)
+        tID = "ctlg_selectcolor_" & f
+        if tCataloguePage.elementExists(tID) then
+          tWndObj.getElement(tID).setProperty(#blend, 100)
         end if
       end if
       f = (1 + f)

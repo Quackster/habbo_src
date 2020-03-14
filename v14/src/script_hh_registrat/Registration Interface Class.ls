@@ -365,8 +365,8 @@ end
 on getMyInformation me 
   pPropsToServer = [:]
   tTempProps = ["name", "password", "figure", "sex", "customData", "email", "birthday", "directMail"]
-  repeat while tTempProps <= undefined
-    tProp = getAt(undefined, undefined)
+  repeat while tTempProps <= 1
+    tProp = getAt(1, count(tTempProps))
     if getObject(#session).exists("user_" & tProp) then
       tdata = getObject(#session).GET("user_" & tProp)
       if (tdata.ilk = #list) or (tdata.ilk = #propList) then
@@ -644,8 +644,8 @@ on createDefaultFigure me, tRandom
   pPropsToServer.setAt("figure", [:])
   if not voidp(pOldFigure) and (pOldSex = pPropsToServer.getAt("sex")) then
     pPropsToServer.setAt("figure", pOldFigure)
-    repeat while ["lh", "ls", "bd", "sh", "lg", "ch", "hd", "fc", "ey", "hr", "rh", "rs"] <= undefined
-      tPart = getAt(undefined, tRandom)
+    repeat while ["lh", "ls", "bd", "sh", "lg", "ch", "hd", "fc", "ey", "hr", "rh", "rs"] <= 1
+      tPart = getAt(1, count(["lh", "ls", "bd", "sh", "lg", "ch", "hd", "fc", "ey", "hr", "rh", "rs"]))
       tmodel = pPropsToServer.getAt("figure").getAt(tPart).getAt("model")
       tColor = pPropsToServer.getAt("figure").getAt(tPart).getAt("color")
       me.setPartModel(tPart, tmodel)
@@ -655,8 +655,8 @@ on createDefaultFigure me, tRandom
     me.updateAllPrewIcons()
     return()
   end if
-  repeat while ["lh", "ls", "bd", "sh", "lg", "ch", "hd", "fc", "ey", "hr", "rh", "rs"] <= undefined
-    tPart = getAt(undefined, tRandom)
+  repeat while ["hr", "hd", "ch", "lg", "sh"] <= 1
+    tPart = getAt(1, count(["hr", "hd", "ch", "lg", "sh"]))
     if voidp(tRandom) then
       tRandom = 0
     end if
@@ -711,8 +711,8 @@ on createTemplateHuman me
   pBuffer = image(1, 1, 8)
   pFlipList = [0, 1, 2, 3, 2, 1, 0, 7]
   pBodyPartObjects = [:]
-  repeat while ["lh", "ls", "bd", "sh", "lg", "ch", "hd", "fc", "ey", "hr", "rh", "rs"] <= undefined
-    tPart = getAt(undefined, undefined)
+  repeat while ["lh", "ls", "bd", "sh", "lg", "ch", "hd", "fc", "ey", "hr", "rh", "rs"] <= 1
+    tPart = getAt(1, count(["lh", "ls", "bd", "sh", "lg", "ch", "hd", "fc", "ey", "hr", "rh", "rs"]))
     tmodel = pPropsToServer.getAt("figure").getAt(tPart).getAt("model")
     tColor = pPropsToServer.getAt("figure").getAt(tPart).getAt("color")
     tDirection = 1
@@ -756,8 +756,8 @@ on updateFigurePreview me
 end
 
 on updateAllPrewIcons me 
-  repeat while ["hr", "hd", "ch", "lg", "sh"] <= undefined
-    tPart = getAt(undefined, undefined)
+  repeat while ["hr", "hd", "ch", "lg", "sh"] <= 1
+    tPart = getAt(1, count(["hr", "hd", "ch", "lg", "sh"]))
     me.setIndexNumOfPartOrColor("partcolor", tPart, 0)
     me.setIndexNumOfPartOrColor("partmodel", tPart, 0)
     if not voidp(pPropsToServer.getAt("figure").getAt(tPart).getAt("color")) then
@@ -795,8 +795,8 @@ on updatePartPreview me, tPart, tChangingPartPropList
         tTempChangingParts = [tPart]
       end if
     end if
-    repeat while tPart <= tChangingPartPropList
-      tChancePart = getAt(tChangingPartPropList, tPart)
+    repeat while tTempChangingParts <= 1
+      tChancePart = getAt(1, count(tTempChangingParts))
       tMultiPart = tChancePart
       tTempChangeParts = ["hr", "hd", "ch", "lg", "sh", "ey", "fc", "ls", "rs", "ls", "rs"]
       if tTempChangeParts.getOne(tMultiPart) > 0 then
@@ -841,8 +841,8 @@ on getPartImg me, tPartList, tImg
   if tPartList.ilk <> #list then
     tPartList = [tPartList]
   end if
-  repeat while tPartList <= tImg
-    tPart = getAt(tImg, tPartList)
+  repeat while tPartList <= 1
+    tPart = getAt(1, count(tPartList))
     call(#copyPicture, [pBodyPartObjects.getAt(tPart)], tImg)
   end repeat
 end
@@ -1733,30 +1733,30 @@ on eventProcFigurecreator me, tEvent, tSprID, tParm, tWndID
             tValidKeys = getVariable("permitted.name.chars")
             tDeniedKeys = getVariable("denied.name.chars", "")
             if not tValidKeys contains the key then
-              if (tSprID = 36) then
+              if (the keyCode = 36) then
                 return TRUE
               else
-                if (tSprID = 48) then
+                if (the keyCode = 48) then
                   me.checkName()
                   return FALSE
                 else
-                  if (tSprID = 49) then
+                  if (the keyCode = 49) then
                     if tValidKeys.length > 0 then
                       executeMessage(#helptooltip, [#Msg:getText("reg_use_allowed_chars") && tValidKeys, #pos:tRect])
                     end if
                     return TRUE
                   else
-                    if (tSprID = 51) then
+                    if (the keyCode = 51) then
                       return FALSE
                     else
-                      if (tSprID = 117) then
+                      if (the keyCode = 117) then
                         getWindow(pWindowTitle).getElement(tSprID).setText("")
                         return FALSE
                       else
-                        if tSprID <> 123 then
-                          if tSprID <> 124 then
-                            if tSprID <> 125 then
-                              if (tSprID = 126) then
+                        if the keyCode <> 123 then
+                          if the keyCode <> 124 then
+                            if the keyCode <> 125 then
+                              if (the keyCode = 126) then
                                 return FALSE
                               else
                                 if tDeniedKeys contains the key then
@@ -1771,8 +1771,8 @@ on eventProcFigurecreator me, tEvent, tSprID, tParm, tWndID
                                 end if
                               end if
                               return FALSE
-                              if tSprID <> "char_pw_field" then
-                                if (tSprID = "char_pwagain_field") then
+                              if the keyCode <> "char_pw_field" then
+                                if (the keyCode = "char_pwagain_field") then
                                   tValidKeys = getVariable("permitted.password.chars")
                                   if (pNameChecked = 0) then
                                     if not me.checkName() then
@@ -1782,31 +1782,31 @@ on eventProcFigurecreator me, tEvent, tSprID, tParm, tWndID
                                   if voidp(pTempPassword.getAt(tSprID)) then
                                     pTempPassword.setAt(tSprID, "")
                                   end if
-                                  if (tSprID = 36) then
+                                  if (the keyCode = 36) then
                                     return TRUE
                                   else
-                                    if (tSprID = 48) then
+                                    if (the keyCode = 48) then
                                       return FALSE
                                     else
-                                      if (tSprID = 49) then
+                                      if (the keyCode = 49) then
                                         if tValidKeys.length > 0 then
                                           executeMessage(#helptooltip, [#Msg:getText("reg_use_allowed_chars") && tValidKeys, #pos:tRect])
                                         end if
                                         return TRUE
                                       else
-                                        if tSprID <> 123 then
-                                          if tSprID <> 124 then
-                                            if tSprID <> 125 then
-                                              if (tSprID = 126) then
+                                        if the keyCode <> 123 then
+                                          if the keyCode <> 124 then
+                                            if the keyCode <> 125 then
+                                              if (the keyCode = 126) then
                                                 return TRUE
                                               else
-                                                if (tSprID = 51) then
+                                                if (the keyCode = 51) then
                                                   if pTempPassword.getAt(tSprID).length > 0 then
                                                     tTempPass = pTempPassword.getAt(tSprID)
                                                     pTempPassword.setAt(tSprID, chars(tTempPass, 1, (tTempPass.length - 1)))
                                                   end if
                                                 else
-                                                  if (tSprID = 117) then
+                                                  if (the keyCode = 117) then
                                                     getWindow(tWndID).getElement(tSprID).setText("")
                                                     pTempPassword.setAt(tSprID, "")
                                                   else
@@ -1829,17 +1829,17 @@ on eventProcFigurecreator me, tEvent, tSprID, tParm, tWndID
                                               tTimeoutHideName = "asteriskUpdate" & the milliSeconds
                                               createTimeout(tTimeoutHideName, 1, #updatePasswordAsterisks, me.getID(), [tWndID, tSprID], 1)
                                               return FALSE
-                                              if (tSprID = "char_email_field") then
+                                              if (the keyCode = "char_email_field") then
                                                 return FALSE
                                               else
-                                                if (tSprID = "char_dd_field") then
-                                                  if (tSprID = 48) then
+                                                if (the keyCode = "char_dd_field") then
+                                                  if (the keyCode = 48) then
                                                     return FALSE
                                                   else
-                                                    if (tSprID = 51) then
+                                                    if (the keyCode = 51) then
                                                       return FALSE
                                                     else
-                                                      if (tSprID = 117) then
+                                                      if (the keyCode = 117) then
                                                         return FALSE
                                                       else
                                                         if getWindow(tWndID).getElement(tSprID).getText().length >= 2 then
@@ -1853,14 +1853,14 @@ on eventProcFigurecreator me, tEvent, tSprID, tParm, tWndID
                                                     end if
                                                   end if
                                                 else
-                                                  if (tSprID = "char_yyyy_field") then
-                                                    if (tSprID = 48) then
+                                                  if (the keyCode = "char_yyyy_field") then
+                                                    if (the keyCode = 48) then
                                                       return FALSE
                                                     else
-                                                      if (tSprID = 51) then
+                                                      if (the keyCode = 51) then
                                                         return FALSE
                                                       else
-                                                        if (tSprID = 117) then
+                                                        if (the keyCode = 117) then
                                                           return FALSE
                                                         else
                                                           if getWindow(tWndID).getElement(tSprID).getText().length >= 4 then
@@ -1973,14 +1973,14 @@ on eventProcVerifyWindow me, tEvent, tSprID, tParm, tWndID
       end if
     end if
   else
-    if the keyCode <> "update_cancel_button" then
-      if (the keyCode = "updateok_ok_button") then
+    if tSprID <> "update_cancel_button" then
+      if (tSprID = "updateok_ok_button") then
         pTempPassword = [:]
         removeWindow(tWndID)
         pPwdEmailUpdateForced = 0
         pUpdatingPassword = 0
       else
-        if (the keyCode = "updatepw_ok_button") then
+        if (tSprID = "updatepw_ok_button") then
           pPasswordChecked = 0
           pUpdatingPassword = 1
           pErrorMsg = ""
@@ -2031,7 +2031,7 @@ on eventProcVerifyWindow me, tEvent, tSprID, tParm, tWndID
           me.getComponent().sendValidatePassword(tNewPwd)
           return FALSE
         else
-          if (the keyCode = "updatemail_ok_button") then
+          if (tSprID = "updatemail_ok_button") then
             tWndObj = getWindow(pVerifyChangeWndID)
             tEmail = tWndObj.getElement("char_newemail_field").getText()
             tYear = integer(tWndObj.getElement("char_yyyy_field").getText())

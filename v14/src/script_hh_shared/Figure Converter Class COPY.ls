@@ -20,8 +20,8 @@ on initializeValidPartLists me, tPartList
   end if
   pValidPartsList = tPartList
   pValidSetIDList = [:]
-  repeat while ["M", "F"] <= undefined
-    tsex = getAt(undefined, tPartList)
+  repeat while ["M", "F"] <= 1
+    tsex = getAt(1, count(["M", "F"]))
     pValidSetIDList.setAt(tsex, [:])
     tPartSet = 1
     repeat while tPartSet <= pValidPartsList.getAt(tsex).count
@@ -45,8 +45,8 @@ on initializeSelectablePartList me, tSetIDList
   tTempSetIDList = [:]
   tTempSetIDList.setAt("M", [])
   tTempSetIDList.setAt("F", [])
-  repeat while tSetIDList <= undefined
-    tSetID = getAt(undefined, tSetIDList)
+  repeat while tSetIDList <= 1
+    tSetID = getAt(1, count(tSetIDList))
     if not voidp(pValidSetIDList.getAt("M").findPos(tSetID)) then
       tTempSetIDList.getAt("M").add(tSetID)
     else
@@ -55,13 +55,13 @@ on initializeSelectablePartList me, tSetIDList
   end repeat
   pSelectablePartsList = [:]
   pSelectableSetIDList = [:]
-  repeat while tSetIDList <= undefined
-    tsex = getAt(undefined, tSetIDList)
+  repeat while ["M", "F"] <= 1
+    tsex = getAt(1, count(["M", "F"]))
     pSelectablePartsList.setAt(tsex, [:])
     pSelectableSetIDList.setAt(tsex, [:])
     tSelectableIDs = tTempSetIDList.getAt(tsex)
-    repeat while tSetIDList <= undefined
-      tSetID = getAt(undefined, tSetIDList)
+    repeat while ["M", "F"] <= 1
+      tSetID = getAt(1, count(["M", "F"]))
       if not voidp(pValidSetIDList.getAt(tsex).findPos(tSetID)) then
         tPart = pValidSetIDList.getAt(tsex).getProp(tSetID).getAt(#part)
         tlocation = pValidSetIDList.getAt(tsex).getProp(tSetID).getAt(#location)
@@ -79,8 +79,8 @@ end
 on GenerateFigureDataToServerMode me, tFigure, tsex 
   tFigure = me.checkAndFixFigure(tFigure, tsex)
   tFigureToServer = ""
-  repeat while ["hr", "hd", "lg", "sh", "ch"] <= tsex
-    tPart = getAt(tsex, tFigure)
+  repeat while ["hr", "hd", "lg", "sh", "ch"] <= 1
+    tPart = getAt(1, count(["hr", "hd", "lg", "sh", "ch"]))
     if not voidp(tFigure.getAt(tPart)) then
       if not voidp(tFigure.getAt(tPart).getAt("setid")) and not voidp(tFigure.getAt(tPart).getAt("colorid")) then
         tSetID = tFigure.getAt(tPart).getAt("setid")
@@ -112,8 +112,8 @@ on checkAndFixFigure me, tFigure, tsex
   if tFigure.ilk <> #propList then
     tFigure = [:]
   end if
-  repeat while ["hr", "hd", "ey", "fc", "bd", "lh", "rh", "ch", "ls", "rs", "lg", "sh"] <= tsex
-    tPart = getAt(tsex, tFigure)
+  repeat while ["hr", "hd", "ey", "fc", "bd", "lh", "rh", "ch", "ls", "rs", "lg", "sh"] <= 1
+    tPart = getAt(1, count(["hr", "hd", "ey", "fc", "bd", "lh", "rh", "ch", "ls", "rs", "lg", "sh"]))
     if ["hr", "hd", "ey", "fc", "bd", "lh", "rh", "ch", "ls", "rs", "lg", "sh"] <> "ls" then
       if ["hr", "hd", "ey", "fc", "bd", "lh", "rh", "ch", "ls", "rs", "lg", "sh"] <> "ch" then
         if (["hr", "hd", "ey", "fc", "bd", "lh", "rh", "ch", "ls", "rs", "lg", "sh"] = "rs") then
@@ -334,8 +334,8 @@ on parseFigure me, tFigureData, tsex, tClass, tCommand
           i = (1 + i)
         end repeat
         tRequiredParts = ["hr", "hd", "ey", "fc", "bd", "lh", "rh", "ch", "ls", "rs", "lg", "sh"]
-        repeat while tClass <= tsex
-          tItem = getAt(tsex, tFigureData)
+        repeat while tClass <= count(tClass)
+          tItem = getAt(count(tClass), tRequiredParts)
           if not listp(tFigure.getAt(tItem)) then
             tFigure.setAt(tItem, [:])
           end if
@@ -385,8 +385,8 @@ on parseNewTypeFigure me, tFigure, tsex
     f = (1 + f)
   end repeat
   tTempFigure = [:]
-  repeat while ["hr", "hd", "lg", "sh", "ch"] <= tsex
-    tMainPart = getAt(tsex, tFigure)
+  repeat while ["hr", "hd", "lg", "sh", "ch"] <= 1
+    tMainPart = getAt(1, count(["hr", "hd", "lg", "sh", "ch"]))
     if not voidp(tMainPartsList.getAt(tMainPart)) then
       tSetID = tMainPartsList.getAt(tMainPart).getAt("setid")
       tColorId = tMainPartsList.getAt(tMainPart).getAt("colorID")

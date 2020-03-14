@@ -64,22 +64,22 @@ on showprogram me, tMsg
   end if
 end
 
-on curtains me, tid, tCommand 
+on curtains me, tID, tCommand 
   if (tCommand = "open") then
     tmember = member(getmemnum("dew_verho_auki"))
-    tlocz = (pCurtainsLocZ.getAt(tid) - 2000)
+    tlocz = (pCurtainsLocZ.getAt(tID) - 2000)
   else
     if (tCommand = "close") then
       tmember = member(getmemnum("dew_verho_kiinni"))
-      tlocz = (pCurtainsLocZ.getAt(tid) - 1000)
+      tlocz = (pCurtainsLocZ.getAt(tID) - 1000)
     end if
   end if
   tRoomVis = getThread(#room).getInterface().getRoomVisualizer()
   if (tRoomVis = 0) then
     return FALSE
   end if
-  tRoomVis.getSprById(tid).setMember(tmember)
-  tRoomVis.getSprById(tid).locZ = tlocz
+  tRoomVis.getSprById(tID).setMember(tmember)
+  tRoomVis.getSprById(tID).locZ = tlocz
   return TRUE
 end
 

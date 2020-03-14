@@ -92,13 +92,13 @@ on moveBy me, tOffX, tOffY
   pSprite.loc = (pSprite.loc + [tOffX, tOffY])
 end
 
-on resizeTo me, tX, tY 
+on resizeTo me, tX, tY, tForcedTag 
   tOffX = (tX - pSprite.width)
   tOffY = (tY - pSprite.height)
-  return(me.resizeBy(tOffX, tOffY))
+  return(me.resizeBy(tOffX, tOffY, tForcedTag))
 end
 
-on resizeBy me, tOffH, tOffV 
+on resizeBy me, tOffH, tOffV, tForcedTag 
   if tOffH <> 0 or tOffV <> 0 then
     if (pScaleH = #move) then
       me.moveBy(tOffH, 0)
@@ -108,17 +108,29 @@ on resizeBy me, tOffH, tOffV
       else
         if (pScaleH = #center) then
           me.moveBy((tOffH / 2), 0)
+        else
+          if (pScaleH = #fixed) then
+            if tForcedTag then
+              pSprite.width = (pSprite.width + tOffH)
+            end if
+          end if
         end if
       end if
     end if
-    if (pScaleH = #move) then
+    if (pScaleV = #move) then
       me.moveBy(0, tOffV)
     else
-      if (pScaleH = #scale) then
+      if (pScaleV = #scale) then
         pSprite.height = (pSprite.height + tOffV)
       else
-        if (pScaleH = #center) then
+        if (pScaleV = #center) then
           me.moveBy(0, (tOffV / 2))
+        else
+          if (pScaleV = #fixed) then
+            if tForcedTag then
+              pSprite.height = (pSprite.height + tOffV)
+            end if
+          end if
         end if
       end if
     end if
@@ -129,14 +141,14 @@ on resizeBy me, tOffH, tOffV
 end
 
 on flipH me 
-  tImage = image(pimage.width, pimage.height, pimage.depth)
+  tImage = image(pimage.width, pimage.height, pimage.depth, me.pimage.paletteRef)
   tQuad = [point(pimage.width, 0), point(0, 0), point(0, pimage.height), point(pimage.width, pimage.height)]
   tImage.copyPixels(pimage, tQuad, pimage.rect)
   pimage = tImage
 end
 
 on flipV me 
-  tImage = image(pimage.width, pimage.height, pimage.depth)
+  tImage = image(pimage.width, pimage.height, pimage.depth, me.pimage.paletteRef)
   tQuad = [point(0, pimage.height), point(pimage.width, pimage.height), point(pimage.width, 0), point(0, 0)]
   tImage.copyPixels(pimage, tQuad, pimage.rect)
   pimage = tImage

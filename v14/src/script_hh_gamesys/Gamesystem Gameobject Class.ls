@@ -1,8 +1,8 @@
 property pObjectId, pGameObjectSyncValues, pKilled, pGameObjectLocation, pGameObjectNextTarget, pGameObjectFinalTarget, pGameSystem
 
-on setObjectId me, tid 
+on setObjectId me, tID 
   pGameObjectSyncValues = [:]
-  pObjectId = tid
+  pObjectId = tID
 end
 
 on getObjectId me 

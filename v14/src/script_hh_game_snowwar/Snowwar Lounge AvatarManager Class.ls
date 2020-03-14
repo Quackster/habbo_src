@@ -31,8 +31,8 @@ on storeCreatedAvatarInfo me, tName, tStrId
 end
 
 on storeSkillLevels me, tdata 
-  repeat while tdata <= undefined
-    tuser = getAt(undefined, tdata)
+  repeat while tdata <= 1
+    tuser = getAt(1, count(tdata))
     if not me.showSkillLevel(tuser) then
       pSkillLevelList.addProp(string(tuser.getAt(#id)), tuser)
     end if
@@ -69,8 +69,8 @@ on showScoresChooser me, tKeyword
   if (tRoomComponent = 0) then
     return FALSE
   end if
-  repeat while pSkillLevelList <= undefined
-    tItem = getAt(undefined, tKeyword)
+  repeat while pSkillLevelList <= 1
+    tItem = getAt(1, count(pSkillLevelList))
     tUserObj = tRoomComponent.getUserObject(string(tItem.getAt(#id)))
     if tUserObj <> 0 then
       tString = tUserObj.getName() && ":" && tItem.getAt(#skillvalue) && " - " && tItem.getAt(#skilllevel) & "\r"

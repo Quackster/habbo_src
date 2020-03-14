@@ -15,8 +15,8 @@ end
 
 on deconstruct me 
   removeUpdate(me.getID())
-  repeat while pSpriteData <= undefined
-    tSpriteData = getAt(undefined, undefined)
+  repeat while pSpriteData <= 1
+    tSpriteData = getAt(1, count(pSpriteData))
     releaseSprite(tSpriteData.getAt(#sprite).spriteNum)
   end repeat
   pSpriteData = []
@@ -106,8 +106,8 @@ on update me
     tUpdatePhase = 1
     pCurrentPhase = tCurrentPhase
   end if
-  repeat while pSpriteData <= undefined
-    tSpriteData = getAt(undefined, undefined)
+  repeat while pSpriteData <= 1
+    tSpriteData = getAt(1, count(pSpriteData))
     tRandomUpdateTrigger = 3
     if random(tRandomUpdateTrigger) > (tRandomUpdateTrigger - 1) or tUpdatePhase then
       tNewFrame = random(pFrameAmount)

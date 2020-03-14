@@ -1,7 +1,7 @@
 property pDirection, pDefOffset, pimage, pBalOffList, pAnimFrm, pAction, pHitOffset, pCurOffset, pActOffset
 
 on define me, tPart, tProps 
-  if (tProps.getAt(#dir) = 4) then
+  if (tProps.getAt(#Dir) = 4) then
     pDirection = 3
     pDefOffset = rect(1, 0, 1, 0)
   else
@@ -17,8 +17,8 @@ on define me, tPart, tProps
     pHitOffset = [-2, 1, -2, 1]
   end if
   pimage = tProps.getAt(#buffer).duplicate()
-  repeat while [[#part:"hd", #ink:41], [#part:"hr", #ink:41], [#part:"fc", #ink:41]] <= tProps
-    tdata = getAt(tProps, tPart)
+  repeat while [[#part:"hd", #ink:41], [#part:"hr", #ink:41], [#part:"fc", #ink:41]] <= 1
+    tdata = getAt(1, count([[#part:"hd", #ink:41], [#part:"hr", #ink:41], [#part:"fc", #ink:41]]))
     tPart = tdata.getAt(#part)
     tInk = tdata.getAt(#ink)
     tFigure = tProps.getAt(#figure).getAt(tPart)

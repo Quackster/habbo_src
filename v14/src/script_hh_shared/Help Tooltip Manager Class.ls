@@ -91,8 +91,8 @@ on createTooltipToPoint me, tMsg, tloc
   if tWndObj.elementExists("tt_text") then
     tWndObj.getElement("tt_text").setText(tMsg)
   end if
-  repeat while tWndObj.pSpriteList <= tloc
-    tSpr = getAt(tloc, tMsg)
+  repeat while tWndObj.pSpriteList <= 1
+    tSpr = getAt(1, count(tWndObj.pSpriteList))
     tSpr.locZ = (tSpr.locZ + 1000)
   end repeat
   tTimeOutList = [2500, (tMsg.length * 100), 10000]

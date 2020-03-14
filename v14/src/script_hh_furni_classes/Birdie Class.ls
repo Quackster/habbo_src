@@ -1,8 +1,8 @@
 property pLastUpdate, pState, pFrame
 
 on deconstruct me 
-  repeat while me.pSprList <= undefined
-    tSpr = getAt(undefined, undefined)
+  repeat while me.pSprList <= 1
+    tSpr = getAt(1, count(me.pSprList))
     releaseSprite(tSpr.spriteNum)
   end repeat
   me.pSprList = []

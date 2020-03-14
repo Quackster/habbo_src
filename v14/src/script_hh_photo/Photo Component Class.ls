@@ -33,13 +33,13 @@ on storePicture me, tmember, tText
   pLastPhotoData = tdata
 end
 
-on binaryDataStored me, tid 
+on binaryDataStored me, tID 
   me.getInterface().saveOk()
-  pPhotoCache.setaProp(tid, pLastPhotoData)
+  pPhotoCache.setaProp(tID, pLastPhotoData)
   pLastPhotoData = void()
 end
 
-on binaryDataReceived me, tdata, tid 
+on binaryDataReceived me, tdata, tID 
   if ilk(tdata) <> #propList then
     return FALSE
   end if
@@ -47,7 +47,7 @@ on binaryDataReceived me, tdata, tid
     return FALSE
   end if
   tText = pPhotoText
-  pPhotoCache.setaProp(tid, tdata)
+  pPhotoCache.setaProp(tID, tdata)
   if not windowExists(pWindowID) then
     return FALSE
   end if

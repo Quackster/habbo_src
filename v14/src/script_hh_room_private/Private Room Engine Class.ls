@@ -56,11 +56,11 @@ on setWallPaper me, tIndex
   the itemDelimiter = "_"
   tPieceList = getThread(#room).getComponent().getPassiveObject(#list)
   tObjPieceCount = 0
-  repeat while tField <= undefined
-    tPiece = getAt(undefined, tIndex)
+  repeat while tField <= count(tField)
+    tPiece = getAt(count(tField), tPieceList)
     tSprList = tPiece.getSprites()
-    repeat while tField <= undefined
-      tSpr = getAt(undefined, tIndex)
+    repeat while tField <= count(tField)
+      tSpr = getAt(count(tField), tPieceList)
       tdir = tSpr.member.name.getProp(#item, 1)
       tName = tSpr.member.name.getProp(#item, 2)
       tdata = tSpr.member.name.getProp(#char, (length(tSpr.member.name) - 7), length(tSpr.member.name))
@@ -95,8 +95,8 @@ on setWallPaper me, tIndex
     if not voidp(tViz) then
       tWrappedWallParts = tViz.getWrappedParts([#wallleft, #wallright])
       if tWrappedWallParts.count > 0 then
-        repeat while tField <= undefined
-          tWrapper = getAt(undefined, tIndex)
+        repeat while tField <= count(tField)
+          tWrapper = getAt(count(tField), tWrappedWallParts)
           tWrapper.setPartPattern(ttype, tPalette, tColors.getAt("left"), #wallleft)
           tWrapper.setPartPattern(ttype, tPalette, tColors.getAt("right"), #wallright)
           tWrappedWallPartsDefined = 1
@@ -168,8 +168,8 @@ on setFloorPattern me, tIndex
   end repeat
   the itemDelimiter = tDelim
   tWrappedParts = tVisualizer.getWrappedParts([#floor])
-  repeat while tField <= undefined
-    tWrapper = getAt(undefined, tIndex)
+  repeat while tField <= count(tField)
+    tWrapper = getAt(count(tField), tWrappedParts)
     tWrapper.setPartPattern(ttype, tPalette, tColor, #floor)
   end repeat
   the itemDelimiter = tDelim

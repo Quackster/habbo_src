@@ -23,8 +23,8 @@ on construct me
 end
 
 on deconstruct me 
-  repeat while pSprList <= undefined
-    tSpr = getAt(undefined, undefined)
+  repeat while pSprList <= 1
+    tSpr = getAt(1, count(pSprList))
     releaseSprite(tSpr.spriteNum)
   end repeat
   pSprList = []
@@ -164,8 +164,8 @@ on solveMembers me
     tTmpDirection = pDirection
   end if
   if pSprList.count > 0 then
-    repeat while pSprList <= undefined
-      tSpr = getAt(undefined, undefined)
+    repeat while pSprList <= 1
+      tSpr = getAt(1, count(pSprList))
       releaseSprite(tSpr.spriteNum)
     end repeat
     pSprList = []
@@ -297,8 +297,8 @@ end
 on updateLocation me 
   tScreenLocs = getThread(#room).getInterface().getGeometry().getScreenCoordinate(pLocX, pLocY, pLocH)
   i = 0
-  repeat while pSprList <= undefined
-    tSpr = getAt(undefined, undefined)
+  repeat while pSprList <= 1
+    tSpr = getAt(1, count(pSprList))
     i = (i + 1)
     tSpr.locH = tScreenLocs.getAt(1)
     tSpr.locV = tScreenLocs.getAt(2)
@@ -319,15 +319,15 @@ on updateLocation me
 end
 
 on show me 
-  repeat while pSprList <= undefined
-    tSpr = getAt(undefined, undefined)
+  repeat while pSprList <= 1
+    tSpr = getAt(1, count(pSprList))
     tSpr.visible = 1
   end repeat
 end
 
 on hide me 
-  repeat while pSprList <= undefined
-    tSpr = getAt(undefined, undefined)
+  repeat while pSprList <= 1
+    tSpr = getAt(1, count(pSprList))
     tSpr.visible = 0
   end repeat
 end

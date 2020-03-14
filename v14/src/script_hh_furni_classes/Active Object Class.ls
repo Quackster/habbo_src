@@ -26,8 +26,8 @@ on construct me
 end
 
 on deconstruct me 
-  repeat while pSprList <= undefined
-    tSpr = getAt(undefined, undefined)
+  repeat while pSprList <= 1
+    tSpr = getAt(1, count(pSprList))
     releaseSprite(tSpr.spriteNum)
   end repeat
   if threadExists(#room) then
@@ -185,8 +185,8 @@ on animateSlide me, tTimeNow
 end
 
 on ghostObject me 
-  repeat while pSprList <= undefined
-    tSpr = getAt(undefined, undefined)
+  repeat while pSprList <= 1
+    tSpr = getAt(1, count(pSprList))
     if (tSpr.ink = 33) then
       tSpr.visible = 0
     else
@@ -196,11 +196,20 @@ on ghostObject me
 end
 
 on removeGhostEffect me 
-  repeat while pSprList <= undefined
-    tSpr = getAt(undefined, undefined)
+  repeat while pSprList <= 1
+    tSpr = getAt(1, count(pSprList))
     tSpr.visible = 1
     tSpr.blend = 100
   end repeat
+end
+
+on getScreenLocation me 
+  if pSprList.count < 1 then
+    return(point(0, 0))
+  end if
+  tSpr = pSprList.getAt(1)
+  tloc = point((tSpr.getProp(#rect, 1) + (tSpr.width / 2)), (tSpr.getProp(#rect, 2) + (tSpr.height / 2)))
+  return(tloc)
 end
 
 on prepare me, tdata 
@@ -345,8 +354,8 @@ on solveMembers me
     tClass = "s_" & tClass
   end if
   if pSprList.count > 0 then
-    repeat while pSprList <= undefined
-      tSpr = getAt(undefined, undefined)
+    repeat while pSprList <= 1
+      tSpr = getAt(1, count(pSprList))
       releaseSprite(tSpr.spriteNum)
     end repeat
     pSprList = []
@@ -472,11 +481,11 @@ on solveMembers me
   else
     return FALSE
   end if
-  tid = me.getID()
+  tID = me.getID()
   tRoomType = getObject(#session).GET("lastroom").getAt(#type)
   if tRoomType <> #private then
     if tShadowNum <> 0 then
-      tSpr = sprite(reserveSprite(tid))
+      tSpr = sprite(reserveSprite(tID))
       pSprList.add(tSpr)
       pLoczList.add([-4000, -4000, -4000, -4000, -4000, -4000, -4000])
       pLocShiftList.add([0, 0, 0, 0, 0, 0, 0, 0])
@@ -499,7 +508,7 @@ on solveMembers me
     if voidp(tShadowManager) then
       return FALSE
     end if
-    tShadowManager.removeShadow(tid)
+    tShadowManager.removeShadow(tID)
     if tShadowNum <> 0 and (pLocH = integer(pLocH)) then
       tProps = [:]
       tScreenLocs = tRoomThread.getInterface().getGeometry().getScreenCoordinate(pLocX, pLocY, pLocH)
@@ -515,7 +524,7 @@ on solveMembers me
       tProps.setAt(#locV, tScreenLocs.getAt(2))
       tProps.setAt(#width, tmember.width)
       tProps.setAt(#height, tmember.height)
-      tProps.setAt(#id, tid)
+      tProps.setAt(#id, tID)
       tShadowManager.addShadow(tProps)
       tShadowManager.render()
     end if
@@ -530,8 +539,8 @@ end
 on updateLocation me 
   tScreenLocs = getThread(#room).getInterface().getGeometry().getScreenCoordinate(pLocX, pLocY, pLocH)
   i = 0
-  repeat while pSprList <= undefined
-    tSpr = getAt(undefined, undefined)
+  repeat while pSprList <= 1
+    tSpr = getAt(1, count(pSprList))
     i = (i + 1)
     tSpr.locH = tScreenLocs.getAt(1)
     tSpr.locV = tScreenLocs.getAt(2)

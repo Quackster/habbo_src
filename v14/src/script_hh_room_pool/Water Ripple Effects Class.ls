@@ -14,11 +14,11 @@ on deconstruct me
   return TRUE
 end
 
-on Init me, tid 
-  if voidp(tid) then
+on Init me, tID 
+  if voidp(tID) then
     return FALSE
   end if
-  tSpr = getThread(#room).getInterface().getRoomVisualizer().getSprById(tid)
+  tSpr = getThread(#room).getInterface().getRoomVisualizer().getSprById(tID)
   pMemberImg = tSpr.member.image
   f = 1
   repeat while f <= pMaxRipples
@@ -34,9 +34,9 @@ end
 on NewRipple me, tRloc 
   if not voidp(pMemberImg) and not voidp(tRloc) then
     call(#getAvailableRipple, pRipples)
-    tid = the result
-    if not voidp(tid) then
-      pRipples.getAt(tid).setTargetPoint((tRloc - pLocFixPoint))
+    tID = the result
+    if not voidp(tID) then
+      pRipples.getAt(tID).setTargetPoint((tRloc - pLocFixPoint))
     end if
   end if
 end

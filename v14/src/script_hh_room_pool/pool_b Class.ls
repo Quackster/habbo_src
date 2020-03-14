@@ -54,9 +54,9 @@ on prepare me
   end if
   tSpr = getThread(#room).getInterface().getRoomVisualizer().getSprById("jumpticketautomatic")
   registerProcedure(tSpr, #eventProcJumpTicketAutomatic, me.getID(), #mouseDown)
-  repeat while ["pool_clickarea", "floor", "hiliter", "vesi2", "portaat1", "portaat3"] <= undefined
-    tid = getAt(undefined, undefined)
-    tSpr = getThread(#room).getInterface().getRoomVisualizer().getSprById(tid)
+  repeat while ["pool_clickarea", "floor", "hiliter", "vesi2", "portaat1", "portaat3"] <= 1
+    tID = getAt(1, count(["pool_clickarea", "floor", "hiliter", "vesi2", "portaat1", "portaat3"]))
+    tSpr = getThread(#room).getInterface().getRoomVisualizer().getSprById(tID)
     registerProcedure(tSpr, #poolTeleport, me.getID(), #mouseDown)
   end repeat
   pArrowCursor = 0
