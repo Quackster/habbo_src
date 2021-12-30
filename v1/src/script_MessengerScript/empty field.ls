@@ -1,0 +1,2 @@
+on beginSprite me 
+end

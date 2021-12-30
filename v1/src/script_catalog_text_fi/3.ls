@@ -1,3 +1,0 @@
-on mouseUp  
-  closeCatalog()
-end
