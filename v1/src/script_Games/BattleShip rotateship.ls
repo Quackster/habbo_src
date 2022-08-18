@@ -1,1 +1,3 @@
-global gBattleShipon mouseDown me  rotateShip(gBattleShip)end
+on mouseDown me 
+  rotateShip(gBattleShip)
+end

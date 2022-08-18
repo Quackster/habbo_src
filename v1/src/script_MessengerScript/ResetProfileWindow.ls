@@ -1,1 +1,3 @@
-on mouseDown me  ResetProfileWindow()end
+on mouseDown me 
+  ResetProfileWindow()
+end

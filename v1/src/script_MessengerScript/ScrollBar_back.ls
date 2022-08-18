@@ -1,1 +1,3 @@
-global TextScrollBarSpron beginSprite me  TextScrollBarSpr = me.spriteNumend
+on beginSprite me 
+  TextScrollBarSpr = me.spriteNum
+end

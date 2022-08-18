@@ -1,1 +1,3 @@
-on mouseDown me  global gBattleShip  close(gBattleShip)end
+on mouseDown me 
+  close(gBattleShip)
+end

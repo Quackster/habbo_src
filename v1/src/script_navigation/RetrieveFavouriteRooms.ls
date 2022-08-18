@@ -1,1 +1,4 @@
-on mouseUp me  global gMyName  sendEPFuseMsg(("GET_FAVORITE_ROOMS" && gMyName))  put "Retrieving favourite rooms..."end
+on mouseUp me 
+  sendEPFuseMsg("GET_FAVORITE_ROOMS" && gMyName)
+  put("Retrieving favourite rooms...")
+end

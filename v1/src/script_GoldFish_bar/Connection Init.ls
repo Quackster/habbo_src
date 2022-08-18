@@ -1,1 +1,4 @@
-on exitFrame me  global gChosenUnitIp, gChosenUnitPort  gChosenUnitIp = "fuse.taivas.com"  gChosenUnitPort = 40232end
+on exitFrame me 
+  gChosenUnitIp = "fuse.taivas.com"
+  gChosenUnitPort = 40232
+end

@@ -1,1 +1,4 @@
-on mouseUp me  closeHyppylippu()  dontPassEvent()end
+on mouseUp me 
+  closeHyppylippu()
+  dontPassEvent()
+end

@@ -1,1 +1,3 @@
-on exitFrame  sendEPFuseMsg("ALLFLOORFLATS /first floor")end
+on exitFrame  
+  sendEPFuseMsg("ALLFLOORFLATS /first floor")
+end

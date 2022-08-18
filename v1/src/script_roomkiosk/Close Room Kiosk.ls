@@ -1,1 +1,3 @@
-on mouseDown me  closeRoomkiosk()end
+on mouseDown me 
+  closeRoomkiosk()
+end

@@ -1,1 +1,4 @@
-on mouseUp  global gGoTo  gGoTo = "change1"  fuseRetrieveInfo(field("loginname"), field("loginpw"))end
+on mouseUp  
+  gGoTo = "change1"
+  fuseRetrieveInfo("loginpw", field(0))
+end

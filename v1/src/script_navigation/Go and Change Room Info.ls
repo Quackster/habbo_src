@@ -1,1 +1,3 @@
-on mouseDown me  global gChosenFlatId  sendEPFuseMsg(("GETFLATINFO /" & gChosenFlatId))end
+on mouseDown me 
+  sendEPFuseMsg("GETFLATINFO /" & gChosenFlatId)
+end

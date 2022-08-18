@@ -1,1 +1,3 @@
-on exitFrame  go(the frame)end
+on exitFrame  
+  go(the frame)
+end

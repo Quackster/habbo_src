@@ -1,1 +1,3 @@
-on mouseDown me  sendEPFuseMsg("SEARCHBUSYFLATS /0,11")end
+on mouseDown me 
+  sendEPFuseMsg("SEARCHBUSYFLATS /0,11")
+end

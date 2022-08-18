@@ -1,1 +1,3 @@
-on mouseDown me  sendFuseMsg("TRADE_CLOSE ")end
+on mouseDown me 
+  sendFuseMsg("TRADE_CLOSE ")
+end

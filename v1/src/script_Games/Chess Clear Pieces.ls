@@ -1,1 +1,3 @@
-property typeglobal gChesson endSprite me  releasePieces(gChess)end
+on endSprite me 
+  releasePieces(gChess)
+end

@@ -1,1 +1,3 @@
-on mouseDown me  play()end
+on mouseDown me 
+  play()
+end

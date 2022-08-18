@@ -1,1 +1,3 @@
-on exitFrame me  gotoFrame("hotel_entry")end
+on exitFrame me 
+  goToFrame("hotel_entry")
+end

@@ -1,1 +1,7 @@
-global gTicTacToeon new me  return meendon mouseDown me  close(gTicTacToe)end
+on new me 
+  return(me)
+end
+
+on mouseDown me 
+  close(gTicTacToe)
+end
