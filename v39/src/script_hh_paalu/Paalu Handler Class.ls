@@ -1,145 +1,112 @@
-on construct me 
-  return(me.regMsgList(1))
+on construct me
+  return me.regMsgList(1)
 end
 
-on deconstruct me 
-  return(me.regMsgList(0))
+on deconstruct me
+  return me.regMsgList(0)
 end
 
-on sendAction me, tActionStr 
-  tConn = getConnection(#info)
+on sendAction me, tActionStr
+  tConn = getConnection(#Info)
   if (tConn = 0) then
-    return FALSE
+    return 0
   end if
-  tConn.send("PTM", [#integer:me.getIntActionFromString(tActionStr)])
+  tConn.send("PTM", [#integer: me.getIntActionFromString(tActionStr)])
 end
 
-on handle_pt_prepare me, tMsg 
+on handle_pt_prepare me, tMsg
   tConn = tMsg.connection
   tPl1 = string(tConn.GetIntFrom())
   tPl2 = string(tConn.GetIntFrom())
   me.getComponent().prepareGame(tPl1, tPl2)
 end
 
-on handle_pt_start me, tMsg 
+on handle_pt_start me, tMsg
   tConn = tMsg.connection
   tPl1 = string(tConn.GetIntFrom())
   tPl2 = string(tConn.GetIntFrom())
   me.getComponent().startGame(tPl1, tPl2)
 end
 
-on handle_pt_status me, tMsg 
+on handle_pt_status me, tMsg
   tConn = tMsg.connection
-  tPl1 = [#loc:tConn.GetIntFrom(), #bal:tConn.GetIntFrom(), #act:me.getStringActionFromInt(tConn.GetIntFrom()), #hit:tConn.GetBoolFrom()]
-  tPl2 = [#loc:tConn.GetIntFrom(), #bal:tConn.GetIntFrom(), #act:me.getStringActionFromInt(tConn.GetIntFrom()), #hit:tConn.GetBoolFrom()]
+  tPl1 = [#loc: tConn.GetIntFrom(), #bal: tConn.GetIntFrom(), #act: me.getStringActionFromInt(tConn.GetIntFrom()), #hit: tConn.GetBoolFrom()]
+  tPl2 = [#loc: tConn.GetIntFrom(), #bal: tConn.GetIntFrom(), #act: me.getStringActionFromInt(tConn.GetIntFrom()), #hit: tConn.GetBoolFrom()]
   me.getComponent().updateGame(tPl1, tPl2)
 end
 
-on handle_pt_win me, tMsg 
+on handle_pt_win me, tMsg
   tConn = tMsg.connection
   tResult = tConn.GetIntFrom()
-  if (tResult = 1) then
-    me.getComponent().endGame(1)
-  else
-    if (tResult = 0) then
+  case tResult of
+    1:
+      me.getComponent().endGame(1)
+    0:
       me.getComponent().endGame(#both)
-    else
-      if (tResult = -1) then
-        me.getComponent().endGame(0)
-      end if
-    end if
-  end if
-  return FALSE
+    -1:
+      me.getComponent().endGame(0)
+  end case
+  return 0
 end
 
-on handle_pt_timeout me, tMsg 
+on handle_pt_timeout me, tMsg
   tConn = tMsg.connection
   me.getComponent().timeout(tConn.GetIntFrom())
 end
 
-on handle_pt_end me, tMsg 
+on handle_pt_end me, tMsg
   me.getComponent().resetGame()
 end
 
-on getStringActionFromInt me, tInt 
-  if (tInt = 0) then
-    return("-")
-  else
-    if (tInt = 1) then
-      return("A")
-    else
-      if (tInt = 2) then
-        return("D")
-      else
-        if (tInt = 3) then
-          return("W")
-        else
-          if (tInt = 4) then
-            return("E")
-          else
-            if (tInt = 5) then
-              return("X")
-            else
-              if (tInt = 6) then
-                return("S")
-              else
-                if (tInt = 7) then
-                  return("0")
-                else
-                  if (tInt = 8) then
-                    return("Q")
-                  end if
-                end if
-              end if
-            end if
-          end if
-        end if
-      end if
-    end if
-  end if
-  return("-")
+on getStringActionFromInt me, tInt
+  case tInt of
+    0:
+      return "-"
+    1:
+      return "A"
+    2:
+      return "D"
+    3:
+      return "W"
+    4:
+      return "E"
+    5:
+      return "X"
+    6:
+      return "S"
+    7:
+      return "0"
+    8:
+      return "Q"
+  end case
+  return "-"
 end
 
-on getIntActionFromString me, tStr 
-  if (tStr = "-") then
-    return FALSE
-  else
-    if (tStr = "A") then
-      return TRUE
-    else
-      if (tStr = "D") then
-        return(2)
-      else
-        if (tStr = "W") then
-          return(3)
-        else
-          if (tStr = "E") then
-            return(4)
-          else
-            if (tStr = "X") then
-              return(5)
-            else
-              if (tStr = "S") then
-                return(6)
-              else
-                if (tStr = "0") then
-                  return(7)
-                else
-                  if (tStr = "Q") then
-                    return(8)
-                  end if
-                end if
-              end if
-            end if
-          end if
-        end if
-      end if
-    end if
-  end if
-  return FALSE
+on getIntActionFromString me, tStr
+  case tStr of
+    "-":
+      return 0
+    "A":
+      return 1
+    "D":
+      return 2
+    "W":
+      return 3
+    "E":
+      return 4
+    "X":
+      return 5
+    "S":
+      return 6
+    "0":
+      return 7
+    "Q":
+      return 8
+  end case
+  return 0
 end
 
-on regMsgList me, tBool 
+on regMsgList me, tBool
   tMsgs = [:]
   tMsgs.setaProp(114, #handle_pt_start)
   tMsgs.setaProp(115, #handle_pt_prepare)
@@ -156,5 +123,5 @@ on regMsgList me, tBool
     unregisterListener(getVariable("connection.room.id"), me.getID(), tMsgs)
     unregisterCommands(getVariable("connection.room.id"), me.getID(), tCmds)
   end if
-  return TRUE
+  return 1
 end

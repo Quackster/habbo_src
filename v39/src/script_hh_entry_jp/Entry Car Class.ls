@@ -1,6 +1,6 @@
-property pDirection, pSprite, pOffset, pTurnPnt
+property pSprite, pOffset, pTurnPnt, pDirection
 
-on define me, tsprite, tCount 
+on define me, tsprite, tCount
   tDirection = #left
   if ((tCount mod 2) = 1) then
     tDirection = #right
@@ -10,11 +10,11 @@ on define me, tsprite, tCount
   pTurnPnt = 0
   pDirection = tDirection
   me.reset()
-  return TRUE
+  return 1
 end
 
-on reset me 
-  tmodel = ["car1", "taxia1", "taxib1", "taxic1", "bus1", "car1"].getAt(random(6))
+on reset me
+  tmodel = ["car1", "taxia1", "taxib1", "taxic1", "bus1", "car1"][random(6)]
   if (pDirection = #left) then
     pSprite.castNum = getmemnum(tmodel)
     pSprite.flipH = 0
@@ -39,17 +39,17 @@ on reset me
   end if
 end
 
-on update me 
+on update me
   pSprite.loc = (pSprite.loc + pOffset)
   if (pSprite.locH = pTurnPnt) then
-    pOffset.setAt(2, -pOffset.getAt(2))
+    pOffset[2] = -pOffset[2]
     tMemName = pSprite.member.name
-    tDirNum = integer(tMemName.getProp(#char, length(tMemName)))
+    tDirNum = integer(tMemName.char[length(tMemName)])
     tDirNum = (not (tDirNum - 1) + 1)
-    tMemName = tMemName.getProp(#char, 1, (length(tMemName) - 1)) & tDirNum
+    tMemName = (tMemName.char[1] & tDirNum)
     pSprite.castNum = getmemnum(tMemName)
   end if
-  if pSprite.locV > 500 then
-    return(me.reset())
+  if (pSprite.locV > 500) then
+    return me.reset()
   end if
 end

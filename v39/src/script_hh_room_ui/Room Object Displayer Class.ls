@@ -1,6 +1,6 @@
-property pCreatorID, pTagListObjID, pBaseWindowIds, pClosed, pWindowCreator, pShowUserTags, pBadgeObjID, pTagLists, pTagListObj, pShowActions, pWindowList, pLastSelectedObjType, pTagRequestTimeout, pBaseLocZ, pBadgeDetailsWindowID, pLastSelectedObj
+property pCreatorID, pWindowCreator, pWindowList, pBadgeObjID, pShowActions, pShowUserTags, pLastSelectedObjType, pLastSelectedObj, pBaseWindowIds, pBaseLocZ, pTagListObjID, pTagListObj, pTagLists, pClosed, pTagRequestTimeout, pBadgeDetailsWindowID
 
-on construct me 
+on construct me
   pWindowList = []
   if variableExists("displayer.tag.expiration.time") then
     pTagRequestTimeout = getVariable("displayer.tag.expiration.time")
@@ -12,7 +12,7 @@ on construct me
   pBadgeObjID = "room.obj.disp.badge.mngr"
   pShowActions = 1
   pShowUserTags = 1
-  pLastSelectedObjType = void()
+  pLastSelectedObjType = VOID
   pTagListObjID = "room.obj.disp.tags"
   createObject(pTagListObjID, "Tag List Class")
   pBadgeDetailsWindowID = #badgeDetailsWindowID
@@ -39,26 +39,25 @@ on construct me
   pWindowCreator = getObject(pCreatorID)
   pTagListObj = getObject(pTagListObjID)
   pTagLists = [:]
-  return TRUE
+  return 1
 end
 
-on deconstruct me 
+on deconstruct me
   unregisterMessage(#updateInfoStandButtons, me.getID())
   unregisterMessage(#hideInfoStand, me.getID())
   unregisterMessage(#groupLogoDownloaded, me.getID())
   removeObject(pCreatorID)
   me.removeBadgeDetailsBubble()
-  return TRUE
+  return 1
 end
 
-on updateBadge me, tBadgeName 
+on updateBadge me, tBadgeName
   me.refreshView()
 end
 
-on createBaseWindows me 
-  tIndex = 1
-  repeat while tIndex <= pBaseWindowIds.count
-    tID = pBaseWindowIds.getAt(tIndex)
+on createBaseWindows me
+  repeat with tIndex = 1 to pBaseWindowIds.count
+    tID = pBaseWindowIds[tIndex]
     if not windowExists(tID) then
       createWindow(tID, "obj_disp_base.window", 999, 999)
       tWndObj = getWindow(tID)
@@ -67,257 +66,226 @@ on createBaseWindows me
       end if
     end if
     tWndObj.hide()
-    tIndex = (1 + tIndex)
   end repeat
 end
 
-on userRemoved me, tObjectId 
+on userRemoved me, tObjectId
   tRoomInterface = getObject(#room_interface)
   if (tRoomInterface = 0) then
-    return FALSE
+    return 0
   end if
   tSelectedObj = tRoomInterface.getSelectedObject()
   if (tSelectedObj = tObjectId) then
     me.refreshView()
     me.removeBadgeDetailsBubble()
   end if
-  return TRUE
+  return 1
 end
 
-on showObjectInfo me, tObjType, tRefresh 
-  if pClosed and tRefresh then
-    return TRUE
+on showObjectInfo me, tObjType, tRefresh
+  if (pClosed and tRefresh) then
+    return 1
   end if
   if voidp(tObjType) then
-    return FALSE
+    return 0
   end if
   if (pWindowCreator = 0) then
-    return FALSE
+    return 0
   end if
   me.clearWindowDisplayList()
   pLastSelectedObjType = tObjType
   if not threadExists(#room) then
-    return FALSE
+    return 0
   end if
   tRoomComponent = getThread(#room).getComponent()
   tRoomInterface = getThread(#room).getInterface()
   tSelectedObj = tRoomInterface.getSelectedObject()
-  if (tSelectedObj = 0) and not stringp(tSelectedObj) then
-    return FALSE
+  if ((tSelectedObj = 0) and not stringp(tSelectedObj)) then
+    return 0
   end if
   pLastSelectedObj = tSelectedObj
   tWindowTypes = []
-  if (tObjType = "user") then
-    tObj = tRoomComponent.getUserObject(tSelectedObj)
-    if tObj <> 0 and pShowUserTags then
-      tUserID = integer(tObj.getWebID())
-      me.updateUserTags(tUserID)
-    else
-      return FALSE
-    end if
-    if tObj <> 0 then
-      tProps = tObj.getInfo()
-      if ilk(tProps) <> #propList then
-        return FALSE
+  case tObjType of
+    "user":
+      tObj = tRoomComponent.getUserObject(tSelectedObj)
+      if ((tObj <> 0) and pShowUserTags) then
+        tUserID = integer(tObj.getWebID())
+        me.updateUserTags(tUserID)
+      else
+        return 0
       end if
-    else
-      return FALSE
-    end if
-    if (tProps.getAt(#name) = getObject(#session).GET("user_name")) then
-      tWindowTypes = getVariableValue("object.display.windows.human.own")
-    else
-      tWindowTypes = getVariableValue("object.display.windows.human")
-    end if
-  else
-    if (tObjType = "bot") then
+      if (tObj <> 0) then
+        tProps = tObj.getInfo()
+        if (ilk(tProps) <> #propList) then
+          return 0
+        end if
+      else
+        return 0
+      end if
+      if (tProps[#name] = getObject(#session).GET("user_name")) then
+        tWindowTypes = getVariableValue("object.display.windows.human.own")
+      else
+        tWindowTypes = getVariableValue("object.display.windows.human")
+      end if
+    "bot":
       tObj = tRoomComponent.getUserObject(tSelectedObj)
       tWindowTypes = getVariableValue("object.display.windows.bot")
-    else
-      if (tObjType = "active") then
-        tObj = tRoomComponent.getActiveObject(tSelectedObj)
-        tWindowTypes = getVariableValue("object.display.windows.furni")
-      else
-        if (tObjType = "item") then
-          tObj = tRoomComponent.getItemObject(tSelectedObj)
-          tWindowTypes = getVariableValue("object.display.windows.furni")
-        else
-          if (tObjType = "pet") then
-            tObj = tRoomComponent.getUserObject(tSelectedObj)
-            tWindowTypes = getVariableValue("object.display.windows.pet")
-          else
-            error(me, "Unsupported object type:" && tObjType, #showObjectInfo, #minor)
-            return FALSE
-          end if
-        end if
-      end if
-    end if
-  end if
+    "active":
+      tObj = tRoomComponent.getActiveObject(tSelectedObj)
+      tWindowTypes = getVariableValue("object.display.windows.furni")
+    "item":
+      tObj = tRoomComponent.getItemObject(tSelectedObj)
+      tWindowTypes = getVariableValue("object.display.windows.furni")
+    "pet":
+      tObj = tRoomComponent.getUserObject(tSelectedObj)
+      tWindowTypes = getVariableValue("object.display.windows.pet")
+    otherwise:
+      error(me, ("Unsupported object type:" && tObjType), #showObjectInfo, #minor)
+      return 0
+  end case
   if (tObj = 0) then
-    return FALSE
+    return 0
   else
     tProps = tObj.getInfo()
-    if ilk(tProps) <> #propList then
-      return FALSE
+    if (ilk(tProps) <> #propList) then
+      return 0
     end if
   end if
   if not listp(tWindowTypes) then
-    return FALSE
+    return 0
   end if
-  if ilk(pBaseWindowIds) <> #propList then
-    return FALSE
+  if (ilk(pBaseWindowIds) <> #propList) then
+    return 0
   end if
-  tPos = 1
-  repeat while tPos <= tWindowTypes.count
-    tWindowType = tWindowTypes.getAt(tPos)
-    if (tObjType = "motto") then
-      tID = pBaseWindowIds.getAt(#motto)
-      pWindowCreator.createMottoWindow(tID, tProps, tSelectedObj, pBadgeObjID, pShowUserTags)
-      me.pushWindowToDisplayList(tID)
-    else
-      if (tObjType = "avatar") then
-        tID = pBaseWindowIds.getAt(#avatar)
-        pWindowCreator.createHumanWindow(tID, tProps, tSelectedObj, pBadgeObjID, pShowUserTags)
-        me.updateInfoStandGroup(tProps.getAt(#groupID))
+  repeat with tPos = 1 to tWindowTypes.count
+    tWindowType = tWindowTypes[tPos]
+    case tWindowType of
+      "motto":
+        tID = pBaseWindowIds[#motto]
+        pWindowCreator.createMottoWindow(tID, tProps, tSelectedObj, pBadgeObjID, pShowUserTags)
         me.pushWindowToDisplayList(tID)
-      else
-        if (tObjType = "bot") then
-          tID = pBaseWindowIds.getAt(#avatar)
-          pWindowCreator.createBotWindow(tID, tProps)
-          me.pushWindowToDisplayList(tID)
-        else
-          if (tObjType = "furni") then
-            tID = pBaseWindowIds.getAt(#avatar)
-            pWindowCreator.createFurnitureWindow(tID, tProps)
-            me.pushWindowToDisplayList(tID)
+      "avatar":
+        tID = pBaseWindowIds[#avatar]
+        pWindowCreator.createHumanWindow(tID, tProps, tSelectedObj, pBadgeObjID, pShowUserTags)
+        me.updateInfoStandGroup(tProps[#groupID])
+        me.pushWindowToDisplayList(tID)
+      "bot":
+        tID = pBaseWindowIds[#avatar]
+        pWindowCreator.createBotWindow(tID, tProps)
+        me.pushWindowToDisplayList(tID)
+      "furni":
+        tID = pBaseWindowIds[#avatar]
+        pWindowCreator.createFurnitureWindow(tID, tProps)
+        me.pushWindowToDisplayList(tID)
+      "pet":
+        tID = pBaseWindowIds[#avatar]
+        pWindowCreator.createPetWindow(tID, tProps)
+        me.pushWindowToDisplayList(tID)
+      "tags_user":
+        if pShowUserTags then
+          if (ilk(pTagLists) <> #propList) then
+            pTagLists = [:]
+          end if
+          tOwnUserId = integer(getObject(#session).GET("user_user_id"))
+          if voidp(pTagLists.getaProp(tOwnUserId)) then
+            me.updateUserTags(tOwnUserId)
           else
-            if (tObjType = "pet") then
-              tID = pBaseWindowIds.getAt(#avatar)
-              pWindowCreator.createPetWindow(tID, tProps)
-              me.pushWindowToDisplayList(tID)
-            else
-              if (tObjType = "tags_user") then
-                if pShowUserTags then
-                  if ilk(pTagLists) <> #propList then
-                    pTagLists = [:]
-                  end if
-                  tOwnUserId = integer(getObject(#session).GET("user_user_id"))
-                  if voidp(pTagLists.getaProp(tOwnUserId)) then
-                    me.updateUserTags(tOwnUserId)
-                  else
-                    tOwnTags = pTagLists.getaProp(tOwnUserId).getAt(#tags)
-                  end if
-                  tUserTagData = pTagLists.getaProp(tObj.getWebID())
-                  if (ilk(tUserTagData) = #propList) then
-                    tTagList = tUserTagData.getAt(#tags)
-                  else
-                    tTagList = []
-                  end if
-                  if ilk(tTagList) <> #list then
-                    tTagList = []
-                  end if
-                  if tTagList.count > 0 then
-                    tID = pBaseWindowIds.getAt(#tags)
-                    pWindowCreator.createUserTagsWindow(tID)
-                    me.pushWindowToDisplayList(tID)
-                    tTagsWindow = getWindow(tID)
-                    tTagsElem = tTagsWindow.getElement("room_obj_disp_tags")
-                    pTagListObj.setWidth(tTagsElem.getProperty(#width))
-                    pTagListObj.setHeight(tTagsElem.getProperty(#height))
-                    if objectp(pTagListObj) then
-                      if (tOwnUserId = tObj.getWebID()) then
-                        pTagListObj.setOwnTags([])
-                      else
-                        pTagListObj.setOwnTags(tOwnTags)
-                      end if
-                      tTagListImage = pTagListObj.createTagList(tTagList)
-                      tTagsElem.feedImage(tTagListImage)
-                      tOffset = (tTagListImage.height - tTagsWindow.getProperty(#height))
-                      tTagsWindow.resizeBy(0, tOffset)
-                    end if
-                  end if
-                end if
+            tOwnTags = pTagLists.getaProp(tOwnUserId)[#tags]
+          end if
+          tUserTagData = pTagLists.getaProp(tObj.getWebID())
+          if (ilk(tUserTagData) = #propList) then
+            tTagList = tUserTagData[#tags]
+          else
+            tTagList = []
+          end if
+          if (ilk(tTagList) <> #list) then
+            tTagList = []
+          end if
+          if (tTagList.count > 0) then
+            tID = pBaseWindowIds[#tags]
+            pWindowCreator.createUserTagsWindow(tID)
+            me.pushWindowToDisplayList(tID)
+            tTagsWindow = getWindow(tID)
+            tTagsElem = tTagsWindow.getElement("room_obj_disp_tags")
+            pTagListObj.setWidth(tTagsElem.getProperty(#width))
+            pTagListObj.setHeight(tTagsElem.getProperty(#height))
+            if objectp(pTagListObj) then
+              if (tOwnUserId = tObj.getWebID()) then
+                pTagListObj.setOwnTags([])
               else
-                if (tObjType = "xp_user") then
-                  tXP = tProps.getaProp(#xp)
-                  if not voidp(tXP) or (tXP = 0) then
-                    tID = pBaseWindowIds.getAt(#xp)
-                    pWindowCreator.createUserXpWindow(tID, tXP)
-                    me.pushWindowToDisplayList(tID)
-                  end if
-                else
-                  if (tObjType = "fx_user") then
-                    tFx = tProps.getaProp(#FX)
-                    if listp(tFx) then
-                      if tFx.count > 0 then
-                        tID = pBaseWindowIds.getAt(#FX)
-                        pWindowCreator.createUserFxWindow(tID, tFx)
-                        me.pushWindowToDisplayList(tID)
-                      end if
-                    end if
-                  else
-                    if (tObjType = "links_human") then
-                      tID = pBaseWindowIds.getAt(#links)
-                      if (tProps.getAt(#name) = getObject(#session).GET("user_name")) then
-                        pWindowCreator.createLinksWindow(tID, #own)
-                      else
-                        pWindowCreator.createLinksWindow(tID, #peer)
-                      end if
-                      me.pushWindowToDisplayList(tID)
-                    else
-                      if (tObjType = "actions_human") then
-                        tID = pBaseWindowIds.getAt(#actions)
-                        pWindowCreator.createActionsHumanWindow(tID, tProps.getAt(#name), pShowActions)
-                        me.pushWindowToDisplayList(tID)
-                      else
-                        if (tObjType = "actions_furni") then
-                          if tRoomComponent.itemObjectExists(tSelectedObj) then
-                            tselectedobject = tRoomComponent.getItemObject(tSelectedObj)
-                            if objectp(tselectedobject) then
-                              tClass = tselectedobject.getClass()
-                              if tClass contains "post_it" then
-                              else
-                                tID = pBaseWindowIds.getAt(#actions)
-                                pWindowCreator.createActionsFurniWindow(tID, tObjType, pShowActions)
-                                me.pushWindowToDisplayList(tID)
-                                if (tObjType = "bottom") then
-                                  tID = pBaseWindowIds.getAt(#bottom)
-                                  pWindowCreator.createBottomWindow(tID)
-                                  me.pushWindowToDisplayList(tID)
-                                end if
-                                if windowExists(tID) then
-                                  tWndObj = getWindow(tID)
-                                  tWndObj.registerProcedure(#eventProc, me.getID(), #mouseUp)
-                                  tWndObj.registerProcedure(#eventProc, me.getID(), #mouseEnter)
-                                  tWndObj.registerProcedure(#eventProc, me.getID(), #mouseWithin)
-                                  tWndObj.registerProcedure(#eventProc, me.getID(), #mouseLeave)
-                                end if
-                              end if
-                              tPos = (1 + tPos)
-                              me.alignWindows()
-                              pClosed = 0
-                            end if
-                          end if
-                        end if
-                      end if
-                    end if
-                  end if
-                end if
+                pTagListObj.setOwnTags(tOwnTags)
               end if
+              tTagListImage = pTagListObj.createTagList(tTagList)
+              tTagsElem.feedImage(tTagListImage)
+              tOffset = (tTagListImage.height - tTagsWindow.getProperty(#height))
+              tTagsWindow.resizeBy(0, tOffset)
             end if
           end if
         end if
-      end if
+      "xp_user":
+        tXP = tProps.getaProp(#xp)
+        if not (voidp(tXP) or (tXP = 0)) then
+          tID = pBaseWindowIds[#xp]
+          pWindowCreator.createUserXpWindow(tID, tXP)
+          me.pushWindowToDisplayList(tID)
+        end if
+      "fx_user":
+        tFx = tProps.getaProp(#FX)
+        if listp(tFx) then
+          if (tFx.count > 0) then
+            tID = pBaseWindowIds[#FX]
+            pWindowCreator.createUserFxWindow(tID, tFx)
+            me.pushWindowToDisplayList(tID)
+          end if
+        end if
+      "links_human":
+        tID = pBaseWindowIds[#links]
+        if (tProps[#name] = getObject(#session).GET("user_name")) then
+          pWindowCreator.createLinksWindow(tID, #own)
+        else
+          pWindowCreator.createLinksWindow(tID, #peer)
+        end if
+        me.pushWindowToDisplayList(tID)
+      "actions_human":
+        tID = pBaseWindowIds[#actions]
+        pWindowCreator.createActionsHumanWindow(tID, tProps[#name], pShowActions)
+        me.pushWindowToDisplayList(tID)
+      "actions_furni":
+        if tRoomComponent.itemObjectExists(tSelectedObj) then
+          tselectedobject = tRoomComponent.getItemObject(tSelectedObj)
+          if objectp(tselectedobject) then
+            tClass = tselectedobject.getClass()
+            if (tClass contains "post_it") then
+              next repeat
+            end if
+          end if
+        end if
+        tID = pBaseWindowIds[#actions]
+        pWindowCreator.createActionsFurniWindow(tID, tObjType, pShowActions)
+        me.pushWindowToDisplayList(tID)
+      "bottom":
+        tID = pBaseWindowIds[#bottom]
+        pWindowCreator.createBottomWindow(tID)
+        me.pushWindowToDisplayList(tID)
+    end case
+    if windowExists(tID) then
+      tWndObj = getWindow(tID)
+      tWndObj.registerProcedure(#eventProc, me.getID(), #mouseUp)
+      tWndObj.registerProcedure(#eventProc, me.getID(), #mouseEnter)
+      tWndObj.registerProcedure(#eventProc, me.getID(), #mouseWithin)
+      tWndObj.registerProcedure(#eventProc, me.getID(), #mouseLeave)
     end if
   end repeat
+  me.alignWindows()
+  pClosed = 0
 end
 
-on clearWindowDisplayList me 
+on clearWindowDisplayList me
   if (pWindowCreator = 0) then
-    return FALSE
+    return 0
   end if
-  if listp(pWindowList) and objectp(pWindowCreator) then
-    repeat while pWindowList <= undefined
-      tWindowID = getAt(undefined, undefined)
+  if (listp(pWindowList) and objectp(pWindowCreator)) then
+    repeat with tWindowID in pWindowList
       pWindowCreator.clearWindow(tWindowID)
     end repeat
   end if
@@ -327,150 +295,148 @@ on clearWindowDisplayList me
   end if
 end
 
-on pushWindowToDisplayList me, tWindowID 
+on pushWindowToDisplayList me, tWindowID
   pWindowList.add(tWindowID)
 end
 
-on refreshView me 
+on refreshView me
   me.clearWindowDisplayList()
   sendProcessTracking(760)
   me.showObjectInfo(pLastSelectedObjType, 1)
   sendProcessTracking(761)
 end
 
-on showHideActions me 
+on showHideActions me
   pShowActions = not pShowActions
   me.refreshView()
 end
 
-on showHideTags me 
+on showHideTags me
   pShowUserTags = not pShowUserTags
   me.refreshView()
 end
 
-on updateUserTags me, tUserID 
+on updateUserTags me, tUserID
   tLastUpdateTime = 0
   tTimeNow = the milliSeconds
-  if ilk(pTagLists) <> #propList then
-    return FALSE
+  if (ilk(pTagLists) <> #propList) then
+    return 0
   end if
   tUserData = pTagLists.getaProp(tUserID)
   if listp(tUserData) then
-    tLastUpdateTime = tUserData.getAt(#lastUpdate)
+    tLastUpdateTime = tUserData[#lastUpdate]
   else
-    pTagLists.setAt(string(tUserID), [#tags:[], #lastUpdate:0])
+    pTagLists[string(tUserID)] = [#tags: [], #lastUpdate: 0]
   end if
-  if (tTimeNow - tLastUpdateTime) > pTagRequestTimeout then
-    if (ilk(pTagLists.getAt(string(tUserID))) = #propList) then
-      pTagLists.getAt(string(tUserID)).setAt(#lastUpdate, tTimeNow)
-      getConnection(#info).send("GET_USER_TAGS", [#integer:tUserID])
+  if ((tTimeNow - tLastUpdateTime) > pTagRequestTimeout) then
+    if (ilk(pTagLists[string(tUserID)]) = #propList) then
+      pTagLists[string(tUserID)][#lastUpdate] = tTimeNow
+      getConnection(#Info).send("GET_USER_TAGS", [#integer: tUserID])
     end if
   end if
 end
 
-on alignWindows me 
-  if ilk(pWindowList) <> #list then
-    return FALSE
+on alignWindows me
+  if (ilk(pWindowList) <> #list) then
+    return 0
   end if
   if (pWindowList.count = 0) then
-    return FALSE
+    return 0
   end if
-  if ilk(pBaseWindowIds) <> #propList then
-    return FALSE
+  if (ilk(pBaseWindowIds) <> #propList) then
+    return 0
   end if
   tDefLeftPos = getVariable("object.display.pos.left")
   tDefBottomPos = getVariable("object.display.pos.bottom")
   tAlignments = getVariableValue("object.displayer.window.align", [:])
-  if ilk(tAlignments) <> #propList then
-    return FALSE
+  if (ilk(tAlignments) <> #propList) then
+    return 0
   end if
   tStageWidth = (the stageRight - the stageLeft)
   tDefLeftPos = (tDefLeftPos + (tStageWidth - 720))
-  tIndex = pWindowList.count
-  repeat while tIndex >= 1
+  repeat with tIndex = pWindowList.count down to 1
     sendProcessTracking(742)
-    tWindowID = pWindowList.getAt(tIndex)
+    tWindowID = pWindowList[tIndex]
     if not windowExists(tWindowID) then
-    else
-      tWindowObj = getWindow(tWindowID)
-      tWindowObj.moveZ((pBaseLocZ + ((tIndex - 1) * 100)))
-      tWindowType = pBaseWindowIds.getOne(tWindowID)
-      tAlignment = tAlignments.getaProp(tWindowType)
-      if voidp(tAlignment) then
-        tAlignment = #left
-      end if
-      tLeft = tDefLeftPos
-      sendProcessTracking(743)
-      if tIndex >= pWindowList.count then
-        sendProcessTracking(744)
-        if pWindowList.count <= 1 then
-          tNextWindowID = ""
-        else
-          tNextWindowID = pWindowList.getAt((pWindowList.count - 1))
-        end if
-        if windowExists(tNextWindowID) then
-          tNextWindow = getWindow(tNextWindowID)
-          if (tAlignment = #right) then
-            tLeft = ((tDefLeftPos + tNextWindow.getProperty(#width)) - tWindowObj.getProperty(#width))
-          end if
-          tTop = (tDefBottomPos - tWindowObj.getProperty(#height))
-        end if
-      else
-        sendProcessTracking(745)
-        tPrevWindowID = pWindowList.getAt((tIndex + 1))
-        if windowExists(tPrevWindowID) then
-          sendProcessTracking(746)
-          tPrevWindow = getWindow(tPrevWindowID)
-          if (tAlignment = #right) then
-            sendProcessTracking(747)
-            tLeft = ((tDefLeftPos + tPrevWindow.getProperty(#width)) - tWindowObj.getProperty(#width))
-          end if
-          sendProcessTracking(748)
-          tTop = (tPrevWindow.getProperty(#locY) - tWindowObj.getProperty(#height))
-        end if
-      end if
-      sendProcessTracking(749)
-      tWindowObj.moveTo(tLeft, tTop)
-      sendProcessTracking(750)
+      next repeat
     end if
-    tIndex = (255 + tIndex)
+    tWindowObj = getWindow(tWindowID)
+    tWindowObj.moveZ((pBaseLocZ + ((tIndex - 1) * 100)))
+    tWindowType = pBaseWindowIds.getOne(tWindowID)
+    tAlignment = tAlignments.getaProp(tWindowType)
+    if voidp(tAlignment) then
+      tAlignment = #left
+    end if
+    tLeft = tDefLeftPos
+    sendProcessTracking(743)
+    if (tIndex >= pWindowList.count) then
+      sendProcessTracking(744)
+      if (pWindowList.count <= 1) then
+        tNextWindowID = EMPTY
+      else
+        tNextWindowID = pWindowList[(pWindowList.count - 1)]
+      end if
+      if windowExists(tNextWindowID) then
+        tNextWindow = getWindow(tNextWindowID)
+        if (tAlignment = #right) then
+          tLeft = ((tDefLeftPos + tNextWindow.getProperty(#width)) - tWindowObj.getProperty(#width))
+        end if
+        tTop = (tDefBottomPos - tWindowObj.getProperty(#height))
+      end if
+    else
+      sendProcessTracking(745)
+      tPrevWindowID = pWindowList[(tIndex + 1)]
+      if windowExists(tPrevWindowID) then
+        sendProcessTracking(746)
+        tPrevWindow = getWindow(tPrevWindowID)
+        if (tAlignment = #right) then
+          sendProcessTracking(747)
+          tLeft = ((tDefLeftPos + tPrevWindow.getProperty(#width)) - tWindowObj.getProperty(#width))
+        end if
+        sendProcessTracking(748)
+        tTop = (tPrevWindow.getProperty(#locY) - tWindowObj.getProperty(#height))
+      end if
+    end if
+    sendProcessTracking(749)
+    tWindowObj.moveTo(tLeft, tTop)
+    sendProcessTracking(750)
   end repeat
 end
 
-on updateInfoStandGroup me, tGroupId 
-  if ilk(pBaseWindowIds) <> #propList then
-    return FALSE
+on updateInfoStandGroup me, tGroupId
+  if (ilk(pBaseWindowIds) <> #propList) then
+    return 0
   end if
-  tHumanWindowID = pBaseWindowIds.getAt(#avatar)
+  tHumanWindowID = pBaseWindowIds[#avatar]
   if windowExists(tHumanWindowID) then
     tWindowObj = getWindow(tHumanWindowID)
     if tWindowObj.elementExists("info_group_badge") then
       tElem = tWindowObj.getElement("info_group_badge")
     else
-      return FALSE
+      return 0
     end if
   else
-    return FALSE
+    return 0
   end if
-  if voidp(tGroupId) or tGroupId < 0 then
+  if (voidp(tGroupId) or (tGroupId < 0)) then
     tElem.clearImage()
     tElem.setProperty(#cursor, "cursor.arrow")
-    return FALSE
+    return 0
   end if
   if not threadExists(#room) then
-    return FALSE
+    return 0
   end if
   tRoomComponent = getThread(#room).getComponent()
   tGroupInfoObject = tRoomComponent.getGroupInfoObject()
   if not objectp(tGroupInfoObject) then
-    return FALSE
+    return 0
   end if
   tLogoMemNum = tGroupInfoObject.getGroupLogoMemberNum(tGroupId)
   tGroupImageFound = 1
-  if member(tLogoMemNum).type <> #bitmap then
+  if (member(tLogoMemNum).type <> #bitmap) then
     tGroupImageFound = 0
   end if
-  if not voidp(tGroupId) and tGroupImageFound then
+  if (not voidp(tGroupId) and tGroupImageFound) then
     tElem.clearImage()
     tElem.setProperty(#image, member(tLogoMemNum).image)
     tElem.setProperty(#cursor, "cursor.finger")
@@ -480,13 +446,13 @@ on updateInfoStandGroup me, tGroupId
   end if
 end
 
-on groupLogoDownloaded me, tGroupId 
+on groupLogoDownloaded me, tGroupId
   tRoomInterface = getThread(#room).getInterface()
   tRoomComponent = getThread(#room).getComponent()
   tSelectedObj = tRoomInterface.getSelectedObject()
   tObj = tRoomComponent.getUserObject(tSelectedObj)
   if (tObj = 0) then
-    return FALSE
+    return 0
   end if
   tUsersGroup = tObj.getProperty(#groupID)
   if (tUsersGroup = tGroupId) then
@@ -494,47 +460,47 @@ on groupLogoDownloaded me, tGroupId
   end if
 end
 
-on updateTagList me, tUserID, tTagList 
+on updateTagList me, tUserID, tTagList
   tUserTagData = pTagLists.getaProp(tUserID)
   if voidp(tUserTagData) then
-    tUserTagData = [#tags:[], #lastUpdate:0]
+    tUserTagData = [#tags: [], #lastUpdate: 0]
   end if
-  tOldList = tUserTagData.getAt(#tags)
-  if tOldList <> tTagList then
-    pTagLists.setaProp(tUserID, [#tags:tTagList, #lastUpdate:the milliSeconds])
+  tOldList = tUserTagData[#tags]
+  if (tOldList <> tTagList) then
+    pTagLists.setaProp(tUserID, [#tags: tTagList, #lastUpdate: the milliSeconds])
     me.refreshView()
   end if
 end
 
-on updateBadgeDetailsBubble me, tElemID 
+on updateBadgeDetailsBubble me, tElemID
   if not objectExists(#session) then
-    return FALSE
+    return 0
   end if
   tRoomThread = getThread(#room)
   tSelectedObjID = tRoomThread.getInterface().getSelectedObject()
   tSelectedObj = tRoomThread.getComponent().getUserObject(tSelectedObjID)
   if not tSelectedObj then
-    return FALSE
+    return 0
   end if
   tBadges = tSelectedObj.getProperty(#badges)
-  if tBadges.ilk <> #propList then
+  if (tBadges.ilk <> #propList) then
     tBadges = [:]
   end if
-  tBadgeIndex = value(tElemID.getProp(#char, tElemID.length))
+  tBadgeIndex = value(tElemID.char[tElemID.length])
   if not integerp(tBadgeIndex) then
-    return FALSE
+    return 0
   end if
   tBadgeID = tBadges.getaProp(tBadgeIndex)
   if voidp(tBadgeID) then
-    return FALSE
+    return 0
   end if
   tWindowID = pBaseWindowIds.getaProp(#avatar)
   if not windowExists(tWindowID) then
-    return FALSE
+    return 0
   end if
   tWindow = getWindow(tWindowID)
   if not tWindow.elementExists(tElemID) then
-    return FALSE
+    return 0
   end if
   if objectExists(pBadgeDetailsWindowID) then
     removeObject(pBadgeDetailsWindowID)
@@ -544,353 +510,282 @@ on updateBadgeDetailsBubble me, tElemID
   tBubble = createObject(pBadgeDetailsWindowID, "Details Bubble Class")
   tBubble.createWithContent("badge_info.window", tTargetRect, #left)
   tBubbleWindow = tBubble.getWindowObj()
-  tBubbleWindow.getElement("badge.info.name").setText(getText("badge_name_" & tBadgeID))
-  tBubbleWindow.getElement("badge.info.desc").setText(getText("badge_desc_" & tBadgeID))
-  return TRUE
+  tBubbleWindow.getElement("badge.info.name").setText(getText(("badge_name_" & tBadgeID)))
+  tBubbleWindow.getElement("badge.info.desc").setText(getText(("badge_desc_" & tBadgeID)))
+  return 1
 end
 
-on removeBadgeDetailsBubble me 
+on removeBadgeDetailsBubble me
   if objectExists(pBadgeDetailsWindowID) then
     removeObject(pBadgeDetailsWindowID)
   end if
 end
 
-on eventProc me, tEvent, tSprID, tParam 
+on eventProc me, tEvent, tSprID, tParam
   tComponent = getThread(#room).getComponent()
   tOwnUser = tComponent.getOwnUser()
   tInterface = getThread(#room).getInterface()
   tSelectedObj = tInterface.pSelectedObj
   tSelectedType = tInterface.pSelectedType
   tSession = getObject(#session)
-  if tSprID contains "info_badge" then
-    if (tEvent = #mouseEnter) then
-      if not me.updateBadgeDetailsBubble(tSprID) then
+  if (tSprID contains "info_badge") then
+    case tEvent of
+      #mouseEnter:
+        if not me.updateBadgeDetailsBubble(tSprID) then
+          me.removeBadgeDetailsBubble()
+        end if
+      #mouseLeave:
         me.removeBadgeDetailsBubble()
-      end if
-    else
-      if (tEvent = #mouseLeave) then
-        me.removeBadgeDetailsBubble()
-      else
-        if (tEvent = #mouseUp) then
-          tSelectedObj = tInterface.getSelectedObject()
-          if (tSelectedObj = tSession.GET("user_index")) then
-            if objectExists(pBadgeObjID) then
-              getObject(pBadgeObjID).openBadgeWindow()
-            end if
+      #mouseUp:
+        tSelectedObj = tInterface.getSelectedObject()
+        if (tSelectedObj = tSession.GET("user_index")) then
+          if objectExists(pBadgeObjID) then
+            getObject(pBadgeObjID).openBadgeWindow()
           end if
         end if
-      end if
-    end if
+    end case
   end if
   if (tEvent = #mouseUp) then
-    if (tEvent = "badges.button") then
-      if objectExists(pBadgeObjID) then
-        getObject(pBadgeObjID).openBadgeWindow()
-      end if
-    else
-      if (tEvent = "dance.button") then
+    case tSprID of
+      "badges.button":
+        if objectExists(pBadgeObjID) then
+          getObject(pBadgeObjID).openBadgeWindow()
+        end if
+      "dance.button":
         tCurrentDance = tOwnUser.getProperty(#dancing)
-        if tCurrentDance > 0 then
-          tComponent.getRoomConnection().send("DANCE", [#integer:0])
+        if (tCurrentDance > 0) then
+          tComponent.getRoomConnection().send("DANCE", [#integer: 0])
         else
-          tComponent.getRoomConnection().send("DANCE", [#integer:1])
+          tComponent.getRoomConnection().send("DANCE", [#integer: 1])
         end if
-        return TRUE
-      else
-        if (tEvent = "hcdance.button") then
-          tCurrentDance = tOwnUser.getProperty(#dancing)
-          if not (ilk(tParam) = #string) then
-            return(error(me, "tParam was not a string", #eventProc, #minor))
-          end if
-          if (tParam.count(#char) = 6) then
-            tInteger = integer(tParam.getProp(#char, 6))
-            tComponent.getRoomConnection().send("DANCE", [#integer:tInteger])
-          else
-            if tCurrentDance > 0 then
-              tComponent.getRoomConnection().send("DANCE", [#integer:0])
-            end if
-          end if
-          return TRUE
+        return 1
+      "hcdance.button":
+        tCurrentDance = tOwnUser.getProperty(#dancing)
+        if not (ilk(tParam) = #string) then
+          return error(me, "tParam was not a string", #eventProc, #minor)
+        end if
+        if (tParam.char.count = 6) then
+          tInteger = integer(tParam.char[6])
+          tComponent.getRoomConnection().send("DANCE", [#integer: tInteger])
         else
-          if (tEvent = "wave.button") then
-            if tOwnUser.getProperty(#dancing) then
-              tComponent.getRoomConnection().send("DANCE", [#integer:0])
-              tInterface.dancingStoppedExternally()
-            end if
-            return(tComponent.getRoomConnection().send("WAVE"))
-          else
-            if (tEvent = "fx.button") then
-              if not (ilk(tParam) = #string) then
-                return(error(me, "tParam was not a string", #eventProc, #minor))
-              end if
-              if tParam.count(#char) < 3 then
-                return FALSE
-              end if
-              tID = integer(tParam.getProp(#char, 3, tParam.length))
-              if integerp(tID) then
-                return(executeMessage(#use_avatar_effect, tID))
-              else
-                if (tEvent = "fx_btn_stop") then
-                  executeMessage(#use_avatar_effect, -1)
-                else
-                  if tEvent <> "fx_btn_inventory" then
-                    if (tEvent = "fx_btn_choose") then
-                      executeMessage(#openFxWindow)
-                    end if
-                    return TRUE
-                    if (tEvent = "move.button") then
-                      return(tInterface.startObjectMover(tSelectedObj))
-                    else
-                      if (tEvent = "rotate.button") then
-                        tActiveObj = tComponent.getActiveObject(tSelectedObj)
-                        if not tActiveObj then
-                          return FALSE
-                        end if
-                        return(tActiveObj.rotate())
-                      else
-                        if (tEvent = "pick.button") then
-                          if (tEvent = "active") then
-                            ttype = 2
-                          else
-                            if (tEvent = "item") then
-                              ttype = 1
-                            else
-                              return(me.clearWindowDisplayList())
-                            end if
-                          end if
-                          me.clearWindowDisplayList()
-                          return(tComponent.getRoomConnection().send("ADDSTRIPITEM", [#integer:ttype, #integer:integer(tSelectedObj)]))
-                        else
-                          if (tEvent = "delete.button") then
-                            pDeleteObjID = tSelectedObj
-                            pDeleteType = tSelectedType
-                            return(tInterface.showConfirmDelete())
-                          else
-                            if (tEvent = "kick.button") then
-                              if tComponent.userObjectExists(tSelectedObj) then
-                                tUserID = tComponent.getUserObject(tSelectedObj).getWebID()
-                                tComponent.getRoomConnection().send("KICKUSER", [#integer:integer(tUserID)])
-                              end if
-                              return(me.clearWindowDisplayList())
-                            else
-                              if (tEvent = "ban.button") then
-                                if tComponent.userObjectExists(tSelectedObj) then
-                                  tUserID = tComponent.getUserObject(tSelectedObj).getWebID()
-                                  tComponent.getRoomConnection().send("BANUSER", [#integer:integer(tUserID)])
-                                end if
-                                return(me.clearWindowDisplayList())
-                              else
-                                if (tEvent = "give_rights.button") then
-                                  if tComponent.userObjectExists(tSelectedObj) then
-                                    tUserID = tComponent.getUserObject(tSelectedObj).getWebID()
-                                    tComponent.getRoomConnection().send("ASSIGNRIGHTS", [#integer:integer(tUserID)])
-                                    tSelectedObj = ""
-                                  end if
-                                  me.clearWindowDisplayList()
-                                  tInterface.hideArrowHiliter()
-                                  return TRUE
-                                else
-                                  if (tEvent = "take_rights.button") then
-                                    if tComponent.userObjectExists(tSelectedObj) then
-                                      tUserID = tComponent.getUserObject(tSelectedObj).getWebID()
-                                      tComponent.getRoomConnection().send("REMOVERIGHTS", [#integer:1, #integer:integer(tUserID)])
-                                      tSelectedObj = ""
-                                    end if
-                                    me.clearWindowDisplayList()
-                                    tInterface.hideArrowHiliter()
-                                    return TRUE
-                                  else
-                                    if (tEvent = "friend.button") then
-                                      if tComponent.userObjectExists(tSelectedObj) then
-                                        tUserName = tComponent.getUserObject(tSelectedObj).getName()
-                                        executeMessage(#externalFriendRequest, tUserName)
-                                      end if
-                                      return TRUE
-                                    else
-                                      if (tEvent = "respect.button") then
-                                        if tComponent.userObjectExists(tSelectedObj) then
-                                          tWebID = tComponent.getUserObject(tSelectedObj).getWebID()
-                                          executeMessage(#externalGiveRespect, tWebID)
-                                        end if
-                                        return TRUE
-                                      else
-                                        if (tEvent = "trade.button") then
-                                          tList = [:]
-                                          tList.setAt("showDialog", 1)
-                                          executeMessage(#getHotelClosingStatus, tList)
-                                          if (tList.getAt("retval") = 1) then
-                                            return TRUE
-                                          end if
-                                          if pLastSelectedObjType <> "user" or not tComponent.userObjectExists(pLastSelectedObj) then
-                                            me.clearWindowDisplayList()
-                                            return FALSE
-                                          end if
-                                          tInterface.startTrading(pLastSelectedObj)
-                                          return TRUE
-                                        else
-                                          if (tEvent = "ignore.button") then
-                                            tIgnoreListObj = tInterface.getIgnoreListObject()
-                                            if tComponent.userObjectExists(tSelectedObj) then
-                                              tUserName = tComponent.getUserObject(tSelectedObj).getName()
-                                              tIgnoreListObj.setIgnoreStatus(tUserName, 1)
-                                            else
-                                              tUserName = ""
-                                            end if
-                                            me.clearWindowDisplayList()
-                                            tSelectedObj = ""
-                                          else
-                                            if (tEvent = "unignore.button") then
-                                              tIgnoreListObj = tInterface.getIgnoreListObject()
-                                              if tComponent.userObjectExists(tSelectedObj) then
-                                                tUserName = tComponent.getUserObject(tSelectedObj).getName()
-                                                tIgnoreListObj.setIgnoreStatus(tUserName, 0)
-                                              end if
-                                              me.clearWindowDisplayList()
-                                              tSelectedObj = ""
-                                            else
-                                              if tEvent <> "room_obj_disp_badge_sel" then
-                                                if (tEvent = "room_obj_disp_icon_badge") then
-                                                  if objectExists(pBadgeObjID) then
-                                                    getObject(pBadgeObjID).openBadgeWindow()
-                                                  end if
-                                                else
-                                                  if tEvent <> "room_obj_disp_home" then
-                                                    if tEvent <> "room_obj_disp_icon_home" then
-                                                      if (tEvent = "room_obj_disp_name") then
-                                                        if tComponent.userObjectExists(tSelectedObj) then
-                                                          if variableExists("link.format.userpage") then
-                                                            tWebID = tComponent.getUserObject(tSelectedObj).getWebID()
-                                                            if not voidp(tWebID) then
-                                                              if tWebID > 0 then
-                                                                tDestURL = replaceChunks(getVariable("link.format.userpage"), "%ID%", string(tWebID))
-                                                                executeMessage(#externalLinkClick, the mouseLoc)
-                                                                openNetPage(tDestURL)
-                                                              end if
-                                                            end if
-                                                          end if
-                                                        end if
-                                                      else
-                                                        if (tEvent = "info_group_badge") then
-                                                          tSelectedObj = tInterface.getSelectedObject()
-                                                          if not voidp(tSelectedObj) and tSelectedObj <> "" then
-                                                            tUserObj = tComponent.getUserObject(tSelectedObj)
-                                                            tInfoObj = tComponent.getGroupInfoObject()
-                                                            if tUserObj <> 0 and tUserObj <> void() then
-                                                              tUserInfo = tUserObj.getInfo()
-                                                              tInfoObj.showUsersInfoByName(tUserInfo.getAt(#name))
-                                                            end if
-                                                          end if
-                                                        else
-                                                          if (tEvent = "object_displayer_toggle_actions") then
-                                                            me.showHideActions()
-                                                          else
-                                                            if (tEvent = "object_displayer_toggle_actions_icon") then
-                                                              me.showHideActions()
-                                                            else
-                                                              if (tEvent = "object_displayer_toggle_tags") then
-                                                                me.showHideTags()
-                                                              else
-                                                                if (tEvent = "object_displayer_toggle_tags_icon") then
-                                                                  me.showHideTags()
-                                                                else
-                                                                  if (tEvent = "room_obj_disp_close") then
-                                                                    pClosed = 1
-                                                                    me.clearWindowDisplayList()
-                                                                  else
-                                                                    if tEvent <> "room_obj_disp_looks" then
-                                                                      if tEvent <> "room_obj_disp_icon_avatar" then
-                                                                        if tEvent <> "room_obj_disp_avatar" then
-                                                                          if (tEvent = "outlook.button") then
-                                                                            if (tSelectedObj = tSession.GET("user_index")) then
-                                                                              tAllowModify = 1
-                                                                              if getObject(#session).exists("allow_profile_editing") then
-                                                                                tAllowModify = getObject(#session).GET("allow_profile_editing")
-                                                                              end if
-                                                                              if tAllowModify then
-                                                                                if threadExists(#registration) then
-                                                                                  getThread(#registration).getComponent().openFigureUpdate()
-                                                                                end if
-                                                                              else
-                                                                                executeMessage(#externalLinkClick, the mouseLoc)
-                                                                                openNetPage(getText("url_figure_editor"))
-                                                                              end if
-                                                                            end if
-                                                                          else
-                                                                            if (tEvent = "room_obj_disp_tags") then
-                                                                              if not (ilk(tParam) = #point) then
-                                                                                return FALSE
-                                                                              end if
-                                                                              tTag = pTagListObj.getTagAt(tParam)
-                                                                              if stringp(tTag) then
-                                                                                tDestURL = replaceChunks(getVariable("link.format.tag.search"), "%tag%", tTag)
-                                                                                executeMessage(#externalLinkClick, the mouseLoc)
-                                                                                openNetPage(tDestURL)
-                                                                              end if
-                                                                            else
-                                                                              if (tEvent = "room_obj_disp_bg") then
-                                                                                return FALSE
-                                                                              end if
-                                                                            end if
-                                                                          end if
-                                                                          if (tEvent = #mouseWithin) then
-                                                                            if (tEvent = "room_obj_disp_tags") then
-                                                                              if not (ilk(tParam) = #point) then
-                                                                                return FALSE
-                                                                              end if
-                                                                              tTagsWindow = getWindow(pBaseWindowIds.getAt(#tags))
-                                                                              tElem = tTagsWindow.getElement(tSprID)
-                                                                              if stringp(pTagListObj.getTagAt(tParam)) then
-                                                                                tElem.setProperty(#cursor, "cursor.finger")
-                                                                              else
-                                                                                tElem.setProperty(#cursor, 0)
-                                                                              end if
-                                                                            else
-                                                                              nothing()
-                                                                            end if
-                                                                          else
-                                                                            if (tEvent = #mouseLeave) then
-                                                                              if (tEvent = "room_obj_disp_tags") then
-                                                                                tTagsWindow = getWindow(pBaseWindowIds.getAt(#tags))
-                                                                                tElem = tTagsWindow.getElement(tSprID)
-                                                                                tElem.setProperty(#cursor, 0)
-                                                                              else
-                                                                                nothing()
-                                                                              end if
-                                                                            end if
-                                                                          end if
-                                                                        end if
-                                                                      end if
-                                                                    end if
-                                                                  end if
-                                                                end if
-                                                              end if
-                                                            end if
-                                                          end if
-                                                        end if
-                                                      end if
-                                                    end if
-                                                  end if
-                                                end if
-                                              end if
-                                            end if
-                                          end if
-                                        end if
-                                      end if
-                                    end if
-                                  end if
-                                end if
-                              end if
-                            end if
-                          end if
-                        end if
-                      end if
-                    end if
-                  end if
-                end if
+          if (tCurrentDance > 0) then
+            tComponent.getRoomConnection().send("DANCE", [#integer: 0])
+          end if
+        end if
+        return 1
+      "wave.button":
+        if tOwnUser.getProperty(#dancing) then
+          tComponent.getRoomConnection().send("DANCE", [#integer: 0])
+          tInterface.dancingStoppedExternally()
+        end if
+        return tComponent.getRoomConnection().send("WAVE")
+      "fx.button":
+        if not (ilk(tParam) = #string) then
+          return error(me, "tParam was not a string", #eventProc, #minor)
+        end if
+        if (tParam.char.count < 3) then
+          return 0
+        end if
+        tID = integer(tParam.char[3])
+        if integerp(tID) then
+          return executeMessage(#use_avatar_effect, tID)
+        else
+          case tParam of
+            "fx_btn_stop":
+              executeMessage(#use_avatar_effect, -1)
+            "fx_btn_inventory", "fx_btn_choose":
+              executeMessage(#openFxWindow)
+          end case
+          return 1
+        end if
+      "move.button":
+        return tInterface.startObjectMover(tSelectedObj)
+      "rotate.button":
+        tActiveObj = tComponent.getActiveObject(tSelectedObj)
+        if not tActiveObj then
+          return 0
+        end if
+        return tActiveObj.rotate()
+      "pick.button":
+        case tSelectedType of
+          "active":
+            ttype = 2
+          "item":
+            ttype = 1
+        end case
+        return me.clearWindowDisplayList()
+        me.clearWindowDisplayList()
+        return tComponent.getRoomConnection().send("ADDSTRIPITEM", [#integer: ttype, #integer: integer(tSelectedObj)])
+      "delete.button":
+        pDeleteObjID = tSelectedObj
+        pDeleteType = tSelectedType
+        return tInterface.showConfirmDelete()
+      "kick.button":
+        if tComponent.userObjectExists(tSelectedObj) then
+          tUserID = tComponent.getUserObject(tSelectedObj).getWebID()
+          tComponent.getRoomConnection().send("KICKUSER", [#integer: integer(tUserID)])
+        end if
+        return me.clearWindowDisplayList()
+      "ban.button":
+        if tComponent.userObjectExists(tSelectedObj) then
+          tUserID = tComponent.getUserObject(tSelectedObj).getWebID()
+          tComponent.getRoomConnection().send("BANUSER", [#integer: integer(tUserID)])
+        end if
+        return me.clearWindowDisplayList()
+      "give_rights.button":
+        if tComponent.userObjectExists(tSelectedObj) then
+          tUserID = tComponent.getUserObject(tSelectedObj).getWebID()
+          tComponent.getRoomConnection().send("ASSIGNRIGHTS", [#integer: integer(tUserID)])
+          tSelectedObj = EMPTY
+        end if
+        me.clearWindowDisplayList()
+        tInterface.hideArrowHiliter()
+        return 1
+      "take_rights.button":
+        if tComponent.userObjectExists(tSelectedObj) then
+          tUserID = tComponent.getUserObject(tSelectedObj).getWebID()
+          tComponent.getRoomConnection().send("REMOVERIGHTS", [#integer: 1, #integer: integer(tUserID)])
+          tSelectedObj = EMPTY
+        end if
+        me.clearWindowDisplayList()
+        tInterface.hideArrowHiliter()
+        return 1
+      "friend.button":
+        if tComponent.userObjectExists(tSelectedObj) then
+          tUserName = tComponent.getUserObject(tSelectedObj).getName()
+          executeMessage(#externalFriendRequest, tUserName)
+        end if
+        return 1
+      "respect.button":
+        if tComponent.userObjectExists(tSelectedObj) then
+          tWebID = tComponent.getUserObject(tSelectedObj).getWebID()
+          executeMessage(#externalGiveRespect, tWebID)
+        end if
+        return 1
+      "trade.button":
+        tList = [:]
+        tList["showDialog"] = 1
+        executeMessage(#getHotelClosingStatus, tList)
+        if (tList["retval"] = 1) then
+          return 1
+        end if
+        if ((pLastSelectedObjType <> "user") or not tComponent.userObjectExists(pLastSelectedObj)) then
+          me.clearWindowDisplayList()
+          return 0
+        end if
+        tInterface.startTrading(pLastSelectedObj)
+        return 1
+      "ignore.button":
+        tIgnoreListObj = tInterface.getIgnoreListObject()
+        if tComponent.userObjectExists(tSelectedObj) then
+          tUserName = tComponent.getUserObject(tSelectedObj).getName()
+          tIgnoreListObj.setIgnoreStatus(tUserName, 1)
+        else
+          tUserName = EMPTY
+        end if
+        me.clearWindowDisplayList()
+        tSelectedObj = EMPTY
+      "unignore.button":
+        tIgnoreListObj = tInterface.getIgnoreListObject()
+        if tComponent.userObjectExists(tSelectedObj) then
+          tUserName = tComponent.getUserObject(tSelectedObj).getName()
+          tIgnoreListObj.setIgnoreStatus(tUserName, 0)
+        end if
+        me.clearWindowDisplayList()
+        tSelectedObj = EMPTY
+      "room_obj_disp_badge_sel", "room_obj_disp_icon_badge":
+        if objectExists(pBadgeObjID) then
+          getObject(pBadgeObjID).openBadgeWindow()
+        end if
+      "room_obj_disp_home", "room_obj_disp_icon_home", "room_obj_disp_name":
+        if tComponent.userObjectExists(tSelectedObj) then
+          if variableExists("link.format.userpage") then
+            tWebID = tComponent.getUserObject(tSelectedObj).getWebID()
+            if not voidp(tWebID) then
+              if (tWebID > 0) then
+                tDestURL = replaceChunks(getVariable("link.format.userpage"), "%ID%", string(tWebID))
+                executeMessage(#externalLinkClick, the mouseLoc)
+                openNetPage(tDestURL)
               end if
             end if
           end if
         end if
+      "info_group_badge":
+        tSelectedObj = tInterface.getSelectedObject()
+        if (not voidp(tSelectedObj) and (tSelectedObj <> EMPTY)) then
+          tUserObj = tComponent.getUserObject(tSelectedObj)
+          tInfoObj = tComponent.getGroupInfoObject()
+          if ((tUserObj <> 0) and (tUserObj <> VOID)) then
+            tUserInfo = tUserObj.getInfo()
+            tInfoObj.showUsersInfoByName(tUserInfo[#name])
+          end if
+        end if
+      "object_displayer_toggle_actions":
+        me.showHideActions()
+      "object_displayer_toggle_actions_icon":
+        me.showHideActions()
+      "object_displayer_toggle_tags":
+        me.showHideTags()
+      "object_displayer_toggle_tags_icon":
+        me.showHideTags()
+      "room_obj_disp_close":
+        pClosed = 1
+        me.clearWindowDisplayList()
+      "room_obj_disp_looks", "room_obj_disp_icon_avatar", "room_obj_disp_avatar", "outlook.button":
+        if (tSelectedObj = tSession.GET("user_index")) then
+          tAllowModify = 1
+          if getObject(#session).exists("allow_profile_editing") then
+            tAllowModify = getObject(#session).GET("allow_profile_editing")
+          end if
+          if tAllowModify then
+            if threadExists(#registration) then
+              getThread(#registration).getComponent().openFigureUpdate()
+            end if
+          else
+            executeMessage(#externalLinkClick, the mouseLoc)
+            openNetPage(getText("url_figure_editor"))
+          end if
+        end if
+      "room_obj_disp_tags":
+        if not (ilk(tParam) = #point) then
+          return 0
+        end if
+        tTag = pTagListObj.getTagAt(tParam)
+        if stringp(tTag) then
+          tDestURL = replaceChunks(getVariable("link.format.tag.search"), "%tag%", tTag)
+          executeMessage(#externalLinkClick, the mouseLoc)
+          openNetPage(tDestURL)
+        end if
+      "room_obj_disp_bg":
+        return 0
+    end case
+  else
+    if (tEvent = #mouseWithin) then
+      case tSprID of
+        "room_obj_disp_tags":
+          if not (ilk(tParam) = #point) then
+            return 0
+          end if
+          tTagsWindow = getWindow(pBaseWindowIds[#tags])
+          tElem = tTagsWindow.getElement(tSprID)
+          if stringp(pTagListObj.getTagAt(tParam)) then
+            tElem.setProperty(#cursor, "cursor.finger")
+          else
+            tElem.setProperty(#cursor, 0)
+          end if
+        otherwise:
+          nothing()
+      end case
+    else
+      if (tEvent = #mouseLeave) then
+        case tSprID of
+          "room_obj_disp_tags":
+            tTagsWindow = getWindow(pBaseWindowIds[#tags])
+            tElem = tTagsWindow.getElement(tSprID)
+            tElem.setProperty(#cursor, 0)
+          otherwise:
+            nothing()
+        end case
       end if
     end if
   end if

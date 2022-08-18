@@ -1,10 +1,10 @@
-property pMember, pProps, pMemName
+property pMemName, pMember, pProps
 
-on define me, tMemName, tPriority, tProps 
+on define me, tMemName, tPriority, tProps
   pMemName = tMemName
   pMember = member(getmemnum(tMemName))
-  if pMember.type <> #sound then
-    return(error(me, "Sound member not found or not a sound:" && tMemName, #define, #minor))
+  if (pMember.type <> #sound) then
+    return error(me, ("Sound member not found or not a sound:" && tMemName), #define, #minor)
   end if
   pPriority = tPriority
   if listp(tProps) then
@@ -13,26 +13,26 @@ on define me, tMemName, tPriority, tProps
     pProps = [:]
   end if
   if (pProps.findPos(#volume) = 0) then
-    pProps.setAt(#volume, 255)
+    pProps[#volume] = 255
   end if
-  return TRUE
+  return 1
 end
 
-on getProperty me, tProp 
-  if (tProp = void()) then
-    return FALSE
+on getProperty me, tProp
+  if (tProp = VOID) then
+    return 0
   end if
   if not listp(pProps) then
-    return FALSE
+    return 0
   end if
-  return(pProps.getAt(tProp))
+  return pProps[tProp]
 end
 
-on getMember me 
-  return(pMember)
+on getMember me
+  return pMember
 end
 
-on dump me 
-  put("member:" && pMemName && pMember)
-  put("props:" && pProps)
+on dump me
+  put (("member:" && pMemName) && pMember)
+  put ("props:" && pProps)
 end

@@ -1,148 +1,142 @@
 property pRemoteControlledUsers, pHighlightUser, pPersistentFurniData
 
-on construct me 
-  pPersistentFurniData = void()
+on construct me
+  pPersistentFurniData = VOID
   pRemoteControlledUsers = []
-  return(me.regMsgList(1))
+  return me.regMsgList(1)
 end
 
-on deconstruct me 
+on deconstruct me
   pRemoteControlledUsers = []
-  return(me.regMsgList(0))
+  return me.regMsgList(0)
 end
 
-on handle_opc_ok me, tMsg 
+on handle_opc_ok me, tMsg
   if (me.getComponent().getRoomID() = "private") then
-    me.getComponent().roomConnected(void(), "OPC_OK")
+    me.getComponent().roomConnected(VOID, "OPC_OK")
   end if
 end
 
-on handle_clc me 
+on handle_clc me
   me.getComponent().roomDisconnected()
 end
 
-on handle_youaremod me, tMsg 
-  return TRUE
+on handle_youaremod me, tMsg
+  return 1
 end
 
-on handle_flat_letin me, tMsg 
+on handle_flat_letin me, tMsg
   tConn = tMsg.connection
   if not tConn then
-    return FALSE
+    return 0
   end if
   tName = tConn.GetStrFrom()
   me.getInterface().showDoorBellAccepted(tName)
-  if tName <> "" then
-    return TRUE
+  if (tName <> EMPTY) then
+    return 1
   end if
-  return(me.getComponent().roomConnected(void(), "FLAT_LETIN"))
+  return me.getComponent().roomConnected(VOID, "FLAT_LETIN")
 end
 
-on handle_room_ready me, tMsg 
+on handle_room_ready me, tMsg
   tConn = tMsg.connection
   if not tConn then
-    return FALSE
+    return 0
   end if
   tWorldType = tConn.GetStrFrom()
   tUnitId = tConn.GetIntFrom()
   me.getComponent().roomConnected(tWorldType, "ROOM_READY")
 end
 
-on handle_logout me, tMsg 
+on handle_logout me, tMsg
   tConn = tMsg.connection
   if not tConn then
-    return FALSE
+    return 0
   end if
   tuser = tConn.GetStrFrom()
-  if tuser <> getObject(#session).GET("user_index") then
+  if (tuser <> getObject(#session).GET("user_index")) then
     me.getComponent().removeUserObject(tuser)
   end if
 end
 
-on handle_disconnect me 
+on handle_disconnect me
   me.getComponent().roomDisconnected()
 end
 
-on handle_error me, tMsg 
+on handle_error me, tMsg
   tConn = tMsg.connection
   tErrorCode = tConn.GetIntFrom()
-  if (tErrorCode = -13000) then
-    me.getInterface().stopObjectMover()
-  else
-    if (tErrorCode = -32000) then
+  case tErrorCode of
+    -13000:
+      me.getInterface().stopObjectMover()
+    -32000:
       getObject(#session).set("room_controller", 0)
-    end if
-  end if
+  end case
 end
 
-on handle_doorbell_ringing me, tMsg 
+on handle_doorbell_ringing me, tMsg
   tConn = tMsg.connection
   if not tConn then
-    return FALSE
+    return 0
   end if
   tName = tConn.GetStrFrom()
-  if (tName = "") then
-    return(me.getInterface().showDoorBellWaiting())
+  if (tName = EMPTY) then
+    return me.getInterface().showDoorBellWaiting()
   else
-    return(me.getInterface().showDoorBellDialog(tName))
+    return me.getInterface().showDoorBellDialog(tName)
   end if
 end
 
-on handle_flatnotallowedtoenter me, tMsg 
+on handle_flatnotallowedtoenter me, tMsg
   tConn = tMsg.connection
   if not tConn then
-    return FALSE
+    return 0
   end if
   tName = tConn.GetStrFrom()
-  return(me.getInterface().showDoorBellRejected(tName))
+  return me.getInterface().showDoorBellRejected(tName)
 end
 
-on handle_status me, tMsg 
+on handle_status me, tMsg
   tConn = tMsg.connection
   if not tConn then
-    return FALSE
+    return 0
   end if
   tList = []
   tDelim = the itemDelimiter
   the itemDelimiter = "/"
   tCount = tConn.GetIntFrom()
-  i = 1
-  repeat while i <= tCount
+  repeat with i = 1 to tCount
     tuser = [:]
-    tuser.setAt(#id, tConn.GetIntFrom())
-    tuser.setAt(#x, tConn.GetIntFrom())
-    tuser.setAt(#y, tConn.GetIntFrom())
-    tuser.setAt(#h, getLocalFloat(tConn.GetStrFrom()))
-    tuser.setAt(#dirHead, (tConn.GetIntFrom() mod 8))
-    tuser.setAt(#dirBody, (tConn.GetIntFrom() mod 8))
+    tuser[#id] = tConn.GetIntFrom()
+    tuser[#x] = tConn.GetIntFrom()
+    tuser[#y] = tConn.GetIntFrom()
+    tuser[#h] = getLocalFloat(tConn.GetStrFrom())
+    tuser[#dirHead] = (tConn.GetIntFrom() mod 8)
+    tuser[#dirBody] = (tConn.GetIntFrom() mod 8)
     tActionString = tConn.GetStrFrom()
     tActions = []
     tActionIndex = []
     the itemDelimiter = "/"
-    j = 1
-    repeat while j <= tActionString.count(#item)
-      if length(tActionString.getProp(#item, j)) > 1 then
-        tActionName = tActionString.getPropRef(#item, j).getProp(#word, 1)
-        tActions.add([#name:tActionName, #params:tActionString.getProp(#item, j)])
+    repeat with j = 1 to tActionString.item.count
+      if (length(tActionString.item[j]) > 1) then
+        tActionName = tActionString.item[j].word[1]
+        tActions.add([#name: tActionName, #params: tActionString.item[j]])
         tActionIndex.add(tActionName)
       end if
-      j = (1 + j)
     end repeat
-    tuser.setAt(#actionIndex, tActionIndex)
-    tuser.setAt(#actions, tActions)
+    tuser[#actionIndex] = tActionIndex
+    tuser[#actions] = tActions
     tList.add(tuser)
-    i = (1 + i)
   end repeat
   the itemDelimiter = tDelim
-  repeat while tList <= undefined
-    tuser = getAt(undefined, tMsg)
-    if not pRemoteControlledUsers.getOne(tuser.getAt(#id)) > 0 then
-      tUserObj = me.getComponent().getUserObject(tuser.getAt(#id))
-      if tUserObj <> 0 then
+  repeat with tuser in tList
+    if not (pRemoteControlledUsers.getOne(tuser[#id]) > 0) then
+      tUserObj = me.getComponent().getUserObject(tuser[#id])
+      if (tUserObj <> 0) then
         tActionIndex = tuser.getaProp(#actionIndex)
         tActions = tuser.getaProp(#actions)
         tAllowFX = call(#validateFxForActionList, [tUserObj], tActions, tActionIndex)
-        if tAllowFX <> 1 then
+        if (tAllowFX <> 1) then
           tActionIndex.deleteOne("fx")
         end if
         tUserObj.resetValues(tuser.getaProp(#x), tuser.getaProp(#y), tuser.getaProp(#h), tuser.getaProp(#dirHead), tuser.getaProp(#dirBody), tActionIndex)
@@ -150,212 +144,198 @@ on handle_status me, tMsg
         tActionList = []
         tUserActions = tuser.getaProp(#actions)
         tHasPrimaryAction = 0
-        i = tUserActions.count
-        repeat while i >= 1
-          tAction = tUserActions.getAt(i)
+        repeat with i = tUserActions.count down to 1
+          tAction = tUserActions[i]
           tName = tAction.getaProp(#name)
           if tPrimaryActions.findPos(tName) then
             tActionList.add(tAction)
             tUserActions.deleteAt(i)
             tHasPrimaryAction = 1
           end if
-          if (tName = "fx") and not tAllowFX then
+          if ((tName = "fx") and not tAllowFX) then
             tUserActions.deleteAt(i)
           end if
-          i = (255 + i)
         end repeat
         if not tHasPrimaryAction then
-          tActionList.add([#name:"std"])
+          tActionList.add([#name: "std"])
         end if
-        tEffect = void()
-        repeat while tList <= undefined
-          tAction = getAt(undefined, tMsg)
+        tEffect = VOID
+        repeat with tAction in tUserActions
           if (tAction.getaProp(#name) = "fx") then
             tEffect = tAction.duplicate()
-          else
-            tActionList.add(tAction)
+            next repeat
           end if
+          tActionList.add(tAction)
         end repeat
-        if tEffect <> void() then
+        if (tEffect <> VOID) then
           tActionList.add(tEffect)
         end if
-        repeat while tList <= undefined
-          tAction = getAt(undefined, tMsg)
-          call(symbol("action_" & tAction.getAt(#name)), [tUserObj], tAction.getAt(#params))
+        repeat with tAction in tActionList
+          call(symbol(("action_" & tAction[#name])), [tUserObj], tAction[#params])
         end repeat
-        tUserObj.Refresh(tuser.getAt(#x), tuser.getAt(#y), tuser.getAt(#h))
+        tUserObj.Refresh(tuser[#x], tuser[#y], tuser[#h])
       end if
     end if
   end repeat
 end
 
-on handle_users me, tMsg 
+on handle_users me, tMsg
   tConn = tMsg.connection
   if not tConn then
-    return FALSE
+    return 0
   end if
   tDelim = the itemDelimiter
   tList = []
   if not objectExists("Figure_System") then
-    return(error(me, "Figure system object not found!", #handle_users, #major))
+    return error(me, "Figure system object not found!", #handle_users, #major)
   end if
   tCount = tConn.GetIntFrom()
-  i = 1
-  repeat while i <= tCount
+  repeat with i = 1 to tCount
     tUserID = tConn.GetIntFrom()
     tuser = string(tUserID)
     tListItem = [:]
-    tListItem.setAt(#webID, tuser)
-    tListItem.setAt(#name, tConn.GetStrFrom())
-    tListItem.setAt(#custom, tConn.GetStrFrom())
-    tListItem.setAt(#figure, tConn.GetStrFrom())
-    tListItem.setAt(#id, string(tConn.GetIntFrom()))
-    tListItem.setAt(#x, tConn.GetIntFrom())
-    tListItem.setAt(#y, tConn.GetIntFrom())
-    tListItem.setAt(#h, getLocalFloat(tConn.GetStrFrom()))
+    tListItem[#webID] = tuser
+    tListItem[#name] = tConn.GetStrFrom()
+    tListItem[#custom] = tConn.GetStrFrom()
+    tListItem[#figure] = tConn.GetStrFrom()
+    tListItem[#id] = string(tConn.GetIntFrom())
+    tListItem[#x] = tConn.GetIntFrom()
+    tListItem[#y] = tConn.GetIntFrom()
+    tListItem[#h] = getLocalFloat(tConn.GetStrFrom())
     tdir = tConn.GetIntFrom()
     ttype = tConn.GetIntFrom()
-    tListItem.setAt(#direction, [tdir, tdir])
-    if (ttype = 1) then
-      tListItem.setAt(#class, "user")
-      tListItem.setAt(#sex, tConn.GetStrFrom())
-      tXP = tConn.GetIntFrom()
-      if tXP <> -1 then
-        tListItem.setAt(#xp, tXP)
-      end if
-      tListItem.setAt(#groupID, string(tConn.GetIntFrom()))
-      tGroupStatus = tConn.GetIntFrom()
-      tListItem.setAt(#groupstatus, [1:"owner", 2:"admin", 3:"member"].getaProp(tGroupStatus))
-      tPoolFigure = tConn.GetStrFrom()
-      if tPoolFigure <> "" then
-        the itemDelimiter = "/"
-        tmodel = tPoolFigure.getProp(#char, 1, 3)
-        tColor = tPoolFigure.getProp(#item, 2)
-        the itemDelimiter = ","
-        tisColorValid = 0
-        if (tColor.count(#item) = 3) then
-          tColor = color(#rgb, integer(tColor.getProp(#item, 1)), integer(tColor.getProp(#item, 2)), integer(tColor.getProp(#item, 3)))
-        else
-          tColor = rgb("#EEEEEE")
+    tListItem[#direction] = [tdir, tdir]
+    case ttype of
+      1:
+        tListItem[#class] = "user"
+        tListItem[#sex] = tConn.GetStrFrom()
+        tXP = tConn.GetIntFrom()
+        if (tXP <> -1) then
+          tListItem[#xp] = tXP
         end if
-        tListItem.setAt(#phfigure, ["model":tmodel, "color":tColor])
-        tListItem.setAt(#class, "pelle")
-      end if
-    else
-      if (ttype = 2) then
-        tListItem.setAt(#class, "pet")
-      else
-        if (ttype = 3) then
-          tListItem.setAt(#class, "bot")
+        tListItem[#groupID] = string(tConn.GetIntFrom())
+        tGroupStatus = tConn.GetIntFrom()
+        tListItem[#groupstatus] = [1: "owner", 2: "admin", 3: "member"].getaProp(tGroupStatus)
+        tPoolFigure = tConn.GetStrFrom()
+        if (tPoolFigure <> EMPTY) then
+          the itemDelimiter = "/"
+          tmodel = tPoolFigure.char[1]
+          tColor = tPoolFigure.item[2]
+          the itemDelimiter = ","
+          tisColorValid = 0
+          if (tColor.item.count = 3) then
+            tColor = color(#rgb, integer(tColor.item[1]), integer(tColor.item[2]), integer(tColor.item[3]))
+          else
+            tColor = rgb("#EEEEEE")
+          end if
+          tListItem[#phfigure] = ["model": tmodel, "color": tColor]
+          tListItem[#class] = "pelle"
         end if
-      end if
-    end if
+      2:
+        tListItem[#class] = "pet"
+      3:
+        tListItem[#class] = "bot"
+    end case
     tList.add(tListItem)
-    i = (1 + i)
   end repeat
   tFigureParser = getObject("Figure_System")
-  repeat while ttype <= undefined
-    tObject = getAt(undefined, tMsg)
-    tObject.setAt(#figure, tFigureParser.parseFigure(tObject.getAt(#figure), tObject.getAt(#sex), tObject.getAt(#class)))
+  repeat with tObject in tList
+    tObject[#figure] = tFigureParser.parseFigure(tObject[#figure], tObject[#sex], tObject[#class])
   end repeat
   the itemDelimiter = tDelim
   if (count(tList) = 0) then
     me.getComponent().validateUserObjects(0)
   else
     tName = getObject(#session).GET(#userName)
-    repeat while ttype <= undefined
-      tuser = getAt(undefined, tMsg)
-      if (tuser.getAt(#name) = tName) then
-        getObject(#session).set("user_index", tuser.getAt(#id))
+    repeat with tuser in tList
+      if (tuser[#name] = tName) then
+        getObject(#session).set("user_index", tuser[#id])
       end if
       me.getComponent().validateUserObjects(tuser)
-      if (me.getComponent().getPickedCryName() = tuser.getAt(#name)) then
-        me.getComponent().showCfhSenderDelayed(tuser.getAt(#id))
+      if (me.getComponent().getPickedCryName() = tuser[#name]) then
+        me.getComponent().showCfhSenderDelayed(tuser[#id])
       end if
-      if (tuser.getAt(#name) = tName) then
-        me.getInterface().eventProcUserObj(#selection, tuser.getAt(#id), #userEnters)
+      if (tuser[#name] = tName) then
+        me.getInterface().eventProcUserObj(#selection, tuser[#id], #userEnters)
         if not voidp(pHighlightUser) then
           me.getComponent().highlightUser(pHighlightUser)
-          pHighlightUser = void()
+          pHighlightUser = VOID
         end if
       end if
     end repeat
   end if
 end
 
-on handle_showprogram me, tMsg 
+on handle_showprogram me, tMsg
   tLine = tMsg.content
-  tDst = tLine.getProp(#word, 1)
-  tCmd = tLine.getProp(#word, 2)
-  tArg = tLine.getProp(#word, 3, tLine.count(#word))
-  tdata = [#command:"SHOWPROGRAM", #show_dest:tDst, #show_command:tCmd, #show_params:tArg]
+  tDst = tLine.word[1]
+  tCmd = tLine.word[2]
+  tArg = tLine.word[3]
+  tdata = [#command: "SHOWPROGRAM", #show_dest: tDst, #show_command: tCmd, #show_params: tArg]
   tObj = me.getComponent().getRoomPrg()
   if objectp(tObj) then
     call(#showprogram, [tObj], tdata)
   end if
 end
 
-on handle_no_user_for_gift me, tMsg 
+on handle_no_user_for_gift me, tMsg
   tConn = tMsg.getaProp(#connection)
   if not tConn then
-    return FALSE
+    return 0
   end if
   tUserName = tConn.GetStrFrom()
   tAlertString = getText("no_user_for_gift")
   tAlertString = replaceChunks(tAlertString, "%user%", tUserName)
-  executeMessage(#alert, [#Msg:tAlertString])
+  executeMessage(#alert, [#Msg: tAlertString])
 end
 
-on handle_heightmap me, tMsg 
+on handle_heightmap me, tMsg
   me.getComponent().validateHeightMap(tMsg.content)
 end
 
-on handle_floor_map me, tMsg 
+on handle_floor_map me, tMsg
   me.getInterface().getGeometry().loadHeightMap(tMsg.content, 1)
 end
 
-on handle_heightmapupdate me, tMsg 
+on handle_heightmapupdate me, tMsg
   tConn = tMsg.getaProp(#connection)
   if not tConn then
-    return FALSE
+    return 0
   end if
   tMapData = tConn.GetStrFrom()
   me.getComponent().updateHeightMap(tMapData)
 end
 
-on handle_OBJECTS me, tMsg 
+on handle_OBJECTS me, tMsg
   tConn = tMsg.connection
   if not tConn then
-    return FALSE
+    return 0
   end if
   tList = []
   tCount = tConn.GetIntFrom()
-  i = 1
-  repeat while i <= tCount
+  repeat with i = 1 to tCount
     tHasDimensions = tConn.GetIntFrom()
     tObj = [:]
-    tObj.setAt(#id, tConn.GetStrFrom())
-    tObj.setAt(#class, tConn.GetStrFrom())
-    tObj.setAt(#x, tConn.GetIntFrom())
-    tObj.setAt(#y, tConn.GetIntFrom())
-    tObj.setAt(#h, tConn.GetIntFrom())
+    tObj[#id] = tConn.GetStrFrom()
+    tObj[#class] = tConn.GetStrFrom()
+    tObj[#x] = tConn.GetIntFrom()
+    tObj[#y] = tConn.GetIntFrom()
+    tObj[#h] = tConn.GetIntFrom()
     if tHasDimensions then
       tWidth = tConn.GetIntFrom()
       tHeight = tConn.GetIntFrom()
-      tObj.setAt(#dimensions, [tWidth, tHeight])
-      tObj.setAt(#x, ((tObj.getAt(#x) + tObj.getAt(#width)) - 1))
-      tObj.setAt(#y, ((tObj.getAt(#y) + tObj.getAt(#height)) - 1))
+      tObj[#dimensions] = [tWidth, tHeight]
+      tObj[#x] = ((tObj[#x] + tObj[#width]) - 1)
+      tObj[#y] = ((tObj[#y] + tObj[#height]) - 1)
     else
       tdir = (tConn.GetIntFrom() mod 8)
-      tObj.setAt(#direction, [tdir, tdir, tdir])
-      tObj.setAt(#dimensions, 0)
+      tObj[#direction] = [tdir, tdir, tdir]
+      tObj[#dimensions] = 0
     end if
     tList.add(tObj)
-    i = (1 + i)
   end repeat
-  if count(tList) > 0 then
-    repeat while tList <= undefined
-      tObj = getAt(undefined, tMsg)
+  if (count(tList) > 0) then
+    repeat with tObj in tList
       me.getComponent().validatePassiveObjects(tObj)
     end repeat
   else
@@ -363,78 +343,75 @@ on handle_OBJECTS me, tMsg
   end if
 end
 
-on parseActiveObject me, tConn 
+on parseActiveObject me, tConn
   if voidp(pPersistentFurniData) then
     pPersistentFurniData = getThread("dynamicdownloader").getComponent().getPersistentFurniDataObject()
   end if
   if not tConn then
-    return FALSE
+    return 0
   end if
   tObj = [:]
-  tObj.setAt(#id, string(tConn.GetIntFrom()))
+  tObj[#id] = string(tConn.GetIntFrom())
   tClassID = tConn.GetIntFrom()
-  if tClassID > -1 then
+  if (tClassID > -1) then
     tError = 0
     tFurniData = pPersistentFurniData.getProps("s", tClassID)
     if voidp(tFurniData) then
-      error(me, "Persistent properties missing for furni classid " & tClassID, #parseActiveObject, #major)
+      error(me, ("Persistent properties missing for furni classid " & tClassID), #parseActiveObject, #major)
       tError = 1
     else
-      tObj.setAt(#class, tFurniData.getAt(#class))
-      tObj.setAt(#colors, tFurniData.getAt(#partColors))
-      tWidth = tFurniData.getAt(#xdim)
-      tHeight = tFurniData.getAt(#ydim)
-      tObj.setAt(#dimensions, [tWidth, tHeight])
-      if (tObj.getAt(#colors) = "") then
-        tObj.setAt(#colors, "0")
+      tObj[#class] = tFurniData[#class]
+      tObj[#colors] = tFurniData[#partColors]
+      tWidth = tFurniData[#xdim]
+      tHeight = tFurniData[#ydim]
+      tObj[#dimensions] = [tWidth, tHeight]
+      if (tObj[#colors] = EMPTY) then
+        tObj[#colors] = "0"
       end if
     end if
   end if
-  tObj.setAt(#x, tConn.GetIntFrom())
-  tObj.setAt(#y, tConn.GetIntFrom())
+  tObj[#x] = tConn.GetIntFrom()
+  tObj[#y] = tConn.GetIntFrom()
   tDirection = (tConn.GetIntFrom() mod 8)
-  tObj.setAt(#direction, [tDirection, tDirection, tDirection])
-  tObj.setAt(#altitude, getLocalFloat(tConn.GetStrFrom()))
+  tObj[#direction] = [tDirection, tDirection, tDirection]
+  tObj[#altitude] = getLocalFloat(tConn.GetStrFrom())
   tExtra = tConn.GetIntFrom()
   tStuffData = tConn.GetStrFrom()
   tExpireTime = tConn.GetIntFrom()
-  if tExpireTime > -1 then
+  if (tExpireTime > -1) then
     tExpireTime = (((tExpireTime * 60) * 1000) + the milliSeconds)
   end if
-  tObj.setAt(#expire, tExpireTime)
-  if tClassID < 0 then
-    tObj.setAt(#class, tConn.GetStrFrom())
-    tObj.setAt(#colors, "0")
-    tObj.setAt(#dimensions, [1, 1])
+  tObj[#expire] = tExpireTime
+  if (tClassID < 0) then
+    tObj[#class] = tConn.GetStrFrom()
+    tObj[#colors] = "0"
+    tObj[#dimensions] = [1, 1]
   end if
-  tObj.setAt(#props, [#runtimedata:"", #extra:tExtra, #stuffdata:tStuffData])
+  tObj[#props] = [#runtimedata: EMPTY, #extra: tExtra, #stuffdata: tStuffData]
   if tError then
-    return FALSE
+    return 0
   else
-    return(tObj)
+    return tObj
   end if
 end
 
-on handle_activeobjects me, tMsg 
+on handle_activeobjects me, tMsg
   tConn = tMsg.connection
   if not tConn then
-    return FALSE
+    return 0
   end if
   tList = []
   tCount = tConn.GetIntFrom()
-  i = 1
-  repeat while i <= tCount
-    if tConn <> 0 then
+  repeat with i = 1 to tCount
+    if (tConn <> 0) then
       tObj = me.parseActiveObject(tConn)
       if listp(tObj) then
         tList.add(tObj)
       end if
     end if
-    i = (1 + i)
   end repeat
-  if count(tList) > 0 then
-    repeat while tList <= undefined
-      tObj = getAt(undefined, tMsg)
+  if (count(tList) > 0) then
+    repeat with tObj in tList
       me.getComponent().validateActiveObjects(tObj)
     end repeat
     executeMessage(#activeObjectsUpdated)
@@ -443,7 +420,7 @@ on handle_activeobjects me, tMsg
   end if
 end
 
-on handle_activeobject_remove me, tMsg 
+on handle_activeobject_remove me, tMsg
   tConn = tMsg.connection
   tObjID = tConn.GetStrFrom()
   tExpired = tConn.GetIntFrom()
@@ -452,128 +429,125 @@ on handle_activeobject_remove me, tMsg
   end if
   me.getComponent().removeActiveObject(tObjID, tExpired)
   executeMessage(#activeObjectRemoved)
-  return TRUE
+  return 1
 end
 
-on handle_activeobject_add me, tMsg 
+on handle_activeobject_add me, tMsg
   tConn = tMsg.connection
   if not tConn then
-    return FALSE
+    return 0
   end if
   tObj = me.parseActiveObject(tConn)
   if not listp(tObj) then
-    return FALSE
+    return 0
   end if
   me.getComponent().validateActiveObjects(tObj)
   executeMessage(#activeObjectsUpdated)
-  return TRUE
+  return 1
 end
 
-on handle_activeobject_update me, tMsg 
+on handle_activeobject_update me, tMsg
   tConn = tMsg.connection
   if not tConn then
-    return FALSE
+    return 0
   end if
   tObj = me.parseActiveObject(tConn)
   if not listp(tObj) then
-    return FALSE
+    return 0
   end if
   tComponent = me.getComponent()
-  if tComponent.activeObjectExists(tObj.getAt(#id)) then
+  if tComponent.activeObjectExists(tObj[#id]) then
     tObj = getThread(#buffer).getComponent().processObject(tObj, "active")
-    tActiveObj = tComponent.getActiveObject(tObj.getAt(#id))
+    tActiveObj = tComponent.getActiveObject(tObj[#id])
     tActiveObj.define(tObj)
-    tComponent.removeSlideObject(tObj.getAt(#id))
+    tComponent.removeSlideObject(tObj[#id])
     call(#movingFinished, [tActiveObj])
     executeMessage(#activeObjectsUpdated)
   else
-    return(error(me, "Active object not found:" && tObj.getAt(#id), #handle_activeobject_update, #major))
+    return error(me, ("Active object not found:" && tObj[#id]), #handle_activeobject_update, #major)
   end if
 end
 
-on parse_itemlistitem me, tMsg 
+on parse_itemlistitem me, tMsg
   tConn = tMsg.connection
   if not tConn then
-    return([:])
+    return [:]
   end if
   if voidp(pPersistentFurniData) then
     pPersistentFurniData = getThread("dynamicdownloader").getComponent().getPersistentFurniDataObject()
   end if
   tObj = [:]
-  tObj.setAt(#id, tConn.GetStrFrom())
+  tObj[#id] = tConn.GetStrFrom()
   tClassID = tConn.GetIntFrom()
   tFurniData = pPersistentFurniData.getProps("i", tClassID)
   if voidp(tFurniData) then
-    error(me, "Persistent properties missing for item classid " & tClassID, #handle_items, #major)
-    tObj.setAt(#class, "")
+    error(me, ("Persistent properties missing for item classid " & tClassID), #handle_items, #major)
+    tObj[#class] = EMPTY
   else
-    tObj.setAt(#class, tFurniData.getAt(#class))
-    tObj.setAt(#owner, "")
+    tObj[#class] = tFurniData[#class]
+    tObj[#owner] = EMPTY
     tLocLine = tConn.GetStrFrom()
-    tObj.setAt(#type, tConn.GetStrFrom())
-    if not (tLocLine.getProp(#char, 1) = ":") then
-      tObj.setAt(#direction, tLocLine.getProp(#word, 1))
-      if (tObj.getAt(#direction) = "frontwall") then
-        tObj.setAt(#direction, "rightwall")
+    tObj[#type] = tConn.GetStrFrom()
+    if not (tLocLine.char[1] = ":") then
+      tObj[#direction] = tLocLine.word[1]
+      if (tObj[#direction] = "frontwall") then
+        tObj[#direction] = "rightwall"
       end if
-      tlocation = tLocLine.getProp(#word, 2, tLocLine.count(#word))
+      tlocation = tLocLine.word[2]
       the itemDelimiter = ","
-      tObj.setAt(#x, 0)
-      tObj.setAt(#y, tlocation.getProp(#item, 1))
-      tObj.setAt(#h, getLocalFloat(tlocation.getProp(#item, 2)))
-      tObj.setAt(#z, integer(tlocation.getProp(#item, 3)))
-      tObj.setAt(#formatVersion, #old)
-      tObj.setAt(#expire, -1)
+      tObj[#x] = 0
+      tObj[#y] = tlocation.item[1]
+      tObj[#h] = getLocalFloat(tlocation.item[2])
+      tObj[#z] = integer(tlocation.item[3])
+      tObj[#formatVersion] = #old
+      tObj[#expire] = -1
     else
       tLocString = tLocLine
-      tWallLoc = tLocString.getPropRef(#word, 1).getProp(#char, 4, length(tLocString.getProp(#word, 1)))
+      tWallLoc = tLocString.word[1].char[4]
       the itemDelimiter = ","
-      tObj.setAt(#wall_x, integer(tWallLoc.getProp(#item, 1)))
-      tObj.setAt(#wall_y, integer(tWallLoc.getProp(#item, 2)))
-      tLocalLoc = tLocString.getPropRef(#word, 2).getProp(#char, 3, length(tLocString.getProp(#word, 2)))
-      tObj.setAt(#local_x, integer(tLocalLoc.getProp(#item, 1)))
-      tObj.setAt(#local_y, integer(tLocalLoc.getProp(#item, 2)))
-      tDirChar = tLocString.getProp(#word, 3)
-      if (tDirChar = "r") then
-        tObj.setAt(#direction, "rightwall")
-      else
-        if (tDirChar = "l") then
-          tObj.setAt(#direction, "leftwall")
-        end if
-      end if
-      tObj.setAt(#formatVersion, #new)
-      tObj.setAt(#expire, -1)
+      tObj[#wall_x] = integer(tWallLoc.item[1])
+      tObj[#wall_y] = integer(tWallLoc.item[2])
+      tLocalLoc = tLocString.word[2].char[3]
+      tObj[#local_x] = integer(tLocalLoc.item[1])
+      tObj[#local_y] = integer(tLocalLoc.item[2])
+      tDirChar = tLocString.word[3]
+      case tDirChar of
+        "r":
+          tObj[#direction] = "rightwall"
+        "l":
+          tObj[#direction] = "leftwall"
+      end case
+      tObj[#formatVersion] = #new
+      tObj[#expire] = -1
     end if
   end if
-  return(tObj)
+  return tObj
 end
 
-on handle_itemlist me, tMsg 
+on handle_itemlist me, tMsg
   tConn = tMsg.connection
   if not tConn then
-    return FALSE
+    return 0
   end if
   tCount = tConn.GetIntFrom()
-  i = 1
-  repeat while i <= tCount
+  repeat with i = 1 to tCount
     tObj = me.parse_itemlistitem(tMsg)
     me.getComponent().validateItemObjects(tObj)
-    i = (1 + i)
   end repeat
-  if tCount > 0 then
+  if (tCount > 0) then
     executeMessage(#itemObjectsUpdated)
   else
     me.getComponent().validateItemObjects(0)
   end if
 end
 
-on handle_additem me, tMsg 
+on handle_additem me, tMsg
   tConn = tMsg.connection
   if not tConn then
-    return FALSE
+    return 0
   end if
   tObj = me.parse_itemlistitem(tMsg)
-  if tObj.count > 0 then
+  if (tObj.count > 0) then
     me.getComponent().validateItemObjects(tObj)
     executeMessage(#itemObjectsUpdated)
   else
@@ -581,48 +555,48 @@ on handle_additem me, tMsg
   end if
 end
 
-on handle_removeitem me, tMsg 
+on handle_removeitem me, tMsg
   tConn = tMsg.connection
   if not tConn then
-    return FALSE
+    return 0
   end if
   me.getComponent().removeItemObject(tConn.GetStrFrom())
   executeMessage(#itemObjectRemoved)
   me.getInterface().stopObjectMover()
 end
 
-on handle_updateitem me, tMsg 
+on handle_updateitem me, tMsg
   tConn = tMsg.connection
   if not tConn then
-    return FALSE
+    return 0
   end if
   tObj = me.parse_itemlistitem(tMsg)
-  if tObj.count > 0 then
-    tItem = me.getComponent().getItemObject(tObj.getAt(#id))
+  if (tObj.count > 0) then
+    tItem = me.getComponent().getItemObject(tObj[#id])
     if objectp(tItem) then
-      tItem.setState(the last word in tObj.getAt(#type))
+      tItem.setState(the last word in tObj[#type])
     end if
   end if
 end
 
-on handle_stuffdataupdate me, tMsg 
+on handle_stuffdataupdate me, tMsg
   tConn = tMsg.connection
   if not tConn then
-    return FALSE
+    return 0
   end if
   tTarget = tConn.GetStrFrom()
   tValue = tConn.GetStrFrom()
   if me.getComponent().activeObjectExists(tTarget) then
     call(#updateStuffdata, [me.getComponent().getActiveObject(tTarget)], tValue)
   else
-    return(error(me, "Active object not found:" && tTarget, #handle_stuffdataupdate, #major))
+    return error(me, ("Active object not found:" && tTarget), #handle_stuffdataupdate, #major)
   end if
 end
 
-on handle_presentopen me, tMsg 
+on handle_presentopen me, tMsg
   tConn = tMsg.connection
   if not tConn then
-    return FALSE
+    return 0
   end if
   if voidp(pPersistentFurniData) then
     pPersistentFurniData = getThread("dynamicdownloader").getComponent().getPersistentFurniDataObject()
@@ -632,120 +606,117 @@ on handle_presentopen me, tMsg
   tCode = tConn.GetStrFrom()
   tFurniProps = pPersistentFurniData.getProps(ttype, tClassID)
   if voidp(tFurniProps) then
-    error(me, "Persistent properties missing for item classid " & tClassID, #handle_presentopen, #major)
-    tFurniProps = [#class:"", #localizedName:"", #localizedDesc:"", #partColors:""]
+    error(me, ("Persistent properties missing for item classid " & tClassID), #handle_presentopen, #major)
+    tFurniProps = [#class: EMPTY, #localizedName: EMPTY, #localizedDesc: EMPTY, #partColors: EMPTY]
   end if
-  tClass = tFurniProps.getAt(#class)
-  tColor = tFurniProps.getAt(#partColors)
-  tName = tFurniProps.getAt(#localizedName)
+  tClass = tFurniProps[#class]
+  tColor = tFurniProps[#partColors]
+  tName = tFurniProps[#localizedName]
   tCard = "PackageCardObj"
   if objectExists(tCard) then
-    getObject(tCard).showContent([#type:tClass, #code:tCode, #color:tColor, #name:tName])
+    getObject(tCard).showContent([#type: tClass, #code: tCode, #color: tColor, #name: tName])
   else
     error(me, "Package card obj not found!", #handle_presentopen, #major)
   end if
 end
 
-on handle_flatproperty me, tMsg 
+on handle_flatproperty me, tMsg
   tKey = tMsg.connection.GetStrFrom()
   tVal = tMsg.connection.GetStrFrom()
   me.getComponent().setRoomProperty(tKey, tVal)
 end
 
-on handle_room_rights me, tMsg 
-  if (tMsg.subject = 42) then
-    getObject(#session).set("room_controller", 1)
-  else
-    if (tMsg.subject = 43) then
+on handle_room_rights me, tMsg
+  case tMsg.subject of
+    42:
+      getObject(#session).set("room_controller", 1)
+    43:
       getObject(#session).set("room_controller", 0)
-    else
-      if (tMsg.subject = 47) then
-        getObject(#session).set("room_owner", 1)
-      end if
-    end if
-  end if
+    47:
+      getObject(#session).set("room_owner", 1)
+  end case
 end
 
-on parse_stripinfoitem me, tConn 
+on parse_stripinfoitem me, tConn
   if voidp(pPersistentFurniData) then
     pPersistentFurniData = getThread("dynamicdownloader").getComponent().getPersistentFurniDataObject()
   end if
   tObj = [:]
-  tObj.setAt(#stripId, string(tConn.GetIntFrom()))
-  tObj.setAt(#objectPos, tConn.GetIntFrom())
-  tObj.setAt(#striptype, tConn.GetStrFrom())
-  tObj.setAt(#id, string(tConn.GetIntFrom()))
+  tObj[#stripId] = string(tConn.GetIntFrom())
+  tObj[#objectPos] = tConn.GetIntFrom()
+  tObj[#striptype] = tConn.GetStrFrom()
+  tObj[#id] = string(tConn.GetIntFrom())
   tClassID = tConn.GetIntFrom()
-  tObj.setAt(#category, tConn.GetIntFrom())
-  if (tObj.getAt(#striptype) = "S") then
-    tFurniProps = pPersistentFurniData.getProps("s", tClassID)
-    if voidp(tFurniProps) then
-      error(me, "Persistent properties missing for furni classid " & tClassID, #handle_stripinfo, #major)
-      tFurniProps = [#class:"", #localizedName:"", #localizedDesc:"", #partColors:""]
-    end if
-    tObj.setAt(#class, tFurniProps.getAt(#class))
-    tObj.setAt(#name, tFurniProps.getAt(#localizedName))
-    tObj.setAt(#custom, tFurniProps.getAt(#localizedDesc))
-    tObj.setAt(#dimensions, [tFurniProps.getAt(#xdim), tFurniProps.getAt(#ydim)])
-    tObj.setAt(#colors, tFurniProps.getAt(#partColors))
-    tObj.setAt(#striptype, "active")
-    tObj.setAt(#stuffdata, tConn.GetStrFrom())
-    tObj.setAt(#isRecyclable, tConn.GetIntFrom())
-    tObj.setAt(#isTradeable, tConn.GetIntFrom())
-    tObj.setAt(#isGroupable, tConn.GetIntFrom())
-    tExp = tConn.GetIntFrom()
-    if tExp <> -1 then
-      tObj.setAt(#expire, tExp)
-    end if
-    tSlotID = tConn.GetStrFrom()
-    if tSlotID <> "" then
-      tObj.setAt(#slotID, tSlotID)
-    end if
-    tSongID = tConn.GetIntFrom()
-    if tSongID <> -1 then
-      tObj.setAt(#songID, tSongID)
-    end if
-    the itemDelimiter = ","
-    if (tObj.getAt(#colors).getProp(#char, 1) = "#") then
-      if tObj.getAt(#colors).count(#item) > 1 then
-        tObj.setAt(#stripColor, rgb(tObj.getAt(#colors).getProp(#item, tObj.getAt(#colors).count(#item))))
-      else
-        tObj.setAt(#stripColor, rgb(tObj.getAt(#colors)))
+  tObj[#category] = tConn.GetIntFrom()
+  case tObj[#striptype] of
+    "S":
+      tFurniProps = pPersistentFurniData.getProps("s", tClassID)
+      if voidp(tFurniProps) then
+        error(me, ("Persistent properties missing for furni classid " & tClassID), #handle_stripinfo, #major)
+        tFurniProps = [#class: EMPTY, #localizedName: EMPTY, #localizedDesc: EMPTY, #partColors: EMPTY]
       end if
-    else
-      tObj.setAt(#stripColor, 0)
-    end if
-  else
-    if (tObj.getAt(#striptype) = "I") then
+      tObj[#class] = tFurniProps[#class]
+      tObj[#name] = tFurniProps[#localizedName]
+      tObj[#custom] = tFurniProps[#localizedDesc]
+      tObj[#dimensions] = [tFurniProps[#xdim], tFurniProps[#ydim]]
+      tObj[#colors] = tFurniProps[#partColors]
+      tObj[#striptype] = "active"
+      tObj[#stuffdata] = tConn.GetStrFrom()
+      tObj[#isRecyclable] = tConn.GetIntFrom()
+      tObj[#isTradeable] = tConn.GetIntFrom()
+      tObj[#isGroupable] = tConn.GetIntFrom()
+      tExp = tConn.GetIntFrom()
+      if (tExp <> -1) then
+        tObj[#expire] = tExp
+      end if
+      tSlotID = tConn.GetStrFrom()
+      if (tSlotID <> EMPTY) then
+        tObj[#slotID] = tSlotID
+      end if
+      tSongID = tConn.GetIntFrom()
+      if (tSongID <> -1) then
+        tObj[#songID] = tSongID
+      end if
+      the itemDelimiter = ","
+      if (tObj[#colors].char[1] = "#") then
+        if (tObj[#colors].item.count > 1) then
+          tObj[#stripColor] = rgb(tObj[#colors].item[tObj[#colors].item.count])
+        else
+          tObj[#stripColor] = rgb(tObj[#colors])
+        end if
+      else
+        tObj[#stripColor] = 0
+      end if
+    "I":
       tFurniProps = pPersistentFurniData.getProps("i", tClassID)
       if voidp(tFurniProps) then
-        error(me, "Persistent properties missing for item classid " & tClassID, #handle_items, #major)
-        tFurniProps = [#class:"", #localizedName:"", #localizedDesc:"", #colors:""]
+        error(me, ("Persistent properties missing for item classid " & tClassID), #handle_items, #major)
+        tFurniProps = [#class: EMPTY, #localizedName: EMPTY, #localizedDesc: EMPTY, #colors: EMPTY]
       end if
-      tObj.setAt(#class, tFurniProps.getAt(#class))
-      tObj.setAt(#striptype, "item")
-      tObj.setAt(#props, tConn.GetStrFrom())
-      tObj.setAt(#isRecyclable, tConn.GetIntFrom())
-      tObj.setAt(#isTradeable, tConn.GetIntFrom())
-      tObj.setAt(#isGroupable, tConn.GetIntFrom())
+      tObj[#class] = tFurniProps[#class]
+      tObj[#striptype] = "item"
+      tObj[#props] = tConn.GetStrFrom()
+      tObj[#isRecyclable] = tConn.GetIntFrom()
+      tObj[#isTradeable] = tConn.GetIntFrom()
+      tObj[#isGroupable] = tConn.GetIntFrom()
       tExp = tConn.GetIntFrom()
-      if tExp <> -1 then
-        tObj.setAt(#expire, tExp)
+      if (tExp <> -1) then
+        tObj[#expire] = tExp
       end if
-      if (tObj.getAt(#striptype) = "poster") then
-        tObj.setAt(#name, getText("poster_" & tObj.getAt(#props) & "_name", "poster_" & tObj.getAt(#props) & "_name"))
-      else
-        tObj.setAt(#name, tFurniProps.getAt(#localizedName))
-      end if
-    end if
-  end if
-  return(tObj)
+      case tObj[#class] of
+        "poster":
+          tObj[#name] = getText((("poster_" & tObj[#props]) & "_name"), (("poster_" & tObj[#props]) & "_name"))
+        otherwise:
+          tObj[#name] = tFurniProps[#localizedName]
+      end case
+  end case
+  return tObj
 end
 
-on handle_stripinfo me, tMsg, tItemDeLim 
+on handle_stripinfo me, tMsg, tItemDeLim
   tConn = tMsg.connection
   if not tConn then
-    return FALSE
+    return 0
   end if
   if voidp(pPersistentFurniData) then
     pPersistentFurniData = getThread("dynamicdownloader").getComponent().getPersistentFurniDataObject()
@@ -757,86 +728,81 @@ on handle_stripinfo me, tMsg, tItemDeLim
   end if
   tStripMax = 0
   tTotalItemCount = 0
-  tProps = [#objects:[], #count:tCount]
-  i = 1
-  repeat while i <= tCount
+  tProps = [#objects: [], #count: tCount]
+  repeat with i = 1 to tCount
     tObj = me.parse_stripinfoitem(tConn)
-    tObjectPos = tObj.getAt(#objectPos)
+    tObjectPos = tObj[#objectPos]
     tObj.deleteProp(#objectPos)
-    tProps.getAt(#objects).add(tObj)
-    if tObjectPos > tStripMax then
+    tProps[#objects].add(tObj)
+    if (tObjectPos > tStripMax) then
       tStripMax = tObjectPos
     end if
-    i = (1 + i)
   end repeat
   tTotalItemCount = tConn.GetIntFrom()
   tInventory = me.getInterface().getContainer()
-  tInventory.setHandButton("next", (tTotalItemCount - 1) > integer(tStripMax))
-  tInventory.setHandButton("prev", integer(tStripMax) > 8)
-  if (tMsg.subject = 140) then
-    tInventory.updateStripItems(tProps.getAt(#objects))
-    tInventory.setStripItemCount(tProps.getAt(#count))
-    tInventory.open(1)
-    tInventory.Refresh()
-  else
-    if (tMsg.subject = 98) then
-      tConn.send("GETSTRIP", [#integer:3])
-    end if
-  end if
+  tInventory.setHandButton("next", ((tTotalItemCount - 1) > integer(tStripMax)))
+  tInventory.setHandButton("prev", (integer(tStripMax) > 8))
+  case tMsg.subject of
+    140:
+      tInventory.updateStripItems(tProps[#objects])
+      tInventory.setStripItemCount(tProps[#count])
+      tInventory.open(1)
+      tInventory.Refresh()
+    98:
+      tConn.send("GETSTRIP", [#integer: 3])
+  end case
 end
 
-on handle_stripupdated me, tMsg 
-  tMsg.connection.send("GETSTRIP", [#integer:3])
+on handle_stripupdated me, tMsg
+  tMsg.connection.send("GETSTRIP", [#integer: 3])
 end
 
-on handle_removestripitem me, tMsg 
+on handle_removestripitem me, tMsg
   tConn = tMsg.connection
   if not tConn then
-    return FALSE
+    return 0
   end if
   me.getInterface().getContainer().removeStripItem(string(tConn.GetIntFrom()))
   me.getInterface().getContainer().Refresh()
 end
 
-on handle_youarenotallowed me 
-  executeMessage(#alert, [#Msg:"trade_youarenotallowed", #id:"youarenotallowed"])
+on handle_youarenotallowed me
+  executeMessage(#alert, [#Msg: "trade_youarenotallowed", #id: "youarenotallowed"])
 end
 
-on handle_othernotallowed me 
-  executeMessage(#alert, [#Msg:"trade_othernotallowed", #id:"othernotallowed"])
+on handle_othernotallowed me
+  executeMessage(#alert, [#Msg: "trade_othernotallowed", #id: "othernotallowed"])
 end
 
-on handle_idata me, tMsg 
+on handle_idata me, tMsg
   tConn = tMsg.connection
   if not tConn then
-    return FALSE
+    return 0
   end if
   tDelim = the itemDelimiter
-  the itemDelimiter = "\t"
+  the itemDelimiter = TAB
   tID = integer(tConn.GetStrFrom())
   tdata = tConn.GetStrFrom()
-  ttype = tdata.getPropRef(#line, 1).getProp(#item, 1)
-  tText = ttype & "\r" & tdata.getProp(#line, 2, tdata.count(#line))
+  ttype = tdata.line[1].item[1]
+  tText = ((ttype & RETURN) & tdata.line[2])
   the itemDelimiter = tDelim
-  executeMessage(symbol("itemdata_received" & tID), [#id:tID, #text:tText, #type:ttype])
+  executeMessage(symbol(("itemdata_received" & tID)), [#id: tID, #text: tText, #type: ttype])
 end
 
-on handle_trade_items me, tMsg 
+on handle_trade_items me, tMsg
   tConn = tMsg.connection
   if not tConn then
-    return FALSE
+    return 0
   end if
   if voidp(pPersistentFurniData) then
     pPersistentFurniData = getThread("dynamicdownloader").getComponent().getPersistentFurniDataObject()
   end if
   tMessage = [:]
-  i = 1
-  repeat while i <= 2
+  repeat with i = 1 to 2
     tUserID = tConn.GetIntFrom()
     tFurniList = []
     tFurniCount = tConn.GetIntFrom()
-    j = 1
-    repeat while j <= tFurniCount
+    repeat with j = 1 to tFurniCount
       tFurniInfo = [:]
       tFurniInfo.setaProp(#stripId, tConn.GetIntFrom())
       tFurniInfo.setaProp(#striptype, tConn.GetStrFrom())
@@ -848,108 +814,106 @@ on handle_trade_items me, tMsg
       tFurniInfo.setaProp(#day, tConn.GetIntFrom())
       tFurniInfo.setaProp(#month, tConn.GetIntFrom())
       tFurniInfo.setaProp(#year, tConn.GetIntFrom())
-      if (tFurniInfo.getAt(#striptype) = "s") then
+      if (tFurniInfo[#striptype] = "s") then
         tFurniInfo.setaProp(#songID, tConn.GetIntFrom())
       end if
-      tFurniProps = pPersistentFurniData.getProps(tFurniInfo.getAt(#striptype), tFurniInfo.getAt(#classID))
+      tFurniProps = pPersistentFurniData.getProps(tFurniInfo[#striptype], tFurniInfo[#classID])
       if voidp(tFurniProps) then
-        error(me, "Persistent properties missing for item classid " & tFurniInfo.getAt(#classID), #handle_items, #major)
-        tFurniProps = [#class:"", #localizedName:"", #localizedDesc:"", #colors:""]
+        error(me, ("Persistent properties missing for item classid " & tFurniInfo[#classID]), #handle_items, #major)
+        tFurniProps = [#class: EMPTY, #localizedName: EMPTY, #localizedDesc: EMPTY, #colors: EMPTY]
       end if
-      tFurniInfo.setaProp(#class, tFurniProps.getAt(#class))
-      if (tFurniInfo.getAt(#class) = "poster") then
-        tFurniInfo.setaProp(#name, getText("poster_" & tFurniInfo.getAt(#data) & "_name"))
+      tFurniInfo.setaProp(#class, tFurniProps[#class])
+      if (tFurniInfo[#class] = "poster") then
+        tFurniInfo.setaProp(#name, getText((("poster_" & tFurniInfo[#data]) & "_name")))
       else
-        tFurniInfo.setaProp(#name, tFurniProps.getAt(#localizedName))
+        tFurniInfo.setaProp(#name, tFurniProps[#localizedName])
       end if
-      tFurniInfo.setaProp(#colors, tFurniProps.getAt(#partColors))
-      tFurniInfo.setaProp(#dimensions, [tFurniProps.getAt(#xdim), tFurniProps.getAt(#ydim)])
+      tFurniInfo.setaProp(#colors, tFurniProps[#partColors])
+      tFurniInfo.setaProp(#dimensions, [tFurniProps[#xdim], tFurniProps[#ydim]])
       tFurniList.add(tFurniInfo)
-      j = (1 + j)
     end repeat
     tMessage.setaProp(tUserID, tFurniList)
-    i = (1 + i)
   end repeat
   tTrader = me.getInterface().getSafeTrader()
   if not tTrader then
-    return FALSE
+    return 0
   end if
-  return(tTrader.Refresh(tMessage))
+  return tTrader.Refresh(tMessage)
 end
 
-on handle_trade_close me, tMsg 
+on handle_trade_close me, tMsg
   tConn = tMsg.getaProp(#connection)
   if not tConn then
-    return FALSE
+    return 0
   end if
   tUserID = tConn.GetIntFrom()
-  if tUserID <> getObject(#session).GET("user_user_id") then
-    executeMessage(#alert, [#id:#trade_cancelled, #Msg:getText("trading_closed")])
+  if (tUserID <> getObject(#session).GET("user_user_id")) then
+    executeMessage(#alert, [#id: #trade_cancelled, #Msg: getText("trading_closed")])
   end if
   tTrader = me.getInterface().getSafeTrader()
   if not tTrader then
-    return FALSE
+    return 0
   end if
   tTrader.close()
   tHand = me.getInterface().getContainer()
   if not tHand then
-    return FALSE
+    return 0
   end if
   if tHand.isOpen() then
-    tConn.send("GETSTRIP", [#integer:4])
+    tConn.send("GETSTRIP", [#integer: 4])
   end if
 end
 
-on handle_trade_confirm me, tMsg 
+on handle_trade_confirm me, tMsg
   tTrader = me.getInterface().getSafeTrader()
   if not tTrader then
-    return FALSE
+    return 0
   end if
   tTrader.showConfirmationView()
 end
 
-on handle_trade_accept me, tMsg 
+on handle_trade_accept me, tMsg
   tConn = tMsg.getaProp(#connection)
   if not tConn then
-    return FALSE
+    return 0
   end if
   tUserID = tConn.GetIntFrom()
-  tStatus = tConn.GetIntFrom() > 0
+  tStatus = (tConn.GetIntFrom() > 0)
   tTrader = me.getInterface().getSafeTrader()
   if not tTrader then
-    return FALSE
+    return 0
   end if
   tTrader.accept(tUserID, tStatus)
 end
 
-on handle_trade_open me, tMsg 
+on handle_trade_open me, tMsg
   tConn = tMsg.getaProp(#connection)
   if not tConn then
-    return FALSE
+    return 0
   end if
   tTrader = me.getInterface().getSafeTrader()
   if not tTrader then
-    return FALSE
+    return 0
   end if
   tTrader.startTrade(tConn.GetIntFrom(), tConn.GetIntFrom(), tConn.GetIntFrom(), tConn.GetIntFrom())
 end
 
-on handle_trade_already_open me 
-  executeMessage(#alert, [#id:#trade_already_open, #Msg:getText("trading_already_open")])
+on handle_trade_already_open me
+  executeMessage(#alert, [#id: #trade_already_open, #Msg: getText("trading_already_open")])
 end
 
-on handle_trade_completed me, tMsg 
+on handle_trade_completed me, tMsg
   tTrader = me.getInterface().getSafeTrader()
   if not tTrader then
-    return FALSE
+    return 0
   end if
   tTrader.complete()
 end
 
-on handle_doordeleted me, tMsg 
+on handle_doordeleted me, tMsg
 end
 
-on handle_dice_value me, tMsg 
+on handle_dice_value me, tMsg
   tConn = tMsg.connection
   tID = string(tConn.GetIntFrom())
   tValue = tConn.GetIntFrom()
@@ -958,10 +922,10 @@ on handle_dice_value me, tMsg
   end if
 end
 
-on handle_roomad me, tMsg 
+on handle_roomad me, tMsg
   tConn = tMsg.connection
   tSourceURL = tConn.GetStrFrom()
-  if tSourceURL.length > 1 then
+  if (tSourceURL.length > 1) then
     tTargetURL = tConn.GetStrFrom()
     tLayoutID = me.getInterface().getRoomVisualizer().pLayout
     me.getComponent().getAd().Init(tSourceURL, tTargetURL, tLayoutID)
@@ -970,63 +934,61 @@ on handle_roomad me, tMsg
   end if
 end
 
-on handle_petstat me, tMsg 
+on handle_petstat me, tMsg
   tPetObj = me.getComponent().getUserObject(tMsg.connection.GetIntFrom())
   if (tPetObj = 0) then
-    return(error(me, "Pet object not found!", #handle_petstat, #major))
+    return error(me, "Pet object not found!", #handle_petstat, #major)
   end if
   tName = tPetObj.getName()
   tAge = tMsg.connection.GetIntFrom()
-  tHungry = getText("pet_hung_" & tMsg.connection.GetIntFrom(), "???")
-  tThirsty = getText("pet_thir_" & tMsg.connection.GetIntFrom(), "???")
-  tHappiness = getText("pet_mood_" & tMsg.connection.GetIntFrom(), "???")
-  tNature01 = getText("pet_enrg_" & tMsg.connection.GetIntFrom(), "???")
-  tNature02 = getText("pet_frnd_" & tMsg.connection.GetIntFrom(), "???")
+  tHungry = getText(("pet_hung_" & tMsg.connection.GetIntFrom()), "???")
+  tThirsty = getText(("pet_thir_" & tMsg.connection.GetIntFrom()), "???")
+  tHappiness = getText(("pet_mood_" & tMsg.connection.GetIntFrom()), "???")
+  tNature01 = getText(("pet_enrg_" & tMsg.connection.GetIntFrom()), "???")
+  tNature02 = getText(("pet_frnd_" & tMsg.connection.GetIntFrom()), "???")
   if createWindow("pet_status_dialog") then
     tWndObj = getWindow("pet_status_dialog")
     tWndObj.moveTo(8, 8)
     tWndObj.setProperty(#title, tName)
     if not tWndObj.merge("habbo_full.window") then
-      return(tWndObj.close())
+      return tWndObj.close()
     end if
     if not tWndObj.merge("petstatus.window") then
-      return(tWndObj.close())
+      return tWndObj.close()
     end if
     tWndObj.getElement("age").setText(tAge)
     tWndObj.getElement("hungry").setText(tHungry)
     tWndObj.getElement("thirsty").setText(tThirsty)
     tWndObj.getElement("happiness").setText(tHappiness)
-    tWndObj.getElement("nature").setText(tNature01 & "," && tNature02)
+    tWndObj.getElement("nature").setText(((tNature01 & ",") && tNature02))
     tWndObj.getElement("picture").feedImage(tPetObj.getPicture())
     registerMessage(#leaveRoom, tWndObj.getID(), #close)
     registerMessage(#changeRoom, tWndObj.getID(), #close)
   end if
 end
 
-on handle_userbadge me, tMsg 
+on handle_userbadge me, tMsg
   if voidp(tMsg.connection) then
-    return FALSE
+    return 0
   end if
   tUserID = string(tMsg.connection.GetIntFrom())
   tChosenBadgeCount = tMsg.connection.GetIntFrom()
   tBadges = [:]
-  i = 1
-  repeat while i <= tChosenBadgeCount
+  repeat with i = 1 to tChosenBadgeCount
     tBadgeIndex = tMsg.connection.GetIntFrom()
     tBadgeID = tMsg.connection.GetStrFrom()
     tBadges.setaProp(tBadgeIndex, tBadgeID)
-    i = (1 + i)
   end repeat
   tUserObj = me.getComponent().getUserObjectByWebID(tUserID)
   if not objectp(tUserObj) then
-    return FALSE
+    return 0
   end if
   tUserObj.pBadges = tBadges
   me.getInterface().unignoreAdmin(tUserID, tBadges)
   executeMessage(#updateInfoStandBadge, tBadges, tUserID)
 end
 
-on handle_slideobjectbundle me, tMsg 
+on handle_slideobjectbundle me, tMsg
   tConn = tMsg.getaProp(#connection)
   tComponent = me.getComponent()
   tTimeNow = the milliSeconds
@@ -1037,8 +999,7 @@ on handle_slideobjectbundle me, tMsg
   tToX = tConn.GetIntFrom()
   tToY = tConn.GetIntFrom()
   tStuffCount = tConn.GetIntFrom()
-  tCount = 1
-  repeat while tCount <= tStuffCount
+  repeat with tCount = 1 to tStuffCount
     tObj = []
     tItemID = tConn.GetIntFrom()
     tItemFromH = getLocalFloat(tConn.GetStrFrom())
@@ -1048,51 +1009,45 @@ on handle_slideobjectbundle me, tMsg
     tObj = [tItemID, tFrom, tTo]
     tObjList.add(tObj)
     tContainsObjects = 1
-    tCount = (1 + tCount)
   end repeat
   tTileID = tConn.GetIntFrom()
   tTileObj = tComponent.getActiveObject(tTileID)
-  if tTileObj <> 0 then
+  if (tTileObj <> 0) then
     if tTileObj.handler(#setAnimation) then
       call(#setAnimation, tTileObj, 1)
     end if
   end if
   tMoveType = tConn.GetIntFrom()
-  if (tMoveType = 0) then
-    tHasCharacter = 0
-  else
-    if (tMoveType = 1) then
+  case tMoveType of
+    0:
+      tHasCharacter = 0
+    1:
       tMoveType = "mv"
       tHasCharacter = 1
-    else
-      if (tMoveType = 2) then
-        tMoveType = "sld"
-        tHasCharacter = 1
-      else
-        return(error(me, "Incompatible character movetype", #handle_slideobjectbundle, #minor))
-      end if
-    end if
-  end if
+    2:
+      tMoveType = "sld"
+      tHasCharacter = 1
+  end case
+  return error(me, "Incompatible character movetype", #handle_slideobjectbundle, #minor)
   if tHasCharacter then
     tCharID = tConn.GetIntFrom()
     tFromH = getLocalFloat(tConn.GetStrFrom())
     tToH = getLocalFloat(tConn.GetStrFrom())
     tUserObj = me.getComponent().getUserObject(tCharID)
-    if tUserObj <> 0 then
-      tCommandStr = tMoveType && tToX & "," & tToY & "," & tToH && tContainsObjects.integer && tTimeNow
-      call(symbol("action_" & tMoveType), [tUserObj], tCommandStr)
+    if (tUserObj <> 0) then
+      tCommandStr = (((((((tMoveType && tToX) & ",") & tToY) & ",") & tToH) && tContainsObjects.integer) && tTimeNow)
+      call(symbol(("action_" & tMoveType)), [tUserObj], tCommandStr)
     end if
   end if
-  repeat while tMoveType <= undefined
-    tObj = getAt(undefined, tMsg)
-    tComponent.addSlideObject(tObj.getAt(1), tObj.getAt(2), tObj.getAt(3), tTimeNow, tHasCharacter)
+  repeat with tObj in tObjList
+    tComponent.addSlideObject(tObj[1], tObj[2], tObj[3], tTimeNow, tHasCharacter)
   end repeat
 end
 
-on handle_interstitialdata me, tMsg 
+on handle_interstitialdata me, tMsg
   tConn = tMsg.connection
   tSourceURL = tConn.GetStrFrom()
-  if tSourceURL.length > 0 then
+  if (tSourceURL.length > 0) then
     tTargetURL = tConn.GetStrFrom()
     me.getComponent().getInterstitial().Init(tSourceURL, tTargetURL)
   else
@@ -1100,42 +1055,38 @@ on handle_interstitialdata me, tMsg
   end if
 end
 
-on handle_roomqueuedata me, tMsg 
+on handle_roomqueuedata me, tMsg
   tConn = tMsg.getaProp(#connection)
   tSetCount = tConn.GetIntFrom()
   tQueueCollection = []
-  i = 1
-  repeat while i <= tSetCount
+  repeat with i = 1 to tSetCount
     tQueueSetName = tConn.GetStrFrom()
     tQueueTarget = tConn.GetIntFrom()
     tNumberOfQueues = tConn.GetIntFrom()
     tQueueData = [:]
     tQueueSet = [:]
-    t = 1
-    repeat while t <= tNumberOfQueues
+    repeat with t = 1 to tNumberOfQueues
       tQueueID = tConn.GetStrFrom()
       tQueueLength = tConn.GetIntFrom()
-      tQueueData.setAt(tQueueID, tQueueLength)
-      t = (1 + t)
+      tQueueData[tQueueID] = tQueueLength
     end repeat
-    tQueueSet.setAt("name", tQueueSetName)
-    tQueueSet.setAt("target", tQueueTarget)
-    tQueueSet.setAt("data", tQueueData)
-    tQueueCollection.setAt(i, tQueueSet)
-    i = (1 + i)
+    tQueueSet["name"] = tQueueSetName
+    tQueueSet["target"] = tQueueTarget
+    tQueueSet["data"] = tQueueData
+    tQueueCollection[i] = tQueueSet
   end repeat
   me.getInterface().updateQueueWindow(tQueueCollection)
 end
 
-on handle_youarespectator me 
-  return(me.getComponent().setSpectatorMode(1))
+on handle_youarespectator me
+  return me.getComponent().setSpectatorMode(1)
 end
 
-on handle_removespecs me 
+on handle_removespecs me
   me.getInterface().showRemoveSpecsNotice()
 end
 
-on handle_figure_change me, tMsg 
+on handle_figure_change me, tMsg
   tConn = tMsg.connection
   tUserID = tConn.GetIntFrom()
   tUserFigure = tConn.GetStrFrom()
@@ -1144,60 +1095,58 @@ on handle_figure_change me, tMsg
   me.getComponent().updateCharacterFigure(tUserID, tUserFigure, tUserSex, tUserCustomInfo)
 end
 
-on handle_spectator_amount me, tMsg 
+on handle_spectator_amount me, tMsg
   tConn = tMsg.connection
   tSpecCount = tConn.GetIntFrom()
   tSpecMax = tConn.GetIntFrom()
   me.getComponent().updateSpectatorCount(tSpecCount, tSpecMax)
 end
 
-on handle_group_badges me, tMsg 
+on handle_group_badges me, tMsg
   tConn = tMsg.connection
   tNumberOfGroups = tConn.GetIntFrom()
   tGroupData = []
-  tNo = 1
-  repeat while tNo <= tNumberOfGroups
+  repeat with tNo = 1 to tNumberOfGroups
     tGroup = [:]
-    tGroup.setAt(#id, tConn.GetIntFrom())
-    tGroup.setAt(#logo, tConn.GetStrFrom())
+    tGroup[#id] = tConn.GetIntFrom()
+    tGroup[#logo] = tConn.GetStrFrom()
     tGroupData.add(tGroup)
-    tNo = (1 + tNo)
   end repeat
   me.getComponent().getGroupInfoObject().updateGroupInformation(tGroupData)
 end
 
-on handle_group_details me, tMsg 
+on handle_group_details me, tMsg
   tConn = tMsg.connection
   tGroupData = []
   tGroup = [:]
-  tGroup.setAt(#id, tConn.GetIntFrom())
-  if (tGroup.getAt(#id) = -1) then
-    return FALSE
+  tGroup[#id] = tConn.GetIntFrom()
+  if (tGroup[#id] = -1) then
+    return 0
   end if
-  tGroup.setAt(#name, tConn.GetStrFrom())
-  tGroup.setAt(#desc, tConn.GetStrFrom())
-  tGroup.setAt(#roomid, tConn.GetIntFrom())
-  tGroup.setAt(#roomname, tConn.GetStrFrom())
+  tGroup[#name] = tConn.GetStrFrom()
+  tGroup[#desc] = tConn.GetStrFrom()
+  tGroup[#roomid] = tConn.GetIntFrom()
+  tGroup[#roomname] = tConn.GetStrFrom()
   tGroupData.add(tGroup)
   me.getComponent().getGroupInfoObject().updateGroupInformation(tGroupData)
-  executeMessage(#groupInfoRetrieved, tGroup.getAt(#id))
+  executeMessage(#groupInfoRetrieved, tGroup[#id])
 end
 
-on handle_group_membership_update me, tMsg 
+on handle_group_membership_update me, tMsg
   tConn = tMsg.connection
   tUserIndex = tConn.GetIntFrom()
   tGroupId = tConn.GetIntFrom()
   tStatus = tConn.GetIntFrom()
   tuser = me.getComponent().getUserObject(tUserIndex)
   if not voidp(tuser) then
-    if tuser <> 0 then
+    if (tuser <> 0) then
       tuser.setProperty(#groupID, tGroupId)
       tuser.setProperty(#groupstatus, tStatus)
     end if
   end if
 end
 
-on handle_room_rating me, tMsg 
+on handle_room_rating me, tMsg
   tConn = tMsg.connection
   tRoomRating = tConn.GetIntFrom()
   tRoomRatingPercent = tConn.GetIntFrom()
@@ -1205,21 +1154,19 @@ on handle_room_rating me, tMsg
   executeMessage(#roomRatingChanged)
 end
 
-on handle_user_tag_list me, tMsg 
+on handle_user_tag_list me, tMsg
   tConn = tMsg.connection
   tUserID = tConn.GetIntFrom()
   tNumOfTags = tConn.GetIntFrom()
   tTagList = []
-  tTagNum = 1
-  repeat while tTagNum <= tNumOfTags
+  repeat with tTagNum = 1 to tNumOfTags
     tTag = tConn.GetStrFrom()
     tTagList.add(tTag)
-    tTagNum = (1 + tTagNum)
   end repeat
   executeMessage(#updateUserTags, tUserID, tTagList)
 end
 
-on handle_user_typing_status me, tMsg 
+on handle_user_typing_status me, tMsg
   tConn = tMsg.connection
   tUserID = tConn.GetIntFrom()
   tstate = tConn.GetIntFrom()
@@ -1227,13 +1174,13 @@ on handle_user_typing_status me, tMsg
   me.getComponent().setUserTypingStatus(tUserID, tstate)
 end
 
-on handle_highlight_user me, tMsg 
+on handle_highlight_user me, tMsg
   tConn = tMsg.getaProp(#connection)
   tUserID = string(tConn.GetIntFrom())
   pHighlightUser = tUserID
 end
 
-on handle_roomevent_permission me, tMsg 
+on handle_roomevent_permission me, tMsg
   tConn = tMsg.getaProp(#connection)
   tCanCreate = tConn.GetIntFrom()
   if tCanCreate then
@@ -1241,19 +1188,18 @@ on handle_roomevent_permission me, tMsg
   end if
 end
 
-on handle_roomevent_types me, tMsg 
+on handle_roomevent_types me, tMsg
   tConn = tMsg.getaProp(#connection)
   tTypeCount = tConn.GetIntFrom()
   me.getComponent().setRoomEventTypeCount(tTypeCount)
 end
 
-on handle_roomevent_list me, tMsg 
+on handle_roomevent_list me, tMsg
   tConn = tMsg.getaProp(#connection)
   tTypeID = tConn.GetIntFrom()
   tEventCount = tConn.GetIntFrom()
   tEvents = []
-  tEventNum = 1
-  repeat while tEventNum <= tEventCount
+  repeat with tEventNum = 1 to tEventCount
     tEvent = [:]
     tEvent.setaProp(#flatId, tConn.GetStrFrom())
     tEvent.setaProp(#hostName, tConn.GetStrFrom())
@@ -1261,17 +1207,16 @@ on handle_roomevent_list me, tMsg
     tEvent.setaProp(#desc, tConn.GetStrFrom())
     tEvent.setaProp(#time, tConn.GetStrFrom())
     tEvents.add(tEvent)
-    tEventNum = (1 + tEventNum)
   end repeat
   me.getComponent().setRoomEventList(tTypeID, tEvents)
 end
 
-on handle_roomevent_info me, tMsg 
+on handle_roomevent_info me, tMsg
   tConn = tMsg.getaProp(#connection)
   tEventInfo = [:]
   tHostID = tConn.GetStrFrom()
   tEventInfo.setaProp(#hostID, tHostID)
-  if tHostID > 0 then
+  if (tHostID > 0) then
     tEventInfo.setaProp(#hostName, tConn.GetStrFrom())
     tEventInfo.setaProp(#flatId, tConn.GetStrFrom())
     tEventInfo.setaProp(#typeID, tConn.GetIntFrom())
@@ -1282,138 +1227,136 @@ on handle_roomevent_info me, tMsg
   me.getComponent().setRoomEvent(tEventInfo)
 end
 
-on handle_ignore_user_result me, tMsg 
+on handle_ignore_user_result me, tMsg
   tConn = tMsg.getaProp(#connection)
   tResult = tConn.GetIntFrom()
-  return(executeMessage(#ignore_user_result, tResult))
+  return executeMessage(#ignore_user_result, tResult)
 end
 
-on handle_ignore_list me, tMsg 
+on handle_ignore_list me, tMsg
   tConn = tMsg.getaProp(#connection)
   tCount = tConn.GetIntFrom()
   tList = []
-  i = 1
-  repeat while i <= tCount
+  repeat with i = 1 to tCount
     tList.append(tConn.GetStrFrom())
-    i = (1 + i)
   end repeat
-  return(executeMessage(#save_ignore_list, tList))
+  return executeMessage(#save_ignore_list, tList)
 end
 
-on handle_user_dance me, tMsg 
+on handle_user_dance me, tMsg
   tConn = tMsg.getaProp(#connection)
   if not tConn then
-    return FALSE
+    return 0
   end if
   tUserID = tConn.GetIntFrom()
   tDanceStyle = tConn.GetIntFrom()
   tUserObj = me.getComponent().getUserObject(tUserID)
-  if tUserObj <> 0 then
-    call(symbol("action_dance"), [tUserObj], "dance " & tDanceStyle)
+  if (tUserObj <> 0) then
+    call(symbol("action_dance"), [tUserObj], ("dance " & tDanceStyle))
   end if
 end
 
-on handle_user_wave me, tMsg 
+on handle_user_wave me, tMsg
   tConn = tMsg.getaProp(#connection)
   if not tConn then
-    return FALSE
+    return 0
   end if
   tUserID = tConn.GetIntFrom()
   tUserObj = me.getComponent().getUserObject(tUserID)
-  if tUserObj <> 0 then
+  if (tUserObj <> 0) then
     call(symbol("action_wave"), [tUserObj], "wave")
   end if
 end
 
-on handle_user_carry_object me, tMsg 
+on handle_user_carry_object me, tMsg
   tConn = tMsg.getaProp(#connection)
   if not tConn then
-    return FALSE
+    return 0
   end if
   tUserID = tConn.GetIntFrom()
   tItemType = tConn.GetIntFrom()
   tItemName = tConn.GetStrFrom()
   tUserObj = me.getComponent().getUserObject(tUserID)
-  if tUserObj <> 0 then
+  if (tUserObj <> 0) then
     if tUserObj.validateCarryForCurrentState() then
       tUserObj.handle_user_carry_object(tItemType, tItemName)
     end if
   end if
 end
 
-on handle_user_joining_game me, tMsg 
+on handle_user_joining_game me, tMsg
   tConn = tMsg.getaProp(#connection)
   if not tConn then
-    return FALSE
+    return 0
   end if
   tUserID = tConn.GetIntFrom()
   tGameId = tConn.GetIntFrom()
   tGameType = tConn.GetIntFrom()
   tUserObj = me.getComponent().getUserObject(tUserID)
-  if tUserObj <> 0 then
-    call(symbol("action_joingame"), [tUserObj], "joingame" && tGameId && tGameType)
+  if (tUserObj <> 0) then
+    call(symbol("action_joingame"), [tUserObj], (("joingame" && tGameId) && tGameType))
   end if
 end
 
-on handle_user_not_joining_game me, tMsg 
+on handle_user_not_joining_game me, tMsg
   tConn = tMsg.getaProp(#connection)
   if not tConn then
-    return FALSE
+    return 0
   end if
   tUserID = tConn.GetIntFrom()
   tUserObj = me.getComponent().getUserObject(tUserID)
-  if tUserObj <> 0 then
+  if (tUserObj <> 0) then
     call(symbol("action_joingame"), [tUserObj], "joingame")
   end if
 end
 
-on handle_user_avatar_effect me, tMsg 
+on handle_user_avatar_effect me, tMsg
   tConn = tMsg.getaProp(#connection)
   if not tConn then
-    return FALSE
+    return 0
   end if
   tUserID = tConn.GetIntFrom()
   tFxType = tConn.GetIntFrom()
   tUserObj = me.getComponent().getUserObject(tUserID)
-  if tUserObj <> 0 then
-    if tUserObj.validateFxForActionList([[#params:"fx " & tFxType, #name:"fx"]], ["fx"]) then
-      call(#action_fx, [tUserObj], "fx " & tFxType)
+  if (tUserObj <> 0) then
+    if tUserObj.validateFxForActionList([[#params: ("fx " & tFxType), #name: "fx"]], ["fx"]) then
+      call(#action_fx, [tUserObj], ("fx " & tFxType))
     else
       call(#persist_fx, [tUserObj], tFxType)
     end if
   end if
 end
 
-on handle_user_sleep me, tMsg 
+on handle_user_sleep me, tMsg
   tConn = tMsg.getaProp(#connection)
   if not tConn then
-    return FALSE
+    return 0
   end if
   tUserID = tConn.GetIntFrom()
   tUserObj = me.getComponent().getUserObject(tUserID)
   tSleep = tConn.GetBoolFrom()
-  if tUserObj <> 0 then
+  if (tUserObj <> 0) then
     call(symbol("action_sleep"), [tUserObj], tSleep)
   end if
 end
 
-on handle_user_use_object me, tMsg 
+on handle_user_use_object me, tMsg
   tConn = tMsg.getaProp(#connection)
   if not tConn then
-    return FALSE
+    return 0
   end if
   tUserID = tConn.GetIntFrom()
   tItemType = tConn.GetIntFrom()
   tUserObj = me.getComponent().getUserObject(tUserID)
-  if tUserObj <> 0 then
+  if (tUserObj <> 0) then
     tUserObj.handle_user_use_object(tItemType)
   end if
 end
 
-on handle_judge_gui_status me, tMsg 
+on handle_judge_gui_status me, tMsg
   tConn = tMsg.getaProp(#connection)
   if not tConn then
-    return FALSE
+    return 0
   end if
   tstate = tConn.GetIntFrom()
   if (tstate = 2) then
@@ -1422,75 +1365,62 @@ on handle_judge_gui_status me, tMsg
   me.getInterface().setJudgeToolState(tstate, tPerformerID)
 end
 
-on handle_open_performer_gui me, tMsg 
+on handle_open_performer_gui me, tMsg
   tConn = tMsg.getaProp(#connection)
   if not tConn then
-    return FALSE
+    return 0
   end if
   tNumOfSongs = tConn.GetIntFrom()
   tSongList = [:]
-  i = 1
-  repeat while i <= tNumOfSongs
+  repeat with i = 1 to tNumOfSongs
     tSongList.setaProp(tConn.GetIntFrom(), tConn.GetStrFrom())
-    i = (1 + i)
   end repeat
   me.getInterface().openSongSelector(tSongList)
 end
 
-on handle_close_performer_gui me, tMsg 
-  return(executeMessage(#close_performer_song_selector))
+on handle_close_performer_gui me, tMsg
+  return executeMessage(#close_performer_song_selector)
 end
 
-on handle_start_playing_song me, tMsg 
+on handle_start_playing_song me, tMsg
   tConn = tMsg.getaProp(#connection)
   if not tConn then
-    return FALSE
+    return 0
   end if
   executeMessage(#listen_song, tConn.GetIntFrom())
 end
 
-on handle_stop_playing_song me, tMsg 
+on handle_stop_playing_song me, tMsg
   executeMessage(#do_not_listen_song)
 end
 
-on handle_item_not_tradeable me, tMsg 
-  executeMessage(#alert, [#Msg:"room_cant_trade"])
+on handle_item_not_tradeable me, tMsg
+  executeMessage(#alert, [#Msg: "room_cant_trade"])
 end
 
-on handle_cannot_place_stuff_from_strip me, tMsg 
+on handle_cannot_place_stuff_from_strip me, tMsg
   tConn = tMsg.getaProp(#connection)
   if not tConn then
-    return FALSE
+    return 0
   end if
   tError = tConn.GetIntFrom()
-  if tError <> 1 then
-    if (tError = 11) then
-      executeMessage(#alert, [#Msg:"room_cant_set_item"])
-    else
-      if (tError = 12) then
-        executeMessage(#alert, [#Msg:"wallitem_post.it.limit"])
-      else
-        if (tError = 20) then
-          executeMessage(#alert, [#Msg:"room_alert_furni_limit", #id:"roomfullfurni", #modal:1])
-        else
-          if (tError = 21) then
-            executeMessage(#alert, [#Msg:"room_max_pet_limit"])
-          else
-            if (tError = 22) then
-              executeMessage(#alert, [#Msg:"queue_tile_limit"])
-            else
-              if (tError = 23) then
-                executeMessage(#alert, [#Msg:"room_sound_furni_limit"])
-              end if
-            end if
-          end if
-        end if
-      end if
-    end if
-  end if
+  case tError of
+    1, 11:
+      executeMessage(#alert, [#Msg: "room_cant_set_item"])
+    12:
+      executeMessage(#alert, [#Msg: "wallitem_post.it.limit"])
+    20:
+      executeMessage(#alert, [#Msg: "room_alert_furni_limit", #id: "roomfullfurni", #modal: 1])
+    21:
+      executeMessage(#alert, [#Msg: "room_max_pet_limit"])
+    22:
+      executeMessage(#alert, [#Msg: "queue_tile_limit"])
+    23:
+      executeMessage(#alert, [#Msg: "room_sound_furni_limit"])
+  end case
 end
 
-on regMsgList me, tBool 
+on regMsgList me, tBool
   tMsgs = [:]
   tMsgs.setaProp(-1, #handle_disconnect)
   tMsgs.setaProp(18, #handle_clc)
@@ -1667,5 +1597,5 @@ on regMsgList me, tBool
     unregisterListener(getVariable("connection.room.id"), me.getID(), tMsgs)
     unregisterCommands(getVariable("connection.room.id"), me.getID(), tCmds)
   end if
-  return TRUE
+  return 1
 end
