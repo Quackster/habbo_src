@@ -1,1 +1,109 @@
-property pTaskId, pBuffer, pBgColor, pcolor, pwidth, pheight, pBarRect, pOffRect, pTaskType, pPercent, pDrawPoint, pWindowID, pReadyFlagon construct me  tProps = [#bgColor: the stage.bgColor, #color: rgb(128, 128, 128), #width: 128, #height: 16]  tProps = getVariableValue("loading.bar.props", tProps)  pTaskId = EMPTY  pBuffer = the stage.image  pwidth = tProps[#width]  pheight = tProps[#height]  pBgColor = tProps[#bgColor]  pcolor = tProps[#color]  pTaskType = #cast  pDrawPoint = 0  pWindowID = EMPTY  pReadyFlag = 0  return 1endon deconstruct me  pTaskId = VOID  removePrepare(me.getID())  if (pWindowID <> EMPTY) then    removeWindow(pWindowID)    pWindowID = EMPTY  end if  return 1endon define me, tLoadID, tProps  if (not stringp(tLoadID) and not symbolp(tLoadID)) then    return error(me, ("Invalid castload task ID:" && tLoadID), #define)  end if  pTaskId = tLoadID  pPercent = 0.0  pDrawPoint = 0  pReadyFlag = 0  if ilk(tProps, #propList) then    if ilk(tProps[#buffer], #image) then      pBuffer = tProps[#buffer]    end if    if ilk(tProps[#width], #integer) then      pwidth = tProps[#width]    end if    if ilk(tProps[#height], #integer) then      pheight = tProps[#height]    end if    if ilk(tProps[#bgColor], #color) then      pBgColor = tProps[#bgColor]    end if    if ilk(tProps[#color], #color) then      pcolor = tProps[#color]    end if    if ilk(tProps[#type], #symbol) then      pTaskType = tProps[#type]    end if    if (tProps[#buffer] = #window) then      if (pWindowID <> EMPTY) then        removeWindow(pWindowID)      end if      pWindowID = (me.getID() && the milliSeconds)      createWindow(pWindowID, "system.window")      tWndObj = getWindow(pWindowID)      tWndObj.resizeTo(pwidth, pheight)      tWndObj.center()      pBuffer = tWndObj.getElement("drag").getProperty(#buffer).image    end if  end if  tRect = pBuffer.rect  if (pwidth > tRect.width) then    pwidth = tRect.width  end if  if (pheight > tRect.height) then    pheight = tRect.height  end if  pBarRect = rect(((tRect.width / 2) - (pwidth / 2)), ((tRect.height / 2) - (pheight / 2)), ((tRect.width / 2) + (pwidth / 2)), ((tRect.height / 2) + (pheight / 2)))  pOffRect = rect((pBarRect[1] + 2), (pBarRect[2] + 2), (pBarRect[3] - 2), (pBarRect[4] - 2))  pBuffer.fill(pBarRect, pBgColor)  pBuffer.draw(pBarRect, [#color: pcolor, #shapeType: #rect])  return receivePrepare(me.getID())endon prepare me  if (voidp(pTaskId) or pReadyFlag) then    return removeObject(me.getID())  end if  case pTaskType of    #cast:      tPercent = getCastLoadManager().getLoadPercent(pTaskId)    #file:      tPercent = getDownloadManager().getLoadPercent(pTaskId)  end case  pDrawPoint = (pDrawPoint + 1)  if (pDrawPoint <= (pPercent * pOffRect.width)) then    tRect = rect(((pOffRect[1] + pDrawPoint) - 1), pOffRect[2], (pOffRect[1] + pDrawPoint), pOffRect[4])    pBuffer.fill(tRect, pcolor)  end if  if (pPercent = tPercent) then    return   end if  tRect = rect(pOffRect[1], pOffRect[2], ((pPercent * pOffRect.width) + pOffRect[1]), pOffRect[4])  pBuffer.fill(tRect, pcolor)  pDrawPoint = (pPercent * pOffRect.width)  pPercent = tPercent  if (pPercent >= 1.0) then    pBuffer.fill(pOffRect, pcolor)    pReadyFlag = 1  end ifend
+property pWindowID, pwidth, pheight, pBuffer, pBarRect, pBgColor, pcolor, pTaskId, pReadyFlag, pTaskType, pDrawPoint, pPercent, pOffRect
+
+on construct me 
+  tProps = [#bgColor:the stage.bgColor, #color:rgb(128, 128, 128), #width:128, #height:16]
+  tProps = getVariableValue("loading.bar.props", tProps)
+  pTaskId = ""
+  pBuffer = the stage.image
+  pwidth = tProps.getAt(#width)
+  pheight = tProps.getAt(#height)
+  pBgColor = tProps.getAt(#bgColor)
+  pcolor = tProps.getAt(#color)
+  pTaskType = #cast
+  pDrawPoint = 0
+  pWindowID = ""
+  pReadyFlag = 0
+  return TRUE
+end
+
+on deconstruct me 
+  pTaskId = void()
+  removePrepare(me.getID())
+  if pWindowID <> "" then
+    removeWindow(pWindowID)
+    pWindowID = ""
+  end if
+  return TRUE
+end
+
+on define me, tLoadID, tProps 
+  if not stringp(tLoadID) and not symbolp(tLoadID) then
+    return(error(me, "Invalid castload task ID:" && tLoadID, #define))
+  end if
+  pTaskId = tLoadID
+  pPercent = 0
+  pDrawPoint = 0
+  pReadyFlag = 0
+  if ilk(tProps, #propList) then
+    if ilk(tProps.getAt(#buffer), #image) then
+      pBuffer = tProps.getAt(#buffer)
+    end if
+    if ilk(tProps.getAt(#width), #integer) then
+      pwidth = tProps.getAt(#width)
+    end if
+    if ilk(tProps.getAt(#height), #integer) then
+      pheight = tProps.getAt(#height)
+    end if
+    if ilk(tProps.getAt(#bgColor), #color) then
+      pBgColor = tProps.getAt(#bgColor)
+    end if
+    if ilk(tProps.getAt(#color), #color) then
+      pcolor = tProps.getAt(#color)
+    end if
+    if ilk(tProps.getAt(#type), #symbol) then
+      pTaskType = tProps.getAt(#type)
+    end if
+    if (tProps.getAt(#buffer) = #window) then
+      if pWindowID <> "" then
+        removeWindow(pWindowID)
+      end if
+      pWindowID = me.getID() && the milliSeconds
+      createWindow(pWindowID, "system.window")
+      tWndObj = getWindow(pWindowID)
+      tWndObj.resizeTo(pwidth, pheight)
+      tWndObj.center()
+      pBuffer = tWndObj.getElement("drag").getProperty(#buffer).image
+    end if
+  end if
+  tRect = pBuffer.rect
+  if pwidth > tRect.width then
+    pwidth = tRect.width
+  end if
+  if pheight > tRect.height then
+    pheight = tRect.height
+  end if
+  pBarRect = rect(((tRect.width / 2) - (pwidth / 2)), ((tRect.height / 2) - (pheight / 2)), ((tRect.width / 2) + (pwidth / 2)), ((tRect.height / 2) + (pheight / 2)))
+  pOffRect = rect((pBarRect.getAt(1) + 2), (pBarRect.getAt(2) + 2), (pBarRect.getAt(3) - 2), (pBarRect.getAt(4) - 2))
+  pBuffer.fill(pBarRect, pBgColor)
+  pBuffer.draw(pBarRect, [#color:pcolor, #shapeType:#rect])
+  return(receivePrepare(me.getID()))
+end
+
+on prepare me 
+  if voidp(pTaskId) or pReadyFlag then
+    return(removeObject(me.getID()))
+  end if
+  if (pTaskType = #cast) then
+    tPercent = getCastLoadManager().getLoadPercent(pTaskId)
+  else
+    if (pTaskType = #file) then
+      tPercent = getDownloadManager().getLoadPercent(pTaskId)
+    end if
+  end if
+  pDrawPoint = (pDrawPoint + 1)
+  if pDrawPoint <= (pPercent * pOffRect.width) then
+    tRect = rect(((pOffRect.getAt(1) + pDrawPoint) - 1), pOffRect.getAt(2), (pOffRect.getAt(1) + pDrawPoint), pOffRect.getAt(4))
+    pBuffer.fill(tRect, pcolor)
+  end if
+  if (pPercent = tPercent) then
+    return()
+  end if
+  tRect = rect(pOffRect.getAt(1), pOffRect.getAt(2), ((pPercent * pOffRect.width) + pOffRect.getAt(1)), pOffRect.getAt(4))
+  pBuffer.fill(tRect, pcolor)
+  pDrawPoint = (pPercent * pOffRect.width)
+  pPercent = tPercent
+  if pPercent >= 1 then
+    pBuffer.fill(pOffRect, pcolor)
+    pReadyFlag = 1
+  end if
+end
