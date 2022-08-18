@@ -1,3 +1,1 @@
-on mouseDown me 
-  play("legal")
-end
+on mouseDown me  play("legal")end

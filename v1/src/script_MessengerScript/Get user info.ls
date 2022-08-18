@@ -1,4 +1,1 @@
-on exitFrame me 
-  gUserLoginRetrieve = 1
-  sendEPFuseMsg("INFORETRIEVE" && gLoginName && gLoginPw)
-end
+on exitFrame me  global gLoginName, gLoginPw, gUserLoginRetrieve  gUserLoginRetrieve = 1  sendEPFuseMsg((("INFORETRIEVE" && gLoginName) && gLoginPw))end

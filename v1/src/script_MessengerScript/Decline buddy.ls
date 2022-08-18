@@ -1,3 +1,1 @@
-on mouseUp me 
-  declineBuddy(gBuddyList, gChosenBuddyRequest)
-end
+global gChosenBuddyRequest, gBuddyListon mouseUp me  declineBuddy(gBuddyList, gChosenBuddyRequest)end

@@ -1,9 +1,1 @@
-on changename startnum, endnum, replaceFrom, replaceTo, cl 
-  i = startnum
-  repeat while i <= endnum
-    oldName = member(i, cl).name
-    newName = stringReplace(oldName, replaceFrom, replaceTo)
-    member(i, cl).name = newName
-    i = (1 + i)
-  end repeat
-end
+on changename startnum, endnum, replaceFrom, replaceTo, cl  repeat with i = startnum to endnum    oldName = member(i, cl).name    newName = stringReplace(oldName, replaceFrom, replaceTo)    member(i, cl).name = newName  end repeatend

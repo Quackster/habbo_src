@@ -1,3 +1,1 @@
-on beginSprite me 
-  gBGBoardSprite = me.spriteNum
-end
+global gBGBoardSpriteon beginSprite me  gBGBoardSprite = me.spriteNumend

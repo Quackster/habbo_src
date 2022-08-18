@@ -1,0 +1,1 @@
+on mouseUp  doLogin()end

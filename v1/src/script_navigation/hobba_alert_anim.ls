@@ -1,0 +1,1 @@
+on mouseUp  OpenPickCryForHelp()end

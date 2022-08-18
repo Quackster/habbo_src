@@ -1,3 +1,1 @@
-on mouseDown me 
-  goToFlat(gChosenFlatId)
-end
+global gProps, gChosenFlatIdon mouseDown me  goToFlat(gChosenFlatId)end

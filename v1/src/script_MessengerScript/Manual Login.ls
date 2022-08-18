@@ -1,4 +1,1 @@
-on mouseUp me 
-  epLogin("loginpw", field(0))
-  goContext("loop")
-end
+on mouseUp me  epLogin(field("loginname"), field("loginpw"))  goContext("loop")end

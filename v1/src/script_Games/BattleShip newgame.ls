@@ -1,3 +1,1 @@
-on mouseDown me 
-  put("y")
-end
+on mouseDown me  put "y"end

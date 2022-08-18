@@ -1,13 +1,1 @@
-on mouseWithin me 
-  if the mouseDown and (sprite(me.spriteNum).member.name.word[2] = "active") then
-    if (sprite(me.spriteNum).member.name.word[2] = "active") then
-      sprite(me.spriteNum).member = sprite(me.spriteNum).member.name.word[1] && "hi"
-    end if
-  end if
-end
-
-on mouseLeave me 
-  if (sprite(me.spriteNum).member.name.word[2] = "hi") then
-    sprite(me.spriteNum).member = sprite(me.spriteNum).member.name.word[1] && "active"
-  end if
-end
+on mouseWithin me  if (the mouseDown and (word 2 of the name of the member of sprite(the spriteNum of me) = "active")) then    if (word 2 of the name of the member of sprite(the spriteNum of me) = "active") then      sprite(me.spriteNum).member = (word 1 of the name of the member of sprite(the spriteNum of me) && "hi")    end if  end ifendon mouseLeave me  if (word 2 of the name of the member of sprite(the spriteNum of me) = "hi") then    sprite(me.spriteNum).member = (word 1 of the name of the member of sprite(the spriteNum of me) && "active")  end ifend

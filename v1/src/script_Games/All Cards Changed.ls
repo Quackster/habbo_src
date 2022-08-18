@@ -1,3 +1,1 @@
-on mouseDown me 
-  change(gPoker)
-end
+global gPokeron mouseDown me  change(gPoker)end

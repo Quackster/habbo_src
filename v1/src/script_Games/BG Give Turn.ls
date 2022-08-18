@@ -1,7 +1,1 @@
-on new me 
-  return(me)
-end
-
-on mouseDown  
-  sendItemMessage(gBackgammon, "CHANGETURN")
-end
+global gBackgammonon new me  return meendon mouseDown  global gBackgammon  sendItemMessage(gBackgammon, "CHANGETURN")end

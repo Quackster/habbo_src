@@ -1,3 +1,1 @@
-on mouseUp me 
-  closePurseOrHelp()
-end
+on mouseUp me  closePurseOrHelp()end

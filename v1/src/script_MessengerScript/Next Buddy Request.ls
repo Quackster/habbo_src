@@ -1,3 +1,1 @@
-on mouseUp me 
-  nextBuddyRequest(gBuddyList)
-end
+global gChosenBuddyRequest, gBuddyListon mouseUp me  nextBuddyRequest(gBuddyList)end

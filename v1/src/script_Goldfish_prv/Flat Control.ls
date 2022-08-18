@@ -1,2 +1,1 @@
-on enableFlatControl  
-end
+on enableFlatControl  global gpUiButtonsend
