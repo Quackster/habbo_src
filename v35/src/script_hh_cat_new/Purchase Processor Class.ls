@@ -1,28 +1,28 @@
-property pWndID, pPersistentCatalogData, pProps
+property pProps, pWndID, pPersistentCatalogData
 
-on construct me 
+on construct me
   pWndID = "Catalog Purchase Dialog"
   pProps = [:]
   pPersistentCatalogData = getThread(#catalogue).getComponent().getPersistentCatalogDataObject()
 end
 
-on deconstruct me 
+on deconstruct me
   if windowExists(pWndID) then
     removeWindow(pWndID)
   end if
 end
 
-on startPurchase me, tProps 
+on startPurchase me, tProps
   pProps = tProps
   if not windowExists(pWndID) then
     me.showPurchaseDialog()
   end if
 end
 
-on showPurchaseDialog me 
+on showPurchaseDialog me
   if not windowExists(pWndID) then
-    if not createWindow(pWndID, "habbo_simple.window", void(), void(), #modal) then
-      return(error(me, "Unable to create purchase info dialog window", #showPurchaseDialog, #major))
+    if not createWindow(pWndID, "habbo_simple.window", VOID, VOID, #modal) then
+      return error(me, "Unable to create purchase info dialog window", #showPurchaseDialog, #major)
     end if
   else
     getWindow(pWndID).removeProcedure(#eventProcKeyDown, me.getID())
@@ -31,51 +31,48 @@ on showPurchaseDialog me
   tWndObj = getWindow(pWndID)
   if not tWndObj.merge("habbo_orderinfo_dialog.window") then
     tWndObj.close()
-    return(error(me, "Unable to perform merge to purchase info dialog", #showPurchaseDialog, #major))
+    return error(me, "Unable to perform merge to purchase info dialog", #showPurchaseDialog, #major)
   end if
-  tOfferTypeText = [#credits:"catalog_costs_credits", #creditsandpixels:"catalog_costs_pixelsandcredits", #pixels:"catalog_costs_pixels"]
-  tItemName = ""
-  tCatalogProps = pPersistentCatalogData.getProps(pProps.getAt(#item).getName())
+  tOfferTypeText = [#credits: "catalog_costs_credits", #creditsandpixels: "catalog_costs_pixelsandcredits", #pixels: "catalog_costs_pixels"]
+  tItemName = EMPTY
+  tCatalogProps = pPersistentCatalogData.getProps(pProps[#item].getName())
   if not voidp(tCatalogProps) then
-    tItemName = tCatalogProps.getAt(#name)
+    tItemName = tCatalogProps[#name]
   else
-    tItemName = pProps.getAt(#item).getName()
+    tItemName = pProps[#item].getName()
   end if
-  if not voidp(pProps.getAt(#disableGift)) then
+  if not voidp(pProps[#disableGift]) then
     tWndObj.getElement("buy_gift_ok").hide()
     tWndObj.getElement("shopping_asagift").hide()
   end if
-  if (pProps.getAt(#offerType) = #credits) then
-    tPrice = integer(value(pProps.getAt(#item).getPrice(#credits)))
-    tWallet = integer(value(getObject(#session).GET("user_walletbalance")))
-    tMsgA = getText(tOfferTypeText.getAt(pProps.getAt(#offerType)), "\\x1 costs \\x2 credits")
-    tMsgA = replaceChunks(tMsgA, "\\x1", tItemName)
-    tMsgA = replaceChunks(tMsgA, "\\x2", tPrice)
-    tMsgB = replaceChunks(getText("catalog_credits", "You have \\x credits in your purse."), "\\x", tWallet)
-  else
-    if (pProps.getAt(#offerType) = #creditsandpixels) then
-      tPriceX = integer(value(pProps.getAt(#item).getPrice(#credits)))
-      tPriceY = integer(value(pProps.getAt(#item).getPrice(#pixels)))
+  case pProps[#offerType] of
+    #credits:
+      tPrice = integer(value(pProps[#item].getPrice(#credits)))
+      tWallet = integer(value(getObject(#session).GET("user_walletbalance")))
+      tMsgA = getText(tOfferTypeText[pProps[#offerType]], "\x1 costs \x2 credits")
+      tMsgA = replaceChunks(tMsgA, "\x1", tItemName)
+      tMsgA = replaceChunks(tMsgA, "\x2", tPrice)
+      tMsgB = replaceChunks(getText("catalog_credits", "You have \x credits in your purse."), "\x", tWallet)
+    #creditsandpixels:
+      tPriceX = integer(value(pProps[#item].getPrice(#credits)))
+      tPriceY = integer(value(pProps[#item].getPrice(#pixels)))
       tWalletX = integer(value(getObject(#session).GET("user_walletbalance")))
       tWalletY = integer(value(getObject(#session).GET("user_pixelbalance")))
-      tMsgA = getText(tOfferTypeText.getAt(pProps.getAt(#offerType)), "\\x1 costs \\x3 pixels and \\x2 credits")
-      tMsgA = replaceChunks(tMsgA, "\\x1", tItemName)
-      tMsgA = replaceChunks(tMsgA, "\\x2", tPriceX)
-      tMsgA = replaceChunks(tMsgA, "\\x3", tPriceY)
-      tMsgB = getText("catalog_creditsandpixels", "You have \\x credits in your purse and \\y pixels.")
-      tMsgB = replaceChunks(tMsgB, "\\x", tWalletX)
-      tMsgB = replaceChunks(tMsgB, "\\y", tWalletY)
-    else
-      if (pProps.getAt(#offerType) = #pixels) then
-        tPrice = integer(value(pProps.getAt(#item).getPrice(#pixels)))
-        tWallet = integer(value(getObject(#session).GET("user_pixelbalance")))
-        tMsgA = getText(tOfferTypeText.getAt(pProps.getAt(#offerType)), "\\x1 costs \\x3 pixels")
-        tMsgA = replaceChunks(tMsgA, "\\x1", tItemName)
-        tMsgA = replaceChunks(tMsgA, "\\x3", tPrice)
-        tMsgB = replaceChunks(getText("catalog_pixels", "You have \\x pixels."), "\\x", tWallet)
-      end if
-    end if
-  end if
+      tMsgA = getText(tOfferTypeText[pProps[#offerType]], "\x1 costs \x3 pixels and \x2 credits")
+      tMsgA = replaceChunks(tMsgA, "\x1", tItemName)
+      tMsgA = replaceChunks(tMsgA, "\x2", tPriceX)
+      tMsgA = replaceChunks(tMsgA, "\x3", tPriceY)
+      tMsgB = getText("catalog_creditsandpixels", "You have \x credits in your purse and \y pixels.")
+      tMsgB = replaceChunks(tMsgB, "\x", tWalletX)
+      tMsgB = replaceChunks(tMsgB, "\y", tWalletY)
+    #pixels:
+      tPrice = integer(value(pProps[#item].getPrice(#pixels)))
+      tWallet = integer(value(getObject(#session).GET("user_pixelbalance")))
+      tMsgA = getText(tOfferTypeText[pProps[#offerType]], "\x1 costs \x3 pixels")
+      tMsgA = replaceChunks(tMsgA, "\x1", tItemName)
+      tMsgA = replaceChunks(tMsgA, "\x3", tPrice)
+      tMsgB = replaceChunks(getText("catalog_pixels", "You have \x pixels."), "\x", tWallet)
+  end case
   activateWindowObj(pWndID)
   tWndObj.setProperty(#locZ, (getWindowManager().pAvailableLocZ + 1))
   tWndObj.center()
@@ -92,9 +89,9 @@ on showPurchaseDialog me
   end if
 end
 
-on showGiftDialog me 
+on showGiftDialog me
   if not windowExists(pWndID) then
-    return(error(me, "Cannot convert nonexisting purchase dialog", #showGiftDialog, #major))
+    return error(me, "Cannot convert nonexisting purchase dialog", #showGiftDialog, #major)
   end if
   tWndObj = getWindow(pWndID)
   tMsgA = tWndObj.getElement("habbo_orderinfo_text_a").getText()
@@ -102,7 +99,7 @@ on showGiftDialog me
   tWndObj.unmerge()
   if not tWndObj.merge("habbo_orderinfo_gift_dialog.window") then
     tWndObj.close()
-    return(error(me, "Unable to perform merge to purchase info dialog", #showPurchaseDialog, #major))
+    return error(me, "Unable to perform merge to purchase info dialog", #showPurchaseDialog, #major)
   end if
   activateWindowObj(pWndID)
   tWndObj.setProperty(#locZ, (getWindowManager().pAvailableLocZ + 1))
@@ -111,7 +108,7 @@ on showGiftDialog me
   tWndObj.registerProcedure(#eventProcKeyDown, me.getID(), #keyDown)
 end
 
-on finishPurchase me 
+on finishPurchase me
   if windowExists(pWndID) then
     removeWindow(pWndID)
   end if
@@ -120,89 +117,72 @@ on finishPurchase me
   end if
 end
 
-on eventProcPurchaseDialog me, tEvent, tSprID, tParam, tWndID 
-  if tSprID <> "habbo_decision_ok" then
-    if tSprID <> "habbo_message_ok" then
-      if (tSprID = "button_ok") then
-        tWndObj = getWindow(pWndID)
-        if tWndObj.elementExists("shopping_gift_target") then
-          tGiftReceiver = tWndObj.getElement("shopping_gift_target").getText()
-          tGiftMessage = convertSpecialChars(tWndObj.getElement("shopping_greeting_field").getText(), 1)
-          tExtraParam = ""
-          if pProps.getAt(#item).getCount() > 0 then
-            tExtraParam = convertSpecialChars(pProps.getAt(#item).getContent(1).getExtraParam(), 1)
-          else
-            tExtraParam = ""
-          end if
-          call(pProps.getAt(#method), getThread(#catalogue).getHandler(), pProps.getAt(#pageid), pProps.getAt(#item).getCode(), tExtraParam, 1, tGiftReceiver, tGiftMessage)
+on eventProcPurchaseDialog me, tEvent, tSprID, tParam, tWndID
+  case tSprID of
+    "habbo_decision_ok", "habbo_message_ok", "button_ok":
+      tWndObj = getWindow(pWndID)
+      if tWndObj.elementExists("shopping_gift_target") then
+        tGiftReceiver = tWndObj.getElement("shopping_gift_target").getText()
+        tGiftMessage = convertSpecialChars(tWndObj.getElement("shopping_greeting_field").getText(), 1)
+        tExtraParam = EMPTY
+        if (pProps[#item].getCount() > 0) then
+          tExtraParam = convertSpecialChars(pProps[#item].getContent(1).getExtraParam(), 1)
         else
-          tExtraParam = ""
-          if pProps.getAt(#item).getCount() > 0 then
-            tExtraParam = convertSpecialChars(pProps.getAt(#item).getContent(1).getExtraParam(), 1)
-          else
-            tExtraParam = ""
-          end if
-          call(pProps.getAt(#method), getThread(#catalogue).getHandler(), pProps.getAt(#pageid), pProps.getAt(#item).getCode(), tExtraParam, 0)
+          tExtraParam = EMPTY
         end if
-        tWndObj.close()
-        me.finishPurchase()
+        call(pProps[#method], getThread(#catalogue).getHandler(), pProps[#pageid], pProps[#item].getCode(), tExtraParam, 1, tGiftReceiver, tGiftMessage)
       else
-        if tSprID <> "habbo_decision_cancel" then
-          if tSprID <> "button_cancel" then
-            if (tSprID = "close") then
-              tWndObj = getWindow(pWndID)
-              tWndObj.close()
-              me.finishPurchase()
-            else
-              if (tSprID = "buy_gift_ok") then
-                me.showGiftDialog()
-              else
-                if (tSprID = "buy_gift_cancel") then
-                  me.showPurchaseDialog()
-                else
-                  if (tSprID = "nobalance_ok") then
-                    if not textExists("url_nobalance") then
-                      return FALSE
-                    end if
-                    tSession = getObject(#session)
-                    tURL = getText("url_nobalance")
-                    tURL = tURL & urlEncode(tSession.GET(#userName))
-                    if tSession.exists("user_checksum") then
-                      tURL = tURL & "&sum=" & urlEncode(tSession.GET("user_checksum"))
-                    end if
-                    executeMessage(#externalLinkClick, the mouseLoc)
-                    openNetPage(tURL)
-                    tWndObj = getWindow(pWndID)
-                    tWndObj.close()
-                  else
-                    if (tSprID = "subscribe") then
-                      tSession = getObject(#session)
-                      tOwnName = tSession.GET(#userName)
-                      tURL = getText("url_subscribe")
-                      tURL = tURL & urlEncode(tOwnName)
-                      if tSession.exists("user_checksum") then
-                        tURL = tURL & "&sum=" & urlEncode(tSession.GET("user_checksum"))
-                      end if
-                      executeMessage(#externalLinkClick, the mouseLoc)
-                      openNetPage(tURL, "_new")
-                      tWndObj = getWindow(pWndID)
-                      tWndObj.close()
-                    end if
-                  end if
-                end if
-              end if
-            end if
-          end if
+        tExtraParam = EMPTY
+        if (pProps[#item].getCount() > 0) then
+          tExtraParam = convertSpecialChars(pProps[#item].getContent(1).getExtraParam(), 1)
+        else
+          tExtraParam = EMPTY
         end if
+        call(pProps[#method], getThread(#catalogue).getHandler(), pProps[#pageid], pProps[#item].getCode(), tExtraParam, 0)
       end if
-    end if
-  end if
+      tWndObj.close()
+      me.finishPurchase()
+    "habbo_decision_cancel", "button_cancel", "close":
+      tWndObj = getWindow(pWndID)
+      tWndObj.close()
+      me.finishPurchase()
+    "buy_gift_ok":
+      me.showGiftDialog()
+    "buy_gift_cancel":
+      me.showPurchaseDialog()
+    "nobalance_ok":
+      if not textExists("url_nobalance") then
+        return 0
+      end if
+      tSession = getObject(#session)
+      tURL = getText("url_nobalance")
+      tURL = (tURL & urlEncode(tSession.GET(#userName)))
+      if tSession.exists("user_checksum") then
+        tURL = ((tURL & "&sum=") & urlEncode(tSession.GET("user_checksum")))
+      end if
+      executeMessage(#externalLinkClick, the mouseLoc)
+      openNetPage(tURL)
+      tWndObj = getWindow(pWndID)
+      tWndObj.close()
+    "subscribe":
+      tSession = getObject(#session)
+      tOwnName = tSession.GET(#userName)
+      tURL = getText("url_subscribe")
+      tURL = (tURL & urlEncode(tOwnName))
+      if tSession.exists("user_checksum") then
+        tURL = ((tURL & "&sum=") & urlEncode(tSession.GET("user_checksum")))
+      end if
+      executeMessage(#externalLinkClick, the mouseLoc)
+      openNetPage(tURL, "_new")
+      tWndObj = getWindow(pWndID)
+      tWndObj.close()
+  end case
 end
 
-on eventProcKeyDown me, tEvent, tSprID, tParam 
-  if (the key = "\t") then
+on eventProcKeyDown me, tEvent, tSprID, tParam
+  if (the key = TAB) then
     if not windowExists(pWndID) then
-      return FALSE
+      return 0
     end if
     tWndObj = getWindow(pWndID)
     if (tSprID = "shopping_greeting_field") then

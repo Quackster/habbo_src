@@ -1,7 +1,7 @@
-on construct me 
-  return(initThread("games.index"))
+on construct me
+  return initThread("games.index")
 end
 
-on deconstruct me 
-  return(closeThread(#games))
+on deconstruct me
+  return closeThread(#games)
 end

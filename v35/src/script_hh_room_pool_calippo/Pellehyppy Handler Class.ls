@@ -1,34 +1,34 @@
-on construct me 
-  return(me.regMsgList(1))
+on construct me
+  return me.regMsgList(1)
 end
 
-on deconstruct me 
-  return(me.regMsgList(0))
+on deconstruct me
+  return me.regMsgList(0)
 end
 
-on handle_openuimakoppi me, tMsg 
+on handle_openuimakoppi me, tMsg
   me.getComponent().openUimakoppi()
 end
 
-on handle_closeuimakoppi me, tMsg 
+on handle_closeuimakoppi me, tMsg
   me.getComponent().closeUimaKoppi()
 end
 
-on handle_jumpdata me, tMsg 
+on handle_jumpdata me, tMsg
   tConn = tMsg.getaProp(#connection)
   if not tConn then
-    return FALSE
+    return 0
   end if
   tRoomIndex = tConn.GetIntFrom()
   tJumpData = tConn.GetStrFrom()
-  me.getComponent().jumpPlayPack([#index:tRoomIndex, #jumpdata:tJumpData])
+  me.getComponent().jumpPlayPack([#index: tRoomIndex, #jumpdata: tJumpData])
 end
 
-on handle_jumpingplace_ok me, tMsg 
+on handle_jumpingplace_ok me, tMsg
   me.getComponent().jumpingPlaceOk()
 end
 
-on regMsgList me, tBool 
+on regMsgList me, tBool
   tMsgs = [:]
   tMsgs.setaProp(74, #handle_jumpdata)
   tMsgs.setaProp(96, #handle_openuimakoppi)
@@ -48,5 +48,5 @@ on regMsgList me, tBool
     unregisterListener(getVariable("connection.room.id"), me.getID(), tMsgs)
     unregisterCommands(getVariable("connection.room.id"), me.getID(), tCmds)
   end if
-  return TRUE
+  return 1
 end

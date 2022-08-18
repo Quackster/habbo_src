@@ -1,41 +1,40 @@
-property pAssetLoadingList, pCallbackList, pDynamicDownloader, pImageLibraryURL
+property pCallbackObj, pCallbackMethod, pCallbackList, pDynamicDownloader, pImageLibraryURL, pAssetLoadingList
 
-on construct me 
-  pCallbackObj = void()
-  pCallbackMethod = void()
-  pDynamicDownloader = void()
+on construct me
+  pCallbackObj = VOID
+  pCallbackMethod = VOID
+  pDynamicDownloader = VOID
   pImageLibraryURL = getVariable("image.library.url")
   pCallbackList = []
   pAssetLoadingList = []
 end
 
-on deconstruct me 
+on deconstruct me
 end
 
-on isAssetDownloading me, tAssetId 
-  return(pAssetLoadingList.getPos(tAssetId) <> 0)
+on isAssetDownloading me, tAssetId
+  return (pAssetLoadingList.getPos(tAssetId) <> 0)
 end
 
-on defineCallback me, tCallBackObj, tMethod 
+on defineCallback me, tCallBackObj, tMethod
   tCallbackObjId = tCallBackObj.getID()
   tCallbackReg = 1
-  repeat while pCallbackList <= tMethod
-    tCallback = getAt(tMethod, tCallBackObj)
-    if (tCallback.getAt(#obj) = tCallbackObjId) and (tCallback.getAt(#method) = tMethod) then
+  repeat with tCallback in pCallbackList
+    if ((tCallback[#obj] = tCallbackObjId) and (tCallback[#method] = tMethod)) then
       tCallbackReg = 0
     end if
   end repeat
   if tCallbackReg then
-    pCallbackList.add([#obj:tCallbackObjId, #method:tMethod])
+    pCallbackList.add([#obj: tCallbackObjId, #method: tMethod])
   end if
 end
 
-on removeCallback me, tCallBackObj, tMethod 
+on removeCallback me, tCallBackObj, tMethod
   tCallbackObjId = tCallBackObj.getID()
   i = 1
-  repeat while i <= pCallbackList.count
-    tCallback = pCallbackList.getAt(i)
-    if (tCallback.getAt(#obj) = tCallbackObjId) and (tCallback.getAt(#method) = tMethod) then
+  repeat while (i <= pCallbackList.count)
+    tCallback = pCallbackList[i]
+    if ((tCallback[#obj] = tCallbackObjId) and (tCallback[#method] = tMethod)) then
       pCallbackList.deleteAt(i)
       next repeat
     end if
@@ -43,37 +42,33 @@ on removeCallback me, tCallBackObj, tMethod
   end repeat
 end
 
-on callbackExists me, tCallBackObj, tMethod 
+on callbackExists me, tCallBackObj, tMethod
   tCallbackObjId = tCallBackObj.getID()
-  repeat while pCallbackList <= tMethod
-    tCallback = getAt(tMethod, tCallBackObj)
-    if (tCallback.getAt(#obj) = tCallbackObjId) and (tCallback.getAt(#method) = tMethod) then
-      return TRUE
+  repeat with tCallback in pCallbackList
+    if ((tCallback[#obj] = tCallbackObjId) and (tCallback[#method] = tMethod)) then
+      return 1
     end if
   end repeat
-  return FALSE
+  return 0
 end
 
-on registerDownload me, ttype, tAssetId, tProps 
+on registerDownload me, ttype, tAssetId, tProps
   if voidp(pDynamicDownloader) then
     pDynamicDownloader = getThread(#dynamicdownloader).getComponent()
   end if
-  if (tAssetId = "") then
-    return()
-  end if
-  tProps = [#type:ttype, #assetId:tAssetId, #props:tProps]
+  tProps = [#type: ttype, #assetId: tAssetId, #props: tProps]
   if (ttype = #bitmap) then
-    tSourceURL = pImageLibraryURL & "catalogue/" & tAssetId & ".gif"
+    tSourceURL = (((pImageLibraryURL & "catalogue/") & tAssetId) & ".gif")
     tMemNum = queueDownload(tSourceURL, tAssetId, #bitmap, 1)
-    if tMemNum > 0 then
+    if (tMemNum > 0) then
       registerDownloadCallback(tMemNum, #downloadCallback, me.getID(), tProps)
       pAssetLoadingList.add(tAssetId)
     end if
   else
     if (ttype = #topStoryImage) then
-      tSourceURL = pImageLibraryURL & "Top_Story_Images/" & tAssetId & ".gif"
+      tSourceURL = (((pImageLibraryURL & "Top_Story_Images/") & tAssetId) & ".gif")
       tMemNum = queueDownload(tSourceURL, tAssetId, #bitmap, 1)
-      if tMemNum > 0 then
+      if (tMemNum > 0) then
         registerDownloadCallback(tMemNum, #downloadCallback, me.getID(), tProps)
         pAssetLoadingList.add(tAssetId)
       end if
@@ -89,17 +84,16 @@ on registerDownload me, ttype, tAssetId, tProps
   end if
 end
 
-on downloadCallback me, tName, tSuccess, tProps 
+on downloadCallback me, tName, tSuccess, tProps
   if tSuccess then
     if (ilk(tName) = #propList) then
       tProps = tName
     end if
-    repeat while pCallbackList <= tSuccess
-      tCallback = getAt(tSuccess, tName)
-      if objectExists(tCallback.getAt(#obj)) then
-        call(tCallback.getAt(#method), getObject(tCallback.getAt(#obj)), tProps)
+    repeat with tCallback in pCallbackList
+      if objectExists(tCallback[#obj]) then
+        call(tCallback[#method], getObject(tCallback[#obj]), tProps)
       end if
     end repeat
-    pAssetLoadingList.deleteOne(tProps.getAt(#assetId))
+    pAssetLoadingList.deleteOne(tProps[#assetId])
   end if
 end

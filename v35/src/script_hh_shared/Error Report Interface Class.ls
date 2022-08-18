@@ -1,25 +1,25 @@
-property pErrorLock, pWindowID, pCurrentErrorIndex
+property pWindowID, pCurrentErrorIndex, pErrorLock
 
-on construct me 
+on construct me
   pWindowID = getText("error_report")
   pCurrentErrorIndex = 1
   pErrorLock = 0
-  return TRUE
+  return 1
 end
 
-on deconstruct me 
-  return TRUE
+on deconstruct me
+  return 1
 end
 
-on showErrors me 
+on showErrors me
   if pErrorLock then
-    return TRUE
+    return 1
   end if
   pErrorLock = 1
   tReportLists = me.getComponent().getErrorLists()
   if (tReportLists.count = 0) then
     pErrorLock = 0
-    return FALSE
+    return 0
   end if
   if not windowExists(pWindowID) then
     createWindow(pWindowID, "habbo_full.window")
@@ -35,65 +35,63 @@ on showErrors me
   pErrorLock = 0
 end
 
-on showPreviousError me 
+on showPreviousError me
   tTriedErrorIndex = (pCurrentErrorIndex - 1)
   tReportList = me.getComponent().getErrorLists()
-  if tTriedErrorIndex < 1 or (tReportList.count = 0) then
-    return FALSE
+  if ((tTriedErrorIndex < 1) or (tReportList.count = 0)) then
+    return 0
   end if
   pCurrentErrorIndex = tTriedErrorIndex
   me.updateErrorView()
 end
 
-on showNextError me 
+on showNextError me
   tTriedErrorIndex = (pCurrentErrorIndex + 1)
   tReportList = me.getComponent().getErrorLists()
-  if tTriedErrorIndex > tReportList.count then
-    return FALSE
+  if (tTriedErrorIndex > tReportList.count) then
+    return 0
   end if
   pCurrentErrorIndex = tTriedErrorIndex
   me.updateErrorView()
 end
 
-on updateErrorView me 
+on updateErrorView me
   tWndObj = getWindow(pWindowID)
   tIndexOfCurrentReport = pCurrentErrorIndex
   tReportList = me.getComponent().getErrorLists()
-  tErrorReport = tReportList.getAt(tIndexOfCurrentReport)
-  tCounts = pCurrentErrorIndex & "/" & tReportList.count
+  tErrorReport = tReportList[tIndexOfCurrentReport]
+  tCounts = ((pCurrentErrorIndex & "/") & tReportList.count)
   tElement = tWndObj.getElement("error_report_count")
-  if tElement <> 0 then
+  if (tElement <> 0) then
     tElement.setText(tCounts)
   end if
   tTexts = [:]
-  tTexts.setAt("error_report_errorid", "ID:" && tErrorReport.getAt(#errorId))
-  tExplainText = ""
-  if not voidp(tErrorReport.getAt(#time)) then
-    tExplainText = tErrorReport.getAt(#time) & "\r"
+  tTexts["error_report_errorid"] = ("ID:" && tErrorReport[#errorId])
+  tExplainText = EMPTY
+  if not voidp(tErrorReport[#time]) then
+    tExplainText = (tErrorReport[#time] & RETURN)
   end if
-  if not voidp(tErrorReport.getAt(#errorMsgId)) then
-    tExplainText = tExplainText & getText("error_report_trigger_message") & ":" && tErrorReport.getAt(#errorMsgId)
+  if not voidp(tErrorReport[#errorMsgId]) then
+    tExplainText = (((tExplainText & getText("error_report_trigger_message")) & ":") && tErrorReport[#errorMsgId])
   else
-    if not voidp(tErrorReport.getAt(#errorMsg)) then
-      tExplainText = tExplainText & tErrorReport.getAt(#errorMsg)
+    if not voidp(tErrorReport[#errorMsg]) then
+      tExplainText = (tExplainText & tErrorReport[#errorMsg])
     end if
   end if
-  tTexts.setAt("error_report_details", tExplainText)
-  tIndex = 1
-  repeat while tIndex <= tTexts.count
+  tTexts["error_report_details"] = tExplainText
+  repeat with tIndex = 1 to tTexts.count
     tElementName = tTexts.getPropAt(tIndex)
-    tText = tTexts.getAt(tIndex)
+    tText = tTexts[tIndex]
     if tWndObj.elementExists(tElementName) then
       tElement = tWndObj.getElement(tElementName)
       tElement.setText(tText)
     end if
-    tIndex = (1 + tIndex)
   end repeat
 end
 
-on hideErrorReportWindow me 
+on hideErrorReportWindow me
   if not windowExists(pWindowID) then
-    return FALSE
+    return 0
   end if
   me.getComponent().clearErrorLists(pCurrentErrorIndex)
   pCurrentErrorIndex = 1
@@ -101,20 +99,15 @@ on hideErrorReportWindow me
   tWndObj.close()
 end
 
-on eventProcErrorReport me, tEvent, tElemID, tParams 
+on eventProcErrorReport me, tEvent, tElemID, tParams
   if (tEvent = #mouseUp) then
-    if tElemID <> "error_report_ok" then
-      if (tElemID = "close") then
+    case tElemID of
+      "error_report_ok", "close":
         me.hideErrorReportWindow()
-      else
-        if (tElemID = "error_report_prev") then
-          me.showPreviousError()
-        else
-          if (tElemID = "error_report_next") then
-            me.showNextError()
-          end if
-        end if
-      end if
-    end if
+      "error_report_prev":
+        me.showPreviousError()
+      "error_report_next":
+        me.showNextError()
+    end case
   end if
 end

@@ -1,6 +1,6 @@
-property pWhiteListEmbedParams, pCrapFixSpr, pFullScreenRefreshSpr, pLogoSpr, pLogoStartTime, pFadingLogo, pCrapFixing, pCrapFixRegionInvalidated
+property pState, pLogoSpr, pFadingLogo, pLogoStartTime, pCrapFixing, pCrapFixSpr, pCrapFixRegionInvalidated, pFullScreenRefreshSpr, pWhiteListEmbedParams
 
-on construct me 
+on construct me
   pWhiteListEmbedParams = []
   pWhiteListEmbedParams.add("client.connection.failed.url")
   pWhiteListEmbedParams.add("external.variables.txt")
@@ -33,8 +33,8 @@ on construct me
   tSession.set("client_starttime", the long time)
   tSession.set("client_version", getVariable("system.version"))
   tSession.set("client_url", getMoviePath())
-  tSession.set("client_lastclick", "")
-  tSession.set("client_lastclick_time", "")
+  tSession.set("client_lastclick", EMPTY)
+  tSession.set("client_lastclick_time", EMPTY)
   createObject(#headers, getClassVariable("variable.manager.class"))
   createObject(#classes, getClassVariable("variable.manager.class"))
   createObject(#cache, getClassVariable("variable.manager.class"))
@@ -63,19 +63,19 @@ on construct me
     pFullScreenRefreshSpr.loc = point(-1, 0)
     pFullScreenRefreshSpr.visible = 0
   end if
-  return(me.updateState("load_variables"))
+  return me.updateState("load_variables")
 end
 
-on deconstruct me 
+on deconstruct me
   if timeoutExists("client.refresh.timeout") then
     removeTimeout("client.refresh.timeout")
   end if
   unregisterMessage(#invalidateCrapFixRegion, me.getID())
   releaseSprite(pCrapFixSpr.spriteNum)
-  return(me.hideLogo())
+  return me.hideLogo()
 end
 
-on showLogo me 
+on showLogo me
   if memberExists("Logo") then
     tmember = member(getmemnum("Logo"))
     pLogoSpr = sprite(reserveSprite(me.getID()))
@@ -86,45 +86,45 @@ on showLogo me
     pLogoSpr.loc = point((the stage.rect.width / 2), ((the stage.rect.height / 2) - tmember.height))
     pLogoStartTime = the milliSeconds
   end if
-  return TRUE
+  return 1
 end
 
-on hideLogo me 
+on hideLogo me
   if (pLogoSpr.ilk = #sprite) then
     releaseSprite(pLogoSpr.spriteNum)
-    pLogoSpr = void()
+    pLogoSpr = VOID
   end if
-  return TRUE
+  return 1
 end
 
-on initTransferToHotelView me 
+on initTransferToHotelView me
   tShowLogoForMs = 1000
   tLogoNowShownMs = (the milliSeconds - pLogoStartTime)
-  if tLogoNowShownMs >= tShowLogoForMs then
-    createTimeout("logo_timeout", 2000, #initUpdate, me.getID(), void(), 1)
+  if (tLogoNowShownMs >= tShowLogoForMs) then
+    createTimeout("logo_timeout", 2000, #initUpdate, me.getID(), VOID, 1)
   else
-    createTimeout("init_timeout", ((tShowLogoForMs - tLogoNowShownMs) + 1), #initTransferToHotelView, me.getID(), void(), 1)
+    createTimeout("init_timeout", ((tShowLogoForMs - tLogoNowShownMs) + 1), #initTransferToHotelView, me.getID(), VOID, 1)
   end if
 end
 
-on initUpdate me 
+on initUpdate me
   pFadingLogo = 1
   receiveUpdate(me.getID())
 end
 
-on invalidateCrapFixer me 
+on invalidateCrapFixer me
   pCrapFixRegionInvalidated = 1
 end
 
-on update me 
+on update me
   startProfilingTask("Core Thread::update")
   if pFadingLogo then
     tBlend = 0
-    if pLogoSpr <> void() then
+    if (pLogoSpr <> VOID) then
       pLogoSpr.blend = (pLogoSpr.blend - 10)
       tBlend = pLogoSpr.blend
     end if
-    if tBlend <= 0 then
+    if (tBlend <= 0) then
       if not pCrapFixing then
         removeUpdate(me.getID())
       end if
@@ -138,15 +138,14 @@ on update me
     if (ilk(pCrapFixSpr) = #sprite) then
       if pCrapFixRegionInvalidated then
         pCrapFixSpr.visible = 1
-        if (pCrapFixSpr.loc.locH = 0) then
-          pCrapFixSpr.loc = point(-1, 0)
-        else
-          if (pCrapFixSpr.loc.locH = -1) then
+        case pCrapFixSpr.loc.locH of
+          0:
+            pCrapFixSpr.loc = point(-1, 0)
+          -1:
             pCrapFixSpr.loc = point(0, 0)
-          else
+          otherwise:
             pCrapFixSpr.loc = point(0, 0)
-          end if
-        end if
+        end case
         pCrapFixRegionInvalidated = 0
       end if
     end if
@@ -154,75 +153,68 @@ on update me
   finishProfilingTask("Core Thread::update")
 end
 
-on assetDownloadCallbacks me, tAssetId, tSuccess 
+on assetDownloadCallbacks me, tAssetId, tSuccess
   if (tSuccess = 0) then
-    if tAssetId <> "load_variables" then
-      if tAssetId <> "load_texts" then
-        if (tAssetId = "load_casts") then
-          fatalError(["error":tAssetId])
-        end if
-        return FALSE
-        if (tAssetId = "load_variables") then
-          me.updateState("load_params")
-        else
-          if (tAssetId = "load_texts") then
-            me.updateState("load_casts")
-          else
-            if (tAssetId = "load_casts") then
-              me.updateState("validate_resources")
-            else
-              if (tAssetId = "validate_resources") then
-                me.updateState("validate_resources")
-              end if
-            end if
-          end if
-        end if
-      end if
-    end if
+    case tAssetId of
+      "load_variables", "load_texts", "load_casts":
+        fatalError(["error": tAssetId])
+    end case
+    return 0
   end if
+  case tAssetId of
+    "load_variables":
+      me.updateState("load_params")
+    "load_texts":
+      me.updateState("load_casts")
+    "load_casts":
+      me.updateState("validate_resources")
+    "validate_resources":
+      me.updateState("validate_resources")
+  end case
 end
 
-on updateState me, tstate 
-  if (tstate = "load_variables") then
-    pState = tstate
-    me.showLogo()
-    cursor(4)
-    if the runMode contains "Plugin" then
-      tDelim = the itemDelimiter
-      tHash = ""
-      tExtVarsPath = ""
-      i = 1
-      repeat while i <= 9
-        tParamBundle = externalParamValue("sw" & i)
-        if not voidp(tParamBundle) then
-          the itemDelimiter = ";"
-          j = 1
-          repeat while j <= tParamBundle.count(#item)
-            tParam = tParamBundle.getProp(#item, j)
-            the itemDelimiter = "="
-            if tParam.count(#item) > 1 then
-              tKey = tParam.getProp(#item, 1)
-              tValue = tParam.getProp(#item, 2, tParam.count(#item))
-              if (tKey = "client.fatal.error.url") then
-                getVariableManager().set(tKey, tValue)
-              else
-                if (tKey = "client.allow.cross.domain") then
+on updateState me, tstate
+  global gLogVarUrl
+  case tstate of
+    "load_variables":
+      pState = tstate
+      me.showLogo()
+      cursor(4)
+      if (the runMode contains "Plugin") then
+        tDelim = the itemDelimiter
+        tHash = EMPTY
+        tExtVarsPath = EMPTY
+        repeat with i = 1 to 9
+          tParamBundle = externalParamValue(("sw" & i))
+          if not voidp(tParamBundle) then
+            the itemDelimiter = ";"
+            repeat with j = 1 to tParamBundle.item.count
+              tParam = tParamBundle.item[j]
+              the itemDelimiter = "="
+              if (tParam.item.count > 1) then
+                tKey = tParam.item[1]
+                tValue = tParam.item[2]
+                if (tKey = "client.fatal.error.url") then
                   getVariableManager().set(tKey, tValue)
                 else
-                  if (tKey = "client.notify.cross.domain") then
+                  if (tKey = "client.allow.cross.domain") then
                     getVariableManager().set(tKey, tValue)
                   else
-                    if (tKey = "external.variables.txt") then
-                      tExtVarsPath = tValue
+                    if (tKey = "client.notify.cross.domain") then
+                      getVariableManager().set(tKey, tValue)
                     else
-                      if (tKey = "processlog.url") then
-                        getVariableManager().set(tKey, tValue)
+                      if (tKey = "external.variables.txt") then
+                        tExtVarsPath = tValue
                       else
-                        if (tKey = "account_id") then
+                        if (tKey = "processlog.url") then
                           getVariableManager().set(tKey, tValue)
                         else
-                          if (tKey = "external.hash") then
-                            tHash = tValue
+                          if (tKey = "account_id") then
+                            getVariableManager().set(tKey, tValue)
+                          else
+                            if (tKey = "external.hash") then
+                              tHash = tValue
+                            end if
                           end if
                         end if
                       end if
@@ -230,34 +222,30 @@ on updateState me, tstate
                   end if
                 end if
               end if
-            end if
-            the itemDelimiter = ";"
-            j = (1 + j)
-          end repeat
+              the itemDelimiter = ";"
+            end repeat
+          end if
+        end repeat
+        the itemDelimiter = tDelim
+        getSpecialServices().setSessionHash(tHash)
+        getSpecialServices().setExtVarPath(tExtVarsPath)
+      else
+        if (the runMode contains "Author") then
+          getSpecialServices().setSessionHash(string(random(the maxinteger)))
         end if
-        i = (1 + i)
-      end repeat
-      the itemDelimiter = tDelim
-      getSpecialServices().setSessionHash(tHash)
-      getSpecialServices().setExtVarPath(tExtVarsPath)
-    else
-      if the runMode contains "Author" then
-        getSpecialServices().setSessionHash(string(random(the maxinteger)))
       end if
-    end if
-    tURL = getExtVarPath()
-    tMemName = tURL
-    gLogVarUrl = tURL
-    tMemNum = queueDownload(tURL, tMemName, #field, 1)
-    sendProcessTracking(9)
-    if (tMemNum = 0) then
-      fatalError(["error":tstate])
-      return FALSE
-    else
-      return(registerDownloadCallback(tMemNum, #assetDownloadCallbacks, me.getID(), tstate))
-    end if
-  else
-    if (tstate = "load_params") then
+      tURL = getExtVarPath()
+      tMemName = tURL
+      gLogVarUrl = tURL
+      tMemNum = queueDownload(tURL, tMemName, #field, 1)
+      sendProcessTracking(9)
+      if (tMemNum = 0) then
+        fatalError(["error": tstate])
+        return 0
+      else
+        return registerDownloadCallback(tMemNum, #assetDownloadCallbacks, me.getID(), tstate)
+      end if
+    "load_params":
       pState = tstate
       dumpVariableField(getExtVarPath())
       removeMember(getExtVarPath())
@@ -265,153 +253,138 @@ on updateState me, tstate
         pCrapFixing = getIntVariable("text.crap.fixing")
       end if
       if variableExists("client.full.refresh.period") then
-        createTimeout("client.refresh.timeout", getIntVariable("client.full.refresh.period"), #fullScreenRefresh, me.getID(), void(), 0)
+        createTimeout("client.refresh.timeout", getIntVariable("client.full.refresh.period"), #fullScreenRefresh, me.getID(), VOID, 0)
       end if
-      if the runMode contains "Plugin" then
+      if (the runMode contains "Plugin") then
         tDelim = the itemDelimiter
-        i = 1
-        repeat while i <= 9
-          tParamBundle = externalParamValue("sw" & i)
+        repeat with i = 1 to 9
+          tParamBundle = externalParamValue(("sw" & i))
           if not voidp(tParamBundle) then
             the itemDelimiter = ";"
-            j = 1
-            repeat while j <= tParamBundle.count(#item)
-              tParam = tParamBundle.getProp(#item, j)
+            repeat with j = 1 to tParamBundle.item.count
+              tParam = tParamBundle.item[j]
               the itemDelimiter = "="
-              if tParam.count(#item) > 1 then
-                if (pWhiteListEmbedParams.getPos(tParam.getProp(#item, 1)) = 0) then
-                else
-                  getVariableManager().set(tParam.getProp(#item, 1), tParam.getProp(#item, 2, tParam.count(#item)))
-                  the itemDelimiter = ";"
+              if (tParam.item.count > 1) then
+                if (pWhiteListEmbedParams.getPos(tParam.item[1]) = 0) then
+                  next repeat
                 end if
-                j = (1 + j)
-                i = (1 + i)
-                the itemDelimiter = tDelim
-                setDebugLevel(0)
-                getStringServices().initConvList()
-                puppetTempo(getIntVariable("system.tempo", 30))
-                if variableExists("client.reload.url") then
-                  getObject(#session).set("client_url", obfuscate(getVariable("client.reload.url")))
-                end if
-                return(me.updateState("load_texts"))
-                if (tstate = "load_texts") then
-                  pState = tstate
-                  tURL = getVariable("external.texts.txt") & "&hash=" & getSpecialServices().getSessionHash()
-                  tMemName = tURL
-                  if (tMemName = "") then
-                    return(me.updateState("load_casts"))
-                  end if
-                  gLogVarUrl = tURL
-                  tMemNum = queueDownload(tURL, tMemName, #field)
-                  sendProcessTracking(12)
-                  if (tMemNum = 0) then
-                    fatalError(["error":tstate])
-                    return FALSE
-                  else
-                    return(registerDownloadCallback(tMemNum, #assetDownloadCallbacks, me.getID(), tstate))
-                  end if
-                else
-                  if (tstate = "load_casts") then
-                    pState = tstate
-                    tTxtFile = getVariable("external.texts.txt") & "&hash=" & getSpecialServices().getSessionHash()
-                    if tTxtFile <> 0 then
-                      if memberExists(tTxtFile) then
-                        dumpTextField(tTxtFile)
-                        removeMember(tTxtFile)
-                      end if
-                    end if
-                    sendProcessTracking(23)
-                    tCastList = []
-                    i = 1
-                    repeat while 1
-                      if not variableExists("cast.entry." & i) then
-                      else
-                        tFileName = getVariable("cast.entry." & i)
-                        tCastList.add(tFileName)
-                        i = (i + 1)
-                      end if
-                    end repeat
-                    if count(tCastList) > 0 then
-                      tLoadID = startCastLoad(tCastList, 1, void(), void(), 1)
-                      if getVariable("loading.bar.active") then
-                        showLoadingBar(tLoadID, [#buffer:#window, #locY:500, #width:300, #extraTasks:[#handshake1, #handshake2, #login]])
-                      end if
-                      return(registerCastloadCallback(tLoadID, #assetDownloadCallbacks, me.getID(), tstate))
-                    else
-                      return(me.updateState("init_threads"))
-                    end if
-                  else
-                    if (tstate = "validate_resources") then
-                      pState = tstate
-                      tCastList = []
-                      tNewList = []
-                      tVarMngr = getVariableManager()
-                      i = 1
-                      repeat while 1
-                        if not tVarMngr.exists("cast.entry." & i) then
-                        else
-                          tFileName = tVarMngr.GET("cast.entry." & i)
-                          tCastList.add(tFileName)
-                          i = (i + 1)
-                        end if
-                      end repeat
-                      if count(tCastList) > 0 then
-                        repeat while tstate <= undefined
-                          tCast = getAt(undefined, tstate)
-                          if not castExists(tCast) then
-                            tNewList.add(tCast)
-                          end if
-                        end repeat
-                      end if
-                      if count(tNewList) > 0 then
-                        tLoadID = startCastLoad(tNewList, 1, void(), void(), 1)
-                        if getVariable("loading.bar.active") then
-                          showLoadingBar(tLoadID, [#buffer:#window, #locY:500, #width:300, #extraTasks:[#handshake1, #handshake2, #login]])
-                        end if
-                        return(registerCastloadCallback(tLoadID, #assetDownloadCallbacks, me.getID(), tstate))
-                      else
-                        return(me.updateState("init_threads"))
-                      end if
-                    else
-                      if (tstate = "init_threads") then
-                        gLogVarUrl = void()
-                        sendProcessTracking(24)
-                        pState = tstate
-                        cursor(0)
-                        the stage.title = getVariable("client.window.title")
-                        me.hideLogo()
-                        getThreadManager().initAll()
-                        return(executeMessage(#Initialize, "initialize"))
-                      else
-                        return(error(me, "Unknown state:" && tstate, #updateState, #major))
-                      end if
-                    end if
-                  end if
-                end if
+                getVariableManager().set(tParam.item[1], tParam.item[2])
               end if
+              the itemDelimiter = ";"
             end repeat
           end if
         end repeat
+        the itemDelimiter = tDelim
       end if
-    end if
-  end if
+      setDebugLevel(0)
+      getStringServices().initConvList()
+      puppetTempo(getIntVariable("system.tempo", 30))
+      if variableExists("client.reload.url") then
+        getObject(#session).set("client_url", obfuscate(getVariable("client.reload.url")))
+      end if
+      return me.updateState("load_texts")
+    "load_texts":
+      pState = tstate
+      tURL = ((getVariable("external.texts.txt") & "&hash=") & getSpecialServices().getSessionHash())
+      tMemName = tURL
+      if (tMemName = EMPTY) then
+        return me.updateState("load_casts")
+      end if
+      gLogVarUrl = tURL
+      tMemNum = queueDownload(tURL, tMemName, #field)
+      sendProcessTracking(12)
+      if (tMemNum = 0) then
+        fatalError(["error": tstate])
+        return 0
+      else
+        return registerDownloadCallback(tMemNum, #assetDownloadCallbacks, me.getID(), tstate)
+      end if
+    "load_casts":
+      pState = tstate
+      tTxtFile = ((getVariable("external.texts.txt") & "&hash=") & getSpecialServices().getSessionHash())
+      if (tTxtFile <> 0) then
+        if memberExists(tTxtFile) then
+          dumpTextField(tTxtFile)
+          removeMember(tTxtFile)
+        end if
+      end if
+      sendProcessTracking(23)
+      tCastList = []
+      i = 1
+      repeat while 1
+        if not variableExists(("cast.entry." & i)) then
+          exit repeat
+        end if
+        tFileName = getVariable(("cast.entry." & i))
+        tCastList.add(tFileName)
+        i = (i + 1)
+      end repeat
+      if (count(tCastList) > 0) then
+        tLoadID = startCastLoad(tCastList, 1, VOID, VOID, 1)
+        if getVariable("loading.bar.active") then
+          showLoadingBar(tLoadID, [#buffer: #window, #locY: 500, #width: 300, #extraTasks: [#handshake1, #handshake2, #login]])
+        end if
+        return registerCastloadCallback(tLoadID, #assetDownloadCallbacks, me.getID(), tstate)
+      else
+        return me.updateState("init_threads")
+      end if
+    "validate_resources":
+      pState = tstate
+      tCastList = []
+      tNewList = []
+      tVarMngr = getVariableManager()
+      i = 1
+      repeat while 1
+        if not tVarMngr.exists(("cast.entry." & i)) then
+          exit repeat
+        end if
+        tFileName = tVarMngr.GET(("cast.entry." & i))
+        tCastList.add(tFileName)
+        i = (i + 1)
+      end repeat
+      if (count(tCastList) > 0) then
+        repeat with tCast in tCastList
+          if not castExists(tCast) then
+            tNewList.add(tCast)
+          end if
+        end repeat
+      end if
+      if (count(tNewList) > 0) then
+        tLoadID = startCastLoad(tNewList, 1, VOID, VOID, 1)
+        if getVariable("loading.bar.active") then
+          showLoadingBar(tLoadID, [#buffer: #window, #locY: 500, #width: 300, #extraTasks: [#handshake1, #handshake2, #login]])
+        end if
+        return registerCastloadCallback(tLoadID, #assetDownloadCallbacks, me.getID(), tstate)
+      else
+        return me.updateState("init_threads")
+      end if
+    "init_threads":
+      gLogVarUrl = VOID
+      sendProcessTracking(24)
+      pState = tstate
+      cursor(0)
+      the stage.title = getVariable("client.window.title")
+      me.hideLogo()
+      getThreadManager().initAll()
+      return executeMessage(#Initialize, "initialize")
+  end case
+  return error(me, ("Unknown state:" && tstate), #updateState, #major)
 end
 
-on fullScreenRefresh me 
+on fullScreenRefresh me
   if (ilk(pFullScreenRefreshSpr) = #sprite) then
     pFullScreenRefreshSpr.visible = 1
-    if (pFullScreenRefreshSpr.loc.locH = 0) then
-      pFullScreenRefreshSpr.loc = point(-1, 0)
-    else
-      if (pFullScreenRefreshSpr.loc.locH = -1) then
+    case pFullScreenRefreshSpr.loc.locH of
+      0:
+        pFullScreenRefreshSpr.loc = point(-1, 0)
+      -1:
         pFullScreenRefreshSpr.loc = point(0, 0)
-      else
+      otherwise:
         pFullScreenRefreshSpr.loc = point(0, 0)
-      end if
-    end if
+    end case
   end if
 end
 
-on handlers  
-  return([])
+on handlers
+  return []
 end

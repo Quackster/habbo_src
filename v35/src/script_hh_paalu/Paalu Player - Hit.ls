@@ -1,27 +1,27 @@
-property pDirection, pSprite, pActive, pAnimOffset, pCounter, pLocOffset
+property pDirection, pAnimOffset, pLocOffset, pSprite, pActive, pCounter
 
-on construct me 
-  pSprite = sprite(reserveSprite("Paalu violence dir:" && pDirection))
-  pSprite.member = member(getmemnum("paalu hit" && pDirection && random(4)))
+on construct me
+  pSprite = sprite(reserveSprite(("Paalu violence dir:" && pDirection)))
+  pSprite.member = member(getmemnum((("paalu hit" && pDirection) && random(4))))
   pSprite.visible = 0
   pSprite.ink = 36
   pActive = 0
   pCounter = 0
-  return TRUE
+  return 1
 end
 
-on deconstruct me 
+on deconstruct me
   if ilk(pSprite, #sprite) then
     releaseSprite(pSprite.spriteNum)
   end if
-  pSprite = void()
+  pSprite = VOID
   pActive = 0
   pCounter = 0
-  return TRUE
+  return 1
 end
 
-on define me, tPart, tProps 
-  pDirection = tProps.getAt(#Dir)
+on define me, tPart, tProps
+  pDirection = tProps[#Dir]
   if (pDirection = 0) then
     pAnimOffset = point(0, 0)
     pLocOffset = point(-24, -8)
@@ -32,20 +32,20 @@ on define me, tPart, tProps
   pSprite.visible = 0
   pActive = 0
   pCounter = 0
-  return TRUE
+  return 1
 end
 
-on reset me 
+on reset me
 end
 
-on prepare me 
+on prepare me
   if voidp(pSprite) then
-    return()
+    return 
   end if
   if pActive then
     pSprite.loc = (pSprite.loc + pAnimOffset)
     pCounter = (pCounter + 1)
-    if pCounter > 4 then
+    if (pCounter > 4) then
       pActive = 0
       pCounter = 0
       pSprite.visible = 0
@@ -53,13 +53,13 @@ on prepare me
   end if
 end
 
-on render me 
+on render me
 end
 
-on status me, tAction, tBalance, tSprLoc, tSprLocZ, tHit 
+on status me, tAction, tBalance, tSprLoc, tSprLocZ, tHit
   if tHit then
     pActive = 1
-    pSprite.member = member(getmemnum("paalu hit" && pDirection && random(4)))
+    pSprite.member = member(getmemnum((("paalu hit" && pDirection) && random(4))))
     pSprite.loc = (tSprLoc + pLocOffset)
     pSprite.locZ = (tSprLocZ - 1)
     pSprite.visible = 1

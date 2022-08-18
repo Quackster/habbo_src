@@ -1,8 +1,8 @@
-on construct me 
+on construct me
   me.pDefRect = rect(0, 0, 480, 480)
-  me.pTxtRect = void()
-  me.pFntStru = void()
-  me.pMember = member(createMember("writer_" & getUniqueID(), #text))
+  me.pTxtRect = VOID
+  me.pFntStru = VOID
+  me.pMember = member(createMember(("writer_" & getUniqueID()), #text))
   if variableExists("text.render.compatibility.mode") then
     pTextRenderMode = getVariable("text.render.compatibility.mode")
   else
@@ -14,14 +14,14 @@ on construct me
     pUnderliningDisabled = 0
   end if
   if (me.pMember.number = 0) then
-    return FALSE
+    return 0
   else
-    if the platform contains "windows" then
+    if (the platform contains "windows") then
       me.pMember.topSpacing = getIntVariable("win.font.toff", 0)
     else
       me.pMember.topSpacing = getIntVariable("mac.font.toff", 0)
     end if
     me.pMember.wordWrap = 0
-    return TRUE
+    return 1
   end if
 end
