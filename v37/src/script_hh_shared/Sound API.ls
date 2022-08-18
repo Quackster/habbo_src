@@ -1,50 +1,50 @@
-on constructSoundManager  
-  return(createManager(#sound_manager, getClassVariable("sound.manager.class", "Sound Manager Class")))
+on constructSoundManager
+  return createManager(#sound_manager, getClassVariable("sound.manager.class", "Sound Manager Class"))
 end
 
-on deconstructSoundManager  
-  return(removeManager(#sound_manager))
+on deconstructSoundManager
+  return removeManager(#sound_manager)
 end
 
-on getSoundManager  
+on getSoundManager
   tMgr = getObjectManager()
   if not tMgr.managerExists(#sound_manager) then
-    return(constructSoundManager())
+    return constructSoundManager()
   end if
-  return(tMgr.getManager(#sound_manager))
+  return tMgr.getManager(#sound_manager)
 end
 
-on setSoundState tValue 
-  return(getSoundManager().setSoundState(tValue))
+on setSoundState tValue
+  return getSoundManager().setSoundState(tValue)
 end
 
-on getSoundState  
-  return(getSoundManager().getSoundState())
+on getSoundState
+  return getSoundManager().getSoundState()
 end
 
-on playSound tMemName, tPriority, tProps 
-  return(getSoundManager().play(tMemName, tPriority, tProps))
+on playSound tMemName, tPriority, tProps
+  return getSoundManager().play(tMemName, tPriority, tProps)
 end
 
-on playSoundInChannel tMemName, tChannelNum 
-  return(getSoundManager().playInChannel(tMemName, tChannelNum))
+on playSoundInChannel tMemName, tChannelNum
+  return getSoundManager().playInChannel(tMemName, tChannelNum)
 end
 
-on queueSound tMemName, tChannelNum, tProps 
-  return(getSoundManager().queue(tMemName, tChannelNum, tProps))
+on queueSound tMemName, tChannelNum, tProps
+  return getSoundManager().queue(tMemName, tChannelNum, tProps)
 end
 
-on stopAllSounds tID 
+on stopAllSounds tID
   if not managerExists(#sound_manager) then
-    return FALSE
+    return 0
   end if
-  return(getSoundManager().stopAllSounds(tID))
+  return getSoundManager().stopAllSounds(tID)
 end
 
-on startSoundChannel tNum 
-  return(getSoundManager().playChannel(tNum))
+on startSoundChannel tNum
+  return getSoundManager().playChannel(tNum)
 end
 
-on stopSoundChannel tNum 
-  return(getSoundManager().stopChannel(tNum))
+on stopSoundChannel tNum
+  return getSoundManager().stopChannel(tNum)
 end

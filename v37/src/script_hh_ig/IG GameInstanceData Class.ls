@@ -1,38 +1,35 @@
-property pUserTeamsIndex, pOwnPlayerId
+property pOwnPlayerId, pUserTeamsIndex
 
-on construct me 
+on construct me
   pOwnPlayerId = -1
   pUserTeamsIndex = [:]
-  return(me.ancestor.construct())
+  return me.ancestor.construct()
 end
 
-on deconstruct me 
+on deconstruct me
   pOwnPlayerId = -1
   pUserTeamsIndex = [:]
-  return(me.ancestor.deconstruct())
+  return me.ancestor.deconstruct()
 end
 
-on Refresh me, tdata 
+on Refresh me, tdata
   tAllTeamData = tdata.getaProp(#teams)
   if listp(tAllTeamData) then
-    i = 1
-    repeat while i <= tAllTeamData.count
-      tTeam = tAllTeamData.getAt(i)
+    repeat with i = 1 to tAllTeamData.count
+      tTeam = tAllTeamData[i]
       tPlayers = tTeam.getaProp(#players)
-      repeat while tPlayers <= undefined
-        tPlayer = getAt(undefined, tdata)
+      repeat with tPlayer in tPlayers
         me.addUserToGame(tPlayer, 1)
       end repeat
-      i = (1 + i)
     end repeat
   end if
   me.ancestor.Refresh(tdata)
-  return TRUE
+  return 1
 end
 
-on addUserToGame me, tdata, tHoldAnnounce 
+on addUserToGame me, tdata, tHoldAnnounce
   if not listp(tdata) then
-    return FALSE
+    return 0
   end if
   tUserID = tdata.getaProp(#id)
   if tdata.findPos(#players_required) then
@@ -40,11 +37,11 @@ on addUserToGame me, tdata, tHoldAnnounce
   end if
   tTeamId = tdata.getaProp(#team_id)
   if voidp(tTeamId) then
-    return FALSE
+    return 0
   end if
   tOldTeamId = me.getTeamIdFromIndex(tUserID)
-  if tOldTeamId <> 0 then
-    if tOldTeamId <> tTeamId then
+  if (tOldTeamId <> 0) then
+    if (tOldTeamId <> tTeamId) then
       me.removeUserFromGame(tdata)
     end if
   end if
@@ -55,12 +52,11 @@ on addUserToGame me, tdata, tHoldAnnounce
   end if
   tAllTeamData = me.pData.getaProp(#teams)
   if (tAllTeamData.findPos(tTeamId) = 0) then
-    tAllTeamData.setaProp(tTeamId, [#players:[:]])
+    tAllTeamData.setaProp(tTeamId, [#players: [:]])
   end if
   tPlayers = tAllTeamData.getaProp(tTeamId).getaProp(#players)
   tPlayerData = [:]
-  repeat while [#id, #name, #figure, #sex, #team_id, #room_index] <= tHoldAnnounce
-    tKey = getAt(tHoldAnnounce, tdata)
+  repeat with tKey in [#id, #name, #figure, #sex, #team_id, #room_index]
     if tdata.findPos(tKey) then
       tPlayerData.setaProp(tKey, tdata.getaProp(tKey))
     end if
@@ -71,22 +67,22 @@ on addUserToGame me, tdata, tHoldAnnounce
   tPlayers.setaProp(tUserID, tPlayerData)
   if not tHoldAnnounce then
     towner = me.getOwnerIGComponent()
-    if towner <> 0 then
+    if (towner <> 0) then
       towner.announceUpdate(me.getProperty(#id))
     end if
   end if
-  return TRUE
+  return 1
 end
 
-on removeUserFromGame me, tdata 
+on removeUserFromGame me, tdata
   tUserID = tdata.getaProp(#id)
   tAllTeamData = me.pData.getaProp(#teams)
   if (tAllTeamData = 0) then
-    return FALSE
+    return 0
   end if
   tTeamId = me.getTeamIdFromIndex(tUserID)
   if (tTeamId = 0) then
-    return TRUE
+    return 1
   end if
   me.storeToIndex(tUserID, -1)
   if (pOwnPlayerId = tUserID) then
@@ -95,7 +91,7 @@ on removeUserFromGame me, tdata
   tTeam = tAllTeamData.getaProp(tTeamId)
   tPlayers = tTeam.getaProp(#players)
   if not tPlayers.findPos(tUserID) then
-    return FALSE
+    return 0
   end if
   tPlayers.deleteProp(tUserID)
   me.pData.setaProp(#player_count, pUserTeamsIndex.count)
@@ -103,230 +99,221 @@ on removeUserFromGame me, tdata
     me.pData.setaProp(#players_required, tdata.getaProp(#players_required))
   end if
   towner = me.getOwnerIGComponent()
-  if towner <> 0 then
+  if (towner <> 0) then
     towner.announceUpdate(me.getProperty(#id))
   end if
-  return TRUE
+  return 1
 end
 
-on getLevelHighscore me 
+on getLevelHighscore me
   tLevelRef = me.getLevelRef()
   if (tLevelRef = 0) then
-    return FALSE
+    return 0
   end if
-  return(tLevelRef.getLevelHighscore())
+  return tLevelRef.getLevelHighscore()
 end
 
-on getLevelTeamHighscore me 
+on getLevelTeamHighscore me
   tLevelRef = me.getLevelRef()
   if (tLevelRef = 0) then
-    return FALSE
+    return 0
   end if
-  return(tLevelRef.getLevelTeamHighscore())
+  return tLevelRef.getLevelTeamHighscore()
 end
 
-on getPlayerById me, tID 
+on getPlayerById me, tID
   tAllTeamData = me.pData.getaProp(#teams)
   if (tAllTeamData = 0) then
-    return FALSE
+    return 0
   end if
-  repeat while tAllTeamData <= undefined
-    tTeam = getAt(undefined, tID)
+  repeat with tTeam in tAllTeamData
     tPlayers = tTeam.getaProp(#players)
-    repeat while tAllTeamData <= undefined
-      tPlayer = getAt(undefined, tID)
+    repeat with tPlayer in tPlayers
       if listp(tPlayer) then
         if (tPlayer.getaProp(#id) = tID) then
-          return(tPlayer)
+          return tPlayer
         end if
       end if
     end repeat
   end repeat
-  return FALSE
+  return 0
 end
 
-on getAllTeamData me 
-  return(me.pData.getaProp(#teams))
+on getAllTeamData me
+  return me.pData.getaProp(#teams)
 end
 
-on getTeam me, tTeamId 
+on getTeam me, tTeamId
   tTeamData = me.pData.getaProp(#teams)
-  if (tTeamData = void()) then
-    return FALSE
+  if (tTeamData = VOID) then
+    return 0
   end if
-  return(tTeamData.getaProp(tTeamId))
+  return tTeamData.getaProp(tTeamId)
 end
 
-on getTeamPlayers me, tTeamIndex 
+on getTeamPlayers me, tTeamIndex
   tAllTeamData = me.getAllTeamData()
   if not listp(tAllTeamData) then
-    return FALSE
+    return 0
   end if
   tTeamData = tAllTeamData.getaProp(tTeamIndex)
   if not listp(tTeamData) then
-    return FALSE
+    return 0
   end if
-  return(tTeamData.getaProp(#players))
+  return tTeamData.getaProp(#players)
 end
 
-on getPlayerCount me 
+on getPlayerCount me
   if (me.pData.findPos(#player_count) = 0) then
-    return FALSE
+    return 0
   end if
-  return(me.pData.getaProp(#player_count))
+  return me.pData.getaProp(#player_count)
 end
 
-on getMaxPlayerCount me 
+on getMaxPlayerCount me
   if (me.pData.findPos(#player_max_count) = 0) then
-    return FALSE
+    return 0
   end if
-  return(me.pData.getaProp(#player_max_count))
+  return me.pData.getaProp(#player_max_count)
 end
 
-on getTeamSize me, tTeamIndex 
+on getTeamSize me, tTeamIndex
   tdata = me.getTeamPlayers(tTeamIndex)
   if listp(tdata) then
-    return(tdata.count)
+    return tdata.count
   else
-    return FALSE
+    return 0
   end if
 end
 
-on getTeamCount me 
+on getTeamCount me
   if (me.pData.findPos(#number_of_teams) = 0) then
-    return FALSE
+    return 0
   end if
-  return(me.pData.getaProp(#number_of_teams))
+  return me.pData.getaProp(#number_of_teams)
 end
 
-on getTeamMaxSize me 
+on getTeamMaxSize me
   tTeamCount = me.getTeamCount()
-  if (tTeamCount = 1) then
-    tCount = 12
-  else
-    if (tTeamCount = 2) then
-      if tTeamCount <> 0 then
-        if (tTeamCount = 1) then
+  case tTeamCount of
+    1:
+      tCount = 12
+    2:
+      case me.getProperty(#game_type) of
+        0, 1:
           tCount = 6
-        else
+        otherwise:
           tCount = 4
-        end if
-        if (tTeamCount = 3) then
-          tCount = 4
-        else
-          if (tTeamCount = 4) then
-            tCount = 3
-          end if
-        end if
-        return(tCount)
-      end if
-    end if
-  end if
+      end case
+    3:
+      tCount = 4
+    4:
+      tCount = 3
+  end case
+  return tCount
 end
 
-on checkPlayerRequiredForSlot me, tTeamIndex, tPlayerIndex 
+on checkPlayerRequiredForSlot me, tTeamIndex, tPlayerIndex
   tPlayersRequired = me.getProperty(#players_required)
   if not listp(tPlayersRequired) then
-    return FALSE
+    return 0
   end if
   tRequiredCount = tPlayersRequired.getaProp(tTeamIndex)
   if voidp(tRequiredCount) then
-    return FALSE
+    return 0
   end if
   tTeamSize = me.getTeamSize(tTeamIndex)
-  return(((tTeamSize + tRequiredCount) = tPlayerIndex))
+  return ((tTeamSize + tRequiredCount) = tPlayerIndex)
 end
 
-on getGameState me 
-  return(me.pData.getaProp(#state))
+on getGameState me
+  return me.pData.getaProp(#state)
 end
 
-on getGameStateTimer me 
-  return(me.pData.getaProp(#state_timer))
+on getGameStateTimer me
+  return me.pData.getaProp(#state_timer)
 end
 
-on getBiggestTeamPlayerCount me 
+on getBiggestTeamPlayerCount me
   tResult = 0
   tTeamCount = me.getTeamCount()
-  tTeamIndex = 1
-  repeat while tTeamIndex <= tTeamCount
+  repeat with tTeamIndex = 1 to tTeamCount
     tTeam = me.getTeamPlayers(tTeamIndex)
     tPlayerCount = tTeam.count
-    if tPlayerCount > tResult then
+    if (tPlayerCount > tResult) then
       tResult = tPlayerCount
     end if
-    tTeamIndex = (1 + tTeamIndex)
   end repeat
-  return(tResult)
+  return tResult
 end
 
-on canStart me 
+on canStart me
   tList = me.pData.getaProp(#players_required)
   if not listp(tList) then
-    return TRUE
+    return 1
   end if
   if (tList.count = 0) then
-    return TRUE
+    return 1
   end if
-  return FALSE
+  return 0
 end
 
-on getOwnPlayerTeam me 
-  return(me.getTeamIdFromIndex(me.getOwnPlayerId()))
+on getOwnPlayerTeam me
+  return me.getTeamIdFromIndex(me.getOwnPlayerId())
 end
 
-on getOwnPlayerName me 
+on getOwnPlayerName me
   tSession = getObject(#session)
   if (tSession = 0) then
-    return FALSE
+    return 0
   end if
-  return(tSession.GET(#user_name))
+  return tSession.GET(#user_name)
 end
 
-on getOwnPlayerId me 
-  return(pOwnPlayerId)
+on getOwnPlayerId me
+  return pOwnPlayerId
 end
 
-on checkIfOwnerOfGame me 
+on checkIfOwnerOfGame me
   tSession = getObject(#session)
   if (tSession = 0) then
-    return FALSE
+    return 0
   end if
-  return((tSession.GET(#user_name) = me.pData.getaProp(#owner_name)))
+  return (tSession.GET(#user_name) = me.pData.getaProp(#owner_name))
 end
 
-on hasCompleteData me 
-  return(listp(me.getAllTeamData()))
+on hasCompleteData me
+  return listp(me.getAllTeamData())
 end
 
-on hasTeamScores me 
-  return(me.pData.findPos(#level_team_scores) > 0)
+on hasTeamScores me
+  return (me.pData.findPos(#level_team_scores) > 0)
 end
 
-on getTeamIdFromIndex me, tID 
-  return(pUserTeamsIndex.getaProp(tID))
+on getTeamIdFromIndex me, tID
+  return pUserTeamsIndex.getaProp(tID)
 end
 
-on storeToIndex me, tID, tTeamId 
-  if voidp(tID) or voidp(tTeamId) then
-    return FALSE
+on storeToIndex me, tID, tTeamId
+  if (voidp(tID) or voidp(tTeamId)) then
+    return 0
   end if
   if (tTeamId = -1) then
     pUserTeamsIndex.deleteProp(tID)
   else
     pUserTeamsIndex.setaProp(tID, tTeamId)
   end if
-  return TRUE
+  return 1
 end
 
-on getLevelRef me 
+on getLevelRef me
   tLevelId = me.getProperty(#level_id)
   if voidp(tLevelId) then
-    return FALSE
+    return 0
   end if
   tService = me.getIGComponent("LevelList")
   if (tService = 0) then
-    return FALSE
+    return 0
   end if
-  return(tService.getListEntry(tLevelId))
+  return tService.getListEntry(tLevelId)
 end

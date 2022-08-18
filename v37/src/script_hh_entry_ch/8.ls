@@ -1,0 +1,1 @@
+property UNKNOWN_NAME_13032, UNKNOWN_NAME_-1, setcursor, UNKNOWN_NAME_1140, tBotSpr, hideAll, tstate, UNKNOWN_NAME_-1, UNKNOWN_NAME_-1

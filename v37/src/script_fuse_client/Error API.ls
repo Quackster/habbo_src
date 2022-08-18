@@ -1,64 +1,66 @@
-on constructErrorManager  
+global gError
+
+on constructErrorManager
   if objectp(gError) then
-    return(gError)
+    return gError
   end if
-  tClass = value(convertToPropList(field(0), "\r").getAt("error.manager.class")).getAt(1)
+  tClass = value(convertToPropList(field("System Props"), RETURN)["error.manager.class"])[1]
   gError = script(tClass).new()
   gError.construct()
   try()
   createObject(#error_manager, gError)
   catch()
-  return(gError)
+  return gError
 end
 
-on deconstructErrorManager  
+on deconstructErrorManager
   if not objectp(gError) then
-    return FALSE
+    return 0
   end if
   gError.deconstruct()
-  gError = void()
-  return TRUE
+  gError = VOID
+  return 1
 end
 
-on getErrorManager  
+on getErrorManager
   if not objectp(gError) then
-    return(constructErrorManager())
+    return constructErrorManager()
   end if
-  return(gError)
+  return gError
 end
 
-on error tObject, tMsg, tMethod, tErrorLevel 
-  return(getErrorManager().error(tObject, tMsg, tMethod, tErrorLevel))
+on error tObject, tMsg, tMethod, tErrorLevel
+  return getErrorManager().error(tObject, tMsg, tMethod, tErrorLevel)
 end
 
-on serverError tErrorList 
-  return(getErrorManager().serverError(tErrorList))
+on serverError tErrorList
+  return getErrorManager().serverError(tErrorList)
 end
 
-on getClientErrors  
-  return(getErrorManager().getClientErrors())
+on getClientErrors
+  return getErrorManager().getClientErrors()
 end
 
-on getServerErrors  
-  return(getErrorManager().getServerErrors())
+on getServerErrors
+  return getErrorManager().getServerErrors()
 end
 
-on fatalError tErrorData 
-  return(getErrorManager().fatalError(tErrorData))
+on fatalError tErrorData
+  return getErrorManager().fatalError(tErrorData)
 end
 
-on SystemAlert tObject, tMsg, tMethod 
-  return(getErrorManager().SystemAlert(tObject, tMsg, tMethod))
+on SystemAlert tObject, tMsg, tMethod
+  return getErrorManager().SystemAlert(tObject, tMsg, tMethod)
 end
 
-on setDebugLevel tLevel 
-  return(getErrorManager().setDebugLevel(tLevel))
+on setDebugLevel tLevel
+  return getErrorManager().setDebugLevel(tLevel)
 end
 
-on printErrors  
-  return(getErrorManager().print())
+on printErrors
+  return getErrorManager().print()
 end
 
-on handlers  
-  return([])
+on handlers
+  return []
 end

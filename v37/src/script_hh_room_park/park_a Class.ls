@@ -1,31 +1,30 @@
 property pAnimCounter, pAnimList, pCurrentFrm
 
-on construct me 
+on construct me
   pAnimCounter = 0
   pCurrentFrm = 1
   pAnimList = [1, 2, 3, 4, 5, 6, 7]
   initThread("hubu.index")
   me.regMsgList(1)
-  return(receiveUpdate(me.getID()))
+  return receiveUpdate(me.getID())
 end
 
-on deconstruct me 
+on deconstruct me
   me.regMsgList(0)
   removeUpdate(me.getID())
   closeThread(#hubu)
-  return TRUE
+  return 1
 end
 
-on prepare me 
+on prepare me
   tRoomVis = getThread(#room).getInterface().getRoomVisualizer()
-  repeat while ["bus", "hubu_kiosk_1", "hubu_kiosk_2", "hubu_kiosk_3", "hubu_kiosk_4", "hubu_kiosk_5"] <= undefined
-    tID = getAt(undefined, undefined)
+  repeat with tID in ["bus", "hubu_kiosk_1", "hubu_kiosk_2", "hubu_kiosk_3", "hubu_kiosk_4", "hubu_kiosk_5"]
     tsprite = tRoomVis.getSprById(tID)
     registerProcedure(tsprite, #parkAEventProc, me.getID(), #mouseDown)
   end repeat
 end
 
-on handle_bus_door me, tMsg 
+on handle_bus_door me, tMsg
   tConn = tMsg.connection
   tStatus = tConn.GetIntFrom()
   if tStatus then
@@ -35,50 +34,42 @@ on handle_bus_door me, tMsg
   end if
 end
 
-on busDoor me, tCommand 
-  if (tCommand = "open") then
-    tMem = member(getmemnum("park_bussioviopen"))
-  else
-    if (tCommand = "close") then
+on busDoor me, tCommand
+  case tCommand of
+    "open":
+      tMem = member(getmemnum("park_bussioviopen"))
+    "close":
       tMem = member(getmemnum("park_bussi_ovi"))
-    end if
-  end if
+  end case
   tID = "bus"
   tRoomVis = getThread(#room).getInterface().getRoomVisualizer()
   if (tRoomVis = 0) then
-    return FALSE
+    return 0
   end if
   tRoomVis.getSprById(tID).setMember(tMem)
 end
 
-on parkAEventProc me, tEvent, tSprID, tParm 
+on parkAEventProc me, tEvent, tSprID, tParm
   tConnection = getThread(#room).getComponent().getRoomConnection()
   if (tConnection = 0) then
-    return FALSE
+    return 0
   end if
   if (tSprID = "bus") then
     tConnection.send("TRYBUS")
   else
-    if tSprID contains "hubu_kiosk" then
-      if (tSprID = "hubu_kiosk_1") then
-        tKioskLoc = "12 20"
-      else
-        if (tSprID = "hubu_kiosk_2") then
+    if (tSprID contains "hubu_kiosk") then
+      case tSprID of
+        "hubu_kiosk_1":
+          tKioskLoc = "12 20"
+        "hubu_kiosk_2":
           tKioskLoc = "12 21"
-        else
-          if (tSprID = "hubu_kiosk_3") then
-            tKioskLoc = "12 22"
-          else
-            if (tSprID = "hubu_kiosk_4") then
-              tKioskLoc = "12 23"
-            else
-              if (tSprID = "hubu_kiosk_5") then
-                tKioskLoc = "12 24"
-              end if
-            end if
-          end if
-        end if
-      end if
+        "hubu_kiosk_3":
+          tKioskLoc = "12 22"
+        "hubu_kiosk_4":
+          tKioskLoc = "12 23"
+        "hubu_kiosk_5":
+          tKioskLoc = "12 24"
+      end case
       dumpVariableField("hubu.http.links")
       me.ChangeWindowView("hubukiosk", "hubu_kiosk_1.window")
       tImg = member(getmemnum("hubu_kiosk_tab1_cont")).image
@@ -88,8 +79,8 @@ on parkAEventProc me, tEvent, tSprID, tParm
   end if
 end
 
-on ChangeWindowView me, tWindowTitle, tWindowName, tX, tY 
-  createWindow(tWindowTitle, tWindowName, void(), void(), #modal)
+on ChangeWindowView me, tWindowTitle, tWindowName, tX, tY
+  createWindow(tWindowTitle, tWindowName, VOID, VOID, #modal)
   tWndObj = getWindow(tWindowTitle)
   tWndObj.center()
   tWndObj.registerClient(me.getID())
@@ -97,25 +88,25 @@ on ChangeWindowView me, tWindowTitle, tWindowName, tX, tY
   tWndObj.registerProcedure(#hubuEventProc, me.getID(), #keyDown)
 end
 
-on hubuEventProc me, tEvent, tSprID, tParm 
-  if tSprID contains "hubukiosk_navibutton" then
-    tWindow = "hubu_kiosk_" & tSprID.getProp(#char, tSprID.count(#char)) & ".window"
+on hubuEventProc me, tEvent, tSprID, tParm
+  if (tSprID contains "hubukiosk_navibutton") then
+    tWindow = (("hubu_kiosk_" & tSprID.char[tSprID.char.count]) & ".window")
     me.ChangeWindowView("hubukiosk", tWindow)
-    tImg = member(getmemnum("hubu_kiosk_tab" & tSprID.getProp(#char, tSprID.count(#char)) & "_cont")).image
+    tImg = member(getmemnum((("hubu_kiosk_tab" & tSprID.char[tSprID.char.count]) & "_cont"))).image
     getWindow("hubukiosk").getElement("hubu_kiosk_text").feedImage(tImg)
   else
-    if tSprID contains "close" then
+    if (tSprID contains "close") then
       if windowExists("hubukiosk") then
         removeWindow("hubukiosk")
       end if
     else
-      if tSprID contains "hubukiosk_txtlink" then
-        tTemp = getVariableValue("hubu_t" & tSprID.getProp(#char, (length(tSprID) - 2), length(tSprID)))
+      if (tSprID contains "hubukiosk_txtlink") then
+        tTemp = getVariableValue(("hubu_t" & tSprID.char[(length(tSprID) - 2)]))
         if not listp(tTemp) then
-          return(error(me, "Missing link:" && "hubu_t" & tSprID.getProp(#char, (length(tSprID) - 2), length(tSprID)), #hubuEventProc))
+          return error(me, (("Missing link:" && "hubu_t") & tSprID.char[(length(tSprID) - 2)]), #hubuEventProc)
         end if
-        tURL = tTemp.getAt(1)
-        tAdId = tTemp.getAt(2)
+        tURL = tTemp[1]
+        tAdId = tTemp[2]
         openNetPage(tURL)
         if connectionExists(getVariable("connection.info.id")) then
           getConnection(getVariable("connection.info.id")).send("ADVIEW", tAdId)
@@ -126,16 +117,16 @@ on hubuEventProc me, tEvent, tSprID, tParm
   end if
 end
 
-on update me 
-  if pAnimCounter > 2 then
-    tNextFrm = pAnimList.getAt(random(pAnimList.count))
+on update me
+  if (pAnimCounter > 2) then
+    tNextFrm = pAnimList[random(pAnimList.count)]
     pAnimList.deleteOne(tNextFrm)
     pAnimList.add(pCurrentFrm)
     pCurrentFrm = tNextFrm
-    tMem = member(getmemnum("park_fountain" & pCurrentFrm))
+    tMem = member(getmemnum(("park_fountain" & pCurrentFrm)))
     tRoomVis = getThread(#room).getInterface().getRoomVisualizer()
     if not tRoomVis then
-      return FALSE
+      return 0
     end if
     tRoomVis.getSprById("fountain").setMember(tMem)
     pAnimCounter = 0
@@ -143,7 +134,7 @@ on update me
   pAnimCounter = (pAnimCounter + 1)
 end
 
-on regMsgList me, tBool 
+on regMsgList me, tBool
   tMsgs = [:]
   tMsgs.setaProp(503, #handle_bus_door)
   tCmds = [:]
@@ -154,5 +145,5 @@ on regMsgList me, tBool
     unregisterListener(getVariable("connection.info.id"), me.getID(), tMsgs)
     unregisterCommands(getVariable("connection.info.id"), me.getID(), tCmds)
   end if
-  return TRUE
+  return 1
 end

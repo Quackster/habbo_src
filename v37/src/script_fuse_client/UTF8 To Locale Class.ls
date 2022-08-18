@@ -1,148 +1,139 @@
 property pUnicodeValues, plocalevalues, plocaleformat
 
-on construct me 
+on construct me
   pUnicodeValues = [:]
   plocalevalues = [:]
-  plocaleformat = ""
+  plocaleformat = EMPTY
 end
 
-on defineLocale me, tlocaleformat 
-  if tlocaleformat <> "sjis" and tlocaleformat <> "windows-1251" then
-    return(error(me, "Invalid locale format:" && tlocaleformat, #defineLocale, #major))
+on defineLocale me, tlocaleformat
+  if ((tlocaleformat <> "sjis") and (tlocaleformat <> "windows-1251")) then
+    return error(me, ("Invalid locale format:" && tlocaleformat), #defineLocale, #major)
   end if
   plocaleformat = tlocaleformat
   tResult = me.createcharacterconversionarrays(tlocaleformat)
-  pUnicodeValues = tResult.getAt("unicode_values")
-  plocalevalues = tResult.getAt("locale_values")
+  pUnicodeValues = tResult["unicode_values"]
+  plocalevalues = tResult["locale_values"]
 end
 
-on convertToUnicode me, tStr 
-  if (pUnicodeValues.count = 0) or (plocalevalues.count = 0) then
-    return FALSE
+on convertToUnicode me, tStr
+  if ((pUnicodeValues.count = 0) or (plocalevalues.count = 0)) then
+    return 0
   end if
   tUnicodeData = []
-  i = 1
-  repeat while i <= tStr.length
-    tChar = tStr.getProp(#char, i)
+  repeat with i = 1 to tStr.length
+    tChar = tStr.char[i]
     tValue = charToNum(tChar)
     tUnicodeValue = 0
     tIndex = (tValue + 1)
-    if tValue < 128 then
+    if (tValue < 128) then
       tUnicodeValue = tValue
     else
-      if tIndex <= pUnicodeValues.count then
-        tUnicodeValue = pUnicodeValues.getAt(tIndex)
+      if (tIndex <= pUnicodeValues.count) then
+        tUnicodeValue = pUnicodeValues[tIndex]
       end if
     end if
-    if tUnicodeValue > 0 then
+    if (tUnicodeValue > 0) then
       tUnicodeData.add(tUnicodeValue)
-    else
+      next repeat
     end if
-    i = (1 + i)
   end repeat
-  return(tUnicodeData)
+  return tUnicodeData
 end
 
-on convertFromUnicode me, tUnicodeData 
-  if (pUnicodeValues.count = 0) or (plocalevalues.count = 0) then
-    return FALSE
+on convertFromUnicode me, tUnicodeData
+  if ((pUnicodeValues.count = 0) or (plocalevalues.count = 0)) then
+    return 0
   end if
-  tResult = ""
-  i = 1
-  repeat while i <= tUnicodeData.count
-    tUnicodeValue = tUnicodeData.getAt(i)
+  tResult = EMPTY
+  repeat with i = 1 to tUnicodeData.count
+    tUnicodeValue = tUnicodeData[i]
     tlocalevalue = 0
     tIndex = (tUnicodeValue + 1)
-    if tUnicodeValue < 128 then
+    if (tUnicodeValue < 128) then
       tlocalevalue = tUnicodeValue
     else
-      if tIndex <= plocalevalues.count then
-        tlocalevalue = plocalevalues.getAt(tIndex)
+      if (tIndex <= plocalevalues.count) then
+        tlocalevalue = plocalevalues[tIndex]
       end if
     end if
-    if tlocalevalue > 0 then
-      tResult = tResult & numToChar(tlocalevalue)
-    else
+    if (tlocalevalue > 0) then
+      tResult = (tResult & numToChar(tlocalevalue))
+      next repeat
     end if
-    i = (1 + i)
   end repeat
-  return(tResult)
+  return tResult
 end
 
-on generateStringFromUTF8 me, tUTF8Data 
+on generateStringFromUTF8 me, tUTF8Data
   if (plocaleformat = "windows-1251") then
-    return(void())
+    return VOID
   end if
-  tResult = ""
+  tResult = EMPTY
   i = 1
-  repeat while i <= tUTF8Data.count
-    tValue = tUTF8Data.getAt(i)
+  repeat while (i <= tUTF8Data.count)
+    tValue = tUTF8Data[i]
     i = (i + 1)
-    if tValue >= 129 and tValue <= 159 or tValue >= 224 and tValue <= 239 then
-      if i <= tUTF8Data.count then
-        tValue = ((tValue * 256) + tUTF8Data.getAt(i))
+    if (((tValue >= 129) and (tValue <= 159)) or ((tValue >= 224) and (tValue <= 239))) then
+      if (i <= tUTF8Data.count) then
+        tValue = ((tValue * 256) + tUTF8Data[i])
         i = (i + 1)
       else
       end if
     end if
-    tResult = tResult & numToChar(tValue)
+    tResult = (tResult & numToChar(tValue))
   end repeat
-  return(tResult)
+  return tResult
 end
 
-on createcharacterconversionarrays me, tencodingformat 
+on createcharacterconversionarrays me, tencodingformat
   tUnicodeValues = []
   tlocalevalues = []
-  tText = ""
-  if (tencodingformat = "sjis") then
-    tText = member("Shift JIS to Unicode map").text
-  else
-    if (tencodingformat = "windows-1251") then
+  tText = EMPTY
+  case tencodingformat of
+    "sjis":
+      tText = member("Shift JIS to Unicode map").text
+    "windows-1251":
       tText = member("Windows-1251 to Unicode map").text
-    end if
-  end if
+  end case
   if (ilk(tText) = #string) then
-    tLineCount = the number of line in tText
+    tLineCount = the number of lines in tText
     tChunkSize = 100
     tChunkCount = (tLineCount / tChunkSize)
-    if (tLineCount mod tChunkSize) <> 0 then
+    if ((tLineCount mod tChunkSize) <> 0) then
       tChunkCount = (tChunkCount + 1)
     end if
-    j = 1
-    repeat while j <= tChunkCount
+    repeat with j = 1 to tChunkCount
       tFirstLineIndex = (1 + ((j - 1) * tChunkSize))
       tLastLineIndex = ((tFirstLineIndex + tChunkSize) - 1)
-      tSubText = tText.getProp(#line, tFirstLineIndex, tLastLineIndex)
-      tSubLineCount = the number of line in tSubText
-      i = 1
-      repeat while i <= tSubLineCount
-        tLine = tSubText.line[1]
-        tvaluelocale = tLine.word[1]
-        if (tvaluelocale.getProp(#char, 1, 2) = "0x") then
-          tValueUnicode = tLine.word[2]
-          tvaluelocale = tvaluelocale.getProp(#char, 3, tvaluelocale.length)
-          if (tValueUnicode.getProp(#char, 1, 2) = "0x") then
-            tValueUnicode = tValueUnicode.getProp(#char, 3, tValueUnicode.length)
+      tSubText = tText.line[tFirstLineIndex]
+      tSubLineCount = the number of lines in tSubText
+      repeat with i = 1 to tSubLineCount
+        tLine = line 1 of tSubText
+        delete line 1 of tSubText
+        tvaluelocale = word 1 of tLine
+        if (tvaluelocale.char[1] = "0x") then
+          tValueUnicode = word 2 of tLine
+          tvaluelocale = tvaluelocale.char[3]
+          if (tValueUnicode.char[1] = "0x") then
+            tValueUnicode = tValueUnicode.char[3]
             tValueUnicode = me.hextoint(tValueUnicode)
             tvaluelocale = me.hextoint(tvaluelocale)
-            tUnicodeValues.setAt((tvaluelocale + 1), tValueUnicode)
-            tlocalevalues.setAt((tValueUnicode + 1), tvaluelocale)
+            tUnicodeValues[(tvaluelocale + 1)] = tValueUnicode
+            tlocalevalues[(tValueUnicode + 1)] = tvaluelocale
           end if
         end if
-        i = (1 + i)
       end repeat
-      j = (1 + j)
     end repeat
   end if
-  return(["unicode_values":tUnicodeValues, "locale_values":tlocalevalues])
+  return ["unicode_values": tUnicodeValues, "locale_values": tlocalevalues]
 end
 
-on hextoint me, tStr 
+on hextoint me, tStr
   tValue = 0
-  i = 1
-  repeat while i <= tStr.length
+  repeat with i = 1 to tStr.length
     tValue = (tValue * 16)
-    tChar = tStr.getProp(#char, i)
+    tChar = tStr.char[i]
     tVal = value(tChar)
     if voidp(tVal) then
       if (tChar = "a") then
@@ -170,11 +161,10 @@ on hextoint me, tStr
       end if
     end if
     tValue = (tValue + tVal)
-    i = (1 + i)
   end repeat
-  return(tValue)
+  return tValue
 end
 
-on handlers  
-  return([])
+on handlers
+  return []
 end
