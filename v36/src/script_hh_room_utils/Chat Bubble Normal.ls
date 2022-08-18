@@ -1,24 +1,23 @@
-property pMargins, tVariations, pTextParams, pBalloonImg, pBgSprite, pUserSprite, pBgMemName, pUserMemName, pUserId, pLocation, pBalloonLeftMarg, pBalloonRightMarg, pItemId
+property pBgSprite, pUserSprite, pLocation, pTextParams, pBalloonImg, pBgMemName, pUserMemName, pItemId, pMargins, tVariations, pUserName, pUserId, pSourceLocation, pBalloonLeftMarg, pBalloonRightMarg
 
-on construct me 
-  pItemId = void()
+on construct me
+  pItemId = VOID
   pBgSprite = sprite(reserveSprite(me.getID()))
   pUserSprite = sprite(reserveSprite(me.getID()))
-  pUserName = ""
-  pUserId = ""
-  pSourceLocation = void()
+  pUserName = EMPTY
+  pUserId = EMPTY
+  pSourceLocation = VOID
   pMargins = [:]
-  pMargins.setAt(#left, 5)
-  pMargins.setAt(#right, 6)
-  pMargins.setAt(#textleft, 30)
-  pBgMemName = ""
-  pUserMemName = ""
-  tVariations = ["CHAT":"plain", "SHOUT":"bold", "WHISPER":"grey", "OBJECT":"plain"]
+  pMargins[#left] = 5
+  pMargins[#right] = 6
+  pMargins[#textleft] = 30
+  pBgMemName = EMPTY
+  pUserMemName = EMPTY
+  tVariations = ["CHAT": "plain", "SHOUT": "bold", "WHISPER": "grey", "OBJECT": "plain"]
   pTextParams = [:]
-  i = 1
-  repeat while i <= tVariations.count
-    tFontStruct = getStructVariable("struct.font." & tVariations.getAt(i))
-    tMemName = "balloon.text." & tVariations.getPropAt(i)
+  repeat with i = 1 to tVariations.count
+    tFontStruct = getStructVariable(("struct.font." & tVariations[i]))
+    tMemName = ("balloon.text." & tVariations.getPropAt(i))
     if not memberExists(tMemName) then
       tmember = member(createMember(tMemName, #text))
     else
@@ -31,8 +30,7 @@ on construct me
     tmember.fontSize = tFontStruct.getaProp(#fontSize)
     tmember.fontStyle = tFontStruct.getaProp(#fontStyle)
     tmember.color = tFontStruct.getaProp(#color)
-    pTextParams.setAt(tVariations.getPropAt(i), [#member:tmember, #font:tFontStruct.getaProp(#font), #fontStyle:tFontStruct.getaProp(#fontStyle)])
-    i = (1 + i)
+    pTextParams[tVariations.getPropAt(i)] = [#member: tmember, #font: tFontStruct.getaProp(#font), #fontStyle: tFontStruct.getaProp(#fontStyle)]
   end repeat
   pBalloonImg = [:]
   pBalloonImg.addProp(#left, member(getmemnum("chat_bubble_left")).image.duplicate())
@@ -52,14 +50,14 @@ on construct me
   end if
 end
 
-on deconstruct me 
+on deconstruct me
   if (ilk(pBgSprite) = #sprite) then
     releaseSprite(pBgSprite.spriteNum)
-    pBgSprite = void()
+    pBgSprite = VOID
   end if
   if (ilk(pUserSprite) = #sprite) then
     releaseSprite(pUserSprite.spriteNum)
-    pUserSprite = void()
+    pUserSprite = VOID
   end if
   if memberExists(pBgMemName) then
     removeMember(pBgMemName)
@@ -69,9 +67,9 @@ on deconstruct me
   end if
 end
 
-on defineBalloon me, tMode, tColor, tUserName, tMessage, tItemID, tUserImg, tUserID, tSourceLoc 
-  tNewBgMemName = "chat_item_background_" & tItemID
-  tNewUserMemName = "chat_item_user_" & tUserName
+on defineBalloon me, tMode, tColor, tUserName, tMessage, tItemID, tUserImg, tUserID, tSourceLoc
+  tNewBgMemName = ("chat_item_background_" & tItemID)
+  tNewUserMemName = ("chat_item_user_" & tUserName)
   pBgMemName = tNewBgMemName
   if not memberExists(pBgMemName) then
     createMember(pBgMemName, #bitmap)
@@ -82,7 +80,7 @@ on defineBalloon me, tMode, tColor, tUserName, tMessage, tItemID, tUserImg, tUse
   end if
   pItemId = tItemID
   tMaxChars = 150
-  if tMessage.length > tMaxChars then
+  if (tMessage.length > tMaxChars) then
     tMessage = chars(tMessage, 0, tMaxChars)
   end if
   tTextImg = me.renderText(tUserName, tMessage, tMode)
@@ -94,14 +92,14 @@ on defineBalloon me, tMode, tColor, tUserName, tMessage, tItemID, tUserImg, tUse
     pUserName = tUserName
     pUserId = tUserID
   else
-    pUserName = ""
-    pUserId = ""
+    pUserName = EMPTY
+    pUserId = EMPTY
   end if
-  tBalloonWidth = ((pMargins.getAt(#textleft) + tTextWidth) + pMargins.getAt(#right))
+  tBalloonWidth = ((pMargins[#textleft] + tTextWidth) + pMargins[#right])
   tBackgroundImg = me.renderBackground(tBalloonWidth, tColor)
-  tTextOffH = ((pMargins.getAt(#left) + tUserImgWidth) + pMargins.getAt(#separator))
-  tTextOffH = pMargins.getAt(#textleft)
-  tTextOffV = (((pBalloonImg.getAt(#middle).height - tTextImg.height) / 2) + 1)
+  tTextOffH = ((pMargins[#left] + tUserImgWidth) + pMargins[#separator])
+  tTextOffH = pMargins[#textleft]
+  tTextOffV = (((pBalloonImg[#middle].height - tTextImg.height) / 2) + 1)
   tTextDestRect = rect(tTextOffH, tTextOffV, (tTextOffH + tTextWidth), (tTextOffV + tTextImg.height))
   tBackgroundImg.copyPixels(tTextImg, tTextDestRect, tTextImg.rect)
   tBgMem = getMember(pBgMemName)
@@ -120,24 +118,24 @@ on defineBalloon me, tMode, tColor, tUserName, tMessage, tItemID, tUserImg, tUse
   pUserSprite.ink = 8
   if not voidp(tSourceLoc) then
     tloc = me.setLocation(tSourceLoc)
-    me.addPointer((tSourceLoc.getAt(1) - tloc.getAt(1)))
+    me.addPointer((tSourceLoc[1] - tloc[1]))
   end if
   setEventBroker(pUserSprite.spriteNum, me.getID())
   pUserSprite.registerProcedure(#eventProcUserSelect, me.getID(), #mouseDown)
   pUserSprite.setcursor("cursor.finger")
   setEventBroker(pBgSprite.spriteNum, me.getID())
   pBgSprite.registerProcedure(#eventProcUserSelect, me.getID(), #mouseDown)
-  return TRUE
+  return 1
 end
 
-on eventProcUserSelect me, tEvent, tSprID 
-  if pUserId <> "" then
+on eventProcUserSelect me, tEvent, tSprID
+  if (pUserId <> EMPTY) then
     tRoomInterface = getThread(#room).getInterface()
     tRoomInterface.eventProcUserObj(tEvent, pUserId)
   end if
 end
 
-on showBalloon me, tVisible 
+on showBalloon me, tVisible
   if voidp(tVisible) then
     tVisible = 1
   end if
@@ -149,143 +147,137 @@ on showBalloon me, tVisible
   end if
 end
 
-on moveVerticallyBy me, tMoveAmount 
+on moveVerticallyBy me, tMoveAmount
   tNewLocation = (pLocation + point(0, tMoveAmount))
   me.setLocation(tNewLocation)
-  return(tNewLocation.getAt(2))
+  return tNewLocation[2]
 end
 
-on setLocation me, tloc 
-  if ilk(tloc) <> #point and ilk(tloc) <> #list then
-    return FALSE
+on setLocation me, tloc
+  if ((ilk(tloc) <> #point) and (ilk(tloc) <> #list)) then
+    return 0
   end if
   tMem = getMember(pBgMemName)
   if (tMem.type = #bitmap) then
     tMemWidth = tMem.image.width
   else
-    return FALSE
+    return 0
   end if
-  tRelativeLocH = (tloc.getAt(1) - (tMemWidth / 2))
+  tRelativeLocH = (tloc[1] - (tMemWidth / 2))
   tRelativeLocH = max(tRelativeLocH, pBalloonLeftMarg)
   tRelativeLocH = min(tRelativeLocH, (pBalloonRightMarg - pBgSprite.member.image.width))
   pLocation = tloc
-  pBgSprite.loc = point(tRelativeLocH, pLocation.getAt(2))
-  tUserSprOffV = ((pUserSprite.member.image.height - pBalloonImg.getAt(#middle).height) / 2)
-  tUserOffH = (((pBalloonImg.getAt(#left).width - pUserSprite.member.image.width) / 2) + 1)
-  pUserSprite.loc = point((tUserOffH + tRelativeLocH), (pLocation.getAt(2) + (-1 * tUserSprOffV)))
-  pBgSprite.locZ = ((getIntVariable("window.default.locz") - 2000) + (pLocation.getAt(2) / 10))
+  pBgSprite.loc = point(tRelativeLocH, pLocation[2])
+  tUserSprOffV = ((pUserSprite.member.image.height - pBalloonImg[#middle].height) / 2)
+  tUserOffH = (((pBalloonImg[#left].width - pUserSprite.member.image.width) / 2) + 1)
+  pUserSprite.loc = point((tUserOffH + tRelativeLocH), (pLocation[2] + (-1 * tUserSprOffV)))
+  pBgSprite.locZ = ((getIntVariable("window.default.locz") - 2000) + (pLocation[2] / 10))
   pUserSprite.locZ = (pBgSprite.locZ + 100)
-  return(point(tRelativeLocH, pLocation.getAt(2)))
+  return point(tRelativeLocH, pLocation[2])
 end
 
-on addPointer me, tPointerOffH 
+on addPointer me, tPointerOffH
   tBalloonWidth = pBgSprite.member.image.width
-  if tPointerOffH < pBalloonImg.getAt(#left).width then
-    tPointerOffH = pBalloonImg.getAt(#left).width
+  if (tPointerOffH < pBalloonImg[#left].width) then
+    tPointerOffH = pBalloonImg[#left].width
   else
-    if tPointerOffH > (tBalloonWidth - pBalloonImg.getAt(#right).width) then
-      tPointerOffH = (tBalloonWidth - pBalloonImg.getAt(#right).width)
+    if (tPointerOffH > (tBalloonWidth - pBalloonImg[#right].width)) then
+      tPointerOffH = (tBalloonWidth - pBalloonImg[#right].width)
     end if
   end if
   tStartX = tPointerOffH
-  tEndX = (tStartX + pBalloonImg.getAt(#pointer).width)
-  tStartY = (pBalloonImg.getAt(#middle).height - 1)
-  tEndY = (tStartY + pBalloonImg.getAt(#pointer).height)
+  tEndX = (tStartX + pBalloonImg[#pointer].width)
+  tStartY = (pBalloonImg[#middle].height - 1)
+  tEndY = (tStartY + pBalloonImg[#pointer].height)
   tdestrect = rect(tStartX, tStartY, tEndX, tEndY)
   tBgImg = getMember(pBgMemName).image
-  tBgImg.copyPixels(pBalloonImg.getAt(#pointer), tdestrect, pBalloonImg.getAt(#pointer).rect)
+  tBgImg.copyPixels(pBalloonImg[#pointer], tdestrect, pBalloonImg[#pointer].rect)
 end
 
-on getLowPoint me 
-  return(pLocation.getAt(2))
+on getLowPoint me
+  return pLocation[2]
 end
 
-on getItemId me 
-  return(pItemId)
+on getItemId me
+  return pItemId
 end
 
-on getType me 
-  return("NORMAL")
+on getType me
+  return "NORMAL"
 end
 
-on renderBackground me, tWidth, tBalloonColor 
-  if ((tBalloonColor.red + tBalloonColor.green) + tBalloonColor.blue) >= 600 then
+on renderBackground me, tWidth, tBalloonColor
+  if (((tBalloonColor.red + tBalloonColor.green) + tBalloonColor.blue) >= 600) then
     tBalloonColorDarken = rgb(0, 0, 0)
-    tBalloonColorDarken.red = (tBalloonColor.red * 0.9)
-    tBalloonColorDarken.green = (tBalloonColor.green * 0.9)
-    tBalloonColorDarken.blue = (tBalloonColor.blue * 0.9)
+    tBalloonColorDarken.red = (tBalloonColor.red * 0.90000000000000002)
+    tBalloonColorDarken.green = (tBalloonColor.green * 0.90000000000000002)
+    tBalloonColorDarken.blue = (tBalloonColor.blue * 0.90000000000000002)
     tBalloonColor = tBalloonColorDarken
   end if
-  if ((tBalloonColor.red + tBalloonColor.green) + tBalloonColor.blue) <= 100 then
+  if (((tBalloonColor.red + tBalloonColor.green) + tBalloonColor.blue) <= 100) then
     tBalloonColorDarken = rgb(0, 0, 0)
     tBalloonColorDarken.red = (tBalloonColor.red * 3)
     tBalloonColorDarken.green = (tBalloonColor.green * 3)
     tBalloonColorDarken.blue = (tBalloonColor.blue * 3)
     tBalloonColor = tBalloonColorDarken
   end if
-  tNewImg = image(tWidth, (pBalloonImg.getAt(#left).height + pBalloonImg.getAt(#pointer).height), 32)
+  tNewImg = image(tWidth, (pBalloonImg[#left].height + pBalloonImg[#pointer].height), 32)
   tStartPointY = 0
-  tEndPointY = pBalloonImg.getAt(#left).height
+  tEndPointY = pBalloonImg[#left].height
   tStartPointX = 0
   tEndPointX = 0
-  repeat while [#left, #leftcolor, #middle, #right] <= tBalloonColor
-    i = getAt(tBalloonColor, tWidth)
+  repeat with i in [#left, #leftcolor, #middle, #right]
     tStartPointX = tEndPointX
-    if ([#left, #leftcolor, #middle, #right] = #left) then
-      tEndPointX = (tEndPointX + pBalloonImg.getProp(i).width)
-      tdestrect = rect(tStartPointX, tStartPointY, tEndPointX, tEndPointY)
-      tNewImg.copyPixels(pBalloonImg.getProp(i), tdestrect, pBalloonImg.getProp(i).rect)
-      tEndPointX = 1
-    else
-      if ([#left, #leftcolor, #middle, #right] = #leftcolor) then
+    case i of
+      #left:
+        tEndPointX = (tEndPointX + pBalloonImg.getProp(i).width)
+        tdestrect = rect(tStartPointX, tStartPointY, tEndPointX, tEndPointY)
+        tNewImg.copyPixels(pBalloonImg.getProp(i), tdestrect, pBalloonImg.getProp(i).rect)
+        tEndPointX = 1
+      #leftcolor:
         tEndPointX = (tEndPointX + pBalloonImg.getProp(i).width)
         tdestrect = (rect(tStartPointX, tStartPointY, tEndPointX, (tStartPointY + pBalloonImg.getProp(i).height)) + rect(0, 1, 0, 1))
         tMatte = pBalloonImg.getProp(i).createMatte()
-        tNewImg.copyPixels(pBalloonImg.getProp(i), tdestrect, pBalloonImg.getProp(i).rect, [#bgColor:tBalloonColor, #ink:41, #maskImage:tMatte])
-      else
-        if ([#left, #leftcolor, #middle, #right] = #middle) then
-          tEndPointX = (((tEndPointX + tWidth) - pBalloonImg.getProp(#left).width) - pBalloonImg.getProp(#right).width)
-          tdestrect = rect(tStartPointX, tStartPointY, tEndPointX, tEndPointY)
-          tNewImg.copyPixels(pBalloonImg.getProp(i), tdestrect, pBalloonImg.getProp(i).rect)
-        else
-          if ([#left, #leftcolor, #middle, #right] = #right) then
-            tEndPointX = (tEndPointX + pBalloonImg.getProp(i).width)
-            tdestrect = rect(tStartPointX, tStartPointY, tEndPointX, tEndPointY)
-            tNewImg.copyPixels(pBalloonImg.getProp(i), tdestrect, pBalloonImg.getProp(i).rect)
-          end if
-        end if
-      end if
-    end if
+        tNewImg.copyPixels(pBalloonImg.getProp(i), tdestrect, pBalloonImg.getProp(i).rect, [#bgColor: tBalloonColor, #ink: 41, #maskImage: tMatte])
+      #middle:
+        tEndPointX = (((tEndPointX + tWidth) - pBalloonImg.getProp(#left).width) - pBalloonImg.getProp(#right).width)
+        tdestrect = rect(tStartPointX, tStartPointY, tEndPointX, tEndPointY)
+        tNewImg.copyPixels(pBalloonImg.getProp(i), tdestrect, pBalloonImg.getProp(i).rect)
+      #right:
+        tEndPointX = (tEndPointX + pBalloonImg.getProp(i).width)
+        tdestrect = rect(tStartPointX, tStartPointY, tEndPointX, tEndPointY)
+        tNewImg.copyPixels(pBalloonImg.getProp(i), tdestrect, pBalloonImg.getProp(i).rect)
+    end case
   end repeat
-  return(tNewImg)
+  return tNewImg
 end
 
-on renderText me, tUserName, tChatMessage, tChatMode 
-  tTextParams = pTextParams.getAt(tChatMode)
-  tmember = tTextParams.getAt(#member)
+on renderText me, tUserName, tChatMessage, tChatMode
+  tTextParams = pTextParams[tChatMode]
+  tmember = tTextParams[#member]
   tBoldStruct = getStructVariable("struct.font.bold")
-  tText = tUserName & ":" && tChatMessage
+  tText = ((tUserName & ":") && tChatMessage)
   tmember.text = tText
-  tmember.font = tTextParams.getAt(#font)
-  tmember.fontStyle = tTextParams.getAt(#fontStyle)
-  tmember.getPropRef(#char, 1, (tUserName.length + 1)).font = tBoldStruct.getaProp(#font)
-  tmember.getPropRef(#char, 1, (tUserName.length + 1)).fontStyle = tBoldStruct.getaProp(#fontStyle)
-  tTextWidth = (tmember.charPosToLoc(tmember.count(#char)).locH + tBoldStruct.getaProp(#fontSize))
+  tmember.font = tTextParams[#font]
+  tmember.fontStyle = tTextParams[#fontStyle]
+  tmember.char[1].font = tBoldStruct.getaProp(#font)
+  tmember.char[1].fontStyle = tBoldStruct.getaProp(#fontStyle)
+  tTextWidth = (tmember.charPosToLoc(tmember.char.count).locH + tBoldStruct.getaProp(#fontSize))
   tmember.rect = rect(0, 0, tTextWidth, tmember.height)
   tTextImg = tmember.image.duplicate()
-  return(tTextImg)
+  return tTextImg
 end
 
-on flipH me, tImg 
+on flipH me, tImg
   tImage = image(tImg.width, tImg.height, tImg.depth)
   tQuad = [point(tImg.width, 0), point(0, 0), point(0, tImg.height), point(tImg.width, tImg.height)]
   tImage.copyPixels(tImg, tQuad, tImg.rect)
-  return(tImage)
+  return tImage
 end
 
-on flipV me, tImg 
+on flipV me, tImg
   tImage = image(tImg.width, tImg.height, tImg.depth)
   tQuad = [point(0, tImg.height), point(tImg.width, tImg.height), point(tImg.width, 0), point(0, 0)]
   tImage.copyPixels(tImg, tQuad, tImg.rect)
-  return(tImage)
+  return tImage
 end

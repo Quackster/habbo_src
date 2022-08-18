@@ -1,83 +1,79 @@
-property pContent, pPrice, pCode, pName
+property pCode, pName, pPrice, pContent
 
-on construct me 
+on construct me
   pContent = []
   pPrice = [:]
 end
 
-on deconstruct me 
-  repeat while pContent <= undefined
-    tObj = getAt(undefined, undefined)
+on deconstruct me
+  repeat with tObj in pContent
     removeObject(tObj.getID())
   end repeat
   pContent = []
 end
 
-on Initialize me, tdata 
-  if ilk(tdata) <> #propList then
-    return(error(me, "Invalid input format", #Initialize, #major))
+on Initialize me, tdata
+  if (ilk(tdata) <> #propList) then
+    return error(me, "Invalid input format", #Initialize, #major)
   end if
   pCode = tdata.getaProp(#offercode)
   pName = tdata.getaProp(#offername)
   pPrice = tdata.getaProp(#price)
   pContent = []
   tContent = tdata.getaProp(#content)
-  if ilk(tContent) <> #list then
-    return(error(me, "Invalid offer content format", #Initialize, #major))
+  if (ilk(tContent) <> #list) then
+    return error(me, "Invalid offer content format", #Initialize, #major)
   end if
   if (tContent.count = 0) then
-    return(error(me, "Content was empty", #Initialize, #minor))
+    return error(me, "Content was empty", #Initialize, #minor)
   end if
-  repeat while tContent <= undefined
-    tProductData = getAt(undefined, tdata)
+  repeat with tProductData in tContent
     tObj = createObject(#random, ["ProductData Class"])
     tObj.Initialize(tProductData)
     pContent.add(tObj)
   end repeat
 end
 
-on copy me, tAnotherOffer 
+on copy me, tAnotherOffer
   if not objectp(tAnotherOffer) then
-    return(error(me, "Invalid input format", #copy, #major))
+    return error(me, "Invalid input format", #copy, #major)
   end if
   pCode = tAnotherOffer.getCode()
   pName = tAnotherOffer.getName()
   pPrice = [:]
-  pPrice.setAt(#pixels, tAnotherOffer.getPrice(#pixels))
-  pPrice.setAt(#credits, tAnotherOffer.getPrice(#credits))
+  pPrice[#pixels] = tAnotherOffer.getPrice(#pixels)
+  pPrice[#credits] = tAnotherOffer.getPrice(#credits)
   pContent = []
-  i = 1
-  repeat while i <= tAnotherOffer.getCount()
+  repeat with i = 1 to tAnotherOffer.getCount()
     tObj = createObject(#random, ["ProductData Class"])
     tObj.copy(tAnotherOffer.getContent(i))
     pContent.add(tObj)
-    i = (1 + i)
   end repeat
 end
 
-on getCode me 
-  return(pCode)
+on getCode me
+  return pCode
 end
 
-on getName me 
-  return(pName)
+on getName me
+  return pName
 end
 
-on getPrice me, ttype 
-  if ttype <> #credits and ttype <> #pixels then
+on getPrice me, ttype
+  if ((ttype <> #credits) and (ttype <> #pixels)) then
     error(me, "Invalid price type", #getPrice, #major)
-    return FALSE
+    return 0
   end if
-  return(pPrice.getAt(ttype))
+  return pPrice[ttype]
 end
 
-on getCount me 
-  return(pContent.count)
+on getCount me
+  return pContent.count
 end
 
-on getContent me, tIndex 
-  if tIndex < 1 or tIndex > pContent.count then
-    return(error(me, "Index out of range", #getContent, #major))
+on getContent me, tIndex
+  if ((tIndex < 1) or (tIndex > pContent.count)) then
+    return error(me, "Index out of range", #getContent, #major)
   end if
-  return(pContent.getAt(tIndex))
+  return pContent[tIndex]
 end

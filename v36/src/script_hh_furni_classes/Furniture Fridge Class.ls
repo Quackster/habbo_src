@@ -1,10 +1,10 @@
 property pDoorTimer
 
-on prepare me 
-  return TRUE
+on prepare me
+  return 1
 end
 
-on updateStuffdata me, tValue 
+on updateStuffdata me, tValue
   tValue = integer(tValue)
   if (tValue = 0) then
     pDoorTimer = 0
@@ -15,71 +15,65 @@ on updateStuffdata me, tValue
   end if
 end
 
-on select me 
+on select me
   tUserObj = getThread(#room).getComponent().getOwnUser()
   if (tUserObj = 0) then
-    return TRUE
+    return 1
   end if
-  if (me.getProp(#pDirection, 1) = 4) then
-    if (me.pLocX = tUserObj.pLocX) and ((me.pLocY - tUserObj.pLocY) = -1) then
-      if the doubleClick then
-        me.giveDrink()
-      end if
-    else
-      getThread(#room).getComponent().getRoomConnection().send("MOVE", [#integer:me.pLocX, #integer:(me.pLocY + 1)])
-    end if
-  else
-    if (me.getProp(#pDirection, 1) = 0) then
-      if (me.pLocX = tUserObj.pLocX) and ((me.pLocY - tUserObj.pLocY) = 1) then
+  case me.pDirection[1] of
+    4:
+      if ((me.pLocX = tUserObj.pLocX) and ((me.pLocY - tUserObj.pLocY) = -1)) then
         if the doubleClick then
           me.giveDrink()
         end if
       else
-        getThread(#room).getComponent().getRoomConnection().send("MOVE", [#integer:me.pLocX, #integer:(me.pLocY - 1)])
+        getThread(#room).getComponent().getRoomConnection().send("MOVE", [#integer: me.pLocX, #integer: (me.pLocY + 1)])
       end if
-    else
-      if (me.getProp(#pDirection, 1) = 2) then
-        if (me.pLocY = tUserObj.pLocY) and ((me.pLocX - tUserObj.pLocX) = -1) then
-          if the doubleClick then
-            me.giveDrink()
-          end if
-        else
-          getThread(#room).getComponent().getRoomConnection().send("MOVE", [#integer:(me.pLocX + 1), #integer:me.pLocY])
+    0:
+      if ((me.pLocX = tUserObj.pLocX) and ((me.pLocY - tUserObj.pLocY) = 1)) then
+        if the doubleClick then
+          me.giveDrink()
         end if
       else
-        if (me.getProp(#pDirection, 1) = 6) then
-          if (me.pLocY = tUserObj.pLocY) and ((me.pLocX - tUserObj.pLocX) = 1) then
-            if the doubleClick then
-              me.giveDrink()
-            end if
-          else
-            getThread(#room).getComponent().getRoomConnection().send("MOVE", [#integer:(me.pLocX - 1), #integer:me.pLocY])
-          end if
-        end if
+        getThread(#room).getComponent().getRoomConnection().send("MOVE", [#integer: me.pLocX, #integer: (me.pLocY - 1)])
       end if
-    end if
-  end if
-  return TRUE
+    2:
+      if ((me.pLocY = tUserObj.pLocY) and ((me.pLocX - tUserObj.pLocX) = -1)) then
+        if the doubleClick then
+          me.giveDrink()
+        end if
+      else
+        getThread(#room).getComponent().getRoomConnection().send("MOVE", [#integer: (me.pLocX + 1), #integer: me.pLocY])
+      end if
+    6:
+      if ((me.pLocY = tUserObj.pLocY) and ((me.pLocX - tUserObj.pLocX) = 1)) then
+        if the doubleClick then
+          me.giveDrink()
+        end if
+      else
+        getThread(#room).getComponent().getRoomConnection().send("MOVE", [#integer: (me.pLocX - 1), #integer: me.pLocY])
+      end if
+  end case
+  return 1
 end
 
-on giveDrink me 
+on giveDrink me
   tConnection = getThread(#room).getComponent().getRoomConnection()
   if (tConnection = 0) then
-    return FALSE
+    return 0
   end if
-  tConnection.send("USEFURNITURE", [#integer:integer(me.getID()), #integer:0])
+  tConnection.send("USEFURNITURE", [#integer: integer(me.getID()), #integer: 0])
 end
 
-on openCloseDoor me, tOpen 
-  if (tOpen = #open) or (tOpen = 1) then
+on openCloseDoor me, tOpen
+  if ((tOpen = #open) or (tOpen = 1)) then
     tFrame = 1
   else
     tFrame = 0
   end if
-  repeat while me.pSprList <= undefined
-    tsprite = getAt(undefined, tOpen)
+  repeat with tsprite in me.pSprList
     tCurName = tsprite.member.name
-    tNewName = tCurName.getProp(#char, 1, (length(tCurName) - 1)) & tFrame
+    tNewName = (tCurName.char[1] & tFrame)
     if memberExists(tNewName) then
       tMem = member(getmemnum(tNewName))
       tsprite.member = tMem
@@ -89,10 +83,10 @@ on openCloseDoor me, tOpen
   end repeat
 end
 
-on update me 
-  if pDoorTimer <> 0 then
-    if me.count(#pSprList) < 1 then
-      return()
+on update me
+  if (pDoorTimer <> 0) then
+    if (me.pSprList.count < 1) then
+      return 
     end if
     pDoorTimer = (pDoorTimer - 1)
     if (pDoorTimer = 0) then
