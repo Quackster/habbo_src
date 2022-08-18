@@ -1,17 +1,17 @@
-on construct me 
-  return(me.regMsgList(1))
+on construct me
+  return me.regMsgList(1)
 end
 
-on deconstruct me 
-  return(me.regMsgList(0))
+on deconstruct me
+  return me.regMsgList(0)
 end
 
-on handle_partnerregistration me, tMsg 
+on handle_partnerregistration me, tMsg
   me.getComponent().handlePartnerRegistration(tMsg)
-  return TRUE
+  return 1
 end
 
-on regMsgList me, tBool 
+on regMsgList me, tBool
   tMsgs = [:]
   tMsgs.setaProp(281, #handle_partnerregistration)
   tCmds = [:]
@@ -22,5 +22,5 @@ on regMsgList me, tBool
     unregisterListener(getVariable("connection.info.id", #info), me.getID(), tMsgs)
     unregisterCommands(getVariable("connection.info.id", #info), me.getID(), tCmds)
   end if
-  return TRUE
+  return 1
 end

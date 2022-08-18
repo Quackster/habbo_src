@@ -1,53 +1,53 @@
 property systemid, messagesender, messageHandler, baselogic, procmanager, turnmanager, world, component, variablemanager
 
-on construct me 
-  return TRUE
+on construct me
+  return 1
 end
 
-on deconstruct me 
-  return TRUE
+on deconstruct me
+  return 1
 end
 
-on defineClient me 
-  return TRUE
+on defineClient me
+  return 1
 end
 
-on getSystemId me 
-  return(systemid)
+on getSystemId me
+  return systemid
 end
 
-on getMessageSender me 
-  return(messagesender)
+on getMessageSender me
+  return messagesender
 end
 
-on getMessageHandler me 
-  return(messageHandler)
+on getMessageHandler me
+  return messageHandler
 end
 
-on getBaseLogic me 
-  return(baselogic)
+on getBaseLogic me
+  return baselogic
 end
 
-on getProcManager me 
-  return(procmanager)
+on getProcManager me
+  return procmanager
 end
 
-on getTurnManager me 
-  return(turnmanager)
+on getTurnManager me
+  return turnmanager
 end
 
-on getWorld me 
-  return(world)
+on getWorld me
+  return world
 end
 
-on getComponent me 
-  return(component)
+on getComponent me
+  return component
 end
 
-on getVariableManager me 
-  return(variablemanager)
+on getVariableManager me
+  return variablemanager
 end
 
-on getFacade me 
-  return(getObject(systemid))
+on getFacade me
+  return getObject(systemid)
 end

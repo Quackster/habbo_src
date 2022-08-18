@@ -1,19 +1,19 @@
 property pErrorLists
 
-on construct me 
+on construct me
   pErrorLists = []
-  return TRUE
+  return 1
 end
 
-on deconstruct me 
+on deconstruct me
   pErrorLists = []
-  return TRUE
+  return 1
 end
 
-on storeErrorReport me, tErrorList 
+on storeErrorReport me, tErrorList
   pErrorLists.add(tErrorList)
 end
 
-on getErrorLists me 
-  return(pErrorLists)
+on getErrorLists me
+  return pErrorLists
 end

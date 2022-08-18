@@ -1,6 +1,6 @@
-property pWriterBold, pSpecCountId, pSpecCountTimerId, pSpectatorMode, pVisualizerId
+property pSpectatorMode, pVisualizerId, pSpecCountId, pSpecCountTimerId, pWriterBold
 
-on construct me 
+on construct me
   pSpectatorMode = 0
   pVisualizerId = "passive_tv_screen"
   pSpecCountId = "spec_count_id"
@@ -11,10 +11,10 @@ on construct me
   createWriter(pWriterBold, tFontBold)
   registerMessage(#leaveRoom, me.getID(), #hideSpectatorView)
   registerMessage(#changeRoom, me.getID(), #hideSpectatorView)
-  return TRUE
+  return 1
 end
 
-on deconstruct me 
+on deconstruct me
   unregisterMessage(#leaveRoom, me.getID())
   unregisterMessage(#changeRoom, me.getID())
   if windowExists(pSpecCountId) then
@@ -26,14 +26,14 @@ on deconstruct me
   if writerExists(pWriterBold) then
     removeWriter(pWriterBold)
   end if
-  return TRUE
+  return 1
 end
 
-on getSpectatorMode me 
-  return(pSpectatorMode)
+on getSpectatorMode me
+  return pSpectatorMode
 end
 
-on setSpectatorMode me, tstate, tSpaceType 
+on setSpectatorMode me, tstate, tSpaceType
   if (tstate = 1) then
     pSpectatorMode = 1
     me.showSpectatorView()
@@ -41,31 +41,28 @@ on setSpectatorMode me, tstate, tSpaceType
     executeMessage(#spectatorMode_on)
   else
     pSpectatorMode = 0
-    if (tSpaceType = #public) then
-      if getConnection(#info) <> 0 then
-        getConnection(#info).send("QUIT")
-      end if
-      executeMessage(#leaveRoom)
-      executeMessage(#spectatorMode_off)
-    else
-      if (tSpaceType = #private) then
-      else
-        if (tSpaceType = #game) then
-          executeMessage(#spectatorMode_off)
+    case tSpaceType of
+      #public:
+        if (getConnection(#info) <> 0) then
+          getConnection(#info).send("QUIT")
         end if
-      end if
-    end if
+        executeMessage(#leaveRoom)
+        executeMessage(#spectatorMode_off)
+      #private:
+      #game:
+        executeMessage(#spectatorMode_off)
+    end case
   end if
-  return TRUE
+  return 1
 end
 
-on updateSpectatorCount me, tSpectatorCount, tSpectatorMax 
-  createTimeout(pSpecCountTimerId, 15000, #getSpectatorCount, me.getID(), void(), 1)
+on updateSpectatorCount me, tSpectatorCount, tSpectatorMax
+  createTimeout(pSpecCountTimerId, 15000, #getSpectatorCount, me.getID(), VOID, 1)
   if (tSpectatorCount = -1) then
     if windowExists(pSpecCountId) then
       removeWindow(pSpecCountId)
     end if
-    return TRUE
+    return 1
   end if
   tUnmerge = 1
   if not windowExists(pSpecCountId) then
@@ -81,17 +78,17 @@ on updateSpectatorCount me, tSpectatorCount, tSpectatorMax
   tTextImg = getWriter(pWriterBold).render(tText).duplicate()
   tWndObj = getWindow(pSpecCountId)
   if (tWndObj = 0) then
-    return FALSE
+    return 0
   end if
   tWndObj.lock(1)
   if tUnmerge then
     tWndObj.unmerge()
   end if
   if not tWndObj.merge("spec_count_2.window") then
-    return FALSE
+    return 0
   end if
   tElem = tWndObj.getElement("spec_count_text")
-  if tElem <> 0 then
+  if (tElem <> 0) then
     tElem.setText(tText)
     tElemWd = tElem.getProperty(#width)
     tWindowWd = tWndObj.getProperty(#width)
@@ -103,10 +100,10 @@ on updateSpectatorCount me, tSpectatorCount, tSpectatorMax
   end if
   tWndObj.center()
   tWndObj.moveTo(tWndObj.getProperty(#locX), 2)
-  return TRUE
+  return 1
 end
 
-on showSpectatorView me 
+on showSpectatorView me
   tRoomInt = getObject(#room_interface)
   if objectp(tRoomInt) then
     tRoomInt.hideInterface(#Remove)
@@ -116,25 +113,25 @@ on showSpectatorView me
       tInfoStand.hideInfoStand()
     end if
     tRoomInt.showRoomBar()
-    if tRoomInt.getHiliter() <> 0 then
+    if (tRoomInt.getHiliter() <> 0) then
       removeUpdate(tRoomInt.getHiliter().getID())
       removeObject(tRoomInt.getHiliter().getID())
     end if
   end if
   if visualizerExists(pVisualizerId) then
-    return TRUE
+    return 1
   end if
   createVisualizer(pVisualizerId, "habbo_tv.visual")
   tVisObj = getVisualizer(pVisualizerId)
   tRoomVis = tRoomInt.getRoomVisualizer()
   if (tRoomVis = 0) then
-    return FALSE
+    return 0
   end if
   tVisObj.moveZ((getIntVariable("window.default.locz") - 10))
-  return TRUE
+  return 1
 end
 
-on hideSpectatorView me 
+on hideSpectatorView me
   pSpectatorMode = 0
   if visualizerExists(pVisualizerId) then
     removeVisualizer(pVisualizerId)
@@ -145,9 +142,9 @@ on hideSpectatorView me
   if timeoutExists(pSpecCountTimerId) then
     removeTimeout(pSpecCountTimerId)
   end if
-  return TRUE
+  return 1
 end
 
-on getSpectatorCount me 
+on getSpectatorCount me
   getConnection(getVariable("connection.room.id")).send("GET_SPECTATOR_AMOUNT")
 end

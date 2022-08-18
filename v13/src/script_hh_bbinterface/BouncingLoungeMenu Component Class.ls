@@ -1,59 +1,59 @@
 property pFrameworkId, pUserTeamIndex
 
-on construct me 
+on construct me
   pFrameworkId = getVariable("bb.loungesystem.id")
   pUserTeamIndex = 0
-  return TRUE
+  return 1
 end
 
-on deconstruct me 
-  return TRUE
+on deconstruct me
+  return 1
 end
 
-on getGameSystem me 
-  return(getObject(pFrameworkId))
+on getGameSystem me
+  return getObject(pFrameworkId)
 end
 
-on getUserName me 
-  return(getObject(#session).get(#userName))
+on getUserName me
+  return getObject(#session).GET(#userName)
 end
 
-on isUserHost me 
+on isUserHost me
   if (me.getGameSystem() = 0) then
-    return FALSE
+    return 0
   end if
   tdata = me.getGameSystem().getObservedInstance()
   if (tdata = 0) then
-    return FALSE
+    return 0
   end if
-  tHostName = tdata.getAt(#host).getAt(#name)
-  return((tHostName = me.getUserName()))
+  tHostName = tdata[#host][#name]
+  return (tHostName = me.getUserName())
 end
 
-on observeInstance me, tIndexOnList 
+on observeInstance me, tIndexOnList
   if (me.getGameSystem() = 0) then
-    return FALSE
+    return 0
   end if
   tList = me.getGameSystem().getInstanceList()
   if (tList = 0) then
-    return FALSE
+    return 0
   end if
-  if tIndexOnList > tList.count then
-    return FALSE
+  if (tIndexOnList > tList.count) then
+    return 0
   end if
-  if not listp(tList.getAt(tIndexOnList)) then
-    return FALSE
+  if not listp(tList[tIndexOnList]) then
+    return 0
   end if
-  tGameId = tList.getAt(tIndexOnList).getAt(#id)
+  tGameId = tList[tIndexOnList][#id]
   if (me.getGameSystem() = 0) then
-    return FALSE
+    return 0
   end if
-  return(me.getGameSystem().observeInstance(tGameId))
+  return me.getGameSystem().observeInstance(tGameId)
 end
 
-on joinGame me, tTeamIndex 
+on joinGame me, tTeamIndex
   if (me.getGameSystem() = 0) then
-    return FALSE
+    return 0
   end if
   tParamList = me.getGameSystem().getJoinParameters()
   if (tTeamIndex = 0) then
@@ -63,78 +63,74 @@ on joinGame me, tTeamIndex
     tTeamIndex = me.getUserTeamIndex()
   end if
   tInstance = me.getGameSystem().getObservedInstance()
-  tInstanceId = tInstance.getAt(#id)
+  tInstanceId = tInstance[#id]
   if not listp(tParamList) then
-    return(me.getGameSystem().initiateJoinGame(tInstanceId, tTeamIndex))
+    return me.getGameSystem().initiateJoinGame(tInstanceId, tTeamIndex)
   end if
-  return(me.getGameSystem().joinGame(void(), tInstanceId, tTeamIndex, tParamList))
+  return me.getGameSystem().joinGame(VOID, tInstanceId, tTeamIndex, tParamList)
 end
 
-on checkUserWasKicked me 
-  if pUserTeamIndex <> 0 then
+on checkUserWasKicked me
+  if (pUserTeamIndex <> 0) then
     if (me.getUserTeamIndex() = 0) then
-      return TRUE
+      return 1
     end if
   end if
-  return FALSE
+  return 0
 end
 
-on saveUserTeamIndex me 
+on saveUserTeamIndex me
   pUserTeamIndex = me.getUserTeamIndex()
-  return TRUE
+  return 1
 end
 
-on resetUserTeamIndex me 
+on resetUserTeamIndex me
   pUserTeamIndex = 0
-  return TRUE
+  return 1
 end
 
-on getUserTeamIndex me 
-  return(me.getPlayerTeamIndex([#name:me.getUserName()]))
+on getUserTeamIndex me
+  return me.getPlayerTeamIndex([#name: me.getUserName()])
 end
 
-on gameCanStart me 
+on gameCanStart me
   tdata = me.getGameSystem().getObservedInstance()
   if (tdata = 0) then
-    return FALSE
+    return 0
   end if
   tOneTeamOK = 0
-  repeat while tdata.getAt(#teams) <= undefined
-    tTeam = getAt(undefined, undefined)
-    if tTeam.getAt(#players).count > 0 then
+  repeat with tTeam in tdata[#teams]
+    if (tTeam[#players].count > 0) then
       if (tOneTeamOK = 1) then
-        return TRUE
+        return 1
       end if
       tOneTeamOK = 1
     end if
   end repeat
-  return FALSE
+  return 0
 end
 
-on getPlayerTeamIndex me, tSearchData 
+on getPlayerTeamIndex me, tSearchData
   if (me.getGameSystem() = 0) then
-    return FALSE
+    return 0
   end if
   tdata = me.getGameSystem().getObservedInstance()
-  if (tdata.getAt(#teams) = void()) then
-    return FALSE
+  if (tdata[#teams] = VOID) then
+    return 0
   end if
-  tTeamNum = 1
-  repeat while tTeamNum <= tdata.getAt(#teams).count
-    tTeam = tdata.getAt(#teams).getAt(tTeamNum).getAt(#players)
+  repeat with tTeamNum = 1 to tdata[#teams].count
+    tTeam = tdata[#teams][tTeamNum][#players]
     if not listp(tTeam) then
       tTeam = []
     end if
-    repeat while tTeam <= undefined
-      tPlayer = getAt(undefined, tSearchData)
-      if (tPlayer.getAt(#name) = tSearchData.getAt(#name)) and tSearchData.getAt(#name) <> void() then
-        return(tTeamNum)
+    repeat with tPlayer in tTeam
+      if ((tPlayer[#name] = tSearchData[#name]) and (tSearchData[#name] <> VOID)) then
+        return tTeamNum
       end if
-      if (tPlayer.getAt(#id) = tSearchData.getAt(#id)) and tSearchData.getAt(#id) <> void() then
-        return(tTeamNum)
+      if ((tPlayer[#id] = tSearchData[#id]) and (tSearchData[#id] <> VOID)) then
+        return tTeamNum
       end if
     end repeat
-    tTeamNum = (1 + tTeamNum)
   end repeat
-  return FALSE
+  return 0
 end

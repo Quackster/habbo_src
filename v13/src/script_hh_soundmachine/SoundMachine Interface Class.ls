@@ -1,6 +1,6 @@
-property pPlayHeadEventAgentID, pSoundSetIconUpdateTimer, pPlayHeadUpdateTimer, pSoundMachineWindowID, pSoundMachineConfirmWindowID, pSoundSetSampleMemberList, pSoundSetSlotWd, pSoundSetSlotHt, pSoundSetSlotMarginWd, pSoundSetSlotMarginHt, pSoundSetSampleMemberName, pTimeLineSlotWd, pTimeLineSlotHt, pTimeLineSlotMarginWd, pTimeLineSlotMarginHt, pPlayHeadDrag, pTimeLineScrollStep
+property pSoundMachineWindowID, pSoundMachineConfirmWindowID, pSoundSetSlotWd, pSoundSetSlotHt, pSoundSetSlotMarginWd, pSoundSetSlotMarginHt, pSoundSetSampleMemberList, pSoundSetSampleMemberName, pTimeLineSlotWd, pTimeLineSlotHt, pTimeLineSlotMarginWd, pTimeLineSlotMarginHt, pTimeLineScrollStep, pSoundSetIconUpdateTimer, pPlayHeadUpdateTimer, pPlayHeadEventAgentID, pPlayHeadDrag
 
-on construct me 
+on construct me
   pSoundSetIconUpdateTimer = "sound_machine_icon_timer"
   pPlayHeadUpdateTimer = "sound_machine_playhead_timer"
   pSoundMachineWindowID = getText("sound_machine_window")
@@ -17,12 +17,12 @@ on construct me
   pTimeLineSlotHt = 25
   pTimeLineSlotMarginWd = -1
   pTimeLineSlotMarginHt = 1
-  pPlayHeadEventAgentID = me.getID() && the milliSeconds
+  pPlayHeadEventAgentID = (me.getID() && the milliSeconds)
   createObject(pPlayHeadEventAgentID, getClassVariable("event.agent.class"))
-  return TRUE
+  return 1
 end
 
-on deconstruct me 
+on deconstruct me
   unregisterMessage(#s_machine, me.getID())
   if timeoutExists(pSoundSetIconUpdateTimer) then
     removeTimeout(pSoundSetIconUpdateTimer)
@@ -31,13 +31,13 @@ on deconstruct me
     removeTimeout(pPlayHeadUpdateTimer)
   end if
   removeObject(pPlayHeadEventAgentID)
-  return TRUE
+  return 1
 end
 
-on showSoundMachine me 
+on showSoundMachine me
   if not windowExists(pSoundMachineWindowID) then
-    if not createWindow(pSoundMachineWindowID, "sound_machine_window.window", void(), void(), #modal) then
-      return(error(me, "Failed to open Sound Machine window!!!", #showSoundMachine))
+    if not createWindow(pSoundMachineWindowID, "sound_machine_window.window", VOID, VOID, #modal) then
+      return error(me, "Failed to open Sound Machine window!!!", #showSoundMachine)
     else
       tWndObj = getWindow(pSoundMachineWindowID)
       tWndObj.registerClient(me.getID())
@@ -47,7 +47,7 @@ on showSoundMachine me
       tWndObj.registerProcedure(#eventProcSoundMachine, me.getID(), #mouseWithin)
       tWndObj.registerProcedure(#eventProcSoundMachine, me.getID(), #mouseLeave)
       if not tWndObj.merge("sound_machine_ui.window") then
-        return(tWndObj.close())
+        return tWndObj.close()
       end if
       me.getComponent().clearTimeLine()
       me.updateListVisualizations()
@@ -56,7 +56,7 @@ on showSoundMachine me
       me.updatePlayButton()
       me.getComponent().getConfigurationData()
       tElem = tWndObj.getElement("sound_timeline_playhead")
-      if tElem <> 0 then
+      if (tElem <> 0) then
         tsprite = tElem.getProperty(#sprite)
         if (ilk(tsprite) = #sprite) then
           removeEventBroker(tsprite.spriteNum)
@@ -68,39 +68,39 @@ on showSoundMachine me
       me.getComponent().roomActivityUpdate(1)
     end if
   end if
-  return TRUE
+  return 1
 end
 
-on hideSoundMachine me 
+on hideSoundMachine me
   if windowExists(pSoundMachineWindowID) then
     me.getComponent().closeEdit()
-    return(removeWindow(pSoundMachineWindowID))
+    return removeWindow(pSoundMachineWindowID)
   else
-    return FALSE
+    return 0
   end if
 end
 
-on confirmAction me, tAction, tParameter 
+on confirmAction me, tAction, tParameter
   tResult = me.getComponent().confirmAction(tAction, tParameter)
   if tResult then
     if not windowExists(pSoundMachineConfirmWindowID) then
-      if not createWindow(pSoundMachineConfirmWindowID, "habbo_full.window", void(), void(), #modal) then
-        return(error(me, "Failed to open Sound Machine confirm window!!!", #confirmAction))
+      if not createWindow(pSoundMachineConfirmWindowID, "habbo_full.window", VOID, VOID, #modal) then
+        return error(me, "Failed to open Sound Machine confirm window!!!", #confirmAction)
       else
         tWndObj = getWindow(pSoundMachineConfirmWindowID)
         tWndObj.registerClient(me.getID())
         tWndObj.registerProcedure(#eventProcConfirm, me.getID(), #mouseUp)
         if not tWndObj.merge("habbo_decision_dialog.window") then
-          return(tWndObj.close())
+          return tWndObj.close()
         end if
         tElem = tWndObj.getElement("habbo_decision_text_a")
-        if tElem <> 0 then
-          tText = getText("sound_machine_confirm_" & tAction)
+        if (tElem <> 0) then
+          tText = getText(("sound_machine_confirm_" & tAction))
           tElem.setText(tText)
         end if
         tElem = tWndObj.getElement("habbo_decision_text_b")
-        if tElem <> 0 then
-          tText = getText("sound_machine_confirm_" & tAction & "_long")
+        if (tElem <> 0) then
+          tText = getText((("sound_machine_confirm_" & tAction) & "_long"))
           tElem.setText(tText)
         end if
         tWndObj.center()
@@ -108,38 +108,38 @@ on confirmAction me, tAction, tParameter
       end if
     end if
   end if
-  return(tResult)
+  return tResult
 end
 
-on ShowAlert me, ttype 
-  tTextId = "sound_machine_alert_" & ttype
-  executeMessage(#alert, [#Msg:tTextId, #modal:1])
+on ShowAlert me, ttype
+  tTextId = ("sound_machine_alert_" & ttype)
+  executeMessage(#alert, [#Msg: tTextId, #modal: 1])
 end
 
-on soundMachineSelected me, tIsOn 
+on soundMachineSelected me, tIsOn
   if windowExists(pSoundMachineWindowID) then
     tWndObj = getWindow(pSoundMachineWindowID)
     tElem = tWndObj.getElement("sound_machine_onoff")
     if (tElem = 0) then
-      return FALSE
+      return 0
     end if
   end if
-  return(me.showSelectAction(tIsOn))
+  return me.showSelectAction(tIsOn)
 end
 
-on showSelectAction me, tIsOn 
+on showSelectAction me, tIsOn
   if not windowExists(pSoundMachineWindowID) then
     if not createWindow(pSoundMachineWindowID, "habbo_full.window") then
-      return(error(me, "Failed to open Sound Machine window!!!", #showSoundMachine))
+      return error(me, "Failed to open Sound Machine window!!!", #showSoundMachine)
     else
       tWndObj = getWindow(pSoundMachineWindowID)
       tWndObj.registerClient(me.getID())
       tWndObj.registerProcedure(#eventProcSelectAction, me.getID(), #mouseUp)
       if not tWndObj.merge("sound_machine_action.window") then
-        return(tWndObj.close())
+        return tWndObj.close()
       end if
       tElem = tWndObj.getElement("sound_machine_onoff")
-      if tElem <> 0 then
+      if (tElem <> 0) then
         if tIsOn then
           tText = getText("sound_machine_turn_off")
         else
@@ -153,7 +153,7 @@ on showSelectAction me, tIsOn
   else
     tWndObj = getWindow(pSoundMachineWindowID)
     tElem = tWndObj.getElement("sound_machine_onoff")
-    if tElem <> 0 then
+    if (tElem <> 0) then
       if tIsOn then
         tText = getText("sound_machine_turn_off")
       else
@@ -162,67 +162,64 @@ on showSelectAction me, tIsOn
       tElem.setText(tText)
     end if
   end if
-  return TRUE
+  return 1
 end
 
-on hideSelectAction me 
+on hideSelectAction me
   if windowExists(pSoundMachineWindowID) then
-    return(removeWindow(pSoundMachineWindowID))
+    return removeWindow(pSoundMachineWindowID)
   else
-    return FALSE
+    return 0
   end if
 end
 
-on hideConfirm me 
+on hideConfirm me
   if windowExists(pSoundMachineConfirmWindowID) then
-    return(removeWindow(pSoundMachineConfirmWindowID))
+    return removeWindow(pSoundMachineConfirmWindowID)
   else
-    return FALSE
+    return 0
   end if
 end
 
-on renderSoundSets me 
+on renderSoundSets me
   tWndObj = getWindow(pSoundMachineWindowID)
   if (tWndObj = 0) then
-    return FALSE
+    return 0
   end if
-  tIndex = me.getComponent().getSoundSetLimit()
-  repeat while tIndex >= 1
-    if pSoundSetSampleMemberList.count >= tIndex then
-      tNameBase = pSoundSetSampleMemberList.getAt(tIndex)
+  repeat with tIndex = me.getComponent().getSoundSetLimit() down to 1
+    if (pSoundSetSampleMemberList.count >= tIndex) then
+      tNameBase = pSoundSetSampleMemberList[tIndex]
     else
-      tNameBase = pSoundSetSampleMemberList.getAt(1)
+      tNameBase = pSoundSetSampleMemberList[1]
     end if
-    tElem = tWndObj.getElement("sound_set_samples_" & tIndex)
-    if tElem <> 0 then
+    tElem = tWndObj.getElement(("sound_set_samples_" & tIndex))
+    if (tElem <> 0) then
       tImg = me.getComponent().renderSoundSet(tIndex, pSoundSetSlotWd, pSoundSetSlotHt, pSoundSetSlotMarginWd, pSoundSetSlotMarginHt, tNameBase, pSoundSetSampleMemberName)
-      if tImg <> 0 then
+      if (tImg <> 0) then
         tElem.feedImage(tImg)
-      else
-        tElem.feedImage(image(0, 0, 32))
+        next repeat
       end if
+      tElem.feedImage(image(0, 0, 32))
     end if
-    tIndex = (255 + tIndex)
   end repeat
-  return TRUE
+  return 1
 end
 
-on updateSoundSetTabs me 
+on updateSoundSetTabs me
   tWndObj = getWindow(pSoundMachineWindowID)
   if (tWndObj = 0) then
-    return FALSE
+    return 0
   end if
   tHooveredTab = me.getComponent().getSoundSetHooveredTab()
-  tIndex = me.getComponent().getSoundSetLimit()
-  repeat while tIndex >= 1
+  repeat with tIndex = me.getComponent().getSoundSetLimit() down to 1
     tVisible = 1
     tid = me.getComponent().getSoundSetID(tIndex)
-    if tid <> 0 then
-      tElem = tWndObj.getElement("sound_set_tab_text_" & tIndex)
-      if tElem <> 0 then
+    if (tid <> 0) then
+      tElem = tWndObj.getElement(("sound_set_tab_text_" & tIndex))
+      if (tElem <> 0) then
         tElem.setProperty(#visible, 1)
-        if tIndex <> tHooveredTab then
-          tText = getText("furni_sound_set_" & tid & "_name")
+        if (tIndex <> tHooveredTab) then
+          tText = getText((("furni_sound_set_" & tid) & "_name"))
         else
           tText = getText("sound_machine_eject")
         end if
@@ -231,44 +228,41 @@ on updateSoundSetTabs me
     else
       tVisible = 0
     end if
-    tElemList = ["sound_set_tab_" & tIndex, "sound_set_tab_text_" & tIndex]
-    repeat while tElemList <= undefined
-      tElemName = getAt(undefined, undefined)
+    tElemList = [("sound_set_tab_" & tIndex), ("sound_set_tab_text_" & tIndex)]
+    repeat with tElemName in tElemList
       tElem = tWndObj.getElement(tElemName)
-      if tElem <> 0 then
+      if (tElem <> 0) then
         tElem.setProperty(#visible, tVisible)
       end if
     end repeat
-    tIndex = (255 + tIndex)
   end repeat
-  return TRUE
+  return 1
 end
 
-on updateSoundSetList me 
+on updateSoundSetList me
   tWndObj = getWindow(pSoundMachineWindowID)
   if (tWndObj = 0) then
-    return FALSE
+    return 0
   end if
   tSetsReady = 1
-  tIndex = me.getComponent().getSoundSetListPageSize()
-  repeat while tIndex >= 1
+  repeat with tIndex = me.getComponent().getSoundSetListPageSize() down to 1
     tid = me.getComponent().getSoundSetListID(tIndex)
-    if tid <> 0 then
-      tElem = tWndObj.getElement("set_list_text_" & tIndex)
-      if tElem <> 0 then
-        tText = getText("furni_sound_set_" & tid & "_name")
+    if (tid <> 0) then
+      tElem = tWndObj.getElement(("set_list_text_" & tIndex))
+      if (tElem <> 0) then
+        tText = getText((("furni_sound_set_" & tid) & "_name"))
         tElem.setText(tText)
       end if
-      tElem = tWndObj.getElement("set_list_icon_" & tIndex)
-      if tElem <> 0 then
+      tElem = tWndObj.getElement(("set_list_icon_" & tIndex))
+      if (tElem <> 0) then
         if objectExists("Preview_renderer") then
-          tSoundSetName = "sound_set_" & tid
-          tdata = [#class:tSoundSetName, #type:#Active]
+          tSoundSetName = ("sound_set_" & tid)
+          tdata = [#class: tSoundSetName, #type: #Active]
           executeMessage(#downloadObject, tdata)
-          if (tdata.getAt(#ready) = 0) then
+          if (tdata[#ready] = 0) then
             tSetsReady = 0
           end if
-          tIcon = getObject("Preview_renderer").renderPreviewImage(void(), void(), void(), tSoundSetName)
+          tIcon = getObject("Preview_renderer").renderPreviewImage(VOID, VOID, VOID, tSoundSetName)
           tIcon = tIcon.trimWhiteSpace()
         else
           tIcon = image(0, 0, 32)
@@ -280,34 +274,33 @@ on updateSoundSetList me
         tXchange = ((tCenteredImage.width - tIcon.width) / 2)
         tYchange = ((tCenteredImage.height - tIcon.height) / 2)
         tRect1 = (tIcon.rect + rect(tXchange, tYchange, tXchange, tYchange))
-        tCenteredImage.copyPixels(tIcon, tRect1, tIcon.rect, [#maskImage:tMatte, #ink:41])
+        tCenteredImage.copyPixels(tIcon, tRect1, tIcon.rect, [#maskImage: tMatte, #ink: 41])
         tElem.feedImage(tCenteredImage)
       end if
     else
-      tElem = tWndObj.getElement("set_list_text_" & tIndex)
-      if tElem <> 0 then
-        tElem.setText("")
+      tElem = tWndObj.getElement(("set_list_text_" & tIndex))
+      if (tElem <> 0) then
+        tElem.setText(EMPTY)
       end if
-      tElem = tWndObj.getElement("set_list_icon_" & tIndex)
-      if tElem <> 0 then
+      tElem = tWndObj.getElement(("set_list_icon_" & tIndex))
+      if (tElem <> 0) then
         tIcon = image(0, 0, 32)
         tElem.feedImage(tIcon)
       end if
     end if
-    tElem = tWndObj.getElement("set_list_text2_" & tIndex)
-    if tElem <> 0 then
-      tElem.setText("")
+    tElem = tWndObj.getElement(("set_list_text2_" & tIndex))
+    if (tElem <> 0) then
+      tElem.setText(EMPTY)
     end if
-    tIndex = (255 + tIndex)
   end repeat
   tElem = tWndObj.getElement("set_list_index")
-  if tElem <> 0 then
-    tText = me.getComponent().getSoundListPage() & "/" & me.getComponent().getSoundListPageCount()
+  if (tElem <> 0) then
+    tText = ((me.getComponent().getSoundListPage() & "/") & me.getComponent().getSoundListPageCount())
     tElem.setText(tText)
   end if
   if not tSetsReady then
     if not timeoutExists(pSoundSetIconUpdateTimer) then
-      createTimeout(pSoundSetIconUpdateTimer, 500, #updateSoundSetList, me.getID(), void(), 1)
+      createTimeout(pSoundSetIconUpdateTimer, 500, #updateSoundSetList, me.getID(), VOID, 1)
     end if
   end if
   if (me.getComponent().getSoundListPageCount() = 1) then
@@ -316,46 +309,45 @@ on updateSoundSetList me
     tVisible = 1
   end if
   tElemList = ["set_list_left", "set_list_right"]
-  repeat while tElemList <= undefined
-    tName = getAt(undefined, undefined)
+  repeat with tName in tElemList
     tElem = tWndObj.getElement(tName)
-    if tElem <> 0 then
+    if (tElem <> 0) then
       tElem.setProperty(#visible, tVisible)
     end if
   end repeat
 end
 
-on scrollTimeLine me, tDX 
+on scrollTimeLine me, tDX
   if me.getComponent().scrollTimeLine(tDX) then
     me.renderTimeLine()
   end if
 end
 
-on scrollTimeLineTo me, tX 
+on scrollTimeLineTo me, tX
   if me.getComponent().scrollTimeLineTo(tX) then
     me.renderTimeLine()
   end if
 end
 
-on renderTimeLine me 
+on renderTimeLine me
   tWndObj = getWindow(pSoundMachineWindowID)
   if (tWndObj = 0) then
-    return FALSE
+    return 0
   end if
   tElem = tWndObj.getElement("sound_timeline")
-  if tElem <> 0 then
+  if (tElem <> 0) then
     tImg = me.getComponent().renderTimeLine(pTimeLineSlotWd, pTimeLineSlotHt, pTimeLineSlotMarginWd, pTimeLineSlotMarginHt, pSoundSetSampleMemberList, pSoundSetSampleMemberName, "sound_system_ui_timeline_bg2")
-    if tImg <> 0 then
+    if (tImg <> 0) then
       tElem.feedImage(tImg)
     else
       tElem.feedImage(image(0, 0, 32))
     end if
   end if
   tElem = tWndObj.getElement("sound_timeline_stamps")
-  if tElem <> 0 then
+  if (tElem <> 0) then
     tBarHt = 15
     tImg = me.getComponent().renderTimeLineBar(pTimeLineSlotWd, tBarHt, pTimeLineSlotMarginWd, pSoundSetSampleMemberList, pSoundSetSampleMemberName, "sound_system_ui_timeline_bg2")
-    if tImg <> 0 then
+    if (tImg <> 0) then
       tElem.feedImage(tImg)
     else
       tElem.feedImage(image(0, 0, 32))
@@ -363,33 +355,33 @@ on renderTimeLine me
   end if
   me.updatePlayHead(1)
   tElem = tWndObj.getElement("sound_left_button")
-  if tElem <> 0 then
+  if (tElem <> 0) then
     tVisible = me.getComponent().getScrollPossible(-1)
     tElem.setProperty(#visible, tVisible)
   end if
   tElem = tWndObj.getElement("sound_right_button")
-  if tElem <> 0 then
+  if (tElem <> 0) then
     tVisible = me.getComponent().getScrollPossible(1)
     tElem.setProperty(#visible, tVisible)
   end if
-  return TRUE
+  return 1
 end
 
-on updateListVisualizations me 
+on updateListVisualizations me
   me.updateSoundSetList()
   me.updateSoundSetTabs()
   me.renderSoundSets()
 end
 
-on updateSoundSetSlots me 
+on updateSoundSetSlots me
   me.updateSoundSetTabs()
   me.renderSoundSets()
 end
 
-on soundSetEvent me, tSetID, tPos, tEvent 
-  if tEvent <> #mouseLeave then
-    if tPos.locH < 0 or tPos.locV < 0 then
-      return FALSE
+on soundSetEvent me, tSetID, tPos, tEvent
+  if (tEvent <> #mouseLeave) then
+    if ((tPos.locH < 0) or (tPos.locV < 0)) then
+      return 0
     end if
     tX = (1 + (tPos.locH / (pSoundSetSlotWd + pSoundSetSlotMarginWd)))
     tY = (1 + (tPos.locV / (pSoundSetSlotHt + pSoundSetSlotMarginHt)))
@@ -399,30 +391,30 @@ on soundSetEvent me, tSetID, tPos, tEvent
   end if
   if me.getComponent().soundSetEvent(tSetID, tX, tY, tEvent) then
     me.renderSoundSets()
-    return TRUE
+    return 1
   end if
-  return FALSE
+  return 0
 end
 
-on soundSetTabEvent me, tSetID, tEvent 
+on soundSetTabEvent me, tSetID, tEvent
   if me.getComponent().soundSetTabEvent(tSetID, tEvent) then
     me.updateListVisualizations()
   end if
-  return TRUE
+  return 1
 end
 
-on timeLineEvent me, tPos, tRect, tEvent 
+on timeLineEvent me, tPos, tRect, tEvent
   if pPlayHeadDrag then
-    return TRUE
+    return 1
   end if
   tX = (1 + (tPos.locH / (pTimeLineSlotWd + pTimeLineSlotMarginWd)))
   tY = (1 + (tPos.locV / (pTimeLineSlotHt + pTimeLineSlotMarginHt)))
-  if (tEvent = #mouseLeave) or (tEvent = #mouseWithin) then
+  if ((tEvent = #mouseLeave) or (tEvent = #mouseWithin)) then
     if (tEvent = #mouseLeave) then
       tX = -1
       tY = -1
     end if
-    if tPos.locH < 0 or tPos.locV < 0 or tPos.locH > (tRect.getAt(3) - tRect.getAt(1)) or tPos.locV > (tRect.getAt(4) - tRect.getAt(2)) then
+    if ((((tPos.locH < 0) or (tPos.locV < 0)) or (tPos.locH > (tRect[3] - tRect[1]))) or (tPos.locV > (tRect[4] - tRect[2]))) then
       tX = -1
       tY = -1
       tEvent = #mouseLeave
@@ -431,10 +423,10 @@ on timeLineEvent me, tPos, tRect, tEvent
   if me.getComponent().timeLineEvent(tX, tY, tEvent) then
     me.renderTimeLine()
   end if
-  return TRUE
+  return 1
 end
 
-on updatePlayHead me, tManualUpdate 
+on updatePlayHead me, tManualUpdate
   if voidp(tManualUpdate) then
     tManualUpdate = 0
   end if
@@ -443,41 +435,39 @@ on updatePlayHead me, tManualUpdate
   tBehind = (tPlayTime mod tSlotLength)
   if tPlayTime then
     if not timeoutExists(pPlayHeadUpdateTimer) then
-      createTimeout(pPlayHeadUpdateTimer, (tSlotLength - tBehind), #updatePlayHead, me.getID(), void(), 1)
+      createTimeout(pPlayHeadUpdateTimer, (tSlotLength - tBehind), #updatePlayHead, me.getID(), VOID, 1)
     end if
   end if
   tPos = me.getComponent().getPlayHeadPosition()
   tWndObj = getWindow(pSoundMachineWindowID)
   if (tWndObj = 0) then
-    return FALSE
+    return 0
   end if
-  if tPos > 0 then
+  if (tPos > 0) then
     tPos = (tPos - 1)
     tElem = tWndObj.getElement("sound_timeline")
-    if tElem <> 0 then
+    if (tElem <> 0) then
       tLocX = tElem.getProperty(#locX)
       tNameList = ["sound_timeline_playhead", "sound_timeline_playhead_drag"]
-      repeat while tNameList <= undefined
-        tName = getAt(undefined, tManualUpdate)
+      repeat with tName in tNameList
         tElem = tWndObj.getElement(tName)
-        if tElem <> 0 then
+        if (tElem <> 0) then
           tElem.setProperty(#visible, 1)
           tWd = tElem.getProperty(#width)
           tElem.setProperty(#locX, (((tLocX + ((pTimeLineSlotWd - tWd) / 2)) + (pTimeLineSlotWd * tPos)) + (pTimeLineSlotMarginWd * tPos)))
         end if
       end repeat
     end if
-    return TRUE
+    return 1
   else
     tWndObj = getWindow(pSoundMachineWindowID)
     if (tWndObj = 0) then
-      return FALSE
+      return 0
     end if
     tNameList = ["sound_timeline_playhead", "sound_timeline_playhead_drag"]
-    repeat while tNameList <= undefined
-      tName = getAt(undefined, tManualUpdate)
+    repeat with tName in tNameList
       tElem = tWndObj.getElement(tName)
-      if tElem <> 0 then
+      if (tElem <> 0) then
         tElem.setProperty(#visible, 0)
       end if
     end repeat
@@ -485,36 +475,36 @@ on updatePlayHead me, tManualUpdate
       me.scrollTimeLineTo((-tPos - 1))
     end if
   end if
-  return FALSE
+  return 0
 end
 
-on updatePlayButton me 
+on updatePlayButton me
   tWndObj = getWindow(pSoundMachineWindowID)
   if (tWndObj = 0) then
-    return FALSE
+    return 0
   end if
   if (me.getComponent().getPlayTime() = 0) then
     tElem = tWndObj.getElement("sound_play_button")
-    if tElem <> 0 then
+    if (tElem <> 0) then
       tElem.setProperty(#visible, 1)
     end if
     tElem = tWndObj.getElement("sound_stop_button")
-    if tElem <> 0 then
+    if (tElem <> 0) then
       tElem.setProperty(#visible, 0)
     end if
   else
     tElem = tWndObj.getElement("sound_play_button")
-    if tElem <> 0 then
+    if (tElem <> 0) then
       tElem.setProperty(#visible, 0)
     end if
     tElem = tWndObj.getElement("sound_stop_button")
-    if tElem <> 0 then
+    if (tElem <> 0) then
       tElem.setProperty(#visible, 1)
     end if
   end if
 end
 
-on initPlayHeadEventAgent me, tBoolean 
+on initPlayHeadEventAgent me, tBoolean
   tAgent = getObject(pPlayHeadEventAgentID)
   if tBoolean then
     tAgent.registerEvent(me, #mouseUp, #playHeadMouseUp)
@@ -526,21 +516,21 @@ on initPlayHeadEventAgent me, tBoolean
   pPlayHeadDrag = tBoolean
 end
 
-on playHeadMouseUp me 
+on playHeadMouseUp me
   me.initPlayHeadEventAgent(0)
 end
 
-on playHeadMouseWithin me 
+on playHeadMouseWithin me
   tWndObj = getWindow(pSoundMachineWindowID)
   if (tWndObj = 0) then
-    return FALSE
+    return 0
   end if
   tElem = tWndObj.getElement("sound_timeline")
-  if tElem <> 0 then
+  if (tElem <> 0) then
     tRect = tElem.getProperty(#rect)
-    tPos = point((the mouseH - tRect.getAt(1)), (the mouseV - tRect.getAt(2)))
+    tPos = point((the mouseH - tRect[1]), (the mouseV - tRect[2]))
     tX = (1 + (tPos.locH / (pTimeLineSlotWd + pTimeLineSlotMarginWd)))
-    if tPos < 0 then
+    if (tPos < 0) then
       tX = 0
     end if
     if me.getComponent().movePlayHead(tX) then
@@ -549,27 +539,27 @@ on playHeadMouseWithin me
   end if
 end
 
-on getEditorWindowExists me 
+on getEditorWindowExists me
   if windowExists(pSoundMachineWindowID) then
     tWndObj = getWindow(pSoundMachineWindowID)
     tElem = tWndObj.getElement("sound_machine_onoff")
     if (tElem = 0) then
-      return TRUE
+      return 1
     end if
   end if
-  return FALSE
+  return 0
 end
 
-on eventProcSoundMachine me, tEvent, tSprID, tParam, tWndID 
+on eventProcSoundMachine me, tEvent, tSprID, tParam, tWndID
   tWndObj = getWindow(pSoundMachineWindowID)
   if (tWndObj = 0) then
-    return FALSE
+    return 0
   end if
   if (offset("sound_set_samples_", tSprID) = 1) then
-    tSoundSetID = value(tSprID.getProp(#char, ("sound_set_samples_".length + 1), tSprID.length))
+    tSoundSetID = value(tSprID.char[("sound_set_samples_".length + 1)])
     tElem = tWndObj.getElement(tSprID)
     tRect = tElem.getProperty(#rect)
-    me.soundSetEvent(tSoundSetID, point((the mouseH - tRect.getAt(1)), (the mouseV - tRect.getAt(2))), tEvent)
+    me.soundSetEvent(tSoundSetID, point((the mouseH - tRect[1]), (the mouseV - tRect[2])), tEvent)
     if not me.getComponent().getHooveredSampleReady() then
       tElem.setProperty(#cursor, 4)
     else
@@ -577,23 +567,23 @@ on eventProcSoundMachine me, tEvent, tSprID, tParam, tWndID
     end if
   else
     if (offset("sound_set_tab_text_", tSprID) = 1) then
-      tSoundSetID = value(tSprID.getProp(#char, ("sound_set_tab_text_".length + 1), tSprID.length))
+      tSoundSetID = value(tSprID.char[("sound_set_tab_text_".length + 1)])
       me.soundSetTabEvent(tSoundSetID, tEvent)
     else
-      if (tSprID = "sound_timeline") or (tSprID = "sound_timeline_bg") then
+      if ((tSprID = "sound_timeline") or (tSprID = "sound_timeline_bg")) then
         tElem = tWndObj.getElement("sound_timeline")
-        if tElem <> 0 then
+        if (tElem <> 0) then
           tRect = tElem.getProperty(#rect)
-          me.timeLineEvent(point((the mouseH - tRect.getAt(1)), (the mouseV - tRect.getAt(2))), tRect, tEvent)
+          me.timeLineEvent(point((the mouseH - tRect[1]), (the mouseV - tRect[2])), tRect, tEvent)
         end if
       end if
     end if
   end if
   if (offset("set_list_icon_", tSprID) = 1) then
     if (tEvent = #mouseEnter) then
-      tIndex = value(tSprID.getProp(#char, ("set_list_icon_".length + 1), tSprID.length))
-      tElem = tWndObj.getElement("set_list_text2_" & tIndex)
-      if tElem <> 0 then
+      tIndex = value(tSprID.char[("set_list_icon_".length + 1)])
+      tElem = tWndObj.getElement(("set_list_text2_" & tIndex))
+      if (tElem <> 0) then
         tText = getText("sound_machine_insert")
         tElem.setText(tText)
       end if
@@ -620,8 +610,8 @@ on eventProcSoundMachine me, tEvent, tSprID, tParam, tWndID
         end if
       else
         if (offset("set_list_icon_", tSprID) = 1) then
-          if me.getComponent().getFreeSoundSetCount() > 0 then
-            tIndex = value(tSprID.getProp(#char, ("set_list_icon_".length + 1), tSprID.length))
+          if (me.getComponent().getFreeSoundSetCount() > 0) then
+            tIndex = value(tSprID.char[("set_list_icon_".length + 1)])
             if me.getComponent().loadSoundSet(tIndex) then
               me.updateListVisualizations()
             end if
@@ -637,10 +627,10 @@ on eventProcSoundMachine me, tEvent, tSprID, tParam, tWndID
               me.getComponent().stopSong()
             else
               if (tSprID = "sound_save_button") then
-                me.confirmAction("save", "")
+                me.confirmAction("save", EMPTY)
               else
                 if (tSprID = "sound_trash_button") then
-                  me.confirmAction("clear", "")
+                  me.confirmAction("clear", EMPTY)
                 else
                   if (tSprID = "sound_left_button") then
                     me.scrollTimeLine(-pTimeLineScrollStep)
@@ -649,7 +639,7 @@ on eventProcSoundMachine me, tEvent, tSprID, tParam, tWndID
                       me.scrollTimeLine(pTimeLineScrollStep)
                     else
                       if (tSprID = "close") then
-                        me.confirmAction("close", "")
+                        me.confirmAction("close", EMPTY)
                       end if
                     end if
                   end if
@@ -661,42 +651,36 @@ on eventProcSoundMachine me, tEvent, tSprID, tParam, tWndID
       end if
     end if
   end if
-  return TRUE
+  return 1
 end
 
-on eventProcSelectAction me, tEvent, tSprID, tParam, tWndID 
+on eventProcSelectAction me, tEvent, tSprID, tParam, tWndID
   if (tEvent = #mouseUp) then
-    if (tSprID = "close") then
-      me.hideSelectAction()
-      me.getComponent().closeSelectAction()
-    else
-      if (tSprID = "sound_machine_edit") then
+    case tSprID of
+      "close":
+        me.hideSelectAction()
+        me.getComponent().closeSelectAction()
+      "sound_machine_edit":
         me.hideSelectAction()
         me.getComponent().stopSong()
         me.showSoundMachine()
-      else
-        if (tSprID = "sound_machine_onoff") then
-          me.getComponent().changeFurniState()
-          me.hideSelectAction()
-        end if
-      end if
-    end if
+      "sound_machine_onoff":
+        me.getComponent().changeFurniState()
+        me.hideSelectAction()
+    end case
   end if
-  return TRUE
+  return 1
 end
 
-on eventProcConfirm me, tEvent, tSprID, tParam, tWndID 
+on eventProcConfirm me, tEvent, tSprID, tParam, tWndID
   if (tEvent = #mouseUp) then
-    if tSprID <> "close" then
-      if (tSprID = "habbo_decision_cancel") then
+    case tSprID of
+      "close", "habbo_decision_cancel":
         me.hideConfirm()
-      else
-        if (tSprID = "habbo_decision_ok") then
-          me.getComponent().actionConfirmed()
-          me.hideConfirm()
-        end if
-      end if
-      return TRUE
-    end if
+      "habbo_decision_ok":
+        me.getComponent().actionConfirmed()
+        me.hideConfirm()
+    end case
   end if
+  return 1
 end

@@ -1,12 +1,12 @@
-on construct me 
-  return(me.regMsgList(1))
+on construct me
+  return me.regMsgList(1)
 end
 
-on deconstruct me 
-  return(me.regMsgList(0))
+on deconstruct me
+  return me.regMsgList(0)
 end
 
-on handleAvailabilityStatus me, tMsg 
+on handleAvailabilityStatus me, tMsg
   tIsOpen = tMsg.connection.GetIntFrom()
   tShutDown = tMsg.connection.GetIntFrom()
   tClosingState = 0
@@ -20,12 +20,12 @@ on handleAvailabilityStatus me, tMsg
   me.getComponent().setHotelClosingStatus(tClosingState)
 end
 
-on handleInfoHotelClosing me, tMsg 
+on handleInfoHotelClosing me, tMsg
   tMinutesUntil = tMsg.connection.GetIntFrom()
   me.getInterface().showHotelClosingAlert(tMinutesUntil)
 end
 
-on handleInfoHotelClosed me, tMsg 
+on handleInfoHotelClosed me, tMsg
   tOpenHour = tMsg.connection.GetIntFrom()
   tOpenMinute = tMsg.connection.GetIntFrom()
   tDisconnect = tMsg.connection.GetIntFrom()
@@ -36,19 +36,19 @@ on handleInfoHotelClosed me, tMsg
   end if
 end
 
-on handleAvailabilityTime me, tMsg 
+on handleAvailabilityTime me, tMsg
   tIsOpen = tMsg.connection.GetIntFrom()
   tTimeUntil = tMsg.connection.GetIntFrom()
   executeMessage(#hotelAvailabilityTime, tIsOpen, tTimeUntil)
 end
 
-on handleLoginFailedHotelClosed me, tMsg 
+on handleLoginFailedHotelClosed me, tMsg
   tOpenHour = tMsg.connection.GetIntFrom()
   tOpenMinute = tMsg.connection.GetIntFrom()
   me.getComponent().setHotelClosedDisconnect(tOpenHour, tOpenMinute)
 end
 
-on regMsgList me, tBool 
+on regMsgList me, tBool
   tMsgs = [:]
   tMsgs.setaProp(290, #handleAvailabilityStatus)
   tMsgs.setaProp(291, #handleInfoHotelClosing)
@@ -65,5 +65,5 @@ on regMsgList me, tBool
     unregisterListener(tConn, me.getID(), tMsgs)
     unregisterCommands(tConn, me.getID(), tCmds)
   end if
-  return TRUE
+  return 1
 end

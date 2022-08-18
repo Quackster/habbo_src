@@ -1,19 +1,19 @@
 property pUserId
 
-on construct me 
+on construct me
   registerMessage(#partnerRegistrationRequired, me.getID(), #partnerRegistrationRequired)
   registerMessage(#partnerRegistration, me.getID(), #partnerRegistration)
-  pUserId = ""
-  return TRUE
+  pUserId = EMPTY
+  return 1
 end
 
-on deconstruct me 
+on deconstruct me
   unregisterMessage(#partnerRegistrationRequired, me.getID())
   unregisterMessage(#partnerRegistration, me.getID())
-  return TRUE
+  return 1
 end
 
-on login me 
+on login me
   if not connectionExists(getVariable("connection.info.id")) then
     executeMessage(#openConnection)
   else
@@ -22,30 +22,30 @@ on login me
   end if
 end
 
-on handlePartnerRegistration me, tMsg 
+on handlePartnerRegistration me, tMsg
   executeMessage(#hideLogin)
   me.partnerRegistration(tMsg)
   executeMessage(#closeConnection)
 end
 
-on partnerRegistrationRequired me, tArg 
+on partnerRegistrationRequired me, tArg
   tSession = getObject(#session)
   tPartnerRegistration = tSession.get("conf_partner_integration")
   if (ilk(tArg) = #propList) then
-    tArg.setAt("retval", tPartnerRegistration)
+    tArg["retval"] = tPartnerRegistration
   end if
-  return(tPartnerRegistration)
+  return tPartnerRegistration
 end
 
-on partnerRegistration me, tUserID 
+on partnerRegistration me, tUserID
   pUserId = tUserID
   me.showDialog()
 end
 
-on showDialog me 
+on showDialog me
   me.getInterface().showDialog()
 end
 
-on userID me 
-  return(pUserId)
+on userID me
+  return pUserId
 end

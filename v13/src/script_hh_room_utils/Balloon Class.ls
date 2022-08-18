@@ -1,78 +1,78 @@
-property pMember, pSprite, pLoc, pProps
+property pSprite, pMember, pLoc, pProps
 
-on construct me 
+on construct me
   pProps = [:]
-  return TRUE
+  return 1
 end
 
-on deconstruct me 
+on deconstruct me
   if not voidp(pMember) then
     removeMember(pMember.name)
   end if
   if (ilk(pSprite) = #sprite) then
     removeEventBroker(pSprite.spriteNum)
   end if
-  pSprite = void()
-  pMember = void()
-  return TRUE
+  pSprite = VOID
+  pMember = VOID
+  return 1
 end
 
-on defineBalloon me 
-  pSprite = sprite(me.get(#sprite))
-  pMember = member(me.get(#member))
-  pLoc = me.get(#loc)
+on defineBalloon me
+  pSprite = sprite(me.GET(#sprite))
+  pMember = member(me.GET(#member))
+  pLoc = me.GET(#loc)
   pSprite.loc = pLoc
   pSprite.member = pMember
-  setEventBroker(pSprite.spriteNum, me.get(#ownerID))
+  setEventBroker(pSprite.spriteNum, me.GET(#ownerID))
   tTargetID = getThread(#room).getInterface().getID()
   pSprite.registerProcedure(#eventProcUserObj, tTargetID, #mouseDown)
   pSprite.registerProcedure(#eventProcUserRollOver, tTargetID, #mouseEnter)
   pSprite.registerProcedure(#eventProcUserRollOver, tTargetID, #mouseLeave)
-  return TRUE
+  return 1
 end
 
-on UpdateBalloonPos me, tLocV 
-  if pLoc.locV < 0 then
-    return FALSE
+on UpdateBalloonPos me, tLocV
+  if (pLoc.locV < 0) then
+    return 0
   end if
   pLoc = (pLoc + point(0, tLocV))
   pSprite.loc = pLoc
 end
 
-on removeBalloon me 
+on removeBalloon me
   if voidp(pSprite) then
-    return FALSE
+    return 0
   end if
   pSprite.loc = point(0, -1000)
   removeEventBroker(pSprite.spriteNum)
-  return TRUE
+  return 1
 end
 
-on hideBalloon me 
+on hideBalloon me
   if voidp(pSprite) then
-    return FALSE
+    return 0
   end if
   pSprite.visible = 0
-  return TRUE
+  return 1
 end
 
-on showBalloon me 
+on showBalloon me
   if voidp(pSprite) then
-    return FALSE
+    return 0
   end if
   pSprite.visible = 1
-  return TRUE
+  return 1
 end
 
-on set me, tKey, tValue 
-  pProps.setAt(tKey, tValue)
-  return TRUE
+on set me, tKey, tValue
+  pProps[tKey] = tValue
+  return 1
 end
 
-on get me, tKey 
-  tValue = pProps.getAt(tKey)
+on GET me, tKey
+  tValue = pProps[tKey]
   if voidp(tValue) then
     tValue = 0
   end if
-  return(tValue)
+  return tValue
 end

@@ -1,26 +1,26 @@
-on construct me 
+on construct me
   tWindowObj = getThread(#catalogue).getInterface().getCatalogWindow()
   if not tWindowObj then
-    tWindowObj = void()
-    return(error(me, "Couldn't access catalogue window!", #construct))
+    tWindowObj = VOID
+    return error(me, "Couldn't access catalogue window!", #construct)
   end if
-  tHeaderImageNo = getThread(#catalogue).getComponent().getPropRef(#pCatalogProps, "Recycler").getAt("headerImage")
+  tHeaderImageNo = getThread(#catalogue).getComponent().pCatalogProps["Recycler"]["headerImage"]
   getThread(#recycler).getInterface().setHeaderImage(tHeaderImageNo)
   getThread(#recycler).getInterface().setHostWindowObject(tWindowObj)
   getThread(#recycler).getComponent().openRecycler()
-  return TRUE
+  return 1
 end
 
-on deconstruct me 
+on deconstruct me
   getThread(#recycler).getComponent().closeRecycler()
-  return TRUE
+  return 1
 end
 
-on closePage me 
+on closePage me
   getThread(#recycler).getComponent().closeRecycler()
 end
 
-on eventProc me, tEvent, tSprID, tProp 
+on eventProc me, tEvent, tSprID, tProp
   tRecyclerInterface = getThread(#recycler).getInterface()
-  return(tRecyclerInterface.eventProc(tEvent, tSprID, tProp))
+  return tRecyclerInterface.eventProc(tEvent, tSprID, tProp)
 end

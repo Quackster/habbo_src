@@ -1,43 +1,43 @@
-on constructTextManager  
-  return(createManager(#text_manager, getClassVariable("text.manager.class")))
+on constructTextManager
+  return createManager(#text_manager, getClassVariable("text.manager.class"))
 end
 
-on deconstructTextManager  
-  return(removeManager(#text_manager))
+on deconstructTextManager
+  return removeManager(#text_manager)
 end
 
-on getTextManager  
+on getTextManager
   tMgr = getObjectManager()
   if not tMgr.managerExists(#text_manager) then
-    return(constructTextManager())
+    return constructTextManager()
   end if
-  return(tMgr.getManager(#text_manager))
+  return tMgr.getManager(#text_manager)
 end
 
-on createText tid, tValue 
-  return(getTextManager().create(tid, tValue))
+on createText tid, tValue
+  return getTextManager().create(tid, tValue)
 end
 
-on removeText tid 
-  return(getTextManager().Remove(tid))
+on removeText tid
+  return getTextManager().Remove(tid)
 end
 
-on setText tid, tValue 
-  return(getTextManager().create(tid, tValue))
+on setText tid, tValue
+  return getTextManager().create(tid, tValue)
 end
 
-on getText tid, tDefault 
-  return(getTextManager().get(tid, tDefault))
+on getText tid, tDefault
+  return getTextManager().GET(tid, tDefault)
 end
 
-on textExists tid 
-  return(getTextManager().exists(tid))
+on textExists tid
+  return getTextManager().exists(tid)
 end
 
-on printTexts  
-  return(getTextManager().print())
+on printTexts
+  return getTextManager().print()
 end
 
-on dumpTextField tField, tDelimiter 
-  return(getTextManager().dump(tField, tDelimiter))
+on dumpTextField tField, tDelimiter
+  return getTextManager().dump(tField, tDelimiter)
 end

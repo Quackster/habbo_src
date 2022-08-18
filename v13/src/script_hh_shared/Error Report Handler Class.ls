@@ -1,23 +1,23 @@
-on construct me 
-  return(me.regMsgList(1))
+on construct me
+  return me.regMsgList(1)
 end
 
-on deconstruct me 
-  return(me.regMsgList(0))
+on deconstruct me
+  return me.regMsgList(0)
 end
 
-on handle_error_report me, tMsg 
+on handle_error_report me, tMsg
   tConn = tMsg.getaProp(#connection)
   tErrorList = [:]
-  tErrorList.setAt(#errorId, tConn.GetIntFrom())
-  tErrorList.setAt(#errorMsgId, tConn.GetIntFrom())
-  tErrorList.setAt(#time, tConn.GetStrFrom())
-  tErrorList.setAt(#errorId, "SERVER-" & tErrorList.getAt(#errorId))
+  tErrorList[#errorId] = tConn.GetIntFrom()
+  tErrorList[#errorMsgId] = tConn.GetIntFrom()
+  tErrorList[#time] = tConn.GetStrFrom()
+  tErrorList[#errorId] = ("SERVER-" & tErrorList[#errorId])
   me.getComponent().storeErrorReport(tErrorList)
   me.getInterface().showErrors()
 end
 
-on regMsgList me, tBool 
+on regMsgList me, tBool
   tMsgs = [:]
   tMsgs.setaProp(299, #handle_error_report)
   tCmds = [:]
@@ -28,5 +28,5 @@ on regMsgList me, tBool
     unregisterListener(getVariable("connection.info.id"), me.getID(), tMsgs)
     unregisterCommands(getVariable("connection.info.id"), me.getID(), tCmds)
   end if
-  return TRUE
+  return 1
 end

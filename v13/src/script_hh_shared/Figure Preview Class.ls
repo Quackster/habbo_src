@@ -1,53 +1,52 @@
 property pBodyPartObjects
 
-on createTemplateHuman me, tSize, tdir, tAction, tActionProps 
+on createTemplateHuman me, tSize, tdir, tAction, tActionProps
   tProps = [:]
   tObjectName = "temp_humanobj"
   if not objectExists(tObjectName) then
     if not createObject(tObjectName, "Human Template Class") then
-      return(error(me, "Failed to init temporary human object!", #createTemplateHuman))
+      return error(me, "Failed to init temporary human object!", #createTemplateHuman)
     end if
-    tProps.setAt(#userName, "temp_human_figurecreator")
-    tProps.setAt(#figure, getObject(#session).get("user_figure").duplicate())
-    tProps.setAt(#direction, [tdir, 1, 1])
-    tProps.setAt(#x, 10000)
-    tProps.setAt(#y, 10000)
-    tProps.setAt(#h, 10000)
+    tProps[#userName] = "temp_human_figurecreator"
+    tProps[#figure] = getObject(#session).GET("user_figure").duplicate()
+    tProps[#direction] = [tdir, 1, 1]
+    tProps[#x] = 10000
+    tProps[#y] = 10000
+    tProps[#h] = 10000
     if (tSize = "sh") then
-      tProps.setAt(#type, 32)
+      tProps[#type] = 32
     else
-      tProps.setAt(#type, 64)
+      tProps[#type] = 64
     end if
     tmember = getObject(tObjectName).define(tProps)
   else
     tmember = getObject(tObjectName).getMember()
   end if
-  if (tAction = "remove") then
-    removeObject(tObjectName)
-  else
-    if (tAction = "reset") then
+  case tAction of
+    "remove":
+      removeObject(tObjectName)
+    "reset":
       call(#resetTemplateHuman, [getObject(tObjectName)])
-    else
-      call(symbol("action_" & tAction), [getObject(tObjectName)], tActionProps)
-    end if
-  end if
-  return(tmember)
+    otherwise:
+      call(symbol(("action_" & tAction)), [getObject(tObjectName)], tActionProps)
+  end case
+  return tmember
 end
 
-on getHumanPartImg me, tPartList, tFigure, tdir, tSize, tAction, tAnimFrame 
+on getHumanPartImg me, tPartList, tFigure, tdir, tSize, tAction, tAnimFrame
   me.createTemplateParts(tFigure, tPartList, tdir, tSize)
   tHumanImg = image(64, 102, 16)
   me.getPartImg(tPartList, tHumanImg, tdir, tSize, tAction, tAnimFrame)
-  return(tHumanImg)
+  return tHumanImg
 end
 
-on createHumanPartPreview me, tWindowTitle, tElement, tPartList, tFigure 
+on createHumanPartPreview me, tWindowTitle, tElement, tPartList, tFigure
   if voidp(tFigure) then
-    tFigure = getObject(#session).get("user_figure")
+    tFigure = getObject(#session).GET("user_figure")
     if (tFigure.ilk = #propList) then
       tFigure = tFigure.duplicate()
     else
-      return(error(me, "Figure data not found!", #createHumanPartPreview))
+      return error(me, "Figure data not found!", #createHumanPartPreview)
     end if
   end if
   me.createTemplateParts(tFigure, tPartList, 3)
@@ -55,49 +54,45 @@ on createHumanPartPreview me, tWindowTitle, tElement, tPartList, tFigure
   me.feedHumanPreview(tWindowTitle, tElement, tPartList)
 end
 
-on setParts me, tFigure, tPartList 
-  repeat while tPartList <= tPartList
-    tPart = getAt(tPartList, tFigure)
-    if not tPart contains "it" then
-      tmodel = tFigure.getAt(tPart).getAt("model")
-      tColor = tFigure.getAt(tPart).getAt("color")
-      if (tPartList = 1) then
-        tmodel = "00" & tmodel
-      else
-        if (tPartList = 2) then
-          tmodel = "0" & tmodel
-        end if
-      end if
+on setParts me, tFigure, tPartList
+  repeat with tPart in tPartList
+    if not (tPart contains "it") then
+      tmodel = tFigure[tPart]["model"]
+      tColor = tFigure[tPart]["color"]
+      case length(tmodel) of
+        1:
+          tmodel = ("00" & tmodel)
+        2:
+          tmodel = ("0" & tmodel)
+      end case
       if not voidp(pBodyPartObjects) then
-        call(#setColor, [pBodyPartObjects.getAt(tPart)], tColor)
-        call(#setModel, [pBodyPartObjects.getAt(tPart)], tmodel)
+        call(#setColor, [pBodyPartObjects[tPart]], tColor)
+        call(#setModel, [pBodyPartObjects[tPart]], tmodel)
       end if
     end if
   end repeat
 end
 
-on createTemplateParts me, tFigure, tPartList, tdir, tSize 
+on createTemplateParts me, tFigure, tPartList, tdir, tSize
   if voidp(tSize) then
     pPeopleSize = "h"
   end if
   pBuffer = image(1, 1, 8)
   pFlipList = [0, 1, 2, 3, 2, 1, 0, 7]
   pBodyPartObjects = [:]
-  repeat while tPartList <= tPartList
-    tPart = getAt(tPartList, tFigure)
-    if not tPart contains "it" then
-      tmodel = tFigure.getAt(tPart).getAt("model")
-      tColor = tFigure.getAt(tPart).getAt("color")
+  repeat with tPart in tPartList
+    if not (tPart contains "it") then
+      tmodel = tFigure[tPart]["model"]
+      tColor = tFigure[tPart]["color"]
       tDirection = tdir
       tAction = "std"
       tAncestor = me
-      if (tPartList = 1) then
-        tmodel = "00" & tmodel
-      else
-        if (tPartList = 2) then
-          tmodel = "0" & tmodel
-        end if
-      end if
+      case length(tmodel) of
+        1:
+          tmodel = ("00" & tmodel)
+        2:
+          tmodel = ("0" & tmodel)
+      end case
       tTempPartObj = createObject(#temp, "Bodypart Template Class")
       tTempPartObj.define(tPart, tmodel, tColor, tDirection, tAction, tAncestor)
       pBodyPartObjects.addProp(tPart, tTempPartObj)
@@ -105,8 +100,8 @@ on createTemplateParts me, tFigure, tPartList, tdir, tSize
   end repeat
 end
 
-on feedHumanPreview me, tWindowTitle, tElemID, tPartList 
-  if not voidp(pBodyPartObjects) and windowExists(tWindowTitle) then
+on feedHumanPreview me, tWindowTitle, tElemID, tPartList
+  if (not voidp(pBodyPartObjects) and windowExists(tWindowTitle)) then
     tElem = getWindow(tWindowTitle).getElement(tElemID)
     tTempPartImg = image(64, 102, 16)
     me.getPartImg(tPartList, tTempPartImg, 3)
@@ -115,20 +110,19 @@ on feedHumanPreview me, tWindowTitle, tElemID, tPartList
     tdestrect = (tPrewImg.rect - tTempPartImg.rect)
     tMargins = rect(0, 0, 0, 0)
     tdestrect = (rect((tdestrect.width / 2), (tdestrect.height / 2), (tTempPartImg.width + (tdestrect.width / 2)), ((tdestrect.height / 2) + tTempPartImg.height)) + tMargins)
-    tPrewImg.copyPixels(tTempPartImg, tdestrect, tTempPartImg.rect, [#ink:8])
+    tPrewImg.copyPixels(tTempPartImg, tdestrect, tTempPartImg.rect, [#ink: 8])
     tElem.clearImage()
     tElem.feedImage(tPrewImg)
   end if
 end
 
-on getPartImg me, tPartList, tImg, tdir, tSize 
-  if tPartList.ilk <> #list then
+on getPartImg me, tPartList, tImg, tdir, tSize
+  if (tPartList.ilk <> #list) then
     list(tPartList)
   end if
-  repeat while tPartList <= tImg
-    tPart = getAt(tImg, tPartList)
-    if not tPart contains "it" then
-      call(#copyPicture, [pBodyPartObjects.getAt(tPart)], tImg, tdir, tSize)
+  repeat with tPart in tPartList
+    if not (tPart contains "it") then
+      call(#copyPicture, [pBodyPartObjects[tPart]], tImg, tdir, tSize)
     end if
   end repeat
 end

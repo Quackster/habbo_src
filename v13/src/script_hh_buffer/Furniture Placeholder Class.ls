@@ -1,43 +1,43 @@
-property pMaxFrames, pDelay, pFrame, pItem, pData
+property pDelay, pFrame, pItem, pPart, pData, pMaxFrames
 
-on prepare me, tdata 
-  if me.count(#pSprList) < 1 then
-    return FALSE
+on prepare me, tdata
+  if (me.pSprList.count < 1) then
+    return 0
   end if
   pMaxFrames = 6
   tDelim = the itemDelimiter
   the itemDelimiter = "_"
-  tName = me.getPropRef(#pSprList, 1).member.name
-  pItem = tName.getProp(#item, 1, (tName.count(#item) - 6))
-  pPart = tName.getProp(#item, (tName.count(#item) - 5))
-  pData = tName.getProp(#item, (tName.count(#item) - 4), (tName.count(#item) - 1))
+  tName = me.pSprList[1].member.name
+  pItem = tName.item[1]
+  pPart = tName.item[(tName.item.count - 5)]
+  pData = tName.item[(tName.item.count - 4)]
   the itemDelimiter = tDelim
   pFrame = (random(pMaxFrames) - 1)
   pDelay = 0
   me.setAnimMembersToFrame()
   pTimer = 1
-  return TRUE
+  return 1
 end
 
-on update me 
+on update me
   pDelay = (pDelay + 1)
-  if pDelay > 4 then
+  if (pDelay > 4) then
     pFrame = ((pFrame + 1) mod pMaxFrames)
     me.setAnimMembersToFrame(pFrame)
     pDelay = 0
   end if
 end
 
-on setAnimMembersToFrame me, tFrame 
-  if me.count(#pSprList) < 1 then
-    return FALSE
+on setAnimMembersToFrame me, tFrame
+  if (me.pSprList.count < 1) then
+    return 0
   end if
   tLayerChar = "a"
-  tNewName = pItem & "_" & tLayerChar & "_" & pData & "_" & tFrame
+  tNewName = ((((((pItem & "_") & tLayerChar) & "_") & pData) & "_") & tFrame)
   if memberExists(tNewName) then
     tmember = member(getmemnum(tNewName))
-    me.getPropRef(#pSprList, 1).castNum = tmember.number
-    me.getPropRef(#pSprList, 1).width = tmember.width
-    me.getPropRef(#pSprList, 1).height = tmember.height
+    me.pSprList[1].castNum = tmember.number
+    me.pSprList[1].width = tmember.width
+    me.pSprList[1].height = tmember.height
   end if
 end
