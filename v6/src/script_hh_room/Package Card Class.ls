@@ -1,87 +1,87 @@
-property pCardWndID, pMessage, pPackageID
+property pMessage, pPackageID, pCardWndID
 
-on construct me 
-  pMessage = ""
-  pPackageID = ""
-  pCardWndID = "Card" && getUniqueID()
+on construct me
+  pMessage = EMPTY
+  pPackageID = EMPTY
+  pCardWndID = ("Card" && getUniqueID())
   registerMessage(#leaveRoom, me.getID(), #hideCard)
   registerMessage(#changeRoom, me.getID(), #hideCard)
-  return TRUE
+  return 1
 end
 
-on deconstruct me 
+on deconstruct me
   if windowExists(pCardWndID) then
     removeWindow(pCardWndID)
   end if
   unregisterMessage(#leaveRoom, me.getID())
   unregisterMessage(#changeRoom, me.getID())
-  return TRUE
+  return 1
 end
 
-on define me, tProps 
-  pPackageID = tProps.getAt(#id)
-  pMessage = tProps.getAt(#msg)
-  me.showCard((tProps.getAt(#loc) + [0, -220]))
-  return TRUE
+on define me, tProps
+  pPackageID = tProps[#id]
+  pMessage = tProps[#msg]
+  me.showCard((tProps[#loc] + [0, -220]))
+  return 1
 end
 
-on showCard me, tloc 
+on showCard me, tloc
   if windowExists(pCardWndID) then
     removeWindow(pCardWndID)
   end if
   if voidp(tloc) then
     tloc = [100, 100]
   end if
-  if tloc.getAt(1) > (the stage.rect.width - 260) then
-    tloc.setAt(1, (the stage.rect.width - 260))
+  if (tloc[1] > (the stage.rect.width - 260)) then
+    tloc[1] = (the stage.rect.width - 260)
   end if
-  if tloc.getAt(2) < 2 then
-    tloc.setAt(2, 2)
+  if (tloc[2] < 2) then
+    tloc[2] = 2
   end if
-  if not createWindow(pCardWndID, "package_card.window", tloc.getAt(1), tloc.getAt(2)) then
-    return FALSE
+  if not createWindow(pCardWndID, "package_card.window", tloc[1], tloc[2]) then
+    return 0
   end if
   tWndObj = getWindow(pCardWndID)
   tWndObj.registerClient(me.getID())
   tWndObj.registerProcedure(#eventProcCard, me.getID(), #mouseUp)
   tWndObj.getElement("package_msg").setText(pMessage)
-  return TRUE
+  return 1
 end
 
-on hideCard me 
+on hideCard me
   unregisterMessage(#leaveRoom, me.getID())
   unregisterMessage(#changeRoom, me.getID())
   if windowExists(pCardWndID) then
     removeWindow(pCardWndID)
   end if
-  return TRUE
+  return 1
 end
 
-on openPresent me 
-  return(getThread(#room).getComponent().getRoomConnection().send("PRESENTOPEN", pPackageID))
+on openPresent me
+  return getThread(#room).getComponent().getRoomConnection().send("PRESENTOPEN", pPackageID)
 end
 
-on showContent me, tdata 
+on showContent me, tdata
   if not windowExists(pCardWndID) then
-    return FALSE
+    return 0
   end if
-  ttype = tdata.getAt(#type)
-  tCode = tdata.getAt(#code)
-  tMemNum = void()
-  if ttype contains "*" then
+  ttype = tdata[#type]
+  tCode = tdata[#code]
+  tMemNum = VOID
+  if (ttype contains "*") then
     tDelim = the itemDelimiter
     the itemDelimiter = "*"
-    ttype = ttype.getProp(#item, 1)
+    ttype = ttype.item[1]
     the itemDelimiter = tDelim
   end if
-  if memberExists(tCode & "_small") then
-    tMemNum = getmemnum(tCode & "_small")
+  if memberExists((tCode & "_small")) then
+    tMemNum = getmemnum((tCode & "_small"))
   else
-    if memberExists("ctlg_pic_small_" & tCode) then
-      tMemNum = getmemnum("ctlg_pic_small_" & tCode)
+    if memberExists(("ctlg_pic_small_" & tCode)) then
+      tMemNum = getmemnum(("ctlg_pic_small_" & tCode))
     else
-      if memberExists(ttype & "_small") then
-        tMemNum = getmemnum(ttype & "_small")
+      if memberExists((ttype & "_small")) then
+        tMemNum = getmemnum((ttype & "_small"))
       end if
     end if
   end if
@@ -101,15 +101,14 @@ on showContent me, tdata
   tWndObj.getElement("open_package").hide()
 end
 
-on eventProcCard me, tEvent, tElemID, tParam 
-  if tEvent <> #mouseUp then
-    return FALSE
+on eventProcCard me, tEvent, tElemID, tParam
+  if (tEvent <> #mouseUp) then
+    return 0
   end if
-  if (tElemID = "close") then
-    return(me.hideCard())
-  else
-    if (tElemID = "open_package") then
-      return(me.openPresent())
-    end if
-  end if
+  case tElemID of
+    "close":
+      return me.hideCard()
+    "open_package":
+      return me.openPresent()
+  end case
 end

@@ -1,12 +1,14 @@
-on construct me 
+property pOkToLogin
+
+on construct me
   pOkToLogin = 0
   if variableExists("stats.tracking.url") then
     createObject(#statsBroker, "Statistics Broker Class")
   end if
   if not objectExists("Figure_System") then
-    if createObject("Figure_System", ["Figure System Class"]) <> 0 then
+    if (createObject("Figure_System", ["Figure System Class"]) <> 0) then
       tURL = getVariable("external.figurepartlist.txt")
-      getObject("Figure_System").define(["type":"url", "source":tURL])
+      getObject("Figure_System").define(["type": "url", "source": tURL])
     end if
   end if
   if not objectExists("Figure_Preview") then
@@ -16,20 +18,20 @@ on construct me
   if not variableExists("quickLogin") then
     setVariable("quickLogin", 0)
   end if
-  if getIntVariable("quickLogin", 0) and the runMode contains "Author" then
+  if (getIntVariable("quickLogin", 0) and (the runMode contains "Author")) then
     if not voidp(getPref(getVariable("fuse.project.id", "fusepref"))) then
       tTemp = value(getPref(getVariable("fuse.project.id", "fusepref")))
-      getObject(#session).set(#userName, tTemp.getAt(1))
-      getObject(#session).set(#password, tTemp.getAt(2))
+      getObject(#session).set(#userName, tTemp[1])
+      getObject(#session).set(#password, tTemp[2])
       pOkToLogin = 1
-      return(me.connect())
+      return me.connect()
     end if
   end if
   registerMessage(#Initialize, me.getID(), #initA)
-  return TRUE
+  return 1
 end
 
-on deconstruct me 
+on deconstruct me
   pOkToLogin = 0
   if objectExists("Figure_System") then
     removeObject("Figure_System")
@@ -47,32 +49,32 @@ on deconstruct me
     removeObject(#getServerDate)
   end if
   if connectionExists(getVariable("connection.info.id", #info)) then
-    return(me.disconnect())
+    return me.disconnect()
   else
-    return TRUE
+    return 1
   end if
 end
 
-on initA me 
+on initA me
   if (getIntVariable("figurepartlist.loaded", 1) = 0) then
-    return(me.delay(250, #initA))
+    return me.delay(250, #initA)
   end if
-  return(me.delay(1000, #initB))
+  return me.delay(1000, #initB)
 end
 
-on initB me 
-  return(me.getInterface().showLogin())
+on initB me
+  return me.getInterface().showLogin()
 end
 
-on connect me 
+on connect me
   tHost = getVariable("connection.info.host")
   tPort = getIntVariable("connection.info.port")
   tConn = getVariable("connection.info.id", #info)
-  if voidp(tHost) or voidp(tPort) then
-    return(error(me, "Server port/host data not found!", #connect))
+  if (voidp(tHost) or voidp(tPort)) then
+    return error(me, "Server port/host data not found!", #connect)
   end if
   if not createConnection(tConn, tHost, tPort) then
-    return(error(me, "Failed to create connection!", #connect))
+    return error(me, "Failed to create connection!", #connect)
   end if
   if not objectExists(#getServerDate) then
     createObject(#getServerDate, "Server Date Class")
@@ -83,18 +85,18 @@ on connect me
   if not threadExists(#hobba) then
     initThread("thread.hobba")
   end if
-  return TRUE
+  return 1
 end
 
-on disconnect me 
+on disconnect me
   tConn = getVariable("connection.info.id", #info)
   if connectionExists(tConn) then
-    return(removeConnection(tConn))
+    return removeConnection(tConn)
   else
-    return(error(me, "Connection not found!", #disconnect))
+    return error(me, "Connection not found!", #disconnect)
   end if
 end
 
-on isOkToLogin me 
-  return(me.pOkToLogin)
+on isOkToLogin me
+  return me.pOkToLogin
 end

@@ -1,54 +1,53 @@
 property pTotalSprList, pFreeSprList, pClientList, pEventBroker
 
-on construct me 
-  pTotalSprList = void()
-  pFreeSprList = void()
-  pClientList = void()
+on construct me
+  pTotalSprList = VOID
+  pFreeSprList = VOID
+  pClientList = VOID
   pEventBroker = script(getVariable("event.broker.behavior"))
-  return(me.preIndexChannels())
+  return me.preIndexChannels()
 end
 
-on deconstruct me 
-  return TRUE
+on deconstruct me
+  return 1
 end
 
-on getProperty me, tPropID 
-  if (tPropID = #totalSprCount) then
-    return(pTotalSprList.count)
-  else
-    if (tPropID = #freeSprCount) then
-      return(pFreeSprList.count)
-    else
-      return FALSE
-    end if
-  end if
+on getProperty me, tPropID
+  case tPropID of
+    #totalSprCount:
+      return pTotalSprList.count
+    #freeSprCount:
+      return pFreeSprList.count
+  end case
+  return 0
 end
 
-on setProperty me, tPropID, tValue 
-  return FALSE
+on setProperty me, tPropID, tValue
+  -- ERROR: Could not identify jmp
+  return 0
 end
 
-on reserveSprite me, tClientID 
+on reserveSprite me, tClientID
   if (pFreeSprList.count = 0) then
-    return(error(me, "Out of free sprite channels!", #reserveSprite))
+    return error(me, "Out of free sprite channels!", #reserveSprite)
   end if
-  tSprNum = pFreeSprList.getAt(1)
+  tSprNum = pFreeSprList[1]
   tSprite = sprite(tSprNum)
   pFreeSprList.deleteAt(1)
   puppetSprite(tSprNum, 1)
   tSprite.stretch = 0
   tSprite.locV = -1000
   tSprite.visible = 1
-  pClientList.setAt(tSprNum, tClientID)
-  return(tSprNum)
+  pClientList[tSprNum] = tClientID
+  return tSprNum
 end
 
-on releaseSprite me, tSprNum 
-  if pTotalSprList.getPos(tSprNum) < 1 then
-    return(error(me, "Sprite not marked as usable:" && tSprNum, #releaseSprite))
+on releaseSprite me, tSprNum
+  if (pTotalSprList.getPos(tSprNum) < 1) then
+    return error(me, ("Sprite not marked as usable:" && tSprNum), #releaseSprite)
   end if
-  if pFreeSprList.getPos(tSprNum) > 0 then
-    return(error(me, "Attempting to release free sprite!", #releaseSprite))
+  if (pFreeSprList.getPos(tSprNum) > 0) then
+    return error(me, "Attempting to release free sprite!", #releaseSprite)
   end if
   tSprite = sprite(tSprNum)
   tSprite.member = member(0)
@@ -60,81 +59,75 @@ on releaseSprite me, tSprNum
   tSprite.cursor = 0
   tSprite.blend = 100
   puppetSprite(tSprNum, 0)
-  tSprite.locZ = void()
+  tSprite.locZ = VOID
   pFreeSprList.append(tSprNum)
-  pClientList.setAt(tSprNum, 0)
-  return TRUE
+  pClientList[tSprNum] = 0
+  return 1
 end
 
-on releaseAllSprites me 
+on releaseAllSprites me
   pFreeSprList = []
-  repeat while pTotalSprList.count <= 1
-    tSprNum = getAt(1, count(pTotalSprList.count))
+  repeat with tSprNum in pTotalSprList.count
     me.releaseSprite(tSprNum)
   end repeat
-  return TRUE
+  return 1
 end
 
-on setEventBroker me, tSprNum, tid 
-  if pTotalSprList.getPos(tSprNum) < 1 then
-    return(error(me, "Sprite not marked as usable:" && tSprNum, #setEventBroker))
+on setEventBroker me, tSprNum, tid
+  if (pTotalSprList.getPos(tSprNum) < 1) then
+    return error(me, ("Sprite not marked as usable:" && tSprNum), #setEventBroker)
   end if
-  if pFreeSprList.getPos(tSprNum) > 0 then
-    return(error(me, "Attempted to modify non-reserved sprite!", #setEventBroker))
+  if (pFreeSprList.getPos(tSprNum) > 0) then
+    return error(me, "Attempted to modify non-reserved sprite!", #setEventBroker)
   end if
   tSprite = sprite(tSprNum)
   tSprite.scriptInstanceList = [new(pEventBroker)]
   tSprite.setID(tid)
-  return TRUE
+  return 1
 end
 
-on removeEventBroker me, tSprNum 
-  if pTotalSprList.getPos(tSprNum) < 1 then
-    return(error(me, "Sprite not marked as usable:" && tSprNum, #removeEventBroker))
+on removeEventBroker me, tSprNum
+  if (pTotalSprList.getPos(tSprNum) < 1) then
+    return error(me, ("Sprite not marked as usable:" && tSprNum), #removeEventBroker)
   end if
-  if pFreeSprList.getPos(tSprNum) > 0 then
-    return(error(me, "Attempted to modify non reserved sprite!", #removeEventBroker))
+  if (pFreeSprList.getPos(tSprNum) > 0) then
+    return error(me, "Attempted to modify non reserved sprite!", #removeEventBroker)
   end if
   sprite(tSprNum).scriptInstanceList = []
-  return TRUE
+  return 1
 end
 
-on print me, tCount 
+on print me, tCount
   if integerp(tCount) then
-    if tCount > the lastChannel then
+    if (tCount > the lastChannel) then
       tCount = the lastChannel
     end if
-    i = 1
-    repeat while i <= tCount
-      put(sprite(i).spriteNum && "--" && sprite(i).member.name && "--" && sprite(i).locZ && "--" && sprite(i).rect && "--" && pClientList.getAt(sprite(i).spriteNum))
-      i = (1 + i)
+    repeat with i = 1 to tCount
+      put ((((((((sprite(i).spriteNum && "--") && sprite(i).member.name) && "--") && sprite(i).locZ) && "--") && sprite(i).rect) && "--") && pClientList[sprite(i).spriteNum])
     end repeat
-    exit repeat
+  else
+    repeat with tNum in pTotalSprList
+      if (pFreeSprList.getPos(tNum) < 1) then
+        tSymbol = "#"
+      else
+        tSymbol = SPACE
+      end if
+      put ((((((((tSymbol & tNum) && sprite(tNum).member.name) && "--") && sprite(tNum).locZ) && "--") && sprite(tNum).rect) && "--") && pClientList[tNum])
+    end repeat
   end if
-  repeat while pTotalSprList <= 1
-    tNum = getAt(1, count(pTotalSprList))
-    if pFreeSprList.getPos(tNum) < 1 then
-      tSymbol = "#"
-    else
-      tSymbol = space()
-    end if
-    put(tSymbol & tNum && sprite(tNum).member.name && "--" && sprite(tNum).locZ && "--" && sprite(tNum).rect && "--" && pClientList.getAt(tNum))
-  end repeat
 end
 
-on preIndexChannels me 
+on preIndexChannels me
   pTotalSprList = []
   pFreeSprList = []
   pClientList = []
-  i = 1
-  repeat while i <= the lastChannel
+  repeat with i = 1 to the lastChannel
     pTotalSprList.add(i)
     pClientList.add(0)
     puppetSprite(i, 1)
     sprite(i).visible = 0
-    i = (1 + i)
   end repeat
   pFreeSprList = pTotalSprList.duplicate()
   pTotalSprList.sort()
-  return TRUE
+  return 1
 end

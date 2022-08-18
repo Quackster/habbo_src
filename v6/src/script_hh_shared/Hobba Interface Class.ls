@@ -1,16 +1,16 @@
-property pWindowID, pAlertSpr, pCurrCryID, pAlertTimer, pCurrCryData, pCurrCryNum
+property pWindowID, pAlertSpr, pAlertTimer, pCurrCryID, pCurrCryNum, pCurrCryData
 
-on construct me 
+on construct me
   pWindowID = getText("hobba_alert", "Hobba Alert")
-  pAlertSpr = void()
+  pAlertSpr = VOID
   pAlertTimer = 0
-  pCurrCryID = ""
+  pCurrCryID = EMPTY
   pCurrCryNum = 0
   pCurrCryData = [:]
-  return TRUE
+  return 1
 end
 
-on deconstruct me 
+on deconstruct me
   removeUpdate(me.getID())
   if windowExists(pWindowID) then
     removeWindow(pWindowID)
@@ -18,35 +18,35 @@ on deconstruct me
   if (pAlertSpr.ilk = #sprite) then
     releaseSprite(pAlertSpr.spriteNum)
   end if
-  pCurrCryID = ""
+  pCurrCryID = EMPTY
   pCurrCryNum = 0
   pCurrCryData = [:]
-  return TRUE
+  return 1
 end
 
-on ShowAlert me 
-  if pAlertSpr.ilk <> #sprite then
+on ShowAlert me
+  if (pAlertSpr.ilk <> #sprite) then
     pAlertSpr = sprite(reserveSprite(me.getID()))
     pAlertSpr.memberNum = getmemnum("hobba_alert_0")
     pAlertSpr.ink = 8
     pAlertSpr.loc = point(5, 5)
     pAlertSpr.locZ = 200000000
-    setEventBroker(pAlertSpr.spriteNum, me.getID() & "_alert_spr")
+    setEventBroker(pAlertSpr.spriteNum, (me.getID() & "_alert_spr"))
     pAlertSpr.registerProcedure(#eventProcAlert, me.getID(), #mouseUp)
     pAlertSpr.setcursor("cursor.finger")
     pAlertTimer = 0
   end if
-  return(receiveUpdate(me.getID()))
+  return receiveUpdate(me.getID())
 end
 
-on hideAlert me 
+on hideAlert me
   if ilk(pAlertSpr, #sprite) then
     pAlertSpr.memberNum = getmemnum("hobba_alert_0")
   end if
-  return(removeUpdate(me.getID()))
+  return removeUpdate(me.getID())
 end
 
-on showCryWnd me 
+on showCryWnd me
   if windowExists(pWindowID) then
     tWndObj = getWindow(pWindowID)
   else
@@ -58,123 +58,111 @@ on showCryWnd me
   end if
   tCryDB = me.getComponent().getCryDataBase()
   if (tCryDB.count = 0) then
-    return TRUE
+    return 1
   end if
   tCryID = tCryDB.getPropAt(tCryDB.count)
-  return(me.fillCryData(tCryID))
+  return me.fillCryData(tCryID)
 end
 
-on hideCryWnd me 
-  pCurrCryID = ""
+on hideCryWnd me
+  pCurrCryID = EMPTY
   pCurrCryNum = 0
   pCurrCryData = [:]
   me.hideAlert()
   if windowExists(pWindowID) then
-    return(removeWindow(pWindowID))
+    return removeWindow(pWindowID)
   else
-    return FALSE
+    return 0
   end if
 end
 
-on updateCryWnd me 
-  return(me.fillCryData(pCurrCryID))
+on updateCryWnd me
+  return me.fillCryData(pCurrCryID)
 end
 
-on update me 
+on update me
   pAlertTimer = ((pAlertTimer + 1) mod 4)
-  if pAlertTimer <> 0 then
-    return()
+  if (pAlertTimer <> 0) then
+    return 
   end if
-  if pAlertSpr.ilk <> #sprite then
-    return(removeUpdate(me.getID()))
+  if (pAlertSpr.ilk <> #sprite) then
+    return removeUpdate(me.getID())
   end if
   tName = pAlertSpr.member.name
-  tNum = integer(tName.getProp(#char, length(tName)))
-  tName = tName.getProp(#char, 1, (length(tName) - 1)) & not tNum
+  tNum = integer(tName.char[length(tName)])
+  tName = (tName.char[1] & not tNum)
   pAlertSpr.memberNum = getmemnum(tName)
 end
 
-on fillCryData me, tCryNumOrID 
+on fillCryData me, tCryNumOrID
   if not windowExists(pWindowID) then
-    return FALSE
+    return 0
   end if
   tCryDB = me.getComponent().getCryDataBase()
   tCryCount = tCryDB.count
   if (tCryCount = 0) then
-    return(error(me, "Hobba alerts not found!", #fillCryData))
+    return error(me, "Hobba alerts not found!", #fillCryData)
   end if
   if stringp(tCryNumOrID) then
     tCryID = tCryNumOrID
-    pCurrCryData = tCryDB.getAt(tCryID)
-    i = 1
-    repeat while i <= tCryCount
+    pCurrCryData = tCryDB[tCryID]
+    repeat with i = 1 to tCryCount
       if (tCryDB.getPropAt(i) = tCryID) then
         pCurrCryNum = i
-      else
-        i = (1 + i)
+        exit repeat
       end if
     end repeat
-    exit repeat
-  end if
-  if integerp(tCryNumOrID) then
-    if tCryNumOrID < 1 or tCryNumOrID > tCryCount then
-      return FALSE
-    end if
-    tCryID = tCryDB.getPropAt(tCryNumOrID)
-    pCurrCryData = tCryDB.getAt(tCryID)
-    pCurrCryNum = tCryNumOrID
   else
-    return(error(me, "String or integer expected:" && tCryNumOrID, #fillCryData))
+    if integerp(tCryNumOrID) then
+      if ((tCryNumOrID < 1) or (tCryNumOrID > tCryCount)) then
+        return 0
+      end if
+      tCryID = tCryDB.getPropAt(tCryNumOrID)
+      pCurrCryData = tCryDB[tCryID]
+      pCurrCryNum = tCryNumOrID
+    else
+      return error(me, ("String or integer expected:" && tCryNumOrID), #fillCryData)
+    end if
   end if
   if voidp(pCurrCryData) then
     tNewID = tCryDB.getPropAt(count(tCryDB))
-    return(me.fillCryData(tNewID))
+    return me.fillCryData(tNewID)
   else
     pCurrCryID = tCryID
   end if
-  tName = pCurrCryData.getAt(#sender)
-  tPlace = pCurrCryData.getAt(#name)
-  tMsg = pCurrCryData.getAt(#msg)
-  tTime = pCurrCryData.getAt(#time)
+  tName = pCurrCryData[#sender]
+  tPlace = pCurrCryData[#name]
+  tMsg = pCurrCryData[#msg]
+  tTime = pCurrCryData[#time]
   tWndObj = getWindow(pWindowID)
-  tWndObj.getElement("hobba_cry_text").setText(tName & "\r" & tPlace & "\r" & "\r" & tMsg)
-  tWndObj.getElement("page_num").setText(pCurrCryNum & "/" & tCryCount)
-  tWndObj.getElement("hobba_pickedby").setText(getText("hobba_pickedby") && pCurrCryData.picker)
+  tWndObj.getElement("hobba_cry_text").setText((((((tName & RETURN) & tPlace) & RETURN) & RETURN) & tMsg))
+  tWndObj.getElement("page_num").setText(((pCurrCryNum & "/") & tCryCount))
+  tWndObj.getElement("hobba_pickedby").setText((getText("hobba_pickedby") && pCurrCryData.picker))
   tWndObj.getElement("hobba_sendtime").setText(tTime)
-  return TRUE
+  return 1
 end
 
-on eventProcCryWnd me, tEvent, tElemID, tParam 
-  if (tElemID = "close") then
-    return(me.hideCryWnd())
-  else
-    if (tElemID = "hobba_prev") then
-      return(me.fillCryData((pCurrCryNum - 1)))
-    else
-      if (tElemID = "hobba_next") then
-        return(me.fillCryData((pCurrCryNum + 1)))
-      else
-        if (tElemID = "hobba_seelog") then
-          return(openNetPage(pCurrCryData.getAt(#url)))
-        else
-          if (tElemID = "hobba_pickup") then
-            tCryID = pCurrCryID
-            return(me.getComponent().send_cryPick(tCryID, 0))
-          else
-            if (tElemID = "hobba_pickup_go") then
-              tCryID = pCurrCryID
-              return(me.getComponent().send_cryPick(tCryID, 1))
-            else
-              return FALSE
-            end if
-          end if
-        end if
-      end if
-    end if
-  end if
+on eventProcCryWnd me, tEvent, tElemID, tParam
+  case tElemID of
+    "close":
+      return me.hideCryWnd()
+    "hobba_prev":
+      return me.fillCryData((pCurrCryNum - 1))
+    "hobba_next":
+      return me.fillCryData((pCurrCryNum + 1))
+    "hobba_seelog":
+      return openNetPage(pCurrCryData[#url])
+    "hobba_pickup":
+      tCryID = pCurrCryID
+      return me.getComponent().send_cryPick(tCryID, 0)
+    "hobba_pickup_go":
+      tCryID = pCurrCryID
+      return me.getComponent().send_cryPick(tCryID, 1)
+  end case
+  return 0
 end
 
-on eventProcAlert me, tEvent, tElemID, tParam 
+on eventProcAlert me, tEvent, tElemID, tParam
   me.showCryWnd()
-  return TRUE
+  return 1
 end

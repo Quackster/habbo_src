@@ -1,6 +1,6 @@
-property pDirection, pSprite, pOffset, pTurnPnt, pType, pAnimFrame
+property pSprite, pOffset, pTurnPnt, pDirection, pType, pAnimFrame
 
-on define me, tSprite, tDirection 
+on define me, tSprite, tDirection
   pSprite = tSprite
   pOffset = [0, 0]
   pTurnPnt = 0
@@ -8,10 +8,10 @@ on define me, tSprite, tDirection
   pType = "car"
   pAnimFrame = 1
   me.reset()
-  return TRUE
+  return 1
 end
 
-on reset me 
+on reset me
   if (pDirection = #left) then
     if (random(2) = 1) then
       tmodel = "car2"
@@ -35,7 +35,7 @@ on reset me
   end if
   pSprite.width = pSprite.member.width
   pSprite.height = pSprite.member.height
-  if (tmodel = "car1") or (tmodel = "car2") then
+  if ((tmodel = "car1") or (tmodel = "car2")) then
     pSprite.ink = 41
     pSprite.backColor = (random(150) + 20)
   else
@@ -44,24 +44,24 @@ on reset me
   end if
 end
 
-on update me 
+on update me
   pSprite.loc = (pSprite.loc + pOffset)
-  if (pSprite.locV = pTurnPnt) and (random(2) = 2) then
-    pOffset.setAt(2, -pOffset.getAt(2))
+  if ((pSprite.locV = pTurnPnt) and (random(2) = 2)) then
+    pOffset[2] = -pOffset[2]
     tmodel = "car2"
     pSprite.castNum = getmemnum(tmodel)
   end if
   if (pType = "cart") then
     pAnimFrame = (pAnimFrame + 1)
-    if pAnimFrame > 9 then
+    if (pAnimFrame > 9) then
       pAnimFrame = 2
     end if
     tFrameNum = (pAnimFrame / 2)
-    pSprite.castNum = getmemnum("crt" & tFrameNum)
+    pSprite.castNum = getmemnum(("crt" & tFrameNum))
     pSprite.width = pSprite.member.width
     pSprite.height = pSprite.member.height
   end if
-  if pSprite.locV < 283 or pSprite.locV > 499 or pSprite.locH > 730 then
-    return(me.reset())
+  if (((pSprite.locV < 283) or (pSprite.locV > 499)) or (pSprite.locH > 730)) then
+    return me.reset()
   end if
 end

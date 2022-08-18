@@ -1,38 +1,38 @@
-property pSprite, pCounter, pActive
+property pSprite, pActive, pCounter
 
-on construct me 
+on construct me
   pActive = 0
   pCounter = 0
-  pSprite = sprite(reserveSprite("Paalu splash dir:" && 0))
-  pSprite.member = member(getmemnum("splash_" & pCounter))
-  return TRUE
+  pSprite = sprite(reserveSprite(("Paalu splash dir:" && 0)))
+  pSprite.member = member(getmemnum(("splash_" & pCounter)))
+  return 1
 end
 
-on deconstruct me 
+on deconstruct me
   if ilk(pSprite, #sprite) then
     releaseSprite(pSprite.spriteNum)
   end if
-  pSprite = void()
-  return TRUE
+  pSprite = VOID
+  return 1
 end
 
-on define me, tPart, tProps 
+on define me, tPart, tProps
   pActive = 0
   pCounter = 0
-  pSprite.member = member(getmemnum("splash_" & pCounter))
+  pSprite.member = member(getmemnum(("splash_" & pCounter)))
   pSprite.visible = 0
   pSprite.ink = 36
-  return TRUE
+  return 1
 end
 
-on reset me 
+on reset me
   pActive = 0
   pSprite.visible = 0
 end
 
-on splash me, tloc, tlocz 
+on splash me, tloc, tlocz
   if voidp(pSprite) then
-    return FALSE
+    return 0
   end if
   pSprite.loc = tloc
   pSprite.locZ = tlocz
@@ -41,11 +41,11 @@ on splash me, tloc, tlocz
   pActive = 1
 end
 
-on prepare me 
+on prepare me
   if pActive then
-    pSprite.member = member(getmemnum("splash_" & pCounter))
+    pSprite.member = member(getmemnum(("splash_" & pCounter)))
     pCounter = (pCounter + 1)
-    if pCounter > 9 then
+    if (pCounter > 9) then
       pActive = 0
       pCounter = 0
       pSprite.visible = 0

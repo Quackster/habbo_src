@@ -1,21 +1,21 @@
 property pActive, pSwitch
 
-on prepare me, tdata 
-  if me.count(#pSprList) > 1 then
-    removeEventBroker(me.getPropRef(#pSprList, 2).spriteNum)
+on prepare me, tdata
+  if (me.pSprList.count > 1) then
+    removeEventBroker(me.pSprList[2].spriteNum)
   end if
-  if me.count(#pSprList) > 2 then
-    removeEventBroker(me.getPropRef(#pSprList, 3).spriteNum)
+  if (me.pSprList.count > 2) then
+    removeEventBroker(me.pSprList[3].spriteNum)
   end if
-  if (tdata.getAt("SWITCHON") = "ON") then
+  if (tdata["SWITCHON"] = "ON") then
     me.setOn()
   else
     me.setOff()
   end if
-  return TRUE
+  return 1
 end
 
-on updateStuffdata me, tProp, tValue 
+on updateStuffdata me, tProp, tValue
   if (tValue = "ON") then
     me.setOn()
   else
@@ -23,56 +23,56 @@ on updateStuffdata me, tProp, tValue
   end if
 end
 
-on update me 
+on update me
   if pActive then
-    if me.count(#pSprList) < 3 then
-      return()
+    if (me.pSprList.count < 3) then
+      return 
     end if
     tDelim = the itemDelimiter
     the itemDelimiter = "_"
-    tName = me.getPropRef(#pSprList, 1).member.name
-    tItem = tName.getProp(#item, 1, (tName.count(#item) - 6))
-    tPart = tName.getProp(#item, (tName.count(#item) - 5))
-    tdata = tName.getProp(#item, (tName.count(#item) - 4), (tName.count(#item) - 1))
-    tNewNameA = tItem & "_" & "b" & "_" & tdata & "_" & pSwitch
-    tNewNameB = tItem & "_" & "c" & "_" & tdata & "_" & pSwitch
+    tName = me.pSprList[1].member.name
+    tItem = tName.item[1]
+    tPart = tName.item[(tName.item.count - 5)]
+    tdata = tName.item[(tName.item.count - 4)]
+    tNewNameA = ((((((tItem & "_") & "b") & "_") & tdata) & "_") & pSwitch)
+    tNewNameB = ((((((tItem & "_") & "c") & "_") & tdata) & "_") & pSwitch)
     the itemDelimiter = tDelim
-    me.getPropRef(#pSprList, 2).locZ = (me.getPropRef(#pSprList, 1).locZ + 2)
-    me.getPropRef(#pSprList, 3).locZ = (me.getPropRef(#pSprList, 2).locZ + 2)
+    me.pSprList[2].locZ = (me.pSprList[1].locZ + 2)
+    me.pSprList[3].locZ = (me.pSprList[2].locZ + 2)
     if memberExists(tNewNameA) then
       tmember = member(getmemnum(tNewNameA))
-      me.getPropRef(#pSprList, 2).castNum = tmember.number
-      me.getPropRef(#pSprList, 2).width = tmember.width
-      me.getPropRef(#pSprList, 2).height = tmember.height
+      me.pSprList[2].castNum = tmember.number
+      me.pSprList[2].width = tmember.width
+      me.pSprList[2].height = tmember.height
     end if
     if memberExists(tNewNameB) then
       tmember = member(getmemnum(tNewNameB))
-      me.getPropRef(#pSprList, 3).castNum = tmember.number
-      me.getPropRef(#pSprList, 3).width = tmember.width
-      me.getPropRef(#pSprList, 3).height = tmember.height
+      me.pSprList[3].castNum = tmember.number
+      me.pSprList[3].width = tmember.width
+      me.pSprList[3].height = tmember.height
     end if
     pActive = 0
   end if
 end
 
-on setOn me 
+on setOn me
   pSwitch = 1
   pActive = 1
 end
 
-on setOff me 
+on setOff me
   pSwitch = 0
   pActive = 1
 end
 
-on select me 
+on select me
   if the doubleClick then
     if pSwitch then
       tStr = "OFF"
     else
       tStr = "ON"
     end if
-    getThread(#room).getComponent().getRoomConnection().send("SETSTUFFDATA", me.getID() & "/" & "SWITCHON" & "/" & tStr)
+    getThread(#room).getComponent().getRoomConnection().send("SETSTUFFDATA", ((((me.getID() & "/") & "SWITCHON") & "/") & tStr))
   end if
-  return TRUE
+  return 1
 end

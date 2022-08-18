@@ -1,13 +1,13 @@
-property pJumpButtonsWnd, pTicketCountWnd, pNumOfPhTickets
+property pNumOfPhTickets, pJumpButtonsWnd, pTicketCountWnd
 
-on construct me 
+on construct me
   pNumOfPhTickets = 0
   pJumpButtonsWnd = "pool_helpbuttons"
   pTicketCountWnd = "pool_ticketcount"
-  return TRUE
+  return 1
 end
 
-on deconstruct me 
+on deconstruct me
   if objectExists(#jumpingpelle_obj) then
     removeObject(#jumpingpelle_obj)
   end if
@@ -26,28 +26,28 @@ on deconstruct me
   if windowExists(pTicketCountWnd) then
     removeWindow(pTicketCountWnd)
   end if
-  pJumpinPelleObj = void()
-  return TRUE
+  pJumpinPelleObj = VOID
+  return 1
 end
 
-on openUimakoppi me 
+on openUimakoppi me
   me.getInterface().openUimakoppi()
 end
 
-on closeUimaKoppi me 
+on closeUimaKoppi me
   me.getInterface().closeUimaKoppi()
 end
 
-on setNumOfPhTickets me, tMsg 
+on setNumOfPhTickets me, tMsg
   pNumOfPhTickets = tMsg
-  return TRUE
+  return 1
 end
 
-on getNumOfPhTickets me 
-  return(pNumOfPhTickets)
+on getNumOfPhTickets me
+  return pNumOfPhTickets
 end
 
-on poolUpView me, tMode 
+on poolUpView me, tMode
   if not visualizerExists(#pooltower) then
     createVisualizer(#pooltower, "pool_tower.room")
     getVisualizer(#pooltower).moveZ(19000000)
@@ -59,7 +59,7 @@ on poolUpView me, tMode
   executeMessage(#hide_navigator)
 end
 
-on poolDownView me 
+on poolDownView me
   if windowExists(pJumpButtonsWnd) then
     removeWindow(pJumpButtonsWnd)
   end if
@@ -74,7 +74,7 @@ on poolDownView me
   end if
 end
 
-on jumpingPlaceOk me 
+on jumpingPlaceOk me
   me.getInterface().deactivateChatField()
   getConnection(getVariable("connection.room.id")).send("JUMPSTART")
   me.poolUpView("jump")
@@ -84,50 +84,48 @@ on jumpingPlaceOk me
   tWndObj.moveZ(19000040)
   tWndObj.lock()
   tPelleKeys = getVariableValue("swimjump.key.list")
-  if tPelleKeys.ilk <> #propList then
+  if (tPelleKeys.ilk <> #propList) then
     error(me, "Couldn't retrieve keymap for jump! Using default keys.", #jumpingPlaceOk)
-    tPelleKeys = [#run1:"A", #run2:"D", #dive1:"W", #dive2:"E", #dive3:"A", #dive4:"S", #dive5:"D", #dive6:"Z", #dive7:"X", #jump:"SPACE"]
+    tPelleKeys = [#run1: "A", #run2: "D", #dive1: "W", #dive2: "E", #dive3: "A", #dive4: "S", #dive5: "D", #dive6: "Z", #dive7: "X", #jump: "SPACE"]
   end if
-  i = 1
-  repeat while i <= 9
-    tWndObj.getElement("ph_ui_text_" & i).setText(tPelleKeys.getAt(i))
-    i = (1 + i)
+  repeat with i = 1 to 9
+    tWndObj.getElement(("ph_ui_text_" & i)).setText(tPelleKeys[i])
   end repeat
   tUserName = getObject(#session).get("user_name")
   tFigure = getThread(#room).getComponent().getOwnUser().getPelleFigure()
   createObject(#jumpingpelle_obj, "Jumping Pelle Class", "Pelle KeyDown Class")
   getObject(#jumpingpelle_obj).Init(tUserName, tFigure, 0)
-  return TRUE
+  return 1
 end
 
-on jumpPlayPack me, tMsg 
+on jumpPlayPack me, tMsg
   if objectExists(#jumpingpelle_obj) then
     removeObject(#jumpingpelle_obj)
   end if
   if not objectExists(#playpackpelle_obj) then
     createObject(#playpackpelle_obj, "Jumping Pelle Class", "Pelle Player Class")
   end if
-  tUserObj = getThread(#room).getComponent().getUserObject(tMsg.getAt(#index))
+  tUserObj = getThread(#room).getComponent().getUserObject(tMsg[#index])
   tFigure = tUserObj.getPelleFigure()
-  if (tMsg.getAt(#index) = getObject(#session).get("user_index")) then
+  if (tMsg[#index] = getObject(#session).get("user_index")) then
     me.poolUpView("playback")
   end if
   getObject(#playpackpelle_obj).Init(tUserObj.getName(), tFigure, 1)
-  getObject(#playpackpelle_obj).initPlayer(tUserObj.getName(), tMsg.getAt(#jumpdata))
+  getObject(#playpackpelle_obj).initPlayer(tUserObj.getName(), tMsg[#jumpdata])
   if objectExists(#pool_fuse_screen) then
     getObject(#pool_fuse_screen).fuseShow_showtext(tUserObj.getName())
   end if
 end
 
-on sendSign me, tSign 
+on sendSign me, tSign
   getConnection(getVariable("connection.room.id")).send("SIGN", tSign)
 end
 
-on buyPoolTickets me, tName 
+on buyPoolTickets me, tName
   if not connectionExists(getVariable("connection.info.id")) then
-    return(error(me, "Connection not found:" && getVariable("connection.info.id"), #buyPoolTickets))
+    return error(me, ("Connection not found:" && getVariable("connection.info.id")), #buyPoolTickets)
   end if
-  if (tName = "") then
+  if (tName = EMPTY) then
     tName = getObject(#session).get("user_name")
   end if
   if voidp(tName) then
@@ -136,9 +134,9 @@ on buyPoolTickets me, tName
   getConnection(getVariable("connection.info.id")).send("BTCKS", tName)
 end
 
-on sendJumpPerf me, tJumpData 
+on sendJumpPerf me, tJumpData
   if not objectExists("Figure_System_Pool") then
-    return(error(me, "Figure system Pool object not found", #sendJumpPerf))
+    return error(me, "Figure system Pool object not found", #sendJumpPerf)
   end if
   getConnection(getVariable("connection.room.id")).send("JUMPPERF", tJumpData)
 end

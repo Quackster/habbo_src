@@ -1,14 +1,14 @@
 property pTicketCount
 
-on construct me 
+on construct me
   pTicketCount = "?"
-  return TRUE
+  return 1
 end
 
-on getTicketCount me 
-  return(pTicketCount)
+on getTicketCount me
+  return pTicketCount
 end
 
-on setTicketCount me, tCount 
+on setTicketCount me, tCount
   pTicketCount = tCount
 end
