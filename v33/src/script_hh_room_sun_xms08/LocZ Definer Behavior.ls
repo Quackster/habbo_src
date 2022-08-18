@@ -1,16 +1,16 @@
 property locZ
 
-on print me 
+on print me
   tsprite = sprite(me.spriteNum)
-  put("\r" & "-- -- -- -- -- -- -- -- -- -- -- --" & "\r" & "locZ:      " && locZ & "\r" & "member:    " && tsprite.member.name & "\r" & "location:  " && tsprite.loc & "\r" & "-- -- -- -- -- -- -- -- -- -- -- --")
+  put ((((((((((((RETURN & "-- -- -- -- -- -- -- -- -- -- -- --") & RETURN) & "locZ:      ") && locZ) & RETURN) & "member:    ") && tsprite.member.name) & RETURN) & "location:  ") && tsprite.loc) & RETURN) & "-- -- -- -- -- -- -- -- -- -- -- --")
 end
 
-on getBehaviorDescription me 
-  return("Defines sprite's locZ in room visualizers...")
+on getBehaviorDescription me
+  return "Defines sprite's locZ in room visualizers..."
 end
 
-on getPropertyDescriptionList me 
+on getPropertyDescriptionList me
   tList = [:]
-  tList.setAt(#locZ, [#format:#integer, #default:0, #comment:"locZ modifier:"])
-  return(tList)
+  tList[#locZ] = [#format: #integer, #default: 0, #comment: "locZ modifier:"]
+  return tList
 end

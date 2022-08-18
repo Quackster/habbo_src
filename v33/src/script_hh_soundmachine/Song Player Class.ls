@@ -1,6 +1,6 @@
-property pUpdateTimeout, pQueueTimeout, pPlayTimeout, pSongChannelsInUse, pSongChannels, pPlaylistStack, pSilentSampleName, pPreviewChannel
+property pUpdateTimeout, pQueueTimeout, pPlayTimeout, pPreviewChannel, pSongChannels, pSongChannelsInUse, pPlaylistStack, pSilentSampleName
 
-on construct me 
+on construct me
   pUpdateTimeout = "song player loop update"
   pQueueTimeout = "song queue timeout"
   pPlayTimeout = "song play timeout"
@@ -11,7 +11,7 @@ on construct me
   pPlaylistStack = [:]
 end
 
-on deconstruct me 
+on deconstruct me
   if timeoutExists(pUpdateTimeout) then
     removeTimeout(pUpdateTimeout)
   end if
@@ -23,20 +23,20 @@ on deconstruct me
   end if
 end
 
-on startSong me, tStackIndex, tSongData, tLoop 
+on startSong me, tStackIndex, tSongData, tLoop
   tSongLength = me.getSongLength(tSongData)
   tOffset = 0
-  if not voidp(tSongData.getAt(#offset)) then
-    tOffset = (tSongData.getAt(#offset) / 100)
+  if not voidp(tSongData[#offset]) then
+    tOffset = (tSongData[#offset] / 100)
   end if
   tID = 1
-  if not me.initPlaylist(tStackIndex, [[#length:tSongLength, #id:tID]], tOffset, tLoop) then
-    return FALSE
+  if not me.initPlaylist(tStackIndex, [[#length: tSongLength, #id: tID]], tOffset, tLoop) then
+    return 0
   end if
-  return(me.updatePlaylistSong(tID, tSongData))
+  return me.updatePlaylistSong(tID, tSongData)
 end
 
-on stopSong me, tStackIndex, tResetPlaylist 
+on stopSong me, tStackIndex, tResetPlaylist
   if me.getIsTopInstance(tStackIndex) then
     if timeoutExists(pQueueTimeout) then
       removeTimeout(pQueueTimeout)
@@ -47,10 +47,9 @@ on stopSong me, tStackIndex, tResetPlaylist
     if timeoutExists(pUpdateTimeout) then
       removeTimeout(pUpdateTimeout)
     end if
-    repeat while pSongChannelsInUse <= tResetPlaylist
-      tChannel = getAt(tResetPlaylist, tStackIndex)
-      if tChannel >= 1 and tChannel <= pSongChannels.count then
-        stopSoundChannel(pSongChannels.getAt(tChannel))
+    repeat with tChannel in pSongChannelsInUse
+      if ((tChannel >= 1) and (tChannel <= pSongChannels.count)) then
+        stopSoundChannel(pSongChannels[tChannel])
       end if
     end repeat
     pSongChannelsInUse = []
@@ -63,15 +62,15 @@ on stopSong me, tStackIndex, tResetPlaylist
       me.removePlaylistInstance(tStackIndex)
     end if
   end if
-  return TRUE
+  return 1
 end
 
-on initPlaylist me, tStackIndex, tSongList, tPlayTime, tLoop 
-  if ilk(tSongList) <> #list then
-    return(error(me, "Invalid data", #initPlaylist, #major))
+on initPlaylist me, tStackIndex, tSongList, tPlayTime, tLoop
+  if (ilk(tSongList) <> #list) then
+    return error(me, "Invalid data", #initPlaylist, #major)
   end if
   tTopIndex = me.getTopInstanceIndex()
-  if tTopIndex <= tStackIndex then
+  if (tTopIndex <= tStackIndex) then
     me.stopSong(tTopIndex, 0)
   end if
   if voidp(tLoop) then
@@ -79,299 +78,282 @@ on initPlaylist me, tStackIndex, tSongList, tPlayTime, tLoop
   end if
   me.removePlaylistInstance(tStackIndex)
   tPlaylistInstance = me.createPlaylistInstance(tStackIndex)
-  repeat while tSongList <= tSongList
-    tSong = getAt(tSongList, tStackIndex)
-    if ilk(tSong) <> #propList then
-      tPlaylistInstance.setAt(#songList, [])
-      return(error(me, "Invalid data", #initPlaylist, #major))
+  repeat with tSong in tSongList
+    if (ilk(tSong) <> #propList) then
+      tPlaylistInstance[#songList] = []
+      return error(me, "Invalid data", #initPlaylist, #major)
     end if
-    if voidp(tSong.getAt(#length)) or voidp(tSong.getAt(#id)) then
-      tPlaylistInstance.setAt(#songList, [])
-      return(error(me, "Invalid data", #initPlaylist, #major))
+    if (voidp(tSong[#length]) or voidp(tSong[#id])) then
+      tPlaylistInstance[#songList] = []
+      return error(me, "Invalid data", #initPlaylist, #major)
     end if
     if not tLoop then
-      tSongLength = (tSong.getAt(#length) / 100)
-      if tPlayTime >= tSongLength then
+      tSongLength = (tSong[#length] / 100)
+      if (tPlayTime >= tSongLength) then
         tPlayTime = (tPlayTime - tSongLength)
-        tSong = void()
+        tSong = VOID
       end if
     end if
     if not voidp(tSong) then
       tPlaylistItem = tSong.duplicate()
-      tPlaylistInstance.getAt(#songList).add(tPlaylistItem)
+      tPlaylistInstance[#songList].add(tPlaylistItem)
     end if
   end repeat
-  tPlaylistInstance.setAt(#loop, tLoop)
-  tPlaylistInstance.setAt(#playTime, tPlayTime)
-  tPlaylistInstance.setAt(#initialPlayTime, the milliSeconds)
-  return TRUE
+  tPlaylistInstance[#loop] = tLoop
+  tPlaylistInstance[#playTime] = tPlayTime
+  tPlaylistInstance[#initialPlayTime] = the milliSeconds
+  return 1
 end
 
-on addPlaylistSong me, tStackIndex, tID, tLength 
-  if voidp(tID) or voidp(tLength) then
-    return(error(me, "Invalid data", #addPlaylistSong, #major))
+on addPlaylistSong me, tStackIndex, tID, tLength
+  if (voidp(tID) or voidp(tLength)) then
+    return error(me, "Invalid data", #addPlaylistSong, #major)
   end if
   tPlaylistInstance = me.getPlaylistInstance(tStackIndex)
-  if tPlaylistInstance <> 0 then
-    if tPlaylistInstance.getAt(#loop) then
-      return(error(me, "Looping playlist", #addPlaylistSong, #major))
+  if (tPlaylistInstance <> 0) then
+    if tPlaylistInstance[#loop] then
+      return error(me, "Looping playlist", #addPlaylistSong, #major)
     end if
   else
     tPlaylistInstance = me.createPlaylistInstance(tStackIndex)
-    tPlaylistInstance.setAt(#loop, 0)
+    tPlaylistInstance[#loop] = 0
   end if
   me.removePlayedSongs(tStackIndex)
-  tPlaylistItem = [#length:tLength, #id:tID]
-  tPlaylistInstance.getAt(#songList).add(tPlaylistItem)
-  if (tPlaylistInstance.getAt(#songList).count = 1) then
-    tPlaylistInstance.setAt(#playTime, 0)
-    tPlaylistInstance.setAt(#initialPlayTime, the milliSeconds)
+  tPlaylistItem = [#length: tLength, #id: tID]
+  tPlaylistInstance[#songList].add(tPlaylistItem)
+  if (tPlaylistInstance[#songList].count = 1) then
+    tPlaylistInstance[#playTime] = 0
+    tPlaylistInstance[#initialPlayTime] = the milliSeconds
   end if
-  return TRUE
+  return 1
 end
 
-on updatePlaylistSong me, tID, tSongData 
+on updatePlaylistSong me, tID, tSongData
   tUpdated = 0
-  tIndex = 1
-  repeat while tIndex <= me.getPlaylistInstanceCount()
+  repeat with tIndex = 1 to me.getPlaylistInstanceCount()
     tPlaylistInstance = me.getPlaylistInstance(tIndex, 1)
     if (tPlaylistInstance = 0) then
-      return FALSE
+      return 0
     end if
-    tSongList = tPlaylistInstance.getAt(#songList)
-    i = 1
-    repeat while i <= tSongList.count
-      if (tSongList.getAt(i).getAt(#id) = tID) then
-        if voidp(tSongList.getAt(i).getAt(#songData)) then
+    tSongList = tPlaylistInstance[#songList]
+    repeat with i = 1 to tSongList.count
+      if (tSongList[i][#id] = tID) then
+        if voidp(tSongList[i][#songData]) then
           tUpdated = 1
           tSongDataDuplicate = tSongData.duplicate()
-          tSongList.getAt(i).setAt(#songData, tSongDataDuplicate)
+          tSongList[i][#songData] = tSongDataDuplicate
           tLength = me.getSongLength(tSongDataDuplicate)
-          if tLength <> tSongList.getAt(i).getAt(#length) and tPlaylistInstance.getAt(#loop) then
+          if ((tLength <> tSongList[i][#length]) and tPlaylistInstance[#loop]) then
             me.stopSong(tIndex, 0)
-            tSongList.getAt(i).setAt(#length, tLength)
+            tSongList[i][#length] = tLength
           end if
         end if
       end if
-      i = (1 + i)
     end repeat
-    tIndex = (1 + tIndex)
   end repeat
   if tUpdated then
     me.checkLoopData()
   end if
-  return TRUE
+  return 1
 end
 
-on getPlaylistInstance me, tStackIndex, tAbsoluteIndex 
+on getPlaylistInstance me, tStackIndex, tAbsoluteIndex
   if voidp(tAbsoluteIndex) then
     tAbsoluteIndex = 0
   end if
   if not tAbsoluteIndex then
     tPlaylistInstance = pPlaylistStack.getaProp(tStackIndex)
     if (tPlaylistInstance = 0) then
-      return FALSE
+      return 0
     end if
-    return(tPlaylistInstance)
+    return tPlaylistInstance
   else
-    if tStackIndex < 1 or tStackIndex > pPlaylistStack.count then
-      return FALSE
+    if ((tStackIndex < 1) or (tStackIndex > pPlaylistStack.count)) then
+      return 0
     end if
-    return(pPlaylistStack.getAt(tStackIndex))
+    return pPlaylistStack[tStackIndex]
   end if
 end
 
-on getPlaylistTopInstance me 
+on getPlaylistTopInstance me
   if (pPlaylistStack.count = 0) then
-    return FALSE
+    return 0
   end if
-  return(pPlaylistStack.getAt(pPlaylistStack.count))
+  return pPlaylistStack[pPlaylistStack.count]
 end
 
-on getIsTopInstance me, tStackIndex 
-  if (pPlaylistStack.findPos(tStackIndex) = pPlaylistStack.count) and pPlaylistStack.count > 0 then
-    return TRUE
+on getIsTopInstance me, tStackIndex
+  if ((pPlaylistStack.findPos(tStackIndex) = pPlaylistStack.count) and (pPlaylistStack.count > 0)) then
+    return 1
   end if
-  return FALSE
+  return 0
 end
 
-on getTopInstanceIndex me 
+on getTopInstanceIndex me
   if (pPlaylistStack.count = 0) then
-    return FALSE
+    return 0
   end if
-  return(pPlaylistStack.getPropAt(pPlaylistStack.count))
+  return pPlaylistStack.getPropAt(pPlaylistStack.count)
 end
 
-on removePlaylistInstance me, tStackIndex 
+on removePlaylistInstance me, tStackIndex
   tPos = pPlaylistStack.findPos(tStackIndex)
-  if tPos > 0 then
+  if (tPos > 0) then
     pPlaylistStack.deleteAt(tPos)
-    return TRUE
+    return 1
   end if
-  return FALSE
+  return 0
 end
 
-on createPlaylistInstance me, tStackIndex 
+on createPlaylistInstance me, tStackIndex
   tPos = pPlaylistStack.findPos(tStackIndex)
   if (tPos = 0) then
-    tPlaylistInstance = [#songList:[], #listIndex:1, #playTime:0, #initialPlayTime:0, #playOffset:0, #loop:1]
+    tPlaylistInstance = [#songList: [], #listIndex: 1, #playTime: 0, #initialPlayTime: 0, #playOffset: 0, #loop: 1]
     pPlaylistStack.addProp(tStackIndex, tPlaylistInstance)
     pPlaylistStack.sort()
-    return(tPlaylistInstance)
+    return tPlaylistInstance
   end if
-  return(pPlaylistStack.getAt(tPos))
+  return pPlaylistStack[tPos]
 end
 
-on getPlaylistInstanceCount me 
-  return(pPlaylistStack.count)
+on getPlaylistInstanceCount me
+  return pPlaylistStack.count
 end
 
-on getSongData me, tStackIndex, tIndex 
+on getSongData me, tStackIndex, tIndex
   tPlaylistInstance = me.getPlaylistInstance(tStackIndex)
   if (tPlaylistInstance = 0) then
-    return FALSE
+    return 0
   end if
   if voidp(tIndex) then
-    tIndex = tPlaylistInstance.getAt(#listIndex)
+    tIndex = tPlaylistInstance[#listIndex]
   end if
-  tSongList = tPlaylistInstance.getAt(#songList)
-  if tIndex < 1 or tIndex > tSongList.count then
-    return FALSE
+  tSongList = tPlaylistInstance[#songList]
+  if ((tIndex < 1) or (tIndex > tSongList.count)) then
+    return 0
   end if
-  if voidp(tSongList.getAt(tIndex).getAt(#songData)) then
-    return FALSE
+  if voidp(tSongList[tIndex][#songData]) then
+    return 0
   end if
-  return(tSongList.getAt(tIndex).getAt(#songData))
+  return tSongList[tIndex][#songData]
 end
 
-on getSongChannelList me, tStackIndex 
+on getSongChannelList me, tStackIndex
   tPlaylistInstance = me.getPlaylistInstance(tStackIndex)
   if (tPlaylistInstance = 0) then
-    return([])
+    return []
   end if
-  if (tPlaylistInstance.getAt(#songList).count = 1) then
+  if (tPlaylistInstance[#songList].count = 1) then
     tSongData = me.getSongData(tStackIndex, 1)
-    if tSongData <> 0 then
-      if not voidp(tSongData.getAt(#channelList)) then
-        return(tSongData.getAt(#channelList).duplicate())
+    if (tSongData <> 0) then
+      if not voidp(tSongData[#channelList]) then
+        return tSongData[#channelList].duplicate()
       end if
     end if
   end if
   tChannels = []
-  i = 1
-  repeat while i <= pSongChannels.count
+  repeat with i = 1 to pSongChannels.count
     tChannels.add(i)
-    i = (1 + i)
   end repeat
-  return(tChannels)
+  return tChannels
 end
 
-on getSongLength me, tSongData 
-  if voidp(tSongData) or (tSongData = 0) then
-    return(-1)
+on getSongLength me, tSongData
+  if (voidp(tSongData) or (tSongData = 0)) then
+    return -1
   end if
   if voidp(tSongData.sounds) then
-    return(-1)
+    return -1
   end if
-  if not voidp(tSongData.getAt(#songLength)) then
-    return(tSongData.getAt(#songLength))
+  if not voidp(tSongData[#songLength]) then
+    return tSongData[#songLength]
   end if
   tPlayLengthList = []
-  i = 1
-  repeat while i <= pSongChannels.count
+  repeat with i = 1 to pSongChannels.count
     tPlayLengthList.add(0)
-    i = (1 + i)
   end repeat
-  i = 1
-  repeat while i <= tSongData.count(#sounds)
-    tSound = tSongData.getProp(#sounds, i)
-    j = 1
-    repeat while j <= tSound.loops
+  repeat with i = 1 to tSongData.sounds.count
+    tSound = tSongData.sounds[i]
+    repeat with j = 1 to tSound.loops
       tChannel = tSound.channel
-      if tChannel >= 1 and tChannel <= pSongChannels.count then
+      if ((tChannel >= 1) and (tChannel <= pSongChannels.count)) then
         tmember = getMember(tSound.name)
-        if tmember <> 0 then
+        if (tmember <> 0) then
           if (tmember.type = #sound) then
             tLength = tmember.duration
-            tPlayLengthList.setAt(tChannel, (tPlayLengthList.getAt(tChannel) + tLength))
+            tPlayLengthList[tChannel] = (tPlayLengthList[tChannel] + tLength)
           end if
         end if
       end if
-      j = (1 + j)
     end repeat
-    i = (1 + i)
   end repeat
-  tPlayLength = tPlayLengthList.getAt(1)
-  i = 2
-  repeat while i <= tPlayLengthList.count
-    if tPlayLengthList.getAt(i) > tPlayLength then
-      tPlayLength = tPlayLengthList.getAt(i)
+  tPlayLength = tPlayLengthList[1]
+  repeat with i = 2 to tPlayLengthList.count
+    if (tPlayLengthList[i] > tPlayLength) then
+      tPlayLength = tPlayLengthList[i]
     end if
-    i = (1 + i)
   end repeat
-  tSongData.setAt(#songLength, tPlayLength)
-  return(tPlayLength)
+  tSongData[#songLength] = tPlayLength
+  return tPlayLength
 end
 
-on getPlaylistSongLength me, tStackIndex, tIndex 
+on getPlaylistSongLength me, tStackIndex, tIndex
   tPlaylistInstance = me.getPlaylistInstance(tStackIndex)
   if (tPlaylistInstance = 0) then
-    return(-1)
+    return -1
   end if
-  tSongList = tPlaylistInstance.getAt(#songList)
-  if tIndex < 1 or tIndex > tSongList.count then
-    return(-1)
+  tSongList = tPlaylistInstance[#songList]
+  if ((tIndex < 1) or (tIndex > tSongList.count)) then
+    return -1
   end if
   tSongData = me.getSongData(tStackIndex, tIndex)
   tLength = me.getSongLength(tSongData)
-  if tLength < 0 then
-    tLength = tSongList.getAt(tIndex).getAt(#length)
+  if (tLength < 0) then
+    tLength = tSongList[tIndex][#length]
   end if
-  if tLength < 0 then
-    return(2000)
+  if (tLength < 0) then
+    return 2000
   end if
-  return(tLength)
+  return tLength
 end
 
-on getPlaylistLength me, tStackIndex 
+on getPlaylistLength me, tStackIndex
   tPlaylistInstance = me.getPlaylistInstance(tStackIndex)
   if (tPlaylistInstance = 0) then
-    return FALSE
+    return 0
   end if
-  tSongList = tPlaylistInstance.getAt(#songList)
+  tSongList = tPlaylistInstance[#songList]
   tPlaylistLength = 0
-  i = 1
-  repeat while i <= tSongList.count
+  repeat with i = 1 to tSongList.count
     tLength = me.getPlaylistSongLength(tStackIndex, i)
     tPlaylistLength = (tPlaylistLength + tLength)
-    i = (1 + i)
   end repeat
-  return(tPlaylistLength)
+  return tPlaylistLength
 end
 
-on getPlayTime me, tStackIndex 
+on getPlayTime me, tStackIndex
   tPlaylistInstance = me.getPlaylistInstance(tStackIndex)
   if (tPlaylistInstance = 0) then
-    return FALSE
+    return 0
   end if
-  return((tPlaylistInstance.getAt(#playTime) + ((the milliSeconds - tPlaylistInstance.getAt(#initialPlayTime)) / 100)))
+  return (tPlaylistInstance[#playTime] + ((the milliSeconds - tPlaylistInstance[#initialPlayTime]) / 100))
 end
 
-on initializePlaying me 
-  if timeoutExists(pQueueTimeout) or timeoutExists(pPlayTimeout) then
-    return TRUE
+on initializePlaying me
+  if (timeoutExists(pQueueTimeout) or timeoutExists(pPlayTimeout)) then
+    return 1
   end if
   tStackIndex = me.getTopInstanceIndex()
   tPlaylistInstance = me.getPlaylistInstance(tStackIndex)
   if (tPlaylistInstance = 0) then
-    return FALSE
+    return 0
   end if
-  tSongList = tPlaylistInstance.getAt(#songList)
-  if not tPlaylistInstance.getAt(#loop) then
+  tSongList = tPlaylistInstance[#songList]
+  if not tPlaylistInstance[#loop] then
     me.removePlayedSongs(tStackIndex)
     if (tSongList.count = 0) then
       me.removePlaylistInstance(tStackIndex)
-      return(me.initializePlaying())
+      return me.initializePlaying()
     end if
   end if
   tPlaylistLength = (me.getPlaylistLength(tStackIndex) / 100)
@@ -379,309 +361,277 @@ on initializePlaying me
   tSyncDelta = (2000 / 100)
   tExtraOffset = (((tSyncDelta - (tPlayTime mod tSyncDelta)) mod tSyncDelta) * 100)
   tPlayTime = (tPlayTime + (tExtraOffset / 100))
-  tPlaylistInstance.setAt(#playOffset, 0)
-  tPlaylistInstance.setAt(#listIndex, 1)
-  if tPlaylistLength >= 1 then
-    if not tPlaylistInstance.getAt(#loop) and tPlayTime >= tPlaylistLength then
-      return FALSE
+  tPlaylistInstance[#playOffset] = 0
+  tPlaylistInstance[#listIndex] = 1
+  if (tPlaylistLength >= 1) then
+    if (not tPlaylistInstance[#loop] and (tPlayTime >= tPlaylistLength)) then
+      return 0
     end if
     tPos = 0
     tOffset = (tPlayTime mod tPlaylistLength)
-    i = 1
-    repeat while i <= tPlaylistInstance.getAt(#songList).count
+    repeat with i = 1 to tPlaylistInstance[#songList].count
       tLength = (me.getPlaylistSongLength(tStackIndex, i) / 100)
       tPos = (tPos + tLength)
-      if tPos > tOffset then
-        tPlaylistInstance.setAt(#listIndex, i)
-        tPlaylistInstance.setAt(#playOffset, ((tOffset - (tPos - tLength)) * 100))
-      else
-        i = (1 + i)
+      if (tPos > tOffset) then
+        tPlaylistInstance[#listIndex] = i
+        tPlaylistInstance[#playOffset] = ((tOffset - (tPos - tLength)) * 100)
+        exit repeat
       end if
     end repeat
   end if
-  if me.getSongData(tStackIndex) <> 0 then
+  if (me.getSongData(tStackIndex) <> 0) then
     me.solveSongChannels(tStackIndex)
     me.reserveSongChannels()
-    createTimeout(pQueueTimeout, (50 + tExtraOffset), #queueChannels, me.getID(), void(), 1)
+    createTimeout(pQueueTimeout, (50 + tExtraOffset), #queueChannels, me.getID(), VOID, 1)
   end if
-  return TRUE
+  return 1
 end
 
-on solveSongChannels me, tStackIndex 
+on solveSongChannels me, tStackIndex
   tPlaylistInstance = me.getPlaylistInstance(tStackIndex)
   if (tPlaylistInstance = 0) then
-    return FALSE
+    return 0
   end if
-  tSongList = tPlaylistInstance.getAt(#songList)
-  j = 1
-  repeat while j <= tSongList.count
+  tSongList = tPlaylistInstance[#songList]
+  repeat with j = 1 to tSongList.count
     tSongData = me.getSongData(tStackIndex, j)
-    if tSongData <> 0 then
-      if voidp(tSongData.getAt(#channelList)) then
+    if (tSongData <> 0) then
+      if voidp(tSongData[#channelList]) then
         tSounds = tSongData.getaProp(#sounds)
         if not voidp(tSounds) then
           tChannels = []
-          i = 1
-          repeat while i <= tSounds.count
-            tSound = tSounds.getAt(i)
+          repeat with i = 1 to tSounds.count
+            tSound = tSounds[i]
             tChannel = tSound.channel
             if not tChannels.findPos(tChannel) then
               tChannels.add(tChannel)
             end if
-            i = (1 + i)
           end repeat
           tChannels.sort()
-          if tSongList.count > 1 or not tPlaylistInstance.getAt(#loop) then
+          if ((tSongList.count > 1) or not tPlaylistInstance[#loop]) then
             tChannels = []
-            i = 1
-            repeat while i <= pSongChannels.count
+            repeat with i = 1 to pSongChannels.count
               tChannels.add(i)
-              i = (1 + i)
             end repeat
           end if
-          i = tSounds.count
-          repeat while i >= 1
-            tSound = tSounds.getAt(i)
+          repeat with i = tSounds.count down to 1
+            tSound = tSounds[i]
             tChannel = tSound.channel
             tSound.channel = tChannels.findPos(tChannel)
             if (tSound.channel = 0) then
               tSounds.deleteAt(i)
-              error(me, "Invalid sound channel" && tChannel, #solveSongChannels, #major)
+              error(me, ("Invalid sound channel" && tChannel), #solveSongChannels, #major)
             end if
-            i = (255 + i)
           end repeat
           tChannelsFinal = []
-          i = 1
-          repeat while i <= tChannels.count
+          repeat with i = 1 to tChannels.count
             tChannelsFinal.add(i)
-            i = (1 + i)
           end repeat
-          tSongData.setAt(#channelList, tChannelsFinal)
-        else
-          error(me, "Song with no sounds" && tChannel, #solveSongChannels, #major)
+          tSongData[#channelList] = tChannelsFinal
+          next repeat
         end if
+        error(me, ("Song with no sounds" && tChannel), #solveSongChannels, #major)
       end if
     end if
-    j = (1 + j)
   end repeat
 end
 
-on reserveSongChannels me 
+on reserveSongChannels me
   tStackIndex = me.getTopInstanceIndex()
   tChannelList = me.getSongChannelList(tStackIndex)
   pSongChannelsInUse = []
-  repeat while tChannelList <= undefined
-    tChannel = getAt(undefined, undefined)
-    if tChannel >= 1 and tChannel <= pSongChannels.count then
-      queueSound(pSilentSampleName, pSongChannels.getAt(tChannel))
-      startSoundChannel(pSongChannels.getAt(tChannel))
+  repeat with tChannel in tChannelList
+    if ((tChannel >= 1) and (tChannel <= pSongChannels.count)) then
+      queueSound(pSilentSampleName, pSongChannels[tChannel])
+      startSoundChannel(pSongChannels[tChannel])
       pSongChannelsInUse.add(tChannel)
     end if
   end repeat
 end
 
-on queueChannels me 
-  repeat while pSongChannelsInUse <= undefined
-    tChannel = getAt(undefined, undefined)
-    if tChannel >= 1 and tChannel <= pSongChannels.count then
-      stopSoundChannel(pSongChannels.getAt(tChannel))
+on queueChannels me
+  repeat with tChannel in pSongChannelsInUse
+    if ((tChannel >= 1) and (tChannel <= pSongChannels.count)) then
+      stopSoundChannel(pSongChannels[tChannel])
     end if
   end repeat
   tPlayRoundsOnQueue = 2
-  i = 1
-  repeat while i <= tPlayRoundsOnQueue
+  repeat with i = 1 to tPlayRoundsOnQueue
     me.addPlayRound()
-    i = (1 + i)
   end repeat
   if timeoutExists(pPlayTimeout) then
     removeTimeout(pPlayTimeout)
   end if
-  createTimeout(pPlayTimeout, 50, #startChannels, me.getID(), void(), 1)
+  createTimeout(pPlayTimeout, 50, #startChannels, me.getID(), VOID, 1)
 end
 
-on startChannels me 
-  i = pSongChannelsInUse.count
-  repeat while i >= 1
-    tChannel = pSongChannelsInUse.getAt(i)
-    if tChannel >= 1 and tChannel <= pSongChannels.count then
-      startSoundChannel(pSongChannels.getAt(tChannel))
+on startChannels me
+  repeat with i = pSongChannelsInUse.count down to 1
+    tChannel = pSongChannelsInUse[i]
+    if ((tChannel >= 1) and (tChannel <= pSongChannels.count)) then
+      startSoundChannel(pSongChannels[tChannel])
     end if
-    i = (255 + i)
   end repeat
   if not timeoutExists(pUpdateTimeout) then
-    createTimeout(pUpdateTimeout, 1500, #checkLoopData, me.getID(), void(), 0)
+    createTimeout(pUpdateTimeout, 1500, #checkLoopData, me.getID(), VOID, 0)
   end if
 end
 
-on addPlayRound me 
+on addPlayRound me
   tStackIndex = me.getTopInstanceIndex()
   tPlaylistInstance = me.getPlaylistInstance(tStackIndex)
   if (tPlaylistInstance = 0) then
-    return FALSE
+    return 0
   end if
-  tSongList = tPlaylistInstance.getAt(#songList)
-  if not tPlaylistInstance.getAt(#loop) then
-    if tPlaylistInstance.getAt(#listIndex) > tSongList.count then
-      return TRUE
+  tSongList = tPlaylistInstance[#songList]
+  if not tPlaylistInstance[#loop] then
+    if (tPlaylistInstance[#listIndex] > tSongList.count) then
+      return 1
     end if
   end if
   tSongData = me.getSongData(tStackIndex)
-  if (tSongData = 0) or (tSongList.count = 0) then
-    return TRUE
+  if ((tSongData = 0) or (tSongList.count = 0)) then
+    return 1
   else
-    if not tPlaylistInstance.getAt(#loop) then
-      tPlaylistInstance.setAt(#listIndex, (tPlaylistInstance.getAt(#listIndex) + 1))
+    if not tPlaylistInstance[#loop] then
+      tPlaylistInstance[#listIndex] = (tPlaylistInstance[#listIndex] + 1)
     else
-      tPlaylistInstance.setAt(#listIndex, (1 + (tPlaylistInstance.getAt(#listIndex) mod tSongList.count)))
+      tPlaylistInstance[#listIndex] = (1 + (tPlaylistInstance[#listIndex] mod tSongList.count))
     end if
   end if
-  if (tSongData.getaProp(#sounds) = void()) then
-    return TRUE
+  if (tSongData.getaProp(#sounds) = VOID) then
+    return 1
   end if
-  tOffset = tPlaylistInstance.getAt(#playOffset)
+  tOffset = tPlaylistInstance[#playOffset]
   tPlayLengthList = []
   tOffsetList = []
-  i = 1
-  repeat while i <= pSongChannels.count
+  repeat with i = 1 to pSongChannels.count
     tOffsetList.add(tOffset)
     tPlayLengthList.add(0)
-    i = (1 + i)
   end repeat
-  i = 1
-  repeat while i <= tSongData.count(#sounds)
-    tSound = tSongData.getProp(#sounds, i)
-    j = 1
-    repeat while j <= tSound.loops
+  repeat with i = 1 to tSongData.sounds.count
+    tSound = tSongData.sounds[i]
+    repeat with j = 1 to tSound.loops
       tChannel = tSound.channel
-      if tChannel >= 1 and tChannel <= pSongChannels.count then
+      if ((tChannel >= 1) and (tChannel <= pSongChannels.count)) then
         tmember = getMember(tSound.name)
-        if tmember <> 0 then
+        if (tmember <> 0) then
           if (tmember.type = #sound) then
             tLength = tmember.duration
-            if tOffsetList.getAt(tChannel) > 0 then
-              if tLength > tOffsetList.getAt(tChannel) then
-                queueSound(tSound.name, pSongChannels.getAt(tChannel), [#startTime:tOffsetList.getAt(tChannel)])
-                tPlayLengthList.setAt(tChannel, (tPlayLengthList.getAt(tChannel) + (tLength - tOffsetList.getAt(tChannel))))
+            if (tOffsetList[tChannel] > 0) then
+              if (tLength > tOffsetList[tChannel]) then
+                queueSound(tSound.name, pSongChannels[tChannel], [#startTime: tOffsetList[tChannel]])
+                tPlayLengthList[tChannel] = (tPlayLengthList[tChannel] + (tLength - tOffsetList[tChannel]))
               end if
-              tOffsetList.setAt(tChannel, max(0, (tOffsetList.getAt(tChannel) - tLength)))
-            else
-              queueSound(tSound.name, pSongChannels.getAt(tChannel))
-              tPlayLengthList.setAt(tChannel, (tPlayLengthList.getAt(tChannel) + tLength))
+              tOffsetList[tChannel] = max(0, (tOffsetList[tChannel] - tLength))
+              next repeat
             end if
+            queueSound(tSound.name, pSongChannels[tChannel])
+            tPlayLengthList[tChannel] = (tPlayLengthList[tChannel] + tLength)
           end if
         end if
       end if
-      j = (1 + j)
     end repeat
-    i = (1 + i)
   end repeat
-  tPlaylistInstance.setAt(#playOffset, 0)
-  if tSongList.count < 2 and tPlaylistInstance.getAt(#loop) then
-    return TRUE
+  tPlaylistInstance[#playOffset] = 0
+  if ((tSongList.count < 2) and tPlaylistInstance[#loop]) then
+    return 1
   end if
-  tPlayLength = tPlayLengthList.getAt(1)
-  i = 2
-  repeat while i <= tPlayLengthList.count
-    if tPlayLengthList.getAt(i) > tPlayLength then
-      tPlayLength = tPlayLengthList.getAt(i)
+  tPlayLength = tPlayLengthList[1]
+  repeat with i = 2 to tPlayLengthList.count
+    if (tPlayLengthList[i] > tPlayLength) then
+      tPlayLength = tPlayLengthList[i]
     end if
-    i = (1 + i)
   end repeat
   tmember = getMember(pSilentSampleName)
-  if tmember <> 0 then
+  if (tmember <> 0) then
     if (tmember.type = #sound) then
       tLength = tmember.duration
-      if tLength > 0 then
-        tChannel = 1
-        repeat while tChannel <= tPlayLengthList.count
-          tDelta = (tPlayLength - tPlayLengthList.getAt(tChannel))
-          repeat while tDelta > 0
-            if tDelta >= tLength then
-              queueSound(pSilentSampleName, pSongChannels.getAt(tChannel))
+      if (tLength > 0) then
+        repeat with tChannel = 1 to tPlayLengthList.count
+          tDelta = (tPlayLength - tPlayLengthList[tChannel])
+          repeat while (tDelta > 0)
+            if (tDelta >= tLength) then
+              queueSound(pSilentSampleName, pSongChannels[tChannel])
             else
-              queueSound(pSilentSampleName, pSongChannels.getAt(tChannel), [#startTime:(tLength - tDelta)])
+              queueSound(pSilentSampleName, pSongChannels[tChannel], [#startTime: (tLength - tDelta)])
             end if
             tDelta = (tDelta - tLength)
           end repeat
-          tChannel = (1 + tChannel)
         end repeat
       end if
     end if
   end if
-  return TRUE
+  return 1
 end
 
-on getPlayBufferLength me 
+on getPlayBufferLength me
   tStackIndex = me.getTopInstanceIndex()
   tChannelList = me.getSongChannelList(tStackIndex)
-  if tChannelList.count < 1 then
-    return(-1)
+  if (tChannelList.count < 1) then
+    return -1
   end if
-  tChannel = tChannelList.getAt(1)
-  if tChannel < 1 or tChannel > pSongChannels.count then
-    return(-1)
+  tChannel = tChannelList[1]
+  if ((tChannel < 1) or (tChannel > pSongChannels.count)) then
+    return -1
   end if
-  tSoundChannel = sound(pSongChannels.getAt(tChannel))
-  if ilk(tSoundChannel) <> #instance then
-    error(me, "Sound channel bug:" && pSongChannels.getAt(tChannel), #getPlayBufferLength, #major)
-    return(-1)
+  tSoundChannel = sound(pSongChannels[tChannel])
+  if (ilk(tSoundChannel) <> #instance) then
+    error(me, ("Sound channel bug:" && pSongChannels[tChannel]), #getPlayBufferLength, #major)
+    return -1
   end if
   tLength = (tSoundChannel.endTime - tSoundChannel.startTime)
   tPlayList = tSoundChannel.getPlaylist()
-  i = 1
-  repeat while i <= tPlayList.count
-    tLength = (tLength + tPlayList.getAt(i).member.duration)
-    i = (1 + i)
+  repeat with i = 1 to tPlayList.count
+    tLength = (tLength + tPlayList[i].member.duration)
   end repeat
-  return(tLength)
+  return tLength
 end
 
-on checkLoopData me 
-  if timeoutExists(pQueueTimeout) or timeoutExists(pPlayTimeout) then
-    return TRUE
+on checkLoopData me
+  if (timeoutExists(pQueueTimeout) or timeoutExists(pPlayTimeout)) then
+    return 1
   end if
   tLength = me.getPlayBufferLength()
-  if tLength <= 0 then
-    return(me.initializePlaying())
+  if (tLength <= 0) then
+    return me.initializePlaying()
   end if
-  if tLength < 60000 then
+  if (tLength < 60000) then
     me.addPlayRound()
   end if
-  return TRUE
+  return 1
 end
 
-on removePlayedSongs me, tStackIndex 
+on removePlayedSongs me, tStackIndex
   tPlaylistInstance = me.getPlaylistInstance(tStackIndex)
-  if tPlaylistInstance <> 0 then
-    tSongList = tPlaylistInstance.getAt(#songList)
-    if not tPlaylistInstance.getAt(#loop) then
-      tCount = min(tPlaylistInstance.getAt(#listIndex), tSongList.count)
-      i = 1
-      repeat while i <= tCount
-        if me.getPlayTime(tStackIndex) < (tSongList.getAt(1).getAt(#length) / 100) then
-        else
-          tPlaylistInstance.setAt(#playTime, (tPlaylistInstance.getAt(#playTime) - (tSongList.getAt(1).getAt(#length) / 100)))
-          tSongList.deleteAt(1)
-          tPlaylistInstance.setAt(#listIndex, (tPlaylistInstance.getAt(#listIndex) - 1))
-          i = (1 + i)
+  if (tPlaylistInstance <> 0) then
+    tSongList = tPlaylistInstance[#songList]
+    if not tPlaylistInstance[#loop] then
+      tCount = min(tPlaylistInstance[#listIndex], tSongList.count)
+      repeat with i = 1 to tCount
+        if (me.getPlayTime(tStackIndex) < (tSongList[1][#length] / 100)) then
+          exit repeat
         end if
+        tPlaylistInstance[#playTime] = (tPlaylistInstance[#playTime] - (tSongList[1][#length] / 100))
+        tSongList.deleteAt(1)
+        tPlaylistInstance[#listIndex] = (tPlaylistInstance[#listIndex] - 1)
       end repeat
     end if
   end if
 end
 
-on startSamplePreview me, tParams 
+on startSamplePreview me, tParams
   tSuccess = playSoundInChannel(tParams.name, pPreviewChannel)
   if not tSuccess then
-    return(error(me, "Sound could not be started", #startSamplePreview, #minor))
+    return error(me, "Sound could not be started", #startSamplePreview, #minor)
   end if
-  return TRUE
+  return 1
 end
 
-on stopSamplePreview me 
+on stopSamplePreview me
   tSuccess = stopSoundChannel(pPreviewChannel)
   if not tSuccess then
-    return(error(me, "Sound could not be stopped", #stopSamplePreview, #minor))
+    return error(me, "Sound could not be stopped", #stopSamplePreview, #minor)
   end if
-  return TRUE
+  return 1
 end

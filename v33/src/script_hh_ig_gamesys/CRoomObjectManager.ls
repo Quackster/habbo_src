@@ -1,39 +1,35 @@
-property m_mp_ar_rUsepool, m_mp_ar_rFreepool, m_iAllocationSize, m_rEmptyFactor, m_rEmptyVisual, m_iRefSource
+property m_mp_ar_rUsepool, m_mp_ar_rFreepool, m_iRefSource, m_iAllocationSize, m_rEmptyFactor, m_rEmptyVisual
 
-on construct me 
+on construct me
   m_mp_ar_rUsepool = [:]
   m_mp_ar_rFreepool = [:]
   m_iRefSource = 0
   m_iAllocationSize = 8
   m_rEmptyFactor = createObject("StubFactor", "CEmptyFactor")
   m_rEmptyVisual = createObject("StubVisual", "CEmptyVisualizer")
-  return TRUE
+  return 1
 end
 
-on deconstruct me 
+on deconstruct me
   me.clearAll()
   removeObject("StubFactor")
   removeObject("StubVisual")
-  return TRUE
+  return 1
 end
 
-on clearAll me 
-  repeat while m_mp_ar_rUsepool <= undefined
-    t_ar_pool = getAt(undefined, undefined)
-    if t_ar_pool.count > 0 then
-      repeat while m_mp_ar_rUsepool <= undefined
-        tObject = getAt(undefined, undefined)
+on clearAll me
+  repeat with t_ar_pool in m_mp_ar_rUsepool
+    if (t_ar_pool.count > 0) then
+      repeat with tObject in t_ar_pool
         me.removeRoomObject(tObject.GetParam("CLASS"), tObject.GetParam("REF"))
       end repeat
       t_ar_pool = []
     end if
   end repeat
   m_mp_ar_rUsepool = [:]
-  repeat while m_mp_ar_rUsepool <= undefined
-    t_ar_pool = getAt(undefined, undefined)
-    if t_ar_pool.count > 0 then
-      repeat while m_mp_ar_rUsepool <= undefined
-        tObject = getAt(undefined, undefined)
+  repeat with t_ar_pool in m_mp_ar_rFreepool
+    if (t_ar_pool.count > 0) then
+      repeat with tObject in t_ar_pool
         me.removeRoomObject(tObject.GetParam("CLASS"), tObject.GetParam("REF"))
       end repeat
       t_ar_pool = []
@@ -42,19 +38,17 @@ on clearAll me
   m_mp_ar_rFreepool = [:]
 end
 
-on FreeAll me 
-  repeat while m_mp_ar_rUsepool <= undefined
-    t_ar_pool = getAt(undefined, undefined)
-    if t_ar_pool.count > 0 then
-      repeat while m_mp_ar_rUsepool <= undefined
-        tObject = getAt(undefined, undefined)
+on FreeAll me
+  repeat with t_ar_pool in m_mp_ar_rUsepool
+    if (t_ar_pool.count > 0) then
+      repeat with tObject in t_ar_pool
         me.FreeObject(tObject)
       end repeat
     end if
   end repeat
 end
 
-on Reserve me, a_sClass, a_iCount 
+on Reserve me, a_sClass, a_iCount
   tClassPool = m_mp_ar_rFreepool.getaProp(a_sClass)
   if voidp(tClassPool) then
     m_mp_ar_rFreepool.setaProp(a_sClass, [])
@@ -63,8 +57,7 @@ on Reserve me, a_sClass, a_iCount
   if voidp(a_iCount) then
     a_iCount = m_iAllocationSize
   end if
-  i = 1
-  repeat while i <= a_iCount
+  repeat with i = 1 to a_iCount
     tNewObject = me.createRoomObject(a_sClass, me.GetNewRef())
     tNewObject.m_rFactor.deconstruct()
     tNewObject.m_rVisual.deconstruct()
@@ -73,17 +66,16 @@ on Reserve me, a_sClass, a_iCount
     tNewObject.m_rFactor = m_rEmptyFactor
     tNewObject.m_rVisual = m_rEmptyVisual
     tClassPool.append(tNewObject)
-    i = (1 + i)
   end repeat
 end
 
-on newObject me, a_sClass, a_mp_params 
+on newObject me, a_sClass, a_mp_params
   tClassPool = m_mp_ar_rFreepool.getaProp(a_sClass)
   if voidp(tClassPool) then
     me.Reserve(a_sClass)
   end if
   tClassPool = m_mp_ar_rFreepool.getaProp(a_sClass)
-  if tClassPool.count < 1 then
+  if (tClassPool.count < 1) then
     me.Reserve(a_sClass)
   end if
   tUsePool = m_mp_ar_rUsepool.getaProp(a_sClass)
@@ -91,7 +83,7 @@ on newObject me, a_sClass, a_mp_params
     m_mp_ar_rUsepool.setaProp(a_sClass, [])
   end if
   tUsePool = m_mp_ar_rUsepool.getaProp(a_sClass)
-  tObject = tClassPool.getAt(tClassPool.count)
+  tObject = tClassPool[tClassPool.count]
   tObject.m_rFactor = tObject.GetParam("StandardFactor")
   tObject.m_rVisual = tObject.GetParam("StandardVisual")
   tObject.m_rFactor.construct()
@@ -99,23 +91,21 @@ on newObject me, a_sClass, a_mp_params
   tClassPool.deleteAt(tClassPool.count)
   tUsePool.append(tObject)
   if not voidp(a_mp_params) then
-    i = 1
-    repeat while i <= a_mp_params.count
+    repeat with i = 1 to a_mp_params.count
       tKey = a_mp_params.getPropAt(i)
       tValue = a_mp_params.getaProp(tKey)
       tObject.SetParam(tKey, tValue)
-      i = (1 + i)
     end repeat
   end if
-  return(tObject)
+  return tObject
 end
 
-on FreeObject me, a_rObject 
+on FreeObject me, a_rObject
   t_sClass = a_rObject.GetParam("CLASS")
   tUsePool = m_mp_ar_rUsepool.getaProp(t_sClass)
   t_iIndex = tUsePool.getOne(a_rObject)
   if (t_iIndex = 0) then
-    return(error(me, "ERROR : Objectpool reference mismatch!", #FreeObject))
+    return error(me, "ERROR : Objectpool reference mismatch!", #FreeObject)
   end if
   tUsePool.deleteAt(t_iIndex)
   tClassPool = m_mp_ar_rFreepool.getaProp(t_sClass)
@@ -126,10 +116,10 @@ on FreeObject me, a_rObject
   a_rObject.SetParam("StandardVisual", a_rObject.getVisual())
   a_rObject.m_rFactor = m_rEmptyFactor
   a_rObject.m_rVisual = m_rEmptyVisual
-  return TRUE
+  return 1
 end
 
-on createRoomObject me, a_sClass, a_iRef, a_mp_params 
+on createRoomObject me, a_sClass, a_iRef, a_mp_params
   t_rXML = CreateXML()
   t_rXML.open(getMember("empty.node.xml").text)
   t_rXML.search("type", "NODE")
@@ -140,25 +130,23 @@ on createRoomObject me, a_sClass, a_iRef, a_mp_params
   tNewObject = t_rRoomContext._AccessIndexed(a_iRef, a_sClass)
   tNewObject.SetParam("Reference", a_iRef)
   if not voidp(a_mp_params) then
-    i = 1
-    repeat while i <= a_mp_params.count
+    repeat with i = 1 to a_mp_params.count
       tKey = a_mp_params.getPropAt(i)
       tValue = a_mp_params.getaProp(tKey)
       tNewObject.SetParam(tKey, tValue)
-      i = (1 + i)
     end repeat
   end if
-  return(tNewObject)
+  return tNewObject
 end
 
-on removeRoomObject me, a_sClass, a_iRef 
+on removeRoomObject me, a_sClass, a_iRef
   t_rRoomContext = getThread(#room).getComponent()._AccessRoom()
   if not voidp(t_rRoomContext) then
     t_rRoomContext._RemoveIndexed(a_iRef, a_sClass)
   end if
 end
 
-on GetNewRef me 
+on GetNewRef me
   m_iRefSource = (m_iRefSource + 1)
-  return(m_iRefSource)
+  return m_iRefSource
 end

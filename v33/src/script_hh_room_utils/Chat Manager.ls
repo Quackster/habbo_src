@@ -1,6 +1,6 @@
 property pDisplayObjName, pHumanTimeoutList
 
-on construct me 
+on construct me
   me.regMsgList(1)
   pHumanTimeoutList = [:]
   pDisplayObjName = "chat_display_object"
@@ -8,131 +8,121 @@ on construct me
   registerMessage(#leaveRoom, me.getID(), #clearChat)
 end
 
-on deconstruct me 
+on deconstruct me
   me.regMsgList(0)
   me.clearChat()
   if objectExists(pDisplayObjName) then
     removeObject(pDisplayObjName)
   end if
-  i = 1
-  repeat while i <= pHumanTimeoutList.count
+  repeat with i = 1 to pHumanTimeoutList.count
     timeout(pHumanTimeoutList.getPropAt(i)).forget()
-    i = (1 + i)
   end repeat
 end
 
-on clearChat me 
+on clearChat me
   if objectExists(pDisplayObjName) then
     tObj = getObject(pDisplayObjName)
     tObj.clearAll()
   end if
 end
 
-on enterChatMessage me, tChatMode, tRoomUserId, tChatMessage 
+on enterChatMessage me, tChatMode, tRoomUserId, tChatMessage
   tDisplayObj = getObject(pDisplayObjName)
   tDisplayObj.insertChatMessage(tChatMode, tRoomUserId, tChatMessage)
 end
 
-on setAvatarSpeakAndGesture me, tUserID, tSpeakTimeout, tGesture 
+on setAvatarSpeakAndGesture me, tUserID, tSpeakTimeout, tGesture
   tObj = getThread(#room).getComponent().getUserObject(tUserID)
   if (tObj = 0) then
-    return()
+    return 
   end if
   tObj.action_talk("talk")
   tTimeoutID = getUniqueID()
-  tParams = [#human:tUserID, #gest:tGesture]
+  tParams = [#human: tUserID, #gest: tGesture]
   timeout(tTimeoutID).new(tSpeakTimeout, #stopAvatarSpeak, me)
   pHumanTimeoutList.setaProp(tTimeoutID, tParams)
 end
 
-on stopAvatarSpeak me, tTimeout 
-  tUserID = pHumanTimeoutList.getAt(tTimeout.name).getAt(#human)
-  tGest = pHumanTimeoutList.getAt(tTimeout.name).getAt(#gest)
+on stopAvatarSpeak me, tTimeout
+  tUserID = pHumanTimeoutList[tTimeout.name][#human]
+  tGest = pHumanTimeoutList[tTimeout.name][#gest]
   pHumanTimeoutList.deleteProp(tTimeout.name)
   timeout(tTimeout.name).forget()
   tObj = getThread(#room).getComponent().getUserObject(tUserID)
   if (tObj = 0) then
-    return()
+    return 
   end if
   call(#stop_action_talk, [tObj], "talk")
-  if tGest <> "" then
+  if (tGest <> EMPTY) then
     tObj.action_gest(tGest)
     tTimeoutID = getUniqueID()
-    tParams = [#human:tUserID]
+    tParams = [#human: tUserID]
     timeout(tTimeoutID).new(getIntVariable("avatar.gesture.time"), #stopAvatarGesture, me)
     pHumanTimeoutList.setaProp(tTimeoutID, tParams)
   end if
 end
 
-on stopAvatarGesture me, tTimeout 
-  tUserID = pHumanTimeoutList.getAt(tTimeout.name).getAt(#human)
+on stopAvatarGesture me, tTimeout
+  tUserID = pHumanTimeoutList[tTimeout.name][#human]
   pHumanTimeoutList.deleteProp(tTimeout.name)
   timeout(tTimeout.name).forget()
   tObj = getThread(#room).getComponent().getUserObject(tUserID)
   if (tObj = 0) then
-    return()
+    return 
   end if
   tObj.stop_action_gest()
 end
 
-on showBalloons me 
+on showBalloons me
   tDisplayObj = getObject(pDisplayObjName)
   tDisplayObj.showBalloons(1)
 end
 
-on hideBalloons me 
+on hideBalloons me
   tDisplayObj = getObject(pDisplayObjName)
   tDisplayObj.showBalloons(0)
 end
 
-on removeBalloons me 
+on removeBalloons me
   tDisplayObj = getObject(pDisplayObjName)
   tDisplayObj.clearAll()
 end
 
-on handle_chat me, tMsg 
+on handle_chat me, tMsg
   tConn = tMsg.getaProp(#connection)
   tuser = string(tConn.GetIntFrom())
   tChat = tConn.GetStrFrom()
   tGest = tConn.GetIntFrom()
-  if (tMsg.getaProp(#subject) = 24) then
-    tMode = "CHAT"
-  else
-    if (tMsg.getaProp(#subject) = 25) then
+  case tMsg.getaProp(#subject) of
+    24:
+      tMode = "CHAT"
+    25:
       tMode = "WHISPER"
-    else
-      if (tMsg.getaProp(#subject) = 26) then
-        tMode = "SHOUT"
-      end if
-    end if
-  end if
-  if (tChat = "") then
+    26:
+      tMode = "SHOUT"
+  end case
+  if (tChat = EMPTY) then
     tMode = "UNHEARD"
   end if
   me.enterChatMessage(tMode, tuser, tChat)
   tSpeakingLength = (tChat.length * 100)
-  if (tMsg.getaProp(#subject) = 1) then
-    tGestStr = "gest sml"
-  else
-    if (tMsg.getaProp(#subject) = 2) then
+  case tGest of
+    1:
+      tGestStr = "gest sml"
+    2:
       tGestStr = "gest agr"
-    else
-      if (tMsg.getaProp(#subject) = 3) then
-        tGestStr = "gest srp"
-      else
-        if (tMsg.getaProp(#subject) = 4) then
-          tGestStr = "gest sad"
-        else
-          tGestStr = ""
-        end if
-      end if
-    end if
-  end if
+    3:
+      tGestStr = "gest srp"
+    4:
+      tGestStr = "gest sad"
+    otherwise:
+      tGestStr = EMPTY
+  end case
   me.setAvatarSpeakAndGesture(tuser, tSpeakingLength, tGestStr)
   getThread(#room).getComponent().setUserTypingStatus(tuser, 0)
 end
 
-on regMsgList me, tBool 
+on regMsgList me, tBool
   tMsgs = [:]
   tMsgs.setaProp(24, #handle_chat)
   tMsgs.setaProp(25, #handle_chat)
@@ -148,5 +138,5 @@ on regMsgList me, tBool
     unregisterListener(getVariable("connection.room.id"), me.getID(), tMsgs)
     unregisterCommands(getVariable("connection.room.id"), me.getID(), tCmds)
   end if
-  return TRUE
+  return 1
 end

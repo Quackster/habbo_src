@@ -1,28 +1,29 @@
 property pItemObjList
 
-on construct me 
+on construct me
   pItemObjList = []
   receiveUpdate(me.getID())
   tVisObj = getThread(#room).getInterface().getRoomVisualizer()
   i = 1
   repeat while 1
-    tSpr = tVisObj.getSprById("cloud" & i)
-    if tSpr <> 0 then
+    tSpr = tVisObj.getSprById(("cloud" & i))
+    if (tSpr <> 0) then
       tObj = createObject(#temp, "Rooftop Cloud Class")
       tObj.define(tSpr, i)
       pItemObjList.add(tObj)
     else
+      exit repeat
     end if
     i = (i + 1)
   end repeat
 end
 
-on deconstruct me 
+on deconstruct me
   call(#deconstruct, pItemObjList)
   pItemObjList = []
-  return(removeUpdate(me.getID()))
+  return removeUpdate(me.getID())
 end
 
-on update me 
+on update me
   call(#update, pItemObjList)
 end

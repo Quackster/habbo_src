@@ -1,20 +1,20 @@
-on construct me 
+on construct me
   me.updatePurseSaldo()
   me.updatePurseTickets()
   me.updatePurseFilm()
   registerMessage(#updateCreditCount, me.getID(), #updatePurseSaldo)
   registerMessage(#updateTicketCount, me.getID(), #updatePurseTickets)
-  return TRUE
+  return 1
 end
 
-on deconstruct me 
+on deconstruct me
   unregisterMessage(#updateCreditCount, me.getID())
   unregisterMessage(#updateTicketCount, me.getID())
 end
 
-on updatePurseSaldo me 
+on updatePurseSaldo me
   if not threadExists(#catalogue) then
-    return FALSE
+    return 0
   end if
   tWndObj = getThread(#catalogue).getInterface().getCatalogWindow()
   if objectp(tWndObj) then
@@ -29,47 +29,45 @@ on updatePurseSaldo me
   end if
 end
 
-on updatePurseTickets me 
+on updatePurseTickets me
   tWndObj = getThread(#catalogue).getInterface().getCatalogWindow()
   if objectp(tWndObj) then
     if tWndObj.elementExists("purse_info_tickets") then
-      tFieldTxt = getObject(#session).GET("user_ph_tickets") && getText("purse_info_tickets")
+      tFieldTxt = (getObject(#session).GET("user_ph_tickets") && getText("purse_info_tickets"))
       tWndObj.getElement("purse_info_tickets").setText(tFieldTxt)
     end if
-    return TRUE
+    return 1
   end if
 end
 
-on updatePurseFilm me 
+on updatePurseFilm me
   tWndObj = getThread(#catalogue).getInterface().getCatalogWindow()
   if objectp(tWndObj) then
     if tWndObj.elementExists("purse_info_film") then
-      tFieldTxt = getObject(#session).GET("user_photo_film") && getText("purse_info_film")
+      tFieldTxt = (getObject(#session).GET("user_photo_film") && getText("purse_info_film"))
       tWndObj.getElement("purse_info_film").setText(tFieldTxt)
     end if
-    return TRUE
+    return 1
   end if
 end
 
-on eventProc me, tEvent, tSprID, tProp 
+on eventProc me, tEvent, tSprID, tProp
   if (tEvent = #mouseUp) then
     if (tSprID = "close") then
-      return FALSE
+      return 0
     end if
   end if
   if (tEvent = #mouseDown) then
     tloc = the mouseLoc
-    if (tSprID = "coins_btn") then
-      executeMessage(#externalLinkClick, tloc)
-      openNetPage(getText("url_purselink"))
-    else
-      if (tSprID = "vouchers_btn") then
+    case tSprID of
+      "coins_btn":
+        executeMessage(#externalLinkClick, tloc)
+        openNetPage(getText("url_purselink"))
+      "vouchers_btn":
         executeMessage(#externalLinkClick, tloc)
         openNetPage(getText("purse_vouchers_helpurl"))
-      else
-        return FALSE
-      end if
-    end if
+    end case
+    return 0
   end if
-  return TRUE
+  return 1
 end

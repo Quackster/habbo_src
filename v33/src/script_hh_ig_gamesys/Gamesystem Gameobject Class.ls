@@ -1,45 +1,43 @@
-property pObjectId, pGameObjectSyncValues, pGameObjectValues, pKilled, pGameObjectLocation, pGameObjectNextTarget, pGameObjectFinalTarget, pGameSystem
+property pObjectId, pKilled, pGameSystem, pGameObjectSyncValues, pGameObjectValues, pGameObjectLocation, pGameObjectNextTarget, pGameObjectFinalTarget
 
-on setObjectId me, tID 
+on setObjectId me, tID
   pGameObjectSyncValues = [:]
   pGameObjectValues = [:]
   pObjectId = tID
 end
 
-on getObjectId me 
-  return(pObjectId)
+on getObjectId me
+  return pObjectId
 end
 
-on setGameObjectProperty me, tProp, tValue 
+on setGameObjectProperty me, tProp, tValue
   if listp(tProp) then
     tCount = tProp.count
-    i = 1
-    repeat while i <= tCount
-      me.setGameObjectProperty(tProp.getPropAt(i), tProp.getAt(i))
-      i = (1 + i)
+    repeat with i = 1 to tCount
+      me.setGameObjectProperty(tProp.getPropAt(i), tProp[i])
     end repeat
-    return TRUE
+    return 1
   end if
-  if pGameObjectSyncValues.findPos(tProp) > 0 then
-    return(pGameObjectSyncValues.setProp(tProp, tValue))
+  if (pGameObjectSyncValues.findPos(tProp) > 0) then
+    return pGameObjectSyncValues.setProp(tProp, tValue)
   else
-    return(pGameObjectValues.setaProp(tProp, tValue))
+    return pGameObjectValues.setaProp(tProp, tValue)
   end if
 end
 
-on getGameObjectProperty me, tProp 
-  if pGameObjectSyncValues.findPos(tProp) > 0 then
-    return(pGameObjectSyncValues.getProp(tProp))
+on getGameObjectProperty me, tProp
+  if (pGameObjectSyncValues.findPos(tProp) > 0) then
+    return pGameObjectSyncValues.getProp(tProp)
   else
-    return(pGameObjectValues.getaProp(tProp))
+    return pGameObjectValues.getaProp(tProp)
   end if
 end
 
-on getActive me 
-  return(not pKilled)
+on getActive me
+  return not pKilled
 end
 
-on setLocation me, tX, tY, tZ 
+on setLocation me, tX, tY, tZ
   if me.pGameObjectSyncValues.findPos(#x) then
     me.pGameObjectSyncValues.setaProp(#x, tX)
   end if
@@ -49,10 +47,10 @@ on setLocation me, tX, tY, tZ
   if me.pGameObjectSyncValues.findPos(#z) then
     me.pGameObjectSyncValues.setaProp(#z, tZ)
   end if
-  return(pGameObjectLocation.setLocation(tX, tY, tZ))
+  return pGameObjectLocation.setLocation(tX, tY, tZ)
 end
 
-on setLocationAsTile me, tX, tY, tZ 
+on setLocationAsTile me, tX, tY, tZ
   pGameObjectLocation.setTileLoc(tX, tY, tZ)
   if me.pGameObjectSyncValues.findPos(#x) then
     me.pGameObjectSyncValues.setaProp(#x, pGameObjectLocation.x)
@@ -63,169 +61,157 @@ on setLocationAsTile me, tX, tY, tZ
   if me.pGameObjectSyncValues.findPos(#z) then
     me.pGameObjectSyncValues.setaProp(#z, pGameObjectLocation.z)
   end if
-  return TRUE
+  return 1
 end
 
-on setGameSystemReference me, tObject 
+on setGameSystemReference me, tObject
   pGameSystem = tObject
 end
 
-on setGameObjectSyncProperty me, tList, tdata 
+on setGameObjectSyncProperty me, tList, tdata
   if listp(tList) then
     tCount = tList.count
-    i = 1
-    repeat while i <= tCount
-      me.pGameObjectSyncValues.setaProp(tList.getPropAt(i), tList.getAt(i))
-      i = (1 + i)
+    repeat with i = 1 to tCount
+      me.pGameObjectSyncValues.setaProp(tList.getPropAt(i), tList[i])
     end repeat
-    exit repeat
-  end if
-  me.pGameObjectSyncValues.setaProp(tList, tdata)
-  return TRUE
-end
-
-on executeGameObjectEvent me, tEvent, tdata 
-  if (tEvent = #set_target) then
-    me.pGameObjectFinalTarget.setLoc(tdata.x, tdata.y, tdata.z)
   else
-    if (tEvent = #set_target_tile) then
-      me.pGameObjectFinalTarget.setTileLoc(tdata.x, tdata.y, tdata.z)
-    end if
+    me.pGameObjectSyncValues.setaProp(tList, tdata)
   end if
-  return TRUE
+  return 1
 end
 
-on addChecksum me 
+on executeGameObjectEvent me, tEvent, tdata
+  case tEvent of
+    #set_target:
+      me.pGameObjectFinalTarget.setLoc(tdata.x, tdata.y, tdata.z)
+    #set_target_tile:
+      me.pGameObjectFinalTarget.setTileLoc(tdata.x, tdata.y, tdata.z)
+  end case
+  return 1
+end
+
+on addChecksum me
   tCheckSum = 0
   tCounter = 1
   tCount = pGameObjectSyncValues.count
-  i = 1
-  repeat while i <= tCount
-    tValue = pGameObjectSyncValues.getAt(i)
+  repeat with i = 1 to tCount
+    tValue = pGameObjectSyncValues[i]
     tIlk = ilk(tValue)
     if (tIlk = #integer) then
       tCheckSum = (tCheckSum + (tValue * tCounter))
       tCounter = (tCounter + 1)
     end if
     if (tIlk = #list) then
-      if tValue.count > 0 then
-        repeat while tValue <= undefined
-          tValueItem = getAt(undefined, undefined)
+      if (tValue.count > 0) then
+        repeat with tValueItem in tValue
           tCheckSum = (tCheckSum + (tValueItem * tCounter))
           tCounter = (tCounter + 1)
         end repeat
       end if
     end if
-    i = (1 + i)
   end repeat
-  return(tCheckSum)
+  return tCheckSum
 end
 
-on define me 
-  return TRUE
+on define me
+  return 1
 end
 
-on gameObjectRefreshLocation me 
-  return FALSE
+on gameObjectRefreshLocation me
+  return 0
 end
 
-on gameObjectNewMoveTarget me 
-  return FALSE
+on gameObjectNewMoveTarget me
+  return 0
 end
 
-on calculateFrameMovement me 
-  return FALSE
+on calculateFrameMovement me
+  return 0
 end
 
-on getLocation me 
-  return(pGameObjectLocation)
+on getLocation me
+  return pGameObjectLocation
 end
 
-on getNextTarget me 
-  return(pGameObjectNextTarget)
+on getNextTarget me
+  return pGameObjectNextTarget
 end
 
-on getFinalTarget me 
-  return(pGameObjectFinalTarget)
+on getFinalTarget me
+  return pGameObjectFinalTarget
 end
 
-on resetTargets me 
+on resetTargets me
   pGameObjectNextTarget.setLoc(pGameObjectLocation.x, pGameObjectLocation.y, pGameObjectLocation.z)
   pGameObjectFinalTarget.setLoc(pGameObjectLocation.x, pGameObjectLocation.y, pGameObjectLocation.z)
 end
 
-on existsFinalTarget me 
+on existsFinalTarget me
   if not objectp(pGameObjectFinalTarget) then
-    return FALSE
+    return 0
   end if
   if not objectp(pGameObjectLocation) then
-    return FALSE
+    return 0
   end if
-  return(pGameObjectLocation.getLocation() <> pGameObjectFinalTarget.getLocation())
+  return (pGameObjectLocation.getLocation() <> pGameObjectFinalTarget.getLocation())
 end
 
-on existsNextTarget me 
+on existsNextTarget me
   if not objectp(pGameObjectNextTarget) then
-    return FALSE
+    return 0
   end if
   if not objectp(pGameObjectLocation) then
-    return FALSE
+    return 0
   end if
-  return(pGameObjectLocation.getLocation() <> pGameObjectNextTarget.getLocation())
+  return (pGameObjectLocation.getLocation() <> pGameObjectNextTarget.getLocation())
 end
 
-on dump me, tServerFormat 
+on dump me, tServerFormat
   if (tServerFormat = 1) then
     tObjectId = me.getObjectId()
-    if tObjectId.length < 2 then
-      tObjectId = "0" & tObjectId
+    if (tObjectId.length < 2) then
+      tObjectId = ("0" & tObjectId)
     end if
-    tDumpString = "O" & tObjectId & "-CS:" & me.addChecksum() && "Parms:"
-    i = 1
-    repeat while i <= pGameObjectSyncValues.count
-      tValue = pGameObjectSyncValues.getAt(i)
+    tDumpString = (((("O" & tObjectId) & "-CS:") & me.addChecksum()) && "Parms:")
+    repeat with i = 1 to pGameObjectSyncValues.count
+      tValue = pGameObjectSyncValues[i]
       if (ilk(tValue) = #integer) then
-        tDumpString = tDumpString & tValue
-        if i < pGameObjectSyncValues.count then
-          tDumpString = tDumpString & ","
+        tDumpString = (tDumpString & tValue)
+        if (i < pGameObjectSyncValues.count) then
+          tDumpString = (tDumpString & ",")
         end if
       end if
       if (ilk(tValue) = #list) then
-        if tValue.count > 0 then
-          j = 1
-          repeat while j <= tValue.count
-            tListItem = tValue.getAt(j)
-            tDumpString = tDumpString & tListItem
-            if j <= tValue.count and i < pGameObjectSyncValues.count then
-              tDumpString = tDumpString & ","
+        if (tValue.count > 0) then
+          repeat with j = 1 to tValue.count
+            tListItem = tValue[j]
+            tDumpString = (tDumpString & tListItem)
+            if ((j <= tValue.count) and (i < pGameObjectSyncValues.count)) then
+              tDumpString = (tDumpString & ",")
             end if
-            j = (1 + j)
           end repeat
         end if
       end if
-      i = (1 + i)
     end repeat
-    tDumpString = "++" && "\"" & tDumpString & "\""
-    return(tDumpString)
+    tDumpString = ((("++" && QUOTE) & tDumpString) & QUOTE)
+    return tDumpString
   else
     tDumpList = []
-    i = 1
-    repeat while i <= pGameObjectSyncValues.count
-      tValue = pGameObjectSyncValues.getAt(i)
-      if (ilk(tValue) = #integer) or (ilk(tValue) = #list) then
-        tDumpList.add(pGameObjectSyncValues.getPropAt(i) & ":" && tValue)
+    repeat with i = 1 to pGameObjectSyncValues.count
+      tValue = pGameObjectSyncValues[i]
+      if ((ilk(tValue) = #integer) or (ilk(tValue) = #list)) then
+        tDumpList.add(((pGameObjectSyncValues.getPropAt(i) & ":") && tValue))
       end if
-      i = (1 + i)
     end repeat
-    return(tDumpList)
+    return tDumpList
   end if
 end
 
-on getGameSystem me 
-  return(pGameSystem)
+on getGameSystem me
+  return pGameSystem
 end
 
-on Remove me 
+on Remove me
   me.pKilled = 1
-  return TRUE
+  return 1
 end

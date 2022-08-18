@@ -1,44 +1,42 @@
-property pData, pIGComponentId
+property pIGComponentId, pData
 
-on construct me 
+on construct me
   pData = [:]
-  return TRUE
+  return 1
 end
 
-on deconstruct me 
-  return(me.ancestor.deconstruct())
+on deconstruct me
+  return me.ancestor.deconstruct()
 end
 
-on define me, tdata 
-  return(me.Refresh(tdata))
+on define me, tdata
+  return me.Refresh(tdata)
 end
 
-on Refresh me, tdata 
+on Refresh me, tdata
   if not listp(tdata) then
-    return FALSE
+    return 0
   end if
-  i = 1
-  repeat while i <= tdata.count
+  repeat with i = 1 to tdata.count
     tKey = tdata.getPropAt(i)
-    tValue = tdata.getAt(i)
+    tValue = tdata[i]
     me.pData.setaProp(tKey, tValue)
-    i = (1 + i)
   end repeat
-  return TRUE
+  return 1
 end
 
-on getProperty me, tKey 
-  return(me.pData.getaProp(tKey))
+on getProperty me, tKey
+  return me.pData.getaProp(tKey)
 end
 
-on exists me, tKey 
-  return(me.pData.findPos(tKey))
+on exists me, tKey
+  return me.pData.findPos(tKey)
 end
 
-on setProperty me, tKey, tValue 
+on setProperty me, tKey, tValue
   tOldValue = me.pData.getaProp(tKey)
   if (ilk(tOldValue) = #list) then
-    if ilk(tValue) <> #list then
+    if (ilk(tValue) <> #list) then
       if tOldValue.findPos(tValue) then
         tOldValue.deleteOne(tValue)
       else
@@ -48,25 +46,25 @@ on setProperty me, tKey, tValue
     end if
   end if
   me.pData.setaProp(tKey, tValue)
-  return TRUE
+  return 1
 end
 
-on getItemId me 
-  return(pData.getaProp(#id))
+on getItemId me
+  return pData.getaProp(#id)
 end
 
-on dump me 
-  return(pData)
+on dump me
+  return pData
 end
 
-on getIGComponent me, tServiceId 
+on getIGComponent me, tServiceId
   towner = me.getOwnerIGComponent()
   if (towner = 0) then
-    return FALSE
+    return 0
   end if
-  return(towner.getIGComponent(tServiceId))
+  return towner.getIGComponent(tServiceId)
 end
 
-on getOwnerIGComponent me 
-  return(getObject(pIGComponentId))
+on getOwnerIGComponent me
+  return getObject(pIGComponentId)
 end

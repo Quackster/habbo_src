@@ -1,74 +1,72 @@
-property pTextTemplate, pSongAuthor, pBurnDay, pBurnMonth, pBurnYear, pSongLength, pSongName
+property pSongID, pSongName, pSongAuthor, pSongLength, pBurnDay, pBurnMonth, pBurnYear, pTextTemplate
 
-on construct me 
+on construct me
   pSongID = 0
-  pSongName = ""
+  pSongName = EMPTY
   pSongLength = 0
-  pBurnDay = ""
-  pBurnMonth = ""
-  pBurnYear = ""
-  pSongAuthor = ""
+  pBurnDay = EMPTY
+  pBurnMonth = EMPTY
+  pBurnYear = EMPTY
+  pSongAuthor = EMPTY
   pTextTemplate = getText("song_disk_text_template")
   callAncestor(#construct, [me])
-  return TRUE
+  return 1
 end
 
-on deconstruct me 
+on deconstruct me
   callAncestor(#deconstruct, [me])
-  return TRUE
+  return 1
 end
 
-on define me, tProps 
+on define me, tProps
   callAncestor(#define, [me], tProps)
-  if not voidp(tProps.getAt(#props)) then
-    tdata = tProps.getAt(#props)
-    if not voidp(tdata.getAt(#extra)) then
-      pSongID = tdata.getAt(#extra)
+  if not voidp(tProps[#props]) then
+    tdata = tProps[#props]
+    if not voidp(tdata[#extra]) then
+      pSongID = tdata[#extra]
     end if
-    if not voidp(tdata.getAt(#stuffdata)) then
-      tArray = [#source:tdata.getAt(#stuffdata)]
+    if not voidp(tdata[#stuffdata]) then
+      tArray = [#source: tdata[#stuffdata]]
       executeMessage(#get_disk_data, tArray)
-      if not voidp(tArray.getAt(#author)) then
-        pSongAuthor = tArray.getAt(#author)
+      if not voidp(tArray[#author]) then
+        pSongAuthor = tArray[#author]
       end if
-      if not voidp(tArray.getAt(#burnDay)) and not voidp(tArray.getAt(#burnMonth)) and not voidp(tArray.getAt(#burnYear)) then
-        pBurnDay = tArray.getAt(#burnDay)
-        pBurnMonth = tArray.getAt(#burnMonth)
-        pBurnYear = tArray.getAt(#burnYear)
+      if ((not voidp(tArray[#burnDay]) and not voidp(tArray[#burnMonth])) and not voidp(tArray[#burnYear])) then
+        pBurnDay = tArray[#burnDay]
+        pBurnMonth = tArray[#burnMonth]
+        pBurnYear = tArray[#burnYear]
       end if
-      if not voidp(tArray.getAt(#songLength)) then
-        pSongLength = tArray.getAt(#songLength)
+      if not voidp(tArray[#songLength]) then
+        pSongLength = tArray[#songLength]
       end if
-      if not voidp(tArray.getAt(#songName)) then
-        pSongName = tArray.getAt(#songName)
+      if not voidp(tArray[#songName]) then
+        pSongName = tArray[#songName]
       end if
     end if
   end if
-  return TRUE
+  return 1
 end
 
-on getInfo me 
+on getInfo me
   tInfo = callAncestor(#getInfo, [me])
-  if ilk(tInfo) <> #propList then
+  if (ilk(tInfo) <> #propList) then
     tInfo = [:]
   end if
   tCustom = pTextTemplate
   tTagList = ["%author%", "%day%", "%month%", "%year%", "%length%", "%name%"]
   tTextList = [pSongAuthor, pBurnDay, pBurnMonth, pBurnYear, pSongLength, pSongName]
-  i = min(tTagList.count, tTextList.count)
-  repeat while i >= 1
-    tCustom = replaceChunks(tCustom, tTagList.getAt(i), tTextList.getAt(i))
-    i = (255 + i)
+  repeat with i = min(tTagList.count, tTextList.count) down to 1
+    tCustom = replaceChunks(tCustom, tTagList[i], tTextList[i])
   end repeat
-  tInfo.setAt(#custom, tCustom)
-  return(tInfo)
+  tInfo[#custom] = tCustom
+  return tInfo
 end
 
-on select me 
-  return(callAncestor(#select, [me]))
-  return TRUE
+on select me
+  return callAncestor(#select, [me])
+  return 1
 end
 
-on setState me, tNewState 
+on setState me, tNewState
   callAncestor(#setState, [me], tNewState)
 end

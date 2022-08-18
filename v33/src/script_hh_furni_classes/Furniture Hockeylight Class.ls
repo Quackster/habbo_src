@@ -1,31 +1,31 @@
-property pActive, pDelay, pFrame, pCycles
+property pActive, pFrame, pCycles, pDelay
 
-on prepare me, tdata 
+on prepare me, tdata
   pActive = 0
   pFrame = 0
   pCycles = 0
   pDelay = 0
-  return TRUE
+  return 1
 end
 
-on updateStuffdata me, tValue 
+on updateStuffdata me, tValue
   tValue = integer(tValue)
   if (tValue = 1) then
     me.setOn()
   end if
-  return TRUE
+  return 1
 end
 
-on update me 
+on update me
   if not pActive then
-    return()
+    return 
   end if
-  if me.count(#pSprList) < 3 then
-    return()
+  if (me.pSprList.count < 3) then
+    return 
   end if
   pDelay = not pDelay
   if pDelay then
-    return()
+    return 
   end if
   pFrame = (pFrame + 1)
   if (pFrame = 5) then
@@ -37,29 +37,29 @@ on update me
     end if
   end if
   the itemDelimiter = "_"
-  tMemName = me.getPropRef(#pSprList, 3).member.name
-  tClass = tMemName.getProp(#item, 1, (tMemName.count(#item) - 6))
+  tMemName = me.pSprList[3].member.name
+  tClass = tMemName.item[1]
   if pActive then
-    tmember = member(getmemnum(tClass & "_c_0_1_1_0_" & pFrame))
+    tmember = member(getmemnum(((tClass & "_c_0_1_1_0_") & pFrame)))
   else
-    tmember = member(getmemnum(tClass & "_c_0_1_1_0_0"))
+    tmember = member(getmemnum((tClass & "_c_0_1_1_0_0")))
   end if
-  me.getPropRef(#pSprList, 3).castNum = tmember.number
-  me.getPropRef(#pSprList, 3).width = tmember.width
-  me.getPropRef(#pSprList, 3).height = tmember.height
+  me.pSprList[3].castNum = tmember.number
+  me.pSprList[3].width = tmember.width
+  me.pSprList[3].height = tmember.height
 end
 
-on setOn me 
+on setOn me
   pActive = 1
 end
 
-on setOff me 
+on setOff me
   pActive = 0
 end
 
-on select me 
+on select me
   if the doubleClick then
-    getThread(#room).getComponent().getRoomConnection().send("USEFURNITURE", [#integer:integer(me.getID()), #integer:0])
+    getThread(#room).getComponent().getRoomConnection().send("USEFURNITURE", [#integer: integer(me.getID()), #integer: 0])
   end if
-  return TRUE
+  return 1
 end
