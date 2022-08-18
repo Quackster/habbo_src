@@ -1,122 +1,117 @@
-property pUpdateBrokerList, pProcessorObjList, pBaseProcClassList
+property pProcessorObjList, pUpdateBrokerList, pBaseProcClassList
 
-on construct me 
+on construct me
   pProcessorObjList = [:]
   pUpdateBrokerList = [:]
   if not variableExists("gamesystem.processor.superclass") then
-    return(error(me, "gamesystem.processor.superclass not found.", #defineProcessors))
+    return error(me, "gamesystem.processor.superclass not found.", #defineProcessors)
   end if
   pBaseProcClassList = getClassVariable("gamesystem.processor.superclass")
-  return TRUE
+  return 1
 end
 
-on deconstruct me 
+on deconstruct me
   me.removeAllProcessors()
-  return TRUE
+  return 1
 end
 
-on defineClient me, tID 
-  return(me.defineProcessors())
+on defineClient me, tID
+  return me.defineProcessors()
 end
 
-on distributeEvent me, tTopic, tdata 
+on distributeEvent me, tTopic, tdata
   tBaseLogic = me.getBaseLogic()
-  tStoreMethod = symbol("store_" & tTopic)
+  tStoreMethod = symbol(("store_" & tTopic))
   if tBaseLogic.handler(tStoreMethod) then
     call(tStoreMethod, tBaseLogic, tdata)
   end if
   if not pUpdateBrokerList.findPos(tTopic) then
-    return FALSE
+    return 0
   end if
   tList = pUpdateBrokerList.getProp(tTopic)
-  repeat while tList <= tdata
-    tListenerId = getAt(tdata, tTopic)
+  repeat with tListenerId in tList
     tListener = pProcessorObjList.getaProp(tListenerId)
-    if tListener <> void() then
+    if (tListener <> VOID) then
       call(#handleUpdate, tListener, tTopic, tdata)
-    else
-      pProcessorObjList.deleteProp(tListenerId)
-      tList.deleteOne(tListenerId)
+      next repeat
     end if
+    pProcessorObjList.deleteProp(tListenerId)
+    tList.deleteOne(tListenerId)
   end repeat
-  return TRUE
+  return 1
 end
 
-on defineProcessors me 
+on defineProcessors me
   me.removeAllProcessors()
   tID = me.getSystemId()
-  if variableExists(tID & ".processors") then
-    tProcIdList = getVariableValue(tID & ".processors")
+  if variableExists((tID & ".processors")) then
+    tProcIdList = getVariableValue((tID & ".processors"))
   end if
   if not listp(tProcIdList) then
-    return(error(me, "Processor list not found:" && tID, #defineProcessors))
+    return error(me, ("Processor list not found:" && tID), #defineProcessors)
   end if
-  repeat while tProcIdList <= undefined
-    tProcId = getAt(undefined, undefined)
+  repeat with tProcId in tProcIdList
     me.defineSingleProcessor(tProcId)
   end repeat
-  return TRUE
+  return 1
 end
 
-on defineSingleProcessor me, tProcId 
+on defineSingleProcessor me, tProcId
   tID = me.getSystemId()
-  tProcObjId = symbol(tID & "_proc_" & tProcId)
-  tScriptList = getClassVariable(tID & "." & tProcId & ".processor.class")
+  tProcObjId = symbol(((tID & "_proc_") & tProcId))
+  tScriptList = getClassVariable((((tID & ".") & tProcId) & ".processor.class"))
   if not listp(tScriptList) then
-    return(error(me, "Script list not found:" && tID & "." & tProcId, #defineProcessors))
+    return error(me, ((("Script list not found:" && tID) & ".") & tProcId), #defineProcessors)
   end if
   tScriptList.addAt(1, pBaseProcClassList)
   tProcObject = createObject(tProcObjId, tScriptList)
   if not objectp(tProcObject) then
-    return(error(me, "Unable to create processor object:" && tProcObjId && tScriptList && tScriptList.ilk, #defineProcessors))
+    return error(me, ((("Unable to create processor object:" && tProcObjId) && tScriptList) && tScriptList.ilk), #defineProcessors)
   end if
   tProcObject.setaProp(#pFacadeId, tID)
   tProcObject.setaProp(#pID, tProcId)
   tProcObject.setID(tProcId, tID)
   pProcessorObjList.addProp(tProcId, tProcObject)
-  tProcessorRegList = getVariableValue(tID & "." & tProcId & ".processor.updates")
+  tProcessorRegList = getVariableValue((((tID & ".") & tProcId) & ".processor.updates"))
   if listp(tProcessorRegList) then
-    repeat while tProcessorRegList <= undefined
-      tMsg = getAt(undefined, tProcId)
-      if (tMsg = void()) then
-        return(error(me, "Invalid format in processor message:" && tProcObjId && tMsg, #defineProcessors))
+    repeat with tMsg in tProcessorRegList
+      if (tMsg = VOID) then
+        return error(me, (("Invalid format in processor message:" && tProcObjId) && tMsg), #defineProcessors)
       end if
-      if voidp(pUpdateBrokerList.getAt(tMsg)) then
+      if voidp(pUpdateBrokerList[tMsg]) then
         pUpdateBrokerList.addProp(tMsg, [])
       end if
-      if (pUpdateBrokerList.getAt(tMsg).getPos(tProcId) = 0) then
-        pUpdateBrokerList.getAt(tMsg).add(tProcId)
+      if (pUpdateBrokerList[tMsg].getPos(tProcId) = 0) then
+        pUpdateBrokerList[tMsg].add(tProcId)
       end if
     end repeat
   end if
-  return TRUE
+  return 1
 end
 
-on removeSingleProcessor me, tProcId 
+on removeSingleProcessor me, tProcId
   tProcObject = pProcessorObjList.getaProp(tProcId)
   if not objectp(tProcObject) then
-    return(error(me, "Processor not found:" && tProcId, #removeSingleProcessor))
+    return error(me, ("Processor not found:" && tProcId), #removeSingleProcessor)
   end if
-  repeat while pUpdateBrokerList <= undefined
-    tMsg = getAt(undefined, tProcId)
+  repeat with tMsg in pUpdateBrokerList
     tMsg.deleteOne(tProcId)
   end repeat
   tProcObjectId = tProcObject.getID()
   pProcessorObjList.deleteProp(tProcId)
   removeObject(tProcObjectId)
-  return TRUE
+  return 1
 end
 
-on getProcessor me, tProcId 
-  return(pProcessorObjList.getaProp(tProcId))
+on getProcessor me, tProcId
+  return pProcessorObjList.getaProp(tProcId)
 end
 
-on removeAllProcessors me 
-  repeat while pProcessorObjList <= undefined
-    tProc = getAt(undefined, undefined)
+on removeAllProcessors me
+  repeat with tProc in pProcessorObjList
     removeObject(tProc.getID())
   end repeat
   pProcessorObjList = [:]
   pUpdateBrokerList = [:]
-  return TRUE
+  return 1
 end

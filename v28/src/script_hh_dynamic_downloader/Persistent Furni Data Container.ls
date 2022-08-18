@@ -1,6 +1,6 @@
-property pStuffData, pWallitemData, pStuffDataByClass, pWallitemDataByClass, pMemberName
+property pStuffData, pWallitemData, pStuffDataByClass, pWallitemDataByClass, pMemberName, pRetryDownloadCount
 
-on construct me 
+on construct me
   pStuffData = [:]
   pStuffData.sort()
   pWallitemData = [:]
@@ -14,7 +14,7 @@ on construct me
   if variableExists("furnidata.load.url") then
     tURL = getVariable("furnidata.load.url")
     tHash = getSpecialServices().getSessionHash()
-    if (tHash = "") then
+    if (tHash = EMPTY) then
       tHash = string(random(1000000))
     end if
     tURL = replaceChunks(tURL, "%hash%", tHash)
@@ -22,82 +22,77 @@ on construct me
   end if
 end
 
-on deconstruct me 
+on deconstruct me
   pStuffData = [:]
   pWallitemData = [:]
 end
 
-on getProps me, ttype, tID 
-  if (ttype = "s") then
-    return(pStuffData.getaProp(tID))
-  else
-    if (ttype = "i") then
-      return(pWallitemData.getaProp(tID))
-    else
+on getProps me, ttype, tID
+  case ttype of
+    "s":
+      return pStuffData.getaProp(tID)
+    "i":
+      return pWallitemData.getaProp(tID)
+    otherwise:
       error(me, "invalid item type", #getProps, #minor)
-    end if
-  end if
+  end case
 end
 
-on getPropsByClass me, ttype, tClass 
-  if (ttype = "s") then
-    return(pStuffDataByClass.getaProp(tClass))
-  else
-    if (ttype = "i") then
-      return(pWallitemDataByClass.getaProp(tClass))
-    else
+on getPropsByClass me, ttype, tClass
+  case ttype of
+    "s":
+      return pStuffDataByClass.getaProp(tClass)
+    "i":
+      return pWallitemDataByClass.getaProp(tClass)
+    otherwise:
       error(me, "invalid item type", #getProps, #minor)
-    end if
-  end if
+  end case
 end
 
-on initDownload me, tSourceURL 
+on initDownload me, tSourceURL
   if not createMember(pMemberName, #field) then
-    return(error(me, "Could not create member!", #initDownload))
+    return error(me, "Could not create member!", #initDownload)
   end if
   tMemNum = queueDownload(tSourceURL, pMemberName, #field, 1)
   registerDownloadCallback(tMemNum, #downloadCallback, me.getID(), tMemNum)
 end
 
-on downloadCallback me, tParams, tSuccess 
+on downloadCallback me, tParams, tSuccess
   if tSuccess then
     tTime = the milliSeconds
     pData = [:]
     tmember = member(tParams)
     i = 1
-    l = 1
-    repeat while l <= tmember.text.count(#line)
-      tVal = value(tmember.text.getProp(#line, l))
+    repeat with l = 1 to tmember.text.line.count
+      tVal = value(tmember.text.line[l])
       if (ilk(tVal) = #list) then
-        repeat while tVal <= tSuccess
-          tItem = getAt(tSuccess, tParams)
+        repeat with tItem in tVal
           tdata = [:]
-          tdata.setAt(#type, tItem.getAt(1))
-          tdata.setAt(#classID, value(tItem.getAt(2)))
-          tdata.setAt(#class, tItem.getAt(3))
-          tdata.setAt(#revision, value(tItem.getAt(4)))
-          tdata.setAt(#defaultDir, value(tItem.getAt(5)))
-          tdata.setAt(#xdim, value(tItem.getAt(6)))
-          tdata.setAt(#ydim, value(tItem.getAt(7)))
-          tdata.setAt(#partColors, tItem.getAt(8))
-          tdata.setAt(#localizedName, decodeUTF8(tItem.getAt(9)))
-          tdata.setAt(#localizedDesc, decodeUTF8(tItem.getAt(10)))
-          getThread("dynamicdownloader").getComponent().setFurniRevision(tdata.getAt(#class), tdata.getAt(#revision), (tdata.getAt(#type) = "s"))
-          if (tdata.getAt(#type) = "s") then
-            pStuffData.setaProp(tdata.getAt(#classID), tdata)
-            pStuffDataByClass.setaProp(tItem.getAt(3), tdata)
-          else
-            pWallitemData.setaProp(tdata.getAt(#classID), tdata)
-            pWallitemDataByClass.setaProp(tItem.getAt(3), tdata)
+          tdata[#type] = tItem[1]
+          tdata[#classID] = value(tItem[2])
+          tdata[#class] = tItem[3]
+          tdata[#revision] = value(tItem[4])
+          tdata[#defaultDir] = value(tItem[5])
+          tdata[#xdim] = value(tItem[6])
+          tdata[#ydim] = value(tItem[7])
+          tdata[#partColors] = tItem[8]
+          tdata[#localizedName] = decodeUTF8(tItem[9])
+          tdata[#localizedDesc] = decodeUTF8(tItem[10])
+          getThread("dynamicdownloader").getComponent().setFurniRevision(tdata[#class], tdata[#revision], (tdata[#type] = "s"))
+          if (tdata[#type] = "s") then
+            pStuffData.setaProp(tdata[#classID], tdata)
+            pStuffDataByClass.setaProp(tItem[3], tdata)
+            next repeat
           end if
+          pWallitemData.setaProp(tdata[#classID], tdata)
+          pWallitemDataByClass.setaProp(tItem[3], tdata)
         end repeat
       end if
-      l = (1 + l)
     end repeat
-    getThread("dynamicdownloader").getComponent().setFurniRevision(void())
+    getThread("dynamicdownloader").getComponent().setFurniRevision(VOID)
     sendProcessTracking(25)
   else
-    fatalError(["error":"furnidata"])
-    return(error(me, "Failure while loading furnidata", #downloadCallback, #critical))
+    fatalError(["error": "furnidata"])
+    return error(me, "Failure while loading furnidata", #downloadCallback, #critical)
   end if
 end

@@ -1,35 +1,35 @@
-on constructTimeoutManager  
-  return(createManager(#timeout_manager, getClassVariable("timeout.manager.class")))
+on constructTimeoutManager
+  return createManager(#timeout_manager, getClassVariable("timeout.manager.class"))
 end
 
-on deconstructTimeoutManager  
-  return(removeManager(#timeout_manager))
+on deconstructTimeoutManager
+  return removeManager(#timeout_manager)
 end
 
-on getTimeoutManager  
+on getTimeoutManager
   tMgr = getObjectManager()
   if not tMgr.managerExists(#timeout_manager) then
-    return(constructTimeoutManager())
+    return constructTimeoutManager()
   end if
-  return(tMgr.getManager(#timeout_manager))
+  return tMgr.getManager(#timeout_manager)
 end
 
-on createTimeout tID, tTime, tHandler, tClientID, tArguments, tIterations 
-  return(getTimeoutManager().create(tID, tTime, tHandler, tClientID, tArguments, tIterations))
+on createTimeout tID, tTime, tHandler, tClientID, tArguments, tIterations
+  return getTimeoutManager().create(tID, tTime, tHandler, tClientID, tArguments, tIterations)
 end
 
-on removeTimeout tID 
-  return(getTimeoutManager().Remove(tID))
+on removeTimeout tID
+  return getTimeoutManager().Remove(tID)
 end
 
-on getTimeout tID 
-  return(getTimeoutManager().GET(tID))
+on getTimeout tID
+  return getTimeoutManager().GET(tID)
 end
 
-on timeoutExists tID 
-  return(getTimeoutManager().exists(tID))
+on timeoutExists tID
+  return getTimeoutManager().exists(tID)
 end
 
-on printTimeouts  
-  return(getTimeoutManager().print())
+on printTimeouts
+  return getTimeoutManager().print()
 end

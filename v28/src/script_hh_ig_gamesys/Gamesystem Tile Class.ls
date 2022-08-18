@@ -1,16 +1,16 @@
-property pContent, pLocX, pLocY, pType, x, y, z, pTileWidth, pGameSystem
+property pLocX, pLocY, x, y, z, pTileWidth, pType, pContent, pGameSystem
 
-on construct me 
+on construct me
   pContent = [:]
-  return TRUE
+  return 1
 end
 
-on deconstruct me 
-  pContent = void()
-  return TRUE
+on deconstruct me
+  pContent = VOID
+  return 1
 end
 
-on define me, tLocX, tLocY, tWorldX, tWorldY, tWidth, ttype, tFramework 
+on define me, tLocX, tLocY, tWorldX, tWorldY, tWidth, ttype, tFramework
   pLocX = tLocX
   pLocY = tLocY
   x = tWorldX
@@ -20,150 +20,135 @@ on define me, tLocX, tLocY, tWorldX, tWorldY, tWidth, ttype, tFramework
   pType = ttype
   pContent = [:]
   pGameSystem = tFramework
-  return TRUE
+  return 1
 end
 
-on addContent me, tItemID, tItemProps 
+on addContent me, tItemID, tItemProps
   pContent.addProp(tItemID, tItemProps)
-  return TRUE
+  return 1
 end
 
-on removeContent me, tItemID 
+on removeContent me, tItemID
   pContent.deleteProp(tItemID)
-  return TRUE
+  return 1
 end
 
-on getTileNeighborInDirection me, tdir 
+on getTileNeighborInDirection me, tdir
   tGameSystem = me.getGameSystem()
   if (tGameSystem = 0) then
-    return FALSE
+    return 0
   end if
-  if (tdir = 0) then
-    return(tGameSystem.getTile(pLocX, (pLocY - 1)))
-  else
-    if (tdir = 1) then
-      return(tGameSystem.getTile((pLocX + 1), (pLocY - 1)))
-    else
-      if (tdir = 2) then
-        return(tGameSystem.getTile((pLocX + 1), pLocY))
-      else
-        if (tdir = 3) then
-          return(tGameSystem.getTile((pLocX + 1), (pLocY + 1)))
-        else
-          if (tdir = 4) then
-            return(tGameSystem.getTile(pLocX, (pLocY + 1)))
-          else
-            if (tdir = 5) then
-              return(tGameSystem.getTile((pLocX - 1), (pLocY + 1)))
-            else
-              if (tdir = 6) then
-                return(tGameSystem.getTile((pLocX - 1), pLocY))
-              else
-                if (tdir = 7) then
-                  return(tGameSystem.getTile((pLocX - 1), (pLocY - 1)))
-                else
-                  return(error(me, "Invalid direction for tile:" && tdir, #getTileNeighborInDirection))
-                end if
-              end if
-            end if
-          end if
-        end if
-      end if
-    end if
-  end if
+  case tdir of
+    0:
+      return tGameSystem.getTile(pLocX, (pLocY - 1))
+    1:
+      return tGameSystem.getTile((pLocX + 1), (pLocY - 1))
+    2:
+      return tGameSystem.getTile((pLocX + 1), pLocY)
+    3:
+      return tGameSystem.getTile((pLocX + 1), (pLocY + 1))
+    4:
+      return tGameSystem.getTile(pLocX, (pLocY + 1))
+    5:
+      return tGameSystem.getTile((pLocX - 1), (pLocY + 1))
+    6:
+      return tGameSystem.getTile((pLocX - 1), pLocY)
+    7:
+      return tGameSystem.getTile((pLocX - 1), (pLocY - 1))
+  end case
+  return error(me, ("Invalid direction for tile:" && tdir), #getTileNeighborInDirection)
 end
 
-on getX me 
-  return(pLocX)
+on getX me
+  return pLocX
 end
 
-on getY me 
-  return(pLocY)
+on getY me
+  return pLocY
 end
 
-on getType me 
-  return(pType)
+on getType me
+  return pType
 end
 
-on getWorldX me 
-  return(x)
+on getWorldX me
+  return x
 end
 
-on getWorldY me 
-  return(y)
+on getWorldY me
+  return y
 end
 
-on getWorldZ me 
-  return(z)
+on getWorldZ me
+  return z
 end
 
-on getWorldCoordinate me 
-  return([#x:x, #y:y, #z:z])
+on getWorldCoordinate me
+  return [#x: x, #y: y, #z: z]
 end
 
-on getLocation me 
-  return([#x:pLocX, #y:pLocY])
+on getLocation me
+  return [#x: pLocX, #y: pLocY]
 end
 
-on getDiameter me 
-  return((pTileWidth * 100))
+on getDiameter me
+  return (pTileWidth * 100)
 end
 
-on locationIsInTileRange me, tLocX, tLocY 
-  return(abs((pLocX - tLocX)) <= 1 and abs((pLocY - tLocY)) <= 1)
+on locationIsInTileRange me, tLocX, tLocY
+  return ((abs((pLocX - tLocX)) <= 1) and (abs((pLocY - tLocY)) <= 1))
 end
 
-on worldLocationIsInTileRange me, tLocX, tLocY 
-  return(abs((x - tLocX)) < (pTileWidth * 100) and abs((y - tLocY)) < (pTileWidth * 100))
+on worldLocationIsInTileRange me, tLocX, tLocY
+  return ((abs((x - tLocX)) < (pTileWidth * 100)) and (abs((y - tLocY)) < (pTileWidth * 100)))
 end
 
-on isInDistance me, tLocX, tLocY, tDistance 
+on isInDistance me, tLocX, tLocY, tDistance
   tDistanceX = abs((tLocX - x))
   tDistanceY = abs((tLocY - y))
-  if tDistanceY > tDistance or tDistanceX > tDistance then
-    return FALSE
+  if ((tDistanceY > tDistance) or (tDistanceX > tDistance)) then
+    return 0
   end if
-  if ((tDistanceX * tDistanceX) + (tDistanceY * tDistanceY)) < (tDistance * tDistance) then
-    return TRUE
+  if (((tDistanceX * tDistanceX) + (tDistanceY * tDistanceY)) < (tDistance * tDistance)) then
+    return 1
   end if
-  return FALSE
+  return 0
 end
 
-on isBlockingLineOfSight me 
-  put("* DEFAULT isBlockingLineOfSight, override!")
-  return FALSE
+on isBlockingLineOfSight me
+  put "* DEFAULT isBlockingLineOfSight, override!"
+  return 0
 end
 
-on isAvailable me 
-  return(not me.isOccupied() and me.isFloorTile())
+on isAvailable me
+  return (not me.isOccupied() and me.isFloorTile())
 end
 
-on isOccupied me 
-  return(pContent.count > 0)
+on isOccupied me
+  return (pContent.count > 0)
 end
 
-on getOccupiedHeight me 
+on getOccupiedHeight me
   if (pContent.count = 0) then
-    return FALSE
+    return 0
   end if
   tMaxHeight = 0
-  repeat while pContent <= undefined
-    tItem = getAt(undefined, undefined)
-    if tItem.getaProp(#height) > tMaxHeight then
+  repeat with tItem in pContent
+    if (tItem.getaProp(#height) > tMaxHeight) then
       tMaxHeight = tItem.getaProp(#height)
     end if
   end repeat
-  return(tMaxHeight)
+  return tMaxHeight
 end
 
-on isFloorTile me 
-  return(integerp(integer(pType)))
+on isFloorTile me
+  return integerp(integer(pType))
 end
 
-on dump me 
-  return("Tile:" && pLocX & "," & pLocY & ":" && me.isAvailable() && me.getOccupiedHeight())
+on dump me
+  return (((((("Tile:" && pLocX) & ",") & pLocY) & ":") && me.isAvailable()) && me.getOccupiedHeight())
 end
 
-on getGameSystem me 
-  return(pGameSystem)
+on getGameSystem me
+  return pGameSystem
 end

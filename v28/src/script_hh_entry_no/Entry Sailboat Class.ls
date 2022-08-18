@@ -1,29 +1,29 @@
-property pCurrentLoc, pXEnd, pXSpeed, pYSpeed, pSprite, pDelayAmount
+property pSprite, pCurrentLoc, pXStart, pXEnd, pDelayAmount, pXSpeed, pYSpeed
 
-on define me, tsprite 
+on define me, tsprite
   pSprite = tsprite
   pXStart = 730
   pXEnd = 280
-  pXSpeed = 0.6
-  pYSpeed = 0.3
+  pXSpeed = 0.59999999999999998
+  pYSpeed = 0.29999999999999999
   me.reset()
-  return TRUE
+  return 1
 end
 
-on reset me 
+on reset me
   pCurrentLoc = [730, 430]
   pDelayAmount = (random(20) + 40)
 end
 
-on update me 
-  if pCurrentLoc.getAt(1) > pXEnd then
-    pCurrentLoc.setAt(1, (pCurrentLoc.getAt(1) - pXSpeed))
-    pCurrentLoc.setAt(2, (pCurrentLoc.getAt(2) - pYSpeed))
-    pSprite.locH = integer(pCurrentLoc.getAt(1))
-    pSprite.locV = integer(pCurrentLoc.getAt(2))
+on update me
+  if (pCurrentLoc[1] > pXEnd) then
+    pCurrentLoc[1] = (pCurrentLoc[1] - pXSpeed)
+    pCurrentLoc[2] = (pCurrentLoc[2] - pYSpeed)
+    pSprite.locH = integer(pCurrentLoc[1])
+    pSprite.locV = integer(pCurrentLoc[2])
   else
     pDelayAmount = (pDelayAmount - 1)
-    if pDelayAmount < 0 then
+    if (pDelayAmount < 0) then
       me.reset()
     end if
   end if

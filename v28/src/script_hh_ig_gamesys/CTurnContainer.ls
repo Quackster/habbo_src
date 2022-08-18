@@ -1,71 +1,69 @@
 property m_ar_subturns, m_iNumber, m_iChecksum, m_bTested
 
-on construct me 
+on construct me
   m_ar_subturns = []
   m_iNumber = -1
   m_bTested = 0
   m_iChecksum = 0
-  return TRUE
+  return 1
 end
 
-on deconstruct me 
+on deconstruct me
   m_ar_subturns = []
-  return TRUE
+  return 1
 end
 
-on AddElement me, i_iSubturn, i_rElement 
-  if m_ar_subturns.count < i_iSubturn then
-    i = (m_ar_subturns.count + 1)
-    repeat while i <= i_iSubturn
+on AddElement me, i_iSubturn, i_rElement
+  if (m_ar_subturns.count < i_iSubturn) then
+    repeat with i = (m_ar_subturns.count + 1) to i_iSubturn
       m_ar_subturns.append([])
-      i = (1 + i)
     end repeat
   end if
   if not voidp(i_rElement) then
-    m_ar_subturns.getAt(i_iSubturn).append(i_rElement)
+    m_ar_subturns[i_iSubturn].append(i_rElement)
   end if
 end
 
-on setNumber me, i_iNumber 
+on SetNumber me, i_iNumber
   m_iNumber = i_iNumber
 end
 
-on SetChecksum me, i_iChecksum 
+on SetChecksum me, i_iChecksum
   m_iChecksum = i_iChecksum
 end
 
-on GetSubTurn me, i_iSubturn 
-  if i_iSubturn > m_ar_subturns.count or i_iSubturn < 1 then
-    put("MGEngine : Requested subturn " & i_iSubturn & " that does not exist")
-    return([])
+on GetSubTurn me, i_iSubturn
+  if ((i_iSubturn > m_ar_subturns.count) or (i_iSubturn < 1)) then
+    put (("MGEngine : Requested subturn " & i_iSubturn) & " that does not exist")
+    return []
   end if
-  return(m_ar_subturns.getAt(i_iSubturn))
+  return m_ar_subturns[i_iSubturn]
 end
 
-on GetNSubTurns me 
-  return(m_ar_subturns.count)
+on GetNSubTurns me
+  return m_ar_subturns.count
 end
 
-on GetNumber me 
-  return(m_iNumber)
+on GetNumber me
+  return m_iNumber
 end
 
-on GetCheckSum me 
-  return(m_iChecksum)
+on GetCheckSum me
+  return m_iChecksum
 end
 
-on GetTested me 
-  return(m_bTested)
+on GetTested me
+  return m_bTested
 end
 
-on SetTested me, a_bVal 
+on SetTested me, a_bVal
   m_bTested = a_bVal
 end
 
-on GetSubTurns me 
-  return(m_ar_subturns)
+on GetSubTurns me
+  return m_ar_subturns
 end
 
-on dump me 
-  put("* Turn dump:" && m_iNumber && "events:" && m_ar_subturns)
+on dump me
+  put ((("* Turn dump:" && m_iNumber) && "events:") && m_ar_subturns)
 end

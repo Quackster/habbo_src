@@ -1,7 +1,7 @@
-property pMsgStruct, pHost, pPort, pConnectionTries, pXtra, pLogMode, pConnectionOk, pConnectionSecured, pDecoder, pEncoder, pHeaderDecoder, pHeaderEncoder, pConnectionShouldBeKilled, pEncryptionOn, pUnicodeDirector, pCommandsPntr, pTx, pListenersPntr, pDecipherOn, pLastError, pToken, pRx, pConnectionEstablishing, pConnectionRetryCount, pConnectionRetryDelay, pLastContent, pMsgSize, pMsgOffset, pD
+property pHost, pPort, pXtra, pMsgStruct, pConnectionOk, pConnectionSecured, pConnectionShouldBeKilled, pEncryptionOn, pDecoder, pEncoder, pHeaderDecoder, pHeaderEncoder, pLastContent, pContentChunk, pLogMode, pLogfield, pCommandsPntr, pListenersPntr, pDecipherOn, pD, pUnicodeDirector, pLastError, pConnectionEstablishing, pConnectionRetryDelay, pConnectionRetryCount, pConnectionTries, pMsgOffset, pMsgSize, pToken, pMsgCount, pTx, pRx
 
-on construct me 
-  if value(chars(_player.productVersion, 1, 2)) >= 11 then
+on construct me
+  if (value(chars(_player.productVersion, 1, 2)) >= 11) then
     pUnicodeDirector = 1
   else
     pUnicodeDirector = 0
@@ -16,7 +16,7 @@ on construct me
   pEncoder = 0
   pHeaderDecoder = 0
   pHeaderEncoder = 0
-  pLastContent = ""
+  pLastContent = EMPTY
   pConnectionShouldBeKilled = 0
   pCommandsPntr = getStructVariable("struct.pointer")
   pListenersPntr = getStructVariable("struct.pointer")
@@ -26,27 +26,27 @@ on construct me
   pConnectionRetryDelay = getIntVariable("connection.retry.delay", 2000)
   pConnectionRetryCount = getIntVariable("connection.retry.count", 5)
   pConnectionTries = 0
-  pHost = void()
-  pPort = void()
-  pToken = ""
+  pHost = VOID
+  pPort = VOID
+  pToken = EMPTY
   pMsgCount = 0
   pTx = 0
   pRx = 0
-  return TRUE
+  return 1
 end
 
-on deconstruct me 
-  return(me.disconnect(1))
+on deconstruct me
+  return me.disconnect(1)
 end
 
-on connect me, tHost, tPort 
+on connect me, tHost, tPort
   if the traceScript then
-    return FALSE
+    return 0
   end if
   the traceScript = 0
+  _movie.traceScript = 0
   _player.traceScript = 0
-  _player.traceScript = 0
-  if voidp(pHost) and voidp(pPort) then
+  if (voidp(pHost) and voidp(pPort)) then
     sendProcessTracking(30)
     pHost = tHost
     pPort = tPort
@@ -56,7 +56,7 @@ on connect me, tHost, tPort
     removeTimeout("RetryConnection")
   end if
   if not checkForXtra("Multiusr") then
-    return(fatalError(["error":"mus_xtra_not_found"]))
+    return fatalError(["error": "mus_xtra_not_found"])
   end if
   pXtra = new(xtra("Multiuser"))
   pXtra.setNetBufferLimits((16 * 1024), (100 * 1024), 100)
@@ -64,784 +64,727 @@ on connect me, tHost, tPort
   if (tErrCode = 0) then
     tConnectErrorCode = pXtra.connectToNetServer("*", "*", pHost, pPort, "*", 1)
   else
-    return(error(me, "Creation of callback failed:" && tErrCode, #connect, #major))
+    return error(me, ("Creation of callback failed:" && tErrCode), #connect, #major)
   end if
-  if tConnectErrorCode <> 0 then
-    return(fatalError(["error":"connect_to_net_server"]))
+  if (tConnectErrorCode <> 0) then
+    return fatalError(["error": "connect_to_net_server"])
   end if
-  pLastContent = ""
-  if pLogMode > 0 then
-    me.log("Connection initialized:" && me.getID() && pHost && pPort)
+  pLastContent = EMPTY
+  if (pLogMode > 0) then
+    me.log(((("Connection initialized:" && me.getID()) && pHost) && pPort))
   end if
-  return TRUE
+  return 1
 end
 
-on disconnect me, tControlled 
-  if tControlled <> 1 then
+on disconnect me, tControlled
+  if (tControlled <> 1) then
     me.forwardMsg(-1)
   end if
   pConnectionShouldBeKilled = 1
   if objectp(pXtra) then
     pXtra.sendNetMessage(0, 0, numToChar(0))
-    pXtra.setNetMessageHandler(void(), void())
+    pXtra.setNetMessageHandler(VOID, VOID)
   end if
-  pXtra = void()
+  pXtra = VOID
   if not tControlled then
-    error(me, "Connection disconnected:" && me.getID(), #disconnect, #minor)
+    error(me, ("Connection disconnected:" && me.getID()), #disconnect, #minor)
   end if
-  return TRUE
+  return 1
 end
 
-on connectionReady me 
-  return(pConnectionOk and pConnectionSecured)
+on connectionReady me
+  return (pConnectionOk and pConnectionSecured)
 end
 
-on setDecoder me, tDecoder 
+on setDecoder me, tDecoder
   if not objectp(tDecoder) then
-    return(error(me, "Decoder object expected:" && tDecoder, #setDecoder, #major))
+    return error(me, ("Decoder object expected:" && tDecoder), #setDecoder, #major)
   else
     pDecoder = tDecoder
-    return TRUE
+    return 1
   end if
 end
 
-on getDecoder me 
-  return(pDecoder)
+on getDecoder me
+  return pDecoder
 end
 
-on setEncoder me, tEncoder 
+on setEncoder me, tEncoder
   if not objectp(tEncoder) then
-    return(error(me, "Encoder object expected:" && tEncoder, #setEncoder, #major))
+    return error(me, ("Encoder object expected:" && tEncoder), #setEncoder, #major)
   else
     pEncoder = tEncoder
-    return TRUE
+    return 1
   end if
 end
 
-on getEncoder me 
-  return(pEncoder)
+on getEncoder me
+  return pEncoder
 end
 
-on setHeaderDecoder me, tDecoder 
+on setHeaderDecoder me, tDecoder
   if not objectp(tDecoder) then
-    return(error(me, "Decoder object expected:" && tDecoder, #setHeaderDecoder, #major))
+    return error(me, ("Decoder object expected:" && tDecoder), #setHeaderDecoder, #major)
   else
     pHeaderDecoder = tDecoder
-    return TRUE
+    return 1
   end if
 end
 
-on getHeaderDecoder me 
-  return(pHeaderDecoder)
+on getHeaderDecoder me
+  return pHeaderDecoder
 end
 
-on setHeaderEncoder me, tEncoder 
+on setHeaderEncoder me, tEncoder
   if not objectp(tEncoder) then
-    return(error(me, "Encoder object expected:" && tEncoder, #setHeaderEncoder, #major))
+    return error(me, ("Encoder object expected:" && tEncoder), #setHeaderEncoder, #major)
   else
     pHeaderEncoder = tEncoder
-    return TRUE
+    return 1
   end if
 end
 
-on getHeaderEncoder me 
-  return(pHeaderEncoder)
+on getHeaderEncoder me
+  return pHeaderEncoder
 end
 
-on setLogMode me, tMode 
-  if tMode.ilk <> #integer then
-    return(error(me, "Invalid argument:" && tMode, #setLogMode, #minor))
+on setLogMode me, tMode
+  if (tMode.ilk <> #integer) then
+    return error(me, ("Invalid argument:" && tMode), #setLogMode, #minor)
   end if
   pLogMode = tMode
   if (pLogMode = 2) then
     if memberExists("connectionLog.text") then
       pLogfield = member(getmemnum("connectionLog.text"))
     else
-      pLogfield = void()
+      pLogfield = VOID
       pLogMode = 1
     end if
   end if
-  return TRUE
+  return 1
 end
 
-on getLogMode me 
-  return(pLogMode)
+on getLogMode me
+  return pLogMode
 end
 
-on setEncryption me, tBoolean 
+on setEncryption me, tBoolean
   pEncryptionOn = tBoolean
   pConnectionSecured = 1
-  return TRUE
+  return 1
 end
 
-on send me, tCmd, tMsg 
+on send me, tCmd, tMsg
   if the traceScript then
-    return FALSE
+    return 0
   end if
   the traceScript = 0
-  _player.traceScript = 0
+  _movie.traceScript = 0
   _player.traceScript = 0
   if pConnectionShouldBeKilled then
-    return FALSE
+    return 0
   end if
   if (tMsg.ilk = #propList) then
-    return(me.sendNew(tCmd, tMsg))
+    return me.sendNew(tCmd, tMsg)
   end if
-  if not pConnectionOk and objectp(pXtra) then
-    return(error(me, "Connection not ready:" && me.getID(), #send, #major))
+  if not (pConnectionOk and objectp(pXtra)) then
+    return error(me, ("Connection not ready:" && me.getID()), #send, #major)
   end if
-  if tMsg.ilk <> #string then
+  if (tMsg.ilk <> #string) then
     tMsg = string(tMsg)
   end if
-  if not pEncryptionOn and objectp(pEncoder) and pUnicodeDirector then
-    i = 1
-    repeat while i <= tMsg.length
-      if charToNum(tMsg.getProp(#char, i)) > 127 then
-        return(error(me, "Encryption required for non-ascii content with SW11", #send, #critical))
+  if (not (pEncryptionOn and objectp(pEncoder)) and pUnicodeDirector) then
+    repeat with i = 1 to tMsg.length
+      if (charToNum(tMsg.char[i]) > 127) then
+        return error(me, "Encryption required for non-ascii content with SW11", #send, #critical)
       end if
-      i = (1 + i)
     end repeat
   end if
   tMsg = encodeUTF8(tMsg)
-  if tCmd.ilk <> #integer then
+  if (tCmd.ilk <> #integer) then
     tStr = tCmd
     tCmd = pCommandsPntr.getaProp(#value).getaProp(tStr)
   end if
   if (tCmd.ilk = #void) then
-    return(error(me, "Unrecognized command!", #send, #major))
+    return error(me, "Unrecognized command!", #send, #major)
   end if
-  if pLogMode > 0 then
-    me.log("<--" && tStr && "(" & tCmd & ")" && tMsg)
+  if (pLogMode > 0) then
+    me.log(((((("<--" && tStr) && "(") & tCmd) & ")") && tMsg))
   end if
-  tMsg = tCmd & tMsg
+  tMsg = (tCmd & tMsg)
   tLength = 0
-  tChar = 1
-  repeat while tChar <= length(tMsg)
-    tCharNum = charToNum(tMsg.char[tChar])
-    tLength = ((tLength + 1) + tCharNum > 255 and (tCharNum mod 256))
-    tChar = (1 + tChar)
+  repeat with tChar = 1 to length(tMsg)
+    tCharNum = charToNum(char tChar of tMsg)
+    tLength = ((tLength + 1) + ((tCharNum > 255) and (tCharNum mod 256)))
   end repeat
   tL1 = numToChar(bitOr(bitAnd(tLength, 63), 64))
   tL2 = numToChar(bitOr(bitAnd((tLength / 64), 63), 64))
   tL3 = numToChar(bitOr(bitAnd((tLength / 4096), 63), 64))
-  tHeader = tL3 & tL2 & tL1
-  if pEncryptionOn and objectp(pEncoder) then
-    tOriginalMessageLength = tMsg.count(#char)
+  tHeader = ((tL3 & tL2) & tL1)
+  if (pEncryptionOn and objectp(pEncoder)) then
+    tOriginalMessageLength = tMsg.char.count
     pTx = me.iterateRandom(pTx)
     tMsg = me.addPad(tMsg, (pTx mod 5))
     tMsg = pEncoder.AkwGx8bHG2kc1xGG4xbdHPCV0fqvK(tMsg)
-    tLength = tMsg.count(#char)
+    tLength = tMsg.char.count
     tL1 = numToChar(bitOr(bitAnd(tLength, 63), 64))
     tL2 = numToChar(bitOr(bitAnd((tLength / 64), 63), 64))
     tL3 = numToChar(bitOr(bitAnd((tLength / 4096), 63), 64))
-    tHeader = numToChar(random(127)) & tL3 & tL2 & tL1
+    tHeader = (((numToChar(random(127)) & tL3) & tL2) & tL1)
     tHeaderUncData = []
-    i = 1
-    repeat while i <= tHeader.count(#char)
-      tHeaderUncData.add(charToNum(tHeader.getProp(#char, i)))
-      i = (1 + i)
+    repeat with i = 1 to tHeader.char.count
+      tHeaderUncData.add(charToNum(tHeader.char[i]))
     end repeat
     tHeader = pHeaderEncoder.AkwGx8bHG2kc1xGG4xbdHPCV0fqvK(tHeader)
     tHeaderDecData = []
-    i = 1
-    repeat while i <= tHeader.count(#char)
-      tHeaderDecData.add(charToNum(tHeader.getProp(#char, i)))
-      i = (1 + i)
+    repeat with i = 1 to tHeader.char.count
+      tHeaderDecData.add(charToNum(tHeader.char[i]))
     end repeat
   end if
-  pXtra.sendNetMessage(0, 0, tHeader & tMsg)
-  return TRUE
+  pXtra.sendNetMessage(0, 0, (tHeader & tMsg))
+  return 1
 end
 
-on sendNew me, tCmd, tParmArr 
+on sendNew me, tCmd, tParmArr
   if the traceScript then
-    return FALSE
+    return 0
   end if
   the traceScript = 0
+  _movie.traceScript = 0
   _player.traceScript = 0
-  _player.traceScript = 0
-  if not pConnectionOk and objectp(pXtra) then
-    return(error(me, "Connection not ready:" && me.getID(), #send, #major))
+  if not (pConnectionOk and objectp(pXtra)) then
+    return error(me, ("Connection not ready:" && me.getID()), #send, #major)
   end if
-  tMsg = ""
+  tMsg = EMPTY
   tLength = 2
   if listp(tParmArr) then
-    i = 1
-    repeat while i <= tParmArr.count
+    repeat with i = 1 to tParmArr.count
       ttype = tParmArr.getPropAt(i)
-      tParm = tParmArr.getAt(i)
-      if (ttype = #string) then
-        tParm = encodeUTF8(tParm)
-        if tParm contains numToChar(2) then
-          return FALSE
-        end if
-        tLen = 0
-        tChar = 1
-        repeat while tChar <= length(tParm)
-          tNum = charToNum(tParm.char[tChar])
-          tLen = ((tLen + 1) + tNum > 255 and (tNum mod 256))
-          tChar = (1 + tChar)
-        end repeat
-        tBy1 = numToChar(bitOr(64, (tLen / 64)))
-        tBy2 = numToChar(bitOr(64, bitAnd(63, tLen)))
-        tMsg = tMsg & tBy1 & tBy2 & tParm
-        tLength = ((tLength + tLen) + 2)
-      else
-        if (ttype = #short) then
+      tParm = tParmArr[i]
+      case ttype of
+        #string:
+          tParm = encodeUTF8(tParm)
+          if (tParm contains numToChar(2)) then
+            return 0
+          end if
+          tLen = 0
+          repeat with tChar = 1 to length(tParm)
+            tNum = charToNum(char tChar of tParm)
+            tLen = ((tLen + 1) + ((tNum > 255) and (tNum mod 256)))
+          end repeat
+          tBy1 = numToChar(bitOr(64, (tLen / 64)))
+          tBy2 = numToChar(bitOr(64, bitAnd(63, tLen)))
+          tMsg = (((tMsg & tBy1) & tBy2) & tParm)
+          tLength = ((tLength + tLen) + 2)
+        #short:
           tBy1 = numToChar(bitOr(64, (tParm / 64)))
           tBy2 = numToChar(bitOr(64, bitAnd(63, tParm)))
-          tMsg = tMsg & tBy1 & tBy2
+          tMsg = ((tMsg & tBy1) & tBy2)
           tLength = (tLength + 2)
-        else
-          if (ttype = #integer) then
-            if tParm < 0 then
-              tNegMask = 4
-              tParm = -tParm
-            else
-              tNegMask = 0
-            end if
-            tStr = numToChar((64 + bitAnd(tParm, 3)))
-            tBytes = 1
-            tParm = (tParm / 4)
-            repeat while tParm <> 0
-              tBytes = (tBytes + 1)
-              tParm = (tParm / 64)
-            end repeat
-            tLength = (tLength + tBytes)
+        #integer:
+          if (tParm < 0) then
+            tNegMask = 4
+            tParm = -tParm
           else
-            if (ttype = #boolean) then
-              tParm = tParm <> 0
-              tBy1 = numToChar(bitOr(64, bitAnd(63, tParm)))
-              tMsg = tMsg & tBy1
-              tLength = (tLength + 1)
-            else
-              error(me, "Unsupported param type:" && ttype, #send, #major)
-            end if
+            tNegMask = 0
           end if
-        end if
-      end if
-      i = (1 + i)
+          tStr = numToChar((64 + bitAnd(tParm, 3)))
+          tBytes = 1
+          tParm = (tParm / 4)
+          repeat while (tParm <> 0)
+            tBytes = (tBytes + 1)
+            put numToChar((64 + bitAnd(tParm, 63))) after tStr
+            tParm = (tParm / 64)
+          end repeat
+          put numToChar(bitOr(bitOr(charToNum(char 1 of tStr), (tBytes * 8)), tNegMask)) after tMsg
+          put chars(tStr, 2, tBytes) after tMsg
+          tLength = (tLength + tBytes)
+        #boolean:
+          tParm = (tParm <> 0)
+          tBy1 = numToChar(bitOr(64, bitAnd(63, tParm)))
+          tMsg = (tMsg & tBy1)
+          tLength = (tLength + 1)
+        otherwise:
+          error(me, ("Unsupported param type:" && ttype), #send, #major)
+      end case
     end repeat
   end if
-  if tCmd.ilk <> #integer then
+  if (tCmd.ilk <> #integer) then
     tStr = tCmd
     tCmd = pCommandsPntr.getaProp(#value).getaProp(tStr)
   end if
   if (tCmd.ilk = #void) then
-    return(error(me, "Unrecognized command!", #send, #major))
+    return error(me, "Unrecognized command!", #send, #major)
   end if
-  if pLogMode > 0 then
-    me.log("<--" && tStr && "(" & tCmd & ")" && tMsg)
+  if (pLogMode > 0) then
+    me.log(((((("<--" && tStr) && "(") & tCmd) & ")") && tMsg))
   end if
-  tMsg = tCmd & tMsg
+  tMsg = (tCmd & tMsg)
   tL1 = numToChar(bitOr(bitAnd(tLength, 63), 64))
   tL2 = numToChar(bitOr(bitAnd((tLength / 64), 63), 64))
   tL3 = numToChar(bitOr(bitAnd((tLength / 4096), 63), 64))
-  tHeader = tL3 & tL2 & tL1
-  if pEncryptionOn and objectp(pEncoder) then
+  tHeader = ((tL3 & tL2) & tL1)
+  if (pEncryptionOn and objectp(pEncoder)) then
     tOriginalContent = tMsg
-    tOriginalMessageLength = tMsg.count(#char)
+    tOriginalMessageLength = tMsg.char.count
     pTx = me.iterateRandom(pTx)
     tMsg = me.addPad(tMsg, (pTx mod 5))
     tMsg = pEncoder.AkwGx8bHG2kc1xGG4xbdHPCV0fqvK(tMsg)
-    tLength = tMsg.count(#char)
+    tLength = tMsg.char.count
     tL1 = numToChar(bitOr(bitAnd(tLength, 63), 64))
     tL2 = numToChar(bitOr(bitAnd((tLength / 64), 63), 64))
     tL3 = numToChar(bitOr(bitAnd((tLength / 4096), 63), 64))
-    tHeader = numToChar(random(127)) & tL3 & tL2 & tL1
+    tHeader = (((numToChar(random(127)) & tL3) & tL2) & tL1)
     tHeaderUncData = []
-    i = 1
-    repeat while i <= tHeader.count(#char)
-      tHeaderUncData.add(charToNum(tHeader.getProp(#char, i)))
-      i = (1 + i)
+    repeat with i = 1 to tHeader.char.count
+      tHeaderUncData.add(charToNum(tHeader.char[i]))
     end repeat
     tHeader = pHeaderEncoder.AkwGx8bHG2kc1xGG4xbdHPCV0fqvK(tHeader)
     tHeaderDecData = []
-    i = 1
-    repeat while i <= tHeader.count(#char)
-      tHeaderDecData.add(charToNum(tHeader.getProp(#char, i)))
-      i = (1 + i)
+    repeat with i = 1 to tHeader.char.count
+      tHeaderDecData.add(charToNum(tHeader.char[i]))
     end repeat
   end if
-  pXtra.sendNetMessage(0, 0, tHeader & tMsg)
-  return TRUE
+  pXtra.sendNetMessage(0, 0, (tHeader & tMsg))
+  return 1
 end
 
-on randomPad me, tMsg, tTarget 
+on randomPad me, tMsg, tTarget
   if the traceScript then
-    return FALSE
+    return 0
   end if
   the traceScript = 0
-  _player.traceScript = 0
+  _movie.traceScript = 0
   _player.traceScript = 0
   tEscapeList = [0, 103]
   tContent = tMsg
-  i = tContent.count(#char)
-  repeat while i <= (tTarget - 1)
+  repeat with i = tContent.char.count to (tTarget - 1)
     tRandom = random(255)
-    repeat while tEscapeList.getPos(tRandom) <> 0
+    repeat while (tEscapeList.getPos(tRandom) <> 0)
       tRandom = random(255)
     end repeat
     tChar = numToChar(tRandom)
-    tContent = tChar & tContent
-    i = (1 + i)
+    tContent = (tChar & tContent)
   end repeat
-  return(tContent)
+  return tContent
 end
 
-on unPad me, tMsg 
+on unPad me, tMsg
   if the traceScript then
-    return FALSE
+    return 0
   end if
   the traceScript = 0
-  _player.traceScript = 0
+  _movie.traceScript = 0
   _player.traceScript = 0
   tEscapeChar = 103
   tCount = 0
-  i = 1
-  repeat while i <= tMsg.count(#char)
+  repeat with i = 1 to tMsg.char.count
     if (charToNum(chars(tMsg, i, i)) = tEscapeChar) then
       tCount = (tCount + 1)
     end if
-    i = (1 + i)
   end repeat
-  return(chars(tMsg, (4 - tCount), tMsg.length))
+  return chars(tMsg, (4 - tCount), tMsg.length)
 end
 
-on addPad me, tMsg, tAmount 
+on addPad me, tMsg, tAmount
   if the traceScript then
-    return FALSE
+    return 0
   end if
   the traceScript = 0
-  _player.traceScript = 0
+  _movie.traceScript = 0
   _player.traceScript = 0
   tContent = tMsg
-  i = 1
-  repeat while i <= tAmount
-    tContent = numToChar(random(255)) & tContent
-    i = (1 + i)
+  repeat with i = 1 to tAmount
+    tContent = (numToChar(random(255)) & tContent)
   end repeat
-  return(tContent)
+  return tContent
 end
 
-on removePad me, tMsg, tAmount 
+on removePad me, tMsg, tAmount
   if the traceScript then
-    return FALSE
+    return 0
   end if
   the traceScript = 0
+  _movie.traceScript = 0
   _player.traceScript = 0
-  _player.traceScript = 0
-  return(chars(tMsg, (tAmount + 1), tMsg.length))
+  return chars(tMsg, (tAmount + 1), tMsg.length)
 end
 
-on getWaitingMessagesCount me 
-  return(pXtra.getNumberWaitingNetMessages())
+on getWaitingMessagesCount me
+  return pXtra.getNumberWaitingNetMessages()
 end
 
-on processWaitingMessages me, tCount 
+on processWaitingMessages me, tCount
   if voidp(tCount) then
     tCount = 1
   end if
-  return(pXtra.checkNetMessages(tCount))
+  return pXtra.checkNetMessages(tCount)
 end
 
-on getProperty me, tProp 
-  if (tProp = #xtra) then
-    return(pXtra)
-  else
-    if (tProp = #host) then
-      return(pHost)
-    else
-      if (tProp = #port) then
-        return(pPort)
+on getProperty me, tProp
+  case tProp of
+    #xtra:
+      return pXtra
+    #host:
+      return pHost
+    #port:
+      return pPort
+    #decoder:
+      return me.getDecoder()
+    #encoder:
+      return me.getEncoder()
+    #logmode:
+      return me.getLogMode()
+    #listener:
+      return pListenersPntr
+    #commands:
+      return pCommandsPntr
+    #message:
+      return pMsgStruct
+    #deciphering:
+      return pDecipherOn
+  end case
+  return 0
+end
+
+on setProperty me, tProp, tValue
+  case tProp of
+    #decoder:
+      return me.setDecoder(tValue)
+    #encoder:
+      return me.setEncoder(tValue)
+    #logmode:
+      return me.setLogMode(tValue)
+    #listener:
+      if (tValue.ilk = #struct) then
+        pListenersPntr = tValue
+        return 1
       else
-        if (tProp = #decoder) then
-          return(me.getDecoder())
-        else
-          if (tProp = #encoder) then
-            return(me.getEncoder())
-          else
-            if (tProp = #logmode) then
-              return(me.getLogMode())
-            else
-              if (tProp = #listener) then
-                return(pListenersPntr)
-              else
-                if (tProp = #commands) then
-                  return(pCommandsPntr)
-                else
-                  if (tProp = #message) then
-                    return(pMsgStruct)
-                  else
-                    if (tProp = #deciphering) then
-                      return(pDecipherOn)
-                    end if
-                  end if
-                end if
-              end if
-            end if
-          end if
-        end if
+        return 0
       end if
-    end if
-  end if
-  return FALSE
-end
-
-on setProperty me, tProp, tValue 
-  if (tProp = #decoder) then
-    return(me.setDecoder(tValue))
-  else
-    if (tProp = #encoder) then
-      return(me.setEncoder(tValue))
-    else
-      if (tProp = #logmode) then
-        return(me.setLogMode(tValue))
+    #commands:
+      if (tValue.ilk = #struct) then
+        pCommandsPntr = tValue
+        return 1
       else
-        if (tProp = #listener) then
-          if (tValue.ilk = #struct) then
-            pListenersPntr = tValue
-            return TRUE
-          else
-            return FALSE
-          end if
-        else
-          if (tProp = #commands) then
-            if (tValue.ilk = #struct) then
-              pCommandsPntr = tValue
-              return TRUE
-            else
-              return FALSE
-            end if
-          else
-            if (tProp = #deciphering) then
-              pDecipherOn = tValue
-            end if
-          end if
-        end if
+        return 0
       end if
-    end if
-  end if
-  return FALSE
+    #deciphering:
+      pDecipherOn = tValue
+  end case
+  return 0
 end
 
-on GetBoolFrom me 
+on GetBoolFrom me
   if the traceScript then
-    return FALSE
+    return 0
   end if
   the traceScript = 0
-  _player.traceScript = 0
+  _movie.traceScript = 0
   _player.traceScript = 0
   tByteStr = pMsgStruct.getaProp(#content)
-  tByte = bitAnd(charToNum(tByteStr.char[1]), 63)
-  pMsgStruct.setaProp(#content, tByteStr.getProp(#char, 2, length(tByteStr)))
-  return(tByte <> 0)
+  tByte = bitAnd(charToNum(char 1 of tByteStr), 63)
+  pMsgStruct.setaProp(#content, tByteStr.char[2])
+  return (tByte <> 0)
 end
 
-on GetByteFrom me 
+on GetByteFrom me
   if the traceScript then
-    return FALSE
+    return 0
   end if
   the traceScript = 0
-  _player.traceScript = 0
+  _movie.traceScript = 0
   _player.traceScript = 0
   tByteStr = pMsgStruct.getaProp(#content)
-  tByte = bitAnd(charToNum(tByteStr.char[1]), 63)
-  pMsgStruct.setaProp(#content, tByteStr.getProp(#char, 2, length(tByteStr)))
-  return(tByte)
+  tByte = bitAnd(charToNum(char 1 of tByteStr), 63)
+  pMsgStruct.setaProp(#content, tByteStr.char[2])
+  return tByte
 end
 
-on GetIntFrom me 
+on GetIntFrom me
   if the traceScript then
-    return FALSE
+    return 0
   end if
   the traceScript = 0
-  _player.traceScript = 0
+  _movie.traceScript = 0
   _player.traceScript = 0
   tByteStr = pMsgStruct.getaProp(#content)
-  tByte = bitAnd(charToNum(tByteStr.char[1]), 63)
+  tByte = bitAnd(charToNum(char 1 of tByteStr), 63)
   tByCnt = bitOr((bitAnd(tByte, 56) / 8), 0)
   tNeg = bitAnd(tByte, 4)
   tInt = bitAnd(tByte, 3)
-  if tByCnt > 1 then
+  if (tByCnt > 1) then
     tPowTbl = [4, 256, 16384, 1048576, 67108864]
-    i = 2
-    repeat while i <= tByCnt
-      tByte = bitAnd(charToNum(tByteStr.char[i]), 63)
-      tInt = bitOr((tByte * tPowTbl.getAt((i - 1))), tInt)
-      i = (1 + i)
+    repeat with i = 2 to tByCnt
+      tByte = bitAnd(charToNum(char i of tByteStr), 63)
+      tInt = bitOr((tByte * tPowTbl[(i - 1)]), tInt)
     end repeat
   end if
   if tNeg then
     tInt = -tInt
   end if
-  pMsgStruct.setaProp(#content, tByteStr.getProp(#char, (tByCnt + 1), length(tByteStr)))
-  return(tInt)
+  pMsgStruct.setaProp(#content, tByteStr.char[(tByCnt + 1)])
+  return tInt
 end
 
-on GetStrFrom me 
+on GetStrFrom me
   if the traceScript then
-    return FALSE
+    return 0
   end if
   the traceScript = 0
-  _player.traceScript = 0
+  _movie.traceScript = 0
   _player.traceScript = 0
   tArr = pMsgStruct.getaProp(#content)
   tLen = offset(numToChar(2), tArr)
-  if tLen > 1 then
-    tStr = tArr.char[1..(tLen - 1)]
+  if (tLen > 1) then
+    tStr = char 1 to (tLen - 1) of tArr
   else
-    tStr = ""
+    tStr = EMPTY
   end if
-  pMsgStruct.setaProp(#content, tArr.char[(tLen + 1)..length(tArr)])
-  return(tStr)
+  pMsgStruct.setaProp(#content, char (tLen + 1) to length(tArr) of tArr)
+  return tStr
 end
 
-on print me 
-  tStr = ""
+on print me
+  tStr = EMPTY
   if symbolp(me.getID()) then
+    put "#" after tStr
   end if
+  put (me.getID() & RETURN) after tStr
+  put ("-- -- -- -- -- -- -- --" & RETURN) after tStr
   tMsgsList = pListenersPntr.getaProp(#value)
   if listp(tMsgsList) then
-    i = 1
-    repeat while i <= count(tMsgsList)
-      tCallbackList = tMsgsList.getAt(i)
-      repeat while "#" <= undefined
-        tCallback = getAt(undefined, undefined)
+    repeat with i = 1 to count(tMsgsList)
+      put ((TAB & tMsgsList.getPropAt(i)) & RETURN) after tStr
+      tCallbackList = tMsgsList[i]
+      repeat with tCallback in tCallbackList
+        put (((((TAB & TAB) & tCallback[1]) && "->") && tCallback[2]) & RETURN) after tStr
       end repeat
-      i = (1 + i)
+      put RETURN after tStr
     end repeat
   end if
-  put(tStr & "\r")
-  return TRUE
+  put (tStr & RETURN)
+  return 1
 end
 
-on GetLastError me 
-  return(pLastError)
+on GetLastError me
+  return pLastError
 end
 
-on SetToken me, tToken 
+on SetToken me, tToken
   if the traceScript then
-    return FALSE
+    return 0
   end if
   the traceScript = 0
-  _player.traceScript = 0
+  _movie.traceScript = 0
   _player.traceScript = 0
   pToken = tToken
   tSeedHex = chars(pToken, (pToken.length - 3), pToken.length)
   pTx = 0
-  tVals = ["0":0, "1":1, "2":2, "3":3, "4":4, "5":5, "6":6, "7":7, "8":8, "9":9, "a":10, "b":11, "c":12, "d":13, "e":14, "f":15, "A":10, "B":11, "C":12, "D":13, "E":14, "F":15]
-  i = 0
-  repeat while i <= 3
-    pTx = (pTx + (integer(power(16, i)) * tVals.getAt(tSeedHex.getProp(#char, (4 - i)))))
-    i = (1 + i)
+  tVals = ["0": 0, "1": 1, "2": 2, "3": 3, "4": 4, "5": 5, "6": 6, "7": 7, "8": 8, "9": 9, "a": 10, "b": 11, "c": 12, "d": 13, "e": 14, "f": 15, "A": 10, "B": 11, "C": 12, "D": 13, "E": 14, "F": 15]
+  repeat with i = 0 to 3
+    pTx = (pTx + (integer(power(16, i)) * tVals[tSeedHex.char[(4 - i)]]))
   end repeat
   pRx = 0
   tSeedHex = chars(pToken, 1, 4)
-  i = 0
-  repeat while i <= 3
-    pRx = (pRx + (integer(power(16, i)) * tVals.getAt(tSeedHex.getProp(#char, (4 - i)))))
-    i = (1 + i)
+  repeat with i = 0 to 3
+    pRx = (pRx + (integer(power(16, i)) * tVals[tSeedHex.char[(4 - i)]]))
   end repeat
 end
 
-on iterateRandom me, tSeed 
+on iterateRandom me, tSeed
   if the traceScript then
-    return FALSE
+    return 0
   end if
   the traceScript = 0
-  _player.traceScript = 0
+  _movie.traceScript = 0
   _player.traceScript = 0
   if 1 then
-    return((((19979 * tSeed) + 5) mod 65536))
+    return (((19979 * tSeed) + 5) mod 65536)
   end if
 end
 
-on xtraMsgHandler me 
+on xtraMsgHandler me
   if the traceScript then
-    return FALSE
+    return 0
   end if
   the traceScript = 0
+  _movie.traceScript = 0
   _player.traceScript = 0
-  _player.traceScript = 0
-  if pConnectionShouldBeKilled <> 0 then
-    return FALSE
+  if (pConnectionShouldBeKilled <> 0) then
+    return 0
   end if
   pConnectionOk = 1
   tNewMsg = pXtra.getNetMessage()
   tErrCode = tNewMsg.getaProp(#errorCode)
   tContent = tNewMsg.getaProp(#content)
-  if tErrCode <> 0 then
+  if (tErrCode <> 0) then
     pLastError = tErrCode
     if (ilk(tNewMsg) = #propList) then
-      pLastError = pLastError & "_" & tNewMsg.getAt(#subject)
+      pLastError = ((pLastError & "_") & tNewMsg[#subject])
     end if
     if not pConnectionEstablishing then
-      if pLogMode > 0 then
-        me.log("Connection" && me.getID() && "was disconnected")
-        me.log("host = " & pHost && ", port = " & pPort)
+      if (pLogMode > 0) then
+        me.log((("Connection" && me.getID()) && "was disconnected"))
+        me.log(((("host = " & pHost) && ", port = ") & pPort))
         me.log(tNewMsg)
       end if
       me.disconnect()
-      return FALSE
+      return 0
     else
-      if pConnectionTries > pConnectionRetryCount then
-        if pLogMode > 0 then
-          me.log("Connection" && me.getID() && "was disconnected")
-          me.log("host = " & pHost && ", port = " & pPort)
+      if (pConnectionTries > pConnectionRetryCount) then
+        if (pLogMode > 0) then
+          me.log((("Connection" && me.getID()) && "was disconnected"))
+          me.log(((("host = " & pHost) && ", port = ") & pPort))
           me.log(tNewMsg)
         end if
-        error(me, "Failed connection retry" && pConnectionTries && "times.", #xtraMsgHandler, #critical)
+        error(me, (("Failed connection retry" && pConnectionTries) && "times."), #xtraMsgHandler, #critical)
         me.disconnect()
-        return FALSE
+        return 0
       else
         pConnectionOk = 0
-        createTimeout("RetryConnection", pConnectionRetryDelay, #connect, me.getID(), void(), 1)
-        return TRUE
+        createTimeout("RetryConnection", pConnectionRetryDelay, #connect, me.getID(), VOID, 1)
+        return 1
       end if
     end if
   end if
   pConnectionEstablishing = 0
-  if pEncryptionOn and pDecipherOn then
+  if (pEncryptionOn and pDecipherOn) then
     tOffset = 0
-    repeat while tOffset < tContent.count(#char)
+    repeat while (tOffset < tContent.char.count)
       if (pLastContent.length = 0) then
         pRx = me.iterateRandom(pRx)
         pMsgOffset = 0
         tHeader = chars(tContent, (1 + tOffset), (6 + tOffset))
         tHeader = pHeaderDecoder.kg4R6Jo5xjlqtFGs1klMrK4ZTzb3R(tHeader)
-        tByte1 = bitAnd(charToNum(tHeader.char[4]), 63)
-        tByte2 = bitAnd(charToNum(tHeader.char[3]), 63)
-        tByte3 = bitAnd(charToNum(tHeader.char[2]), 63)
+        tByte1 = bitAnd(charToNum(char 4 of tHeader), 63)
+        tByte2 = bitAnd(charToNum(char 3 of tHeader), 63)
+        tByte3 = bitAnd(charToNum(char 2 of tHeader), 63)
         pMsgSize = bitOr((tByte2 * 64), tByte1)
         pMsgSize = bitOr(((tByte3 * 64) * 64), pMsgSize)
         tBody = chars(tContent, (7 + tOffset), ((6 + pMsgSize) + tOffset))
-        tLength = tBody.count(#char)
+        tLength = tBody.char.count
         tOffset = ((tOffset + 6) + tLength)
         pMsgOffset = (pMsgOffset + tLength)
-        if tLength < pMsgSize then
+        if (tLength < pMsgSize) then
           pLastContent = tBody
-          return TRUE
+          return 1
         end if
       else
         tBody = chars(tContent, 1, (pMsgSize - pMsgOffset))
-        tLength = tBody.count(#char)
+        tLength = tBody.char.count
         tOffset = (tOffset + tLength)
-        pLastContent = pLastContent & tBody
+        pLastContent = (pLastContent & tBody)
         pMsgOffset = (pMsgOffset + tLength)
-        if pLastContent.count(#char) < pMsgSize then
-          return TRUE
+        if (pLastContent.char.count < pMsgSize) then
+          return 1
         end if
         tBody = pLastContent
       end if
       tBody = pDecoder.kg4R6Jo5xjlqtFGs1klMrK4ZTzb3R(tBody)
-      pLastContent = ""
+      pLastContent = EMPTY
       me.msghandler(tBody)
     end repeat
-    exit repeat
-  end if
-  if voidp(tContent) then
-    return FALSE
   else
-    me.msghandler(tContent)
+    if voidp(tContent) then
+      return 0
+    else
+      me.msghandler(tContent)
+    end if
   end if
 end
 
-on msghandler me, tContent 
+on msghandler me, tContent
   if the traceScript then
-    return FALSE
+    return 0
   end if
   the traceScript = 0
+  _movie.traceScript = 0
   _player.traceScript = 0
-  _player.traceScript = 0
-  if tContent.ilk <> #string then
-    return FALSE
+  if (tContent.ilk <> #string) then
+    return 0
   end if
-  if pEncryptionOn and pDecipherOn and (pLastContent.length = 0) then
+  if ((pEncryptionOn and pDecipherOn) and (pLastContent.length = 0)) then
     tContent = me.removePad(tContent, (pRx mod 5))
   end if
-  if pLastContent.length > 0 then
-    tContent = pLastContent & tContent
-    pLastContent = ""
+  if (pLastContent.length > 0) then
+    tContent = (pLastContent & tContent)
+    pLastContent = EMPTY
   end if
-  repeat while tContent.length > 0
-    if tContent.length < 3 then
-      pLastContent = pLastContent & tContent
-      return()
+  repeat while (tContent.length > 0)
+    if (tContent.length < 3) then
+      pLastContent = (pLastContent & tContent)
+      return 
     end if
-    tByte1 = bitAnd(charToNum(tContent.char[2]), 63)
-    tByte2 = bitAnd(charToNum(tContent.char[1]), 63)
+    tByte1 = bitAnd(charToNum(char 2 of tContent), 63)
+    tByte2 = bitAnd(charToNum(char 1 of tContent), 63)
     tMsgType = bitOr((tByte2 * 64), tByte1)
     tLength = offset(numToChar(1), tContent)
-    if (tLength = 0) and not pUnicodeDirector then
-      i = 3
-      repeat while i <= tContent.length
-        tCharVal = charToNum(tContent.getProp(#char, i))
+    if ((tLength = 0) and not pUnicodeDirector) then
+      repeat with i = 3 to tContent.length
+        tCharVal = charToNum(tContent.char[i])
         if ((tCharVal mod 256) = 1) then
-          tContent = tContent.getProp(#char, 1, (i - 1)) & numToChar((tCharVal - 1)) & numToChar(1) & tContent.getProp(#char, (i + 1), tContent.length)
+          tContent = (((tContent.char[1] & numToChar((tCharVal - 1))) & numToChar(1)) & tContent.char[(i + 1)])
           tLength = (i + 1)
-        else
-          i = (1 + i)
+          exit repeat
         end if
       end repeat
     end if
     if (tLength = 0) then
       pLastContent = tContent
-      return()
+      return 
     else
-      pLastContent = ""
+      pLastContent = EMPTY
     end if
-    tParams = tContent.char[3..(tLength - 1)]
-    tContent = tContent.char[(tLength + 1)..tContent.length]
+    tParams = char 3 to (tLength - 1) of tContent
+    tContent = char (tLength + 1) to tContent.length of tContent
     tParams = decodeUTF8(tParams, pDecipherOn)
     me.forwardMsg(tMsgType, tParams)
   end repeat
 end
 
-on forwardMsg me, tSubject, tParams 
+on forwardMsg me, tSubject, tParams
   if the traceScript then
-    return FALSE
+    return 0
   end if
   the traceScript = 0
+  _movie.traceScript = 0
   _player.traceScript = 0
-  _player.traceScript = 0
-  if pLogMode > 0 then
-    me.log("-->" && tSubject & "\r" & tParams)
+  if (pLogMode > 0) then
+    me.log(((("-->" && tSubject) & RETURN) & tParams))
   end if
   tParams = getStringServices().convertSpecialChars(tParams)
   tCallbackList = pListenersPntr.getaProp(#value).getaProp(tSubject)
-  if tCallbackList.ilk <> #list then
-    return(error(me, "Listener not found:" && tSubject && "/" && me.getID(), #forwardMsg, #minor))
+  if (tCallbackList.ilk <> #list) then
+    return error(me, ((("Listener not found:" && tSubject) && "/") && me.getID()), #forwardMsg, #minor)
   end if
   tObjMgr = getObjectManager()
-  i = 1
-  repeat while i <= count(tCallbackList)
-    tCallback = tCallbackList.getAt(i)
-    tObject = tObjMgr.GET(tCallback.getAt(1))
-    if tObject <> 0 then
+  repeat with i = 1 to count(tCallbackList)
+    tCallback = tCallbackList[i]
+    tObject = tObjMgr.GET(tCallback[1])
+    if (tObject <> 0) then
       pMsgStruct.setaProp(#subject, tSubject)
       pMsgStruct.setaProp(#content, tParams)
       getConnectionManager().registerLastMessage(tSubject, tParams)
-      call(tCallback.getAt(2), tObject, pMsgStruct)
+      call(tCallback[2], tObject, pMsgStruct)
       getConnectionManager().lastMessageParsed()
-    else
-      error(me, "Listening obj not found, removed:" && tCallback.getAt(1), #forwardMsg, #minor)
-      tCallbackList.deleteAt(1)
-      i = (i - 1)
+      next repeat
     end if
-    i = (1 + i)
+    error(me, ("Listening obj not found, removed:" && tCallback[1]), #forwardMsg, #minor)
+    tCallbackList.deleteAt(1)
+    i = (i - 1)
   end repeat
 end
 
-on log me, tMsg 
+on log me, tMsg
   if not pD then
     the debugPlaybackEnabled = 0
-    if not the runMode contains "Author" then
-      return TRUE
+    if not (the runMode contains "Author") then
+      return 1
     end if
   end if
 end
 
-on handlers me 
-  return([])
+on handlers me
+  return []
 end

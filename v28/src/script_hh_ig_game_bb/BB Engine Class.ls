@@ -1,80 +1,68 @@
-on construct me 
-  return TRUE
+on construct me
+  return 1
 end
 
-on deconstruct me 
-  return TRUE
+on deconstruct me
+  return 1
 end
 
-on Refresh me, tTopic, tdata 
-  if (tTopic = #update_game_object) then
-    return(me.updateGameObject(tdata))
-  else
-    if (tTopic = #bb_event_0) then
-      return(me.createGameObject(tdata.getAt(#data)))
-    else
-      if (tTopic = #create_game_object) then
-        return(me.createGameObject(tdata))
-      else
-        if (tTopic = #bb_event_1) then
-          return(me.removeGameObject(tdata.getAt(#id)))
-        else
-          if (tTopic = #bb_event_3) then
-            me.sendGameSystemEvent(#soundeffect, "SFX-18-poweruppickup")
-            return(me.getGameSystem().executeGameObjectEvent(tdata.getAt(#powerupid), #pickup_powerup))
-          else
-            if (tTopic = #bb_event_5) then
-              me.sendGameSystemEvent(#soundeffect, "SFX-" & tdata.getAt(#powerupType))
-              return(me.powerupActivated(tdata))
-            else
-              if (tTopic = #gameend) then
-                return(me.getGameSystem().executeGameObjectEvent(#all, #gameend))
-              else
-                return(error(me, "Undefined event!" && tTopic && "for" && me.pID, #Refresh))
-              end if
-            end if
-          end if
-        end if
-      end if
-    end if
-  end if
+on Refresh me, tTopic, tdata
+  case tTopic of
+    #update_game_object:
+      return me.updateGameObject(tdata)
+    #bb_event_0:
+      return me.createGameObject(tdata[#data])
+    #create_game_object:
+      return me.createGameObject(tdata)
+    #bb_event_1:
+      return me.removeGameObject(tdata[#id])
+    #bb_event_3:
+      me.sendGameSystemEvent(#soundeffect, "SFX-18-poweruppickup")
+      return me.getGameSystem().executeGameObjectEvent(tdata[#powerupid], #pickup_powerup)
+    #bb_event_5:
+      me.sendGameSystemEvent(#soundeffect, ("SFX-" & tdata[#powerupType]))
+      return me.powerupActivated(tdata)
+    #gameend:
+      return me.getGameSystem().executeGameObjectEvent(#all, #gameend)
+  end case
+  return error(me, ((("Undefined event!" && tTopic) && "for") && me.pID), #Refresh)
 end
 
-on createGameObject me, tDataObject 
+on createGameObject me, tDataObject
   tGameSystem = me.getGameSystem()
-  if not tGameSystem.createGameObject(tDataObject.getAt(#id), tDataObject.getAt(#str_type), tDataObject.getAt(#objectDataStruct)) then
-    return TRUE
+  if not tGameSystem.createGameObject(tDataObject[#id], tDataObject[#str_type], tDataObject[#objectDataStruct]) then
+    return 1
   end if
-  tGameObject = tGameSystem.getGameObject(tDataObject.getAt(#id))
+  tGameObject = tGameSystem.getGameObject(tDataObject[#id])
   if (tGameObject = 0) then
-    return(error(me, "Unable to create game object:" && tDataObject.getAt(#id), #createGameObject))
+    return error(me, ("Unable to create game object:" && tDataObject[#id]), #createGameObject)
   end if
   tGameObject.setGameObjectProperty(tDataObject)
   tGameObject.define(tDataObject)
-  return TRUE
+  return 1
 end
 
-on updateGameObject me, tDataObject 
+on updateGameObject me, tDataObject
   tGameSystem = me.getGameSystem()
   if (tGameSystem = 0) then
-    return(error(me, "Game object not found!" && tDataObject, #updateGameObject))
+    return error(me, ("Game object not found!" && tDataObject), #updateGameObject)
   end if
-  if (tDataObject.getAt(#str_type) = "player") then
-    tGameSystem.executeGameObjectEvent(tDataObject.getAt(#id), #gameobject_update, tDataObject)
+  if (tDataObject[#str_type] = "player") then
+    tGameSystem.executeGameObjectEvent(tDataObject[#id], #gameobject_update, tDataObject)
   end if
-  return(tGameSystem.updateGameObject(tDataObject.getAt(#id), tDataObject))
+  return tGameSystem.updateGameObject(tDataObject[#id], tDataObject)
 end
 
-on removeGameObject me, tObjectId 
+on removeGameObject me, tObjectId
   tGameSystem = me.getGameSystem()
-  return(tGameSystem.removeGameObject(tObjectId))
+  return tGameSystem.removeGameObject(tObjectId)
 end
 
-on powerupActivated me, tdata 
+on powerupActivated me, tdata
   tGameSystem = me.getGameSystem()
   if (tGameSystem = 0) then
-    return FALSE
+    return 0
   end if
-  tGameSystem.executeGameObjectEvent(tdata.getAt(#playerId), #activate_powerup, tdata)
-  return TRUE
+  tGameSystem.executeGameObjectEvent(tdata[#playerId], #activate_powerup, tdata)
+  return 1
 end

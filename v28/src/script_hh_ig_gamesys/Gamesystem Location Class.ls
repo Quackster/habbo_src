@@ -1,67 +1,67 @@
-property pTileWidth, pAccuracyFactor, x, y, z, pTileFactor
+property x, y, z, pTileWidth, pAccuracyFactor, pTileFactor
 
-on define me, tX, tY, tZ, tTileWidth, tAccuracyFactor 
+on define me, tX, tY, tZ, tTileWidth, tAccuracyFactor
   x = tX
   y = tY
   z = tZ
   pTileWidth = tTileWidth
   pAccuracyFactor = tAccuracyFactor
   pTileFactor = (pTileWidth * pAccuracyFactor)
-  return TRUE
+  return 1
 end
 
-on setLocation me, tX, tY, tZ 
+on setLocation me, tX, tY, tZ
   me.setLoc(tX, tY, tZ)
 end
 
-on setLoc me, tX, tY, tZ 
+on setLoc me, tX, tY, tZ
   x = tX
   y = tY
   z = tZ
 end
 
-on getLoc me 
-  return([#x:x, #y:y, #z:z])
+on getLoc me
+  return [#x: x, #y: y, #z: z]
 end
 
-on getLocation me 
-  return([#x:x, #y:y, #z:z])
+on getLocation me
+  return [#x: x, #y: y, #z: z]
 end
 
-on setTileLoc me, tX, tY, tZ 
+on setTileLoc me, tX, tY, tZ
   x = (tX * pTileFactor)
   y = (tY * pTileFactor)
   z = (tZ * pTileFactor)
 end
 
-on getTileLoc me 
-  return([#x:((x + (pTileFactor / 2)) / pTileFactor), #y:((y + (pTileFactor / 2)) / pTileFactor)])
+on getTileLoc me
+  return [#x: ((x + (pTileFactor / 2)) / pTileFactor), #y: ((y + (pTileFactor / 2)) / pTileFactor)]
 end
 
-on getTileX me 
-  return(((x + (pTileFactor / 2)) / pTileFactor))
+on getTileX me
+  return ((x + (pTileFactor / 2)) / pTileFactor)
 end
 
-on getTileY me 
-  return(((y + (pTileFactor / 2)) / pTileFactor))
+on getTileY me
+  return ((y + (pTileFactor / 2)) / pTileFactor)
 end
 
-on getTileZ me 
-  return(((z + (pTileFactor / 2)) / pTileFactor))
+on getTileZ me
+  return ((z + (pTileFactor / 2)) / pTileFactor)
 end
 
-on isInDistance me, tLocX, tLocY, tDistance 
+on isInDistance me, tLocX, tLocY, tDistance
   tDistanceX = abs((tLocX - x))
   tDistanceY = abs((tLocY - y))
-  if tDistanceY > tDistance or tDistanceX > tDistance then
-    return FALSE
+  if ((tDistanceY > tDistance) or (tDistanceX > tDistance)) then
+    return 0
   end if
-  if ((tDistanceX * tDistanceX) + (tDistanceY * tDistanceY)) < (tDistance * tDistance) then
-    return TRUE
+  if (((tDistanceX * tDistanceX) + (tDistanceY * tDistanceY)) < (tDistance * tDistance)) then
+    return 1
   end if
-  return FALSE
+  return 0
 end
 
-on dump me 
-  return("* Location:" && x && y && z & ", at tile:" && me.getTileLoc())
+on dump me
+  return ((((("* Location:" && x) && y) && z) & ", at tile:") && me.getTileLoc())
 end

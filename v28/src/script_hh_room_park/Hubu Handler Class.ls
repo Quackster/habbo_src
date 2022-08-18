@@ -1,45 +1,41 @@
-on construct me 
-  return(me.regMsgList(1))
+on construct me
+  return me.regMsgList(1)
 end
 
-on deconstruct me 
-  return(me.regMsgList(0))
+on deconstruct me
+  return me.regMsgList(0)
 end
 
-on handle_cannot_enter_bus me, tMsg 
-  me.getInterface().showBusClosed(tMsg.content.getProp(#line, 1, tMsg.content.count(#line)))
+on handle_cannot_enter_bus me, tMsg
+  me.getInterface().showBusClosed(tMsg.content.line[1])
 end
 
-on handle_vote_question me, tMsg 
-  tQuestion = tMsg.content.getProp(#line, 1)
+on handle_vote_question me, tMsg
+  tQuestion = tMsg.content.line[1]
   tChoices = []
-  i = 2
-  repeat while i <= tMsg.content.count(#line)
-    tLine = tMsg.content.getProp(#line, i)
-    if length(tLine) > 2 then
-      tChoices.add(tLine.getProp(#char, 3, length(tLine)))
+  repeat with i = 2 to tMsg.content.line.count
+    tLine = tMsg.content.line[i]
+    if (length(tLine) > 2) then
+      tChoices.add(tLine.char[3])
     end if
-    i = (1 + i)
   end repeat
   me.getInterface().showVoteQuestion(tQuestion, tChoices)
 end
 
-on handle_vote_results me, tMsg 
+on handle_vote_results me, tMsg
   tDelim = the itemDelimiter
-  tLine = tMsg.content.getProp(#line, 1)
+  tLine = tMsg.content.line[1]
   the itemDelimiter = "/"
-  tTotalVotes = value(tLine.getProp(#item, 2))
+  tTotalVotes = value(tLine.item[2])
   tChoiceVotes = []
-  i = 3
-  repeat while i <= tLine.count(#item)
-    tChoiceVotes.add(value(tLine.getProp(#item, i)))
-    i = (1 + i)
+  repeat with i = 3 to tLine.item.count
+    tChoiceVotes.add(value(tLine.item[i]))
   end repeat
   the itemDelimiter = tDelim
   me.getInterface().showVoteResults(tTotalVotes, tChoiceVotes)
 end
 
-on regMsgList me, tBool 
+on regMsgList me, tBool
   tMsgs = [:]
   tMsgs.setaProp(79, #handle_vote_question)
   tMsgs.setaProp(80, #handle_vote_results)
@@ -55,5 +51,5 @@ on regMsgList me, tBool
     unregisterListener(getVariable("connection.room.id"), me.getID(), tMsgs)
     unregisterCommands(getVariable("connection.room.id"), me.getID(), tCmds)
   end if
-  return TRUE
+  return 1
 end

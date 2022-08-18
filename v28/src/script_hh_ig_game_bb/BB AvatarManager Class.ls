@@ -1,51 +1,48 @@
-on construct me 
-  i = 0
-  repeat while i <= 7
-    tPartList = getVariable("human.parts.sh.sit." & i)
+on construct me
+  repeat with i = 0 to 7
+    tPartList = getVariable(("human.parts.sh.sit." & i))
     if (tPartList = 0) then
-      tPartList = getVariable("human.parts.sh." & i)
+      tPartList = getVariable(("human.parts.sh." & i))
     end if
     tPartListNew = ["bl"]
-    if tPartList <> 0 then
-      repeat while tPartList <= undefined
-        tPart = getAt(undefined, undefined)
+    if (tPartList <> 0) then
+      repeat with tPart in tPartList
         tPartListNew.add(tPart)
       end repeat
     end if
-    setVariable("bouncing.human.parts.sh." & i, tPartListNew)
-    i = (1 + i)
+    setVariable(("bouncing.human.parts.sh." & i), tPartListNew)
   end repeat
   tPartListNew = ["bl"]
   tPartList = getVariable("human.parts.sh")
-  if tPartList <> 0 then
-    repeat while tPartList <= undefined
-      tPart = getAt(undefined, undefined)
+  if (tPartList <> 0) then
+    repeat with tPart in tPartList
       tPartListNew.add(tPart)
     end repeat
   end if
   setVariable("bouncing.human.parts.sh", tPartListNew)
-  return TRUE
+  return 1
 end
 
-on deconstruct me 
-  return TRUE
+on deconstruct me
+  return 1
 end
 
-on Refresh me, tTopic, tdata 
-  if (tTopic = #bb_event_2) then
-    me.updatePlayerObjectGoal(tdata)
-  end if
-  return TRUE
+on Refresh me, tTopic, tdata
+  case tTopic of
+    #bb_event_2:
+      me.updatePlayerObjectGoal(tdata)
+  end case
+  return 1
 end
 
-on updatePlayerObjectGoal me, tdata 
+on updatePlayerObjectGoal me, tdata
   tGameSystem = me.getGameSystem()
   if (tGameSystem = 0) then
-    return FALSE
+    return 0
   end if
   if not listp(tdata) then
-    return FALSE
+    return 0
   end if
-  tID = tdata.getAt(#id)
-  return(tGameSystem.executeGameObjectEvent(tID, #set_target_custom, tdata))
+  tID = tdata[#id]
+  return tGameSystem.executeGameObjectEvent(tID, #set_target_custom, tdata)
 end

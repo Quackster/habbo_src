@@ -1,37 +1,37 @@
-property pFacadeId, pFacadeRef
+property pID, pFacadeId, pFacadeRef
 
-on construct me 
-  return TRUE
+on construct me
+  return 1
 end
 
-on deconstruct me 
-  pFacadeRef = void()
-  return TRUE
+on deconstruct me
+  pFacadeRef = VOID
+  return 1
 end
 
-on setID me, tID, tFacadeId 
+on setID me, tID, tFacadeId
   pID = tID
   pFacadeId = tFacadeId
   pFacadeRef = getObject(pFacadeId)
-  return TRUE
+  return 1
 end
 
-on handleUpdate me, tTopic, tdata 
-  return(me.Refresh(tTopic, tdata))
+on handleUpdate me, tTopic, tdata
+  return me.Refresh(tTopic, tdata)
 end
 
-on Refresh me, tTopic, tdata 
-  return TRUE
+on Refresh me, tTopic, tdata
+  return 1
 end
 
-on getGameSystem me 
-  return(pFacadeRef)
+on getGameSystem me
+  return pFacadeRef
 end
 
-on sendGameSystemEvent me, tTopic, tdata 
+on sendGameSystemEvent me, tTopic, tdata
   tGameSystem = me.getGameSystem()
   if (tGameSystem = 0) then
-    return FALSE
+    return 0
   end if
-  return(tGameSystem.sendGameSystemEvent(tTopic, tdata))
+  return tGameSystem.sendGameSystemEvent(tTopic, tdata)
 end

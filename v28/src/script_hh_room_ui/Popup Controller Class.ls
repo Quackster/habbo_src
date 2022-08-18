@@ -1,6 +1,6 @@
-property pHideTimeoutID, pShowTimeOutID, pPopupList
+property pPopupList, pShowTimeOutID, pHideTimeoutID
 
-on construct me 
+on construct me
   pPopupList = [:]
   pShowTimeOutID = getUniqueID()
   pHideTimeoutID = getUniqueID()
@@ -9,42 +9,39 @@ on construct me
   registerMessage(#leaveRoom, me.getID(), #removePopups)
   registerMessage(#changeRoom, me.getID(), #removePopups)
   registerMessage(#enterRoom, me.getID(), #removePopups)
-  return TRUE
+  return 1
 end
 
-on deconstruct me 
+on deconstruct me
   unregisterMessage(#popupEntered, me.getID())
   unregisterMessage(#popupLeft, me.getID())
   unregisterMessage(#leaveRoom, me.getID())
   unregisterMessage(#changeRoom, me.getID())
   unregisterMessage(#enterRoom, me.getID())
-  return TRUE
+  return 1
 end
 
-on handleEvent me, tEvent, tSprID, tParam 
-  if tSprID <> "int_nav_image" then
-    if (tSprID = "int_controller_image") then
+on handleEvent me, tEvent, tSprID, tParam
+  case tSprID of
+    "int_nav_image", "int_controller_image":
       nothing()
-    else
-      return FALSE
-    end if
-    if (tSprID = #mouseEnter) then
+  end case
+  return 0
+  case tEvent of
+    #mouseEnter:
       me.timeoutShow(tSprID)
-    else
-      if (tSprID = #mouseLeave) then
-        me.timeoutHide(tSprID)
-      end if
-    end if
-  end if
+    #mouseLeave:
+      me.timeoutHide(tSprID)
+  end case
 end
 
-on timeoutShow me, tPopupID 
+on timeoutShow me, tPopupID
   if voidp(tPopupID) then
-    return FALSE
+    return 0
   end if
   tObject = me.getPopup(tPopupID)
   if not objectp(tObject) then
-    return FALSE
+    return 0
   end if
   tObject.Init(tPopupID)
   if timeoutExists(pHideTimeoutID) then
@@ -55,9 +52,9 @@ on timeoutShow me, tPopupID
   end if
 end
 
-on timeoutHide me, tPopupID 
+on timeoutHide me, tPopupID
   if voidp(tPopupID) then
-    return FALSE
+    return 0
   end if
   if timeoutExists(pShowTimeOutID) then
     removeTimeout(pShowTimeOutID)
@@ -67,48 +64,45 @@ on timeoutHide me, tPopupID
   end if
 end
 
-on showPopup me, tPopupID 
+on showPopup me, tPopupID
   tPopup = me.getPopup(tPopupID)
   if not objectp(tPopup) then
-    return FALSE
+    return 0
   end if
   tPopup.show()
 end
 
-on hidePopup me, tPopupID 
+on hidePopup me, tPopupID
   tPopup = me.getPopup(tPopupID)
   if not objectp(tPopup) then
-    return FALSE
+    return 0
   end if
   tPopup.hide()
 end
 
-on getPopup me, tPopupID 
+on getPopup me, tPopupID
   if voidp(pPopupList.getaProp(tPopupID)) then
-    if (tPopupID = "int_nav_image") then
-      tPopupClass = "Navigator Popup Class"
-    else
-      if (tPopupID = "int_controller_image") then
+    case tPopupID of
+      "int_nav_image":
+        tPopupClass = "Navigator Popup Class"
+      "int_controller_image":
         tPopupClass = "IG Popup Class"
-      else
-        return FALSE
-      end if
-    end if
+    end case
+    return 0
     if not memberExists(tPopupClass) then
-      return FALSE
+      return 0
     end if
     tObject = createObject(#random, tPopupClass)
     if (tObject = 0) then
-      return FALSE
+      return 0
     end if
     pPopupList.setaProp(tPopupID, tObject)
   end if
-  return(pPopupList.getaProp(tPopupID))
+  return pPopupList.getaProp(tPopupID)
 end
 
-on removePopups me 
-  repeat while pPopupList <= undefined
-    tPopup = getAt(undefined, undefined)
+on removePopups me
+  repeat with tPopup in pPopupList
     tPopup.hide()
   end repeat
   if timeoutExists(pShowTimeOutID) then
@@ -119,10 +113,10 @@ on removePopups me
   end if
 end
 
-on popupEntered me, tTarget 
+on popupEntered me, tTarget
   me.timeoutShow(tTarget)
 end
 
-on popupLeft me, tTarget 
+on popupLeft me, tTarget
   me.timeoutHide(tTarget)
 end

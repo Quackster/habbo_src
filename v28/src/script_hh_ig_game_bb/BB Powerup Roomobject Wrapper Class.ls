@@ -1,62 +1,62 @@
 property pObjectId
 
-on construct me 
-  return TRUE
+on construct me
+  return 1
 end
 
-on deconstruct me 
+on deconstruct me
   me.removeRoomObject()
-  return TRUE
+  return 1
 end
 
-on define me, tdata 
-  return(me.createRoomObject(tdata))
+on define me, tdata
+  return me.createRoomObject(tdata)
 end
 
-on createRoomObject me, tdata 
-  tdata.setAt(#id, tdata.getAt(#class) & "_" & tdata.getAt(#id))
-  pObjectId = tdata.getAt(#id)
-  tdata.setAt(#direction, [0, 0])
-  tdata.setAt(#altitude, tdata.getAt(#z))
-  tdata.setAt(#dimensions, [1, 1])
+on createRoomObject me, tdata
+  tdata[#id] = ((tdata[#class] & "_") & tdata[#id])
+  pObjectId = tdata[#id]
+  tdata[#direction] = [0, 0]
+  tdata[#altitude] = tdata[#z]
+  tdata[#dimensions] = [1, 1]
   tRoomComponent = getObject(#room_component)
   if (tRoomComponent = 0) then
-    return FALSE
+    return 0
   end if
   tClassContainer = tRoomComponent.getClassContainer()
   if (tClassContainer = 0) then
-    return(error(me, "Room class container not found!", #createRoomObject))
+    return error(me, "Room class container not found!", #createRoomObject)
   end if
-  tClassContainer.set(tdata.getAt("class"), getClassVariable(tdata.getAt(#classID)))
-  return(tRoomComponent.createActiveObject(tdata))
+  tClassContainer.set(tdata["class"], getClassVariable(tdata[#classID]))
+  return tRoomComponent.createActiveObject(tdata)
 end
 
-on getRoomObject me 
+on getRoomObject me
   tRoomComponentObj = getObject(#room_component)
   if (tRoomComponentObj = 0) then
-    return(error(me, "Room component unavailable!", #getRoomObject))
+    return error(me, "Room component unavailable!", #getRoomObject)
   end if
-  return(tRoomComponentObj.getActiveObject(pObjectId))
+  return tRoomComponentObj.getActiveObject(pObjectId)
 end
 
-on removeRoomObject me 
+on removeRoomObject me
   tRoomComponentObj = getObject(#room_component)
   if (tRoomComponentObj = 0) then
-    return(error(me, "Room component unavailable!", #removeRoomObject))
+    return error(me, "Room component unavailable!", #removeRoomObject)
   end if
-  if (pObjectId = void()) then
-    return FALSE
+  if (pObjectId = VOID) then
+    return 0
   end if
   if not tRoomComponentObj.activeObjectExists(pObjectId) then
-    return TRUE
+    return 1
   end if
-  return(tRoomComponentObj.removeActiveObject(pObjectId))
+  return tRoomComponentObj.removeActiveObject(pObjectId)
 end
 
-on roomObjectAction me, tAction, tdata 
+on roomObjectAction me, tAction, tdata
   tRoomObject = me.getRoomObject()
   if (tRoomObject = 0) then
-    return FALSE
+    return 0
   end if
-  return(tRoomObject.roomObjectAction(tAction, tdata))
+  return tRoomObject.roomObjectAction(tAction, tdata)
 end

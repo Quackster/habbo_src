@@ -1,37 +1,37 @@
-property pContentList, pWriterIdPlain, pItemWidth, pItemHeight, pListImg
+property pListImg, pWriterIdPlain, pContentList, pItemHeight, pItemWidth, pEmptyListText, pContentListState
 
-on construct me 
+on construct me
   pListImg = image(1, 1, 32)
   pContentList = [:]
   pContentList.sort()
-  pContentListState = void()
+  pContentListState = VOID
   pWriterIdPlain = getUniqueID()
   tPlain = getStructVariable("struct.font.plain")
-  tMetrics = [#font:tPlain.getaProp(#font), #fontStyle:tPlain.getaProp(#fontStyle), #color:rgb("#888888")]
+  tMetrics = [#font: tPlain.getaProp(#font), #fontStyle: tPlain.getaProp(#fontStyle), #color: rgb("#888888")]
   createWriter(pWriterIdPlain, tMetrics)
   pItemHeight = integer(getVariable("fr.offline.item.height"))
   pItemWidth = integer(getVariable("fr.list.panel.width"))
   pEmptyListText = getText("friend_list_no_friends_online_category")
 end
 
-on deconstruct me 
-  pListImg = void()
+on deconstruct me
+  pListImg = VOID
   removeWriter(pWriterIdPlain)
 end
 
-on setListData me, tdata 
+on setListData me, tdata
   if (ilk(tdata) = #propList) then
     pContentList = tdata.duplicate()
     me.renderListImage()
   end if
 end
 
-on renderFriendItem me, tFriendData, tSelected 
+on renderFriendItem me, tFriendData, tSelected
   pItemHeight = integer(getVariable("fr.offline.item.height"))
   pItemWidth = integer(getVariable("fr.list.panel.width"))
   tNameWriter = getWriter(pWriterIdPlain)
   tItemImg = image(pItemWidth, pItemHeight, 32)
-  tName = tFriendData.getAt(#name)
+  tName = tFriendData[#name]
   if tSelected then
     tSelectedBg = rgb(string(getVariable("fr.offline.bg.selected")))
     tItemImg.fill(0, 0, pItemWidth, pItemHeight, tSelectedBg)
@@ -42,13 +42,13 @@ on renderFriendItem me, tFriendData, tSelected
   tNamePosV = ((pItemHeight - tNameImg.height) / 2)
   tdestrect = (tSourceRect + rect(tNamePosH, tNamePosV, tNamePosH, tNamePosV))
   tItemImg.copyPixels(tNameImg, tdestrect, tNameImg.rect)
-  return(tItemImg.duplicate())
+  return tItemImg.duplicate()
 end
 
-on renderListImage me 
+on renderListImage me
   if (pContentList.count = 0) then
     me.pListImg = image(1, 1, 32)
-    return(me.pListImg)
+    return me.pListImg
   end if
   me.pFriendRenderQueue = []
   pItemHeight = integer(getVariable("fr.offline.item.height"))
@@ -58,9 +58,8 @@ on renderListImage me
   me.pListImg = image(pItemWidth, (pItemHeight * pContentList.count), 32)
   tCurrentPosV = 0
   tNameWriter = getWriter(pWriterIdPlain)
-  repeat while pContentList <= undefined
-    tFriend = getAt(undefined, undefined)
-    tName = tFriend.getAt(#name)
+  repeat with tFriend in pContentList
+    tName = tFriend[#name]
     if me.isFriendselected(tName) then
       me.pListImg.fill(0, tCurrentPosV, pItemWidth, (tCurrentPosV + pItemHeight), tSelectedBg)
     end if
@@ -70,20 +69,19 @@ on renderListImage me
   end repeat
 end
 
-on renderFromQueue me, tContentElement 
+on renderFromQueue me, tContentElement
   if (tContentElement = 0) then
     me.pFriendRenderQueue = []
-    return TRUE
+    return 1
   end if
   tNamePosH = integer(getVariable("fr.offline.name.offset.h"))
   tNameWriter = getWriter(pWriterIdPlain)
-  i = 1
-  repeat while i <= me.pTasksPerUpdate
-    if me.count(#pFriendRenderQueue) > 0 then
-      tFriend = me.getProp(#pFriendRenderQueue, 1)
+  repeat with i = 1 to me.pTasksPerUpdate
+    if (me.pFriendRenderQueue.count > 0) then
+      tFriend = me.pFriendRenderQueue[1]
       me.pFriendRenderQueue.deleteAt(1)
-      tCurrentPosV = tFriend.getAt(#posV)
-      tName = tFriend.getAt(#name)
+      tCurrentPosV = tFriend[#posV]
+      tName = tFriend[#name]
       if me.isFriendselected(tName) then
         me.pListImg.fill(0, tCurrentPosV, pItemWidth, (tCurrentPosV + pItemHeight), rgb(string(getVariable("fr.offline.bg.selected"))))
       end if
@@ -93,48 +91,45 @@ on renderFromQueue me, tContentElement
       tdestrect = (tSourceRect + rect(tNamePosH, tNamePosV, tNamePosH, tNamePosV))
       pListImg.copyPixels(tNameImage, tdestrect, tNameImage.rect)
     end if
-    i = (1 + i)
   end repeat
   tContentElement.feedImage(pListImg)
 end
 
-on renderBackgroundImage me 
-  if ilk(pContentList) <> #propList then
-    return(image(1, 1, 32))
+on renderBackgroundImage me
+  if (ilk(pContentList) <> #propList) then
+    return image(1, 1, 32)
   end if
   if (pContentList.count = 0) then
-    return(image(1, 1, 32))
+    return image(1, 1, 32)
   end if
   tDarkBg = rgb(string(getVariable("fr.offline.bg.dark")))
   pItemHeight = integer(getVariable("fr.offline.item.height"))
   pItemWidth = integer(getVariable("fr.list.panel.width"))
   tImage = image(pItemWidth, (pContentList.count * pItemHeight), 32)
   tCurrentPosV = 0
-  tIndex = 1
-  repeat while tIndex <= ((pContentList.count / 2) + 1)
+  repeat with tIndex = 1 to ((pContentList.count / 2) + 1)
     tImage.fill(0, tCurrentPosV, pItemWidth, (tCurrentPosV + pItemHeight), tDarkBg)
     tCurrentPosV = (tCurrentPosV + (pItemHeight * 2))
-    tIndex = (1 + tIndex)
   end repeat
-  return(tImage)
+  return tImage
 end
 
-on relayEvent me, tEvent, tLocX, tLocY 
+on relayEvent me, tEvent, tLocX, tLocY
   tListIndex = ((tLocY / me.pItemHeight) + 1)
   tEventResult = [:]
-  tEventResult.setAt(#Event, tEvent)
-  if tListIndex > me.count(#pContentList) then
+  tEventResult[#Event] = tEvent
+  if (tListIndex > me.pContentList.count) then
     nothing()
   else
-    tFriend = me.getProp(#pContentList, tListIndex)
-    tEventResult.setAt(#friend, tFriend)
-    tEventResult.setAt(#element, #name)
-    tEventResult.setAt(#item_y, ((tListIndex - 1) * me.pItemHeight))
-    tEventResult.setAt(#item_height, me.pItemHeight)
+    tFriend = me.pContentList[tListIndex]
+    tEventResult[#friend] = tFriend
+    tEventResult[#element] = #name
+    tEventResult[#item_y] = ((tListIndex - 1) * me.pItemHeight)
+    tEventResult[#item_height] = me.pItemHeight
     if (tEvent = #mouseUp) then
-      me.userSelectionEvent(tFriend.getAt(#name))
+      me.userSelectionEvent(tFriend[#name])
     end if
-    tEventResult.setAt(#update, 1)
+    tEventResult[#update] = 1
   end if
-  return(tEventResult)
+  return tEventResult
 end

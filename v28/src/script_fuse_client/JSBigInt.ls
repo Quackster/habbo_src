@@ -1,158 +1,211 @@
-on BigInt_findPrimes  
+on BigInt_findPrimes
+  -- unk26
 end
 
-on BigInt_millerRabin  
+on BigInt_millerRabin
+  -- unk26
 end
 
-on BigInt_bitSize  
+on BigInt_bitSize
+  -- unk26
 end
 
-on BigInt_expand  
+on BigInt_expand
+  -- unk26
 end
 
-on BigInt_randTruePrime  
+on BigInt_randTruePrime
+  -- unk26
 end
 
-on BigInt_mod  
+on BigInt_mod
+  -- unk26
 end
 
-on BigInt_addInt  
+on BigInt_addInt
+  -- unk26
 end
 
-on BigInt_mult  
+on BigInt_mult
+  -- unk26
 end
 
-on BigInt_powMod  
+on BigInt_powMod
+  -- unk26
 end
 
-on BigInt_sub  
+on BigInt_sub
+  -- unk26
 end
 
-on BigInt_add  
+on BigInt_add
+  -- unk26
 end
 
-on BigInt_inverseMod  
+on BigInt_inverseMod
+  -- unk26
 end
 
-on BigInt_multMod  
+on BigInt_multMod
+  -- unk26
 end
 
-on BigInt_randTruePrime_  
+on BigInt_randTruePrime_
+  -- unk26
 end
 
-on BigInt_randBigInt_  
+on BigInt_randBigInt_
+  -- unk26
 end
 
-on BigInt_GCD_  
+on BigInt_GCD_
+  -- unk26
 end
 
-on BigInt_inverseMod_  
+on BigInt_inverseMod_
+  -- unk26
 end
 
-on BigInt_inverseModInt_  
+on BigInt_inverseModInt_
+  -- unk26
 end
 
-on BigInt_eGCD_  
+on BigInt_eGCD_
+  -- unk26
 end
 
-on BigInt_negative  
+on BigInt_negative
+  -- unk26
 end
 
-on BigInt_greaterShift  
+on BigInt_greaterShift
+  -- unk26
 end
 
-on BigInt_greater  
+on BigInt_greater
+  -- unk26
 end
 
-on BigInt_divide_  
+on BigInt_divide_
+  -- unk26
 end
 
-on BigInt_carry_  
+on BigInt_carry_
+  -- unk26
 end
 
-on BigInt_modInt  
+on BigInt_modInt
+  -- unk26
 end
 
-on BigInt_int2bigInt  
+on BigInt_int2bigInt
+  -- unk26
 end
 
-on BigInt_str2bigInt  
+on BigInt_str2bigInt
+  -- unk26
 end
 
-on BigInt_equalsInt  
+on BigInt_equalsInt
+  -- unk26
 end
 
-on BigInt_equals  
+on BigInt_equals
+  -- unk26
 end
 
-on BigInt_isZero  
+on BigInt_isZero
+  -- unk26
 end
 
-on BigInt_bigInt2str  
+on BigInt_bigInt2str
+  -- unk26
 end
 
-on BigInt_dup  
+on BigInt_dup
+  -- unk26
 end
 
-on BigInt_copy_  
+on BigInt_copy_
+  -- unk26
 end
 
-on BigInt_copyInt_  
+on BigInt_copyInt_
+  -- unk26
 end
 
-on BigInt_addInt_  
+on BigInt_addInt_
+  -- unk26
 end
 
-on BigInt_rightShift_  
+on BigInt_rightShift_
+  -- unk26
 end
 
-on BigInt_halve_  
+on BigInt_halve_
+  -- unk26
 end
 
-on BigInt_leftShift_  
+on BigInt_leftShift_
+  -- unk26
 end
 
-on BigInt_multInt_  
+on BigInt_multInt_
+  -- unk26
 end
 
-on BigInt_divInt_  
+on BigInt_divInt_
+  -- unk26
 end
 
-on BigInt_linComb_  
+on BigInt_linComb_
+  -- unk26
 end
 
-on BigInt_linCombShift_  
+on BigInt_linCombShift_
+  -- unk26
 end
 
-on BigInt_addShift_  
+on BigInt_addShift_
+  -- unk26
 end
 
-on BigInt_subShift_  
+on BigInt_subShift_
+  -- unk26
 end
 
-on BigInt_sub_  
+on BigInt_sub_
+  -- unk26
 end
 
-on BigInt_add_  
+on BigInt_add_
+  -- unk26
 end
 
-on BigInt_mult_  
+on BigInt_mult_
+  -- unk26
 end
 
-on BigInt_mod_  
+on BigInt_mod_
+  -- unk26
 end
 
-on BigInt_multMod_  
+on BigInt_multMod_
+  -- unk26
 end
 
-on BigInt_squareMod_  
+on BigInt_squareMod_
+  -- unk26
 end
 
-on BigInt_trim  
+on BigInt_trim
+  -- unk26
 end
 
-on BigInt_powMod_  
+on BigInt_powMod_
+  -- unk26
 end
 
-on BigInt_mont_  
+on BigInt_mont_
+  -- unk26
 end
