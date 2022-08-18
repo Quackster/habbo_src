@@ -1,29 +1,29 @@
-property pActive, pDelay, pFrame, pCycles
+property pActive, pFrame, pCycles, pDelay
 
-on prepare me, tdata 
+on prepare me, tdata
   pActive = 0
   pFrame = 0
   pCycles = 0
   pDelay = 0
-  return TRUE
+  return 1
 end
 
-on updateStuffdata me, tProp, tValue 
+on updateStuffdata me, tProp, tValue
   if (tValue = "I") then
     me.setOn()
   end if
 end
 
-on update me 
+on update me
   if not pActive then
-    return()
+    return 
   end if
-  if me.count(#pSprList) < 3 then
-    return()
+  if (me.pSprList.count < 3) then
+    return 
   end if
   pDelay = not pDelay
   if pDelay then
-    return()
+    return 
   end if
   pFrame = (pFrame + 1)
   if (pFrame = 5) then
@@ -35,26 +35,26 @@ on update me
     end if
   end if
   if pActive then
-    tmember = member(getmemnum("hockey_light_c_0_1_1_0_" & pFrame))
+    tmember = member(getmemnum(("hockey_light_c_0_1_1_0_" & pFrame)))
   else
     tmember = member(getmemnum("hockey_light_c_0_1_1_0_0"))
   end if
-  me.getPropRef(#pSprList, 3).castNum = tmember.number
-  me.getPropRef(#pSprList, 3).width = tmember.width
-  me.getPropRef(#pSprList, 3).height = tmember.height
+  me.pSprList[3].castNum = tmember.number
+  me.pSprList[3].width = tmember.width
+  me.pSprList[3].height = tmember.height
 end
 
-on setOn me 
+on setOn me
   pActive = 1
 end
 
-on setOff me 
+on setOff me
   pActive = 0
 end
 
-on select me 
+on select me
   if the doubleClick then
-    getThread(#room).getComponent().getRoomConnection().send("SETSTUFFDATA", me.getID() & "/" & "ON" & "/" & "I")
+    getThread(#room).getComponent().getRoomConnection().send("SETSTUFFDATA", ((((me.getID() & "/") & "ON") & "/") & "I"))
   end if
-  return TRUE
+  return 1
 end

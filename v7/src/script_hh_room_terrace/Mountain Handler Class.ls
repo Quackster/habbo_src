@@ -1,37 +1,37 @@
-on construct me 
-  return(me.regMsgList(1))
+on construct me
+  return me.regMsgList(1)
 end
 
-on deconsturct me 
-  return(me.regMsgList(0))
+on deconsturct me
+  return me.regMsgList(0)
 end
 
-on handle_open_uimakoppi me, tMsg 
+on handle_open_uimakoppi me, tMsg
   me.getInterface().openPukukoppi()
 end
 
-on handle_close_uimakoppi me, tMsg 
+on handle_close_uimakoppi me, tMsg
   me.getInterface().closePukukoppi()
 end
 
-on handle_md_exit me, tMsg 
+on handle_md_exit me, tMsg
   me.getInterface().doTheDew(tMsg.content)
 end
 
-on handle_tickets me, tMsg 
-  me.getComponent().setTicketCount(integer(tMsg.content.getProp(#word, 1)))
+on handle_tickets me, tMsg
+  me.getComponent().setTicketCount(integer(tMsg.content.word[1]))
 end
 
-on handle_tickets_buy me, tMsg 
-  me.getComponent().setTicketCount(integer(tMsg.content.getProp(#word, 1)))
+on handle_tickets_buy me, tMsg
+  me.getComponent().setTicketCount(integer(tMsg.content.word[1]))
   me.getInterface().openTicketWnd(1)
 end
 
-on handle_no_tickets me, tMsg 
+on handle_no_tickets me, tMsg
   me.getInterface().openTicketWnd()
 end
 
-on regMsgList me, tBool 
+on regMsgList me, tBool
   tMsgs = [:]
   tMsgs.setaProp(72, #handle_tickets)
   tMsgs.setaProp(73, #handle_no_tickets)
@@ -52,5 +52,5 @@ on regMsgList me, tBool
     unregisterListener(getVariable("connection.room.id"), me.getID(), tMsgs)
     unregisterCommands(getVariable("connection.room.id"), me.getID(), tCmds)
   end if
-  return TRUE
+  return 1
 end

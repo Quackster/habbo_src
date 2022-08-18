@@ -1,17 +1,17 @@
-property pTiming, pChanges, pActive
+property pChanges, pActive, pTiming
 
-on prepare me, tdata 
+on prepare me, tdata
   pChanges = 1
   pTiming = 1
-  if (tdata.getAt("FIREON") = "ON") then
+  if (tdata["FIREON"] = "ON") then
     me.setOn()
   else
     me.setOff()
   end if
-  return TRUE
+  return 1
 end
 
-on updateStuffdata me, tProp, tValue 
+on updateStuffdata me, tProp, tValue
   if (tValue = "ON") then
     me.setOn()
   else
@@ -20,44 +20,44 @@ on updateStuffdata me, tProp, tValue
   pChanges = 1
 end
 
-on update me 
+on update me
   pTiming = not pTiming
   if not pChanges then
-    return()
+    return 
   end if
   if not pTiming then
-    return()
+    return 
   end if
-  if me.count(#pSprList) < 3 then
-    return()
+  if (me.pSprList.count < 3) then
+    return 
   end if
   if pActive then
-    tmember = member(getmemnum("fireplace_polyfon_c_0_2_1_4_" & random(10)))
+    tmember = member(getmemnum(("fireplace_polyfon_c_0_2_1_4_" & random(10))))
   else
     tmember = member(getmemnum("fireplace_polyfon_c_0_2_1_4_0"))
     pChanges = 0
   end if
-  me.getPropRef(#pSprList, 3).castNum = tmember.number
-  me.getPropRef(#pSprList, 3).width = tmember.width
-  me.getPropRef(#pSprList, 3).height = tmember.height
+  me.pSprList[3].castNum = tmember.number
+  me.pSprList[3].width = tmember.width
+  me.pSprList[3].height = tmember.height
 end
 
-on setOn me 
+on setOn me
   pActive = 1
 end
 
-on setOff me 
+on setOff me
   pActive = 0
 end
 
-on select me 
+on select me
   if the doubleClick then
     if pActive then
       tStr = "OFF"
     else
       tStr = "ON"
     end if
-    getThread(#room).getComponent().getRoomConnection().send("SETSTUFFDATA", me.getID() & "/" & "FIREON" & "/" & tStr)
+    getThread(#room).getComponent().getRoomConnection().send("SETSTUFFDATA", ((((me.getID() & "/") & "FIREON") & "/") & tStr))
   end if
-  return TRUE
+  return 1
 end

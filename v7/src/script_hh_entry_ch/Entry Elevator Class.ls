@@ -1,6 +1,6 @@
-property pFloors, pSpriteA, pBottomLimit, pTopLimit, pCurrentFloor, pSpriteB, pContinueTime, pTargetFloor, pmode
+property pSpriteA, pSpriteB, pPause, pmode, pTopLimit, pBottomLimit, pFloors, pCurrentFloor, pTargetFloor, pContinueTime
 
-on define me, tSpriteA, tSpriteB 
+on define me, tSpriteA, tSpriteB
   pSpriteA = tSpriteA
   pSpriteB = tSpriteB
   pmode = #up
@@ -14,17 +14,17 @@ on define me, tSpriteA, tSpriteB
   pSpriteB.locV = pSpriteA.locV
 end
 
-on update me 
-  if pContinueTime < the milliSeconds then
-    if pSpriteA.locV > (pBottomLimit - (((pBottomLimit - pTopLimit) / pFloors) * pTargetFloor)) then
+on update me
+  if (pContinueTime < the milliSeconds) then
+    if (pSpriteA.locV > (pBottomLimit - (((pBottomLimit - pTopLimit) / pFloors) * pTargetFloor))) then
       pSpriteA.locV = (pSpriteA.locV - 2)
       pSpriteB.locV = pSpriteA.locV
     end if
-    if pSpriteA.locV < (pBottomLimit - (((pBottomLimit - pTopLimit) / pFloors) * pTargetFloor)) then
+    if (pSpriteA.locV < (pBottomLimit - (((pBottomLimit - pTopLimit) / pFloors) * pTargetFloor))) then
       pSpriteA.locV = (pSpriteA.locV + 2)
       pSpriteB.locV = pSpriteA.locV
     end if
-    if abs((pSpriteA.locV - (pBottomLimit - (((pBottomLimit - pTopLimit) / pFloors) * pTargetFloor)))) < 2 then
+    if (abs((pSpriteA.locV - (pBottomLimit - (((pBottomLimit - pTopLimit) / pFloors) * pTargetFloor)))) < 2) then
       pContinueTime = (the milliSeconds + ((random(5) + 2) * 1000))
       pCurrentFloor = pTargetFloor
       me.modechange()
@@ -32,36 +32,35 @@ on update me
   end if
 end
 
-on modechange me 
-  if (pmode = #up) then
-    if (pCurrentFloor = pFloors) then
-      mode = #down
-      me.goDownRandom()
-    else
-      if (random(4) = 1) and pCurrentFloor <> 0 then
+on modechange me
+  case pmode of
+    #up:
+      if (pCurrentFloor = pFloors) then
         mode = #down
         me.goDownRandom()
       else
-        me.goUpRandom()
+        if ((random(4) = 1) and (pCurrentFloor <> 0)) then
+          mode = #down
+          me.goDownRandom()
+        else
+          me.goUpRandom()
+        end if
       end if
-    end if
-  else
-    if (pmode = #down) then
+    #down:
       if (pCurrentFloor = 0) then
         mode = #up
         me.goUpRandom()
       else
-        if (random(10) = 1) and pCurrentFloor <> pFloors then
+        if ((random(10) = 1) and (pCurrentFloor <> pFloors)) then
           mode = #up
           me.goUpRandom()
         end if
         me.goDownRandom()
       end if
-    end if
-  end if
+  end case
 end
 
-on goDownRandom me 
+on goDownRandom me
   if (random(2) = 1) then
     pTargetFloor = 0
     pmode = #up
@@ -70,6 +69,6 @@ on goDownRandom me
   end if
 end
 
-on goUpRandom me 
+on goUpRandom me
   pTargetFloor = (random((pFloors - pCurrentFloor)) + pCurrentFloor)
 end

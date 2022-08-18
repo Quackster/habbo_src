@@ -1,7 +1,7 @@
-property pWriterID_name, pWriterID_msgs, pWriterID_last, pWriterID_text, pBuddyListPntr, pRenderObjList, pRenderIndex, pBufferImage, pBufferWidth, pBufferHeight
+property pBuddyListPntr, pRenderObjList, pSelectionList, pRenderIndex, pBufferImage, pBufferWidth, pBufferHeight, pCompleteFlag, pWriterID_name, pWriterID_msgs, pWriterID_last, pWriterID_text
 
-on construct me 
-  pBuddyListPntr = void()
+on construct me
+  pBuddyListPntr = VOID
   pRenderObjList = [:]
   pSelectionList = []
   pRenderIndex = 1
@@ -15,74 +15,73 @@ on construct me
   tPlain = getStructVariable("struct.font.plain")
   tBold = getStructVariable("struct.font.bold")
   tLink = getStructVariable("struct.font.link")
-  tMetrics = [#font:tBold.getaProp(#font), #fontStyle:tBold.getaProp(#fontStyle), #color:rgb("#EEEEEE")]
+  tMetrics = [#font: tBold.getaProp(#font), #fontStyle: tBold.getaProp(#fontStyle), #color: rgb("#EEEEEE")]
   createWriter(pWriterID_name, tMetrics)
-  tMetrics = [#font:tPlain.getaProp(#font), #fontStyle:tLink.getaProp(#fontStyle), #color:rgb("#EEEEEE")]
+  tMetrics = [#font: tPlain.getaProp(#font), #fontStyle: tLink.getaProp(#fontStyle), #color: rgb("#EEEEEE")]
   createWriter(pWriterID_msgs, tMetrics)
-  tMetrics = [#font:tPlain.getaProp(#font), #fontStyle:tPlain.getaProp(#fontStyle), #color:rgb("#EEEEEE")]
+  tMetrics = [#font: tPlain.getaProp(#font), #fontStyle: tPlain.getaProp(#fontStyle), #color: rgb("#EEEEEE")]
   createWriter(pWriterID_last, tMetrics)
-  tMetrics = [#font:tPlain.getaProp(#font), #fontStyle:tPlain.getaProp(#fontStyle), #color:rgb("#EEEEEE")]
+  tMetrics = [#font: tPlain.getaProp(#font), #fontStyle: tPlain.getaProp(#fontStyle), #color: rgb("#EEEEEE")]
   createWriter(pWriterID_text, tMetrics)
-  return TRUE
+  return 1
 end
 
-on deconstruct me 
-  pBuddyListPntr = void()
+on deconstruct me
+  pBuddyListPntr = VOID
   removeWriter(pWriterID_name)
   removeWriter(pWriterID_msgs)
   removeWriter(pWriterID_last)
   removeWriter(pWriterID_text)
-  return TRUE
+  return 1
 end
 
-on define me, tBuddyListPntr 
+on define me, tBuddyListPntr
   pBuddyListPntr = tBuddyListPntr
   pRenderObjList = [:]
   pCompleteFlag = 0
   tTheBuddyList = pBuddyListPntr.getaProp(#value).getaProp(#buddies)
-  repeat while tTheBuddyList <= undefined
-    tdata = getAt(undefined, tBuddyListPntr)
-    pRenderObjList.setAt(tdata.getAt(#name), me.createRenderObj(tdata))
+  repeat with tdata in tTheBuddyList
+    pRenderObjList[tdata[#name]] = me.createRenderObj(tdata)
   end repeat
-  return(me.buildBufferImage())
+  return me.buildBufferImage()
 end
 
-on update me, tBuddyList 
+on update me, tBuddyList
   call(#update, pRenderObjList)
-  return(me.buildBufferImage())
+  return me.buildBufferImage()
 end
 
-on prepare me 
+on prepare me
   tName = 0
-  pRenderObjList.getAt(pRenderIndex).render(pBufferImage, pRenderIndex)
+  pRenderObjList[pRenderIndex].render(pBufferImage, pRenderIndex)
   pRenderIndex = (pRenderIndex + 1)
-  if pRenderIndex > pRenderObjList.count then
+  if (pRenderIndex > pRenderObjList.count) then
     removePrepare(me.getID())
     pCompleteFlag = 1
   end if
 end
 
-on appendBuddy me, tdata 
-  if voidp(pRenderObjList.getAt(tdata.getAt(#name))) then
-    pRenderObjList.setAt(tdata.getAt(#name), me.createBuddyDrawObj(tdata))
+on appendBuddy me, tdata
+  if voidp(pRenderObjList[tdata[#name]]) then
+    pRenderObjList[tdata[#name]] = me.createBuddyDrawObj(tdata)
   end if
-  return(me.buildListBuffer())
+  return me.buildListBuffer()
 end
 
-on createRenderObj me, tdata 
+on createRenderObj me, tdata
   tObject = createObject(#temp, "Draw Friend Class")
   tProps = [:]
-  tProps.setAt(#width, pBufferWidth)
-  tProps.setAt(#height, pBufferHeight)
-  tProps.setAt(#writer_name, pWriterID_name)
-  tProps.setAt(#writer_msgs, pWriterID_msgs)
-  tProps.setAt(#writer_last, pWriterID_last)
-  tProps.setAt(#writer_text, pWriterID_text)
+  tProps[#width] = pBufferWidth
+  tProps[#height] = pBufferHeight
+  tProps[#writer_name] = pWriterID_name
+  tProps[#writer_msgs] = pWriterID_msgs
+  tProps[#writer_last] = pWriterID_last
+  tProps[#writer_text] = pWriterID_text
   tObject.define(tdata, tProps)
-  return(tObject)
+  return tObject
 end
 
-on buildBufferImage me 
+on buildBufferImage me
   pRenderIndex = 1
   tBuddyCount = pBuddyListPntr.getaProp(#value).count
   if (tBuddyCount = 0) then
@@ -91,5 +90,5 @@ on buildBufferImage me
     pBufferImage = image(pBufferWidth, (tBuddyCount * pBufferHeight), 8)
     receivePrepare(me.getID())
   end if
-  return TRUE
+  return 1
 end

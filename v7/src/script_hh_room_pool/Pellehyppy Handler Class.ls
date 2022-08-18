@@ -1,50 +1,50 @@
-on construct me 
-  return(me.regMsgList(1))
+on construct me
+  return me.regMsgList(1)
 end
 
-on deconstruct me 
-  return(me.regMsgList(0))
+on deconstruct me
+  return me.regMsgList(0)
 end
 
-on handle_openuimakoppi me, tMsg 
+on handle_openuimakoppi me, tMsg
   me.getComponent().openUimakoppi()
 end
 
-on handle_closeuimakoppi me, tMsg 
+on handle_closeuimakoppi me, tMsg
   me.getComponent().closeUimaKoppi()
 end
 
-on handle_phtickets me, tMsg 
+on handle_phtickets me, tMsg
   me.getComponent().setNumOfPhTickets(tMsg.content)
 end
 
-on handle_phtickets_buy me, tMsg 
-  me.getComponent().setNumOfPhTickets(tMsg.content.getPropRef(#line, 1).getProp(#word, 1))
+on handle_phtickets_buy me, tMsg
+  me.getComponent().setNumOfPhTickets(tMsg.content.line[1].word[1])
   me.getInterface().showTicketWnd()
 end
 
-on handle_notickets me, tMsg 
+on handle_notickets me, tMsg
   me.getComponent().setNumOfPhTickets(0)
   me.getInterface().showTicketWnd()
 end
 
-on handle_jumpdata me, tMsg 
-  me.getComponent().jumpPlayPack([#index:tMsg.content.getProp(#line, 1), #jumpdata:tMsg.content.getProp(#line, 2)])
+on handle_jumpdata me, tMsg
+  me.getComponent().jumpPlayPack([#index: tMsg.content.line[1], #jumpdata: tMsg.content.line[2]])
 end
 
-on handle_jumpliftdoor_open me, tMsg 
-  put("TODO:" && tMsg.getaProp(#subject))
+on handle_jumpliftdoor_open me, tMsg
+  put ("TODO:" && tMsg.getaProp(#subject))
 end
 
-on handle_jumpliftdoor_close me, tMsg 
-  put("TODO:" && tMsg.getaProp(#subject))
+on handle_jumpliftdoor_close me, tMsg
+  put ("TODO:" && tMsg.getaProp(#subject))
 end
 
-on handle_jumpingplace_ok me, tMsg 
+on handle_jumpingplace_ok me, tMsg
   me.getComponent().jumpingPlaceOk()
 end
 
-on regMsgList me, tBool 
+on regMsgList me, tBool
   tMsgs = [:]
   tMsgs.setaProp(72, #handle_phtickets)
   tMsgs.setaProp(73, #handle_notickets)
@@ -70,5 +70,5 @@ on regMsgList me, tBool
     unregisterListener(getVariable("connection.room.id"), me.getID(), tMsgs)
     unregisterCommands(getVariable("connection.room.id"), me.getID(), tCmds)
   end if
-  return TRUE
+  return 1
 end

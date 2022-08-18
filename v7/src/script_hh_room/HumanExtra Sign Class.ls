@@ -1,25 +1,25 @@
 property pSignSpr, pSignMem
 
-on construct me 
+on construct me
   pSignSpr = sprite(reserveSprite(me.getID()))
-  return TRUE
+  return 1
 end
 
-on deconstruct me 
+on deconstruct me
   releaseSprite(pSignSpr.spriteNum)
-  pSignSpr = void()
-  return TRUE
+  pSignSpr = VOID
+  return 1
 end
 
-on refresh me 
+on refresh me
   pSignSpr.visible = 0
 end
 
-on show_sign me, tProps 
-  tSignMem = tProps.getAt("signmember")
-  tHumanSpr = tProps.getAt("sprite")
-  tDirection = tProps.getAt("direction")
-  if pSignMem <> tSignMem then
+on show_sign me, tProps
+  tSignMem = tProps["signmember"]
+  tHumanSpr = tProps["sprite"]
+  tDirection = tProps["direction"]
+  if (pSignMem <> tSignMem) then
     pSignSpr.ink = 8
     pSignSpr.member = member(getmemnum(tSignMem))
     pSignMem = tSignMem

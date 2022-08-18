@@ -1,6 +1,6 @@
-property pSpr, pShipCount, pShipSize, pDirection, pSquareSize, pReservedSquare, pGameBoardSpr
+property pSpr, pGameBoardSpr, pReservedSquare, pSquareSize, pShipCount, pShipSize, pDirection
 
-on Init me, tGameBoardSpr, tlocz 
+on Init me, tGameBoardSpr, tlocz
   pSpr = sprite(reserveSprite(me.getID()))
   setEventBroker(pSpr.spriteNum, me.getID())
   call(#registerClient, pSpr.scriptInstanceList, me)
@@ -17,110 +17,89 @@ on Init me, tGameBoardSpr, tlocz
   receiveUpdate(me.getID())
 end
 
-on deconstruct me 
+on deconstruct me
   removeUpdate(me.getID())
   releaseSprite(pSpr.spriteNum)
-  pSpr = void()
+  pSpr = VOID
 end
 
-on eventProcShipPlacer me, tEvent, tSprID, tParam 
+on eventProcShipPlacer me, tEvent, tSprID, tParam
   pSpr.visible = 0
   tSprite = rollover()
   pSpr.visible = 1
   tid = call(#getID, sprite(tSprite).scriptInstanceList)
-  if (tid = "close") or tid contains "turn" then
+  if ((tid = "close") or (tid contains "turn")) then
     getThread(#games).getInterface().eventProcBattleShip(tEvent, tid)
   end if
 end
 
-on getNextShip me 
-  if (pShipCount = 0) then
-    pShipSize = 5
-    tShip = getText("game_bs_ship1", "An Aircraft Carrier")
-  else
-    if pShipCount <> 1 then
-      if (pShipCount = 2) then
-        pShipSize = 4
-        tShip = string((3 - pShipCount)) && getText("game_bs_ship2", "BattleShip(s)")
-      else
-        if pShipCount <> 3 then
-          if pShipCount <> 4 then
-            if (pShipCount = 5) then
-              pShipSize = 3
-              tShip = string((6 - pShipCount)) && getText("game_bs_ship3", "Cruiser(s)")
-            else
-              if pShipCount <> 6 then
-                if pShipCount <> 7 then
-                  if pShipCount <> 8 then
-                    if (pShipCount = 9) then
-                      pShipSize = 2
-                      tShip = string((10 - pShipCount)) && getText("game_bs_ship4", "Destroyer(s)")
-                    else
-                      removeObject(me.getID())
-                      getThread(#games).getInterface().battleShipWaitOtherPlayer()
-                    end if
-                    if not voidp(tShip) then
-                      getThread(#games).getInterface().showShipInfo(tShip)
-                      me.setShipMember()
-                    end if
-                  end if
-                end if
-              end if
-            end if
-          end if
-        end if
-      end if
-    end if
+on getNextShip me
+  case pShipCount of
+    0:
+      pShipSize = 5
+      tShip = getText("game_bs_ship1", "An Aircraft Carrier")
+    1, 2:
+      pShipSize = 4
+      tShip = (string((3 - pShipCount)) && getText("game_bs_ship2", "BattleShip(s)"))
+    3, 4, 5:
+      pShipSize = 3
+      tShip = (string((6 - pShipCount)) && getText("game_bs_ship3", "Cruiser(s)"))
+    6, 7, 8, 9:
+      pShipSize = 2
+      tShip = (string((10 - pShipCount)) && getText("game_bs_ship4", "Destroyer(s)"))
+    otherwise:
+      removeObject(me.getID())
+      getThread(#games).getInterface().battleShipWaitOtherPlayer()
+  end case
+  if not voidp(tShip) then
+    getThread(#games).getInterface().showShipInfo(tShip)
+    me.setShipMember()
   end if
 end
 
-on setShipMember me 
-  tMemName = "game_bs_ship_" & pShipSize & "_" & pDirection.getProp(#char, 1)
+on setShipMember me
+  tMemName = ((("game_bs_ship_" & pShipSize) & "_") & pDirection.char[1])
   pSpr.member = member(getmemnum(tMemName))
 end
 
-on getBoardSector me, tpoint 
-  return(string((tpoint.getAt(1) / pSquareSize) && (tpoint.getAt(2) / pSquareSize)))
+on getBoardSector me, tpoint
+  return string(((tpoint[1] / pSquareSize) && (tpoint[2] / pSquareSize)))
 end
 
-on ShipPlace me, tPoint1, tPoint2 
+on ShipPlace me, tPoint1, tPoint2
   tP1 = me.getBoardSector(tPoint1)
   tP2 = me.getBoardSector(tPoint2)
-  tX1 = value(tP1.getProp(#word, 1))
-  tX2 = value(tP2.getProp(#word, 1))
-  tY1 = value(tP1.getProp(#word, 2))
-  tY2 = value(tP2.getProp(#word, 2))
+  tX1 = value(tP1.word[1])
+  tX2 = value(tP2.word[1])
+  tY1 = value(tP1.word[2])
+  tY2 = value(tP2.word[2])
   tSetSquares = [:]
   tCanSet = 1
   if (pDirection = "horizontal") then
-    xxx = tX1
-    repeat while xxx <= tX2
-      if pReservedSquare.getOne(xxx & tY1) <> 0 then
+    repeat with xxx = tX1 to tX2
+      if (pReservedSquare.getOne((xxx & tY1)) <> 0) then
         tCanSet = 0
-      else
-        tSetSquares.setAt(xxx & tY1, 1)
+        exit repeat
+        next repeat
       end if
-      xxx = (1 + xxx)
+      tSetSquares[(xxx & tY1)] = 1
     end repeat
-    exit repeat
-  end if
-  if (pDirection = "vertical") then
-    yyy = tY1
-    repeat while yyy <= tY2
-      if pReservedSquare.getOne(tX1 & yyy) <> 0 then
-        tCanSet = 0
-      else
-        tSetSquares.setAt(tX1 & yyy, 1)
-      end if
-      yyy = (1 + yyy)
-    end repeat
+  else
+    if (pDirection = "vertical") then
+      repeat with yyy = tY1 to tY2
+        if (pReservedSquare.getOne((tX1 & yyy)) <> 0) then
+          tCanSet = 0
+          exit repeat
+          next repeat
+        end if
+        tSetSquares[(tX1 & yyy)] = 1
+      end repeat
+    end if
   end if
   if (tCanSet = 1) then
-    f = 1
-    repeat while f <= tSetSquares.count
+    repeat with f = 1 to tSetSquares.count
       tProp = tSetSquares.getPropAt(f)
       pReservedSquare.add(tProp)
-      f = (1 + f)
     end repeat
     tRect = (rect(tPoint1, tPoint2) + rect(1, 1, 1, 1))
     if (pDirection = "horizontal") then
@@ -129,16 +108,16 @@ on ShipPlace me, tPoint1, tPoint2
       tRect = (tRect + rect(1, 0, 1, 0))
     end if
     getThread(#games).getInterface().placeShip(pSpr.member, tRect)
-    tPlace = pShipSize && tX1 && tY1 && tX2 && tY2
+    tPlace = ((((pShipSize && tX1) && tY1) && tX2) && tY2)
     getThread(#games).getComponent().sendBattleShipPlaceShip(tPlace)
     pShipCount = (pShipCount + 1)
     me.getNextShip()
   end if
 end
 
-on turnShip me 
+on turnShip me
   if not threadExists(#games) then
-    return(removeObject(me.getID()))
+    return removeObject(me.getID())
   end if
   if (pDirection = "horizontal") then
     pDirection = "vertical"
@@ -148,16 +127,16 @@ on turnShip me
   me.setShipMember()
 end
 
-on update me 
+on update me
   pSpr.loc = the mouseLoc
   tUpPoint = point(pSpr.left, pSpr.top)
   tDownPoint = point(pSpr.right, pSpr.bottom)
-  if tUpPoint.inside(pGameBoardSpr.rect) and tDownPoint.inside(pGameBoardSpr.rect) then
+  if (tUpPoint.inside(pGameBoardSpr.rect) and tDownPoint.inside(pGameBoardSpr.rect)) then
     pSpr.blend = 100
     if the mouseDown then
       tloc = point((pSpr.left - pGameBoardSpr.left), (pSpr.top - pGameBoardSpr.top))
       tTempLoc = me.getBoardSector(tloc)
-      tNewLoc = point((value(tTempLoc.getProp(#word, 1)) * pSquareSize), (value(tTempLoc.getProp(#word, 2)) * pSquareSize))
+      tNewLoc = point((value(tTempLoc.word[1]) * pSquareSize), (value(tTempLoc.word[2]) * pSquareSize))
       tloc = tNewLoc
       tLoc2 = (tNewLoc + point(pSpr.width, pSpr.height))
       me.ShipPlace(tloc, tLoc2)
