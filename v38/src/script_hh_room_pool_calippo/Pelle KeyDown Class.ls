@@ -1,22 +1,22 @@
 property pKeyAcceptTime
 
-on construct me 
+on construct me
   receiveUpdate(me.getID())
-  return TRUE
+  return 1
 end
 
-on deconstruct me 
+on deconstruct me
   releaseSprite(me.pSpr.spriteNum)
   removeUpdate(me.getID())
-  return TRUE
+  return 1
 end
 
-on update me 
+on update me
   if voidp(pKeyAcceptTime) then
     pKeyAcceptTime = (the milliSeconds - 101)
   end if
-  if the milliSeconds >= pKeyAcceptTime then
-    if the keyPressed <> "" then
+  if (the milliSeconds >= pKeyAcceptTime) then
+    if (the keyPressed <> EMPTY) then
       me.MykeyDown(the key, (the milliSeconds - pKeyAcceptTime))
     else
       me.NotKeyDown((the milliSeconds - pKeyAcceptTime))

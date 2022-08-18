@@ -1,6 +1,6 @@
-property pChatWidth, pMargin, pWriter, pHighlightUserID, pChatImage, pMaxHeight
+property pChatImage, pListLine, pWriter, pChatWidth, pHighlightUserID, pMaxHeight, pMargin
 
-on construct me 
+on construct me
   pChatData = []
   pChatWidth = 185
   pMargin = 3
@@ -14,62 +14,55 @@ on construct me
   pWriter = getWriter(tID)
   pWriter.define(tFont)
   pHighlightUserID = getObject(#session).GET("user_user_id")
-  return TRUE
+  return 1
 end
 
-on deconstruct me 
+on deconstruct me
   removeObject(pWriter.getID())
-  return TRUE
+  return 1
 end
 
-on setWidth me, tWidth 
+on setWidth me, tWidth
   pChatWidth = tWidth
 end
 
-on renderChatEntry me, tEntry, tPos 
+on renderChatEntry me, tEntry, tPos
   ttype = tEntry.getaProp(#type)
   tUserID = tEntry.getaProp(#userID)
   tText = tEntry.getaProp(#Msg)
-  tUseTime = (ttype = #message) or (ttype = #invitation)
+  tUseTime = ((ttype = #message) or (ttype = #invitation))
   if tUseTime then
-    tText = tEntry.getaProp(#time) && tText
+    tText = (tEntry.getaProp(#time) && tText)
   end if
-  if (ttype = #invitation) then
-    tColor = getVariable("im.color.invitation", "FFFFFF")
-  else
-    if (ttype = #notification) then
+  case ttype of
+    #invitation:
+      tColor = getVariable("im.color.invitation", "FFFFFF")
+    #notification:
       tColor = getVariable("im.color.notification", "FFFFFF")
-    else
-      if (ttype = #error) then
-        tColor = getVariable("im.color.error", "FFFFFF")
+    #error:
+      tColor = getVariable("im.color.error", "FFFFFF")
+    #message:
+      if (tUserID = pHighlightUserID) then
+        tColor = getVariable("im.color.sender", "FFFFFF")
       else
-        if (ttype = #message) then
-          if (tUserID = pHighlightUserID) then
-            tColor = getVariable("im.color.sender", "FFFFFF")
-          else
-            tColor = getVariable("im.color.receiver", "FFFFFF")
-          end if
-        else
-          if (ttype = #otherwise) then
-            tColor = "FFFFFF"
-          end if
-        end if
+        tColor = getVariable("im.color.receiver", "FFFFFF")
       end if
-    end if
-  end if
+    #otherwise:
+      tColor = "FFFFFF"
+  end case
   tTextImage = pWriter.render(tText).duplicate()
   tEntryImage = image(pChatWidth, (tTextImage.height + (2 * pMargin)), 8)
   tEntryImage.fill(tEntryImage.rect, rgb(tColor))
   tTargetRect = (tTextImage.rect + rect(pMargin, pMargin, pMargin, pMargin))
   tEntryImage.copyPixels(tTextImage, tTargetRect, tTextImage.rect)
   tNewHeight = (pChatImage.height + tEntryImage.height)
-  if tNewHeight > pMaxHeight then
+  if (tNewHeight > pMaxHeight) then
     tNewHeight = pMaxHeight
   end if
   tNewChatImage = image(pChatWidth, tNewHeight, 8)
   if (tPos = #start) then
     if (tNewHeight = pMaxHeight) then
-      return FALSE
+      return 0
     end if
     tNewChatImage.copyPixels(tEntryImage, tEntryImage.rect, tEntryImage.rect)
     tTargetRect = rect(0, tEntryImage.height, pChatWidth, (tEntryImage.height + pChatImage.height))
@@ -84,13 +77,13 @@ on renderChatEntry me, tEntry, tPos
     tNewChatImage.copyPixels(tEntryImage, tTargetRect, tEntryImage.rect)
   end if
   pChatImage = tNewChatImage
-  return TRUE
+  return 1
 end
 
-on clearImage me 
+on clearImage me
   pChatImage = image(pChatWidth, 0, 8)
 end
 
-on getChatImage me 
-  return(pChatImage)
+on getChatImage me
+  return pChatImage
 end

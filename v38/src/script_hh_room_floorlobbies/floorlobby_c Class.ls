@@ -1,43 +1,41 @@
 property pBubbleList
 
-on construct me 
+on construct me
   if not threadExists(#room) then
-    return(error(me, "Room thread not found!!!", #construct))
+    return error(me, "Room thread not found!!!", #construct)
   end if
   tRoomVis = getThread(#room).getInterface().getRoomVisualizer()
   if (tRoomVis = 0) then
-    return(error(me, "Room visualizer not found!", #construct))
+    return error(me, "Room visualizer not found!", #construct)
   end if
   tRoomVis.getSprById("floor").member.paletteRef = member(getmemnum("floorlobby_c palette"))
   i = 1
   repeat while 1
-    tSpr = tRoomVis.getSprById("floor_" & i)
+    tSpr = tRoomVis.getSprById(("floor_" & i))
     if not tSpr then
-    else
-      tSpr.member.paletteRef = member(getmemnum("floorlobby_c palette"))
-      i = (i + 1)
+      exit repeat
     end if
+    tSpr.member.paletteRef = member(getmemnum("floorlobby_c palette"))
+    i = (i + 1)
   end repeat
   tsprite = getThread(#room).getInterface().getRoomVisualizer().getSprById("lobby_pipe")
   tLocH = tsprite.locH
   pBubbleList = []
-  i = 1
-  repeat while i <= 15
+  repeat with i = 1 to 15
     tObj = createObject(#temp, "Floor Bubble Bottom Class")
-    tObj.define(tRoomVis.getSprById("bubble" & i), tLocH)
+    tObj.define(tRoomVis.getSprById(("bubble" & i)), tLocH)
     pBubbleList.add(tObj)
-    i = (1 + i)
   end repeat
   receiveUpdate(me.getID())
-  return TRUE
+  return 1
 end
 
-on deconstruct me 
+on deconstruct me
   removeUpdate(me.getID())
   pBubbleList = []
-  return TRUE
+  return 1
 end
 
-on update me 
+on update me
   call(#update, pBubbleList)
 end

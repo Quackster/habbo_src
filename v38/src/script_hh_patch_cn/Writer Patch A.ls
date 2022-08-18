@@ -1,6 +1,6 @@
-on define me, tMetrics 
+on define me, tMetrics
   me.ancestor.define(tMetrics)
-  if the platform contains "windows" then
+  if (the platform contains "windows") then
     if variableExists("win.font.toff") then
       me.pMember.topSpacing = getIntVariable("win.font.toff")
     else
@@ -21,15 +21,15 @@ on define me, tMetrics
   end if
 end
 
-on construct_old me 
+on construct_old me
   me.pDefRect = rect(0, 0, 480, 480)
-  me.pTxtRect = void()
-  me.pFntStru = void()
-  me.pMember = member(createMember("writer_" & getUniqueID(), #text))
+  me.pTxtRect = VOID
+  me.pFntStru = VOID
+  me.pMember = member(createMember(("writer_" & getUniqueID()), #text))
   if (me.pMember.number = 0) then
-    return FALSE
+    return 0
   else
-    if the platform contains "windows" then
+    if (the platform contains "windows") then
       if variableExists("win.font.toff") then
         me.pMember.topSpacing = getIntVariable("win.font.toff")
       else
@@ -43,6 +43,6 @@ on construct_old me
       end if
     end if
     me.pMember.wordWrap = 0
-    return TRUE
+    return 1
   end if
 end
