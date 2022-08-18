@@ -1,6 +1,6 @@
-property pRoomInfoID, pRoomBarID, pObjectDispID, pBadgeObjID, pFxInvObjID
+property pRoomBarID, pRoomInfoID, pObjectDispID, pBadgeObjID, pFxInvObjID
 
-on construct me 
+on construct me
   pRoomBarID = "RoomBarProgram"
   pRoomInfoID = "RoomInfoProgram"
   pObjectDispID = "ObjectDisplayerProgram"
@@ -12,34 +12,34 @@ on construct me
   createObject(pBadgeObjID, "Badge Manager Class")
   createObject(pFxInvObjID, "Effect Inventory Class")
   registerMessage(#takingPhoto, me.getID(), #hideInfoStand)
-  return TRUE
+  return 1
 end
 
-on deconstruct me 
+on deconstruct me
   unregisterMessage(#takingPhoto, me.getID())
   removeObject(pRoomInfoID)
   removeObject(pRoomBarID)
   removeObject(pObjectDispID)
   removeObject(pBadgeObjID)
   removeObject(pFxInvObjID)
-  return TRUE
+  return 1
 end
 
-on getBadgeObject me 
-  return(getObject(pBadgeObjID))
+on getBadgeObject me
+  return getObject(pBadgeObjID)
 end
 
-on getFxInventory me 
-  return(getObject(pFxInvObjID))
+on getFxInventory me
+  return getObject(pFxInvObjID)
 end
 
-on showRoomBar me, tLayout 
+on showRoomBar me, tLayout
   tRoomInfoObj = getObject(pRoomInfoID)
-  if not voidp(tRoomInfoObj) and (not tRoomInfoObj = 0) then
+  if (not voidp(tRoomInfoObj) and (not tRoomInfoObj = 0)) then
     tRoomInfoObj.showRoomInfo()
   end if
   tRoomBarObj = getObject(pRoomBarID)
-  if not voidp(tRoomBarObj) and (not tRoomBarObj = 0) then
+  if (not voidp(tRoomBarObj) and (not tRoomBarObj = 0)) then
     tRoomBarObj.showRoomBar(tLayout)
   end if
   if threadExists("new_user_help") then
@@ -50,43 +50,43 @@ on showRoomBar me, tLayout
   end if
 end
 
-on hideRoomBar me 
+on hideRoomBar me
   tRoomInfoObj = getObject(pRoomInfoID)
-  if not voidp(tRoomInfoObj) and (not tRoomInfoObj = 0) then
+  if (not voidp(tRoomInfoObj) and (not tRoomInfoObj = 0)) then
     tRoomInfoObj.hideRoomInfo()
   end if
   tRoomBarObj = getObject(pRoomBarID)
-  if not voidp(tRoomBarObj) and (not tRoomBarObj = 0) then
+  if (not voidp(tRoomBarObj) and (not tRoomBarObj = 0)) then
     tRoomBarObj.hideRoomBar()
   end if
 end
 
-on setRollOverInfo me, tInfoText 
+on setRollOverInfo me, tInfoText
   tRoomBarObj = getObject(pRoomBarID)
-  if not voidp(tRoomBarObj) and (not tRoomBarObj = 0) then
+  if (not voidp(tRoomBarObj) and (not tRoomBarObj = 0)) then
     tRoomBarObj.setRollOverInfo(tInfoText)
   end if
 end
 
-on showInfostand me 
+on showInfostand me
   nothing()
 end
 
-on hideInfoStand me 
+on hideInfoStand me
   tObjDisp = getObject(pObjectDispID)
   tObjDisp.clearWindowDisplayList()
 end
 
-on showObjectInfo me, tObjType 
+on showObjectInfo me, tObjType
   tObjDisp = getObject(pObjectDispID)
   sendProcessTracking(780)
   tObjDisp.showObjectInfo(tObjType)
   sendProcessTracking(781)
 end
 
-on showVote me 
+on showVote me
   tRoomBarObj = getObject(pRoomBarID)
-  if not voidp(tRoomBarObj) and (not tRoomBarObj = 0) then
+  if (not voidp(tRoomBarObj) and (not tRoomBarObj = 0)) then
     tRoomBarObj.showVote()
   end if
 end

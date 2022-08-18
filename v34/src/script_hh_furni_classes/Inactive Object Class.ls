@@ -1,3 +1,3 @@
-on select me 
-  return FALSE
+on select me
+  return 0
 end

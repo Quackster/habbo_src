@@ -1,3 +1,3 @@
-on render me 
-  return(me.ancestor.render(#change))
+on render me
+  return me.ancestor.render(#change)
 end

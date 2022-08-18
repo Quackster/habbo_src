@@ -1,44 +1,43 @@
-on construct me 
-  pPersistentFurniData = void()
-  return(me.regMsgList(1))
+property pPersistentFurniData
+
+on construct me
+  pPersistentFurniData = VOID
+  return me.regMsgList(1)
 end
 
-on deconstruct me 
-  return(me.regMsgList(0))
+on deconstruct me
+  return me.regMsgList(0)
 end
 
-on handle_recycler_status me, tMsg 
+on handle_recycler_status me, tMsg
   tConn = tMsg.getaProp(#connection)
   if not tConn then
-    return FALSE
+    return 0
   end if
   tstate = tConn.GetIntFrom()
-  if (tstate = 1) then
-    tstate = #open
-  else
-    if (tstate = 2) then
+  case tstate of
+    1:
+      tstate = #open
+    2:
       tstate = #closed
-    else
-      if (tstate = 3) then
-        tstate = #timeout
-        tTimeout = tConn.GetIntFrom()
-      end if
-    end if
-  end if
+    3:
+      tstate = #timeout
+      tTimeout = tConn.GetIntFrom()
+  end case
   me.getComponent().setState(tstate, tTimeout)
 end
 
-on handle_recycler_finished me, tMsg 
+on handle_recycler_finished me, tMsg
   tConn = tMsg.getaProp(#connection)
   if not tConn then
-    return FALSE
+    return 0
   end if
   tSuccess = tConn.GetIntFrom()
   tPrizeID = tConn.GetIntFrom()
   me.getComponent().recyclingFinished(tSuccess)
 end
 
-on regMsgList me, tBool 
+on regMsgList me, tBool
   tMsgs = [:]
   tMsgs.setaProp(507, #handle_recycler_status)
   tMsgs.setaProp(508, #handle_recycler_finished)
@@ -52,5 +51,5 @@ on regMsgList me, tBool
     unregisterListener(getVariable("connection.room.id"), me.getID(), tMsgs)
     unregisterCommands(getVariable("connection.room.id"), me.getID(), tCmds)
   end if
-  return TRUE
+  return 1
 end

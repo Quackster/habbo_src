@@ -1,33 +1,33 @@
-property pCardObj, pMessage
+property pMessage, pCardObj
 
-on prepare me, tdata 
+on prepare me, tdata
   pCardObj = "PackageCardObj"
-  tdata = tdata.getAt(#stuffdata)
+  tdata = tdata[#stuffdata]
   if not voidp(tdata) then
-    if (tdata.getProp(#char, 1) = "!") then
-      pMessage = tdata.getProp(#char, 2, length(tdata))
+    if (tdata.char[1] = "!") then
+      pMessage = tdata.char[2]
     else
       tDelim = the itemDelimiter
       the itemDelimiter = ":"
-      pMessage = tdata.getProp(#item, 4, tdata.count(#item))
+      pMessage = tdata.item[4]
       the itemDelimiter = tDelim
     end if
   end if
-  return TRUE
+  return 1
 end
 
-on select me 
+on select me
   if the doubleClick then
     me.showCard()
   end if
-  return TRUE
+  return 1
 end
 
-on showCard me 
+on showCard me
   if objectExists(pCardObj) then
     removeObject(pCardObj)
   end if
   createObject(pCardObj, "Package Card Class")
-  getObject(pCardObj).define([#id:me.getID(), #Msg:pMessage, #loc:me.getPropRef(#pSprList, 1).loc])
-  return TRUE
+  getObject(pCardObj).define([#id: me.getID(), #Msg: pMessage, #loc: me.pSprList[1].loc])
+  return 1
 end

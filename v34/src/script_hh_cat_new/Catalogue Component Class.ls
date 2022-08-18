@@ -1,8 +1,8 @@
-property pPersistentCatalogDataId, pPageCache, pWaitingForData, pWaitingForFrontPage, pCatalogIndex, pCreditInfoNodeName, pPixelInfoNodeName, pWaitingForNodeName, pCreditInfoPageID, pPixelInfoPageID, pPageItemDownloader, pPurchaseProcessor
+property pPageCache, pCatalogIndex, pWaitingForData, pWaitingForNodeName, pWaitingForFrontPage, pPersistentCatalogDataId, pPageItemDownloader, pCreditInfoPageID, pPixelInfoPageID, pCreditInfoNodeName, pPixelInfoNodeName, pPurchaseProcessor
 
-on construct me 
+on construct me
   pPageCache = [:]
-  pCatalogIndex = void()
+  pCatalogIndex = VOID
   pWaitingForData = -1
   pWaitingForFrontPage = 0
   pPersistentCatalogDataId = "Persistent Catalog Data"
@@ -10,31 +10,31 @@ on construct me
   pPageItemDownloader = createObject(getUniqueID(), "Page Item Downloader Class")
   pCreditInfoNodeName = "magic.credits"
   pPixelInfoNodeName = "magic.pixels"
-  pCreditInfoPageID = void()
-  pPixelInfoPageID = void()
-  pPurchaseProcessor = void()
-  pWaitingForNodeName = ""
+  pCreditInfoPageID = VOID
+  pPixelInfoPageID = VOID
+  pPurchaseProcessor = VOID
+  pWaitingForNodeName = EMPTY
   registerMessage(#refresh_catalogue, me.getID(), #refreshCatalogue)
 end
 
-on deconstruct me 
+on deconstruct me
   if objectExists(pPersistentCatalogDataId) then
     removeObject(pPersistentCatalogDataId)
   end if
   unregisterMessage(#refresh_catalogue, me.getID())
 end
 
-on updatePageData me, tPageID, tdata 
-  if ilk(tdata) <> #propList then
-    return FALSE
+on updatePageData me, tPageID, tdata
+  if (ilk(tdata) <> #propList) then
+    return 0
   end if
   tGroups = me.createOfferGroups(tdata.duplicate())
   sendProcessTracking(503)
-  if ilk(tGroups) <> #propList then
-    return FALSE
+  if (ilk(tGroups) <> #propList) then
+    return 0
   end if
-  if ilk(pPageCache) <> #propList then
-    return FALSE
+  if (ilk(pPageCache) <> #propList) then
+    return 0
   end if
   pPageCache.setaProp(tPageID, tGroups)
   sendProcessTracking(504)
@@ -43,46 +43,46 @@ on updatePageData me, tPageID, tdata
   end if
 end
 
-on updateCatalogIndex me, tdata 
+on updateCatalogIndex me, tdata
   pPageCache = [:]
   pCatalogIndex = tdata
   if pWaitingForFrontPage then
     tNode = me.getFirstNavigateableNode(pCatalogIndex)
     if voidp(tNode) then
-      return()
+      return 
     else
-      me.preparePage(tNode.getAt(#pageid))
+      me.preparePage(tNode[#pageid])
       pWaitingForFrontPage = 0
     end if
     tCreditInfoNode = me.getNodeByName(pCreditInfoNodeName, pCatalogIndex)
     tPixelInfoNode = me.getNodeByName(pPixelInfoNodeName, pCatalogIndex)
     if not voidp(tCreditInfoNode) then
-      pCreditInfoPageID = tCreditInfoNode.getAt(#pageid)
+      pCreditInfoPageID = tCreditInfoNode[#pageid]
     end if
     if not voidp(tPixelInfoNode) then
-      pPixelInfoPageID = tPixelInfoNode.getAt(#pageid)
+      pPixelInfoPageID = tPixelInfoNode[#pageid]
     end if
   end if
-  if pWaitingForNodeName <> "" then
+  if (pWaitingForNodeName <> EMPTY) then
     tNode = me.getFirstNodeByName(pWaitingForNodeName, pCatalogIndex)
     if voidp(tNode) then
-      return()
+      return 
     else
-      me.preparePage(tNode.getAt(#pageid))
-      pWaitingForNodeName = ""
+      me.preparePage(tNode[#pageid])
+      pWaitingForNodeName = EMPTY
     end if
     tCreditInfoNode = me.getNodeByName(pCreditInfoNodeName, pCatalogIndex)
     tPixelInfoNode = me.getNodeByName(pPixelInfoNodeName, pCatalogIndex)
     if not voidp(tCreditInfoNode) then
-      pCreditInfoPageID = tCreditInfoNode.getAt(#pageid)
+      pCreditInfoPageID = tCreditInfoNode[#pageid]
     end if
     if not voidp(tPixelInfoNode) then
-      pPixelInfoPageID = tPixelInfoNode.getAt(#pageid)
+      pPixelInfoPageID = tPixelInfoNode[#pageid]
     end if
   end if
 end
 
-on preparePage me, tPageID 
+on preparePage me, tPageID
   if voidp(pPageCache.getaProp(tPageID)) then
     me.initCatalogData()
     me.getHandler().requestPage(tPageID)
@@ -92,13 +92,13 @@ on preparePage me, tPageID
   end if
 end
 
-on prepareFrontPage me 
+on prepareFrontPage me
   if not voidp(pCatalogIndex) then
     tNode = me.getFirstNavigateableNode(pCatalogIndex)
-    if tNode.ilk <> #propList then
-      return FALSE
+    if (tNode.ilk <> #propList) then
+      return 0
     end if
-    me.preparePage(tNode.getAt(#pageid))
+    me.preparePage(tNode[#pageid])
     pWaitingForFrontPage = 0
   else
     pWaitingForFrontPage = 1
@@ -106,14 +106,14 @@ on prepareFrontPage me
   end if
 end
 
-on preparePageByName me, tLocalizedName 
+on preparePageByName me, tLocalizedName
   if not voidp(pCatalogIndex) then
     tNode = me.getFirstNodeByName(tLocalizedName, pCatalogIndex)
     if voidp(tNode) then
-      return()
+      return 
     else
-      me.preparePage(tNode.getAt(#pageid))
-      pWaitingForNodeName = ""
+      me.preparePage(tNode[#pageid])
+      pWaitingForNodeName = EMPTY
     end if
   else
     pWaitingForNodeName = tLocalizedName
@@ -121,185 +121,178 @@ on preparePageByName me, tLocalizedName
   end if
 end
 
-on prepareCreditsInfoPage me 
+on prepareCreditsInfoPage me
   if voidp(pCreditInfoPageID) then
-    return(error(me, "Credits info page not found in node tree.", #prepareCreditsInfoPage, #major))
+    return error(me, "Credits info page not found in node tree.", #prepareCreditsInfoPage, #major)
   end if
   me.preparePage(pCreditInfoPageID)
 end
 
-on preparePixelsInfoPage me 
+on preparePixelsInfoPage me
   if voidp(pPixelInfoPageID) then
-    return(error(me, "Pixels info page not found in node tree.", #preparePixelsInfoPage, #major))
+    return error(me, "Pixels info page not found in node tree.", #preparePixelsInfoPage, #major)
   end if
   me.preparePage(pPixelInfoPageID)
 end
 
-on getPageData me, tPageID 
-  if ilk(pPageCache) <> #propList then
-    return FALSE
+on getPageData me, tPageID
+  if (ilk(pPageCache) <> #propList) then
+    return 0
   end if
-  return(pPageCache.getaProp(tPageID))
+  return pPageCache.getaProp(tPageID)
 end
 
-on getPageDataByLayout me, tLayout 
-  repeat while pPageCache <= undefined
-    tPage = getAt(undefined, tLayout)
-    if (tPage.getAt(#layout) = tLayout) then
-      return(tPage)
+on getPageDataByLayout me, tLayout
+  repeat with tPage in pPageCache
+    if (tPage[#layout] = tLayout) then
+      return tPage
     end if
   end repeat
-  return([:])
+  return [:]
 end
 
-on getCatalogIndex me 
-  return(pCatalogIndex)
+on getCatalogIndex me
+  return pCatalogIndex
 end
 
-on getPersistentCatalogDataObject me 
+on getPersistentCatalogDataObject me
   if voidp(getObject(pPersistentCatalogDataId)) then
     error(me, "Persistent Catalog Data Missing!", #getPersistentCatalogDataObject, #major)
   end if
-  return(getObject(pPersistentCatalogDataId))
+  return getObject(pPersistentCatalogDataId)
 end
 
-on getPageItemDownloader me 
-  return(pPageItemDownloader)
+on getPageItemDownloader me
+  return pPageItemDownloader
 end
 
-on getFirstNavigateableNode me, tNode 
-  if ilk(tNode) <> #propList then
+on getFirstNavigateableNode me, tNode
+  if (ilk(tNode) <> #propList) then
     error(me, "Node type was invalid.", #getFirstNavigateableNode, #critical)
-    return(void())
+    return VOID
   end if
-  if tNode.getAt(#navigateable) and tNode.getAt(#pageid) <> -1 then
-    return(tNode)
+  if (tNode[#navigateable] and (tNode[#pageid] <> -1)) then
+    return tNode
   else
     if not voidp(tNode.getaProp(#subnodes)) then
-      repeat while tNode.getAt(#subnodes) <= undefined
-        tSubNode = getAt(undefined, tNode)
+      repeat with tSubNode in tNode[#subnodes]
         tResult = me.getFirstNavigateableNode(tSubNode)
         if not voidp(tResult) then
-          return(tResult)
+          return tResult
         end if
       end repeat
     end if
   end if
 end
 
-on getNodeByName me, tName 
-  return(me.getFirstNodeByName(tName, pCatalogIndex))
+on getNodeByName me, tName
+  return me.getFirstNodeByName(tName, pCatalogIndex)
 end
 
-on getFirstNodeByName me, tName, tNode 
-  if ilk(tNode) <> #propList then
+on getFirstNodeByName me, tName, tNode
+  if (ilk(tNode) <> #propList) then
     error(me, "Node type was invalid.", #getNodeByName, #major)
-    return(void())
+    return VOID
   end if
-  if (tNode.getAt(#nodename) = tName) then
-    return(tNode)
+  if (tNode[#nodename] = tName) then
+    return tNode
   else
     if not voidp(tNode.getaProp(#subnodes)) then
-      repeat while tNode.getAt(#subnodes) <= tNode
-        tSubNode = getAt(tNode, tName)
+      repeat with tSubNode in tNode[#subnodes]
         tResult = me.getFirstNodeByName(tName, tSubNode)
         if not voidp(tResult) then
-          return(tResult)
+          return tResult
         end if
       end repeat
     end if
   end if
 end
 
-on initCatalogData me 
+on initCatalogData me
   if voidp(pCatalogIndex) then
     me.getHandler().requestCatalogIndex()
   end if
 end
 
-on createOfferGroups me, tPageData 
-  if ilk(tPageData) <> #propList then
+on createOfferGroups me, tPageData
+  if (ilk(tPageData) <> #propList) then
     error(me, "Page data was not a property list", #createOfferGroups, #major)
-    return FALSE
+    return 0
   end if
   tGroupedOffers = [:]
-  if ilk(tPageData.getAt(#offers)) <> #list then
+  if (ilk(tPageData[#offers]) <> #list) then
     error(me, "Offers was not a list", #createOfferGroups, #major)
-    return FALSE
+    return 0
   end if
-  repeat while tPageData.getAt(#offers) <= undefined
-    tOffer = getAt(undefined, tPageData)
-    tProductCode = tOffer.getAt(#offername)
+  repeat with tOffer in tPageData[#offers]
+    tProductCode = tOffer[#offername]
     if voidp(tGroupedOffers.getaProp(tProductCode)) then
       tOfferGroup = createObject(#random, ["Offergroup Class"])
       tGroupedOffers.setaProp(tProductCode, tOfferGroup)
     end if
-    tGroupedOffers.getAt(tProductCode).add(tOffer)
+    tGroupedOffers[tProductCode].add(tOffer)
   end repeat
-  tPageData.setAt(#offers, tGroupedOffers)
-  return(tPageData)
+  tPageData[#offers] = tGroupedOffers
+  return tPageData
 end
 
-on findOfferByOldpageSelection me, tSelectedProduct, tPageID 
+on findOfferByOldpageSelection me, tSelectedProduct, tPageID
   tPageData = me.pPageCache.getaProp(tPageID)
-  tOffer = void()
-  i = 1
-  repeat while i <= tPageData.getAt(#offers).count
-    if (tSelectedProduct.getAt("purchaseCode") = tPageData.getAt(#offers).getPropAt(i)) then
-      tOffer = tPageData.getAt(#offers).getAt(i).getOffer(1)
-    else
-      i = (1 + i)
+  tOffer = VOID
+  repeat with i = 1 to tPageData[#offers].count
+    if (tSelectedProduct["purchaseCode"] = tPageData[#offers].getPropAt(i)) then
+      tOffer = tPageData[#offers][i].getOffer(1)
+      exit repeat
     end if
   end repeat
   if voidp(tOffer) then
     error(me, "Could not map old page's product code to a current product id", #findOfferByOldpageSelection, #major)
-    return(void())
+    return VOID
   else
     tRemappedOffer = createObject(#random, ["Offer Class"])
     tRemappedOffer.copy(tOffer)
-    tRemappedOffer.getContent(1).setExtraParam(tSelectedProduct.getAt("extra_parm"))
-    return(tRemappedOffer)
+    tRemappedOffer.getContent(1).setExtraParam(tSelectedProduct["extra_parm"])
+    return tRemappedOffer
   end if
 end
 
-on checkProductOrder me, tSelectedProduct 
+on checkProductOrder me, tSelectedProduct
   if not listp(tSelectedProduct) then
-    return(error(me, "Selected product was not valid", #checkProductOrder, #major))
+    return error(me, "Selected product was not valid", #checkProductOrder, #major)
   end if
   tPageID = me.getInterface().getLastOpenedPage()
   tOffer = me.findOfferByOldpageSelection(tSelectedProduct, tPageID)
   if voidp(tOffer) then
-    return(error(me, "Could not reference an offer by selected product", #checkProductOrder, #major))
+    return error(me, "Could not reference an offer by selected product", #checkProductOrder, #major)
   end if
-  if not objectp(pPurchaseProcessor) or (pPurchaseProcessor = 0) then
+  if (not objectp(pPurchaseProcessor) or (pPurchaseProcessor = 0)) then
     pPurchaseProcessor = createObject(getUniqueID(), "Purchase Processor Class")
   end if
-  pPurchaseProcessor.startPurchase([#offerType:#credits, #pageid:tPageID, #item:tOffer, #method:#sendPurchaseFromCatalog])
+  pPurchaseProcessor.startPurchase([#offerType: #credits, #pageid: tPageID, #item: tOffer, #method: #sendPurchaseFromCatalog])
 end
 
-on requestPurchase me, tOfferType, tPageID, tSelectedItem, tMethod, tExtraProps 
-  if not objectp(pPurchaseProcessor) or (pPurchaseProcessor = 0) then
+on requestPurchase me, tOfferType, tPageID, tSelectedItem, tMethod, tExtraProps
+  if (not objectp(pPurchaseProcessor) or (pPurchaseProcessor = 0)) then
     pPurchaseProcessor = createObject(getUniqueID(), "Purchase Processor Class")
   end if
-  tProps = [#offerType:tOfferType, #pageid:tPageID, #item:tSelectedItem, #method:tMethod]
+  tProps = [#offerType: tOfferType, #pageid: tPageID, #item: tSelectedItem, #method: tMethod]
   if listp(tExtraProps) then
-    repeat while tExtraProps <= tPageID
-      tProp = getAt(tPageID, tOfferType)
+    repeat with tProp in tExtraProps
       tProps.setaProp(tProp, 1)
     end repeat
   end if
   pPurchaseProcessor.startPurchase(tProps)
 end
 
-on getArePixelsEnabled me 
+on getArePixelsEnabled me
   if (getStringVariable("pixels.enabled") = "true") then
-    return TRUE
+    return 1
   else
-    return FALSE
+    return 0
   end if
 end
 
-on refreshCatalogue me, tMode 
+on refreshCatalogue me, tMode
   if (tMode = #club) then
     me.getInterface().hideCatalogue()
   else
