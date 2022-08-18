@@ -1,35 +1,35 @@
-on constructMultiuserManager  
-  return(createManager(#multiuser_manager, getClassVariable("multiuser.manager.class")))
+on constructMultiuserManager
+  return createManager(#multiuser_manager, getClassVariable("multiuser.manager.class"))
 end
 
-on deconstructMultiuserManager  
-  return(removeManager(#multiuser_manager))
+on deconstructMultiuserManager
+  return removeManager(#multiuser_manager)
 end
 
-on getMultiuserManager  
+on getMultiuserManager
   tMgr = getObjectManager()
   if not tMgr.managerExists(#multiuser_manager) then
-    return(constructMultiuserManager())
+    return constructMultiuserManager()
   end if
-  return(tMgr.getManager(#multiuser_manager))
+  return tMgr.getManager(#multiuser_manager)
 end
 
-on createMultiuser tid, tHost, tPort 
-  return(getMultiuserManager().create(tid, tHost, tPort))
+on createMultiuser tid, tHost, tPort
+  return getMultiuserManager().create(tid, tHost, tPort)
 end
 
-on removeMultiuser tid 
-  return(getMultiuserManager().Remove(tid))
+on removeMultiuser tid
+  return getMultiuserManager().Remove(tid)
 end
 
-on getMultiuser tid 
-  return(getMultiuserManager().GET(tid))
+on getMultiuser tid
+  return getMultiuserManager().GET(tid)
 end
 
-on multiuserExists tid 
-  return(getMultiuserManager().exists(tid))
+on multiuserExists tid
+  return getMultiuserManager().exists(tid)
 end
 
-on printMultiusers  
-  return(getMultiuserManager().print())
+on printMultiusers
+  return getMultiuserManager().print()
 end

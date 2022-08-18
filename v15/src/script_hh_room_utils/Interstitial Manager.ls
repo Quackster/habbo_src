@@ -1,10 +1,10 @@
-property pMemberIDBase, pShowTimeOutID, pDownloadTimeOutID, pToolTipSpr, pShowCounter, pMemberID, pDLCounter, pAdLoaded, pClickURL, pAdFinished, pAdError, pShowAdTime
+property pClickURL, pToolTipSpr, pSprite, pShowTimeOutID, pDownloadTimeOutID, pAdFinished, pAdError, pMemberID, pMemberIDBase, pAdLoaded, pShowAdTime, pDLCounter, pShowCounter
 
-on construct me 
+on construct me
   pAdFinished = 0
   pShowTimeOutID = "InterstitialShowTime"
   pDownloadTimeOutID = "InterstitialDownTime"
-  pClickURL = ""
+  pClickURL = EMPTY
   pAdError = 0
   pMemberIDBase = "interstitial-system"
   pMemberID = pMemberIDBase
@@ -16,10 +16,10 @@ on construct me
   else
     pShowAdTime = 4000
   end if
-  return TRUE
+  return 1
 end
 
-on deconstruct me 
+on deconstruct me
   me.hideTooltip()
   if timeoutExists(pShowTimeOutID) then
     removeTimeout(pShowTimeOutID)
@@ -29,22 +29,22 @@ on deconstruct me
   end if
   if (pToolTipSpr.ilk = #sprite) then
     releaseSprite(pToolTipSpr.spriteNum)
-    pToolTipSpr = void()
+    pToolTipSpr = VOID
   end if
-  return TRUE
+  return 1
 end
 
-on Init me, tSourceURL, tClickURL 
+on Init me, tSourceURL, tClickURL
   tShowlimit = getVariable("interstitial.max.displays", 5)
-  if pShowCounter >= tShowlimit then
+  if (pShowCounter >= tShowlimit) then
     pAdError = 1
     me.adFinished()
-    return FALSE
+    return 0
   end if
-  if (tSourceURL = 0) or not tSourceURL starts "http" then
+  if ((tSourceURL = 0) or not (tSourceURL starts "http")) then
     pAdError = 1
     me.adFinished()
-    return FALSE
+    return 0
   end if
   pAdError = 0
   pAdLoaded = 0
@@ -52,107 +52,96 @@ on Init me, tSourceURL, tClickURL
     removeMember(pMemberID)
   end if
   pDLCounter = (pDLCounter + 1)
-  pMemberID = pMemberIDBase & pDLCounter
+  pMemberID = (pMemberIDBase & pDLCounter)
   tAdMemNum = queueDownload(tSourceURL, pMemberID, #bitmap, 1, #httpcookie)
-  if tAdMemNum < 1 then
+  if (tAdMemNum < 1) then
     me.adFinished()
-    return(error(me, "Member not found", #Init, #major))
+    return error(me, "Member not found", #Init, #major)
   end if
   createTimeout(pDownloadTimeOutID, 15000, #adDownloadError, me.getID(), #error, 1)
   registerDownloadCallback(tAdMemNum, #adLoaded, me.getID())
-  if not tClickURL starts "http" then
-    pClickURL = void()
+  if not (tClickURL starts "http") then
+    pClickURL = VOID
   else
     pClickURL = tClickURL
   end if
 end
 
-on getInterstitialMemNum me 
+on getInterstitialMemNum me
   if pAdLoaded then
-    return(getmemnum(pMemberID))
+    return getmemnum(pMemberID)
   else
-    return FALSE
+    return 0
   end if
 end
 
-on getInterstitialLink me 
-  return(pClickURL)
+on getInterstitialLink me
+  return pClickURL
 end
 
-on isAdFinished me 
-  return(pAdFinished)
+on isAdFinished me
+  return pAdFinished
 end
 
-on adRequested me 
-  pClickURL = ""
+on adRequested me
+  pClickURL = EMPTY
   pAdFinished = 0
   pAdLoaded = 0
 end
 
-on hideTooltip me 
+on hideTooltip me
   if (pToolTipSpr.ilk = #sprite) then
     releaseSprite(pToolTipSpr.spriteNum)
-    pToolTipSpr = void()
+    pToolTipSpr = VOID
   end if
 end
 
-on adClosed me 
+on adClosed me
   me.hideTooltip()
 end
 
-on adLoaded me 
+on adLoaded me
   if timeoutExists(pDownloadTimeOutID) then
     removeTimeout(pDownloadTimeOutID)
   end if
   if (pAdError = 1) then
-    return FALSE
-  end if
-  if (member(pMemberID).type = #empty) then
-    return(me.adImportError())
+    return 0
   end if
   pAdLoaded = 1
   tThread = getThread(#room)
   if (tThread = 0) then
-    return FALSE
+    return 0
   end if
   tRoomInt = tThread.getInterface()
   if (tRoomInt = 0) then
-    return FALSE
+    return 0
   end if
   tRoomInt.resizeInterstitialWindow()
-  createTimeout(pShowTimeOutID, pShowAdTime, #adFinished, me.getID(), void(), 1)
+  createTimeout(pShowTimeOutID, pShowAdTime, #adFinished, me.getID(), VOID, 1)
   pShowCounter = (pShowCounter + 1)
 end
 
-on adImportError me 
-  error(me, "Interstitial resource error", #adImportError, #minor)
-  unregisterMember(pMemberID)
-  pAdError = 1
-  me.adFinished()
-  return FALSE
-end
-
-on adDownloadError me 
+on adDownloadError me
   error(me, "Interstitial download timeout", #adDownloadError, #minor)
   pAdError = 1
   me.adFinished()
 end
 
-on adFinished me 
+on adFinished me
   pAdFinished = 1
   tThread = getThread(#room)
   if (tThread = 0) then
-    return FALSE
+    return 0
   end if
   tRoomComp = tThread.getComponent()
   if (tRoomComp = 0) then
-    return FALSE
+    return 0
   end if
   tRoomComp.roomPrePartFinished()
 end
 
-on ShowToolTip me 
-  if pToolTipSpr.ilk <> #sprite then
+on ShowToolTip me
+  if (pToolTipSpr.ilk <> #sprite) then
     pToolTipSpr = sprite(reserveSprite(me.getID()))
     pToolTipSpr.ink = 8
     if not memberExists("inttooltip") then
@@ -161,20 +150,20 @@ on ShowToolTip me
     pToolTipSpr.member = member(getmemnum("inttooltip"))
   end if
   tNewLoc = (the mouseLoc + point(0, 30))
-  if (tNewLoc.locV - (pToolTipSpr.height / 2)) < 10 then
+  if ((tNewLoc.locV - (pToolTipSpr.height / 2)) < 10) then
     tNewLoc.locV = (10 + (pToolTipSpr.height / 2))
   end if
-  if (tNewLoc.locH - (pToolTipSpr.width / 2)) < 10 then
+  if ((tNewLoc.locH - (pToolTipSpr.width / 2)) < 10) then
     tNewLoc.locH = (10 + (pToolTipSpr.width / 2))
   end if
-  if (tNewLoc.locH + (pToolTipSpr.width / 2)) > (the stage.rect.width - 10) then
+  if ((tNewLoc.locH + (pToolTipSpr.width / 2)) > (the stage.rect.width - 10)) then
     tNewLoc.locH = ((the stage.rect.width - 10) - (pToolTipSpr.width / 2))
   end if
   pToolTipSpr.loc = tNewLoc
   pToolTipSpr.locZ = 100000000
 end
 
-on createToolTipMember me 
+on createToolTipMember me
   createMember("inttooltip", #bitmap)
   tText = getText("ad_note", "Clicking this advertisement will open a new window")
   tFontStruct = getStructVariable("struct.font.bold")
@@ -186,35 +175,30 @@ on createToolTipMember me
   tmember.fontSize = tFontStruct.getaProp(#fontSize)
   tmember.fontStyle = tFontStruct.getaProp(#fontStyle)
   tmember.text = tText
-  tList = ["left":"ad.tooltip.left", "middle":"ad.tooltip.middle", "right":"ad.tooltip.right"]
+  tList = ["left": "ad.tooltip.left", "middle": "ad.tooltip.middle", "right": "ad.tooltip.right"]
   tImgs = [:]
-  repeat while ["left", "middle", "right"] <= undefined
-    i = getAt(undefined, undefined)
-    tImgs.addProp(i, member(getmemnum(tList.getAt(i))).image)
+  repeat with i in ["left", "middle", "right"]
+    tImgs.addProp(i, member(getmemnum(tList[i])).image)
   end repeat
-  tTextWidth = (tmember.charPosToLoc(tmember.count(#char)).locH + (tImgs.getAt("left").width * 2))
+  tTextWidth = (tmember.charPosToLoc(tmember.char.count).locH + (tImgs["left"].width * 2))
   tWidth = (tTextWidth + 9)
   tmember.rect = rect(0, 0, tTextWidth, tmember.height)
   tTextImg = tmember.image
-  tNewImg = image(tWidth, tImgs.getAt("left").height, 8)
+  tNewImg = image(tWidth, tImgs["left"].height, 8)
   tStartPointY = 0
   tEndPointY = tNewImg.height
   tStartPointX = 0
   tEndPointX = 0
-  repeat while ["left", "middle", "right"] <= undefined
-    i = getAt(undefined, undefined)
+  repeat with i in ["left", "middle", "right"]
     tStartPointX = tEndPointX
-    if (["left", "middle", "right"] = "left") then
-      tEndPointX = (tEndPointX + tImgs.getProp(i).width)
-    else
-      if (["left", "middle", "right"] = "middle") then
+    case i of
+      "left":
+        tEndPointX = (tEndPointX + tImgs.getProp(i).width)
+      "middle":
         tEndPointX = (((tEndPointX + tWidth) - tImgs.getProp("left").width) - tImgs.getProp("right").width)
-      else
-        if (["left", "middle", "right"] = "right") then
-          tEndPointX = (tEndPointX + tImgs.getProp(i).width)
-        end if
-      end if
-    end if
+      "right":
+        tEndPointX = (tEndPointX + tImgs.getProp(i).width)
+    end case
     tdestrect = rect(tStartPointX, tStartPointY, tEndPointX, tEndPointY)
     tNewImg.copyPixels(tImgs.getProp(i), tdestrect, tImgs.getProp(i).rect)
   end repeat
@@ -226,13 +210,13 @@ on createToolTipMember me
   removeMember("inttooltiptext")
 end
 
-on eventProc me, tEvent, tSprID, tParm 
+on eventProc me, tEvent, tSprID, tParm
   if (tEvent = #mouseUp) then
     if not voidp(pClickURL) then
-      queueDownload(pClickURL, "temp" & the milliSeconds, #text, 1, #httpcookie, #openredirect)
+      queueDownload(pClickURL, ("temp" & the milliSeconds), #text, 1, #httpcookie, #openredirect)
     end if
   else
-    if (tEvent = #mouseEnter) or (tEvent = #mouseWithin) then
+    if ((tEvent = #mouseEnter) or (tEvent = #mouseWithin)) then
       if not voidp(pClickURL) then
         ShowToolTip(me)
       end if

@@ -1,64 +1,44 @@
-on setID me, tid 
+on setID me, tid
   callAncestor(#setID, [me], tid)
   executeMessage(#sound_machine_created, me.getID(), 0)
-  return TRUE
+  return 1
 end
 
-on deconstruct me 
+on deconstruct me
   executeMessage(#sound_machine_removed, me.getID())
   callAncestor(#deconstruct, [me])
-  return TRUE
+  return 1
 end
 
-on define me, tProps 
+on define me, tProps
   tRetVal = callAncestor(#define, [me], tProps)
-  if voidp(tProps.getAt(#stripId)) then
+  if voidp(tProps[#stripId]) then
     executeMessage(#jukebox_defined, me.getID())
   end if
-  return TRUE
+  return 1
 end
 
-on select me 
-  towner = 0
+on select me
+  tOwner = 0
   tSession = getObject(#session)
-  if tSession <> 0 then
+  if (tSession <> 0) then
     if tSession.GET("room_owner") then
-      towner = 1
+      tOwner = 1
     end if
   end if
   if the doubleClick then
-    executeMessage(#jukebox_selected, [#id:me.getID(), #owner:towner])
+    executeMessage(#jukebox_selected, [#id: me.getID(), #owner: tOwner])
   else
-    return(callAncestor(#select, [me]))
+    return callAncestor(#select, [me])
   end if
-  return TRUE
+  return 1
 end
 
-on getInfo me 
-  tInfo = callAncestor(#getInfo, [me])
-  if ilk(tInfo) <> #propList then
-    tInfo = [:]
-  end if
-  if voidp(tInfo.getAt(#custom)) then
-    tInfo.setAt(#custom, "")
-  end if
-  tInfo.setAt(#custom, tInfo.getAt(#custom) & "\r")
-  tArray = [:]
-  executeMessage(#get_jukebox_song_info, tArray)
-  if not voidp(tArray.getAt(#songName)) then
-    tInfo.setAt(#custom, tInfo.getAt(#custom) & tArray.getAt(#songName) & "\r")
-  end if
-  if not voidp(tArray.getAt(#author)) then
-    tInfo.setAt(#custom, tInfo.getAt(#custom) & tArray.getAt(#author))
-  end if
-  return(tInfo)
-end
-
-on setState me, tNewState 
+on setState me, tNewState
   callAncestor(#setState, [me], tNewState)
   if voidp(tNewState) then
-    return FALSE
+    return 0
   end if
   tStateOn = 1
-  executeMessage(#sound_machine_set_state, [#id:me.getID(), #furniOn:tStateOn])
+  executeMessage(#sound_machine_set_state, [#id: me.getID(), #furniOn: tStateOn])
 end

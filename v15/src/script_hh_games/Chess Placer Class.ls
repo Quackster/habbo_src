@@ -1,6 +1,6 @@
 property pSpr, pGameBoardSpr, pPieceData
 
-on Init me, tMem, tlocz, tPieceData, tGameBoardSpr 
+on Init me, tMem, tlocz, tPieceData, tGameBoardSpr
   pSpr = sprite(reserveSprite(me.getID()))
   setEventBroker(pSpr.spriteNum, me.getID())
   call(#registerClient, pSpr.scriptInstanceList, me)
@@ -13,30 +13,30 @@ on Init me, tMem, tlocz, tPieceData, tGameBoardSpr
   receiveUpdate(me.getID())
 end
 
-on deconstruct me 
+on deconstruct me
   removeUpdate(me.getID())
   releaseSprite(pSpr.spriteNum)
-  pSpr = void()
+  pSpr = VOID
 end
 
-on eventProcChessPlacer me, tEvent, tSprID, tParam 
+on eventProcChessPlacer me, tEvent, tSprID, tParam
   pSpr.visible = 0
-  tsprite = rollover()
+  tSprite = rollover()
   pSpr.visible = 1
-  tid = call(#getID, sprite(tsprite).scriptInstanceList)
+  tid = call(#getID, sprite(tSprite).scriptInstanceList)
   if (tid = "close") then
     getThread(#games).getInterface().eventProcChess(tEvent, tid)
   end if
 end
 
-on update me 
+on update me
   pSpr.loc = the mouseLoc
   if pSpr.intersects(pGameBoardSpr.spriteNum) then
     pSpr.blend = 100
   else
     pSpr.blend = 40
   end if
-  if the mouseDown and pSpr.intersects(pGameBoardSpr.spriteNum) then
+  if (the mouseDown and pSpr.intersects(pGameBoardSpr.spriteNum)) then
     tloc = point(abs((pGameBoardSpr.locH - pSpr.locH)), abs((pGameBoardSpr.locV - pSpr.locV)))
     if getThread(#games).getInterface().makeMoveChess(tloc, pPieceData) then
       removeObject(me.getID())

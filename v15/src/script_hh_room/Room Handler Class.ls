@@ -1,343 +1,301 @@
 property pRemoteControlledUsers
 
-on construct me 
+on construct me
   pRemoteControlledUsers = []
-  return(me.regMsgList(1))
+  return me.regMsgList(1)
 end
 
-on deconstruct me 
+on deconstruct me
   pRemoteControlledUsers = []
-  return(me.regMsgList(0))
+  return me.regMsgList(0)
 end
 
-on handle_opc_ok me, tMsg 
+on handle_opc_ok me, tMsg
   if (me.getComponent().getRoomID() = "private") then
-    me.getComponent().roomConnected(void(), "OPC_OK")
+    me.getComponent().roomConnected(VOID, "OPC_OK")
   end if
 end
 
-on handle_clc me 
+on handle_clc me
   me.getComponent().roomDisconnected()
 end
 
-on handle_youaremod me, tMsg 
-  return TRUE
+on handle_youaremod me, tMsg
+  return 1
 end
 
-on handle_flat_letin me, tMsg 
+on handle_flat_letin me, tMsg
   tConn = tMsg.connection
   tName = tConn.GetStrFrom()
   me.getInterface().showDoorBellAccepted(tName)
-  if tName <> "" then
-    return TRUE
+  if (tName <> EMPTY) then
+    return 1
   end if
-  return(me.getComponent().roomConnected(void(), "FLAT_LETIN"))
+  return me.getComponent().roomConnected(VOID, "FLAT_LETIN")
 end
 
-on handle_room_ready me, tMsg 
-  me.getComponent().roomConnected(tMsg.content.getProp(#word, 1), "ROOM_READY")
+on handle_room_ready me, tMsg
+  me.getComponent().roomConnected(tMsg.content.word[1], "ROOM_READY")
 end
 
-on handle_logout me, tMsg 
-  tuser = tMsg.content.getProp(#word, 1)
-  if tuser <> getObject(#session).GET("user_index") then
+on handle_logout me, tMsg
+  tuser = tMsg.content.word[1]
+  if (tuser <> getObject(#session).GET("user_index")) then
     me.getComponent().removeUserObject(tuser)
   end if
 end
 
-on handle_disconnect me 
+on handle_disconnect me
   me.getComponent().roomDisconnected()
 end
 
-on handle_error me, tMsg 
+on handle_error me, tMsg
   tErr = tMsg.content
-  error(me, tMsg.connection.getID() & ":" && tErr, #handle_error, #dummy)
-  if (tErr = "info: No place for stuff") then
-    me.getInterface().stopObjectMover()
-  else
-    if (tErr = "Incorrect flat password") then
+  error(me, ((tMsg.connection.getID() & ":") && tErr), #handle_error, #dummy)
+  case tErr of
+    "info: No place for stuff":
+      me.getInterface().stopObjectMover()
+    "Incorrect flat password":
       if threadExists(#navigator) then
         getThread(#navigator).getComponent().flatAccessResult(tErr)
       end if
-    else
-      if (tErr = "Password required") then
-        if threadExists(#navigator) then
-          getThread(#navigator).getComponent().flatAccessResult(tErr)
-        end if
-      else
-        if (tErr = "weird error") then
-          executeMessage(#leaveRoom)
-        else
-          if (tErr = "Not owner") then
-            getObject(#session).set("room_controller", 0)
-            me.getInterface().hideInterface(#hide)
-          end if
-        end if
+    "Password required":
+      if threadExists(#navigator) then
+        getThread(#navigator).getComponent().flatAccessResult(tErr)
       end if
-    end if
-  end if
+    "weird error":
+      executeMessage(#leaveRoom)
+    "Not owner":
+      getObject(#session).set("room_controller", 0)
+      me.getInterface().hideInterface(#hide)
+  end case
 end
 
-on handle_doorbell_ringing me, tMsg 
-  if (tMsg.content = "") then
-    return(me.getInterface().showDoorBellWaiting())
+on handle_doorbell_ringing me, tMsg
+  if (tMsg.content = EMPTY) then
+    return me.getInterface().showDoorBellWaiting()
   else
-    return(me.getInterface().showDoorBellDialog(tMsg.content))
+    return me.getInterface().showDoorBellDialog(tMsg.content)
   end if
 end
 
-on handle_flatnotallowedtoenter me, tMsg 
+on handle_flatnotallowedtoenter me, tMsg
   tConn = tMsg.connection
   tName = tConn.GetStrFrom()
-  return(me.getInterface().showDoorBellRejected(tName))
+  return me.getInterface().showDoorBellRejected(tName)
 end
 
-on handle_status me, tMsg 
+on handle_status me, tMsg
   tList = []
-  tCount = tMsg.content.count(#line)
+  tCount = tMsg.content.line.count
   tDelim = the itemDelimiter
   the itemDelimiter = "/"
-  i = 1
-  repeat while i <= tCount
-    tLine = tMsg.content.getProp(#line, i)
-    if length(tLine) > 5 then
+  repeat with i = 1 to tCount
+    tLine = tMsg.content.line[i]
+    if (length(tLine) > 5) then
       tuser = [:]
-      tuser.setAt(#id, tLine.getPropRef(#item, 1).getProp(#word, 1))
-      tloc = tLine.getPropRef(#item, 1).getProp(#word, 2)
+      tuser[#id] = tLine.item[1].word[1]
+      tloc = tLine.item[1].word[2]
       the itemDelimiter = ","
-      tuser.setAt(#x, integer(tloc.getProp(#item, 1)))
-      tuser.setAt(#y, integer(tloc.getProp(#item, 2)))
-      tuser.setAt(#h, getLocalFloat(tloc.getProp(#item, 3)))
-      tuser.setAt(#dirHead, (integer(tloc.getProp(#item, 4)) mod 8))
-      tuser.setAt(#dirBody, (integer(tloc.getProp(#item, 5)) mod 8))
+      tuser[#x] = integer(tloc.item[1])
+      tuser[#y] = integer(tloc.item[2])
+      tuser[#h] = getLocalFloat(tloc.item[3])
+      tuser[#dirHead] = (integer(tloc.item[4]) mod 8)
+      tuser[#dirBody] = (integer(tloc.item[5]) mod 8)
       tActions = []
       the itemDelimiter = "/"
-      j = 2
-      repeat while j <= tLine.count(#item)
-        if length(tLine.getProp(#item, j)) > 1 then
-          tActions.add([#name:tLine.getPropRef(#item, j).getProp(#word, 1), #params:tLine.getProp(#item, j)])
+      repeat with j = 2 to tLine.item.count
+        if (length(tLine.item[j]) > 1) then
+          tActions.add([#name: tLine.item[j].word[1], #params: tLine.item[j]])
         end if
-        j = (1 + j)
       end repeat
-      tuser.setAt(#actions, tActions)
+      tuser[#actions] = tActions
       tList.add(tuser)
     end if
-    i = (1 + i)
   end repeat
   the itemDelimiter = tDelim
-  repeat while tList <= undefined
-    tuser = getAt(undefined, tMsg)
-    if not pRemoteControlledUsers.getOne(tuser.getAt(#id)) > 0 then
-      tUserObj = me.getComponent().getUserObject(tuser.getAt(#id))
-      if tUserObj <> 0 then
-        tUserObj.resetValues(tuser.getAt(#x), tuser.getAt(#y), tuser.getAt(#h), tuser.getAt(#dirHead), tuser.getAt(#dirBody))
-        repeat while tList <= undefined
-          tAction = getAt(undefined, tMsg)
-          call(symbol("action_" & tAction.getAt(#name)), [tUserObj], tAction.getAt(#params))
+  repeat with tuser in tList
+    if not (pRemoteControlledUsers.getOne(tuser[#id]) > 0) then
+      tUserObj = me.getComponent().getUserObject(tuser[#id])
+      if (tUserObj <> 0) then
+        tUserObj.resetValues(tuser[#x], tuser[#y], tuser[#h], tuser[#dirHead], tuser[#dirBody])
+        repeat with tAction in tuser[#actions]
+          call(symbol(("action_" & tAction[#name])), [tUserObj], tAction[#params])
         end repeat
-        tUserObj.Refresh(tuser.getAt(#x), tuser.getAt(#y), tuser.getAt(#h))
+        tUserObj.Refresh(tuser[#x], tuser[#y], tuser[#h])
       end if
     end if
   end repeat
 end
 
-on handle_chat me, tMsg 
+on handle_chat me, tMsg
   tConn = tMsg.getaProp(#connection)
   tuser = string(tConn.GetIntFrom())
   tChat = tConn.GetStrFrom()
   if me.getInterface().getIgnoreStatus(tuser) then
-    return FALSE
+    return 0
   end if
-  if (tMsg.getaProp(#subject) = 24) then
-    tMode = "CHAT"
-  else
-    if (tMsg.getaProp(#subject) = 25) then
+  case tMsg.getaProp(#subject) of
+    24:
+      tMode = "CHAT"
+    25:
       tMode = "WHISPER"
-    else
-      if (tMsg.getaProp(#subject) = 26) then
-        tMode = "SHOUT"
-      end if
-    end if
-  end if
+    26:
+      tMode = "SHOUT"
+  end case
   if me.getComponent().userObjectExists(tuser) then
-    me.getComponent().getBalloon().createBalloon([#command:tMode, #id:tuser, #message:tChat])
+    me.getComponent().getBalloon().createBalloon([#command: tMode, #id: tuser, #message: tChat])
   end if
 end
 
-on handle_users me, tMsg 
-  tCount = tMsg.content.count(#line)
+on handle_users me, tMsg
+  tCount = tMsg.content.line.count
   tDelim = the itemDelimiter
   tList = [:]
-  tuser = ""
+  tuser = EMPTY
   if not objectExists("Figure_System") then
-    return(error(me, "Figure system object not found!", #handle_users, #major))
+    return error(me, "Figure system object not found!", #handle_users, #major)
   end if
-  f = 1
-  repeat while f <= tCount
-    tLine = tMsg.content.getProp(#line, f)
-    tProp = tLine.getProp(#char, 1)
-    tdata = tLine.getProp(#char, 3, length(tLine))
-    if (tProp = "i") then
-      tuser = tdata
-      tList.setAt(tuser, [:])
-      tList.getAt(tuser).setAt(#direction, [0, 0])
-      tList.getAt(tuser).setAt(#id, tdata)
-    else
-      if (tProp = "n") then
-        tList.getAt(tuser).setAt(#name, tdata)
-        if tdata contains numToChar(4) then
-          tList.getAt(tuser).setAt(#class, "pet")
+  repeat with f = 1 to tCount
+    tLine = tMsg.content.line[f]
+    tProp = tLine.char[1]
+    tdata = tLine.char[3]
+    case tProp of
+      "i":
+        tuser = tdata
+        tList[tuser] = [:]
+        tList[tuser][#direction] = [0, 0]
+        tList[tuser][#id] = tdata
+      "n":
+        tList[tuser][#name] = tdata
+        if (tdata contains numToChar(4)) then
+          tList[tuser][#class] = "pet"
         else
-          tList.getAt(tuser).setAt(#class, "user")
+          tList[tuser][#class] = "user"
         end if
-      else
-        if (tProp = "f") then
-          tList.getAt(tuser).setAt(#figure, tdata)
+      "f":
+        tList[tuser][#figure] = tdata
+      "l":
+        tList[tuser][#x] = integer(tdata.word[1])
+        tList[tuser][#y] = integer(tdata.word[2])
+        tList[tuser][#h] = getLocalFloat(tdata.word[3])
+      "c":
+        tList[tuser][#custom] = tdata
+      "s":
+        if ((tdata.char[1] = "F") or (tdata.char[1] = "f")) then
+          tList[tuser][#sex] = "F"
         else
-          if (tProp = "l") then
-            tList.getAt(tuser).setAt(#x, integer(tdata.getProp(#word, 1)))
-            tList.getAt(tuser).setAt(#y, integer(tdata.getProp(#word, 2)))
-            tList.getAt(tuser).setAt(#h, getLocalFloat(tdata.getProp(#word, 3)))
+          tList[tuser][#sex] = "M"
+        end if
+      "p":
+        if (tdata contains "ch=s") then
+          the itemDelimiter = "/"
+          tmodel = tdata.char[4]
+          tColor = tdata.item[2]
+          the itemDelimiter = ","
+          if (tColor.item.count = 3) then
+            tColor = value((("rgb(" & tColor) & ")"))
           else
-            if (tProp = "c") then
-              tList.getAt(tuser).setAt(#custom, tdata)
-            else
-              if (tProp = "s") then
-                if (tdata.getProp(#char, 1) = "F") or (tdata.getProp(#char, 1) = "f") then
-                  tList.getAt(tuser).setAt(#sex, "F")
-                else
-                  tList.getAt(tuser).setAt(#sex, "M")
-                end if
-              else
-                if (tProp = "p") then
-                  if tdata contains "ch=s" then
-                    the itemDelimiter = "/"
-                    tmodel = tdata.getProp(#char, 4, 6)
-                    tColor = tdata.getProp(#item, 2)
-                    the itemDelimiter = ","
-                    if (tColor.count(#item) = 3) then
-                      tColor = value("rgb(" & tColor & ")")
-                    else
-                      tColor = rgb("#EEEEEE")
-                    end if
-                    tList.getAt(tuser).setAt(#phfigure, ["model":tmodel, "color":tColor])
-                    tList.getAt(tuser).setAt(#class, "pelle")
-                  end if
-                else
-                  if (tProp = "b") then
-                    tList.getAt(tuser).setAt(#badge, tdata)
-                  else
-                    if (tProp = "a") then
-                      tList.getAt(tuser).setAt(#webID, tdata)
-                    else
-                      if (tProp = "g") then
-                        tList.getAt(tuser).setAt(#groupid, tdata)
-                      else
-                        if (tProp = "t") then
-                          tList.getAt(tuser).setAt(#groupstatus, tdata)
-                        else
-                          if (tLine.getProp(#word, 1) = "[bot]") then
-                            tList.getAt(tuser).setAt(#class, "bot")
-                          end if
-                        end if
-                      end if
-                    end if
-                  end if
-                end if
-              end if
-            end if
+            tColor = rgb("#EEEEEE")
           end if
+          tList[tuser][#phfigure] = ["model": tmodel, "color": tColor]
+          tList[tuser][#class] = "pelle"
         end if
-      end if
-    end if
-    f = (1 + f)
+      "b":
+        tList[tuser][#badge] = tdata
+      "a":
+        tList[tuser][#webID] = tdata
+      "g":
+        tList[tuser][#groupid] = tdata
+      "t":
+        tList[tuser][#groupstatus] = tdata
+      otherwise:
+        if (tLine.word[1] = "[bot]") then
+          tList[tuser][#class] = "bot"
+        end if
+    end case
   end repeat
   tFigureParser = getObject("Figure_System")
-  repeat while tProp <= undefined
-    tObject = getAt(undefined, tMsg)
-    tObject.setAt(#figure, tFigureParser.parseFigure(tObject.getAt(#figure), tObject.getAt(#sex), tObject.getAt(#class)))
+  repeat with tObject in tList
+    tObject[#figure] = tFigureParser.parseFigure(tObject[#figure], tObject[#sex], tObject[#class])
   end repeat
   the itemDelimiter = tDelim
   if (count(tList) = 0) then
     me.getComponent().validateUserObjects(0)
   else
     tName = getObject(#session).GET(#userName)
-    repeat while tProp <= undefined
-      tuser = getAt(undefined, tMsg)
-      if (tuser.getAt(#name) = tName) then
-        getObject(#session).set("user_index", tuser.getAt(#id))
+    repeat with tuser in tList
+      if (tuser[#name] = tName) then
+        getObject(#session).set("user_index", tuser[#id])
       end if
       me.getComponent().validateUserObjects(tuser)
-      if (me.getComponent().getPickedCryName() = tuser.getAt(#name)) then
-        me.getComponent().showCfhSenderDelayed(tuser.getAt(#id))
+      if (me.getComponent().getPickedCryName() = tuser[#name]) then
+        me.getComponent().showCfhSenderDelayed(tuser[#id])
       end if
-      if (tuser.getAt(#name) = tName) then
-        me.getInterface().eventProcUserObj(#selection, tuser.getAt(#id), #userEnters)
+      if (tuser[#name] = tName) then
+        me.getInterface().eventProcUserObj(#selection, tuser[#id], #userEnters)
       end if
     end repeat
   end if
 end
 
-on handle_showprogram me, tMsg 
+on handle_showprogram me, tMsg
   tLine = tMsg.content
-  tDst = tLine.getProp(#word, 1)
-  tCmd = tLine.getProp(#word, 2)
-  tArg = tLine.getProp(#word, 3, tLine.count(#word))
-  tdata = [#command:"SHOWPROGRAM", #show_dest:tDst, #show_command:tCmd, #show_params:tArg]
+  tDst = tLine.word[1]
+  tCmd = tLine.word[2]
+  tArg = tLine.word[3]
+  tdata = [#command: "SHOWPROGRAM", #show_dest: tDst, #show_command: tCmd, #show_params: tArg]
   tObj = me.getComponent().getRoomPrg()
   if objectp(tObj) then
     call(#showprogram, [tObj], tdata)
   end if
 end
 
-on handle_no_user_for_gift me, tMsg 
+on handle_no_user_for_gift me, tMsg
   tUserName = tMsg.content
   tAlertString = getText("no_user_for_gift")
   tAlertString = replaceChunks(tAlertString, "%user%", tUserName)
-  executeMessage(#alert, [#Msg:tAlertString])
+  executeMessage(#alert, [#Msg: tAlertString])
 end
 
-on handle_heightmap me, tMsg 
+on handle_heightmap me, tMsg
   me.getComponent().validateHeightMap(tMsg.content)
 end
 
-on handle_heightmapupdate me, tMsg 
+on handle_heightmapupdate me, tMsg
   me.getComponent().updateHeightMap(tMsg.content)
 end
 
-on handle_OBJECTS me, tMsg 
+on handle_OBJECTS me, tMsg
   tList = []
-  tCount = tMsg.content.count(#line)
-  i = 1
-  repeat while i <= tCount
-    tLine = tMsg.content.getProp(#line, i)
-    if length(tLine) > 5 then
+  tCount = tMsg.content.line.count
+  repeat with i = 1 to tCount
+    tLine = tMsg.content.line[i]
+    if (length(tLine) > 5) then
       tObj = [:]
-      tObj.setAt(#id, tLine.getProp(#word, 1))
-      tObj.setAt(#class, tLine.getProp(#word, 2))
-      tObj.setAt(#x, integer(tLine.getProp(#word, 3)))
-      tObj.setAt(#y, integer(tLine.getProp(#word, 4)))
-      tObj.setAt(#h, integer(tLine.getProp(#word, 5)))
-      if (tLine.count(#word) = 6) then
-        tdir = (integer(tLine.getProp(#word, 6)) mod 8)
-        tObj.setAt(#direction, [tdir, tdir, tdir])
-        tObj.setAt(#dimensions, 0)
+      tObj[#id] = tLine.word[1]
+      tObj[#class] = tLine.word[2]
+      tObj[#x] = integer(tLine.word[3])
+      tObj[#y] = integer(tLine.word[4])
+      tObj[#h] = integer(tLine.word[5])
+      if (tLine.word.count = 6) then
+        tdir = (integer(tLine.word[6]) mod 8)
+        tObj[#direction] = [tdir, tdir, tdir]
+        tObj[#dimensions] = 0
       else
-        tWidth = integer(tLine.getProp(#word, 6))
-        tHeight = integer(tLine.getProp(#word, 7))
-        tObj.setAt(#dimensions, [tWidth, tHeight])
-        tObj.setAt(#x, ((tObj.getAt(#x) + tObj.getAt(#width)) - 1))
-        tObj.setAt(#y, ((tObj.getAt(#y) + tObj.getAt(#height)) - 1))
+        tWidth = integer(tLine.word[6])
+        tHeight = integer(tLine.word[7])
+        tObj[#dimensions] = [tWidth, tHeight]
+        tObj[#x] = ((tObj[#x] + tObj[#width]) - 1)
+        tObj[#y] = ((tObj[#y] + tObj[#height]) - 1)
       end if
-      if tObj.getAt(#id) <> "" then
+      if (tObj[#id] <> EMPTY) then
         tList.add(tObj)
       end if
     end if
-    i = (1 + i)
   end repeat
-  if count(tList) > 0 then
-    repeat while tList <= undefined
-      tObj = getAt(undefined, tMsg)
+  if (count(tList) > 0) then
+    repeat with tObj in tList
       me.getComponent().validatePassiveObjects(tObj)
     end repeat
   else
@@ -345,52 +303,49 @@ on handle_OBJECTS me, tMsg
   end if
 end
 
-on parseActiveObject me, tConn 
+on parseActiveObject me, tConn
   if not tConn then
-    return FALSE
+    return 0
   end if
   tObj = [:]
-  tObj.setAt(#id, tConn.GetStrFrom())
-  tObj.setAt(#class, tConn.GetStrFrom())
-  tObj.setAt(#x, tConn.GetIntFrom())
-  tObj.setAt(#y, tConn.GetIntFrom())
+  tObj[#id] = tConn.GetStrFrom()
+  tObj[#class] = tConn.GetStrFrom()
+  tObj[#x] = tConn.GetIntFrom()
+  tObj[#y] = tConn.GetIntFrom()
   tWidth = tConn.GetIntFrom()
   tHeight = tConn.GetIntFrom()
   tDirection = (tConn.GetIntFrom() mod 8)
-  tObj.setAt(#direction, [tDirection, tDirection, tDirection])
-  tObj.setAt(#dimensions, [tWidth, tHeight])
-  tObj.setAt(#altitude, getLocalFloat(tConn.GetStrFrom()))
-  tObj.setAt(#colors, tConn.GetStrFrom())
-  if (tObj.getAt(#colors) = "") then
-    tObj.setAt(#colors, "0")
+  tObj[#direction] = [tDirection, tDirection, tDirection]
+  tObj[#dimensions] = [tWidth, tHeight]
+  tObj[#altitude] = getLocalFloat(tConn.GetStrFrom())
+  tObj[#colors] = tConn.GetStrFrom()
+  if (tObj[#colors] = EMPTY) then
+    tObj[#colors] = "0"
   end if
   tRuntimeData = tConn.GetStrFrom()
   tExtra = tConn.GetIntFrom()
   tStuffData = tConn.GetStrFrom()
-  tObj.setAt(#props, [#runtimedata:tRuntimeData, #extra:tExtra, #stuffdata:tStuffData])
-  return(tObj)
+  tObj[#props] = [#runtimedata: tRuntimeData, #extra: tExtra, #stuffdata: tStuffData]
+  return tObj
 end
 
-on handle_activeobjects me, tMsg 
+on handle_activeobjects me, tMsg
   tConn = tMsg.connection
   if not tConn then
-    return FALSE
+    return 0
   end if
   tList = []
   tCount = tConn.GetIntFrom()
-  i = 1
-  repeat while i <= tCount
-    if tConn <> 0 then
+  repeat with i = 1 to tCount
+    if (tConn <> 0) then
       tObj = me.parseActiveObject(tConn)
       if listp(tObj) then
         tList.add(tObj)
       end if
     end if
-    i = (1 + i)
   end repeat
-  if count(tList) > 0 then
-    repeat while tList <= undefined
-      tObj = getAt(undefined, tMsg)
+  if (count(tList) > 0) then
+    repeat with tObj in tList
       me.getComponent().validateActiveObjects(tObj)
     end repeat
     executeMessage(#activeObjectsUpdated)
@@ -399,100 +354,96 @@ on handle_activeobjects me, tMsg
   end if
 end
 
-on handle_activeobject_remove me, tMsg 
-  me.getComponent().removeActiveObject(tMsg.content.getProp(#word, 1))
+on handle_activeobject_remove me, tMsg
+  me.getComponent().removeActiveObject(tMsg.content.word[1])
   executeMessage(#activeObjectRemoved)
-  return TRUE
+  return 1
 end
 
-on handle_activeobject_add me, tMsg 
+on handle_activeobject_add me, tMsg
   tConn = tMsg.connection
   if not tConn then
-    return FALSE
+    return 0
   end if
   tObj = me.parseActiveObject(tConn)
   if not listp(tObj) then
-    return FALSE
+    return 0
   end if
   me.getComponent().validateActiveObjects(tObj)
   executeMessage(#activeObjectsUpdated)
-  return TRUE
+  return 1
 end
 
-on handle_activeobject_update me, tMsg 
+on handle_activeobject_update me, tMsg
   tConn = tMsg.connection
   if not tConn then
-    return FALSE
+    return 0
   end if
   tObj = me.parseActiveObject(tConn)
   if not listp(tObj) then
-    return FALSE
+    return 0
   end if
   tComponent = me.getComponent()
-  if tComponent.activeObjectExists(tObj.getAt(#id)) then
+  if tComponent.activeObjectExists(tObj[#id]) then
     tObj = getThread(#buffer).getComponent().processObject(tObj, "active")
-    tActiveObj = tComponent.getActiveObject(tObj.getAt(#id))
+    tActiveObj = tComponent.getActiveObject(tObj[#id])
     tActiveObj.define(tObj)
-    tComponent.removeSlideObject(tObj.getAt(#id))
+    tComponent.removeSlideObject(tObj[#id])
     call(#movingFinished, [tActiveObj])
     executeMessage(#activeObjectsUpdated)
   else
-    return(error(me, "Active object not found:" && tObj.getAt(#id), #handle_activeobject_update, #major))
+    return error(me, ("Active object not found:" && tObj[#id]), #handle_activeobject_update, #major)
   end if
 end
 
-on handle_items me, tMsg 
+on handle_items me, tMsg
   tList = []
   tDelim = the itemDelimiter
-  i = 1
-  repeat while i <= tMsg.content.count(#line)
-    the itemDelimiter = "\t"
-    tLine = tMsg.content.getProp(#line, i)
-    if tLine <> "" then
+  repeat with i = 1 to tMsg.content.line.count
+    the itemDelimiter = TAB
+    tLine = tMsg.content.line[i]
+    if (tLine <> EMPTY) then
       tObj = [:]
-      tObj.setAt(#id, tLine.getProp(#item, 1))
-      tObj.setAt(#class, tLine.getProp(#item, 2))
-      tObj.setAt(#owner, tLine.getProp(#item, 3))
-      tObj.setAt(#type, tLine.getProp(#item, 5))
-      if not (tLine.getPropRef(#item, 4).getProp(#char, 1) = ":") then
-        tObj.setAt(#direction, tLine.getPropRef(#item, 4).getProp(#word, 1))
-        if (tObj.getAt(#direction) = "frontwall") then
-          tObj.setAt(#direction, "rightwall")
+      tObj[#id] = tLine.item[1]
+      tObj[#class] = tLine.item[2]
+      tObj[#owner] = tLine.item[3]
+      tObj[#type] = tLine.item[5]
+      if not (tLine.item[4].char[1] = ":") then
+        tObj[#direction] = tLine.item[4].word[1]
+        if (tObj[#direction] = "frontwall") then
+          tObj[#direction] = "rightwall"
         end if
-        tlocation = tLine.getPropRef(#item, 4).getProp(#word, 2, tLine.getPropRef(#item, 4).count(#word))
+        tlocation = tLine.item[4].word[2]
         the itemDelimiter = ","
-        tObj.setAt(#x, 0)
-        tObj.setAt(#y, tlocation.getProp(#item, 1))
-        tObj.setAt(#h, getLocalFloat(tlocation.getProp(#item, 2)))
-        tObj.setAt(#z, integer(tlocation.getProp(#item, 3)))
-        tObj.setAt(#formatVersion, #old)
+        tObj[#x] = 0
+        tObj[#y] = tlocation.item[1]
+        tObj[#h] = getLocalFloat(tlocation.item[2])
+        tObj[#z] = integer(tlocation.item[3])
+        tObj[#formatVersion] = #old
       else
-        tLocString = tLine.getProp(#item, 4)
-        tWallLoc = tLocString.getPropRef(#word, 1).getProp(#char, 4, length(tLocString.getProp(#word, 1)))
+        tLocString = tLine.item[4]
+        tWallLoc = tLocString.word[1].char[4]
         the itemDelimiter = ","
-        tObj.setAt(#wall_x, value(tWallLoc.getProp(#item, 1)))
-        tObj.setAt(#wall_y, value(tWallLoc.getProp(#item, 2)))
-        tLocalLoc = tLocString.getPropRef(#word, 2).getProp(#char, 3, length(tLocString.getProp(#word, 2)))
-        tObj.setAt(#local_x, value(tLocalLoc.getProp(#item, 1)))
-        tObj.setAt(#local_y, value(tLocalLoc.getProp(#item, 2)))
-        tDirChar = tLocString.getProp(#word, 3)
-        if (tDirChar = "r") then
-          tObj.setAt(#direction, "rightwall")
-        else
-          if (tDirChar = "l") then
-            tObj.setAt(#direction, "leftwall")
-          end if
-        end if
-        tObj.setAt(#formatVersion, #new)
+        tObj[#wall_x] = value(tWallLoc.item[1])
+        tObj[#wall_y] = value(tWallLoc.item[2])
+        tLocalLoc = tLocString.word[2].char[3]
+        tObj[#local_x] = value(tLocalLoc.item[1])
+        tObj[#local_y] = value(tLocalLoc.item[2])
+        tDirChar = tLocString.word[3]
+        case tDirChar of
+          "r":
+            tObj[#direction] = "rightwall"
+          "l":
+            tObj[#direction] = "leftwall"
+        end case
+        tObj[#formatVersion] = #new
       end if
       tList.add(tObj)
     end if
-    i = (1 + i)
   end repeat
   the itemDelimiter = tDelim
-  if count(tList) > 0 then
-    repeat while tDirChar <= undefined
-      tItem = getAt(undefined, tMsg)
+  if (count(tList) > 0) then
+    repeat with tItem in tList
       me.getComponent().validateItemObjects(tItem)
     end repeat
     executeMessage(#itemObjectsUpdated)
@@ -501,241 +452,225 @@ on handle_items me, tMsg
   end if
 end
 
-on handle_removeitem me, tMsg 
+on handle_removeitem me, tMsg
   me.getComponent().removeItemObject(tMsg.content)
   executeMessage(#itemObjectRemoved)
   me.getInterface().stopObjectMover()
 end
 
-on handle_updateitem me, tMsg 
-  tItem = me.getComponent().getItemObject(tMsg.content.getProp(#word, 1))
+on handle_updateitem me, tMsg
+  tItem = me.getComponent().getItemObject(tMsg.content.word[1])
   if objectp(tItem) then
-    tItem.setState(the last word in tMsg.content)
+    tItem.setState(the last word in the content of tMsg)
   end if
 end
 
-on handle_stuffdataupdate me, tMsg 
+on handle_stuffdataupdate me, tMsg
   tConn = tMsg.connection
   if not tConn then
-    return FALSE
+    return 0
   end if
   tTarget = tConn.GetStrFrom()
   tValue = tConn.GetStrFrom()
   if me.getComponent().activeObjectExists(tTarget) then
     call(#updateStuffdata, [me.getComponent().getActiveObject(tTarget)], tValue)
   else
-    return(error(me, "Active object not found:" && tTarget, #handle_stuffdataupdate, #major))
+    return error(me, ("Active object not found:" && tTarget), #handle_stuffdataupdate, #major)
   end if
 end
 
-on handle_presentopen me, tMsg 
-  ttype = tMsg.content.getProp(#line, 1)
-  tCode = tMsg.content.getProp(#line, 2)
-  tColors = tMsg.content.getProp(#line, 3)
+on handle_presentopen me, tMsg
+  ttype = tMsg.content.line[1]
+  tCode = tMsg.content.line[2]
+  tColors = tMsg.content.line[3]
   tCard = "PackageCardObj"
   if objectExists(tCard) then
-    getObject(tCard).showContent([#type:ttype, #code:tCode, #color:tColors])
+    getObject(tCard).showContent([#type: ttype, #code: tCode, #color: tColors])
   else
     error(me, "Package card obj not found!", #handle_presentopen, #major)
   end if
 end
 
-on handle_flatproperty me, tMsg 
+on handle_flatproperty me, tMsg
   tDelim = the itemDelimiter
   the itemDelimiter = "/"
   tLine = tMsg.content
-  tdata = [#key:tLine.getProp(#item, 1), #value:tLine.getProp(#item, 2)]
+  tdata = [#key: tLine.item[1], #value: tLine.item[2]]
   the itemDelimiter = tDelim
   tRoomPrg = me.getComponent().getRoomPrg()
-  if tRoomPrg <> 0 then
-    tRoomPrg.setProperty(tdata.getAt(#key), tdata.getAt(#value))
+  if (tRoomPrg <> 0) then
+    tRoomPrg.setProperty(tdata[#key], tdata[#value])
   else
     error(me, "Private room program not found!", #handle_flatproperty, #major)
   end if
 end
 
-on handle_room_rights me, tMsg 
-  if (tMsg.subject = 42) then
-    getObject(#session).set("room_controller", 1)
-  else
-    if (tMsg.subject = 43) then
+on handle_room_rights me, tMsg
+  case tMsg.subject of
+    42:
+      getObject(#session).set("room_controller", 1)
+    43:
       getObject(#session).set("room_controller", 0)
-    else
-      if (tMsg.subject = 47) then
-        getObject(#session).set("room_owner", 1)
-      end if
-    end if
-  end if
+    47:
+      getObject(#session).set("room_owner", 1)
+  end case
 end
 
-on handle_stripinfo me, tMsg 
-  tProps = [#objects:[], #count:0]
+on handle_stripinfo me, tMsg
+  tProps = [#objects: [], #count: 0]
   tDelim = the itemDelimiter
-  tProps.setAt(#count, integer(tMsg.content.getProp(#line, tMsg.content.count(#line))))
+  tProps[#count] = integer(tMsg.content.line[tMsg.content.line.count])
   the itemDelimiter = "/"
-  tCount = tMsg.content.count(#item)
+  tCount = tMsg.content.item.count
   tStripMax = 0
   tTotalItemCount = 0
-  i = 1
-  repeat while i <= tCount
+  repeat with i = 1 to tCount
     the itemDelimiter = "/"
-    tItem = tMsg.content.getProp(#item, i)
-    if (tItem = "") then
-    else
-      the itemDelimiter = numToChar(30)
-      if tItem.count(#item) < 2 then
-        tTotalItemCount = integer((tItem - 1))
-      else
-        tObj = [:]
-        tObj.setAt(#stripId, tItem.getProp(#item, 2))
-        tObjectPos = integer(tItem.getProp(#item, 3))
-        tObj.setAt(#striptype, tItem.getProp(#item, 4))
-        tObj.setAt(#id, tItem.getProp(#item, 5))
-        tObj.setAt(#class, tItem.getProp(#item, 6))
-        if (tObj.getAt(#striptype) = "S") then
-          tObj.setAt(#name, getText("furni_" & tObj.getAt(#class) & "_name", "furni_" & tObj.getAt(#class) & "_name"))
-          tObj.setAt(#striptype, "active")
-          tObj.setAt(#custom, getText("furni_" & tObj.getAt(#class) & "_name", "furni_" & tObj.getAt(#class) & "_desc"))
-          tObj.setAt(#dimensions, [integer(tItem.getProp(#item, 7)), integer(tItem.getProp(#item, 8))])
-          tObj.setAt(#stuffdata, tItem.getProp(#item, 9))
-          tObj.setAt(#colors, tItem.getProp(#item, 10))
-          tObj.setAt(#isRecyclable, tItem.getProp(#item, 11))
-          if tItem.getProp(#item, 12) <> "" and tItem.count(#item) >= 12 then
-            tObj.setAt(#slotID, tItem.getProp(#item, 12))
-          end if
-          if tItem.getProp(#item, 13) <> "" and tItem.count(#item) >= 13 then
-            tObj.setAt(#songID, tItem.getProp(#item, 13))
-          end if
-          the itemDelimiter = ","
-          if (tObj.getAt(#colors).getProp(#char, 1) = "#") then
-            if tObj.getAt(#colors).count(#item) > 1 then
-              tObj.setAt(#stripColor, rgb(tObj.getAt(#colors).getProp(#item, tObj.getAt(#colors).count(#item))))
-            else
-              tObj.setAt(#stripColor, rgb(tObj.getAt(#colors)))
-            end if
+    tItem = tMsg.content.item[i]
+    if (tItem = EMPTY) then
+      exit repeat
+    end if
+    the itemDelimiter = numToChar(30)
+    if (tItem.item.count < 2) then
+      tTotalItemCount = integer((tItem - 1))
+      exit repeat
+    end if
+    tObj = [:]
+    tObj[#stripId] = tItem.item[2]
+    tObjectPos = integer(tItem.item[3])
+    tObj[#striptype] = tItem.item[4]
+    tObj[#id] = tItem.item[5]
+    tObj[#class] = tItem.item[6]
+    case tObj[#striptype] of
+      "S":
+        tObj[#name] = getText((("furni_" & tObj[#class]) & "_name"), (("furni_" & tObj[#class]) & "_name"))
+        tObj[#striptype] = "active"
+        tObj[#custom] = getText((("furni_" & tObj[#class]) & "_name"), (("furni_" & tObj[#class]) & "_desc"))
+        tObj[#dimensions] = [integer(tItem.item[7]), integer(tItem.item[8])]
+        tObj[#stuffdata] = tItem.item[9]
+        tObj[#colors] = tItem.item[10]
+        tObj[#isRecyclable] = tItem.item[11]
+        the itemDelimiter = ","
+        if (tObj[#colors].char[1] = "#") then
+          if (tObj[#colors].item.count > 1) then
+            tObj[#stripColor] = rgb(tObj[#colors].item[tObj[#colors].item.count])
           else
-            tObj.setAt(#stripColor, 0)
+            tObj[#stripColor] = rgb(tObj[#colors])
           end if
         else
-          if (tObj.getAt(#striptype) = "I") then
-            tObj.setAt(#striptype, "item")
-            tObj.setAt(#props, tItem.getProp(#item, 7))
-            tObj.setAt(#isRecyclable, tItem.getProp(#item, 8))
-            if (tObj.getAt(#striptype) = "poster") then
-              tObj.setAt(#name, getText("poster_" & tObj.getAt(#props) & "_name", "poster_" & tObj.getAt(#props) & "_name"))
-            else
-              tObj.setAt(#name, getText("wallitem_" & tObj.getAt(#class) & "_name", "wallitem_" & tObj.getAt(#class) & "_name"))
-            end if
-          end if
+          tObj[#stripColor] = 0
         end if
-        tProps.getAt(#objects).add(tObj)
-        if tObjectPos > tStripMax then
-          tStripMax = tObjectPos
-        end if
-        i = (1 + i)
-      end if
+      "I":
+        tObj[#striptype] = "item"
+        tObj[#props] = tItem.item[7]
+        tObj[#isRecyclable] = tItem.item[8]
+        case tObj[#class] of
+          "poster":
+            tObj[#name] = getText((("poster_" & tObj[#props]) & "_name"), (("poster_" & tObj[#props]) & "_name"))
+          otherwise:
+            tObj[#name] = getText((("wallitem_" & tObj[#class]) & "_name"), (("wallitem_" & tObj[#class]) & "_name"))
+        end case
+    end case
+    tProps[#objects].add(tObj)
+    if (tObjectPos > tStripMax) then
+      tStripMax = tObjectPos
     end if
   end repeat
   the itemDelimiter = tDelim
   tInventory = me.getInterface().getContainer()
-  tInventory.setHandButton("next", tTotalItemCount > integer(tStripMax))
-  tInventory.setHandButton("prev", integer(tStripMax) > 8)
-  if (tObj.getAt(#striptype) = 140) then
-    tInventory.updateStripItems(tProps.getAt(#objects))
-    tInventory.setStripItemCount(tProps.getAt(#count))
-    tInventory.open(1)
-    tInventory.Refresh()
-  else
-    if (tObj.getAt(#striptype) = 98) then
-      tInventory.appendStripItem(tProps.getAt(#objects).getAt(1))
+  tInventory.setHandButton("next", (tTotalItemCount > integer(tStripMax)))
+  tInventory.setHandButton("prev", (integer(tStripMax) > 8))
+  case tMsg.subject of
+    140:
+      tInventory.updateStripItems(tProps[#objects])
+      tInventory.setStripItemCount(tProps[#count])
       tInventory.open(1)
       tInventory.Refresh()
-    else
-      if (tObj.getAt(#striptype) = 108) then
-        return(tProps)
-      end if
-    end if
-  end if
+    98:
+      tInventory.appendStripItem(tProps[#objects][1])
+      tInventory.open(1)
+      tInventory.Refresh()
+    108:
+      return tProps
+  end case
 end
 
-on handle_stripupdated me, tMsg 
+on handle_stripupdated me, tMsg
   tMsg.connection.send("GETSTRIP", "new")
 end
 
-on handle_removestripitem me, tMsg 
-  me.getInterface().getContainer().removeStripItem(tMsg.content.getProp(#word, 1))
+on handle_removestripitem me, tMsg
+  me.getInterface().getContainer().removeStripItem(tMsg.content.word[1])
   me.getInterface().getContainer().Refresh()
 end
 
-on handle_youarenotallowed me 
-  executeMessage(#alert, [#Msg:"trade_youarenotallowed", #id:"youarenotallowed"])
+on handle_youarenotallowed me
+  executeMessage(#alert, [#Msg: "trade_youarenotallowed", #id: "youarenotallowed"])
 end
 
-on handle_othernotallowed me 
-  executeMessage(#alert, [#Msg:"trade_othernotallowed", #id:"othernotallowed"])
+on handle_othernotallowed me
+  executeMessage(#alert, [#Msg: "trade_othernotallowed", #id: "othernotallowed"])
 end
 
-on handle_idata me, tMsg 
+on handle_idata me, tMsg
   tDelim = the itemDelimiter
-  the itemDelimiter = "\t"
-  tid = integer(tMsg.content.getPropRef(#line, 1).getProp(#item, 1))
-  ttype = tMsg.content.getPropRef(#line, 1).getProp(#item, 2)
-  tText = tMsg.content.getPropRef(#line, 1).getProp(#item, 2) & "\r" & tMsg.content.getProp(#line, 2, tMsg.content.count(#line))
+  the itemDelimiter = TAB
+  tid = integer(tMsg.content.line[1].item[1])
+  ttype = tMsg.content.line[1].item[2]
+  tText = ((tMsg.content.line[1].item[2] & RETURN) & tMsg.content.line[2])
   the itemDelimiter = tDelim
-  executeMessage(symbol("itemdata_received" & tid), [#id:tid, #text:tText, #type:ttype])
+  executeMessage(symbol(("itemdata_received" & tid)), [#id: tid, #text: tText, #type: ttype])
 end
 
-on handle_trade_items me, tMsg 
+on handle_trade_items me, tMsg
   tMessage = [:]
-  i = 1
-  repeat while i <= 2
-    tLine = tMsg.content.getProp(#line, i)
+  repeat with i = 1 to 2
+    tLine = tMsg.content.line[i]
     tdata = [:]
-    tdata.setAt(#accept, tLine.getProp(#word, 2))
-    tItemStr = "foo" & "\r" & tLine.getProp(#word, 3, tLine.count(#word)) & "\r" & 1
-    tdata.setAt(#items, me.handle_stripinfo([#subject:108, #content:tItemStr]).getaProp(#objects))
-    if not listp(tdata.getAt(#items)) then
-      return(error(me, "Invalid itemdata from server!", #handle_trade_items, #major))
+    tdata[#accept] = tLine.word[2]
+    tItemStr = (((("foo" & RETURN) & tLine.word[3]) & RETURN) & 1)
+    tdata[#items] = me.handle_stripinfo([#subject: 108, #content: tItemStr]).getaProp(#objects)
+    if not listp(tdata[#items]) then
+      return error(me, "Invalid itemdata from server!", #handle_trade_items, #major)
     end if
-    tUserName = tLine.getProp(#word, 1)
-    if (tUserName = "") then
-      return(error(me, "No username from server", #handle_trade_items, #major))
+    tUserName = tLine.word[1]
+    if (tUserName = EMPTY) then
+      return error(me, "No username from server", #handle_trade_items, #major)
     end if
-    if me.getInterface().getIgnoreStatus(void(), tUserName) then
-      return(me.getComponent().getRoomConnection().send("TRADE_CLOSE"))
+    if me.getInterface().getIgnoreStatus(VOID, tUserName) then
+      return me.getComponent().getRoomConnection().send("TRADE_CLOSE")
     end if
-    tMessage.setAt(tUserName, tdata)
-    i = (1 + i)
+    tMessage[tUserName] = tdata
   end repeat
-  return(me.getInterface().getSafeTrader().Refresh(tMessage))
+  return me.getInterface().getSafeTrader().Refresh(tMessage)
 end
 
-on handle_trade_close me, tMsg 
+on handle_trade_close me, tMsg
   me.getInterface().getSafeTrader().close()
   tMsg.connection.send("GETSTRIP", "new")
 end
 
-on handle_trade_accept me, tMsg 
+on handle_trade_accept me, tMsg
   tDelim = the itemDelimiter
   the itemDelimiter = "/"
-  tuser = tMsg.content.getProp(#item, 1)
-  tValue = (tMsg.content.getProp(#item, 2) = "true")
+  tuser = tMsg.content.item[1]
+  tValue = (tMsg.content.item[2] = "true")
   the itemDelimiter = tDelim
   me.getInterface().getSafeTrader().accept(tuser, tValue)
 end
 
-on handle_trade_completed me, tMsg 
+on handle_trade_completed me, tMsg
   me.getInterface().getSafeTrader().complete()
 end
 
-on handle_door_in me, tMsg 
+on handle_door_in me, tMsg
   tDelim = the itemDelimiter
   the itemDelimiter = "/"
-  tDoor = tMsg.content.getProp(#item, 1)
-  tuser = tMsg.content.getProp(#item, 2)
+  tDoor = tMsg.content.item[1]
+  tuser = tMsg.content.item[2]
   the itemDelimiter = tDelim
   tDoorObj = me.getComponent().getActiveObject(tDoor)
-  if tDoorObj <> 0 then
+  if (tDoorObj <> 0) then
     tDoorObj.animate(18)
     if (getObject(#session).GET("user_name") = tuser) then
       tDoorObj.prepareToKick(tuser)
@@ -743,42 +678,42 @@ on handle_door_in me, tMsg
   end if
 end
 
-on handle_door_out me, tMsg 
+on handle_door_out me, tMsg
   tDelim = the itemDelimiter
-  tDoor = me.getComponent().getActiveObject(tMsg.content.getProp(#item, 1))
+  tDoor = me.getComponent().getActiveObject(tMsg.content.item[1])
   the itemDelimiter = "/"
-  if tDoor <> 0 then
-    return(tDoor.animate())
+  if (tDoor <> 0) then
+    return tDoor.animate()
   end if
 end
 
-on handle_doorflat me, tMsg 
+on handle_doorflat me, tMsg
   tConn = tMsg.connection
   tTeleId = tConn.GetIntFrom()
   tFlatID = tConn.GetIntFrom()
-  if not tTeleId and tFlatID then
-    return(error(me, "Retarded doorflat data!", #handle_doorflat, #major))
+  if not (tTeleId and tFlatID) then
+    return error(me, "Retarded doorflat data!", #handle_doorflat, #major)
   end if
   me.getComponent().startTeleport(tTeleId, tFlatID)
 end
 
-on handle_doordeleted me, tMsg 
+on handle_doordeleted me, tMsg
   if getObject(#session).exists("current_door_ID") then
     tDoorID = getObject(#session).GET("current_door_ID")
     tDoorObj = me.getComponent().getActiveObject(tDoorID)
-    if tDoorObj <> 0 then
+    if (tDoorObj <> 0) then
       tDoorObj.kickOut()
     end if
   end if
 end
 
-on handle_dice_value me, tMsg 
-  tid = tMsg.content.getProp(#word, 1)
-  if (tMsg.content.count(#word) = 1) then
+on handle_dice_value me, tMsg
+  tid = tMsg.content.word[1]
+  if (tMsg.content.word.count = 1) then
     tValue = -1
   else
-    tValue = integer((tMsg.content.getProp(#word, 2) - (tid * 38)))
-    if tValue > 6 then
+    tValue = integer((tMsg.content.word[2] - (tid * 38)))
+    if (tValue > 6) then
       tValue = 0
     end if
   end if
@@ -787,12 +722,12 @@ on handle_dice_value me, tMsg
   end if
 end
 
-on handle_roomad me, tMsg 
-  if tMsg.content.length > 1 then
+on handle_roomad me, tMsg
+  if (tMsg.content.length > 1) then
     tDelim = the itemDelimiter
-    the itemDelimiter = "\t"
-    tSourceURL = tMsg.content.getProp(#item, 1)
-    tTargetURL = tMsg.content.getProp(#item, 2)
+    the itemDelimiter = TAB
+    tSourceURL = tMsg.content.item[1]
+    tTargetURL = tMsg.content.item[2]
     the itemDelimiter = tDelim
     tLayoutID = me.getInterface().getRoomVisualizer().pLayout
     me.getComponent().getAd().Init(tSourceURL, tTargetURL, tLayoutID)
@@ -801,55 +736,55 @@ on handle_roomad me, tMsg
   end if
 end
 
-on handle_petstat me, tMsg 
+on handle_petstat me, tMsg
   tPetObj = me.getComponent().getUserObject(tMsg.connection.GetIntFrom())
   if (tPetObj = 0) then
-    return(error(me, "Pet object not found!", #handle_petstat, #major))
+    return error(me, "Pet object not found!", #handle_petstat, #major)
   end if
   tName = tPetObj.getName()
   tAge = tMsg.connection.GetIntFrom()
-  tHungry = getText("pet_hung_" & tMsg.connection.GetIntFrom(), "???")
-  tThirsty = getText("pet_thir_" & tMsg.connection.GetIntFrom(), "???")
-  tHappiness = getText("pet_mood_" & tMsg.connection.GetIntFrom(), "???")
-  tNature01 = getText("pet_enrg_" & tMsg.connection.GetIntFrom(), "???")
-  tNature02 = getText("pet_frnd_" & tMsg.connection.GetIntFrom(), "???")
+  tHungry = getText(("pet_hung_" & tMsg.connection.GetIntFrom()), "???")
+  tThirsty = getText(("pet_thir_" & tMsg.connection.GetIntFrom()), "???")
+  tHappiness = getText(("pet_mood_" & tMsg.connection.GetIntFrom()), "???")
+  tNature01 = getText(("pet_enrg_" & tMsg.connection.GetIntFrom()), "???")
+  tNature02 = getText(("pet_frnd_" & tMsg.connection.GetIntFrom()), "???")
   if createWindow("pet_status_dialog") then
     tWndObj = getWindow("pet_status_dialog")
     tWndObj.moveTo(8, 8)
     tWndObj.setProperty(#title, tName)
     if not tWndObj.merge("habbo_full.window") then
-      return(tWndObj.close())
+      return tWndObj.close()
     end if
     if not tWndObj.merge("petstatus.window") then
-      return(tWndObj.close())
+      return tWndObj.close()
     end if
     tWndObj.getElement("age").setText(tAge)
     tWndObj.getElement("hungry").setText(tHungry)
     tWndObj.getElement("thirsty").setText(tThirsty)
     tWndObj.getElement("happiness").setText(tHappiness)
-    tWndObj.getElement("nature").setText(tNature01 & "," && tNature02)
+    tWndObj.getElement("nature").setText(((tNature01 & ",") && tNature02))
     tWndObj.getElement("picture").feedImage(tPetObj.getPicture())
     registerMessage(#leaveRoom, tWndObj.getID(), #close)
     registerMessage(#changeRoom, tWndObj.getID(), #close)
   end if
 end
 
-on handle_userbadge me, tMsg 
+on handle_userbadge me, tMsg
   if voidp(tMsg.connection) then
-    return FALSE
+    return 0
   end if
   tUserID = string(tMsg.connection.GetIntFrom())
   tBadge = tMsg.connection.GetStrFrom()
   tUserObj = me.getComponent().getUserObject(tUserID)
   if not objectp(tUserObj) then
-    return FALSE
+    return 0
   end if
   tUserObj.pBadge = tBadge
   me.getInterface().unignoreAdmin(tUserID, tBadge)
   me.getInterface().getInfoStandObject().updateInfoStandBadge(tBadge, tUserID)
 end
 
-on handle_slideobjectbundle me, tMsg 
+on handle_slideobjectbundle me, tMsg
   tConn = tMsg.getaProp(#connection)
   tComponent = me.getComponent()
   tTimeNow = the milliSeconds
@@ -860,8 +795,7 @@ on handle_slideobjectbundle me, tMsg
   tToX = tConn.GetIntFrom()
   tToY = tConn.GetIntFrom()
   tStuffCount = tConn.GetIntFrom()
-  tCount = 1
-  repeat while tCount <= tStuffCount
+  repeat with tCount = 1 to tStuffCount
     tObj = []
     tItemID = tConn.GetIntFrom()
     tItemFromH = getLocalFloat(tConn.GetStrFrom())
@@ -871,53 +805,47 @@ on handle_slideobjectbundle me, tMsg
     tObj = [tItemID, tFrom, tTo]
     tObjList.add(tObj)
     tContainsObjects = 1
-    tCount = (1 + tCount)
   end repeat
   tTileID = tConn.GetIntFrom()
   tTileObj = tComponent.getActiveObject(tTileID)
-  if tTileObj <> 0 then
+  if (tTileObj <> 0) then
     if tTileObj.handler(#setAnimation) then
       call(#setAnimation, tTileObj, 1)
     end if
   end if
   tMoveType = tConn.GetIntFrom()
-  if (tMoveType = 0) then
-    tHasCharacter = 0
-  else
-    if (tMoveType = 1) then
+  case tMoveType of
+    0:
+      tHasCharacter = 0
+    1:
       tMoveType = "mv"
       tHasCharacter = 1
-    else
-      if (tMoveType = 2) then
-        tMoveType = "sld"
-        tHasCharacter = 1
-      else
-        return(error(me, "Incompatible character movetype", #handle_slideobjectbundle, #minor))
-      end if
-    end if
-  end if
+    2:
+      tMoveType = "sld"
+      tHasCharacter = 1
+  end case
+  return error(me, "Incompatible character movetype", #handle_slideobjectbundle, #minor)
   if tHasCharacter then
     tCharID = tConn.GetIntFrom()
     tFromH = getLocalFloat(tConn.GetStrFrom())
     tToH = getLocalFloat(tConn.GetStrFrom())
     tUserObj = me.getComponent().getUserObject(tCharID)
-    if tUserObj <> 0 then
-      tCommandStr = tMoveType && tToX & "," & tToY & "," & tToH && tContainsObjects.integer && tTimeNow
-      call(symbol("action_" & tMoveType), [tUserObj], tCommandStr)
+    if (tUserObj <> 0) then
+      tCommandStr = (((((((tMoveType && tToX) & ",") & tToY) & ",") & tToH) && tContainsObjects.integer) && tTimeNow)
+      call(symbol(("action_" & tMoveType)), [tUserObj], tCommandStr)
     end if
   end if
-  repeat while tMoveType <= undefined
-    tObj = getAt(undefined, tMsg)
-    tComponent.addSlideObject(tObj.getAt(1), tObj.getAt(2), tObj.getAt(3), tTimeNow, tHasCharacter)
+  repeat with tObj in tObjList
+    tComponent.addSlideObject(tObj[1], tObj[2], tObj[3], tTimeNow, tHasCharacter)
   end repeat
 end
 
-on handle_interstitialdata me, tMsg 
-  if tMsg.content.length > 1 then
+on handle_interstitialdata me, tMsg
+  if (tMsg.content.length > 1) then
     tDelim = the itemDelimiter
-    the itemDelimiter = "\t"
-    tSourceURL = tMsg.content.getProp(#item, 1)
-    tTargetURL = tMsg.content.getProp(#item, 2)
+    the itemDelimiter = TAB
+    tSourceURL = tMsg.content.item[1]
+    tTargetURL = tMsg.content.item[2]
     the itemDelimiter = tDelim
     me.getComponent().getInterstitial().Init(tSourceURL, tTargetURL)
   else
@@ -925,42 +853,38 @@ on handle_interstitialdata me, tMsg
   end if
 end
 
-on handle_roomqueuedata me, tMsg 
+on handle_roomqueuedata me, tMsg
   tConn = tMsg.getaProp(#connection)
   tSetCount = tConn.GetIntFrom()
   tQueueCollection = []
-  i = 1
-  repeat while i <= tSetCount
+  repeat with i = 1 to tSetCount
     tQueueSetName = tConn.GetStrFrom()
     tQueueTarget = tConn.GetIntFrom()
     tNumberOfQueues = tConn.GetIntFrom()
     tQueueData = [:]
     tQueueSet = [:]
-    t = 1
-    repeat while t <= tNumberOfQueues
+    repeat with t = 1 to tNumberOfQueues
       tQueueID = tConn.GetStrFrom()
       tQueueLength = tConn.GetIntFrom()
-      tQueueData.setAt(tQueueID, tQueueLength)
-      t = (1 + t)
+      tQueueData[tQueueID] = tQueueLength
     end repeat
-    tQueueSet.setAt("name", tQueueSetName)
-    tQueueSet.setAt("target", tQueueTarget)
-    tQueueSet.setAt("data", tQueueData)
-    tQueueCollection.setAt(i, tQueueSet)
-    i = (1 + i)
+    tQueueSet["name"] = tQueueSetName
+    tQueueSet["target"] = tQueueTarget
+    tQueueSet["data"] = tQueueData
+    tQueueCollection[i] = tQueueSet
   end repeat
   me.getInterface().updateQueueWindow(tQueueCollection)
 end
 
-on handle_youarespectator me 
-  return(me.getComponent().setSpectatorMode(1))
+on handle_youarespectator me
+  return me.getComponent().setSpectatorMode(1)
 end
 
-on handle_removespecs me 
+on handle_removespecs me
   me.getInterface().showRemoveSpecsNotice()
 end
 
-on handle_figure_change me, tMsg 
+on handle_figure_change me, tMsg
   tConn = tMsg.connection
   tUserID = tConn.GetIntFrom()
   tUserFigure = tConn.GetStrFrom()
@@ -969,58 +893,56 @@ on handle_figure_change me, tMsg
   me.getComponent().updateCharacterFigure(tUserID, tUserFigure, tUserSex, tUserCustomInfo)
 end
 
-on handle_spectator_amount me, tMsg 
+on handle_spectator_amount me, tMsg
   tConn = tMsg.connection
   tSpecCount = tConn.GetIntFrom()
   tSpecMax = tConn.GetIntFrom()
   me.getComponent().updateSpectatorCount(tSpecCount, tSpecMax)
 end
 
-on handle_group_badges me, tMsg 
+on handle_group_badges me, tMsg
   tConn = tMsg.connection
   tNumberOfGroups = tConn.GetIntFrom()
   tGroupData = []
-  tNo = 1
-  repeat while tNo <= tNumberOfGroups
+  repeat with tNo = 1 to tNumberOfGroups
     tGroup = [:]
-    tGroup.setAt(#id, tConn.GetIntFrom())
-    tGroup.setAt(#logo, tConn.GetStrFrom())
+    tGroup[#id] = tConn.GetIntFrom()
+    tGroup[#logo] = tConn.GetStrFrom()
     tGroupData.add(tGroup)
-    tNo = (1 + tNo)
   end repeat
   me.getComponent().getGroupInfoObject().updateGroupInformation(tGroupData)
 end
 
-on handle_group_details me, tMsg 
+on handle_group_details me, tMsg
   tConn = tMsg.connection
   tGroupData = []
   tGroup = [:]
-  tGroup.setAt(#id, tConn.GetIntFrom())
-  if (tGroup.getAt(#id) = -1) then
-    return FALSE
+  tGroup[#id] = tConn.GetIntFrom()
+  if (tGroup[#id] = -1) then
+    return 0
   end if
-  tGroup.setAt(#name, tConn.GetStrFrom())
-  tGroup.setAt(#desc, tConn.GetStrFrom())
+  tGroup[#name] = tConn.GetStrFrom()
+  tGroup[#desc] = tConn.GetStrFrom()
   tGroupData.add(tGroup)
   me.getComponent().getGroupInfoObject().updateGroupInformation(tGroupData)
-  executeMessage(#groupInfoRetrieved, tGroup.getAt(#id))
+  executeMessage(#groupInfoRetrieved, tGroup[#id])
 end
 
-on handle_group_membership_update me, tMsg 
+on handle_group_membership_update me, tMsg
   tConn = tMsg.connection
   tUserIndex = tConn.GetIntFrom()
   tGroupId = tConn.GetIntFrom()
   tStatus = tConn.GetIntFrom()
   tuser = me.getComponent().getUserObject(tUserIndex)
   if not voidp(tuser) then
-    if tuser <> 0 then
+    if (tuser <> 0) then
       tuser.setProperty(#groupid, tGroupId)
       tuser.setProperty(#groupstatus, tStatus)
     end if
   end if
 end
 
-on regMsgList me, tBool 
+on regMsgList me, tBool
   tMsgs = [:]
   tMsgs.setaProp(-1, #handle_disconnect)
   tMsgs.setaProp(18, #handle_clc)
@@ -1153,5 +1075,5 @@ on regMsgList me, tBool
     unregisterListener(getVariable("connection.room.id"), me.getID(), tMsgs)
     unregisterCommands(getVariable("connection.room.id"), me.getID(), tCmds)
   end if
-  return TRUE
+  return 1
 end

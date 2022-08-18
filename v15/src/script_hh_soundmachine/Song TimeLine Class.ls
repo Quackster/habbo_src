@@ -1,6 +1,6 @@
-property pTimeLineData, pSongData, pSongID, pSongName, pChannelCount, pSlotCount, pChanged, pReady, pDataReady, pSlotDuration, pSongLength, pSongControllerID, pSampleNameBase
+property pSongData, pTimeLineData, pReady, pDataReady, pSongID, pSongName, pSongLength, pChanged, pSongControllerID, pChannelCount, pSlotCount, pSlotDuration, pSampleNameBase
 
-on construct me 
+on construct me
   pReady = 0
   pChanged = 0
   pChannelCount = 4
@@ -9,239 +9,210 @@ on construct me
   pSampleNameBase = "sound_machine_sample_"
   pSongControllerID = "song controller"
   me.clearTimeLine()
-  return TRUE
+  return 1
 end
 
-on deconstruct me 
-  return TRUE
+on deconstruct me
+  return 1
 end
 
-on resetChanged me 
+on resetChanged me
   pChanged = 0
 end
 
-on reset me, tWaitForData 
+on reset me, tWaitForData
   pDataReady = not tWaitForData
   pSongID = 0
-  pSongName = ""
+  pSongName = EMPTY
   pSongLength = 0
   me.clearTimeLine()
 end
 
-on updateSongID me, tNewID 
+on updateSongID me, tNewID
   pSongID = tNewID
 end
 
-on updateSongName me, tNewName 
+on updateSongName me, tNewName
   pSongName = tNewName
 end
 
-on soundSetRemoved me, tid 
-  repeat while pTimeLineData <= undefined
-    tChannel = getAt(undefined, tid)
-    tSlot = 1
-    repeat while tSlot <= tChannel.count
-      if not voidp(tChannel.getAt(tSlot)) then
-        tSampleID = tChannel.getAt(tSlot)
-        if tSampleID < 0 then
+on soundSetRemoved me, tid
+  repeat with tChannel in pTimeLineData
+    repeat with tSlot = 1 to tChannel.count
+      if not voidp(tChannel[tSlot]) then
+        tSampleID = tChannel[tSlot]
+        if (tSampleID < 0) then
           tSampleID = -tSampleID
         end if
         if (me.getSampleSetID(tSampleID) = tid) then
           pChanged = 1
-          tChannel.setAt(tSlot, void())
+          tChannel[tSlot] = VOID
         end if
       end if
-      tSlot = (1 + tSlot)
     end repeat
   end repeat
-  repeat while pTimeLineData <= undefined
-    tChannel = getAt(undefined, tid)
-    tSlot = 1
-    repeat while tSlot <= tChannel.count
-      tSample = tChannel.getAt(tSlot)
+  repeat with tChannel in pSongData
+    repeat with tSlot = 1 to tChannel.count
+      tSample = tChannel[tSlot]
       if not voidp(tSample) then
-        tSampleID = tSample.getAt(#id)
+        tSampleID = tSample[#id]
         if (me.getSampleSetID(tSampleID) = tid) then
           pChanged = 1
-          tChannel.setAt(tSlot, void())
+          tChannel[tSlot] = VOID
         end if
       end if
-      tSlot = (1 + tSlot)
     end repeat
   end repeat
 end
 
-on checkSoundSetReferences me, tid 
-  repeat while pTimeLineData <= undefined
-    tChannel = getAt(undefined, tid)
-    tSlot = 1
-    repeat while tSlot <= tChannel.count
-      if not voidp(tChannel.getAt(tSlot)) then
-        tSampleID = tChannel.getAt(tSlot)
-        if tSampleID < 0 then
+on checkSoundSetReferences me, tid
+  repeat with tChannel in pTimeLineData
+    repeat with tSlot = 1 to tChannel.count
+      if not voidp(tChannel[tSlot]) then
+        tSampleID = tChannel[tSlot]
+        if (tSampleID < 0) then
           tSampleID = -tSampleID
         end if
         if (me.getSampleSetID(tSampleID) = tid) then
-          return TRUE
+          return 1
         end if
       end if
-      tSlot = (1 + tSlot)
     end repeat
   end repeat
-  repeat while pTimeLineData <= undefined
-    tChannel = getAt(undefined, tid)
-    repeat while pTimeLineData <= undefined
-      tSample = getAt(undefined, tid)
+  repeat with tChannel in pSongData
+    repeat with tSample in tChannel
       if not voidp(tSample) then
-        tSampleID = tSample.getAt(#id)
+        tSampleID = tSample[#id]
         if (me.getSampleSetID(tSampleID) = tid) then
-          return TRUE
+          return 1
         end if
       end if
     end repeat
   end repeat
-  return FALSE
+  return 0
 end
 
-on getSongID me 
-  return(pSongID)
+on getSongID me
+  return pSongID
 end
 
-on getSongName me 
-  return(pSongName)
+on getSongName me
+  return pSongName
 end
 
-on getChannelCount me 
-  return(pChannelCount)
+on getChannelCount me
+  return pChannelCount
 end
 
-on getSlotCount me 
-  return(pSlotCount)
+on getSlotCount me
+  return pSlotCount
 end
 
-on getChanged me 
-  return(pChanged)
+on getChanged me
+  return pChanged
 end
 
-on getReady me 
-  return(pReady)
+on getReady me
+  return pReady
 end
 
-on getDataReady me 
-  return(pDataReady)
+on getDataReady me
+  return pDataReady
 end
 
-on getSlotDuration me 
-  return(pSlotDuration)
+on getSlotDuration me
+  return pSlotDuration
 end
 
-on getTimeLineData me 
-  return(pTimeLineData)
+on getTimeLineData me
+  return pTimeLineData
 end
 
-on clearTimeLine me, tSongLength 
+on clearTimeLine me, tSongLength
   pTimeLineData = []
   pSongData = []
   if voidp(tSongLength) then
     tSongLength = pSlotCount
   end if
-  i = 1
-  repeat while i <= pChannelCount
+  repeat with i = 1 to pChannelCount
     tChannel = []
-    j = 1
-    repeat while j <= pSlotCount
-      tChannel.setAt(j, void())
-      j = (1 + j)
+    repeat with j = 1 to pSlotCount
+      tChannel[j] = VOID
     end repeat
     tChannelSong = []
-    j = 1
-    repeat while j <= tSongLength
-      tChannelSong.setAt(j, void())
-      j = (1 + j)
+    repeat with j = 1 to tSongLength
+      tChannelSong[j] = VOID
     end repeat
-    pTimeLineData.setAt(i, tChannel)
-    pSongData.setAt(i, tChannelSong)
-    i = (1 + i)
+    pTimeLineData[i] = tChannel
+    pSongData[i] = tChannelSong
   end repeat
   pReady = 1
   pPlayHeadPosX = 0
   pChanged = 1
 end
 
-on parseSongData me, tdata, tSongID, tSongName 
+on parseSongData me, tdata, tSongID, tSongName
   pSongID = tSongID
   pSongName = tSongName
   tSongLength = 0
-  i = 1
-  repeat while i <= tdata.count
-    tChannel = tdata.getAt(i)
+  repeat with i = 1 to tdata.count
+    tChannel = tdata[i]
     tSlot = 1
-    repeat while tChannel <= tSongID
-      tSample = getAt(tSongID, tdata)
-      tLength = tSample.getAt(#length)
+    repeat with tSample in tChannel
+      tLength = tSample[#length]
       tSlot = (tSlot + tLength)
     end repeat
-    if (tSlot - 1) > tSongLength then
+    if ((tSlot - 1) > tSongLength) then
       tSongLength = (tSlot - 1)
     end if
-    i = (1 + i)
   end repeat
   me.clearTimeLine(tSongLength)
   pChanged = 0
-  i = 1
-  repeat while i <= tdata.count
-    tChannel = tdata.getAt(i)
-    if i <= pSongData.count then
-      tSongChannel = pSongData.getAt(i)
+  repeat with i = 1 to tdata.count
+    tChannel = tdata[i]
+    if (i <= pSongData.count) then
+      tSongChannel = pSongData[i]
       tSlot = 1
-      repeat while tChannel <= tSongID
-        tSample = getAt(tSongID, tdata)
-        tid = tSample.getAt(#id)
-        tLength = tSample.getAt(#length)
-        if tSlot <= tSongChannel.count then
-          pSongData.getAt(i).setAt(tSlot, tSample.duplicate())
+      repeat with tSample in tChannel
+        tid = tSample[#id]
+        tLength = tSample[#length]
+        if (tSlot <= tSongChannel.count) then
+          pSongData[i][tSlot] = tSample.duplicate()
         end if
         tSlot = (tSlot + tLength)
       end repeat
     end if
-    i = (1 + i)
   end repeat
   pReady = 0
   pDataReady = 1
-  return TRUE
+  return 1
 end
 
-on processSongData me 
+on processSongData me
   if pReady then
-    return TRUE
+    return 1
   end if
   if not pDataReady then
-    return FALSE
+    return 0
   end if
-  i = min(pSongData.count, pTimeLineData.count)
-  repeat while i >= 1
-    j = min(pTimeLineData.getAt(i).count, pSongData.getAt(i).count)
-    repeat while j >= 1
-      if pTimeLineData.getAt(i).getAt(j) < 0 then
-        pTimeLineData.getAt(i).setAt(j, void())
+  repeat with i = min(pSongData.count, pTimeLineData.count) down to 1
+    repeat with j = min(pTimeLineData[i].count, pSongData[i].count) down to 1
+      if (pTimeLineData[i][j] < 0) then
+        pTimeLineData[i][j] = VOID
       end if
-      j = (255 + j)
     end repeat
-    i = (255 + i)
   end repeat
   tReady = 1
   tLengthCache = [:]
-  i = 1
-  repeat while i <= min(pSongData.count, pTimeLineData.count)
-    tSongChannel = pSongData.getAt(i)
-    tTimeLineChannel = pTimeLineData.getAt(i)
-    j = 1
-    repeat while j <= tSongChannel.count
-      tSample = tSongChannel.getAt(j)
+  repeat with i = 1 to min(pSongData.count, pTimeLineData.count)
+    tSongChannel = pSongData[i]
+    tTimeLineChannel = pTimeLineData[i]
+    repeat with j = 1 to tSongChannel.count
+      tSample = tSongChannel[j]
       if not voidp(tSample) then
-        tid = tSample.getAt(#id)
-        tLength = tSample.getAt(#length)
-        if tLengthCache.findPos(tid) > 0 then
+        tid = tSample[#id]
+        tLength = tSample[#length]
+        if (tLengthCache.findPos(tid) > 0) then
           tSampleLength = tLengthCache.getProp(tid)
         else
           tSampleLength = me.getSampleLength(tid)
@@ -254,310 +225,288 @@ on processSongData me
           tReady = 0
           tWasReady = 0
         end if
-        if tid <> 0 then
+        if (tid <> 0) then
           tIsFree = 1
           if not me.getIsFreeBlock(j, i, tLength) then
             tIsFree = 0
           end if
           tRepeats = (tLength / tSampleLength)
-          k = 1
-          repeat while k <= tRepeats
+          repeat with k = 1 to tRepeats
             if tIsFree then
               tCanInsert = 1
             else
               tCanInsert = me.getCanInsertSample((j + ((k - 1) * tSampleLength)), i, tid)
             end if
             if tCanInsert then
-              tTimeLineChannel.setAt((j + ((k - 1) * tSampleLength)), tid)
+              tTimeLineChannel[(j + ((k - 1) * tSampleLength))] = tid
             end if
-            k = (1 + k)
           end repeat
         end if
         if tWasReady then
-          tSongChannel.setAt(j, void())
+          tSongChannel[j] = VOID
         end if
       end if
-      j = (1 + j)
     end repeat
-    i = (1 + i)
   end repeat
   pReady = tReady
-  return(tReady)
+  return tReady
 end
 
-on resolveSongLength me 
+on resolveSongLength me
   tLength = 0
-  tChannel = 1
-  repeat while tChannel <= pTimeLineData.count
-    tChannelData = pTimeLineData.getAt(tChannel)
+  repeat with tChannel = 1 to pTimeLineData.count
+    tChannelData = pTimeLineData[tChannel]
     tSlot = 1
-    repeat while tSlot <= tChannelData.count
-      if not voidp(tChannelData.getAt(tSlot)) then
-        tSampleID = tChannelData.getAt(tSlot)
+    repeat while (tSlot <= tChannelData.count)
+      if not voidp(tChannelData[tSlot]) then
+        tSampleID = tChannelData[tSlot]
         tSampleLength = me.getSampleLength(tSampleID)
-        if tSampleLength <> 0 and tSampleID >= 0 then
-          repeat while (tChannelData.getAt(tSlot) = tSampleID)
+        if ((tSampleLength <> 0) and (tSampleID >= 0)) then
+          repeat while (tChannelData[tSlot] = tSampleID)
             tSlot = (tSlot + tSampleLength)
-            if (tSlot - 1) > tLength then
+            if ((tSlot - 1) > tLength) then
               tLength = (tSlot - 1)
             end if
-            if tSlot > tChannelData.count then
-            else
+            if (tSlot > tChannelData.count) then
+              exit repeat
             end if
           end repeat
-          exit repeat
-        end if
-        tSlot = (tSlot + 1)
-        if tSampleID < 0 then
-          if (tSlot - 1) > tLength then
-            tLength = (tSlot - 1)
+        else
+          tSlot = (tSlot + 1)
+          if (tSampleID < 0) then
+            if ((tSlot - 1) > tLength) then
+              tLength = (tSlot - 1)
+            end if
           end if
         end if
         next repeat
       end if
-      repeat while voidp(tChannelData.getAt(tSlot))
+      repeat while voidp(tChannelData[tSlot])
         tSlot = (tSlot + 1)
-        if tSlot > tChannelData.count then
-          next repeat
+        if (tSlot > tChannelData.count) then
+          exit repeat
         end if
       end repeat
     end repeat
-    tChannel = (1 + tChannel)
   end repeat
-  return(tLength)
+  return tLength
 end
 
-on getCanInsertSample me, tX, tY, tid 
+on getCanInsertSample me, tX, tY, tid
   tLength = me.getSampleLength(tid)
-  return(me.getIsFreeBlock(tX, tY, tLength))
+  return me.getIsFreeBlock(tX, tY, tLength)
 end
 
-on getIsFreeBlock me, tX, tY, tLength 
-  if tLength <> 0 then
-    if tX >= 1 and (tX + (tLength - 1)) <= pSlotCount and tY >= 1 and tY <= pTimeLineData.count then
-      tChannel = pTimeLineData.getAt(tY)
-      i = tX
-      repeat while i <= ((tX + tLength) - 1)
-        if not voidp(tChannel.getAt(i)) then
-          return FALSE
+on getIsFreeBlock me, tX, tY, tLength
+  if (tLength <> 0) then
+    if ((((tX >= 1) and ((tX + (tLength - 1)) <= pSlotCount)) and (tY >= 1)) and (tY <= pTimeLineData.count)) then
+      tChannel = pTimeLineData[tY]
+      repeat with i = tX to ((tX + tLength) - 1)
+        if not voidp(tChannel[i]) then
+          return 0
         end if
-        i = (1 + i)
       end repeat
-      i = (tX - 1)
-      repeat while i >= 1
-        if not voidp(tChannel.getAt(i)) then
-          tNumber = tChannel.getAt(i)
-          if (i + (me.getSampleLength(tNumber) - 1)) >= tX then
-            return FALSE
-          else
-            return TRUE
+      repeat with i = (tX - 1) down to 1
+        if not voidp(tChannel[i]) then
+          tNumber = tChannel[i]
+          if ((i + (me.getSampleLength(tNumber) - 1)) >= tX) then
+            return 0
+            next repeat
           end if
+          return 1
         end if
-        i = (255 + i)
       end repeat
-      return TRUE
+      return 1
     end if
   end if
-  return FALSE
+  return 0
 end
 
-on getSongData me 
+on getSongData me
   pSongLength = me.resolveSongLength()
   if (pSongLength = 0) then
-    return FALSE
+    return 0
   end if
-  tSongData = [#offset:0, #sounds:[]]
-  tChannel = 1
-  repeat while tChannel <= pTimeLineData.count
-    tChannelData = pTimeLineData.getAt(tChannel)
+  tSongData = [#offset: 0, #sounds: []]
+  repeat with tChannel = 1 to pTimeLineData.count
+    tChannelData = pTimeLineData[tChannel]
     tEmpty = 1
-    i = 1
-    repeat while i <= pSongLength
-      if not voidp(tChannelData.getAt(i)) then
+    repeat with i = 1 to pSongLength
+      if not voidp(tChannelData[i]) then
         tEmpty = 0
-      else
-        i = (1 + i)
+        exit repeat
       end if
     end repeat
     if not tEmpty then
       tSlot = 1
-      repeat while tSlot <= pSongLength
-        if not voidp(tChannelData.getAt(tSlot)) then
-          tSampleID = tChannelData.getAt(tSlot)
+      repeat while (tSlot <= pSongLength)
+        if not voidp(tChannelData[tSlot]) then
+          tSampleID = tChannelData[tSlot]
           tSampleLength = me.getSampleLength(tSampleID)
-          if tSampleLength <> 0 and tSampleID >= 0 then
+          if ((tSampleLength <> 0) and (tSampleID >= 0)) then
             tCount = 0
-            repeat while (tChannelData.getAt(tSlot) = tSampleID)
+            repeat while (tChannelData[tSlot] = tSampleID)
               tCount = (tCount + 1)
               tSlot = (tSlot + tSampleLength)
-              if tSlot > pSongLength then
-              else
+              if (tSlot > pSongLength) then
+                exit repeat
               end if
             end repeat
             tSampleName = me.getSampleName(tSampleID)
-            tSampleData = [#name:tSampleName, #loops:tCount, #channel:tChannel]
-            tSongData.getAt(#sounds).setAt((tSongData.getAt(#sounds).count + 1), tSampleData)
+            tSampleData = [#name: tSampleName, #loops: tCount, #channel: tChannel]
+            tSongData[#sounds][(tSongData[#sounds].count + 1)] = tSampleData
           else
             tSampleName = me.getSampleName(0)
-            tSampleData = [#name:tSampleName, #loops:1, #channel:tChannel]
-            tSongData.getAt(#sounds).setAt((tSongData.getAt(#sounds).count + 1), tSampleData)
+            tSampleData = [#name: tSampleName, #loops: 1, #channel: tChannel]
+            tSongData[#sounds][(tSongData[#sounds].count + 1)] = tSampleData
             tSlot = (tSlot + 1)
           end if
           next repeat
         end if
         tCount = 0
-        repeat while voidp(tChannelData.getAt(tSlot))
+        repeat while voidp(tChannelData[tSlot])
           tCount = (tCount + 1)
           tSlot = (tSlot + 1)
-          if tSlot > pSongLength then
-          else
+          if (tSlot > pSongLength) then
+            exit repeat
           end if
         end repeat
         tSampleName = me.getSampleName(0)
-        tSampleData = [#name:tSampleName, #loops:tCount, #channel:tChannel]
-        tSongData.getAt(#sounds).setAt((tSongData.getAt(#sounds).count + 1), tSampleData)
+        tSampleData = [#name: tSampleName, #loops: tCount, #channel: tChannel]
+        tSongData[#sounds][(tSongData[#sounds].count + 1)] = tSampleData
       end repeat
     end if
-    tChannel = (1 + tChannel)
   end repeat
-  return(tSongData)
+  return tSongData
 end
 
-on getSilentSongData me 
-  return([#offset:0, #sounds:[[#name:"sound_machine_sample_0", #loops:10, #channel:1]]])
-end
-
-on insertSample me, tSlot, tChannel, tid 
+on insertSample me, tSlot, tChannel, tid
   tInsert = me.getCanInsertSample(tSlot, tChannel, tid)
   if tInsert then
     pChanged = 1
-    pTimeLineData.getAt(tChannel).setAt(tSlot, tid)
-    return TRUE
+    pTimeLineData[tChannel][tSlot] = tid
+    return 1
   end if
-  return FALSE
+  return 0
 end
 
-on removeSample me, tSlot, tChannel 
-  if tChannel >= 1 and tChannel <= pTimeLineData.count then
-    if tSlot >= 1 and tSlot <= pTimeLineData.getAt(tChannel).count then
-      if not voidp(pTimeLineData.getAt(tChannel).getAt(tSlot)) then
-        if pTimeLineData.getAt(tChannel).getAt(tSlot) < 0 then
-          return FALSE
+on removeSample me, tSlot, tChannel
+  if ((tChannel >= 1) and (tChannel <= pTimeLineData.count)) then
+    if ((tSlot >= 1) and (tSlot <= pTimeLineData[tChannel].count)) then
+      if not voidp(pTimeLineData[tChannel][tSlot]) then
+        if (pTimeLineData[tChannel][tSlot] < 0) then
+          return 0
         end if
       else
-        i = (tSlot - 1)
-        repeat while i >= 1
-          if not voidp(pTimeLineData.getAt(tChannel).getAt(i)) then
-            tSampleID = pTimeLineData.getAt(tChannel).getAt(i)
-            if tSampleID >= 0 then
+        repeat with i = (tSlot - 1) down to 1
+          if not voidp(pTimeLineData[tChannel][i]) then
+            tSampleID = pTimeLineData[tChannel][i]
+            if (tSampleID >= 0) then
               tSampleLength = me.getSampleLength(tSampleID)
-              if tSampleLength <> 0 then
-                if (i + (tSampleLength - 1)) >= tSlot then
+              if (tSampleLength <> 0) then
+                if ((i + (tSampleLength - 1)) >= tSlot) then
                   tSlot = i
-                else
-                  return FALSE
+                  exit repeat
+                  next repeat
                 end if
+                return 0
               end if
             end if
           end if
-          i = (255 + i)
         end repeat
       end if
       pChanged = 1
-      pTimeLineData.getAt(tChannel).setAt(tSlot, void())
-      return TRUE
+      pTimeLineData[tChannel][tSlot] = VOID
+      return 1
     end if
   end if
-  return FALSE
+  return 0
 end
 
-on encodeTimeLineData me 
-  if not pReady or not pDataReady then
-    return FALSE
+on encodeTimeLineData me
+  if (not pReady or not pDataReady) then
+    return 0
   end if
-  tStr = ""
+  tStr = EMPTY
   tSongLength = me.resolveSongLength()
-  if tSongLength > 0 then
-    i = 1
-    repeat while i <= pTimeLineData.count
-      tChannel = pTimeLineData.getAt(i)
-      tStr = tStr & i & ":"
+  if (tSongLength > 0) then
+    repeat with i = 1 to pTimeLineData.count
+      tChannel = pTimeLineData[i]
+      tStr = ((tStr & i) & ":")
       j = 1
       tChannelData = []
-      repeat while j <= tSongLength
-        if voidp(tChannel.getAt(j)) then
-          tSample = [#id:0, #length:1]
+      repeat while (j <= tSongLength)
+        if voidp(tChannel[j]) then
+          tSample = [#id: 0, #length: 1]
           j = (j + 1)
         else
-          tSampleID = tChannel.getAt(j)
+          tSampleID = tChannel[j]
           tSampleLength = me.getSampleLength(tSampleID)
-          if tSampleID < 0 then
+          if (tSampleID < 0) then
             tSampleID = -tSampleID
           end if
           if (tSampleLength = 0) then
-            tSample = [#id:0, #length:1]
+            tSample = [#id: 0, #length: 1]
           else
-            tSample = [#id:tSampleID, #length:tSampleLength]
+            tSample = [#id: tSampleID, #length: tSampleLength]
           end if
-          j = (j + tSample.getAt(#length))
+          j = (j + tSample[#length])
         end if
-        tChannelData.setAt((tChannelData.count + 1), tSample)
+        tChannelData[(tChannelData.count + 1)] = tSample
       end repeat
       j = 1
-      repeat while j < tChannelData.count
-        if (tChannelData.getAt(j).getAt(#id) = tChannelData.getAt((j + 1)).getAt(#id)) then
-          tChannelData.getAt(j).setAt(#length, (tChannelData.getAt(j).getAt(#length) + tChannelData.getAt((j + 1)).getAt(#length)))
+      repeat while (j < tChannelData.count)
+        if (tChannelData[j][#id] = tChannelData[(j + 1)][#id]) then
+          tChannelData[j][#length] = (tChannelData[j][#length] + tChannelData[(j + 1)][#length])
           tChannelData.deleteAt((j + 1))
           next repeat
         end if
         j = (j + 1)
       end repeat
-      tChannelStr = ""
-      repeat while tChannelData <= undefined
-        tSample = getAt(undefined, undefined)
-        if tChannelStr <> "" then
-          tChannelStr = tChannelStr & ";"
+      tChannelStr = EMPTY
+      repeat with tSample in tChannelData
+        if (tChannelStr <> EMPTY) then
+          tChannelStr = (tChannelStr & ";")
         end if
-        tChannelStr = tChannelStr & tSample.getAt(#id) & "," & tSample.getAt(#length)
+        tChannelStr = (((tChannelStr & tSample[#id]) & ",") & tSample[#length])
       end repeat
-      tStr = tStr & tChannelStr & ":"
-      i = (1 + i)
+      tStr = ((tStr & tChannelStr) & ":")
     end repeat
   end if
-  return(tStr)
+  return tStr
 end
 
-on getSampleLength me, tSampleID 
-  if tSampleID < 0 then
-    return TRUE
+on getSampleLength me, tSampleID
+  if (tSampleID < 0) then
+    return 1
   end if
   tLength = 0
   tSampleName = me.getSampleName(tSampleID)
   tSongController = getObject(pSongControllerID)
-  if tSongController <> 0 then
+  if (tSongController <> 0) then
     tReady = tSongController.getSampleLoadingStatus(tSampleName)
     if not tReady then
       tDelim = the itemDelimiter
       the itemDelimiter = "_"
-      tSampleno = (tSampleName.getProp(#item, 4) - 1)
+      tSampleno = (tSampleName.item[4] - 1)
       tSamplesPerSEt = 9
-      tParentNo = ((integer(tSampleno) / tSamplesPerSEt) + 1)
-      tParentId = "sound_set_" & tParentNo
+      tParentNo = integer(((tSampleno / tSamplesPerSEt) + 1))
+      tParentId = ("sound_set_" & tParentNo)
       the itemDelimiter = tDelim
-      tSongController.preloadSounds([[#sound:tSampleName, #parent:tParentId]])
+      tSongController.preloadSounds([[#sound: tSampleName, #parent: tParentId]])
     else
       tLength = tSongController.getSampleLength(tSampleName)
       tLength = ((tLength + (pSlotDuration - 1)) / pSlotDuration)
     end if
   end if
-  return(tLength)
+  return tLength
 end
 
-on getSampleName me, tSampleID 
-  tName = pSampleNameBase & tSampleID
-  return(tName)
+on getSampleName me, tSampleID
+  tName = (pSampleNameBase & tSampleID)
+  return tName
 end
 
-on getSampleSetID me, tSampleID 
-  return((1 + ((tSampleID - 1) / 9)))
+on getSampleSetID me, tSampleID
+  return (1 + ((tSampleID - 1) / 9))
 end

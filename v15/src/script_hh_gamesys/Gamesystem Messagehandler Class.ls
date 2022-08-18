@@ -1,27 +1,27 @@
 property pMsgIds
 
-on construct me 
-  return(me.regMsgList(1))
+on construct me
+  return me.regMsgList(1)
 end
 
-on deconstruct me 
-  return(me.regMsgList(0))
+on deconstruct me
+  return me.regMsgList(0)
 end
 
-on defineClient me, tid 
-  return TRUE
+on defineClient me, tid
+  return 1
 end
 
-on handle_message me, tMsg 
-  tIdStr = pMsgIds.getProp(tMsg.getAt(#subject))
-  if (tIdStr = void()) then
-    return FALSE
+on handle_message me, tMsg
+  tIdStr = pMsgIds.getProp(tMsg[#subject])
+  if (tIdStr = VOID) then
+    return 0
   end if
-  call(#distributeEvent, me.getProcManager(), symbol("msgstruct_" & tIdStr), tMsg)
-  return TRUE
+  call(#distributeEvent, me.getProcManager(), symbol(("msgstruct_" & tIdStr)), tMsg)
+  return 1
 end
 
-on regMsgList me, tBool 
+on regMsgList me, tBool
   pMsgIds = [:]
   pMsgIds.setaProp(28, #users)
   pMsgIds.setaProp(30, #objects)
@@ -51,10 +51,8 @@ on regMsgList me, tBool
   pMsgIds.setaProp(251, #idlewarning)
   pMsgIds.setaProp(252, #skilllevelchanged)
   tMsgs = [:]
-  i = 1
-  repeat while i <= pMsgIds.count
+  repeat with i = 1 to pMsgIds.count
     tMsgs.setaProp(pMsgIds.getPropAt(i), #handle_message)
-    i = (1 + i)
   end repeat
   tCmds = [:]
   tCmds.setaProp("MOVE", 75)
@@ -80,5 +78,5 @@ on regMsgList me, tBool
     unregisterListener(getVariable("connection.info.id", #info), me.getID(), tMsgs)
     unregisterCommands(getVariable("connection.info.id", #info), me.getID(), tCmds)
   end if
-  return TRUE
+  return 1
 end

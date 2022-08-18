@@ -1,62 +1,62 @@
-property pMsg, pPlateObjID, pName, pDate, pWindowName
+property pName, pMsg, pDate, pWindowName, pPlateObjID
 
-on prepare me, tdata 
+on prepare me, tdata
   pPlateObjID = "trophy_plate"
-  pName = ""
-  pMsg = ""
-  pDate = ""
+  pName = EMPTY
+  pMsg = EMPTY
+  pDate = EMPTY
   pWindowName = "plate_gold.window"
-  if tdata.ilk <> #propList then
-    return(error(me, "Incorrect data", #prepare, #major))
+  if (tdata.ilk <> #propList) then
+    return error(me, "Incorrect data", #prepare, #major)
   end if
-  if voidp(tdata.getAt(#stuffdata)) then
-    return TRUE
+  if voidp(tdata[#stuffdata]) then
+    return 1
   else
-    tTemp = tdata.getAt(#stuffdata)
+    tTemp = tdata[#stuffdata]
     tDelim = the itemDelimiter
-    the itemDelimiter = "\t"
-    if tTemp.count(#item) > 2 then
-      pName = tTemp.getProp(#item, 1)
-      pDate = tTemp.getProp(#item, 2)
-      pMsg = tTemp.getProp(#item, 3, tTemp.count(#item))
-      pMsg = replaceChunks(pMsg, "\\r", "\r")
+    the itemDelimiter = TAB
+    if (tTemp.item.count > 2) then
+      pName = tTemp.item[1]
+      pDate = tTemp.item[2]
+      pMsg = tTemp.item[3]
+      pMsg = replaceChunks(pMsg, "\r", RETURN)
     else
-      if (tTemp.count(#item) = 2) then
-        pName = tTemp.getProp(#item, 1)
-        pDate = tTemp.getProp(#item, 2)
+      if (tTemp.item.count = 2) then
+        pName = tTemp.item[1]
+        pDate = tTemp.item[2]
       else
-        pName = ""
-        pDate = ""
-        pMsg = ""
+        pName = EMPTY
+        pDate = EMPTY
+        pMsg = EMPTY
         error(me, "Name and date missing", #prepare, #minor)
       end if
     end if
     the itemDelimiter = tDelim
     if (me.pPartColors.ilk = #list) then
-      if (me.count(#pPartColors) = 5) then
-        if (me.getProp(#pPartColors, 3) = "#ffffff") then
+      if (me.pPartColors.count = 5) then
+        if (me.pPartColors[3] = "#ffffff") then
           pWindowName = "plate_silver.window"
         else
-          if (me.getProp(#pPartColors, 3) = "#996600") then
+          if (me.pPartColors[3] = "#996600") then
             pWindowName = "plate_bronze.window"
           end if
         end if
       end if
     end if
   end if
-  return TRUE
+  return 1
 end
 
-on select me 
+on select me
   if the doubleClick then
     if not objectExists(pPlateObjID) then
       tObj = createObject(pPlateObjID, "Plate Class")
     else
       tObj = getObject(pPlateObjID)
     end if
-    if tObj <> 0 then
+    if (tObj <> 0) then
       tObj.show(pName, pDate, pMsg, pWindowName)
     end if
   end if
-  return TRUE
+  return 1
 end

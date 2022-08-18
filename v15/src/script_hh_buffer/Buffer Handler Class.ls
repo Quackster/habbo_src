@@ -1,92 +1,88 @@
-on construct me 
-  return(me.regMsgList(1))
+on construct me
+  return me.regMsgList(1)
 end
 
-on deconstruct me 
-  return(me.regMsgList(0))
+on deconstruct me
+  return me.regMsgList(0)
 end
 
-on parseActiveObject me, tConn 
+on parseActiveObject me, tConn
   if not tConn then
-    return FALSE
+    return 0
   end if
   tObj = [:]
-  tObj.setAt(#id, tConn.GetStrFrom())
-  tObj.setAt(#class, tConn.GetStrFrom())
-  tObj.setAt(#x, tConn.GetIntFrom())
-  tObj.setAt(#y, tConn.GetIntFrom())
+  tObj[#id] = tConn.GetStrFrom()
+  tObj[#class] = tConn.GetStrFrom()
+  tObj[#x] = tConn.GetIntFrom()
+  tObj[#y] = tConn.GetIntFrom()
   tWidth = tConn.GetIntFrom()
   tHeight = tConn.GetIntFrom()
   tDirection = (tConn.GetIntFrom() mod 8)
-  tObj.setAt(#direction, [tDirection, tDirection, tDirection])
-  tObj.setAt(#dimensions, [tWidth, tHeight])
-  tObj.setAt(#altitude, getLocalFloat(tConn.GetStrFrom()))
-  tObj.setAt(#colors, tConn.GetStrFrom())
+  tObj[#direction] = [tDirection, tDirection, tDirection]
+  tObj[#dimensions] = [tWidth, tHeight]
+  tObj[#altitude] = getLocalFloat(tConn.GetStrFrom())
+  tObj[#colors] = tConn.GetStrFrom()
   tRuntimeData = tConn.GetStrFrom()
   tExtra = tConn.GetIntFrom()
   tStuffData = tConn.GetStrFrom()
-  if (tObj.getAt(#colors) = "") then
-    tObj.setAt(#colors, "0")
+  if (tObj[#colors] = EMPTY) then
+    tObj[#colors] = "0"
   end if
-  tObj.setAt(#props, [#runtimedata:tRuntimeData, #extra:tExtra, #stuffdata:tStuffData])
-  return(tObj)
+  tObj[#props] = [#runtimedata: tRuntimeData, #extra: tExtra, #stuffdata: tStuffData]
+  return tObj
 end
 
-on handle_stuffdataupdate me, tMsg 
+on handle_stuffdataupdate me, tMsg
   tConn = tMsg.connection
   if not tConn then
-    return FALSE
+    return 0
   end if
   tMsgTemp = [:]
-  tIndex = 1
-  repeat while tIndex <= tMsg.count
+  repeat with tIndex = 1 to tMsg.count
     tProp = tMsg.getPropAt(tIndex)
-    tValue = tMsg.getAt(tIndex)
-    tMsgTemp.setAt(tProp, tValue)
-    tIndex = (1 + tIndex)
+    tValue = tMsg[tIndex]
+    tMsgTemp[tProp] = tValue
   end repeat
   tTargetID = tConn.GetStrFrom()
-  return(me.getComponent().bufferMessage(tMsgTemp, tTargetID, "active"))
+  return me.getComponent().bufferMessage(tMsgTemp, tTargetID, "active")
 end
 
-on handle_activeobject_remove me, tMsg 
-  return(me.getComponent().removeObject(tMsg.content.getProp(#word, 1), "active"))
+on handle_activeobject_remove me, tMsg
+  return me.getComponent().removeObject(tMsg.content.word[1], "active")
 end
 
-on handle_activeobject_update me, tMsg 
-  if ilk(tMsg) <> #propList then
-    return FALSE
+on handle_activeobject_update me, tMsg
+  if (ilk(tMsg) <> #propList) then
+    return 0
   end if
   tConn = tMsg.connection
   if not tConn then
-    return FALSE
+    return 0
   end if
   tMsgTemp = [:]
-  tIndex = 1
-  repeat while tIndex <= tMsg.count
+  repeat with tIndex = 1 to tMsg.count
     tProp = tMsg.getPropAt(tIndex)
-    tValue = tMsg.getAt(tIndex)
-    tMsgTemp.setAt(tProp, tValue)
-    tIndex = (1 + tIndex)
+    tValue = tMsg[tIndex]
+    tMsgTemp[tProp] = tValue
   end repeat
   tObj = me.parseActiveObject(tConn)
   if not listp(tObj) then
-    return FALSE
+    return 0
   end if
-  tid = tObj.getAt(#id)
-  return(me.getComponent().bufferMessage(tMsgTemp, tid, "active"))
+  tid = tObj[#id]
+  return me.getComponent().bufferMessage(tMsgTemp, tid, "active")
 end
 
-on handle_removeitem me, tMsg 
-  return(me.getComponent().removeObject(tMsg.content.getProp(#word, 1), "item"))
+on handle_removeitem me, tMsg
+  return me.getComponent().removeObject(tMsg.content.word[1], "item")
 end
 
-on handle_updateitem me, tMsg 
-  tid = tMsg.content.getProp(#word, 1)
-  return(me.getComponent().bufferMessage(tMsg, tid, "item"))
+on handle_updateitem me, tMsg
+  tid = tMsg.content.word[1]
+  return me.getComponent().bufferMessage(tMsg, tid, "item")
 end
 
-on regMsgList me, tBool 
+on regMsgList me, tBool
   tMsgs = [:]
   tMsgs.setaProp(88, #handle_stuffdataupdate)
   tMsgs.setaProp(94, #handle_activeobject_remove)
@@ -101,5 +97,5 @@ on regMsgList me, tBool
     unregisterListener(getVariable("connection.room.id"), me.getID(), tMsgs)
     unregisterCommands(getVariable("connection.room.id"), me.getID(), tCmds)
   end if
-  return TRUE
+  return 1
 end
