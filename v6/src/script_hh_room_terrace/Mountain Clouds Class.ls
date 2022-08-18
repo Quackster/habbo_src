@@ -1,1 +1,25 @@
-property pCloudListon construct me  pCloudList = []  repeat with f = 1 to 4    tCloud = createObject(#temp, "Single Cloud Class")    tSprite = getThread(#room).getInterface().getRoomVisualizer().getSprById(("pilvi" & f))    tStartPointX = [200, 330, 490, 630][f]    tCloud.prepare(tSprite, tStartPointX)    pCloudList.add(tCloud)  end repeat  return receivePrepare(me.getID())endon deconstruct me  pCloudList = VOID  removePrepare(me.getID())  return 1endon prepare me  call(#update, pCloudList)end
+property pCloudList
+
+on construct me 
+  pCloudList = []
+  f = 1
+  repeat while f <= 4
+    tCloud = createObject(#temp, "Single Cloud Class")
+    tSprite = getThread(#room).getInterface().getRoomVisualizer().getSprById("pilvi" & f)
+    tStartPointX = [200, 330, 490, 630].getAt(f)
+    tCloud.prepare(tSprite, tStartPointX)
+    pCloudList.add(tCloud)
+    f = (1 + f)
+  end repeat
+  return(receivePrepare(me.getID()))
+end
+
+on deconstruct me 
+  pCloudList = void()
+  removePrepare(me.getID())
+  return TRUE
+end
+
+on prepare me 
+  call(#update, pCloudList)
+end
