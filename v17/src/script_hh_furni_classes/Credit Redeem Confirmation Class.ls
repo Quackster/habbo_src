@@ -1,31 +1,31 @@
-property pWindowID, pPrice, pFurniID
+property pWindowID, pFurniID, pPrice
 
-on construct me 
+on construct me
   pWindowID = getText("credit_redeem_window")
-  return TRUE
+  return 1
 end
 
-on deconstruct me 
+on deconstruct me
   tWndObj = getWindow(pWindowID)
-  if (not tWndObj = void()) then
+  if (not tWndObj = VOID) then
     tWndObj.close()
   end if
-  return TRUE
+  return 1
 end
 
-on Init me, tFurniID, tPrice 
+on Init me, tFurniID, tPrice
   pPrice = tPrice
   pFurniID = tFurniID
   if not me.createUiWindow() then
     removeObject(me.getID())
-    return FALSE
+    return 0
   end if
-  return TRUE
+  return 1
 end
 
-on createUiWindow me 
+on createUiWindow me
   if not createWindow(pWindowID, "habbo_full.window") then
-    return FALSE
+    return 0
   end if
   tWndObj = getWindow(pWindowID)
   tWndObj.merge("credit_redeem.window")
@@ -41,33 +41,28 @@ on createUiWindow me
   end if
   tWndObj.registerClient(me.getID())
   tWndObj.registerProcedure(#eventProcMouseUp, me.getID(), #mouseUp)
-  return TRUE
+  return 1
 end
 
-on eventProcMouseUp me, tEvent, tSprID, tParam 
-  if (tSprID = "credit_redeem") then
-    me.sendCreditRedeem()
-    removeObject(me.getID())
-  else
-    if tSprID <> "close" then
-      if (tSprID = "credit_cancel") then
-        removeObject(me.getID())
-      else
-        if (tSprID = "credit_redeem_info") then
-          me.openHelpURL()
-        end if
-      end if
-      return TRUE
-    end if
-  end if
+on eventProcMouseUp me, tEvent, tSprID, tParam
+  case tSprID of
+    "credit_redeem":
+      me.sendCreditRedeem()
+      removeObject(me.getID())
+    "close", "credit_cancel":
+      removeObject(me.getID())
+    "credit_redeem_info":
+      me.openHelpURL()
+  end case
+  return 1
 end
 
-on sendCreditRedeem me 
-  getThread(#room).getComponent().getRoomConnection().send("CONVERT_FURNI_TO_CREDITS", [#integer:integer(pFurniID)])
-  return TRUE
+on sendCreditRedeem me
+  getThread(#room).getComponent().getRoomConnection().send("CONVERT_FURNI_TO_CREDITS", [#integer: integer(pFurniID)])
+  return 1
 end
 
-on openHelpURL me 
+on openHelpURL me
   openNetPage("credit_redeem_url")
-  return TRUE
+  return 1
 end

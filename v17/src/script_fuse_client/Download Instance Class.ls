@@ -1,71 +1,65 @@
-property pMemName, pStatus, pPercent, pURL, pType, pNetId, pCallBack, ptryCount, pMemNum
+property pStatus, pMemName, pMemNum, pURL, pType, pCallBack, pNetId, pPercent, ptryCount
 
-on define me, tMemName, tdata 
+on define me, tMemName, tdata
   pStatus = #initializing
   pMemName = tMemName
-  pMemNum = tdata.getAt(#memNum)
-  pURL = tdata.getAt(#url)
-  pType = tdata.getAt(#type)
-  pCallBack = tdata.getAt(#callback)
-  pPercent = 0
+  pMemNum = tdata[#memNum]
+  pURL = tdata[#url]
+  pType = tdata[#type]
+  pCallBack = tdata[#callback]
+  pPercent = 0.0
   ptryCount = 0
-  return(me.Activate())
+  return me.Activate()
 end
 
-on addCallBack me, tMemName, tCallback 
+on addCallBack me, tMemName, tCallback
   if (tMemName = pMemName) then
     pCallBack = tCallback
-    return TRUE
+    return 1
   else
-    return FALSE
+    return 0
   end if
 end
 
-on getProperty me, tProp 
-  if (tProp = #status) then
-    return(pStatus)
-  else
-    if (tProp = #Percent) then
-      return(pPercent)
-    else
-      if (tProp = #url) then
-        return(pURL)
-      else
-        if (tProp = #type) then
-          return(pType)
-        else
-          return FALSE
-        end if
-      end if
-    end if
-  end if
+on getProperty me, tProp
+  case tProp of
+    #status:
+      return pStatus
+    #Percent:
+      return pPercent
+    #url:
+      return pURL
+    #type:
+      return pType
+  end case
+  return 0
 end
 
-on Activate me 
+on Activate me
   pURL = getPredefinedURL(pURL)
-  if (pType = #text) or (pType = #field) then
+  if ((pType = #text) or (pType = #field)) then
     pNetId = getNetText(pURL)
   else
     pNetId = preloadNetThing(pURL)
   end if
   pStatus = #LOADING
-  pPercent = 0
-  return TRUE
+  pPercent = 0.0
+  return 1
 end
 
-on update me 
-  if pStatus <> #LOADING then
-    return FALSE
+on update me
+  if (pStatus <> #LOADING) then
+    return 0
   end if
   tStreamStatus = getStreamStatus(pNetId)
   if listp(tStreamStatus) then
-    tBytesSoFar = tStreamStatus.getAt(#bytesSoFar)
-    tBytesTotal = tStreamStatus.getAt(#bytesTotal)
+    tBytesSoFar = tStreamStatus[#bytesSoFar]
+    tBytesTotal = tStreamStatus[#bytesTotal]
     if (tBytesTotal = 0) then
       tBytesTotal = tBytesSoFar
     end if
-    if tStreamStatus.getAt(#bytesSoFar) > 0 then
-      pPercent = ((1 * tBytesSoFar) / tBytesTotal)
+    if (tStreamStatus[#bytesSoFar] > 0) then
+      pPercent = ((1.0 * tBytesSoFar) / tBytesTotal)
     end if
   end if
   if (netDone(pNetId) = 1) then
@@ -73,55 +67,45 @@ on update me
       me.importFileToCast()
       getDownloadManager().removeActiveTask(pMemName, pCallBack)
       pStatus = #complete
-      return TRUE
+      return 1
     else
       tError = getDownloadManager().solveNetErrorMsg(netError(pNetId))
-      error(me, "Download error:" & "\r" & pMemName & "\r" & tError, #update, #minor)
-      if netError(pNetId) <> 6 then
-        if netError(pNetId) <> 4159 then
-          if (netError(pNetId) = 4165) then
-            if not pURL contains getDownloadManager().getProperty(#defaultURL) then
-              pURL = getDownloadManager().getProperty(#defaultURL) & pURL
-              me.Activate()
-            else
-              getDownloadManager().removeActiveTask(pMemName, pCallBack)
-            end if
-          else
-            if (netError(pNetId) = 4242) then
-              return(getDownloadManager().removeActiveTask(pMemName, pCallBack))
-            else
-              if (netError(pNetId) = 4155) then
-                nothing()
-              end if
-            end if
-          end if
-          ptryCount = (ptryCount + 1)
-          if ptryCount > getIntVariable("download.retry.count", 10) then
-            getDownloadManager().removeActiveTask(pMemName, pCallBack)
-            return(error(me, "Download failed too many times:" & "\r" & pURL, #update, #minor))
-          else
-            pURL = getSpecialServices().addRandomParamToURL(pURL)
+      error(me, (((("Download error:" & RETURN) & pMemName) & RETURN) & tError), #update, #minor)
+      case netError(pNetId) of
+        6, 4159, 4165:
+          if not (pURL contains getDownloadManager().getProperty(#defaultURL)) then
+            pURL = (getDownloadManager().getProperty(#defaultURL) & pURL)
             me.Activate()
+          else
+            getDownloadManager().removeActiveTask(pMemName, pCallBack)
           end if
-        end if
+        4242:
+          return getDownloadManager().removeActiveTask(pMemName, pCallBack)
+        4155:
+          nothing()
+      end case
+      ptryCount = (ptryCount + 1)
+      if (ptryCount > getIntVariable("download.retry.count", 10)) then
+        getDownloadManager().removeActiveTask(pMemName, pCallBack)
+        return error(me, (("Download failed too many times:" & RETURN) & pURL), #update, #minor)
+      else
+        pURL = getSpecialServices().addRandomParamToURL(pURL)
+        me.Activate()
       end if
     end if
   end if
 end
 
-on importFileToCast me 
+on importFileToCast me
   tmember = member(pMemNum)
-  if pType <> #text then
-    if (pType = #field) then
+  case pType of
+    #text, #field:
       tmember.text = netTextResult(pNetId)
-    else
-      if (pType = #bitmap) then
-        importFileInto(tmember, pURL, [#dither:0, #trimWhiteSpace:0])
-      else
-        importFileInto(tmember, pURL)
-      end if
-    end if
-    tmember.name = pMemName
-    return TRUE
-  end if
+    #bitmap:
+      importFileInto(tmember, pURL, [#dither: 0, #trimWhiteSpace: 0])
+    otherwise:
+      importFileInto(tmember, pURL)
+  end case
+  tmember.name = pMemName
+  return 1
 end

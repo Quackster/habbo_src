@@ -1,17 +1,17 @@
-on getInfo me 
-  return(me.pInfoStruct)
+on getInfo me
+  return me.pInfoStruct
 end
 
-on action_taked me 
+on action_taked me
   me.pCarrying = 1
-  me.definePartListAction(me.getProp(#pPartListSubSet, "handRight"), "crr")
+  call(#doHandWorkRight, me.getDefinedPartList(me.pPartListSubSet["handRight"]), "crr")
 end
 
-on action_gived me 
+on action_gived me
   me.pCarrying = 1
-  me.definePartListAction(me.getProp(#pPartListSubSet, "handRight"), "crr")
+  call(#doHandWorkRight, me.getDefinedPartList(me.pPartListSubSet["handRight"]), "crr")
 end
 
-on getClass me 
-  return("bot")
+on getClass me
+  return "bot"
 end

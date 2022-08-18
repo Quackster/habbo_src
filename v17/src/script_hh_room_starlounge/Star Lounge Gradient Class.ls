@@ -1,6 +1,6 @@
-property pPaletteMember, pUseCreases, pCreases, pBinMember, pSprite, pPhase, pSpeed, pMaxOffset, pLocOrig, pOffset
+property pSprite, pOffset, pMaxOffset, pPhase, pSpeed, pLocOrig, pCreases, pUseCreases, pBinMember, pPaletteMember
 
-on define me, tsprite 
+on define me, tsprite
   pMaxOffset = 300
   pSpeed = 10
   pUseCreases = 1
@@ -15,7 +15,7 @@ on define me, tsprite
     pBinMember = member(createMember("starlounge_gradient", #bitmap))
   end if
   tImage = tOrigMember.image.duplicate()
-  if ilk(tImage.paletteRef) <> #symbol then
+  if (ilk(tImage.paletteRef) <> #symbol) then
     if memberExists("starlounge_gradient_palette") then
       pPaletteMember = member(getmemnum("starlounge_gradient_palette"))
     else
@@ -26,7 +26,7 @@ on define me, tsprite
   if pUseCreases then
     tImage = me.makeCreases(tImage, pCreases, tImage.paletteRef)
   end if
-  if tImage.paletteRef.ilk <> #symbol then
+  if (tImage.paletteRef.ilk <> #symbol) then
     tImage.paletteRef = pPaletteMember
   end if
   pBinMember.image = tImage
@@ -35,39 +35,37 @@ on define me, tsprite
   tHeight = the stage.rect.height
   pSprite.rect = rect(0, 0, tWidth, tHeight)
   pLocOrig = pSprite.loc
-  return TRUE
+  return 1
 end
 
-on update me 
+on update me
   pPhase = ((pPhase + pSpeed) mod 3600)
-  pOffset = (((pMaxOffset / 2) * sin(((pPhase * pi()) / 1800))) + (pMaxOffset / 2))
+  pOffset = (((pMaxOffset / 2) * sin(((pPhase * PI) / 1800))) + (pMaxOffset / 2))
   pSprite.loc = (pLocOrig - [0, pOffset])
-  return TRUE
+  return 1
 end
 
-on makeCreases me, tSourceImage, tCreases, tPalette 
+on makeCreases me, tSourceImage, tCreases, tPalette
   tImageStage = image(the stage.rect.width, the stage.rect.height, 8, tPalette)
   tImageStage.copyPixels(tSourceImage, tImageStage.rect, tSourceImage.rect)
   tImageCreased = image(tImageStage.width, tImageStage.height, 8, tPalette)
   tTop = 1
   tdir = 1
-  i = 1
-  repeat while i <= (tCreases.count - 1)
-    tPoint1 = point(tCreases.getAt(i), tTop)
-    tTop = (tTop - ((tdir * (tCreases.getAt((i + 1)) - tCreases.getAt(i))) / 2))
+  repeat with i = 1 to (tCreases.count - 1)
+    tPoint1 = point(tCreases[i], tTop)
+    tTop = (tTop - ((tdir * (tCreases[(i + 1)] - tCreases[i])) / 2))
     tdir = -tdir
-    tPoint2 = point(tCreases.getAt((i + 1)), tTop)
+    tPoint2 = point(tCreases[(i + 1)], tTop)
     tPoint3 = (tPoint2 + [0, tImageStage.height])
     tPoint4 = (tPoint1 + [0, tImageStage.height])
     tQuad = [tPoint1, tPoint2, tPoint3, tPoint4]
-    tRectSource = rect(tCreases.getAt(i), 1, tCreases.getAt((i + 1)), tImageStage.height)
+    tRectSource = rect(tCreases[i], 1, tCreases[(i + 1)], tImageStage.height)
     tImageCreased.copyPixels(tImageStage, tQuad, tRectSource)
-    i = (1 + i)
   end repeat
-  return(tImageCreased)
+  return tImageCreased
 end
 
-on cleanup me 
+on cleanup me
   if not voidp(pBinMember) then
     removeMember(pBinMember.name)
   end if

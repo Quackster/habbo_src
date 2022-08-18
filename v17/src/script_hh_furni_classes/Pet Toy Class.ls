@@ -1,18 +1,18 @@
-property pActive, pUpdateFrame, pLastFrm, pTimer
+property pTimer, pUpdateFrame, pActive, pLastFrm
 
-on prepare me, tdata 
+on prepare me, tdata
   if (tdata.count = 0) then
-    tdata = [#runtimedata:"0"]
+    tdata = [#runtimedata: "0"]
   end if
-  me.updateRuntimeData(tdata.getAt(#runtimedata))
-  return TRUE
+  me.updateRuntimeData(tdata[#runtimedata])
+  return 1
 end
 
-on updateStuffdata me, tValue 
-  return TRUE
+on updateStuffdata me, tValue
+  return 1
 end
 
-on updateRuntimeData me, tValue 
+on updateRuntimeData me, tValue
   if (tValue = "1") then
     pUpdateFrame = 0
     pActive = 1
@@ -22,38 +22,34 @@ on updateRuntimeData me, tValue
     pUpdateFrame = 0
     pActive = 0
     pLastFrm = 0
-    if me.count(#pSprList) > 3 then
-      i = 1
-      repeat while i <= 4
-        tMemName = me.getPropRef(#pSprList, i).member.name
-        tMemName = tMemName.getProp(#char, 1, (length(tMemName) - 1)) & 0
+    if (me.pSprList.count > 3) then
+      repeat with i = 1 to 4
+        tMemName = me.pSprList[i].member.name
+        tMemName = (tMemName.char[1] & 0)
         tmember = member(getmemnum(tMemName))
-        me.getPropRef(#pSprList, i).castNum = tmember.number
-        me.getPropRef(#pSprList, i).width = tmember.width
-        me.getPropRef(#pSprList, i).height = tmember.height
-        i = (1 + i)
+        me.pSprList[i].castNum = tmember.number
+        me.pSprList[i].width = tmember.width
+        me.pSprList[i].height = tmember.height
       end repeat
     end if
   end if
 end
 
-on update me 
+on update me
   if pActive then
     pUpdateFrame = not pUpdateFrame
     if pUpdateFrame then
       pLastFrm = ((pLastFrm + 1) mod 6)
-      i = 1
-      repeat while i <= 4
-        tMemName = me.getPropRef(#pSprList, i).member.name
-        tMemName = tMemName.getProp(#char, 1, (length(tMemName) - 1)) & pLastFrm
+      repeat with i = 1 to 4
+        tMemName = me.pSprList[i].member.name
+        tMemName = (tMemName.char[1] & pLastFrm)
         tmember = member(getmemnum(tMemName))
-        me.getPropRef(#pSprList, i).castNum = tmember.number
-        me.getPropRef(#pSprList, i).width = tmember.width
-        me.getPropRef(#pSprList, i).height = tmember.height
-        i = (1 + i)
+        me.pSprList[i].castNum = tmember.number
+        me.pSprList[i].width = tmember.width
+        me.pSprList[i].height = tmember.height
       end repeat
-      if (the milliSeconds - pTimer) > 20000 then
-        getConnection(#info).send("SETSTUFFDATA", [#string:me.getID(), #string:"0"])
+      if ((the milliSeconds - pTimer) > 20000) then
+        getConnection(#Info).send("SETSTUFFDATA", [#string: me.getID(), #string: "0"])
       end if
     end if
   end if

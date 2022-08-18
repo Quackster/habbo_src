@@ -1,8 +1,11 @@
-on newJavaScriptProxy  
+on newJavaScriptProxy
+  -- unk26
 end
 
-on JavaScriptProxy  
+on JavaScriptProxy
+  -- unk26
 end
 
-on _call  
+on _call
+  -- unk26
 end

@@ -1,82 +1,80 @@
-property pActive, pSkipCounter, pMaxFrames
+property pActive, pFrame, pSkipCounter, pMaxFrames
 
-on define me, tdata 
+on define me, tdata
   pSkipCounter = 0
   pActive = 1
   pMaxFrames = -1
   me.ancestor.define(tdata)
   me.setFrame(0)
-  return TRUE
+  return 1
 end
 
-on setAnimation me, tstate 
+on setAnimation me, tstate
   me.pActive = tstate
   if (tstate = 0) then
     me.setFrame(0)
   end if
 end
 
-on update me 
+on update me
   if not pActive then
-    return TRUE
+    return 1
   end if
   pSkipCounter = (pSkipCounter + 1)
-  if pSkipCounter > 2 then
+  if (pSkipCounter > 2) then
     pSkipCounter = 0
     me.animate()
   end if
 end
 
-on setFrame me, tValue 
-  if (tValue = void()) then
+on setFrame me, tValue
+  if (tValue = VOID) then
     tValue = 0
   end if
-  tsprite = me.getProp(#pSprList, 1)
+  tsprite = me.pSprList[1]
   tName = tsprite.member.name
-  tName = tName.getProp(#char, 1, (length(tName) - 1)) & tValue
+  tName = (tName.char[1] & tValue)
   tsprite.member = member(getmemnum(tName))
-  return TRUE
+  return 1
 end
 
-on animate me 
-  tSpriteIndex = 1
-  repeat while tSpriteIndex <= me.count(#pSprList)
-    tsprite = me.getProp(#pSprList, tSpriteIndex)
-    if tsprite.member.name contains me.pClass then
+on animate me
+  repeat with tSpriteIndex = 1 to me.pSprList.count
+    tsprite = me.pSprList[tSpriteIndex]
+    if (tsprite.member.name contains me.pClass) then
       if (pMaxFrames = -1) then
         pMaxFrames = []
       end if
       tName = tsprite.member.name
-      tCurrentFrame = integer(tName.getProp(#char, length(tName)))
-      tNamePrefix = tName.getProp(#char, 1, (length(tName) - 1))
-      if pMaxFrames.count < tSpriteIndex then
-        if getmemnum(tNamePrefix & (tCurrentFrame + 1)) then
+      tCurrentFrame = integer(tName.char[length(tName)])
+      tNamePrefix = tName.char[1]
+      if (pMaxFrames.count < tSpriteIndex) then
+        if getmemnum((tNamePrefix & (tCurrentFrame + 1))) then
           tFrame = (tCurrentFrame + 1)
         else
-          pMaxFrames.setAt(tSpriteIndex, tCurrentFrame)
+          pMaxFrames[tSpriteIndex] = tCurrentFrame
           tFrame = 0
-          if tsprite.member.name contains "_a_" then
+          if (tsprite.member.name contains "_a_") then
             tFrame = (random(3) - 1)
           end if
         end if
       else
-        return TRUE
+        return 1
       end if
-      tName = tName.getProp(#char, 1, (length(tName) - 1)) & tFrame
+      tName = (tName.char[1] & tFrame)
       tsprite.member = member(getmemnum(tName))
     end if
-    tSpriteIndex = (1 + tSpriteIndex)
   end repeat
-  return TRUE
+  return 1
 end
 
-on roomObjectAction me, tAction, tdata 
+on roomObjectAction me, tAction, tdata
 end
 
-on select me 
+on select me
   tFramework = getObject(#bb_gamesystem)
   if (tFramework = 0) then
-    return FALSE
+    return 0
   end if
-  return(tFramework.sendGameSystemEvent(#send_set_target, [me.pLocX, me.pLocY]))
+  return tFramework.sendGameSystemEvent(#send_set_target, [me.pLocX, me.pLocY])
 end

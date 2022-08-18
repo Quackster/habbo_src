@@ -1,100 +1,94 @@
 property pItemList
 
-on construct me 
+on construct me
   pItemList = [:]
   pItemList.sort()
-  return TRUE
+  return 1
 end
 
-on deconstruct me 
+on deconstruct me
   pItemList = [:]
-  return TRUE
+  return 1
 end
 
-on create me, tMessage 
-  if not symbolp(tMessage) and not stringp(tMessage) then
-    return(error(me, "Symbol or string expected:" && tMessage, #create, #major))
+on create me, tMessage
+  if (not symbolp(tMessage) and not stringp(tMessage)) then
+    return error(me, ("Symbol or string expected:" && tMessage), #create, #major)
   end if
-  if not voidp(me.getProp(#pItemList, tMessage)) then
-    return(error(me, "Broker task already exists:" && tMessage, #create, #major))
+  if not voidp(me.pItemList[tMessage]) then
+    return error(me, ("Broker task already exists:" && tMessage), #create, #major)
   end if
-  me.setProp(#pItemList, tMessage, [:])
-  return TRUE
+  me.pItemList[tMessage] = [:]
+  return 1
 end
 
-on Remove me, tMessage 
-  if not symbolp(tMessage) and not stringp(tMessage) then
-    return(error(me, "Symbol or string expected:" && tMessage, #Remove, #minor))
+on Remove me, tMessage
+  if (not symbolp(tMessage) and not stringp(tMessage)) then
+    return error(me, ("Symbol or string expected:" && tMessage), #Remove, #minor)
   end if
-  if voidp(me.getProp(#pItemList, tMessage)) then
-    return(error(me, "Broker task not found:" && tMessage, #Remove, #minor))
+  if voidp(me.pItemList[tMessage]) then
+    return error(me, ("Broker task not found:" && tMessage), #Remove, #minor)
   end if
-  return(me.pItemList.deleteProp(tMessage))
+  return me.pItemList.deleteProp(tMessage)
 end
 
-on register me, tMessage, tClientID, tMethod 
-  if not symbolp(tMessage) and not stringp(tMessage) then
-    return(error(me, "Symbol or string expected:" && tMessage, #register, #major))
+on register me, tMessage, tClientID, tMethod
+  if (not symbolp(tMessage) and not stringp(tMessage)) then
+    return error(me, ("Symbol or string expected:" && tMessage), #register, #major)
   end if
   if not objectExists(tClientID) then
-    return(error(me, "Object not found:" && tClientID, #register, #major))
+    return error(me, ("Object not found:" && tClientID), #register, #major)
   end if
-  if voidp(me.getProp(#pItemList, tMessage)) then
-    me.setProp(#pItemList, tMessage, [:])
+  if voidp(me.pItemList[tMessage]) then
+    me.pItemList[tMessage] = [:]
   end if
-  me.getPropRef(#pItemList, tMessage).setAt(tClientID, tMethod)
-  return TRUE
+  me.pItemList[tMessage][tClientID] = tMethod
+  return 1
 end
 
-on unregister me, tMessage, tClientID 
-  if not symbolp(tMessage) and not stringp(tMessage) then
-    return(error(me, "Symbol or string expected:" && tMessage, #unregister, #major))
+on unregister me, tMessage, tClientID
+  if (not symbolp(tMessage) and not stringp(tMessage)) then
+    return error(me, ("Symbol or string expected:" && tMessage), #unregister, #major)
   end if
-  tList = me.getProp(#pItemList, tMessage)
+  tList = me.pItemList[tMessage]
   if voidp(tList) then
-    return FALSE
+    return 0
   end if
   tList.deleteProp(tClientID)
   if (tList.count = 0) then
     me.Remove(tMessage)
   end if
-  return TRUE
+  return 1
 end
 
-on execute me, tMessage, tArgA, tArgB, tArgC 
-  tList = me.getProp(#pItemList, tMessage)
+on execute me, tMessage, tArgA, tArgB, tArgC
+  tList = me.pItemList[tMessage]
   if voidp(tList) then
-    return FALSE
+    return 0
   end if
-  i = tList.count
-  repeat while i >= 1
+  repeat with i = tList.count down to 1
     tID = tList.getPropAt(i)
-    tMethod = tList.getAt(i)
+    tMethod = tList[i]
     tObject = getObjectManager().GET(tID)
     if (tObject = 0) then
       me.unregister(tMessage, tID)
-    else
-      call(tMethod, [tObject], tArgA, tArgB, tArgC)
+      next repeat
     end if
-    i = (255 + i)
+    call(tMethod, [tObject], tArgA, tArgB, tArgC)
   end repeat
-  return TRUE
+  return 1
 end
 
-on exists me, tMessage 
-  return(not voidp(me.getProp(#pItemList, tMessage)))
+on exists me, tMessage
+  return not voidp(me.pItemList[tMessage])
 end
 
-on print me, tMessage 
-  i = 1
-  repeat while i <= me.count(#pItemList)
-    put(me.pItemList.getPropAt(i))
-    j = 1
-    repeat while j <= me.getPropRef(#pItemList, i).count
-      put("\t" & me.getPropRef(#pItemList, i).getPropAt(j) && "->" && me.getPropRef(#pItemList, i).getAt(j))
-      j = (1 + j)
+on print me, tMessage
+  repeat with i = 1 to me.pItemList.count
+    put me.pItemList.getPropAt(i)
+    repeat with j = 1 to me.pItemList[i].count
+      put (((TAB & me.pItemList[i].getPropAt(j)) && "->") && me.pItemList[i][j])
     end repeat
-    i = (1 + i)
   end repeat
-  return TRUE
+  return 1
 end
