@@ -1,177 +1,171 @@
-on construct me 
-  return(me.regMsgList(1))
+on construct me
+  return me.regMsgList(1)
 end
 
-on deconstruct me 
-  return(me.regMsgList(0))
+on deconstruct me
+  return me.regMsgList(0)
 end
 
-on handle_flatinfo me, tMsg 
+on handle_flatinfo me, tMsg
   tConn = tMsg.connection
   tFlat = [:]
-  tFlat.setAt(#ableothersmovefurniture, tConn.GetIntFrom())
-  tFlat.setAt(#door, tConn.GetIntFrom())
-  tFlat.setAt(#flatId, string(tConn.GetIntFrom()))
-  tFlat.setAt(#owner, tConn.GetStrFrom())
-  tFlat.setAt(#marker, tConn.GetStrFrom())
-  tFlat.setAt(#name, tConn.GetStrFrom())
-  tFlat.setAt(#description, tConn.GetStrFrom())
-  tFlat.setAt(#showownername, tConn.GetIntFrom())
-  tFlat.setAt(#trading, tConn.GetIntFrom())
-  tFlat.setAt(#alert, tConn.GetIntFrom())
-  tFlat.setAt(#maxVisitors, tConn.GetIntFrom())
-  tFlat.setAt(#absoluteMaxVisitors, tConn.GetIntFrom())
-  tFlat.setAt(#nodeType, 2)
-  if (tFlat.getAt(#door) = 0) then
-    tFlat.setAt(#door, "open")
-  else
-    if (tFlat.getAt(#door) = 1) then
-      tFlat.setAt(#door, "closed")
-    else
-      if (tFlat.getAt(#door) = 2) then
-        tFlat.setAt(#door, "password")
-      end if
-    end if
+  tFlat[#ableothersmovefurniture] = tConn.GetIntFrom()
+  tFlat[#door] = tConn.GetIntFrom()
+  tFlat[#flatId] = string(tConn.GetIntFrom())
+  tFlat[#owner] = tConn.GetStrFrom()
+  tFlat[#marker] = tConn.GetStrFrom()
+  tFlat[#name] = tConn.GetStrFrom()
+  tFlat[#description] = tConn.GetStrFrom()
+  tFlat[#showownername] = tConn.GetIntFrom()
+  tFlat[#trading] = tConn.GetIntFrom()
+  tFlat[#alert] = tConn.GetIntFrom()
+  tFlat[#maxVisitors] = tConn.GetIntFrom()
+  tFlat[#absoluteMaxVisitors] = tConn.GetIntFrom()
+  tFlat[#nodeType] = 2
+  case tFlat[#door] of
+    0:
+      tFlat[#door] = "open"
+    1:
+      tFlat[#door] = "closed"
+    2:
+      tFlat[#door] = "password"
+  end case
+  if (tFlat[#maxVisitors] < 1) then
+    tFlat[#maxVisitors] = 25
   end if
-  if tFlat.getAt(#maxVisitors) < 1 then
-    tFlat.setAt(#maxVisitors, 25)
+  if (tFlat[#absoluteMaxVisitors] < 1) then
+    tFlat[#absoluteMaxVisitors] = 50
   end if
-  if tFlat.getAt(#absoluteMaxVisitors) < 1 then
-    tFlat.setAt(#absoluteMaxVisitors, 50)
-  end if
-  if (tFlat.getAt(#alert) = 1) and (tFlat.getAt(#owner) = getObject(#session).get(#user_name)) then
+  if ((tFlat[#alert] = 1) and (tFlat[#owner] = getObject(#session).get(#user_name))) then
     executeMessage(#setEnterRoomAlert, "alert_no_category")
   end if
   tMode = me.getInterface().getNaviView()
   me.getComponent().updateSingleFlatInfo(tFlat, tMode)
 end
 
-on handle_flat_results me, tMsg 
+on handle_flat_results me, tMsg
   tResult = [:]
   tList = [:]
   tDelim = the itemDelimiter
-  the itemDelimiter = "\t"
-  i = 1
-  repeat while i <= tMsg.content.count(#line)
-    tLine = tMsg.content.getProp(#line, i)
-    if (tLine = "") then
-    else
-      tFlat = [:]
-      tFlat.setAt(#id, "f_" & tLine.getProp(#item, 1))
-      tFlat.setAt(#flatId, tLine.getProp(#item, 1))
-      tFlat.setAt(#name, tLine.getProp(#item, 2))
-      tFlat.setAt(#owner, tLine.getProp(#item, 3))
-      tFlat.setAt(#door, tLine.getProp(#item, 4))
-      tFlat.setAt(#port, tLine.getProp(#item, 5))
-      tFlat.setAt(#usercount, tLine.getProp(#item, 6))
-      tFlat.setAt(#maxUsers, tLine.getProp(#item, 7))
-      tFlat.setAt(#filter, tLine.getProp(#item, 8))
-      tFlat.setAt(#description, tLine.getProp(#item, 9))
-      tFlat.setAt(#nodeType, 2)
-      tList.setAt(tFlat.getAt(#id), tFlat)
-      i = (1 + i)
+  the itemDelimiter = TAB
+  repeat with i = 1 to tMsg.content.line.count
+    tLine = tMsg.content.line[i]
+    if (tLine = EMPTY) then
+      exit repeat
     end if
+    tFlat = [:]
+    tFlat[#id] = ("f_" & tLine.item[1])
+    tFlat[#flatId] = tLine.item[1]
+    tFlat[#name] = tLine.item[2]
+    tFlat[#owner] = tLine.item[3]
+    tFlat[#door] = tLine.item[4]
+    tFlat[#port] = tLine.item[5]
+    tFlat[#usercount] = tLine.item[6]
+    tFlat[#maxUsers] = tLine.item[7]
+    tFlat[#Filter] = tLine.item[8]
+    tFlat[#description] = tLine.item[9]
+    tFlat[#nodeType] = 2
+    tList[tFlat[#id]] = tFlat
   end repeat
   tResult.addProp(#children, tList)
-  if (tMsg.subject = 16) then
-    tResult.setAt(#id, #own)
-  else
-    if (tMsg.subject = 55) then
-      tResult.setAt(#id, #src)
-    end if
-  end if
+  case tMsg.subject of
+    16:
+      tResult[#id] = #own
+    55:
+      tResult[#id] = #src
+  end case
   the itemDelimiter = tDelim
   me.getComponent().saveFlatResults(tResult)
 end
 
-on handle_favouriteroomresults me, tMsg 
+on handle_favouriteroomresults me, tMsg
   tConn = tMsg.connection
   tNodeMask = tConn.GetIntFrom()
   tNodeId = tConn.GetIntFrom()
   tNodeType = tConn.GetIntFrom()
-  tNodeInfo = [#id:string(tNodeId), #nodeType:tNodeType, #name:tConn.GetStrFrom(), #usercount:tConn.GetIntFrom(), #maxUsers:tConn.GetIntFrom(), #parentid:string(tConn.GetIntFrom())]
-  tResult = [#id:#fav, #children:[:]]
+  tNodeInfo = [#id: string(tNodeId), #nodeType: tNodeType, #name: tConn.GetStrFrom(), #usercount: tConn.GetIntFrom(), #maxUsers: tConn.GetIntFrom(), #parentid: string(tConn.GetIntFrom())]
+  tResult = [#id: #fav, #children: [:]]
   if (tNodeType = 2) then
-    tResult.setAt(#children, me.parseFlatCategoryNode(tMsg))
+    tResult[#children] = me.parseFlatCategoryNode(tMsg)
   end if
-  repeat while tConn <> void()
+  repeat while (tConn <> VOID)
     tNode = me.parseNode(tMsg)
     if listp(tNode) then
-      tResult.getAt(#children).addProp(tNode.getAt(#id), tNode)
+      tResult[#children].addProp(tNode[#id], tNode)
       next repeat
     end if
+    exit repeat
   end repeat
-  return(me.getComponent().saveFlatResults(tResult))
+  return me.getComponent().saveFlatResults(tResult)
 end
 
-on handle_noflatsforuser me, tMsg 
+on handle_noflatsforuser me, tMsg
   me.getComponent().noflatsforuser()
 end
 
-on handle_noflats me, tMsg 
+on handle_noflats me, tMsg
   me.getComponent().noflats()
 end
 
-on handle_flatpassword_ok me, tMsg 
+on handle_flatpassword_ok me, tMsg
   me.getComponent().flatAccessResult("flatpassword_ok")
 end
 
-on handle_navnodeinfo me, tMsg 
+on handle_navnodeinfo me, tMsg
   tConn = tMsg.connection
   tCategoryIndex = [:]
   tNodeMask = tConn.GetIntFrom()
   tNodeInfo = me.parseNode(tMsg)
   if (tNodeInfo = 0) then
-    return FALSE
+    return 0
   end if
   tNodeInfo.addProp(#nodeMask, tNodeMask)
-  tCategoryId = tNodeInfo.getAt(#id)
-  tCategoryIndex.setaProp(tCategoryId, [#name:tNodeInfo.getAt(#name), #parentid:tNodeInfo.getAt(#parentid), #children:[]])
-  repeat while tConn <> void()
+  tCategoryId = tNodeInfo[#id]
+  tCategoryIndex.setaProp(tCategoryId, [#name: tNodeInfo[#name], #parentid: tNodeInfo[#parentid], #children: []])
+  repeat while (tConn <> VOID)
     tNode = me.parseNode(tMsg)
     if (tNode = 0) then
-    else
-      tNodeId = tNode.getAt(#id)
-      tParentId = tNode.getAt(#parentid)
-      if (tParentId = tCategoryId) then
-        tNodeInfo.getAt(#children).setaProp(tNodeId, tNode)
-      end if
-      if tCategoryIndex.getAt(tParentId) <> 0 then
-        tCategoryIndex.getAt(tParentId).getAt(#children).add(tNodeId)
-      end if
-      if (tNode.getAt(#nodeType) = 0) or (tNode.getAt(#nodeType) = 1) and (tCategoryIndex.getAt(tNodeId) = 0) then
-        tCategoryIndex.setaProp(tNodeId, [#name:tNode.getAt(#name), #parentid:tParentId, #children:[]])
-      end if
+      exit repeat
+    end if
+    tNodeId = tNode[#id]
+    tParentId = tNode[#parentid]
+    if (tParentId = tCategoryId) then
+      tNodeInfo[#children].setaProp(tNodeId, tNode)
+    end if
+    if (tCategoryIndex[tParentId] <> 0) then
+      tCategoryIndex[tParentId][#children].add(tNodeId)
+    end if
+    if ((tNode[#nodeType] = 0) or ((tNode[#nodeType] = 1) and (tCategoryIndex[tNodeId] = 0))) then
+      tCategoryIndex.setaProp(tNodeId, [#name: tNode[#name], #parentid: tParentId, #children: []])
     end if
   end repeat
   me.getComponent().updateCategoryIndex(tCategoryIndex)
   me.getComponent().saveNodeInfo(tNodeInfo)
-  return TRUE
+  return 1
 end
 
-on handle_error me, tMsg 
+on handle_error me, tMsg
   tErr = tMsg.content
-  error(me, tMsg.connection.getID() & ":" && tErr, #handle_error)
-  if tErr <> "Only 10 favorite rooms allowed!" then
-    if (tErr = "nav_error_toomanyfavrooms") then
-      executeMessage(#alert, [#Msg:getText("nav_error_toomanyfavrooms")])
-    end if
-    return TRUE
-  end if
+  error(me, ((tMsg.connection.getID() & ":") && tErr), #handle_error)
+  case tErr of
+    "Only 10 favorite rooms allowed!", "nav_error_toomanyfavrooms":
+      executeMessage(#alert, [#Msg: getText("nav_error_toomanyfavrooms")])
+  end case
+  return 1
 end
 
-on parseNode me, tMsg 
+on parseNode me, tMsg
   tConn = tMsg.connection
   tNodeId = tConn.GetIntFrom()
-  if tNodeId <= 0 then
-    return FALSE
+  if (tNodeId <= 0) then
+    return 0
   end if
   tNodeType = tConn.GetIntFrom()
-  tNodeInfo = [#id:string(tNodeId), #nodeType:tNodeType, #name:tConn.GetStrFrom(), #usercount:tConn.GetIntFrom(), #maxUsers:tConn.GetIntFrom(), #parentid:string(tConn.GetIntFrom())]
-  if (tNodeType = 0) then
-    tNodeInfo.addProp(#children, [:])
-  else
-    if (tNodeType = 1) then
+  tNodeInfo = [#id: string(tNodeId), #nodeType: tNodeType, #name: tConn.GetStrFrom(), #usercount: tConn.GetIntFrom(), #maxUsers: tConn.GetIntFrom(), #parentid: string(tConn.GetIntFrom())]
+  case tNodeType of
+    0:
+      tNodeInfo.addProp(#children, [:])
+    1:
       tNodeInfo.addProp(#unitStrId, tConn.GetStrFrom())
       tNodeInfo.addProp(#port, tConn.GetIntFrom())
       tNodeInfo.addProp(#door, tConn.GetIntFrom())
@@ -179,143 +173,129 @@ on parseNode me, tMsg
       tNodeInfo.addProp(#casts, [])
       tDelim = the itemDelimiter
       the itemDelimiter = ","
-      c = 1
-      repeat while c <= tCasts.count(#item)
-        tNodeInfo.getAt(#casts).add(tCasts.getProp(#item, c))
-        c = (1 + c)
+      repeat with c = 1 to tCasts.item.count
+        tNodeInfo[#casts].add(tCasts.item[c])
       end repeat
       the itemDelimiter = tDelim
       tNodeInfo.addProp(#usersInQueue, tConn.GetIntFrom())
       tNodeInfo.addProp(#isVisible, tConn.GetBoolFrom())
-    else
-      if (tNodeType = 2) then
-        tNodeInfo.setAt(#nodeType, 0)
-        tFlatList = me.parseFlatCategoryNode(tMsg)
-        tNodeInfo.addProp(#children, tFlatList)
-      end if
-    end if
-  end if
-  return(tNodeInfo)
+    2:
+      tNodeInfo[#nodeType] = 0
+      tFlatList = me.parseFlatCategoryNode(tMsg)
+      tNodeInfo.addProp(#children, tFlatList)
+  end case
+  return tNodeInfo
 end
 
-on parseFlatCategoryNode me, tMsg 
+on parseFlatCategoryNode me, tMsg
   tConn = tMsg.connection
   tFlatCount = tConn.GetIntFrom()
   tFlatList = [:]
-  i = 1
-  repeat while i <= tFlatCount
+  repeat with i = 1 to tFlatCount
     tFlatID = string(tConn.GetIntFrom())
     tFlatInfo = [:]
-    tFlatInfo.setAt(#id, "f_" & tFlatID)
-    tFlatInfo.setAt(#flatId, tFlatID)
-    tFlatInfo.setAt(#name, tConn.GetStrFrom())
-    tFlatInfo.setAt(#owner, tConn.GetStrFrom())
-    tFlatInfo.setAt(#door, tConn.GetStrFrom())
-    tFlatInfo.setAt(#usercount, tConn.GetIntFrom())
-    tFlatInfo.setAt(#maxUsers, tConn.GetIntFrom())
-    tFlatInfo.setAt(#description, tConn.GetStrFrom())
-    tFlatInfo.setAt(#nodeType, 2)
-    tFlatList.addProp("f_" & tFlatID, tFlatInfo)
-    i = (1 + i)
+    tFlatInfo[#id] = ("f_" & tFlatID)
+    tFlatInfo[#flatId] = tFlatID
+    tFlatInfo[#name] = tConn.GetStrFrom()
+    tFlatInfo[#owner] = tConn.GetStrFrom()
+    tFlatInfo[#door] = tConn.GetStrFrom()
+    tFlatInfo[#usercount] = tConn.GetIntFrom()
+    tFlatInfo[#maxUsers] = tConn.GetIntFrom()
+    tFlatInfo[#description] = tConn.GetStrFrom()
+    tFlatInfo[#nodeType] = 2
+    tFlatList.addProp(("f_" & tFlatID), tFlatInfo)
   end repeat
-  return(tFlatList)
+  return tFlatList
 end
 
-on handle_userflatcats me, tMsg 
+on handle_userflatcats me, tMsg
   tList = [:]
   tConn = tMsg.getaProp(#connection)
   tItemCount = tConn.GetIntFrom()
-  t = 1
-  repeat while t <= tItemCount
+  repeat with t = 1 to tItemCount
     tNodeId = tConn.GetIntFrom()
     tNodeName = tConn.GetStrFrom()
     tList.addProp(string(tNodeId), tNodeName)
-    t = (1 + t)
   end repeat
   getObject(#session).set("user_flat_cats", tList)
   executeMessage(#userflatcats_received, tList)
-  return TRUE
+  return 1
 end
 
-on handle_flatcat me, tMsg 
+on handle_flatcat me, tMsg
   tConn = tMsg.getaProp(#connection)
   tFlatID = tConn.GetIntFrom()
   tCategoryId = tConn.GetIntFrom()
-  me.getComponent().setNodeProperty("f_" & tFlatID, #parentid, tCategoryId)
-  executeMessage(#flatcat_received, [#flatId:tFlatID, #id:"f_" & tFlatID, #parentid:tCategoryId])
-  return TRUE
+  me.getComponent().setNodeProperty(("f_" & tFlatID), #parentid, tCategoryId)
+  executeMessage(#flatcat_received, [#flatId: tFlatID, #id: ("f_" & tFlatID), #parentid: tCategoryId])
+  return 1
 end
 
-on handle_spacenodeusers me, tMsg 
+on handle_spacenodeusers me, tMsg
   tConn = tMsg.getaProp(#connection)
   tNodeId = string(tConn.GetIntFrom())
   tUserCount = tConn.GetIntFrom()
   tUserList = []
-  i = 1
-  repeat while i <= tUserCount
+  repeat with i = 1 to tUserCount
     tUserList.append(tConn.GetStrFrom())
-    i = (1 + i)
   end repeat
   me.getInterface().showSpaceNodeUsers(tNodeId, tUserList)
-  return TRUE
+  return 1
 end
 
-on handle_cantconnect me, tMsg 
+on handle_cantconnect me, tMsg
   tConn = tMsg.getaProp(#connection)
   tError = tConn.GetIntFrom()
   executeMessage(#leaveRoom)
-  if (tError = 1) then
-    tError = "nav_error_room_full"
-  else
-    if (tError = 2) then
+  case tError of
+    1:
+      tError = "nav_error_room_full"
+    2:
       tError = "nav_error_room_closed"
-    else
-      if (tError = 3) then
-        tError = "queue_set." & tConn.GetStrFrom() & ".alert"
-      end if
-    end if
-  end if
-  return(executeMessage(#alert, [#id:"nav_error", #Msg:tError]))
+    3:
+      tError = (("queue_set." & tConn.GetStrFrom()) & ".alert")
+  end case
+  return executeMessage(#alert, [#id: "nav_error", #Msg: tError])
 end
 
-on handle_success me, tMsg 
+on handle_success me, tMsg
   tConn = tMsg.getaProp(#connection)
   tMsgId = tConn.GetIntFrom()
-  return TRUE
+  return 1
 end
 
-on handle_failure me, tMsg 
+on handle_failure me, tMsg
   tConn = tMsg.getaProp(#connection)
   tMsgId = tConn.GetIntFrom()
   tErrorTxt = tConn.GetStrFrom()
-  if tErrorTxt <> "" then
-    executeMessage(#alert, [#Msg:tErrorTxt])
+  if (tErrorTxt <> EMPTY) then
+    executeMessage(#alert, [#Msg: tErrorTxt])
   end if
-  return TRUE
+  return 1
 end
 
-on handle_parentchain me, tMsg 
+on handle_parentchain me, tMsg
   tConn = tMsg.getaProp(#connection)
   tChildId = string(tConn.GetIntFrom())
   tNodeName = tConn.GetStrFrom()
   tCategoryIndex = [:]
-  repeat while tConn <> void()
+  repeat while (tConn <> VOID)
     tid = tConn.GetIntFrom()
-    if tid <= 0 then
-    else
-      tid = string(tid)
-      tName = tConn.GetStrFrom()
-      if tCategoryIndex.getAt(tChildId) <> void() then
-        tCategoryIndex.getAt(tChildId).setaProp(#parentid, tid)
-      end if
-      tCategoryIndex.addProp(tid, [#name:tName, #parentid:tid, #children:[tChildId]])
-      tChildId = tid
+    if (tid <= 0) then
+      exit repeat
     end if
+    tid = string(tid)
+    tName = tConn.GetStrFrom()
+    if (tCategoryIndex[tChildId] <> VOID) then
+      tCategoryIndex[tChildId].setaProp(#parentid, tid)
+    end if
+    tCategoryIndex.addProp(tid, [#name: tName, #parentid: tid, #children: [tChildId]])
+    tChildId = tid
   end repeat
-  return(me.getComponent().updateCategoryIndex(tCategoryIndex))
+  return me.getComponent().updateCategoryIndex(tCategoryIndex)
 end
 
-on regMsgList me, tBool 
+on regMsgList me, tBool
   tMsgs = [:]
   tMsgs.setaProp(16, #handle_flat_results)
   tMsgs.setaProp(33, #handle_error)
@@ -352,11 +332,11 @@ on regMsgList me, tBool
   tCmds.setaProp("REMOVEALLRIGHTS", 155)
   tCmds.setaProp("GETPARENTCHAIN", 156)
   if tBool then
-    registerListener(getVariable("connection.info.id", #info), me.getID(), tMsgs)
-    registerCommands(getVariable("connection.info.id", #info), me.getID(), tCmds)
+    registerListener(getVariable("connection.info.id", #Info), me.getID(), tMsgs)
+    registerCommands(getVariable("connection.info.id", #Info), me.getID(), tCmds)
   else
-    unregisterListener(getVariable("connection.info.id", #info), me.getID(), tMsgs)
-    unregisterCommands(getVariable("connection.info.id", #info), me.getID(), tCmds)
+    unregisterListener(getVariable("connection.info.id", #Info), me.getID(), tMsgs)
+    unregisterCommands(getVariable("connection.info.id", #Info), me.getID(), tCmds)
   end if
-  return TRUE
+  return 1
 end

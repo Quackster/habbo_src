@@ -1,278 +1,272 @@
 property pCatalogProps, pProductOrderData
 
-on construct me 
+on construct me
   pOrderInfoList = []
   pCatalogProps = [:]
   pProductOrderData = [:]
   if variableExists("ctlg.editmode") then
-    pCatalogProps.setAt("editmode", getVariable("ctlg.editmode"))
+    pCatalogProps["editmode"] = getVariable("ctlg.editmode")
   else
-    pCatalogProps.setAt("editmode", "production")
+    pCatalogProps["editmode"] = "production"
   end if
   registerMessage(#edit_catalogue, me.getID(), #editModeOn)
-  return TRUE
+  return 1
 end
 
-on deconstruct me 
+on deconstruct me
   pOrderInfoList = []
   pCatalogProps = [:]
   unregisterMessage(#edit_catalogue, me.getID())
-  return TRUE
+  return 1
 end
 
-on editModeOn me 
+on editModeOn me
   setVariable("ctlg.editmode", "develop")
-  pCatalogProps.setAt("editmode", getVariable("ctlg.editmode"))
+  pCatalogProps["editmode"] = getVariable("ctlg.editmode")
 end
 
-on getLanguage me 
+on getLanguage me
   if variableExists("language") then
     tLanguage = getVariable("language")
   else
     tLanguage = "en"
   end if
-  return(tLanguage)
+  return tLanguage
 end
 
-on checkProductOrder me, tProductProps 
-  if tProductProps.ilk <> #propList then
-    return(error(me, "Incorrect SelectedProduct proplist", #buySelectedProduct))
+on checkProductOrder me, tProductProps
+  if (tProductProps.ilk <> #propList) then
+    return error(me, "Incorrect SelectedProduct proplist", #buySelectedProduct)
   end if
-  if not voidp(tProductProps.getAt("purchaseCode")) then
+  if not voidp(tProductProps["purchaseCode"]) then
     tProps = [:]
     tstate = "OK"
-    if not voidp(tProductProps.getAt("name")) then
-      tProps.setAt(#name, tProductProps.getAt("name"))
+    if not voidp(tProductProps["name"]) then
+      tProps[#name] = tProductProps["name"]
     else
-      tProps.setAt(#name, "ERROR")
+      tProps[#name] = "ERROR"
       tstate = "ERROR"
     end if
-    if not voidp(tProductProps.getAt("purchaseCode")) then
-      tProps.setAt(#code, tProductProps.getAt("purchaseCode"))
+    if not voidp(tProductProps["purchaseCode"]) then
+      tProps[#code] = tProductProps["purchaseCode"]
     else
-      tProps.setAt(#code, "ERROR")
+      tProps[#code] = "ERROR"
       tstate = "ERROR"
     end if
-    if not voidp(tProductProps.getAt("price")) then
-      tProps.setAt(#price, tProductProps.getAt("price"))
+    if not voidp(tProductProps["price"]) then
+      tProps[#price] = tProductProps["price"]
     else
-      tProps.setAt(#price, "ERROR")
+      tProps[#price] = "ERROR"
       tstate = "ERROR"
     end if
     pProductOrderData = tProductProps.duplicate()
     me.getInterface().showOrderInfo(tstate, tProps)
-    return TRUE
+    return 1
   else
     pProductOrderData = [:]
-    return FALSE
+    return 0
   end if
 end
 
-on purchaseProduct me, tGiftProps 
-  if pProductOrderData.ilk <> #propList then
-    return(error(me, "Incorrect Product data", #purchaseProduct))
+on purchaseProduct me, tGiftProps
+  if (pProductOrderData.ilk <> #propList) then
+    return error(me, "Incorrect Product data", #purchaseProduct)
   end if
-  if tGiftProps.ilk <> #propList then
-    return(error(me, "Incorrect Gift Props", #purchaseProduct))
+  if (tGiftProps.ilk <> #propList) then
+    return error(me, "Incorrect Gift Props", #purchaseProduct)
   end if
-  if voidp(pProductOrderData.getAt("name")) then
-    return(error(me, "Product name not found", #purchaseProduct))
+  if voidp(pProductOrderData["name"]) then
+    return error(me, "Product name not found", #purchaseProduct)
   end if
-  if voidp(pProductOrderData.getAt("purchaseCode")) then
-    return(error(me, "PurchaseCode name not found", #purchaseProduct))
+  if voidp(pProductOrderData["purchaseCode"]) then
+    return error(me, "PurchaseCode name not found", #purchaseProduct)
   end if
-  if voidp(pProductOrderData.getAt("extra_parm")) then
-    pProductOrderData.setAt("extra_parm", "-")
+  if voidp(pProductOrderData["extra_parm"]) then
+    pProductOrderData["extra_parm"] = "-"
   end if
-  if voidp(pCatalogProps.getAt("editmode")) then
-    return(error(me, "Catalogue mode not found", #purchaseProduct))
+  if voidp(pCatalogProps["editmode"]) then
+    return error(me, "Catalogue mode not found", #purchaseProduct)
   end if
-  if voidp(pCatalogProps.getAt("lastPageID")) then
-    return(error(me, "Catalogue page id missing", #purchaseProduct))
+  if voidp(pCatalogProps["lastPageID"]) then
+    return error(me, "Catalogue page id missing", #purchaseProduct)
   end if
-  if not voidp(tGiftProps.getAt("gift")) then
-    tGift = tGiftProps.getAt("gift") & "\r"
-    if not voidp(tGiftProps.getAt("gift_receiver")) then
-      tGift = tGift & tGiftProps.getAt("gift_receiver") & "\r"
+  if not voidp(tGiftProps["gift"]) then
+    tGift = (tGiftProps["gift"] & RETURN)
+    if not voidp(tGiftProps["gift_receiver"]) then
+      tGift = ((tGift & tGiftProps["gift_receiver"]) & RETURN)
     else
-      tGift = ""
+      tGift = EMPTY
     end if
-    if not voidp(tGiftProps.getAt("gift_msg")) then
-      tGiftMsg = tGiftProps.getAt("gift_msg")
+    if not voidp(tGiftProps["gift_msg"]) then
+      tGiftMsg = tGiftProps["gift_msg"]
       tGiftMsg = convertSpecialChars(tGiftMsg, 1)
-      tGift = tGift & tGiftMsg & "\r"
+      tGift = ((tGift & tGiftMsg) & RETURN)
     else
-      tGift = ""
+      tGift = EMPTY
     end if
   else
     tGift = "0"
   end if
-  tOrderStr = ""
-  tOrderStr = tOrderStr & pCatalogProps.getAt("editmode") & "\r"
-  tOrderStr = tOrderStr & pCatalogProps.getAt("lastPageID") & "\r"
-  tOrderStr = tOrderStr & me.getLanguage() & "\r"
-  tOrderStr = tOrderStr & pProductOrderData.getAt("purchaseCode") & "\r"
-  tExtra = pProductOrderData.getAt("extra_parm")
+  tOrderStr = EMPTY
+  tOrderStr = ((tOrderStr & pCatalogProps["editmode"]) & RETURN)
+  tOrderStr = ((tOrderStr & pCatalogProps["lastPageID"]) & RETURN)
+  tOrderStr = ((tOrderStr & me.getLanguage()) & RETURN)
+  tOrderStr = ((tOrderStr & pProductOrderData["purchaseCode"]) & RETURN)
+  tExtra = pProductOrderData["extra_parm"]
   tExtra = convertSpecialChars(tExtra, 1)
-  tOrderStr = tOrderStr & tExtra & "\r"
-  tOrderStr = tOrderStr & tGift
+  tOrderStr = ((tOrderStr & tExtra) & RETURN)
+  tOrderStr = (tOrderStr & tGift)
   if not connectionExists(getVariable("connection.info.id")) then
-    return FALSE
+    return 0
   end if
-  return(getConnection(getVariable("connection.info.id")).send("GPRC", tOrderStr))
+  return getConnection(getVariable("connection.info.id")).send("GPRC", tOrderStr)
 end
 
-on retrieveCatalogueIndex me 
-  if not voidp(pCatalogProps.getAt("editmode")) then
-    tEditmode = pCatalogProps.getAt("editmode")
+on retrieveCatalogueIndex me
+  if not voidp(pCatalogProps["editmode"]) then
+    tEditmode = pCatalogProps["editmode"]
   else
     tEditmode = "production"
   end if
   tLanguage = me.getLanguage()
-  if not voidp(pCatalogProps.getAt("catalogueIndex")) and tEditmode <> "develop" then
-    me.getInterface().saveCatalogueIndex(pCatalogProps.getAt("catalogueIndex"))
+  if (not voidp(pCatalogProps["catalogueIndex"]) and (tEditmode <> "develop")) then
+    me.getInterface().saveCatalogueIndex(pCatalogProps["catalogueIndex"])
   else
     if connectionExists(getVariable("connection.info.id")) then
-      return(getConnection(getVariable("connection.info.id")).send("GCIX", tEditmode & "/" & tLanguage))
+      return getConnection(getVariable("connection.info.id")).send("GCIX", ((tEditmode & "/") & tLanguage))
     else
-      return FALSE
+      return 0
     end if
   end if
 end
 
-on retrieveCataloguePage me, tPageID 
-  if not voidp(pCatalogProps.getAt("editmode")) then
-    tEditmode = pCatalogProps.getAt("editmode")
+on retrieveCataloguePage me, tPageID
+  if not voidp(pCatalogProps["editmode"]) then
+    tEditmode = pCatalogProps["editmode"]
   else
     tEditmode = "production"
   end if
   tLanguage = me.getLanguage()
-  pProductOrderData = void()
-  if not voidp(pCatalogProps.getAt(tPageID)) and tEditmode <> "develop" then
-    pCatalogProps.setAt("lastPageID", tPageID)
-    me.getInterface().cataloguePageData(pCatalogProps.getAt(tPageID))
+  pProductOrderData = VOID
+  if (not voidp(pCatalogProps[tPageID]) and (tEditmode <> "develop")) then
+    pCatalogProps["lastPageID"] = tPageID
+    me.getInterface().cataloguePageData(pCatalogProps[tPageID])
   else
     if connectionExists(getVariable("connection.info.id")) then
-      return(getConnection(getVariable("connection.info.id")).send("GCAP", tEditmode & "/" & tPageID & "/" & tLanguage))
+      return getConnection(getVariable("connection.info.id")).send("GCAP", ((((tEditmode & "/") & tPageID) & "/") & tLanguage))
     else
-      return FALSE
+      return 0
     end if
   end if
-  return FALSE
+  return 0
 end
 
-on purchaseReady me, tStatus, tMsg 
-  if (tStatus = "OK") then
-    me.getInterface().showPurchaseOk()
-  else
-    if (tStatus = "NOBALANCE") then
-      me.getInterface().showNoBalance(void(), 1)
-    else
-      if (tStatus = "ERROR") then
-        error(me, "Purchase error:" && tMsg, #purchaseReady)
-      else
-        error(me, "Unsupported purchase result:" && tStatus && tMsg, #purchaseReady)
-      end if
-    end if
-  end if
-  return TRUE
+on purchaseReady me, tStatus, tMsg
+  case tStatus of
+    "OK":
+      me.getInterface().showPurchaseOk()
+    "NOBALANCE":
+      me.getInterface().showNoBalance(VOID, 1)
+    "ERROR":
+      error(me, ("Purchase error:" && tMsg), #purchaseReady)
+    otherwise:
+      error(me, (("Unsupported purchase result:" && tStatus) && tMsg), #purchaseReady)
+  end case
+  return 1
 end
 
-on saveCatalogueIndex me, tdata 
-  if tdata.ilk <> #propList then
-    return(error(me, "Incorrect Catalogue Format", #saveCatalogueIndex))
+on saveCatalogueIndex me, tdata
+  if (tdata.ilk <> #propList) then
+    return error(me, "Incorrect Catalogue Format", #saveCatalogueIndex)
   end if
   if (tdata.count = 0) then
-    return FALSE
+    return 0
   end if
-  pCatalogProps.setAt("catalogueIndex", tdata)
+  pCatalogProps["catalogueIndex"] = tdata
   me.getInterface().saveCatalogueIndex(tdata)
 end
 
-on saveCataloguePage me, tdata 
-  if tdata.ilk <> #propList then
-    return(error(me, "Incorrect Catalogue Page Format", #saveCataloguePage))
+on saveCataloguePage me, tdata
+  if (tdata.ilk <> #propList) then
+    return error(me, "Incorrect Catalogue Page Format", #saveCataloguePage)
   end if
   if (tdata.count = 0) then
-    return FALSE
+    return 0
   end if
-  if not voidp(tdata.getAt("id")) then
+  if not voidp(tdata["id"]) then
     tdata = me.solveCatalogueMembers(tdata)
-    tPageID = tdata.getAt("id")
-    pCatalogProps.setAt(tPageID, tdata)
-    pCatalogProps.setAt("lastPageID", tPageID)
+    tPageID = tdata["id"]
+    pCatalogProps[tPageID] = tdata
+    pCatalogProps["lastPageID"] = tPageID
     me.getInterface().cataloguePageData(tdata)
   else
-    return(error(me, "Catalogue Page ID missing", #saveCataloguePage))
+    return error(me, "Catalogue Page ID missing", #saveCataloguePage)
   end if
 end
 
-on solveCatalogueMembers me, tdata 
+on solveCatalogueMembers me, tdata
   tLanguage = me.getLanguage()
-  if not voidp(tdata.getAt("headerImage")) then
-    if memberExists(tdata.getAt("headerImage")) then
-      tdata.setAt("headerImage", getmemnum(tdata.getAt("headerImage")))
+  if not voidp(tdata["headerImage"]) then
+    if memberExists(tdata["headerImage"]) then
+      tdata["headerImage"] = getmemnum(tdata["headerImage"])
     else
-      tdata.setAt("headerImage", 0)
+      tdata["headerImage"] = 0
     end if
   end if
-  if not voidp(tdata.getAt("teaserImgList")) then
-    tImageNameList = tdata.getAt("teaserImgList")
+  if not voidp(tdata["teaserImgList"]) then
+    tImageNameList = tdata["teaserImgList"]
     tMemList = []
-    if tImageNameList.count > 0 then
-      repeat while tImageNameList <= undefined
-        tImg = getAt(undefined, tdata)
+    if (tImageNameList.count > 0) then
+      repeat with tImg in tImageNameList
         if memberExists(tImg) then
           tMemList.add(getmemnum(tImg))
-        else
-          tMemList.add(0)
+          next repeat
         end if
+        tMemList.add(0)
       end repeat
     end if
-    tdata.setAt("teaserImgList", tMemList)
+    tdata["teaserImgList"] = tMemList
   end if
-  if not voidp(tdata.getAt("productList")) then
-    f = 1
-    repeat while f <= tdata.getAt("productList").count
-      tProductData = tdata.getAt("productList").getAt(f)
-      if not voidp(tProductData.getAt("purchaseCode")) then
+  if not voidp(tdata["productList"]) then
+    repeat with f = 1 to tdata["productList"].count
+      tProductData = tdata["productList"][f]
+      if not voidp(tProductData["purchaseCode"]) then
         tPrewMember = "ctlg_pic_"
-        tPurchaseCode = tProductData.getAt("purchaseCode")
-        if memberExists(tPrewMember & tPurchaseCode) then
-          tdata.getAt("productList").getAt(f).setAt("prewImage", getmemnum(tPrewMember & tPurchaseCode))
+        tPurchaseCode = tProductData["purchaseCode"]
+        if memberExists((tPrewMember & tPurchaseCode)) then
+          tdata["productList"][f]["prewImage"] = getmemnum((tPrewMember & tPurchaseCode))
         else
-          tdata.getAt("productList").getAt(f).setAt("prewImage", 0)
+          tdata["productList"][f]["prewImage"] = 0
         end if
-        tdata.getAt("productList").getAt(f).setAt("smallColorFlag", 1)
-        if memberExists(tPrewMember & "small_" & tPurchaseCode) then
-          tdata.getAt("productList").getAt(f).setAt("smallPrewImg", getmemnum(tPrewMember & "small_" & tPurchaseCode))
+        tdata["productList"][f]["smallColorFlag"] = 1
+        if memberExists(((tPrewMember & "small_") & tPurchaseCode)) then
+          tdata["productList"][f]["smallPrewImg"] = getmemnum(((tPrewMember & "small_") & tPurchaseCode))
         else
-          tdata.getAt("productList").getAt(f).setAt("smallPrewImg", 0)
+          tdata["productList"][f]["smallPrewImg"] = 0
         end if
       end if
-      if not voidp(tProductData.getAt("class")) then
-        tClass = tProductData.getAt("class")
-        if tClass contains "*" then
-          tSmallMem = tClass & "_small"
-          tClass = tClass.getProp(#char, 1, (offset("*", tClass) - 1))
+      if not voidp(tProductData["class"]) then
+        tClass = tProductData["class"]
+        if (tClass contains "*") then
+          tSmallMem = (tClass & "_small")
+          tClass = tClass.char[1]
           if not memberExists(tSmallMem) then
-            tSmallMem = tClass & "_small"
+            tSmallMem = (tClass & "_small")
           else
-            tdata.getAt("productList").getAt(f).setAt("smallColorFlag", 0)
+            tdata["productList"][f]["smallColorFlag"] = 0
           end if
         else
-          tSmallMem = tClass & "_small"
+          tSmallMem = (tClass & "_small")
         end if
-        if (tdata.getAt("productList").getAt(f).getAt("smallPrewImg") = 0) then
+        if (tdata["productList"][f]["smallPrewImg"] = 0) then
           if memberExists(tSmallMem) then
-            tdata.getAt("productList").getAt(f).setAt("smallPrewImg", getmemnum(tSmallMem))
-          else
-            tdata.getAt("productList").getAt(f).setAt("smallPrewImg", getmemnum("no_icon_small"))
+            tdata["productList"][f]["smallPrewImg"] = getmemnum(tSmallMem)
+            next repeat
           end if
+          tdata["productList"][f]["smallPrewImg"] = getmemnum("no_icon_small")
         end if
       end if
-      f = (1 + f)
     end repeat
   end if
-  return(tdata)
+  return tdata
 end

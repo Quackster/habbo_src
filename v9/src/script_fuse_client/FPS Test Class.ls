@@ -1,13 +1,13 @@
-property pWndID, pFrames, pTimerA, pTimerB, pCurrMs
+property pWndID, pTimerA, pTimerB, pFrames, pCurrMs
 
-on construct me 
+on construct me
   pWndID = "PerfTest"
   pTimerA = the milliSeconds
   pTimerB = the milliSeconds
   pFrames = 0
   pCurrMs = 0
   if not createWindow(pWndID) then
-    return FALSE
+    return 0
   end if
   tWndObj = getWindow(pWndID)
   tWndObj.merge("performance.window")
@@ -18,35 +18,35 @@ on construct me
   tWndObj.getElement("perf_total").setEdit(0)
   tWndObj.getElement("close").setEdit(0)
   tWndObj.getElement("close").setText("x")
-  return(receiveUpdate(me.getID()))
+  return receiveUpdate(me.getID())
 end
 
-on deconstruct me 
+on deconstruct me
   removeUpdate(me.getID())
   removeWindow(pWndID)
-  return TRUE
+  return 1
 end
 
-on update me 
+on update me
   pFrames = ((pFrames + 1) mod the frameTempo)
   tTime = (the milliSeconds - pTimerA)
   tWndObj = getWindow(pWndID)
-  tWndObj.getElement("perf_per_frm").setText(tTime && "ms.")
+  tWndObj.getElement("perf_per_frm").setText((tTime && "ms."))
   if (pFrames = 0) then
     tCurrMs = (the milliSeconds - pTimerB)
-    if tCurrMs <> pCurrMs then
+    if (tCurrMs <> pCurrMs) then
       pCurrMs = tCurrMs
-      tWndObj.getElement("perf_total").setText(pCurrMs && "ms.")
+      tWndObj.getElement("perf_total").setText((pCurrMs && "ms."))
     end if
     pTimerB = the milliSeconds
   end if
   pTimerA = the milliSeconds
 end
 
-on eventProc me, tEvent, tElemID, tParam 
+on eventProc me, tEvent, tElemID, tParam
   if (tElemID = "close") then
-    return(removeObject(me.getID()))
+    return removeObject(me.getID())
   else
-    return FALSE
+    return 0
   end if
 end

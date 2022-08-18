@@ -1,25 +1,25 @@
-property pErrorCache, pCacheSize, pDebugLevel
+property pDebugLevel, pErrorCache, pCacheSize
 
-on construct me 
-  if not the runMode contains "Author" then
+on construct me
+  if not (the runMode contains "Author") then
     the alertHook = me
   end if
   pDebugLevel = 1
-  pErrorCache = ""
+  pErrorCache = EMPTY
   pCacheSize = 30
-  return TRUE
+  return 1
 end
 
-on deconstruct me 
+on deconstruct me
   the alertHook = 0
-  return TRUE
+  return 1
 end
 
-on error me, tObject, tMsg, tMethod 
+on error me, tObject, tMsg, tMethod
   if objectp(tObject) then
     tObject = string(tObject)
-    tObject = tObject.getProp(#word, 2, (tObject.count(#word) - 2))
-    tObject = tObject.getProp(#char, 2, length(tObject))
+    tObject = tObject.word[2]
+    tObject = tObject.char[2]
   else
     tObject = "Unknown"
   end if
@@ -29,78 +29,73 @@ on error me, tObject, tMsg, tMethod
   if not symbolp(tMethod) then
     tMethod = "Unknown"
   end if
-  tError = "\r"
-  tError = tError & "\t" && "Time:   " && the long time & "\r"
-  tError = tError & "\t" && "Method: " && tMethod & "\r"
-  tError = tError & "\t" && "Object: " && tObject & "\r"
-  tError = tError & "\t" && "Message:" && tMsg.getProp(#line, 1) & "\r"
-  if tMsg.count(#line) > 1 then
-    i = 2
-    repeat while i <= tMsg.count(#line)
-      tError = tError & "\t" && "        " && tMsg.getProp(#line, i) & "\r"
-      i = (1 + i)
+  tError = RETURN
+  tError = ((((tError & TAB) && "Time:   ") && the long time) & RETURN)
+  tError = ((((tError & TAB) && "Method: ") && tMethod) & RETURN)
+  tError = ((((tError & TAB) && "Object: ") && tObject) & RETURN)
+  tError = ((((tError & TAB) && "Message:") && tMsg.line[1]) & RETURN)
+  if (tMsg.line.count > 1) then
+    repeat with i = 2 to tMsg.line.count
+      tError = ((((tError & TAB) && "        ") && tMsg.line[i]) & RETURN)
     end repeat
   end if
-  pErrorCache = pErrorCache & tError
-  if pErrorCache.count(#line) > pCacheSize then
-    pErrorCache = pErrorCache.getProp(#line, (pErrorCache.count(#line) - pCacheSize), pErrorCache.count(#line))
+  pErrorCache = (pErrorCache & tError)
+  if (pErrorCache.line.count > pCacheSize) then
+    pErrorCache = pErrorCache.line[(pErrorCache.line.count - pCacheSize)]
   end if
-  if (pDebugLevel = 1) then
-    put("Error:" & tError)
-  else
-    if (pDebugLevel = 2) then
-      put("Error:" & tError)
-    else
-      if (pDebugLevel = 3) then
-        executeMessage(#debugdata, "Error: " & tError)
-      else
-        put("Error:" & tError)
-      end if
-    end if
-  end if
-  return FALSE
+  case pDebugLevel of
+    1:
+      put ("Error:" & tError)
+    2:
+      put ("Error:" & tError)
+    3:
+      executeMessage(#debugdata, ("Error: " & tError))
+    otherwise:
+      put ("Error:" & tError)
+  end case
+  return 0
 end
 
-on SystemAlert me, tObject, tMsg, tMethod 
-  return(me.error(tObject, tMsg, tMethod))
+on SystemAlert me, tObject, tMsg, tMethod
+  return me.error(tObject, tMsg, tMethod)
 end
 
-on setDebugLevel me, tDebugLevel 
+on setDebugLevel me, tDebugLevel
   if not integerp(tDebugLevel) then
-    return FALSE
+    return 0
   end if
   pDebugLevel = tDebugLevel
-  if float(the productVersion.getProp(#char, 1, 3)) >= 8.5 then
-    if pDebugLevel > 0 then
+  if (float(the productVersion.char[1]) >= 8.5) then
+    if (pDebugLevel > 0) then
       the debugPlaybackEnabled = 1
     end if
   end if
-  return TRUE
+  return 1
 end
 
-on print me 
-  put("Errors:" & "\r" & pErrorCache)
-  return TRUE
+on print me
+  put (("Errors:" & RETURN) & pErrorCache)
+  return 1
 end
 
-on alertHook me, tErr, tMsgA, tMsgB 
+on alertHook me, tErr, tMsgA, tMsgB
   me.showErrorDialog()
   pauseUpdate()
-  return TRUE
+  return 1
 end
 
-on showErrorDialog me 
-  if createWindow(#error, "error.window", 0, 0, #modal) <> 0 then
+on showErrorDialog me
+  if (createWindow(#error, "error.window", 0, 0, #modal) <> 0) then
     getWindow(#error).registerClient(me.getID())
     getWindow(#error).registerProcedure(#eventProcError, me.getID(), #mouseUp)
-    return TRUE
+    return 1
   else
-    return FALSE
+    return 0
   end if
 end
 
-on eventProcError me, tEvent, tSprID, tParam 
-  if (tEvent = #mouseUp) and (tSprID = "error_close") then
+on eventProcError me, tEvent, tSprID, tParam
+  if ((tEvent = #mouseUp) and (tSprID = "error_close")) then
     resetClient()
   end if
 end

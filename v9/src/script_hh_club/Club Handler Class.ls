@@ -1,30 +1,30 @@
-on construct me 
-  return(me.regMsgList(1))
+on construct me
+  return me.regMsgList(1)
 end
 
-on deconstruct me 
-  return(me.regMsgList(0))
+on deconstruct me
+  return me.regMsgList(0)
 end
 
-on handle_ok me, tMsg 
-  tMsg.getaProp(#connection).send("SCR_GET_USER_INFO", [#string:"club_habbo"])
+on handle_ok me, tMsg
+  tMsg.getaProp(#connection).send("SCR_GET_USER_INFO", [#string: "club_habbo"])
 end
 
-on handle_scr_sinfo me, tMsg 
+on handle_scr_sinfo me, tMsg
   tProdName = tMsg.connection.GetStrFrom()
   tDaysLeft = tMsg.connection.GetIntFrom()
   tElapsedPeriods = tMsg.connection.GetIntFrom()
   tPrepaidPeriods = tMsg.connection.GetIntFrom()
   tResponseFlag = tMsg.connection.GetIntFrom()
   tList = [:]
-  tList.setAt(#productName, tProdName)
-  tList.setAt(#daysLeft, tDaysLeft)
-  tList.setAt(#ElapsedPeriods, tElapsedPeriods)
-  tList.setAt(#PrepaidPeriods, tPrepaidPeriods)
+  tList[#productName] = tProdName
+  tList[#daysLeft] = tDaysLeft
+  tList[#ElapsedPeriods] = tElapsedPeriods
+  tList[#PrepaidPeriods] = tPrepaidPeriods
   me.getComponent().setStatus(tList, tResponseFlag)
 end
 
-on regMsgList me, tBool 
+on regMsgList me, tBool
   tMsgs = [:]
   tMsgs.setaProp(3, #handle_ok)
   tMsgs.setaProp(7, #handle_scr_sinfo)
@@ -38,5 +38,5 @@ on regMsgList me, tBool
     unregisterListener(getVariable("connection.info.id"), me.getID(), tMsgs)
     unregisterCommands(getVariable("connection.info.id"), me.getID(), tCmds)
   end if
-  return TRUE
+  return 1
 end

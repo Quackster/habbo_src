@@ -1,6 +1,6 @@
-property i, pKey, pSbox, j
+property pSbox, pKey, i, j
 
-on setKey me, tMyKey, tMode 
+on setKey me, tMyKey, tMode
   tMyKeyS = string(tMyKey)
   pSbox = []
   pKey = []
@@ -12,19 +12,15 @@ on setKey me, tMyKey, tMode
       tMode = #artificialKey
     end if
   end if
-  if tMode <> #old then
-    if (tMode = void()) then
-      i = 0
-      repeat while i <= 255
-        pKey.setAt((i + 1), charToNum(tMyKeyS.getProp(#char, ((i mod length(tMyKeyS)) + 1))))
-        pSbox.setAt((i + 1), i)
-        i = (1 + i)
+  case tMode of
+    #old, VOID:
+      repeat with i = 0 to 255
+        pKey[(i + 1)] = charToNum(tMyKeyS.char[((i mod length(tMyKeyS)) + 1)])
+        pSbox[(i + 1)] = i
       end repeat
-      exit repeat
-    end if
-    if (tMode = #artificialKey) then
+    #artificialKey:
       len = (bitAnd(tMyKey, 248) / 8)
-      if len < 20 then
+      if (len < 20) then
         len = (len + 20)
       end if
       tOffset = (tMyKey mod 1024)
@@ -32,115 +28,92 @@ on setKey me, tMyKey, tMode
       fakeKey = []
       prevKey = 0
       m = 2
-      i = 0
-      repeat while i <= (len - 1)
-        fakeKey.setAt((i + 1), i)
+      repeat with i = 0 to (len - 1)
+        fakeKey[(i + 1)] = i
         keySkip = ((prevKey mod 19) - (i mod 7))
         m = (m * -1)
-        nkey = artificialKey.getAt(((abs(((tOffset + ((i * m) * keySkip)) + keySkip)) mod count(artificialKey)) + 1))
+        nkey = artificialKey[((abs(((tOffset + ((i * m) * keySkip)) + keySkip)) mod count(artificialKey)) + 1)]
         prevKey = nkey
-        ckey.setAt((i + 1), nkey)
-        fakeKey.setAt((i + 1), ((nkey + 2) + fakeKey.getAt((i + 1))))
-        i = (1 + i)
+        ckey[(i + 1)] = nkey
+        fakeKey[(i + 1)] = ((nkey + 2) + fakeKey[(i + 1)])
       end repeat
-      i = 0
-      repeat while i <= 255
-        pKey.setAt((i + 1), ckey.getAt(((i mod len) + 1)))
-        fakeKey.setAt((i + 1), pKey.getAt((i + 1)))
-        pSbox.setAt((i + 1), i)
-        i = (1 + i)
+      repeat with i = 0 to 255
+        pKey[(i + 1)] = ckey[((i mod len) + 1)]
+        fakeKey[(i + 1)] = pKey[(i + 1)]
+        pSbox[(i + 1)] = i
       end repeat
-      exit repeat
-    end if
-    if (tMode = #new) then
-      i = 0
-      repeat while i <= 255
-        pKey.setAt((i + 1), i)
-        i = (1 + i)
+    #new:
+      repeat with i = 0 to 255
+        pKey[(i + 1)] = i
       end repeat
-      i = 0
-      repeat while i <= 1019
-        pKey.setAt(((i mod 256) + 1), ((charToNum(tMyKeyS.getProp(#char, ((i mod length(tMyKeyS)) + 1))) + pKey.getAt(((i mod 256) + 1))) mod 256))
-        i = (1 + i)
+      repeat with i = 0 to 1019
+        pKey[((i mod 256) + 1)] = ((charToNum(tMyKeyS.char[((i mod length(tMyKeyS)) + 1)]) + pKey[((i mod 256) + 1)]) mod 256)
       end repeat
-      i = 0
-      repeat while i <= 255
-        pSbox.setAt((i + 1), i)
-        i = (1 + i)
+      repeat with i = 0 to 255
+        pSbox[(i + 1)] = i
       end repeat
-      put("NEW KEY:" && pSbox)
-    end if
-    j = 0
-    i = 0
-    repeat while i <= 255
-      j = (((j + pSbox.getAt((i + 1))) + pKey.getAt((i + 1))) mod 256)
-      k = pSbox.getAt((i + 1))
-      pSbox.setAt((i + 1), pSbox.getAt((j + 1)))
-      pSbox.setAt((j + 1), k)
-      i = (1 + i)
-    end repeat
-    i = 0
-    j = 0
-  end if
+      put ("NEW KEY:" && pSbox)
+  end case
+  j = 0
+  repeat with i = 0 to 255
+    j = (((j + pSbox[(i + 1)]) + pKey[(i + 1)]) mod 256)
+    k = pSbox[(i + 1)]
+    pSbox[(i + 1)] = pSbox[(j + 1)]
+    pSbox[(j + 1)] = k
+  end repeat
+  i = 0
+  j = 0
 end
 
-on encipher me, tdata 
-  tCipher = ""
+on encipher me, tdata
+  tCipher = EMPTY
   tBytes = []
-  e = 1
-  repeat while e <= length(tdata)
-    a = charToNum(tdata.char[e])
-    if a > 255 then
+  repeat with e = 1 to length(tdata)
+    a = charToNum(char e of tdata)
+    if (a > 255) then
       add(tBytes, ((a - (a mod 256)) / 256))
       add(tBytes, (a mod 256))
-    else
-      add(tBytes, a)
+      next repeat
     end if
-    e = (1 + e)
+    add(tBytes, a)
   end repeat
   tStrServ = getStringServices()
-  a = 1
-  repeat while a <= tBytes.count
+  repeat with a = 1 to tBytes.count
     i = ((i + 1) mod 256)
-    j = ((j + pSbox.getAt((i + 1))) mod 256)
-    temp = pSbox.getAt((i + 1))
-    pSbox.setAt((i + 1), pSbox.getAt((j + 1)))
-    pSbox.setAt((j + 1), temp)
-    d = pSbox.getAt((((pSbox.getAt((i + 1)) + pSbox.getAt((j + 1))) mod 256) + 1))
-    tCipher = tCipher & tStrServ.convertIntToHex(bitXor(tBytes.getAt(a), d))
-    a = (1 + a)
+    j = ((j + pSbox[(i + 1)]) mod 256)
+    temp = pSbox[(i + 1)]
+    pSbox[(i + 1)] = pSbox[(j + 1)]
+    pSbox[(j + 1)] = temp
+    d = pSbox[(((pSbox[(i + 1)] + pSbox[(j + 1)]) mod 256) + 1)]
+    tCipher = (tCipher & tStrServ.convertIntToHex(bitXor(tBytes[a], d)))
   end repeat
-  return(tCipher)
+  return tCipher
 end
 
-on decipher me, tdata 
-  tCipher = ""
+on decipher me, tdata
+  tCipher = EMPTY
   tStrServ = getStringServices()
-  a = 1
-  repeat while a <= length(tdata)
+  repeat with a = 1 to length(tdata)
     i = ((i + 1) mod 256)
-    j = ((j + pSbox.getAt((i + 1))) mod 256)
-    temp = pSbox.getAt((i + 1))
-    pSbox.setAt((i + 1), pSbox.getAt((j + 1)))
-    pSbox.setAt((j + 1), temp)
-    d = pSbox.getAt((((pSbox.getAt((i + 1)) + pSbox.getAt((j + 1))) mod 256) + 1))
-    t = tStrServ.convertHexToInt(tdata.getProp(#char, a, (a + 1)))
-    tCipher = tCipher & numToChar(bitXor(t, d))
+    j = ((j + pSbox[(i + 1)]) mod 256)
+    temp = pSbox[(i + 1)]
+    pSbox[(i + 1)] = pSbox[(j + 1)]
+    pSbox[(j + 1)] = temp
+    d = pSbox[(((pSbox[(i + 1)] + pSbox[(j + 1)]) mod 256) + 1)]
+    t = tStrServ.convertHexToInt(tdata.char[a])
+    tCipher = (tCipher & numToChar(bitXor(t, d)))
     a = (a + 1)
-    a = (1 + a)
   end repeat
-  return(tCipher)
+  return tCipher
 end
 
-on createKey me 
-  tKey = ""
+on createKey me
+  tKey = EMPTY
   tSeed = the randomSeed
   the randomSeed = the milliSeconds
-  i = 1
-  repeat while i <= 4
-    tKey = tKey & convertIntToHex((random(256) - 1))
-    i = (1 + i)
+  repeat with i = 1 to 4
+    tKey = (tKey & convertIntToHex((random(256) - 1)))
   end repeat
   the randomSeed = tSeed
-  return(abs(convertHexToInt(tKey)))
+  return abs(convertHexToInt(tKey))
 end

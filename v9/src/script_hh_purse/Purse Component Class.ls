@@ -1,36 +1,36 @@
-on construct me 
+on construct me
   registerMessage(#show_purse, me.getID(), #showPurse)
   registerMessage(#hide_purse, me.getID(), #hidePurse)
   registerMessage(#show_hide_purse, me.getID(), #showHidePurse)
   registerMessage(#enterRoom, me.getID(), #hidePurse)
   registerMessage(#leaveRoom, me.getID(), #hidePurse)
   registerMessage(#changeRoom, me.getID(), #hidePurse)
-  return TRUE
+  return 1
 end
 
-on deconstruct me 
+on deconstruct me
   unregisterMessage(#show_purse, me.getID())
   unregisterMessage(#hide_purse, me.getID())
   unregisterMessage(#show_hide_purse, me.getID())
   unregisterMessage(#enterRoom, me.getID())
   unregisterMessage(#leaveRoom, me.getID())
   unregisterMessage(#changeRoom, me.getID())
-  return TRUE
+  return 1
 end
 
-on sendVoucherCode me, tCode 
-  getConnection(getVariable("connection.info.id")).send("REDEEM_VOUCHER", [#string:tCode])
-  return TRUE
+on sendVoucherCode me, tCode
+  getConnection(getVariable("connection.info.id")).send("REDEEM_VOUCHER", [#string: tCode])
+  return 1
 end
 
-on showPurse me 
-  return(me.getInterface().showPurse())
+on showPurse me
+  return me.getInterface().showPurse()
 end
 
-on hidePurse me 
-  return(me.getInterface().hidePurse())
+on hidePurse me
+  return me.getInterface().hidePurse()
 end
 
-on showHidePurse me 
-  return(me.getInterface().showHidePurse(#hide))
+on showHidePurse me
+  return me.getInterface().showHidePurse(#Hide)
 end

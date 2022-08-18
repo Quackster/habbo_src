@@ -1,17 +1,17 @@
-property pSprite, pStartloc, pMember, pPulseState, pStopLoc, pProps
+property pPulseState, pSprite, pMember, pStopLoc, pStartloc, pProps
 
-on construct me 
+on construct me
   pMember = member(getmemnum("balloon.pulse"))
   pProps = [:]
-  return TRUE
+  return 1
 end
 
-on deconstruct me 
+on deconstruct me
   pProps = [:]
-  return TRUE
+  return 1
 end
 
-on definePulse me 
+on definePulse me
   pPulseState = #Opening
   pSprite = sprite(me.get(#sprite))
   pStartloc = (me.get(#humanLoc) + point(0, -20))
@@ -19,23 +19,23 @@ on definePulse me
   pSprite.loc = pStartloc
   pSprite.member = pMember
   pSprite.color = me.get(#balloonColor)
-  return TRUE
+  return 1
 end
 
-on removePulse me 
+on removePulse me
   if voidp(pSprite) then
-    return FALSE
+    return 0
   end if
   pSprite.locV = -1000
-  pPulseState = #hide
-  return TRUE
+  pPulseState = #Hide
+  return 1
 end
 
-on OpeningBalloon me, tLocV 
-  if pPulseState <> #Opening then
-    return FALSE
+on OpeningBalloon me, tLocV
+  if (pPulseState <> #Opening) then
+    return 0
   end if
-  if (pStartloc.locV + tLocV) <= pStopLoc.locV then
+  if ((pStartloc.locV + tLocV) <= pStopLoc.locV) then
     pPulseState = #ready
     pSprite.locV = -1000
   else
@@ -44,15 +44,15 @@ on OpeningBalloon me, tLocV
   end if
 end
 
-on set me, tKey, tValue 
-  pProps.setAt(tKey, tValue)
-  return TRUE
+on set me, tKey, tValue
+  pProps[tKey] = tValue
+  return 1
 end
 
-on get me, tKey 
-  tValue = pProps.getAt(tKey)
+on get me, tKey
+  tValue = pProps[tKey]
   if voidp(tValue) then
     tValue = 0
   end if
-  return(tValue)
+  return tValue
 end

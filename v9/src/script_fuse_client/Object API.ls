@@ -1,137 +1,133 @@
-on constructObjectManager me 
+global gCore
+
+on constructObjectManager me
   if objectp(gCore) then
-    return(gCore)
+    return gCore
   end if
-  tClass = value(convertToPropList(field(0), "\r").getAt("object.manager.class")).getAt(1)
+  tClass = value(convertToPropList(field("System Props"), RETURN)["object.manager.class"])[1]
   gCore = script(tClass).new()
   gCore.construct()
-  return(gCore)
+  return gCore
 end
 
-on deconstructObjectManager  
+on deconstructObjectManager
   if voidp(gCore) then
-    return FALSE
+    return 0
   end if
   gCore.deconstruct()
-  gCore = void()
-  return TRUE
+  gCore = VOID
+  return 1
 end
 
-on getObjectManager  
+on getObjectManager
   if voidp(gCore) then
-    return(constructObjectManager())
+    return constructObjectManager()
   end if
-  return(gCore)
+  return gCore
 end
 
-on createObject tid 
+on createObject tid
   tClassList = []
-  i = 2
-  repeat while i <= the paramCount
+  repeat with i = 2 to the paramCount
     tParam = param(i)
     if listp(tParam) then
-      repeat while tid <= undefined
-        tClass = getAt(undefined, undefined)
+      repeat with tClass in tParam
         tClassList.add(tClass)
       end repeat
-    else
-      tClassList.add(tParam)
+      next repeat
     end if
-    i = (1 + i)
+    tClassList.add(tParam)
   end repeat
-  return(getObjectManager().create(tid, tClassList))
+  return getObjectManager().create(tid, tClassList)
 end
 
-on removeObject tid 
-  return(getObjectManager().Remove(tid))
+on removeObject tid
+  return getObjectManager().Remove(tid)
 end
 
-on getObject tid 
-  return(getObjectManager().get(tid))
+on getObject tid
+  return getObjectManager().get(tid)
 end
 
-on objectExists tid 
-  return(getObjectManager().exists(tid))
+on objectExists tid
+  return getObjectManager().exists(tid)
 end
 
-on printObjects  
-  return(getObjectManager().print())
+on printObjects
+  return getObjectManager().print()
 end
 
-on registerObject tid, tObject 
-  return(getObjectManager().registerObject(tid, tObject))
+on registerObject tid, tObject
+  return getObjectManager().registerObject(tid, tObject)
 end
 
-on unregisterObject tid 
-  return(getObjectManager().unregisterObject(tid))
+on unregisterObject tid
+  return getObjectManager().unregisterObject(tid)
 end
 
-on createManager tid 
+on createManager tid
   tClassList = []
-  i = 2
-  repeat while i <= the paramCount
+  repeat with i = 2 to the paramCount
     tParam = param(i)
     if listp(tParam) then
-      repeat while tid <= undefined
-        tClass = getAt(undefined, undefined)
+      repeat with tClass in tParam
         tClassList.add(tClass)
       end repeat
-    else
-      tClassList.add(tParam)
+      next repeat
     end if
-    i = (1 + i)
+    tClassList.add(tParam)
   end repeat
   tObjMngr = getObjectManager()
   tObjInst = tObjMngr.create(tid, tClassList)
   tObjMngr.registerManager(tid)
   tObjMngr.setaProp(tid, tObjInst)
-  return(tObjInst)
+  return tObjInst
 end
 
-on removeManager tid 
-  return(getObjectManager().Remove(tid))
+on removeManager tid
+  return getObjectManager().Remove(tid)
 end
 
-on getManager tid 
-  return(getObjectManager().getManager(tid))
+on getManager tid
+  return getObjectManager().getManager(tid)
 end
 
-on managerExists tid 
-  return(getObjectManager().managerExists(tid))
+on managerExists tid
+  return getObjectManager().managerExists(tid)
 end
 
-on printManagers  
-  return(getObjectManager().print())
+on printManagers
+  return getObjectManager().print()
 end
 
-on registerManager tid 
-  return(getObjectManager().registerManager(tid))
+on registerManager tid
+  return getObjectManager().registerManager(tid)
 end
 
-on unregisterManager tid 
-  return(getObjectManager().unregisterManager(tid))
+on unregisterManager tid
+  return getObjectManager().unregisterManager(tid)
 end
 
-on receivePrepare tid 
-  return(getObjectManager().receivePrepare(tid))
+on receivePrepare tid
+  return getObjectManager().receivePrepare(tid)
 end
 
-on removePrepare tid 
-  return(getObjectManager().removePrepare(tid))
+on removePrepare tid
+  return getObjectManager().removePrepare(tid)
 end
 
-on receiveUpdate tid 
-  return(getObjectManager().receiveUpdate(tid))
+on receiveUpdate tid
+  return getObjectManager().receiveUpdate(tid)
 end
 
-on removeUpdate tid 
-  return(getObjectManager().removeUpdate(tid))
+on removeUpdate tid
+  return getObjectManager().removeUpdate(tid)
 end
 
-on pauseUpdate  
-  return(getObjectManager().pauseUpdate())
+on pauseUpdate
+  return getObjectManager().pauseUpdate()
 end
 
-on unpauseUpdate  
-  return(getObjectManager().resumeUpdate())
+on unpauseUpdate
+  return getObjectManager().resumeUpdate()
 end

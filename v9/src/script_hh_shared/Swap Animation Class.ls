@@ -1,42 +1,42 @@
-property pPrefs, pMemberClass, pPaletteClass, pFrameList, pInitDelayCounter, pAnimDelayCounter, pCurrentFrame, pAnimLoopCounter
+property pPrefs, pAnimFrame, pInitDelayCounter, pAnimDelayCounter, pMemberClass, pPaletteClass, pCurrentFrame, pFrameList, pAnimLoopCounter
 
-on construct me 
+on construct me
   pFrameList = []
   pPrefs = []
   pCurrentFrame = 0
   pAnimLoopCounter = 1
-  return TRUE
+  return 1
 end
 
-on deconstruct me 
+on deconstruct me
   removeUpdate(me.getID())
-  return TRUE
+  return 1
 end
 
-on define me, tPrefs 
+on define me, tPrefs
   pPrefs = tPrefs
-  if (pPrefs.getAt(#animType) = #memberSwap) then
-    tMem = pPrefs.getAt(#sprite).member.name
+  if (pPrefs[#animType] = #memberSwap) then
+    tMem = pPrefs[#sprite].member.name
     pMemberClass = chars(tMem, 1, (tMem.length - 1))
   else
-    if ilk(pPrefs.getAt(#sprite).member.paletteRef) <> #member then
-      return(error(me, "Palette must be a cast member for palette animations!", #define))
+    if (ilk(pPrefs[#sprite].member.paletteRef) <> #member) then
+      return error(me, "Palette must be a cast member for palette animations!", #define)
     end if
-    tMem = pPrefs.getAt(#sprite).member.paletteRef.name
+    tMem = pPrefs[#sprite].member.paletteRef.name
     pPaletteClass = chars(tMem, 1, (tMem.length - 1))
   end if
   me.setInitDelay()
   me.setAnimDelay()
-  if pPrefs.getAt(#frameList) <> "" then
-    pFrameList = value(pPrefs.getAt(#frameList))
+  if (pPrefs[#frameList] <> EMPTY) then
+    pFrameList = value(pPrefs[#frameList])
   else
     tMemFound = 1
     tIndex = 1
-    repeat while tMemFound and tIndex < 100
-      if (pPrefs.getAt(#animType) = #memberSwap) then
-        tMem = pMemberClass & tIndex
+    repeat while (tMemFound and (tIndex < 100))
+      if (pPrefs[#animType] = #memberSwap) then
+        tMem = (pMemberClass & tIndex)
       else
-        tMem = pPaletteClass & tIndex
+        tMem = (pPaletteClass & tIndex)
       end if
       if memberExists(tMem) then
         pFrameList.add(tIndex)
@@ -47,61 +47,61 @@ on define me, tPrefs
     end repeat
   end if
   receiveUpdate(me.getID())
-  return TRUE
+  return 1
 end
 
-on setInitDelay me 
-  if (pPrefs.getAt(#initDelayType) = #random) then
-    pInitDelayCounter = random(pPrefs.getAt(#initDelay))
+on setInitDelay me
+  if (pPrefs[#initDelayType] = #random) then
+    pInitDelayCounter = random(pPrefs[#initDelay])
   else
-    pInitDelayCounter = pPrefs.getAt(#initDelay)
+    pInitDelayCounter = pPrefs[#initDelay]
   end if
 end
 
-on setAnimDelay me 
-  if (pPrefs.getAt(#animDelayType) = #random) then
-    pAnimDelayCounter = random(pPrefs.getAt(#animDelay))
+on setAnimDelay me
+  if (pPrefs[#animDelayType] = #random) then
+    pAnimDelayCounter = random(pPrefs[#animDelay])
   else
-    pAnimDelayCounter = pPrefs.getAt(#animDelay)
+    pAnimDelayCounter = pPrefs[#animDelay]
   end if
 end
 
-on update me 
+on update me
   pInitDelayCounter = (pInitDelayCounter - 1)
-  if pInitDelayCounter < 0 then
+  if (pInitDelayCounter < 0) then
     pAnimDelayCounter = (pAnimDelayCounter - 1)
-    if pAnimDelayCounter < 0 then
+    if (pAnimDelayCounter < 0) then
       me.advanceAnimFrame()
       me.setAnimDelay()
     end if
   end if
 end
 
-on advanceAnimFrame me 
+on advanceAnimFrame me
   pCurrentFrame = (pCurrentFrame + 1)
-  if pCurrentFrame > pFrameList.count then
-    if pPrefs.getAt(#animLoopCount) > 0 then
+  if (pCurrentFrame > pFrameList.count) then
+    if (pPrefs[#animLoopCount] > 0) then
       pAnimLoopCounter = (pAnimLoopCounter + 1)
-      if pAnimLoopCounter > pPrefs.getAt(#animLoopCount) then
-        return(removeUpdate(me.getID()))
+      if (pAnimLoopCounter > pPrefs[#animLoopCount]) then
+        return removeUpdate(me.getID())
       end if
     end if
     me.setInitDelay()
-    if pInitDelayCounter > 0 then
+    if (pInitDelayCounter > 0) then
       pCurrentFrame = 0
-      return FALSE
+      return 0
     else
       pCurrentFrame = 1
     end if
   end if
-  tAnimFrame = value(pFrameList.getAt(pCurrentFrame))
+  tAnimFrame = value(pFrameList[pCurrentFrame])
   if not voidp(pMemberClass) then
-    tMem = pMemberClass & tAnimFrame
-    pPrefs.getAt(#sprite).member = tMem
-    pPrefs.getAt(#sprite).width = member(tMem).width
-    pPrefs.getAt(#sprite).height = member(tMem).height
+    tMem = (pMemberClass & tAnimFrame)
+    pPrefs[#sprite].member = tMem
+    pPrefs[#sprite].width = member(tMem).width
+    pPrefs[#sprite].height = member(tMem).height
   else
-    tMem = pPaletteClass & tAnimFrame
-    pPrefs.getAt(#sprite).member.paletteRef = member(tMem)
+    tMem = (pPaletteClass & tAnimFrame)
+    pPrefs[#sprite].member.paletteRef = member(tMem)
   end if
 end

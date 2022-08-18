@@ -1,16 +1,16 @@
 property pIgnoreList
 
-on getIgnoreStatus me, tUserName 
+on getIgnoreStatus me, tUserName
   if voidp(pIgnoreList) then
     me.reset()
   end if
   if (pIgnoreList = []) then
-    return FALSE
+    return 0
   end if
-  return(pIgnoreList.findPos(tUserName))
+  return pIgnoreList.findPos(tUserName)
 end
 
-on setIgnoreStatus me, tUserName, tStatus 
+on setIgnoreStatus me, tUserName, tStatus
   if voidp(pIgnoreList) then
     me.reset()
   end if
@@ -21,10 +21,10 @@ on setIgnoreStatus me, tUserName, tStatus
   else
     pIgnoreList.deleteOne(tUserName)
   end if
-  return TRUE
+  return 1
 end
 
-on reset me 
+on reset me
   pIgnoreList = []
-  return TRUE
+  return 1
 end
