@@ -1,48 +1,46 @@
-property part, direction
+property direction, part
+global gWallsAndFloor
 
-on mouseUp me 
-  oldvalue = getaProp(gWallsAndFloor, symbol(part & "Color"))
-  checkField = member(part & "Pattern_patterns").text.line[getaProp(gWallsAndFloor, part & "Pattern")]
+on mouseUp me
+  oldvalue = getaProp(gWallsAndFloor, symbol((part & "Color")))
+  checkField = line getaProp(gWallsAndFloor, (part & "Pattern")) of the text of member((part & "Pattern_patterns"))
   if (direction = 1) then
-    if oldvalue < the number of line in member(checkField).text then
-      setaProp(gWallsAndFloor, symbol(part & "Color"), (oldvalue + 1))
+    if (oldvalue < the number of lines in the text of member(checkField)) then
+      setaProp(gWallsAndFloor, symbol((part & "Color")), (oldvalue + 1))
     else
-      setaProp(gWallsAndFloor, symbol(part & "Color"), 1)
+      setaProp(gWallsAndFloor, symbol((part & "Color")), 1)
     end if
   else
-    if oldvalue > 1 then
-      setaProp(gWallsAndFloor, symbol(part & "Color"), (oldvalue - 1))
+    if (oldvalue > 1) then
+      setaProp(gWallsAndFloor, symbol((part & "Color")), (oldvalue - 1))
     else
-      setaProp(gWallsAndFloor, symbol(part & "Color"), the number of line in member(checkField).text)
+      setaProp(gWallsAndFloor, symbol((part & "Color")), the number of lines in the text of member(checkField))
     end if
   end if
-  i = 1
-  repeat while i <= getaProp(gWallsAndFloor, part & "Sprites").count
-    sendSprite(getAt(getaProp(gWallsAndFloor, symbol(part & "Sprites")), i), #update)
-    i = (1 + i)
+  repeat with i = 1 to getaProp(gWallsAndFloor, (part & "Sprites")).count
+    sendSprite(getAt(getaProp(gWallsAndFloor, symbol((part & "Sprites"))), i), #update)
   end repeat
   updateCode(me)
 end
 
-on beginSprite me 
+on beginSprite me
   updateCode(me)
 end
 
-on updateCode me 
+on updateCode me
   save = the itemDelimiter
   the itemDelimiter = ","
-  checkField = member(part & "Pattern_patterns").text.line[getaProp(gWallsAndFloor, part & "Pattern")]
-  if (part = "wall") then
-    smsCodeLetter = "T"
-  else
-    if (part = "floor") then
+  checkField = line getaProp(gWallsAndFloor, (part & "Pattern")) of the text of member((part & "Pattern_patterns"))
+  case part of
+    "wall":
+      smsCodeLetter = "T"
+    "floor":
       smsCodeLetter = "L"
-    end if
-  end if
-  
+  end case
+  set the text of field (part & "_smscode") to (("A2 " & smsCodeLetter) && item 6 of field checkField)
   the itemDelimiter = save
 end
 
-on getPropertyDescriptionList me 
-  return([#direction:[#comment:"forward?", #format:#boolean, #default:"true"], #part:[#comment:"Part", #format:#string, #default:"wall"]])
+on getPropertyDescriptionList me
+  return [#direction: [#comment: "forward?", #format: #boolean, #default: "true"], #part: [#comment: "Part", #format: #string, #default: "wall"]]
 end

@@ -1,59 +1,60 @@
-on beginSprite me 
+property spriteNum
+
+on beginSprite me
   sprite(me.spriteNum).blend = 0
   iSpr = me.spriteNum
-  sprite(sprite(0).number).cursor = ["cursor_cross_mask", sprite(0).number]
+  set the cursor of sprite iSpr to [the number of member "cursor_cross", the number of member "cursor_cross_mask"]
 end
 
-on endSprite me 
+on endSprite me
   iSpr = me.spriteNum
-  sprite(iSpr).cursor = 0
+  set the cursor of sprite iSpr to 0
 end
 
-on mouseLeave me 
+on mouseLeave me
 end
 
-on mouseWithin me 
+on mouseWithin me
 end
 
-on mouseUp me 
+on mouseUp me
 end
 
-on mouseDown me 
+on mouseDown me
+  global gTraderWindow
   tFlag = 0
-  i = 614
-  repeat while i <= 662
-    tid = void()
+  repeat with i = 614 to 662
+    tid = VOID
     tList = sprite(i).scriptInstanceList
-    if tList.count > 0 then
-      if tList.getAt(1).handlers().getOne(#checkPos) > 0 then
+    if (tList.count > 0) then
+      if (tList[1].handlers().getOne(#checkPos) > 0) then
         tid = call(#checkPos, sprite(i).scriptInstanceList, #mouseDown)
       end if
     end if
     if not voidp(tid) then
       call(#mouseUp, sprite(i).scriptInstanceList)
-      put("click" && tid)
+      put ("click" && tid)
       tFlag = 1
-    else
-      i = (i + 1)
-      i = (1 + i)
+      exit repeat
     end if
+    i = (i + 1)
   end repeat
   if tFlag then
-    return()
+    return 
   end if
   if the mouseLoc.inside(sprite(637).rect) then
     call(#mouseDown, sprite(637).scriptInstanceList)
     tFlag = 1
   end if
   if tFlag then
-    return()
+    return 
   end if
   if the mouseLoc.inside(sprite(612).rect) then
     if not objectp(gTraderWindow) then
-      return()
+      return 
     end if
     if not objectp(gTraderWindow.pItemMoverObj) then
-      return()
+      return 
     end if
     tDraggedItemID = gTraderWindow.pItemMoverObj.kill()
     tDraggedItemSpr = sendAllSprites(#returnSprByID, tDraggedItemID)
@@ -61,6 +62,6 @@ on mouseDown me
       sprite(tDraggedItemSpr).visible = 1
       sprite(tDraggedItemSpr).blend = 100
     end if
-    gTraderWindow.pItemMoverObj = void()
+    gTraderWindow.pItemMoverObj = VOID
   end if
 end

@@ -1,8 +1,11 @@
-on new me 
-  return(me)
+property context
+global gChess
+
+on new me
+  return me
 end
 
-on mouseDown me 
+on mouseDown me
   goContext("chessgame", me.context)
   sendItemMessage(gChess, "RESTART")
 end

@@ -1,10 +1,12 @@
-on checkOffsets  
-  gXFactor = 32
-  gYFactor = 16
-  gHFactor = 16
+global gXFactor, gYFactor, gHFactor, gWorldType, xoffset, yoffset
+
+on checkOffsets
+  gXFactor = 32.0
+  gYFactor = 16.0
+  gHFactor = 16.0
   xoffset = 386
   yoffset = 186
-  if (gWorldType = "hallA") or (gWorldType = "hallD") then
+  if ((gWorldType = "hallA") or (gWorldType = "hallD")) then
     xoffset = 360
     yoffset = 179
   else

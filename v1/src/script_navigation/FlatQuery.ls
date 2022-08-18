@@ -1,19 +1,21 @@
-on beginSprite me 
+global gFlatQueryButtonSpr, gTop10SearchSprite
+
+on beginSprite me
   gFlatQueryButtonSpr = me.spriteNum
 end
 
-on mouseUp me 
-  if field(0).length > 1 and (sprite(me.spriteNum).blend = 100) then
-    put(field(0))
+on mouseUp me
+  if ((field("flatquery").length > 1) and (sprite(me.spriteNum).blend = 100)) then
+    put field("flatquery")
     sendSprite(gTop10SearchSprite, #disable)
-    sendEPFuseMsg(0 & null & "%")
+    sendEPFuseMsg(((("SEARCHFLAT" && "/%") & line 1 of field "flatquery") & "%"))
   end if
 end
 
-on disable me 
+on disable me
   sprite(me.spriteNum).blend = 30
 end
 
-on enable me 
+on enable me
   sprite(me.spriteNum).blend = 100
 end

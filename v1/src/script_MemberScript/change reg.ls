@@ -1,5 +1,6 @@
-on mouseUp  
+on mouseUp
+  global gGoTo
   gGoTo = "change1"
   LogonEnterpriseServer()
-  goToFrame("connect_start")
+  gotoFrame("connect_start")
 end

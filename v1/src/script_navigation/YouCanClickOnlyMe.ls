@@ -1,21 +1,21 @@
-on beginSprite me 
+on beginSprite me
   iSpr = me.spriteNum
   sprite(iSpr).cursor = -1
 end
 
-on endSprite me 
+on endSprite me
   iSpr = me.spriteNum
-  sprite(iSpr).cursor = 0
+  set the cursor of sprite iSpr to 0
 end
 
-on mouseLeave me 
+on mouseLeave me
 end
 
-on mouseWithin me 
+on mouseWithin me
 end
 
-on mouseUp me 
+on mouseUp me
 end
 
-on mouseDown me 
+on mouseDown me
 end

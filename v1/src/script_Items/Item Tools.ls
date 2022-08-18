@@ -1,5 +1,7 @@
-on postItNew stripItemId 
-  if gPostitCounter < 40 then
+global gPostitCounter
+
+on postItNew stripItemId
+  if (gPostitCounter < 40) then
     spr = sprMan_getPuppetSprite()
     sprite(spr).castNum = getmemnum("leftwall post.it")
     o = new(script("PostItAdder Class"), spr, stripItemId)
@@ -11,9 +13,9 @@ on postItNew stripItemId
   end if
 end
 
-on posterNew stripItemId, ttype 
+on posterNew stripItemId, ttype
   spr = sprMan_getPuppetSprite()
-  sprite(spr).castNum = getmemnum("leftwall poster" && ttype)
+  sprite(spr).castNum = getmemnum(("leftwall poster" && ttype))
   o = new(script("PosterAdder Class"), spr, stripItemId, ttype)
   add(sprite(spr).scriptInstanceList, o)
   setProp(o, #spriteNum, spr)

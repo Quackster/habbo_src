@@ -1,18 +1,21 @@
-on goMovie movieName, markerName 
-  if the runMode contains "Plugin" then
-    movieName = movieName & ".dcr"
-    goNetMovieId = gotoNetMovie(movieName & "#" & markerName)
-    return()
+global gChosenUnitIp, gChosenUnitHost, gConnectionInstance, goNetMovieId
+
+on goMovie movieName, markerName
+  if (the runMode contains "Plugin") then
+    movieName = (movieName & ".dcr")
+    goNetMovieId = gotoNetMovie(((movieName & "#") & markerName))
+    return 
   end if
   go(markerName, movieName)
 end
 
-on goUnit unitName, door 
+on goUnit unitName, door
+  global gBannerUrl, hiliter, gDoor, NowinUnit, gCountryPrefix, gCRNavi
   NowinUnit = unitName
-  hiliter = void()
+  hiliter = VOID
   gDoor = door
-  member("item.info_name").text = ""
-  member("item.info_text").text = ""
+  member("item.info_name").text = EMPTY
+  member("item.info_text").text = EMPTY
   if (gCountryPrefix = "ch") then
     if (unitName = "lobby") then
       unitName = "lobby.ch"
@@ -21,37 +24,36 @@ on goUnit unitName, door
       unitName = "Cinema.ch"
     end if
   end if
-  put(unitName, gDoor)
+  put unitName, gDoor
   s = member("UnitMovies").text
   oldDelim = the itemDelimiter
-  the itemDelimiter = "\t"
+  the itemDelimiter = TAB
   movieName = "?"
   loadingTextKey = "?"
-  i = 2
-  repeat while i <= the number of line in s
-    ln = s.getProp(#line, i)
-    if (ln.getProp(#item, 1) = unitName) then
-      movieName = ln.getProp(#item, 3)
-      loadingTextKey = ln.getProp(#item, 2)
+  repeat with i = 2 to the number of lines in s
+    ln = s.line[i]
+    if (ln.item[1] = unitName) then
+      movieName = ln.item[3]
+      loadingTextKey = ln.item[2]
     end if
-    i = (1 + i)
   end repeat
-  put("Found", movieName, loadingTextKey)
+  put "Found", movieName, loadingTextKey
   the itemDelimiter = oldDelim
   member("loading_txt").text = AddTextToField(loadingTextKey)
-  gConnectionInstance = void()
-  if the movieName contains "cr_entry" then
-    put("please_wait")
+  gConnectionInstance = VOID
+  if (the movieName contains "cr_entry") then
+    put "please_wait"
     goContext("please_wait", gCRNavi)
     updateStage()
   end if
-  if movieName <> void() then
+  if (movieName <> VOID) then
     setBanner()
     goMovie(movieName, "connection_init")
   end if
 end
 
-on setBanner  
+on setBanner
+  global gAd
   if objectp(gAd) then
     show(gAd)
   else
@@ -59,10 +61,12 @@ on setBanner
   end if
 end
 
-on setDirBanner  
+on setDirBanner
+  global gBannerUrl
 end
 
-on goToHotel  
+on goToHotel
+  global gCountryPrefix
   if (gCountryPrefix = "ch") then
     goMovie("habbo_ch_entry", "hotel")
   else

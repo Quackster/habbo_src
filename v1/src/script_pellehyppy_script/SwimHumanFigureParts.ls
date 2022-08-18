@@ -1,6 +1,7 @@
 property part
+global MyfigurePartList, MyfigureColorList, figurePartList, figureColorList
 
-on beginSprite me 
+on beginSprite me
   if (part = "hr") then
     mem = WhichMember(part)
     sprite(me.spriteNum).member = mem
@@ -10,14 +11,15 @@ on beginSprite me
   sprite(me.spriteNum).bgColor = getaProp(MyfigureColorList, part)
 end
 
-on WhichMember whichPart 
-  memName = "sh_" & "std" & "_" & string(whichPart) & "_" & getaProp(MyfigurePartList, whichPart) & "_" & "2" & "_" & 0
-  memNum = sprite(0).number
-  return(memNum)
+on WhichMember whichPart
+  global MyfigurePartList, MyfigureColorList
+  memName = ((((((((("sh_" & "std") & "_") & string(whichPart)) & "_") & getaProp(MyfigurePartList, whichPart)) & "_") & "2") & "_") & 0)
+  memNum = the number of member memName
+  return memNum
 end
 
-on getPropertyDescriptionList me 
+on getPropertyDescriptionList me
   pList = [:]
-  addProp(pList, #part, [#comment:"Give part", #format:#string, #default:"ch"])
-  return(pList)
+  addProp(pList, #part, [#comment: "Give part", #format: #string, #default: "ch"])
+  return pList
 end

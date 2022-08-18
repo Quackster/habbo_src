@@ -1,13 +1,13 @@
 property tlocz
 
-on beginSprite me 
+on beginSprite me
   sprite(me.spriteNum).locZ = tlocz
 end
 
-on endSprite me 
+on endSprite me
   sprite(me.spriteNum).locZ = me.spriteNum
 end
 
-on getPropertyDescriptionList me 
-  return([#tlocz:[#comment:"LocZ", #format:#integer, #default:1000000000]])
+on getPropertyDescriptionList me
+  return [#tlocz: [#comment: "LocZ", #format: #integer, #default: 1000000000]]
 end

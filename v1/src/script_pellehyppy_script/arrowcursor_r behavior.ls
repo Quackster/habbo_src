@@ -1,9 +1,9 @@
-on beginSprite me 
+on beginSprite me
   iSpr = me.spriteNum
-  sprite(sprite(0).number).cursor = ["cursor_arrow_r_mask", sprite(0).number]
+  set the cursor of sprite iSpr to [the number of member "cursor_arrow_r", the number of member "cursor_arrow_r_mask"]
 end
 
-on endSprite me 
+on endSprite me
   iSpr = me.spriteNum
-  sprite(iSpr).cursor = 0
+  set the cursor of sprite iSpr to 0
 end

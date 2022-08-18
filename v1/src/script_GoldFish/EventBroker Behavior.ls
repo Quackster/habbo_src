@@ -1,25 +1,25 @@
 property parentSprite
 
-on new me, tParentSprite 
+on new me, tParentSprite
   parentSprite = tParentSprite
-  return(me)
+  return me
 end
 
-on beginSprite me 
+on beginSprite me
 end
 
-on mouseDown me 
+on mouseDown me
   sendSprite(parentSprite, #mouseDown)
 end
 
-on mouseUp me 
+on mouseUp me
   sendSprite(parentSprite, #mouseUp)
 end
 
-on mouseEnter me 
+on mouseEnter me
   sendSprite(parentSprite, #mouseEnter)
 end
 
-on mouseLeave me 
+on mouseLeave me
   sendSprite(parentSprite, #mouseLeave)
 end

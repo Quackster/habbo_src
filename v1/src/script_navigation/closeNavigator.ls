@@ -1,5 +1,6 @@
-on mouseUp me 
-  gNaviWindowsSpr = void()
-  gPrivateDropStatus = void()
+on mouseUp me
+  global gNaviWindowsSpr, gPrivateDropStatus
+  gNaviWindowsSpr = VOID
+  gPrivateDropStatus = VOID
   closeNavigator()
 end

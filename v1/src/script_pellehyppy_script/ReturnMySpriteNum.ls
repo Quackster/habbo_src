@@ -1,13 +1,13 @@
 property pMyName
 
-on SpriteNumOfSprite me, whichName 
+on SpriteNumOfSprite me, whichName
   if (whichName = pMyName) then
-    return(me.spriteNum)
+    return me.spriteNum
   end if
 end
 
-on getPropertyDescriptionList me 
+on getPropertyDescriptionList me
   pList = [:]
-  addProp(pList, #pMyName, [#comment:"Sprite identification name", #format:#string, #default:""])
-  return(pList)
+  addProp(pList, #pMyName, [#comment: "Sprite identification name", #format: #string, #default: EMPTY])
+  return pList
 end

@@ -1,8 +1,8 @@
-on exitFrame me 
+on exitFrame me
   if (random(50) = 1) then
-    sprite(me.spriteNum).undefined = 18
+    set the blend of sprite the spriteNum of me to 18
   else
-    sprite(me.spriteNum).undefined = 5
+    set the blend of sprite the spriteNum of me to 5
   end if
-  sprite(me.spriteNum).locV = (random(298) + 90)
+  set the locV of sprite the spriteNum of me to (random(298) + 90)
 end

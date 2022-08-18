@@ -1,20 +1,20 @@
-on doSpecialCharConversion s 
+on doSpecialCharConversion s
+  global gConvList
   if voidp(gConvList) then
     initConversionList()
   end if
-  i = count(gConvList)
-  repeat while i >= 1
+  repeat with i = count(gConvList) down to 1
     s = stringReplace(s, getPropAt(gConvList, i), getProp(gConvList, getPropAt(gConvList, i)))
-    i = (65535 + i)
   end repeat
-  return(s)
+  return s
 end
 
-on initConversionList  
+on initConversionList
+  global gConvList
   gConvList = [:]
   addProp(gConvList, "&auml;", "�")
   addProp(gConvList, "&ouml;", "�")
-  if not the platform contains "win" then
+  if not (the platform contains "win") then
     addProp(gConvList, numToChar(228), "�")
     addProp(gConvList, numToChar(246), "�")
     addProp(gConvList, numToChar(196), "�")
@@ -22,7 +22,7 @@ on initConversionList
     addProp(gConvList, numToChar(229), "�")
     addProp(gConvList, numToChar(197), "�")
   end if
-  if the platform contains "win" then
+  if (the platform contains "win") then
     addProp(gConvList, numToChar(138), numToChar(228))
     addProp(gConvList, numToChar(154), numToChar(246))
     addProp(gConvList, numToChar(128), numToChar(196))
@@ -32,43 +32,42 @@ on initConversionList
   end if
 end
 
-on keyValueToPropList s, delim 
+on keyValueToPropList s, delim
   oldDelim = the itemDelimiter
-  if (delim = void()) then
+  if (delim = VOID) then
     delim = ","
   end if
   the itemDelimiter = delim
   p = [:]
-  i = 1
-  repeat while i <= the number of item in s
-    pair = s.item[i]
-    addProp(p, pair.char[1..(offset("=", pair) - 1)], pair.char[(offset("=", pair) + 1)..s.length])
-    i = (1 + i)
+  repeat with i = 1 to the number of items in s
+    pair = item i of s
+    addProp(p, char 1 to (offset("=", pair) - 1) of pair, char (offset("=", pair) + 1) to s.length of pair)
   end repeat
   the itemDelimiter = oldDelim
-  return(p)
+  return p
 end
 
-on charReplace s, c0, c1 
+on charReplace s, c0, c1
   if (c0 = c1) then
-    return(s)
+    return s
   end if
-  repeat while offset(c0, s) > 0
+  repeat while (offset(c0, s) > 0)
+    put c1 into char offset(c0, s) of s
   end repeat
-  return(s)
+  return s
 end
 
-on stringReplace s, s0, s1 
+on stringReplace s, s0, s1
   a = offset(s0, s)
   c = 1
-  repeat while a > 0 and c < 100
-    if a > 1 then
-      s = s.char[1..(a - 1)] & s1 & s.char[(a + length(s0))..length(s)]
+  repeat while ((a > 0) and (c < 100))
+    if (a > 1) then
+      s = ((char 1 to (a - 1) of s & s1) & char (a + length(s0)) to length(s) of s)
     else
-      s = s1 & s.char[(length(s0) + 1)..length(s)]
+      s = (s1 & char (length(s0) + 1) to length(s) of s)
     end if
     a = offset(s0, s)
     c = (c + 1)
   end repeat
-  return(s)
+  return s
 end

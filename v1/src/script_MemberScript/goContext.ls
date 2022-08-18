@@ -1,18 +1,20 @@
-on goContext s, context 
+global gPopUpContext, gGameContext
+
+on goContext s, context
   if voidp(context) then
     context = gPopUpContext
   end if
   if objectp(context) then
     displayFrame(context, s)
   else
-    goToFrame(s)
+    gotoFrame(s)
   end if
 end
 
-on goGameContext s 
+on goGameContext s
   if objectp(gGameContext) then
     displayFrame(gGameContext, s)
   else
-    goToFrame(s)
+    gotoFrame(s)
   end if
 end

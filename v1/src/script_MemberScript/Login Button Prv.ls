@@ -1,17 +1,20 @@
-on beginSprite me 
+global loginButton
+
+on beginSprite me
   loginButton = me.spriteNum
 end
 
-on mouseUp me 
+on mouseUp me
   login(me)
 end
 
-on login me 
-  if "loginpw" or (field(0) = "") then
+on login me
+  global gGoTo
+  if ((field("loginname") = EMPTY) or (field("loginpw") = EMPTY)) then
     ShowAlert("RememberSetYourPassword")
-    return()
+    return 
   end if
   EPLogon()
   gGoTo = "flat_selection"
-  goToFrame("connect_start")
+  gotoFrame("connect_start")
 end

@@ -1,3 +1,3 @@
-on mouseUp me 
+on mouseUp me
   closeCatalog()
 end

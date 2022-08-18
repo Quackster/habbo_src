@@ -1,3 +1,3 @@
-on prepareFrame me 
+on prepareFrame me
   the keyboardFocusSprite = me.spriteNum
 end

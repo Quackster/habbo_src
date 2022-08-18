@@ -1,6 +1,6 @@
-property pSprite, areaWidth, areaHeight, pKeskipiste, pMuutos, v, pFromLeft, pMaksimi, pMuutos2, vm
+property pSprite, areaWidth, areaHeight, v, vm, pMuutos, pMuutos2, pKeskipiste, pMaksimi, pFromLeft
 
-on beginSprite me 
+on beginSprite me
   pSprite = sprite(me.spriteNum)
   areaWidth = 20
   areaHeight = 500
@@ -13,21 +13,21 @@ on beginSprite me
   pFromLeft = 114
 end
 
-on exitFrame me 
+on exitFrame me
   pMuutos = (pMuutos + 7)
   pSprite.locV = v
-  if pSprite.locV > 354 or pSprite.locV < 244 then
-    pSprite.locH = ((pFromLeft + pKeskipiste) - ((pMaksimi * sin(((pMuutos * pi()) / 180))) * sin(((pMuutos2 * pi()) / 180))))
+  if ((pSprite.locV > 354) or (pSprite.locV < 244)) then
+    pSprite.locH = ((pFromLeft + pKeskipiste) - ((pMaksimi * sin(((pMuutos * PI) / 180))) * sin(((pMuutos2 * PI) / 180))))
   else
     pSprite.locH = -20
   end if
   v = (v - vm)
-  if v <= -pSprite.height then
+  if (v <= -pSprite.height) then
     replace(me)
   end if
 end
 
-on replace me 
+on replace me
   v = areaHeight
   vm = random(3)
   pKeskipiste = (pSprite.width + (random(areaWidth) - pSprite.width))

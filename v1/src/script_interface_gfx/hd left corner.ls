@@ -1,6 +1,8 @@
-on beginSprite me 
+global dancing, MyfigurePartList, MyfigureColorList
+
+on beginSprite me
   iSpr = me.spriteNum
-  sprite(sprite(0).number).cursor = ["cursor_finger_mask", sprite(0).number]
+  set the cursor of sprite iSpr to [the number of member "cursor_finger", the number of member "cursor_finger_mask"]
   sprite(me.spriteNum).member = WhichMember(#hd)
   sprite((me.spriteNum + 1)).member = WhichMember(#fc)
   sprite((me.spriteNum + 2)).member = WhichMember(#ey)
@@ -11,18 +13,18 @@ on beginSprite me
   sprite((me.spriteNum + 3)).bgColor = getaProp(MyfigureColorList, #hr)
 end
 
-on endSprite me 
+on endSprite me
   iSpr = me.spriteNum
-  sprite(iSpr).cursor = 0
+  set the cursor of sprite iSpr to 0
 end
 
-on WhichMember whichPart 
-  memName = "h_" & "std" & "_" & string(whichPart) & "_" & getaProp(MyfigurePartList, whichPart) & "_" & "3" & "_" & 0
+on WhichMember whichPart
+  memName = ((((((((("h_" & "std") & "_") & string(whichPart)) & "_") & getaProp(MyfigurePartList, whichPart)) & "_") & "3") & "_") & 0)
   memNum = getmemnum(memName)
-  return(memNum)
+  return memNum
 end
 
-on mouseUp  
+on mouseUp
   dancing = not dancing
   sendFuseMsg("STOP CarryDrink")
   if dancing then

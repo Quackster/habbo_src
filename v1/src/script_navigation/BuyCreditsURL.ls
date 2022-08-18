@@ -1,5 +1,7 @@
-on mouseUp me 
-  webPage = "purchase.jsp?userName=" & gMyName
+global gMyName, gCountryPrefix
+
+on mouseUp me
+  webPage = ("purchase.jsp?userName=" & gMyName)
   url = "http://www.habbohotel.com/"
   if (gCountryPrefix = "ch") then
     tFolder = externalParamValue("sw1")
@@ -10,22 +12,22 @@ on mouseUp me
     if voidp(ch_url) then
       ch_url = "213.55.128.132/"
     end if
-    if tFolder contains "english" then
-      url = ch_url & "english/"
+    if (tFolder contains "english") then
+      url = (ch_url & "english/")
     else
-      if tFolder contains "deutsch" then
-        url = ch_url & "deutsch/"
+      if (tFolder contains "deutsch") then
+        url = (ch_url & "deutsch/")
       else
-        if tFolder contains "francais" then
-          url = ch_url & "francais/"
+        if (tFolder contains "francais") then
+          url = (ch_url & "francais/")
         else
-          if tFolder contains "italiano" then
-            url = ch_url & "italiano/"
+          if (tFolder contains "italiano") then
+            url = (ch_url & "italiano/")
           end if
         end if
       end if
     end if
   end if
-  put(url & webPage)
-  JumptoNetPage(url & webPage, "_new")
+  put (url & webPage)
+  JumptoNetPage((url & webPage), "_new")
 end

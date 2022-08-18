@@ -1,47 +1,45 @@
 property lastSearch
 
-on beginSprite me 
+on beginSprite me
   the keyboardFocusSprite = me.spriteNum
 end
 
-on exitFrame me 
+on exitFrame me
   if voidp(lastSearch) then
-    lastSearch = ""
+    lastSearch = EMPTY
   end if
-  if the keyboardFocusSprite <> me.spriteNum then
-    if field(0).length < 3 then
-      lastSearch = ""
+  if (the keyboardFocusSprite <> me.spriteNum) then
+    if (field("charactername_field").length < 3) then
+      lastSearch = EMPTY
       ShowAlert("YourNameIstooShort")
-      member("charactername_field").text = ""
+      member("charactername_field").text = EMPTY
       the keyboardFocusSprite = me.spriteNum
-      return()
+      return 
     end if
-    if "charactername_field" and field(0).length > 0 then
-      sendEPFuseMsg("charactername_field" && field(0))
-      sendEPFuseMsg("charactername_field" && field(0))
-      lastSearch = field(0)
+    if ((field("charactername_field") <> lastSearch) and (field("charactername_field").length > 0)) then
+      sendEPFuseMsg(("FINDUSER" && field("charactername_field")))
+      sendEPFuseMsg(("APPROVENAME" && field("charactername_field")))
+      lastSearch = field("charactername_field")
     end if
   else
-    lastSearch = ""
+    lastSearch = EMPTY
   end if
 end
 
-on endSprite me 
-  sendEPFuseMsg("charactername_field" && field(0))
+on endSprite me
+  sendEPFuseMsg(("FINDUSER" && field("charactername_field")))
 end
 
-on keyDown me 
+on keyDown me
   s = member("permittedNameChars").text
-  f = 1
-  repeat while f <= s.count(#line)
-    if (the key = s.getPropRef(#line, f).getProp(#char, 1, 1)) then
+  repeat with f = 1 to s.line.count
+    if (the key = s.line[f].char[1]) then
       pass()
-    else
-      f = (1 + f)
+      exit repeat
     end if
   end repeat
-  if (the key = "\t") or "charactername_field" and field(0).length > 0 then
+  if ((the key = BACKSPACE) or ((the key = TAB) and (field("charactername_field").length > 0))) then
     pass()
   end if
-  put(the key)
+  put the key
 end

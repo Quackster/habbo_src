@@ -1,4 +1,6 @@
-on enterFrame me 
+global whichIsFirstNow, MaxVisibleIndexButton
+
+on enterFrame me
   if (whichIsFirstNow = 1) then
     sprite(me.spriteNum).member = "navi_left_arrow_NoMore"
   else
@@ -6,8 +8,8 @@ on enterFrame me
   end if
 end
 
-on mouseDown me 
-  if whichIsFirstNow > 1 then
+on mouseDown me
+  if (whichIsFirstNow > 1) then
     sprite(me.spriteNum).member = "navi_left_arrow_hi"
     sendAllSprites(#ScrollCatalogIndex, "left")
   else

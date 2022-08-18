@@ -1,38 +1,38 @@
-property spr, locX, locY, locHe
+property itemType, spr, locX, locY, locHe
 
-on new me, titemType 
+on new me, titemType
   itemType = titemType
   spr = sprMan_getPuppetSprite()
   sprite(spr).castNum = getmemnum("TicTacToe_small")
-  return(me)
+  return me
 end
 
-on setLocation me, x, y, he 
+on setLocation me, x, y, he
   locX = x
   locY = y
   locHe = he
 end
 
-on die me 
+on die me
   sprMan_releaseSprite(spr)
 end
 
-on updateLocation me 
+on updateLocation me
   screenLocs = getScreenCoordinate(locX, locY, locHe)
-  sprite(spr).locH = screenLocs.getAt(1)
-  sprite(spr).locV = screenLocs.getAt(2)
+  sprite(spr).locH = screenLocs[1]
+  sprite(spr).locV = screenLocs[2]
 end
 
-on getLocationString me 
-  return(locX & "," & locY & "," & locHe)
+on getLocationString me
+  return ((((locX & ",") & locY) & ",") & locHe)
 end
 
-on hide me 
+on hide me
 end
 
-on show me 
+on show me
 end
 
-on hideStripItem me 
-  return TRUE
+on hideStripItem me
+  return 1
 end

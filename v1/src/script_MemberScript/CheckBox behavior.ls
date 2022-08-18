@@ -1,14 +1,15 @@
-property PrepareCheckBoxs, lOtherSprites, enabledCheck, enabled, ecommand, dcommand
+property lOtherSprites, ecommand, dcommand, enabled, enabledCheck, PrepareCheckBoxs
+global gProps
 
-on enterFrame me 
-  if (PrepareCheckBoxs = void()) then
+on enterFrame me
+  if (PrepareCheckBoxs = VOID) then
     PrepareCheckBoxs = 1
-    put(gProps, "T�SS�")
-    if (gProps = void()) then
+    put gProps, "T�SS�"
+    if (gProps = VOID) then
       gProps = [:]
     end if
-    lOtherSprites = value("[" & lOtherSprites & "]")
-    put(enabledCheck, value(enabledCheck))
+    lOtherSprites = value((("[" & lOtherSprites) & "]"))
+    put enabledCheck, value(enabledCheck)
     enabled = value(enabledCheck)
     if enabled then
       enable(me)
@@ -18,7 +19,7 @@ on enterFrame me
   end if
 end
 
-on mouseDown me 
+on mouseDown me
   if enabled then
     disable(me)
   else
@@ -26,30 +27,29 @@ on mouseDown me
   end if
 end
 
-on enable me 
-  sprite(me.spriteNum).castNum = getmemnum(sprite(me.spriteNum).member.name.word[1] && "on")
+on enable me
+  sprite(me.spriteNum).castNum = getmemnum((word 1 of the name of the member of sprite(the spriteNum of me) && "on"))
   enabled = 1
-  repeat while lOtherSprites <= 1
-    i = getAt(1, count(lOtherSprites))
+  repeat with i in lOtherSprites
     sendSprite((me.spriteNum + i), #disable)
   end repeat
-  put(ecommand)
+  put ecommand
   do(ecommand)
 end
 
-on disable me 
+on disable me
   enabled = 0
-  sprite(me.spriteNum).castNum = getmemnum(sprite(me.spriteNum).member.name.word[1] && "off")
+  sprite(me.spriteNum).castNum = getmemnum((word 1 of the name of the member of sprite(the spriteNum of me) && "off"))
   if not voidp(dcommand) then
     do(dcommand)
   end if
 end
 
-on getPropertyDescriptionList me 
+on getPropertyDescriptionList me
   pList = [:]
-  addProp(pList, #ecommand, [#comment:"Enable command", #default:"setAProp gProps, #x, #y", #format:#string])
-  addProp(pList, #dcommand, [#comment:"Disable command", #default:"setAProp gProps, #x, #a", #format:#string])
-  addProp(pList, #lOtherSprites, [#comment:"Other sprites of this group (relative)", #default:"1,2", #format:#string])
-  addProp(pList, #enabledCheck, [#comment:"Enabled check script", #default:"", #format:#string])
-  return(pList)
+  addProp(pList, #ecommand, [#comment: "Enable command", #default: "setAProp gProps, #x, #y", #format: #string])
+  addProp(pList, #dcommand, [#comment: "Disable command", #default: "setAProp gProps, #x, #a", #format: #string])
+  addProp(pList, #lOtherSprites, [#comment: "Other sprites of this group (relative)", #default: "1,2", #format: #string])
+  addProp(pList, #enabledCheck, [#comment: "Enabled check script", #default: EMPTY, #format: #string])
+  return pList
 end

@@ -1,20 +1,23 @@
-on mouseDown me 
+global gBuddyList, gMessageManager, gChosenBuddyId
+
+on mouseDown me
+  global gChosenBuddyId, gMessageManager
   if voidp(gMessageManager) then
-    return()
+    return 
   end if
   msg = getNextMessage(gMessageManager, gChosenBuddyId)
-  if (msg = void()) then
+  if (msg = VOID) then
     goContext("buddies")
   else
     display(msg)
   end if
 end
 
-on beginSprite me 
+on beginSprite me
   exitFrame(me)
 end
 
-on exitFrame me 
+on exitFrame me
   if (getMessageCount(gMessageManager, gChosenBuddyId) = 0) then
     sprite(me.spriteNum).visible = 0
   else
@@ -22,6 +25,6 @@ on exitFrame me
   end if
 end
 
-on endSprite me 
+on endSprite me
   sprite(me.spriteNum).visible = 1
 end

@@ -1,45 +1,38 @@
-on generateSmsCodes f, x, c 
-  s = field(0)
-  i = 1
-  repeat while i <= the number of line in s
-    if (the number of item in s.line[i] = 5) then
-      -- UNK_9A 37
-    else
+on generateSmsCodes f, x, c
+  s = field(f)
+  repeat with i = 1 to the number of lines in s
+    if (the number of items in line i of s = 5) then
+      put (("," & c) & (x + i)) after line i of s
+      next repeat
     end if
-    i = (1 + i)
+    put (((item 1 to 5 of s & ",") & c) & (x + i)) into line i of s
   end repeat
+  put s into field f
 end
 
-on removeSmsCodes f 
-  s = field(0)
-  i = 1
-  repeat while i <= the number of line in s
-    if (the number of item in s.line[i] = 6) then
-      s.line[i].text = s.item[1..5]
+on removeSmsCodes f
+  s = field(f)
+  repeat with i = 1 to the number of lines in s
+    if (the number of items in line i of s = 6) then
+      line i of s.text = item 1 to 5 of s
     end if
-    i = (1 + i)
+  end repeat
+  put s into field f
+end
+
+on generateAll
+  the itemDelimiter = ","
+  repeat with j = 1 to the number of lines in field "floorpattern_patterns"
+    generateSmsCodes(line j of field "floorpattern_patterns", (j * 100))
+  end repeat
+  repeat with j = 1 to the number of lines in field "wallpattern_patterns"
+    generateSmsCodes(line j of field "wallpattern_patterns", (j * 100))
   end repeat
 end
 
-on generateAll  
+on stripAll
   the itemDelimiter = ","
-  j = 1
-  repeat while "floorpattern_patterns" <= the number of line in field(0)
-    generateSmsCodes(, (j * 100))
-    j = (1 + j)
-  end repeat
-  j = 1
-  repeat while "wallpattern_patterns" <= the number of line in field(0)
-    generateSmsCodes(, (j * 100))
-    j = (1 + j)
-  end repeat
-end
-
-on stripAll  
-  the itemDelimiter = ","
-  j = 1
-  repeat while "floorpattern_patterns" <= the number of line in field(0)
-    removeSmsCodes()
-    j = (1 + j)
+  repeat with j = 1 to the number of lines in field "floorpattern_patterns"
+    removeSmsCodes(line j of field "floorpattern_patterns")
   end repeat
 end

@@ -1,7 +1,7 @@
-on mouseDown me 
+on mouseDown me
   nothing()
 end
 
-on mouseUp me 
+on mouseUp me
   nothing()
 end

@@ -1,3 +1,3 @@
-on mouseUp  
-  openUimakoppi()
+on mouseUp
+  openuimakoppi()
 end

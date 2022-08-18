@@ -1,7 +1,8 @@
-on mouseDown me 
-  if field(0) <> "*" then
-    sendEPFuseMsg("messenger.search_user" && field(0))
-    sendEPFuseMsg("messenger.search_user" & field(0))
+on mouseDown me
+  global context
+  if (field("messenger.search_user") <> "*") then
+    sendEPFuseMsg(("FINDUSER" && field("messenger.search_user")))
+    sendEPFuseMsg(("UINFO_MATCH /" & field("messenger.search_user")))
     goContext("findresult", context)
   else
     showUnitsInMsg()

@@ -1,3 +1,3 @@
-on mouseDown me 
-  put("y")
+on mouseDown me
+  put "y"
 end

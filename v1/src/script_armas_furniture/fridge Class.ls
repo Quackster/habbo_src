@@ -1,16 +1,17 @@
-property BarDoorOpentimer
+property ancestor, BarDoorOpentimer
+global gpObjects, gChosenStuffId, gChosenStuffSprite, gMyName
 
-on new me, tName, tMemberPrefix, tMemberFigureType, tLocX, tLocY, tHeight, tDirection, lDimensions, spr, taltitude, pData, partColors, update 
+on new me, tName, tMemberPrefix, tMemberFigureType, tLocX, tLocY, tHeight, tDirection, lDimensions, spr, taltitude, pData, partColors, update
   ancestor = new(script("FUSEMember Class"), tName, tMemberPrefix, tMemberFigureType, tLocX, tLocY, tHeight, tDirection, lDimensions, spr, taltitude, pData)
-  if (getaProp(me.pData, "DOOROPEN") = "TRUE") and (update = 1) then
+  if ((getaProp(me.pData, "DOOROPEN") = "TRUE") and (update = 1)) then
     BarDoorOpentimer = 43
   else
     BarDoorOpentimer = 0
   end if
-  return(me)
+  return me
 end
 
-on updateStuffdata me, tProp, tValue 
+on updateStuffdata me, tProp, tValue
   if (tValue = "TRUE") then
     BarDoorOpentimer = 43
   else
@@ -18,46 +19,42 @@ on updateStuffdata me, tProp, tValue
   end if
 end
 
-on mouseDown me 
-  userObj = sprite(getProp(gpObjects, gMyName)).getProp(#scriptInstanceList, 1)
+on mouseDown me
+  global hiliter, gInfofieldIconSprite, gpUiButtons
+  userObj = sprite(getProp(gpObjects, gMyName)).scriptInstanceList[1]
   if the doubleClick then
-    if (me.getProp(#direction, 1) = 4) then
-      if (me.locX = userObj.locX) and ((me.locY - userObj.locY) = -1) then
-        giveDrink(me)
-      else
-        sendFuseMsg("Move" && me.locX && (me.locY + 1))
-        return()
-      end if
-    else
-      if (me.getProp(#direction, 1) = 0) then
-        if (me.locX = userObj.locX) and ((me.locY - userObj.locY) = 1) then
+    case me.direction[1] of
+      4:
+        if ((me.locX = userObj.locX) and ((me.locY - userObj.locY) = -1)) then
           giveDrink(me)
         else
-          sendFuseMsg("Move" && me.locX && (me.locY - 1))
-          return()
+          sendFuseMsg((("Move" && me.locX) && (me.locY + 1)))
+          return 
         end if
-      else
-        if (me.getProp(#direction, 1) = 2) then
-          if (me.locY = userObj.locY) and ((me.locX - userObj.locX) = -1) then
-            giveDrink(me)
-          else
-            sendFuseMsg("Move" && (me.locX + 1) && me.locY)
-            return()
-          end if
+      0:
+        if ((me.locX = userObj.locX) and ((me.locY - userObj.locY) = 1)) then
+          giveDrink(me)
         else
-          if (me.getProp(#direction, 1) = 6) then
-            if (me.locY = userObj.locY) and ((me.locX - userObj.locX) = 1) then
-              giveDrink(me)
-            else
-              sendFuseMsg("Move" && (me.locX - 1) && me.locY)
-            end if
-          end if
+          sendFuseMsg((("Move" && me.locX) && (me.locY - 1)))
+          return 
         end if
-      end if
-    end if
-    return()
+      2:
+        if ((me.locY = userObj.locY) and ((me.locX - userObj.locX) = -1)) then
+          giveDrink(me)
+        else
+          sendFuseMsg((("Move" && (me.locX + 1)) && me.locY))
+          return 
+        end if
+      6:
+        if ((me.locY = userObj.locY) and ((me.locX - userObj.locX) = 1)) then
+          giveDrink(me)
+        else
+          sendFuseMsg((("Move" && (me.locX - 1)) && me.locY))
+        end if
+    end case
+    return 
   end if
-  if listp(gpUiButtons) and the movieName contains "private" then
+  if (listp(gpUiButtons) and (the movieName contains "private")) then
     mouseDown(hiliter, 1)
     gChosenStuffId = me.id
     if not voidp(gChosenStuffSprite) then
@@ -66,7 +63,7 @@ on mouseDown me
     gChosenStuffSprite = me.spriteNum
     gChosenStuffType = #stuff
     setInfoTexts(me)
-    myUserObj = sprite(getaProp(gpObjects, gMyName)).getProp(#scriptInstanceList, 1)
+    myUserObj = sprite(getaProp(gpObjects, gMyName)).scriptInstanceList[1]
     if (myUserObj.controller = 1) then
       hilite(me)
       if the optionDown then
@@ -76,42 +73,37 @@ on mouseDown me
   end if
 end
 
-on giveDrink me 
-  sendFuseMsg("SETSTUFFDATA /" & me.id & "/" & "DOOROPEN" & "/" & "TRUE")
-  sendFuseMsg("LOOKTO" && me.locX && me.locY)
-  sendFuseMsg("CarryDrink" && getDrinkname(me))
+on giveDrink me
+  sendFuseMsg(((((("SETSTUFFDATA /" & me.id) & "/") & "DOOROPEN") & "/") & "TRUE"))
+  sendFuseMsg((("LOOKTO" && me.locX) && me.locY))
+  sendFuseMsg(("CarryDrink" && getDrinkname(me)))
 end
 
-on getDrinkname me 
+on getDrinkname me
   r = abs(random(4))
-  if (r = 1) then
-    return("eat: carrot")
-  else
-    if (r = 2) then
-      return("eat: ice-cream")
-    else
-      if (r = 3) then
-        return("milk")
-      else
-        if (r = 4) then
-          return("blueberry soup")
-        end if
-      end if
-    end if
-  end if
-  return("mineral water")
+  case r of
+    1:
+      return "eat: carrot"
+    2:
+      return "eat: ice-cream"
+    3:
+      return "milk"
+    4:
+      return "blueberry soup"
+  end case
+  return "mineral water"
 end
 
-on exitFrame me 
-  if BarDoorOpentimer <> 0 then
-    mNamer = me.getPropRef(#lSprites, 1).member.name
-    newMNamer = mNamer.char[1..(mNamer.length - 1)] & 1
-    me.getPropRef(#lSprites, 1).castNum = abs(getmemnum(newMNamer))
+on exitFrame me
+  if (BarDoorOpentimer <> 0) then
+    mNamer = me.lSprites[1].member.name
+    newMNamer = (char 1 to (mNamer.length - 1) of mNamer & 1)
+    me.lSprites[1].castNum = abs(getmemnum(newMNamer))
     BarDoorOpentimer = (BarDoorOpentimer - 1)
     if (BarDoorOpentimer = 0) then
-      mNamer = me.getPropRef(#lSprites, 1).member.name
-      newMNamer = mNamer.char[1..(mNamer.length - 1)] & 0
-      me.getPropRef(#lSprites, 1).castNum = getmemnum(newMNamer)
+      mNamer = me.lSprites[1].member.name
+      newMNamer = (char 1 to (mNamer.length - 1) of mNamer & 0)
+      me.lSprites[1].castNum = getmemnum(newMNamer)
     end if
   end if
 end

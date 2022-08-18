@@ -1,6 +1,8 @@
-on mouseDown me 
+global gBuddyList, gMessageManager, gChosenBuddyId
+
+on mouseDown me
   mname = sprite(me.spriteNum).member.name
-  num = integer(mname.char[6])
+  num = integer(char 6 of mname)
   gChosenBuddyId = getBuddyIdFromFieldNum(gBuddyList, num)
   goContext("msgread")
 end

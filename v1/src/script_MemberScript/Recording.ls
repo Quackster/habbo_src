@@ -1,79 +1,72 @@
-on recordFrame marker 
+on recordFrame marker
   go(marker)
-  data = ""
-  i = 1
-  repeat while i <= the number of undefineds
-    data = data & castLib(i).name & "\r"
-    i = (1 + i)
+  data = EMPTY
+  repeat with i = 1 to the number of castLibs
+    data = ((data & castLib(i).name) & RETURN)
   end repeat
-  data = data & "*" & "\r"
-  i = 1
-  repeat while i <= 100
+  data = ((data & "*") & RETURN)
+  repeat with i = 1 to 100
     spr = sprite(i)
-    if spr.castNum > 0 then
-      sprInfo = ""
-      sprInfo = sprInfo & spr.member.memberNum
-      sprInfo = sprInfo & "/" & spr.member.castLibNum
-      sprInfo = sprInfo & "/" & spr.locH
-      sprInfo = sprInfo & "/" & spr.locV
-      sprInfo = sprInfo & "/" & spr.locZ
-      sprInfo = sprInfo & "/" & spr.ink
-      sprInfo = sprInfo & "/" & spr.foreColor
+    if (spr.castNum > 0) then
+      sprInfo = EMPTY
+      sprInfo = (sprInfo & spr.member.memberNum)
+      sprInfo = ((sprInfo & "/") & spr.member.castLibNum)
+      sprInfo = ((sprInfo & "/") & spr.locH)
+      sprInfo = ((sprInfo & "/") & spr.locV)
+      sprInfo = ((sprInfo & "/") & spr.locZ)
+      sprInfo = ((sprInfo & "/") & spr.ink)
+      sprInfo = ((sprInfo & "/") & spr.foreColor)
       bgColorString = string(spr.bgColor)
-      if bgColorString contains "paletteIndex" then
-        bgColorString = bgColorString.word[2]
+      if (bgColorString contains "paletteIndex") then
+        bgColorString = word 2 of bgColorString
       else
-        bgColorString = bgColorString.word[2] & bgColorString.word[3] & bgColorString.word[4]
+        bgColorString = ((word 2 of bgColorString & word 3 of bgColorString) & word 4 of bgColorString)
       end if
-      sprInfo = sprInfo & "/" & bgColorString
-      sprInfo = sprInfo & "/" & spr.blend
-      sprInfo = sprInfo & "/" & spr.width
-      sprInfo = sprInfo & "/" & spr.height
-      behaviorInfo = ""
+      sprInfo = ((sprInfo & "/") & bgColorString)
+      sprInfo = ((sprInfo & "/") & spr.blend)
+      sprInfo = ((sprInfo & "/") & spr.width)
+      sprInfo = ((sprInfo & "/") & spr.height)
+      behaviorInfo = EMPTY
       l = spr.scriptList
-      repeat while l <= 1
-        oScript = getAt(1, count(l))
-        scriptMem = oScript.getAt(1)
-        scriptParams = value(oScript.getAt(2))
-        behaviorInfo = behaviorInfo & scriptMem.memberNum & "/" & scriptMem.castLibNum & "/" & scriptParams
-        behaviorInfo = behaviorInfo & "&"
+      repeat with oScript in l
+        scriptMem = oScript[1]
+        scriptParams = value(oScript[2])
+        behaviorInfo = (behaviorInfo & ((((scriptMem.memberNum & "/") & scriptMem.castLibNum) & "/") & scriptParams))
+        behaviorInfo = (behaviorInfo & "&")
       end repeat
-      data = data & "\r" & sprInfo & "\r" & behaviorInfo
+      data = ((((data & RETURN) & sprInfo) & RETURN) & behaviorInfo)
     end if
-    i = (1 + i)
   end repeat
-  return(data)
+  return data
 end
 
-on recordRoom roomName 
+on recordRoom roomName
   recordAll()
-  s = ""
-  f = 1
-  repeat while f <= the number of undefineds
-    if castLib(f).name <> "Internal" and castLib(f).fileName.getProp(#char, (length(castLib(f).fileName) - 2), length(castLib(f).fileName)) <> "dcr" then
-      s = s & "\r" & castLib(f).name
+  s = EMPTY
+  repeat with f = 1 to the number of castLibs
+    if ((castLib(f).name <> "Internal") and (castLib(f).fileName.char[(length(castLib(f).fileName) - 2)] <> "dcr")) then
+      s = ((s & RETURN) & castLib(f).name)
     end if
-    f = (1 + f)
   end repeat
-  if (roomName = void()) then
+  if (roomName = VOID) then
     mem = "ROOM.casts"
   else
-    mem = roomName & ".casts"
+    mem = (roomName & ".casts")
   end if
-  if sprite(0).number < 1 then
+  if (the number of member mem < 1) then
     f = new(#field)
     f.name = mem
   end if
   member(mem).text = s
 end
 
-on recordAll  
-  repeat while the markerlist <= 1
-    m = getAt(1, count(the markerlist))
+on recordAll
+  repeat with m in the markerlist
     s = recordFrame(m)
-    if sprite(0).number < 1 then
+    if (the number of member (m & ".recorded") < 1) then
       f = new(#field)
-      f.name = m & ".recorded"
+      f.name = (m & ".recorded")
     end if
+    put s into field (m & ".recorded")
   end repeat
 end

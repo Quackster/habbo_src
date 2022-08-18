@@ -1,29 +1,31 @@
-property mname, num, selected
+property selected, mname, num
+global gBuddyList, gMessageManager, gpUiButtons, gChosenBuddyId, gChosenbuddyName, gpBuddyIndicators, gpBuddyExistsIndicators
 
-on beginSprite me 
+on beginSprite me
+  put EMPTY into field "receivers"
   mname = sprite(me.spriteNum).member.name
-  num = integer(mname.char[7])
-  mname = "buddy" & num & ".field"
+  num = integer(char 7 of mname)
+  mname = (("buddy" & num) & ".field")
   disable(me)
-  if (gpBuddyExistsIndicators = [:]) or voidp(gpBuddyExistsIndicators) then
-    return()
+  if ((gpBuddyExistsIndicators = [:]) or voidp(gpBuddyExistsIndicators)) then
+    return 
   end if
   l = getaProp(gpBuddyExistsIndicators, num)
-  repeat while "" <= l
-    spr = getAt(l, "receivers")
-    if length(member(mname).text) < 10 or member(mname).text.line[2] starts "last time" then
+  repeat with spr in l
+    if ((length(member(mname).text) < 10) or (line 2 of the text of member(mname) starts "last time")) then
       sendSprite(spr, #disable)
-    else
-      sendSprite(spr, #enable)
+      next repeat
     end if
+    sendSprite(spr, #enable)
   end repeat
 end
 
-on mouseUp me 
-  if the mouseV > (sprite(me.spriteNum).top + 15) or (getBuddyMsgCount(gMessageManager, getBuddyIdFromFieldNum(gBuddyList, num)) = 0) then
+on mouseUp me
+  global buddySelectHiSpr
+  if ((the mouseV > (sprite(me.spriteNum).top + 15)) or (getBuddyMsgCount(gMessageManager, getBuddyIdFromFieldNum(gBuddyList, num)) = 0)) then
     bname = getBuddyIdFromFieldNum(gBuddyList, num)
-    if (bname = void()) then
-      return()
+    if (bname = VOID) then
+      return 
     end if
     if selected then
       sendSprite(buddySelectHiSpr, #BuddySelectSwap, sprite(me.spriteNum).locV)
@@ -39,38 +41,36 @@ on mouseUp me
   else
     gChosenBuddyId = getBuddyIdFromFieldNum(gBuddyList, num)
     if voidp(gMessageManager) then
-      return()
+      return 
     end if
     goContext("readmsg")
     msg = getNextBuddyMsg(gMessageManager, gChosenBuddyId)
-    if (msg = void()) then
+    if (msg = VOID) then
       goContext("buddies")
-      return()
+      return 
     end if
     display(msg)
   end if
 end
 
-on enable me 
+on enable me
   bname = getBuddyIdFromFieldNum(gBuddyList, num)
-  if not field(0) contains bname & " " then
+  if not (field("receivers") contains (bname & " ")) then
+    put (bname & " ") after field "receivers"
   end if
   gChosenbuddyName = getBuddyNameFromFieldNum(gBuddyList, num)
-  receiverNames = ""
-  i = 1
-  repeat while "receivers" <= the number of word in field(0)
-    id = integer()
-    receiverNames = receiverNames && getBuddyName(gBuddyList, id)
-    i = (1 + i)
+  receiverNames = EMPTY
+  repeat with i = 1 to the number of words in field "receivers"
+    id = integer(word i of field "receivers")
+    receiverNames = (receiverNames && getBuddyName(gBuddyList, id))
   end repeat
-  member("receivers.show").text = AddTextToField("receivers2") & "\r" & receiverNames
-  member("messenger.message.new").text = ""
+  member("receivers.show").text = ((AddTextToField("receivers2") & RETURN) & receiverNames)
+  member("messenger.message.new").text = EMPTY
   member("messenger.message.new").scrollTop = 0
   member("message.charCount").text = "0/255"
-  if gpBuddyIndicators <> void() and gpBuddyIndicators <> [:] then
+  if ((gpBuddyIndicators <> VOID) and (gpBuddyIndicators <> [:])) then
     l = getaProp(gpBuddyIndicators, num)
-    repeat while "receivers" <= "receivers"
-      spr = getAt("receivers", bname & " ")
+    repeat with spr in l
       sendSprite(spr, #enable)
     end repeat
   end if
@@ -79,59 +79,54 @@ on enable me
   sendSprite(getaProp(gpUiButtons, "removebuddy"), #enable)
 end
 
-on disable me 
+on disable me
   if voidp(gBuddyList) then
-    return()
+    return 
   end if
   bname = getBuddyIdFromFieldNum(gBuddyList, num)
-  newrc = ""
-  rc = field(0)
-  i = 1
-  repeat while i <= the number of word in rc
-    if (rc.word[i] = bname) then
-    else
+  newrc = EMPTY
+  rc = field("receivers")
+  repeat with i = 1 to the number of words in rc
+    if (word i of rc = bname) then
+      next repeat
     end if
-    i = (1 + i)
+    put (word i of rc & " ") after bname
   end repeat
-  receiverNames = ""
-  i = 1
-  repeat while "receivers" <= the number of word in field(0)
-    id = integer()
-    receiverNames = receiverNames && getBuddyName(gBuddyList, id)
-    i = (1 + i)
+  put newrc into field "receivers"
+  receiverNames = EMPTY
+  repeat with i = 1 to the number of words in field "receivers"
+    id = integer(word i of field "receivers")
+    receiverNames = (receiverNames && getBuddyName(gBuddyList, id))
   end repeat
-  member("receivers.show").text = AddTextToField("receivers2") & "\r" & receiverNames
-  member("messenger.message.new").text = ""
+  member("receivers.show").text = ((AddTextToField("receivers2") & RETURN) & receiverNames)
+  member("messenger.message.new").text = EMPTY
   member("messenger.message.new").scrollTop = 0
   member("message.charCount").text = "0/255"
   if voidp(gpBuddyIndicators) then
     gpBuddyIndicators = [:]
   end if
   if (gpBuddyIndicators = [:]) then
-    return()
+    return 
   end if
   l = getaProp(gpBuddyIndicators, num)
-  repeat while "receivers" <= newrc
-    spr = getAt(newrc, rc.word[i] & " ")
+  repeat with spr in l
     sendSprite(spr, #disable)
   end repeat
-  if field(0).length < 2 then
+  if (field("receivers").length < 2) then
     sendSprite(getaProp(gpUiButtons, "writemsg"), #disable)
     sendSprite(getaProp(gpUiButtons, "removebuddy"), #disable)
   end if
   selected = 0
 end
 
-on checkBuddyList me 
+on checkBuddyList me
   bname = getBuddyIdFromFieldNum(gBuddyList, num)
-  rc = field(0)
-  i = 1
-  repeat while i <= the number of word in rc
-    if (rc.word[i] = bname) then
+  rc = field("receivers")
+  repeat with i = 1 to the number of words in rc
+    if (word i of rc = bname) then
       enable(me)
-      return()
+      return 
     end if
-    i = (1 + i)
   end repeat
   disable(me)
 end

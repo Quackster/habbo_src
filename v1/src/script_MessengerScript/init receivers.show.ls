@@ -1,2 +1,3 @@
-on exitFrame me 
+on exitFrame me
+  global gBuddyList
 end

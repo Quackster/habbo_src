@@ -1,16 +1,17 @@
-property myswitchON, ancestor
+property ancestor, myswitchON
+global gpObjects, gChosenStuffId, gChosenStuffSprite
 
-on new me, tName, tMemberPrefix, tMemberFigureType, tLocX, tLocY, tHeight, tDirection, lDimensions, spr, taltitude, pData 
+on new me, tName, tMemberPrefix, tMemberFigureType, tLocX, tLocY, tHeight, tDirection, lDimensions, spr, taltitude, pData
   ancestor = new(script("FUSEMember Class"), tName, tMemberPrefix, tMemberFigureType, tLocX, tLocY, tHeight, tDirection, lDimensions, spr, taltitude, pData)
   if (getaProp(me.pData, "SWITCHON") = "ON") then
     setOn(me)
   else
     setOff(me)
   end if
-  return(me)
+  return me
 end
 
-on updateStuffdata me, tProp, tValue 
+on updateStuffdata me, tProp, tValue
   if (tValue = "ON") then
     setOn(me)
   else
@@ -18,41 +19,41 @@ on updateStuffdata me, tProp, tValue
   end if
 end
 
-on exitFrame me 
-  mname = me.getPropRef(#lSprites, 2).member.name
-  mName2 = me.getPropRef(#lSprites, 3).member.name
+on exitFrame me
+  mname = me.lSprites[2].member.name
+  mName2 = me.lSprites[3].member.name
   if myswitchON then
-    newMName = mname.char[1..(mname.length - 1)] & 0
-    newMName2 = mName2.char[1..(mName2.length - 1)] & 0
-    me.getPropRef(#lSprites, 2).locZ = (me.getPropRef(#lSprites, 1).locZ + 2)
-    me.getPropRef(#lSprites, 3).locZ = (me.getPropRef(#lSprites, 2).locZ + 2)
-    if getmemnum(newMName) > 0 then
-      me.getPropRef(#lSprites, 2).castNum = getmemnum(newMName)
-      me.getPropRef(#lSprites, 3).castNum = getmemnum(newMName2)
+    newMName = (char 1 to (mname.length - 1) of mname & 0)
+    newMName2 = (char 1 to (mName2.length - 1) of mName2 & 0)
+    me.lSprites[2].locZ = (me.lSprites[1].locZ + 2)
+    me.lSprites[3].locZ = (me.lSprites[2].locZ + 2)
+    if (getmemnum(newMName) > 0) then
+      me.lSprites[2].castNum = getmemnum(newMName)
+      me.lSprites[3].castNum = getmemnum(newMName2)
     end if
   else
     if (myswitchON = 0) then
-      newMName = mname.char[1..(mname.length - 1)] & 1
-      newMName2 = mName2.char[1..(mName2.length - 1)] & 1
-      me.getPropRef(#lSprites, 2).locZ = (me.getPropRef(#lSprites, 1).locZ + 1)
-      me.getPropRef(#lSprites, 3).locZ = (me.getPropRef(#lSprites, 2).locZ + 1)
-      if getmemnum(newMName) > 0 then
-        me.getPropRef(#lSprites, 2).castNum = getmemnum(newMName)
-        me.getPropRef(#lSprites, 3).castNum = getmemnum(newMName2)
+      newMName = (char 1 to (mname.length - 1) of mname & 1)
+      newMName2 = (char 1 to (mName2.length - 1) of mName2 & 1)
+      me.lSprites[2].locZ = (me.lSprites[1].locZ + 1)
+      me.lSprites[3].locZ = (me.lSprites[2].locZ + 1)
+      if (getmemnum(newMName) > 0) then
+        me.lSprites[2].castNum = getmemnum(newMName)
+        me.lSprites[3].castNum = getmemnum(newMName2)
       end if
     end if
   end if
 end
 
-on setOn me 
+on setOn me
   myswitchON = 1
 end
 
-on setOff me 
+on setOff me
   myswitchON = 0
 end
 
-on mouseDown me 
+on mouseDown me
   callAncestor(#mouseDown, ancestor)
   if the doubleClick then
     if (myswitchON = 1) then
@@ -60,6 +61,6 @@ on mouseDown me
     else
       onString = "ON"
     end if
-    sendFuseMsg("SETSTUFFDATA /" & me.id & "/" & "SWITCHON" & "/" & onString)
+    sendFuseMsg(((((("SETSTUFFDATA /" & me.id) & "/") & "SWITCHON") & "/") & onString))
   end if
 end

@@ -1,17 +1,18 @@
 property s
+global goJumper, gKeyAcceptTime, gKeycounter
 
-on exitFrame me 
-  if (gKeyAcceptTime = void()) then
-    if (gKeycounter = void()) then
+on exitFrame me
+  if (gKeyAcceptTime = VOID) then
+    if (gKeycounter = VOID) then
       gKeycounter = 0
     end if
     gKeyAcceptTime = (the milliSeconds - 22)
   end if
-  if the milliSeconds > gKeyAcceptTime then
+  if (the milliSeconds > gKeyAcceptTime) then
     gKeycounter = (gKeycounter + 1)
-    if gKeycounter < s.length then
-      if s.getProp(#char, gKeycounter) <> "0" then
-        goJumper.MykeyDown(s.getProp(#char, gKeycounter))
+    if (gKeycounter < s.length) then
+      if (s.char[gKeycounter] <> "0") then
+        goJumper.MykeyDown(s.char[gKeycounter])
       else
         NotKeyDown(goJumper)
       end if

@@ -1,11 +1,12 @@
-on init  
+on init
+  global gballoonZ, gUserBalloons, gpObjects, gBalloons, gUserColors, gUserSprites, gChosenUser, maxSprites, maxSprites2, pupsprNum, gpShowSprites, gMyName, gPopUpContext, gPopUpContext2, availablePuppetSpr, NextAvailableExtraSpr, gPostitCounter, hiliter, gRefreshNavi
   gPostitCounter = 0
   maxSprites = 600
   maxSprites2 = 850
   NextAvailableExtraSpr = maxSprites2
   sprMan_init()
-  pupsprNum = sprite(0).number
-  gChosenUser = void()
+  pupsprNum = the number of member "PuppetSprite"
+  gChosenUser = VOID
   gUserSprites = [:]
   gUserColors = [:]
   gBalloons = []
@@ -13,37 +14,29 @@ on init
   gballoonZ = 10000000
   gUserBalloons = [:]
   gpShowSprites = [:]
-  gPopUpContext = void()
-  gPopUpContext2 = void()
+  gPopUpContext = VOID
+  gPopUpContext2 = VOID
   checkOffsets()
-  hiliter = void()
+  hiliter = VOID
   gRefreshNavi = 1
   availablePuppetSpr = []
-  f = 850
-  repeat while f >= 750
+  repeat with f = 850 down to 750
     availablePuppetSpr.add(f)
-    f = (65535 + f)
   end repeat
-  f = 600
-  repeat while f >= 100
+  repeat with f = 600 down to 100
     availablePuppetSpr.add(f)
-    f = (65535 + f)
   end repeat
 end
 
-on do32bitcheck  
-  cl = 1
-  repeat while cl <= the number of undefineds
+on do32bitcheck
+  repeat with cl = 1 to the number of castLibs
     n = the number of castMembers
-    i = 1
-    repeat while i <= n
+    repeat with i = 1 to n
       if (member(i, cl).type = #bitmap) then
-        if member(i, cl).depth > 8 then
-          put("Member" && i && "castlib" && castLib(cl).name && " is of" && member(i, cl).depth && "bitdepth")
+        if (member(i, cl).depth > 8) then
+          put (((((("Member" && i) && "castlib") && castLib(cl).name) && " is of") && member(i, cl).depth) && "bitdepth")
         end if
       end if
-      i = (1 + i)
     end repeat
-    cl = (1 + cl)
   end repeat
 end

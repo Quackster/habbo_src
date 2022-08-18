@@ -1,4 +1,5 @@
-on exitFrame  
+on exitFrame
+  global gChosenUnitIp, gChosenUnitPort, gLang, gEPIp, gEPPort
   forget(window("goldfish_Messenger"))
   gLang = "f"
   gChosenUnitPort = 40201

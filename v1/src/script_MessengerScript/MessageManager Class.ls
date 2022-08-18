@@ -1,15 +1,16 @@
 property pBuddyMsgs
+global gBuddyList
 
-on new me 
+on new me
   pBuddyMsgs = [:]
-  return(me)
+  return me
 end
 
-on handleFusePMessage me, data 
-  put(data)
+on handleFusePMessage me, data
+  put data
   msg = new(script("Message Class"), data)
   l = getaProp(pBuddyMsgs, msg.senderID)
-  if (l = void()) then
+  if (l = VOID) then
     l = []
     addProp(pBuddyMsgs, msg.senderID, l)
   end if
@@ -20,31 +21,31 @@ on handleFusePMessage me, data
   end if
 end
 
-on getMessageCount me 
+on getMessageCount me
   c = 0
-  repeat while pBuddyMsgs <= 1
-    b = getAt(1, count(pBuddyMsgs))
+  repeat with b in pBuddyMsgs
     c = (c + count(b))
   end repeat
-  return(c)
+  return c
 end
 
-on getBuddyMsgCount me, buddyId 
+on getBuddyMsgCount me, buddyId
   l = getaProp(pBuddyMsgs, buddyId)
-  if (l = void()) then
-    return FALSE
+  if (l = VOID) then
+    return 0
   else
-    return(count(l))
+    return count(l)
   end if
 end
 
-on getNextBuddyMsg me, buddyId 
+on getNextBuddyMsg me, buddyId
+  global gBuddyFigures
   l = getaProp(pBuddyMsgs, buddyId)
-  if (l = void()) then
-    return(void())
+  if (l = VOID) then
+    return VOID
   else
-    if count(l) > 0 then
-      msg = l.getAt(1)
+    if (count(l) > 0) then
+      msg = l[1]
       deleteAt(l, 1)
       update(gBuddyList)
       if (count(l) = 0) then
@@ -52,17 +53,17 @@ on getNextBuddyMsg me, buddyId
       end if
       markAsRead(msg)
       MyWireFace(FigureDataParser(gBuddyFigures.getaProp(buddyId)), "face_icon")
-      return(msg)
+      return msg
     else
-      return(getNextMessage(me))
+      return getNextMessage(me)
     end if
   end if
 end
 
-on getNextMessage me 
-  if count(pBuddyMsgs) > 0 then
+on getNextMessage me
+  if (count(pBuddyMsgs) > 0) then
     bid = getPropAt(pBuddyMsgs, 1)
-    return(getNextBuddyMsg(me, bid))
+    return getNextBuddyMsg(me, bid)
   end if
-  return(void())
+  return VOID
 end

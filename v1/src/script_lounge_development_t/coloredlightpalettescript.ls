@@ -1,13 +1,13 @@
 property tpalette
 
-on beginSprite me 
-  sprite(me.spriteNum).undefined.paletteRef = tpalette
+on beginSprite me
+  the member of sprite me.spriteNum.paletteRef = tpalette
 end
 
-on endSprite me 
-  sprite(me.spriteNum).undefined.paletteRef = "lamp1"
+on endSprite me
+  the member of sprite me.spriteNum.paletteRef = "lamp1"
 end
 
-on getPropertyDescriptionList me 
-  return([#tpalette:[#comment:"Palette for the light", #format:#palette, #default:"lamp1"]])
+on getPropertyDescriptionList me
+  return [#tpalette: [#comment: "Palette for the light", #format: #palette, #default: "lamp1"]]
 end

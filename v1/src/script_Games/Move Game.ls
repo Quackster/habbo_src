@@ -1,12 +1,13 @@
-property dragOn, lastm
+property lastm, dragOn
+global gChess, gGameContext
 
-on exitFrame me 
-  if the mouseDown and dragOn then
+on exitFrame me
+  if (the mouseDown and dragOn) then
     p = (the mouseLoc - lastm)
-    if p <> point(0, 0) then
+    if (p <> point(0, 0)) then
       context = getaProp(me, #context)
-      if context <> void() then
-        move(context, p.getAt(1), p.getAt(2))
+      if (context <> VOID) then
+        move(context, p[1], p[2])
       end if
       if not voidp(gChess) then
         if (gGameContext.frame = "chessgame") then
@@ -20,7 +21,7 @@ on exitFrame me
   end if
 end
 
-on mouseDown me 
+on mouseDown me
   dragOn = 1
   lastm = the mouseLoc
 end

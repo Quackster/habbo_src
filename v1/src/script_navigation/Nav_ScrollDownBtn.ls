@@ -1,11 +1,12 @@
 property Active
+global gNaviWindowsSpr, gNaviUpBtn, gNaviDownBtn, ScrollBarLiftBtn
 
-on beginSprite me 
+on beginSprite me
   Active = 1
   gNaviDownBtn = me.spriteNum
 end
 
-on ActiveOrNotScrollDownBtn me, Acti 
+on ActiveOrNotScrollDownBtn me, Acti
   if (Acti = 1) then
     Active = 1
     sprite(me.spriteNum).member = "scroll_Down_active"
@@ -15,14 +16,14 @@ on ActiveOrNotScrollDownBtn me, Acti
   end if
 end
 
-on mouseDown me 
+on mouseDown me
   if (Active = 1) then
     sprite(me.spriteNum).member = "scroll_Down_active_hi"
     sendSprite(gNaviWindowsSpr, #ScrollNavigatorWindow, "Down")
   end if
 end
 
-on mouseUp me 
+on mouseUp me
   if (Active = 1) then
     sprite(me.spriteNum).member = "scroll_Down_active"
   else

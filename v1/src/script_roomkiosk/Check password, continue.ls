@@ -1,5 +1,7 @@
-on mouseUp me 
-  if "room_password_check" <> field(0) and (getaProp(gProps, #doorMode) = #password) then
+global gProps
+
+on mouseUp me
+  if ((field("room_password") <> field("room_password_check")) and (getaProp(gProps, #doorMode) = #password)) then
     goContext("pw_no_match")
   else
     reserveRoom()

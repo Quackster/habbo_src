@@ -1,7 +1,9 @@
-on checkOffsets  
-  gXFactor = 32
-  gYFactor = 16
-  gHFactor = 16
+global gXFactor, gYFactor, gHFactor, xoffset, yoffset
+
+on checkOffsets
+  gXFactor = 32.0
+  gYFactor = 16.0
+  gHFactor = 16.0
   xoffset = 359
   yoffset = 79
 end

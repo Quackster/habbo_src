@@ -1,9 +1,11 @@
-on keyDown me 
-  if (the key = "\r") and (sprite(me.spriteNum).blend = 100) then
+global gFlatQueryButtonSpr, gTop10SearchSprite, gPopUpContext2
+
+on keyDown me
+  if ((the key = RETURN) and (sprite(me.spriteNum).blend = 100)) then
     sendSprite(gTop10SearchSprite, #disable)
-    if field(0).length > 1 then
-      put(field(0))
-      sendEPFuseMsg("flatquery" & field(0) & "%")
+    if (field("flatquery").length > 1) then
+      put field("flatquery")
+      sendEPFuseMsg(((("SEARCHFLAT" && "/%") & field("flatquery")) & "%"))
       goContext("private_places", gPopUpContext2)
     end if
   else
@@ -11,9 +13,9 @@ on keyDown me
   end if
 end
 
-on beginSprite me 
-  if gFlatQueryButtonSpr > 0 then
-    if field(0).length > 1 then
+on beginSprite me
+  if (gFlatQueryButtonSpr > 0) then
+    if (field("flatquery").length > 1) then
       sendSprite(gFlatQueryButtonSpr, #enable)
     else
       sendSprite(gFlatQueryButtonSpr, #disable)

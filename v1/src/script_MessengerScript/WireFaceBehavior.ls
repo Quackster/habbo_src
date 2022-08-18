@@ -1,3 +1,4 @@
-on beginSprite me 
+on beginSprite me
+  global MyfigurePartList
   MyWireFace(MyfigurePartList, "face_icon")
 end

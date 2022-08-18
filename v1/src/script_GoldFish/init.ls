@@ -1,4 +1,4 @@
-on exitFrame me 
-  init()
+on exitFrame me
+  Init()
   Logon()
 end

@@ -1,7 +1,9 @@
-on new me 
-  return(me)
+global gPoker
+
+on new me
+  return me
 end
 
-on mouseDown me 
+on mouseDown me
   close(gPoker)
 end

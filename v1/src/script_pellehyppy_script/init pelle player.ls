@@ -1,3 +1,4 @@
-on exitFrame me 
-  gPellePlayer = void()
+on exitFrame me
+  global gPellePlayer
+  gPellePlayer = VOID
 end

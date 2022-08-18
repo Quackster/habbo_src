@@ -1,4 +1,6 @@
-on startLoading  
+global gLoadNo, gCurrentNetIds, gCurrentFile, gBytes, gLastF, gStartLoadingTime, gEndLoadingTime, gAllNetIds
+
+on startLoading
   gLoadNo = 0
   gLastF = 0
   gBytes = 0
@@ -9,12 +11,12 @@ on startLoading
   nextLoad()
 end
 
-on nextLoad  
+on nextLoad
   gLoadNo = (gLoadNo + 1)
-  if "loadlistPrivateRoom" <= the number of line in field(0) then
-    file = NULL
+  if (gLoadNo <= the number of lines in field "loadlistPrivateRoom") then
+    file = line gLoadNo of field "loadlistPrivateRoom"
     if (the runMode = "Author") then
-      file = the moviePath & file
+      file = (the moviePath & file)
     end if
     netId = preloadNetThing(file)
     add(gCurrentNetIds, [netId, 0, file, the milliSeconds])
@@ -26,8 +28,9 @@ on nextLoad
   end if
 end
 
-on loadComplete  
-  gLastF = 1
+on loadComplete
+  global gPopUpContext2
+  gLastF = 1.0
   LoaderStatusBar()
   gEndLoadingTime = the milliSeconds
   sFrame = "flat_loadReady"
@@ -35,25 +38,25 @@ on loadComplete
   goMovie("gf_private", "quickentry")
 end
 
-on checkLoad  
-  i = count(gCurrentNetIds)
-  repeat while i >= 1
-    netId = gCurrentNetIds.getAt(i).getAt(1)
-    l = getStreamStatus(gCurrentNetIds.getAt(i).getAt(1))
+on checkLoad
+  global gPopUpContext2
+  repeat with i = count(gCurrentNetIds) down to 1
+    netId = gCurrentNetIds[i][1]
+    l = getStreamStatus(gCurrentNetIds[i][1])
     if listp(l) then
       bs = getaProp(l, #bytesSoFar)
-      if bs <> gCurrentNetIds.getAt(i).getAt(2) then
-        gCurrentNetIds.getAt(i).setAt(2, bs)
-        gCurrentNetIds.getAt(i).setAt(4, the milliSeconds)
-        if getStreamStatus(netId).bytesTotal > 0 then
-          percentNow = float(((1 * getStreamStatus(netId).bytesSoFar) / getStreamStatus(netId).bytesTotal))
+      if (bs <> gCurrentNetIds[i][2]) then
+        gCurrentNetIds[i][2] = bs
+        gCurrentNetIds[i][4] = the milliSeconds
+        if (getStreamStatus(netId).bytesTotal > 0) then
+          percentNow = float(((1.0 * getStreamStatus(netId).bytesSoFar) / getStreamStatus(netId).bytesTotal))
         else
           percentNow = 0
         end if
-        gAllNetIds.setProp(gCurrentNetIds.getAt(i).getAt(1), percentNow)
+        gAllNetIds.setProp(gCurrentNetIds[i][1], percentNow)
       else
-        if (the milliSeconds - gCurrentNetIds.getAt(i).getAt(4)) > 25000 then
-          file = gCurrentNetIds.getAt(i).getAt(3)
+        if ((the milliSeconds - gCurrentNetIds[i][4]) > 25000) then
+          file = gCurrentNetIds[i][3]
           netId = preloadNetThing(file)
           add(gCurrentNetIds, [netId, 0, file, the milliSeconds])
           gAllNetIds.addProp(netId, 0)
@@ -61,28 +64,25 @@ on checkLoad
       end if
     end if
     if netDone(netId) then
-      gBytes = (gBytes + gCurrentNetIds.getAt(i).getAt(2))
-      gAllNetIds.setProp(gCurrentNetIds.getAt(i).getAt(1), 1)
+      gBytes = (gBytes + gCurrentNetIds[i][2])
+      gAllNetIds.setProp(gCurrentNetIds[i][1], 1)
       deleteAt(gCurrentNetIds, i)
       nextLoad()
     end if
-    i = (65535 + i)
   end repeat
   LoaderStatusBar()
   sFrame = "FLAT_LOADING"
-  if the runMode <> "Author" then
+  if (the runMode <> "Author") then
     goContext(sFrame, gPopUpContext2)
   end if
 end
 
-on LoaderStatusBar me 
+on LoaderStatusBar me
   sofar = 0
-  total = the number of line in field(0)
-  i = 1
-  repeat while i <= count(gAllNetIds)
+  total = the number of lines in field "loadlistPrivateRoom"
+  repeat with i = 1 to count(gAllNetIds)
     sofar = (sofar + gAllNetIds.getProp(gAllNetIds.getPropAt(i)))
-    i = (1 + i)
   end repeat
-  percentNow = float(((1 * sofar) / total))
+  percentNow = float(((1.0 * sofar) / total))
   sendAllSprites(#ProgresBar, percentNow)
 end

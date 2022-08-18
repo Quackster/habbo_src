@@ -1,14 +1,14 @@
-on startMovie  
-  gBalloonMembers = void()
+global gBalloonMembers
+
+on startMovie
+  gBalloonMembers = VOID
 end
 
-on InitBalloons  
+on InitBalloons
   BalloonNums = 16
   gBalloonMembers = []
-  f = 1
-  repeat while f <= BalloonNums
-    add(gBalloonMembers, "balloon_" & f)
-    f = (1 + f)
+  repeat with f = 1 to BalloonNums
+    add(gBalloonMembers, ("balloon_" & f))
   end repeat
-  put(gBalloonMembers)
+  put gBalloonMembers
 end

@@ -1,9 +1,9 @@
 property sFrame
 
-on mouseUp me 
-  goToFrame(sFrame)
+on mouseUp me
+  gotoFrame(sFrame)
 end
 
-on getPropertyDescriptionList me 
-  return([#sFrame:[#comment:"Marker", #format:#string, #default:""]])
+on getPropertyDescriptionList me
+  return [#sFrame: [#comment: "Marker", #format: #string, #default: EMPTY]]
 end

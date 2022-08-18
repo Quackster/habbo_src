@@ -1,19 +1,19 @@
 property theUrl
 
-on mouseUp me 
-  put(theUrl)
+on mouseUp me
+  put theUrl
   if voidp(theUrl) then
-    theUrl = the moviePath & the movieName
+    theUrl = (the moviePath & the movieName)
   end if
   JumptoNetPage(theUrl, "_new")
 end
 
-on mouseEnter me 
-  put(theUrl)
+on mouseEnter me
+  put theUrl
 end
 
-on getPropertyDescriptionList me 
+on getPropertyDescriptionList me
   pList = [:]
-  addProp(pList, #theUrl, [#comment:"The url to go", #format:#string, #default:"http://www.sulake.com/"])
-  return(pList)
+  addProp(pList, #theUrl, [#comment: "The url to go", #format: #string, #default: "http://www.sulake.com/"])
+  return pList
 end
