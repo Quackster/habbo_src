@@ -1,78 +1,72 @@
 property pRequestList
 
-on construct me 
+on construct me
   pRequestList = [:]
 end
 
-on deconstruct me 
+on deconstruct me
 end
 
-on addRequest me, tRequestData 
-  if ilk(tRequestData) <> #propList then
-    return FALSE
+on addRequest me, tRequestData
+  if (ilk(tRequestData) <> #propList) then
+    return 0
   end if
-  tUserID = string(tRequestData.getAt(#userID))
+  tUserID = string(tRequestData[#userID])
   tPrevIndex = pRequestList.findPos(tUserID)
-  if tPrevIndex > 0 then
+  if (tPrevIndex > 0) then
     pRequestList.deleteAt(tPrevIndex)
   end if
-  pRequestList.setAt(tUserID, tRequestData)
+  pRequestList[tUserID] = tRequestData
 end
 
-on updateRequest me, tRequestData 
-  if ilk(tRequestData) <> #propList then
-    return FALSE
+on updateRequest me, tRequestData
+  if (ilk(tRequestData) <> #propList) then
+    return 0
   end if
-  tUserID = string(tRequestData.getAt(#userID))
+  tUserID = string(tRequestData[#userID])
   if not pRequestList.findPos(tUserID) then
-    return FALSE
+    return 0
   end if
-  tRequestProps = pRequestList.getAt(tUserID)
+  tRequestProps = pRequestList[tUserID]
   if not voidp(tRequestProps) then
-    tNo = 1
-    repeat while tNo <= tRequestData.count
+    repeat with tNo = 1 to tRequestData.count
       tProp = tRequestData.getPropAt(tNo)
-      tValue = tRequestData.getAt(tNo)
-      tRequestProps.setAt(tProp, tValue)
-      tNo = (1 + tNo)
+      tValue = tRequestData[tNo]
+      tRequestProps[tProp] = tValue
     end repeat
-    pRequestList.setAt(tUserID, tRequestProps.duplicate())
+    pRequestList[tUserID] = tRequestProps.duplicate()
   end if
 end
 
-on getRequestByUserID me, tUserID 
-  tRequest = pRequestList.getAt(string(tUserID))
+on getRequestByUserID me, tUserID
+  tRequest = pRequestList[string(tUserID)]
   if voidp(tRequest) then
-    return FALSE
+    return 0
   else
-    return(tRequest)
+    return tRequest
   end if
 end
 
-on getPendingRequests me 
+on getPendingRequests me
   tPendingList = [:]
   tMaxAmount = getVariable("fr.requests.max.visible")
-  tNo = 1
-  repeat while tNo <= pRequestList.count
-    tRequest = pRequestList.getAt(tNo)
-    if (tRequest.getAt(#state) = #pending) or (tRequest.getAt(#state) = #error) then
-      tPendingList.setAt(string(tRequest.getAt(#userID)), tRequest)
-      if tPendingList.count >= tMaxAmount then
-      else
-        tNo = (1 + tNo)
+  repeat with tNo = 1 to pRequestList.count
+    tRequest = pRequestList[tNo]
+    if ((tRequest[#state] = #pending) or (tRequest[#state] = #error)) then
+      tPendingList[string(tRequest[#userID])] = tRequest
+      if (tPendingList.count >= tMaxAmount) then
+        exit repeat
       end if
-      return(tPendingList)
     end if
   end repeat
+  return tPendingList
 end
 
-on cleanUpHandled me 
-  tNo = 1
-  repeat while tNo <= pRequestList.count
-    tRequest = pRequestList.getAt(tNo)
-    if (tRequest.getAt(#status) = #rejected) or (tRequest.getAt(#status) = #accepted) then
+on cleanUpHandled me
+  repeat with tNo = 1 to pRequestList.count
+    tRequest = pRequestList[tNo]
+    if ((tRequest[#status] = #rejected) or (tRequest[#status] = #accepted)) then
       pRequestList.deleteAt(tNo)
     end if
-    tNo = (1 + tNo)
   end repeat
 end

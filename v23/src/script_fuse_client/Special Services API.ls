@@ -1,95 +1,95 @@
-on constructSpecialServices  
-  return(createManager(#special_services, getClassVariable("special.services.class")))
+on constructSpecialServices
+  return createManager(#special_services, getClassVariable("special.services.class"))
 end
 
-on deconstructSpecialServices  
-  return(removeManager(#special_services))
+on deconstructSpecialServices
+  return removeManager(#special_services)
 end
 
-on getSpecialServices  
+on getSpecialServices
   tMgr = getObjectManager()
   if not tMgr.managerExists(#special_services) then
-    return(constructSpecialServices())
+    return constructSpecialServices()
   end if
-  return(tMgr.getManager(#special_services))
+  return tMgr.getManager(#special_services)
 end
 
-on try  
-  return(getSpecialServices().try())
+on try
+  return getSpecialServices().try()
 end
 
-on catch  
-  return(getSpecialServices().catch())
+on catch
+  return getSpecialServices().catch()
 end
 
-on createToolTip tText 
-  return(getSpecialServices().createToolTip(tText))
+on createToolTip tText
+  return getSpecialServices().createToolTip(tText)
 end
 
-on removeToolTip  
-  return(getSpecialServices().removeToolTip())
+on removeToolTip
+  return getSpecialServices().removeToolTip()
 end
 
-on setcursor ttype 
-  return(getSpecialServices().setcursor(ttype))
+on setcursor ttype
+  return getSpecialServices().setcursor(ttype)
 end
 
-on openNetPage tURL_key, tTarget 
-  return(getSpecialServices().openNetPage(tURL_key, tTarget))
+on openNetPage tURL_key, tTarget
+  return getSpecialServices().openNetPage(tURL_key, tTarget)
 end
 
-on showLoadingBar tLoadID, tProps 
-  return(getSpecialServices().showLoadingBar(tLoadID, tProps))
+on showLoadingBar tLoadID, tProps
+  return getSpecialServices().showLoadingBar(tLoadID, tProps)
 end
 
-on getUniqueID  
-  return(getSpecialServices().getUniqueID())
+on getUniqueID
+  return getSpecialServices().getUniqueID()
 end
 
-on getMachineID  
-  return(getSpecialServices().getMachineID())
+on getMachineID
+  return getSpecialServices().getMachineID()
 end
 
-on getPredefinedURL tURL 
-  return(getSpecialServices().getPredefinedURL(tURL))
+on getPredefinedURL tURL
+  return getSpecialServices().getPredefinedURL(tURL)
 end
 
-on getDomainPart tURL 
-  return(getSpecialServices().getDomainPart(tURL))
+on getDomainPart tURL
+  return getSpecialServices().getDomainPart(tURL)
 end
 
-on getMoviePath  
-  return(getSpecialServices().getMoviePath())
+on getMoviePath
+  return getSpecialServices().getMoviePath()
 end
 
-on getExtVarPath me 
-  return(getSpecialServices().getExtVarPath())
+on getExtVarPath me
+  return getSpecialServices().getExtVarPath()
 end
 
-on sendProcessTracking tStepValue 
-  return(getSpecialServices().sendProcessTracking(tStepValue))
+on sendProcessTracking tStepValue
+  return getSpecialServices().sendProcessTracking(tStepValue)
 end
 
-on secretDecode tKey 
-  return(getSpecialServices().secretDecode(tKey))
+on secretDecode tKey
+  return getSpecialServices().secretDecode(tKey)
 end
 
-on readValueFromField tFieldName, tDelimiter, tSearchedKey 
-  return(getSpecialServices().readValueFromField(tFieldName, tDelimiter, tSearchedKey))
+on readValueFromField tFieldName, tDelimiter, tSearchedKey
+  return getSpecialServices().readValueFromField(tFieldName, tDelimiter, tSearchedKey)
 end
 
-on performance  
+on performance
   if objectExists(#perfTester) then
-    return(removeObject(#perfTester))
+    return removeObject(#perfTester)
   else
-    return(createObject(#perfTester, getClassVariable("perf.test.class")))
+    return createObject(#perfTester, getClassVariable("perf.test.class"))
   end if
 end
 
-on printMsg tObj, tMsg 
+on printMsg tObj, tMsg
   getSpecialServices().print(tObj, tMsg)
 end
 
-on callJavascriptFunction tCallString, tdata 
+on callJavascriptFunction tCallString, tdata
   getSpecialServices().callJavascriptFunction(tCallString, tdata)
 end

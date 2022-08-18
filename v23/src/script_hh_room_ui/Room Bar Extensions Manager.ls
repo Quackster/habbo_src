@@ -1,12 +1,12 @@
-property pVisibleItem, pInvitationData, pVisibleItemID, pRoomInvitationClass, pBottomBarId, pShowInstantFriendRequests, pFriendRequestClass, pFriendRequestData
+property pRoomInvitationClass, pFriendRequestClass, pBottomBarId, pShowInstantFriendRequests, pInvitationData, pFriendRequestData, pVisibleItemID, pVisibleItem
 
-on construct me 
+on construct me
   pRoomInvitationClass = "Invitation Class"
   pFriendRequestClass = "Instant Friend Request Class"
   pVisibleItemID = "Visible Room Bar Extension Item"
   pInvitationData = [:]
   pFriendRequestData = [:]
-  pVisibleItem = void()
+  pVisibleItem = VOID
   pShowInstantFriendRequests = 1
   registerMessage(#showInvitation, me.getID(), #registerInvitation)
   registerMessage(#hideInvitation, me.getID(), #hideInvitation)
@@ -14,99 +14,98 @@ on construct me
   registerMessage(#rejectInvitation, me.getID(), #rejectInvitation)
   registerMessage(#FriendRequestListOpened, me.getID(), #clearFriendRequestsFromStack)
   registerMessage(#updateFriendRequestCount, me.getID(), #viewNextItemInStack)
-  return TRUE
+  return 1
 end
 
-on deconstruct me 
+on deconstruct me
   unregisterMessage(#acceptInvitation, me.getID())
   unregisterMessage(#rejectInvitation, me.getID())
   unregisterMessage(#showInvitation, me.getID())
   unregisterMessage(#hideInvitation, me.getID())
   unregisterMessage(#FriendRequestListOpened, me.getID())
   unregisterMessage(#updateFriendRequestCount, me.getID())
-  return TRUE
+  return 1
 end
 
-on define me, tBottomBarID 
+on define me, tBottomBarID
   pBottomBarId = tBottomBarID
 end
 
-on hideExtensions me 
+on hideExtensions me
   me.hideInvitation()
   me.hideFriendRequest()
 end
 
-on registerInvitation me, tInvitationData 
+on registerInvitation me, tInvitationData
   pInvitationData = tInvitationData
   me.showPendingInvitation()
 end
 
-on clearFriendRequestsFromStack me 
+on clearFriendRequestsFromStack me
   me.hideFriendRequest()
   me.showPendingInvitation()
 end
 
-on showPendingInvitation me 
-  if pVisibleItem <> void() then
-    return FALSE
+on showPendingInvitation me
+  if (pVisibleItem <> VOID) then
+    return 0
   end if
-  if pInvitationData.count < 1 then
-    return FALSE
+  if (pInvitationData.count < 1) then
+    return 0
   end if
   if objectExists(pVisibleItemID) then
-    return TRUE
+    return 1
   end if
   tInvitationObj = createObject(pVisibleItemID, pRoomInvitationClass)
   if not tInvitationObj then
-    return FALSE
+    return 0
   end if
   if not tInvitationObj.show(pInvitationData, pBottomBarId, "friend_list_icon") then
     if objectExists(pVisibleItemID) then
       removeObject(pVisibleItemID)
     end if
-    return FALSE
+    return 0
   end if
   pVisibleItem = #invitation
-  return TRUE
+  return 1
 end
 
-on showPendingInstantFriendRequest me 
+on showPendingInstantFriendRequest me
   if not pShowInstantFriendRequests then
-    return FALSE
+    return 0
   end if
-  if not voidp(pVisibleItem) and not (pVisibleItem = #friendrequest) then
-    return FALSE
+  if (not voidp(pVisibleItem) and not (pVisibleItem = #friendrequest)) then
+    return 0
   end if
   if objectExists(pVisibleItemID) then
-    return TRUE
+    return 1
   end if
   if not threadExists(#friend_list) then
-    return FALSE
+    return 0
   end if
   tRoomComponent = getThread(#room).getComponent()
   tRoomData = tRoomComponent.getRoomData()
   if not (ilk(tRoomData) = #propList) then
-    return FALSE
+    return 0
   end if
-  if not (tRoomData.getAt(#type) = #private) or (tRoomData.getAt(#type) = #public) then
-    return FALSE
+  if not ((tRoomData[#type] = #private) or (tRoomData[#type] = #public)) then
+    return 0
   end if
   if not threadExists(#friend_list) then
-    return FALSE
+    return 0
   end if
   tFriendListComponent = getThread(#friend_list).getComponent()
   tFriendListInterface = getThread(#friend_list).getInterface()
   if tFriendListInterface.isFriendRequestViewOpen() then
-    return FALSE
+    return 0
   end if
   tPendingRequests = tFriendListComponent.getPendingFriendRequests()
   if (tPendingRequests.count = 0) then
     me.hideFriendRequest()
-    return FALSE
+    return 0
   end if
-  repeat while tPendingRequests <= undefined
-    tPendingRequest = getAt(undefined, undefined)
-    tRoomID = tRoomComponent.getUsersRoomId(tPendingRequest.getAt(#name))
+  repeat with tPendingRequest in tPendingRequests
+    tRoomID = tRoomComponent.getUsersRoomId(tPendingRequest[#name])
     tUserObj = tRoomComponent.getUserObject(tRoomID)
     if not (tUserObj = 0) then
       createObject(pVisibleItemID, pFriendRequestClass)
@@ -115,37 +114,37 @@ on showPendingInstantFriendRequest me
       tObj.show()
       pFriendRequestData = tPendingRequest
       pVisibleItem = #friendrequest
-      return TRUE
+      return 1
     end if
   end repeat
-  return FALSE
+  return 0
 end
 
-on ignoreInstantFriendRequests me 
+on ignoreInstantFriendRequests me
   pShowInstantFriendRequests = 0
   me.hideFriendRequest()
   me.showPendingInvitation()
 end
 
-on viewNextItemInStack me 
+on viewNextItemInStack me
   tFrShown = me.showPendingInstantFriendRequest()
   if not tFrShown then
     me.showPendingInvitation()
   end if
 end
 
-on confirmFriendRequest me, tAccept 
+on confirmFriendRequest me, tAccept
   if not threadExists(#friend_list) then
-    return FALSE
+    return 0
   end if
   tFriendListComponent = getThread(#friend_list).getComponent()
   tFriendListInterface = getThread(#friend_list).getInterface()
-  tRequestId = pFriendRequestData.getAt(#id)
+  tRequestId = pFriendRequestData[#id]
   if tAccept then
     if tFriendListComponent.isFriendListFull() then
       executeMessage(#alert, "console_fr_limit_exceeded_error")
       me.hideFriendRequest()
-      return FALSE
+      return 0
     end if
     tFriendListComponent.updateFriendRequest(pFriendRequestData, #accepted)
   else
@@ -154,48 +153,48 @@ on confirmFriendRequest me, tAccept
   me.hideFriendRequest()
 end
 
-on acceptInvitation me 
-  if ilk(pInvitationData) <> #propList then
-    return FALSE
+on acceptInvitation me
+  if (ilk(pInvitationData) <> #propList) then
+    return 0
   end if
   tSenderId = pInvitationData.getaProp(#userID)
   if voidp(tSenderId) then
-    return FALSE
+    return 0
   end if
   if connectionExists(getVariable("connection.info.id")) then
-    getConnection(getVariable("connection.info.id")).send("MSG_ACCEPT_TUTOR_INVITATION", [#string:tSenderId])
+    getConnection(getVariable("connection.info.id")).send("MSG_ACCEPT_TUTOR_INVITATION", [#string: tSenderId])
   end if
   me.hideInvitation()
 end
 
-on rejectInvitation me 
+on rejectInvitation me
   tSenderId = pInvitationData.getaProp(#userID)
   if voidp(tSenderId) then
-    return FALSE
+    return 0
   end if
   if connectionExists(getVariable("connection.info.id")) then
-    getConnection(getVariable("connection.info.id")).send("MSG_REJECT_TUTOR_INVITATION", [#string:tSenderId])
+    getConnection(getVariable("connection.info.id")).send("MSG_REJECT_TUTOR_INVITATION", [#string: tSenderId])
   end if
   me.hideInvitation()
-  createTimeout(#room_bar_extension_next_update, 1000, #viewNextItemInStack, me.getID(), void(), 1)
+  createTimeout(#room_bar_extension_next_update, 1000, #viewNextItemInStack, me.getID(), VOID, 1)
 end
 
-on hideInvitation me 
+on hideInvitation me
   if (pVisibleItem = #invitation) then
     removeObject(pVisibleItemID)
-    pVisibleItem = void()
+    pVisibleItem = VOID
   end if
   pInvitationData = [:]
 end
 
-on hideFriendRequest me 
+on hideFriendRequest me
   if (pVisibleItem = #friendrequest) then
     removeObject(pVisibleItemID)
-    pVisibleItem = void()
+    pVisibleItem = VOID
   end if
   pFriendRequestData = [:]
 end
 
-on invitationFollowFailed me 
+on invitationFollowFailed me
   executeMessage(#alert, "invitation_follow_failed")
 end

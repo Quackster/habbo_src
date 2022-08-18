@@ -1,28 +1,28 @@
-on construct me 
+on construct me
   executeMessage(#gamesystem_getfacade, getVariable("snowwar.loungesystem.id"))
-  return TRUE
+  return 1
 end
 
-on deconstruct me 
+on deconstruct me
   executeMessage(#gamesystem_removefacade, getVariable("snowwar.loungesystem.id"))
-  return TRUE
+  return 1
 end
 
-on handle_users me, tMsg 
+on handle_users me, tMsg
   tConn = tMsg.connection
-  return TRUE
+  return 1
 end
 
-on regMsgList me, tBool 
+on regMsgList me, tBool
   tMsgs = [:]
   tMsgs.setaProp(28, #handle_users)
   tCmds = [:]
   if tBool then
-    registerListener(getVariable("connection.info.id", #info), me.getID(), tMsgs)
-    registerCommands(getVariable("connection.info.id", #info), me.getID(), tCmds)
+    registerListener(getVariable("connection.info.id", #Info), me.getID(), tMsgs)
+    registerCommands(getVariable("connection.info.id", #Info), me.getID(), tCmds)
   else
-    unregisterListener(getVariable("connection.info.id", #info), me.getID(), tMsgs)
-    unregisterCommands(getVariable("connection.info.id", #info), me.getID(), tCmds)
+    unregisterListener(getVariable("connection.info.id", #Info), me.getID(), tMsgs)
+    unregisterCommands(getVariable("connection.info.id", #Info), me.getID(), tCmds)
   end if
-  return TRUE
+  return 1
 end

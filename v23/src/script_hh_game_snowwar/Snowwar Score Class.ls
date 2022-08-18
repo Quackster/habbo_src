@@ -1,6 +1,6 @@
-property pTeamScoreCache, pTeamCount, pTimeOutID, pTimerEndTime, pTimeWindowId, pOwnScoreWindowId, pTeamScoreWindowId
+property pTeamCount, pTeamScoreCache, pOwnScoreWindowId, pTeamScoreWindowId, pTimeWindowId, pTimeOutID, pBuffer, pTimerEndTime, pTimerDurationSec, pCountdownObjId
 
-on construct me 
+on construct me
   pTeamScoreCache = []
   pCountdownObjId = "game_countdown"
   pFinalScoresObjId = "game_finalscores"
@@ -8,71 +8,60 @@ on construct me
   pTeamScoreWindowId = "game_win_team_score"
   pTimeWindowId = "game_win_time"
   pTimeOutID = "game_score_updateGameTimeout"
-  return TRUE
+  return 1
 end
 
-on deconstruct me 
+on deconstruct me
   me.removeGameScoreWindows()
-  return TRUE
+  return 1
 end
 
-on Refresh me, tTopic, tdata 
-  if (tTopic = #set_number_of_teams) then
-    return(me.setTeamNumber(tdata))
-  else
-    if (tTopic = #team_score_updated) then
-      return(me.updateTeamScores(tdata))
-    else
-      if (tTopic = #personal_score_updated) then
-        return(me.renderPersonalScores(tdata))
-      else
-        if (tTopic = #update_game_visuals) then
-          me.cacheTeamScores()
-          me.renderPersonalScores(me.getOwnScore())
-          return TRUE
-        else
-          if (tTopic = #gamestart) then
-            me.startGameTimer(tdata.getAt(#time_until_game_end), tdata.getAt(#time_until_game_end), tdata.getAt(#time_until_game_end))
-            return(me.showGameScoreWindows())
-          else
-            if (tTopic = #gameend) then
-              return(me.removeGameScoreWindows())
-            else
-              if (tTopic = #fullgamestatus_time) then
-                if tdata.getAt(#state) <> #started then
-                  return TRUE
-                end if
-                me.startGameTimer(tdata.getAt(#time_to_next_state), tdata.getAt(#state_duration), tdata.getAt(#time_until_game_end))
-                return(me.showGameScoreWindows())
-              end if
-            end if
-          end if
-        end if
+on Refresh me, tTopic, tdata
+  case tTopic of
+    #set_number_of_teams:
+      return me.setTeamNumber(tdata)
+    #team_score_updated:
+      return me.updateTeamScores(tdata)
+    #personal_score_updated:
+      return me.renderPersonalScores(tdata)
+    #update_game_visuals:
+      me.cacheTeamScores()
+      me.renderPersonalScores(me.getOwnScore())
+      return 1
+    #gamestart:
+      me.startGameTimer(tdata[#time_until_game_end], tdata[#time_until_game_end], tdata[#time_until_game_end])
+      return me.showGameScoreWindows()
+    #gameend:
+      return me.removeGameScoreWindows()
+    #fullgamestatus_time:
+      if (tdata[#state] <> #started) then
+        return 1
       end if
-    end if
-  end if
-  return TRUE
+      me.startGameTimer(tdata[#time_to_next_state], tdata[#state_duration], tdata[#time_until_game_end])
+      return me.showGameScoreWindows()
+  end case
+  return 1
 end
 
-on setTeamNumber me, tTeamNum 
+on setTeamNumber me, tTeamNum
   pTeamCount = tTeamNum
   pTeamScoreCache = []
-  pTeamScoreCache.setAt(pTeamCount, 0)
-  return TRUE
+  pTeamScoreCache[pTeamCount] = 0
+  return 1
 end
 
-on getOwnScore me 
+on getOwnScore me
   if not getObject(#session).exists("user_game_index") then
-    return FALSE
+    return 0
   end if
   tObjectID = getObject(#session).GET("user_game_index")
   tScore = me.getGameSystem().getGameObjectProperty(tObjectID, #score)
-  return(tScore)
+  return tScore
 end
 
-on startGameTimer me, tTimeUntilNextState, tStateDuration, tTimeUntilGameEnd 
-  if tTimeUntilNextState <= 0 then
-    return FALSE
+on startGameTimer me, tTimeUntilNextState, tStateDuration, tTimeUntilGameEnd
+  if (tTimeUntilNextState <= 0) then
+    return 0
   end if
   pTimerEndTime = (the milliSeconds + (tTimeUntilNextState * 1000))
   pTimerDurationSec = tStateDuration
@@ -80,121 +69,117 @@ on startGameTimer me, tTimeUntilNextState, tStateDuration, tTimeUntilGameEnd
     removeTimeout(pTimeOutID)
   end if
   createTimeout(pTimeOutID, 1000, #renderGameTimer, me.getID(), pTimerEndTime, tTimeUntilGameEnd)
-  return(me.renderGameTimer(pTimerEndTime))
+  return me.renderGameTimer(pTimerEndTime)
 end
 
-on convertToMinSec me, tTime 
+on convertToMinSec me, tTime
   tMin = (tTime / 60000)
   tSec = ((tTime mod 60000) / 1000)
-  if tSec < 10 then
-    tSec = "0" & tSec
+  if (tSec < 10) then
+    tSec = ("0" & tSec)
   end if
-  return([tMin, tSec])
+  return [tMin, tSec]
 end
 
-on renderGameTimer me, tEndTime 
+on renderGameTimer me, tEndTime
   tWndObj = getWindow(pTimeWindowId)
   if (tWndObj = 0) then
-    return FALSE
+    return 0
   end if
   tElem = tWndObj.getElement("snowwar_sd_timeleft")
   if (tElem = 0) then
-    return FALSE
+    return 0
   end if
-  if tEndTime < the milliSeconds then
-    return FALSE
+  if (tEndTime < the milliSeconds) then
+    return 0
   end if
   tTime = me.convertToMinSec((tEndTime - the milliSeconds))
-  tTimeStr = tTime.getAt(1) & ":" & tTime.getAt(2)
+  tTimeStr = ((tTime[1] & ":") & tTime[2])
   tElem.setText(tTimeStr)
   tElem = tWndObj.getElement("snowwar_timeleft")
   if (tElem = 0) then
-    return FALSE
+    return 0
   end if
   tElem.setText(tTimeStr)
-  return TRUE
+  return 1
 end
 
-on renderPersonalScores me, tdata 
+on renderPersonalScores me, tdata
   tWndObj = getWindow(pOwnScoreWindowId)
   if (tWndObj = 0) then
-    return FALSE
+    return 0
   end if
   if not integerp(tdata) then
-    return FALSE
+    return 0
   end if
   tElem = tWndObj.getElement("snowwar_score_sd_self")
   if (tElem = 0) then
-    return FALSE
+    return 0
   end if
   tElem.setText(tdata)
   tElem = tWndObj.getElement("snowwar_score_self")
   if (tElem = 0) then
-    return FALSE
+    return 0
   end if
   tElem.setText(tdata)
-  return TRUE
+  return 1
 end
 
-on cacheTeamScores me 
-  if pTeamCount < 1 then
-    return(error(me, "Team count has not been set!", #cacheTeamScores))
+on cacheTeamScores me
+  if (pTeamCount < 1) then
+    return error(me, "Team count has not been set!", #cacheTeamScores)
   end if
   pTeamScoreCache = []
-  pTeamScoreCache.setAt(pTeamCount, 0)
+  pTeamScoreCache[pTeamCount] = 0
   tGameSystem = me.getGameSystem()
   tIDList = tGameSystem.getGameObjectIdsOfType("avatar")
-  repeat while tIDList <= undefined
-    tID = getAt(undefined, undefined)
+  repeat with tID in tIDList
     tObject = tGameSystem.getGameObject(tID)
-    if tObject <> 0 then
+    if (tObject <> 0) then
       tTeamId = (tObject.getGameObjectProperty("team_id") + 1)
       tScore = tObject.getGameObjectProperty("score")
-      pTeamScoreCache.setAt(tTeamId, (pTeamScoreCache.getAt(tTeamId) + tScore))
+      pTeamScoreCache[tTeamId] = (pTeamScoreCache[tTeamId] + tScore)
     end if
   end repeat
-  return(me.renderTeamScores())
+  return me.renderTeamScores()
 end
 
-on updateTeamScores me, tdata 
+on updateTeamScores me, tdata
   if not listp(tdata) then
-    return FALSE
+    return 0
   end if
-  repeat while tdata <= undefined
-    tTeam = getAt(undefined, tdata)
-    tTeamId = (tTeam.getAt(#team_id) + 1)
-    if pTeamScoreCache.count < tTeamId then
-      pTeamScoreCache.setAt(tTeamId, 0)
+  repeat with tTeam in tdata
+    tTeamId = (tTeam[#team_id] + 1)
+    if (pTeamScoreCache.count < tTeamId) then
+      pTeamScoreCache[tTeamId] = 0
     end if
-    pTeamScoreCache.setAt(tTeamId, (pTeamScoreCache.getAt(tTeamId) + tTeam.getAt(#score_add)))
+    pTeamScoreCache[tTeamId] = (pTeamScoreCache[tTeamId] + tTeam[#score_add])
   end repeat
-  return(me.renderTeamScores())
+  return me.renderTeamScores()
 end
 
-on renderTeamScores me 
+on renderTeamScores me
   tWndObj = getWindow(pTeamScoreWindowId)
   if (tWndObj = 0) then
-    return FALSE
+    return 0
   end if
   if not listp(pTeamScoreCache) then
-    return FALSE
+    return 0
   end if
-  tTeamId = 1
-  repeat while tTeamId <= pTeamScoreCache.count
-    tTeamScore = string(pTeamScoreCache.getAt(tTeamId))
-    tElem = tWndObj.getElement("snowwar_score_sd_team" & tTeamId)
-    if tElem <> 0 then
-      if tTeamScore <> tElem.getText() then
+  repeat with tTeamId = 1 to pTeamScoreCache.count
+    tTeamScore = string(pTeamScoreCache[tTeamId])
+    tElem = tWndObj.getElement(("snowwar_score_sd_team" & tTeamId))
+    if (tElem <> 0) then
+      if (tTeamScore <> tElem.getText()) then
         tElem.setText(tTeamScore)
-        tWndObj.getElement("snowwar_score_team" & tTeamId).setText(tTeamScore)
+        tWndObj.getElement(("snowwar_score_team" & tTeamId)).setText(tTeamScore)
       end if
     end if
-    tTeamId = (1 + tTeamId)
   end repeat
-  return TRUE
+  return 1
 end
 
-on showGameScoreWindows me 
+on showGameScoreWindows me
   if not windowExists(pTeamScoreWindowId) then
     if createWindow(pTeamScoreWindowId, "team_stats.window") then
       tWndObj = getWindow(pTeamScoreWindowId)
@@ -205,17 +190,15 @@ on showGameScoreWindows me
         tWndObj.moveTo(tLocH, 70)
       end if
       tWndObj.lock()
-      tTeamId = 1
-      repeat while tTeamId <= 4
-        me.setTeamScoreVisible(tTeamId, tTeamId <= pTeamCount and pTeamCount > 1)
-        tTeamId = (1 + tTeamId)
+      repeat with tTeamId = 1 to 4
+        me.setTeamScoreVisible(tTeamId, ((tTeamId <= pTeamCount) and (pTeamCount > 1)))
       end repeat
       me.renderTeamScores()
     else
-      return(error(me, "Cannot open team score window.", #showGameScoreWindows))
+      return error(me, "Cannot open team score window.", #showGameScoreWindows)
     end if
   end if
-  if not windowExists(pOwnScoreWindowId) and not me.getGameSystem().getSpectatorModeFlag() then
+  if (not windowExists(pOwnScoreWindowId) and not me.getGameSystem().getSpectatorModeFlag()) then
     if createWindow(pOwnScoreWindowId, "personal_stats.window") then
       tWndObj = getWindow(pOwnScoreWindowId)
       tLocH = (the stage.rect.width - 54)
@@ -223,7 +206,7 @@ on showGameScoreWindows me
       tWndObj.lock()
       me.renderPersonalScores(me.getOwnScore())
     else
-      return(error(me, "Cannot open personal score window.", #showGameScoreWindows))
+      return error(me, "Cannot open personal score window.", #showGameScoreWindows)
     end if
   end if
   if not windowExists(pTimeWindowId) then
@@ -237,33 +220,33 @@ on showGameScoreWindows me
       end if
       tWndObj.lock()
     else
-      return(error(me, "Cannot open timeleft window.", #showGameScoreWindows))
+      return error(me, "Cannot open timeleft window.", #showGameScoreWindows)
     end if
   end if
-  return TRUE
+  return 1
 end
 
-on setTeamScoreVisible me, tTeamId, tstate 
+on setTeamScoreVisible me, tTeamId, tstate
   tWndObj = getWindow(pTeamScoreWindowId)
   if (tWndObj = 0) then
-    return FALSE
+    return 0
   end if
-  tElement = tWndObj.getElement("snowwar_scorebg_team" & tTeamId)
-  if tElement <> 0 then
+  tElement = tWndObj.getElement(("snowwar_scorebg_team" & tTeamId))
+  if (tElement <> 0) then
     tElement.setProperty(#visible, tstate)
   end if
-  tElement = tWndObj.getElement("snowwar_score_sd_team" & tTeamId)
-  if tElement <> 0 then
+  tElement = tWndObj.getElement(("snowwar_score_sd_team" & tTeamId))
+  if (tElement <> 0) then
     tElement.setProperty(#visible, tstate)
   end if
-  tElement = tWndObj.getElement("snowwar_score_team" & tTeamId)
-  if tElement <> 0 then
+  tElement = tWndObj.getElement(("snowwar_score_team" & tTeamId))
+  if (tElement <> 0) then
     tElement.setProperty(#visible, tstate)
   end if
-  return TRUE
+  return 1
 end
 
-on removeGameScoreWindows me 
+on removeGameScoreWindows me
   if windowExists(pTeamScoreWindowId) then
     removeWindow(pTeamScoreWindowId)
   end if
@@ -276,5 +259,5 @@ on removeGameScoreWindows me
   if timeoutExists(pTimeOutID) then
     removeTimeout(pTimeOutID)
   end if
-  return TRUE
+  return 1
 end

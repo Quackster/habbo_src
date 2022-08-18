@@ -1,36 +1,36 @@
-property pContentList, pWriterIdPlain, pItemWidth, pItemHeight
+property pListImg, pWriterIdPlain, pContentList, pItemHeight, pItemWidth, pEmptyListText
 
-on construct me 
+on construct me
   pListImg = image(1, 1, 32)
   pContentList = [:]
   pContentList.sort()
   pWriterIdPlain = getUniqueID()
   tPlain = getStructVariable("struct.font.plain")
-  tMetrics = [#font:tPlain.getaProp(#font), #fontStyle:tPlain.getaProp(#fontStyle), #color:rgb("#888888")]
+  tMetrics = [#font: tPlain.getaProp(#font), #fontStyle: tPlain.getaProp(#fontStyle), #color: rgb("#888888")]
   createWriter(pWriterIdPlain, tMetrics)
   pItemHeight = integer(getVariable("fr.offline.item.height"))
   pItemWidth = integer(getVariable("fr.list.panel.width"))
   pEmptyListText = getText("friend_list_no_friends_online_category")
 end
 
-on deconstruct me 
-  pListImg = void()
+on deconstruct me
+  pListImg = VOID
   removeWriter(pWriterIdPlain)
 end
 
-on setListData me, tdata 
+on setListData me, tdata
   if (ilk(tdata) = #propList) then
     pContentList = tdata.duplicate()
     me.renderListImage()
   end if
 end
 
-on renderFriendItem me, tFriendData, tSelected 
+on renderFriendItem me, tFriendData, tSelected
   pItemHeight = integer(getVariable("fr.offline.item.height"))
   pItemWidth = integer(getVariable("fr.list.panel.width"))
   tNameWriter = getWriter(pWriterIdPlain)
   tItemImg = image(pItemWidth, pItemHeight, 32)
-  tName = tFriendData.getAt(#name)
+  tName = tFriendData[#name]
   if tSelected then
     tSelectedBg = rgb(string(getVariable("fr.offline.bg.selected")))
     tItemImg.fill(0, 0, pItemWidth, pItemHeight, tSelectedBg)
@@ -41,12 +41,12 @@ on renderFriendItem me, tFriendData, tSelected
   tNamePosV = ((pItemHeight - tNameImg.height) / 2)
   tdestrect = (tSourceRect + rect(tNamePosH, tNamePosV, tNamePosH, tNamePosV))
   tItemImg.copyPixels(tNameImg, tdestrect, tNameImg.rect)
-  return(tItemImg.duplicate())
+  return tItemImg.duplicate()
 end
 
-on renderListImage me 
+on renderListImage me
   if (pContentList.count = 0) then
-    return(image(1, 1, 32))
+    return image(1, 1, 32)
   end if
   pItemHeight = integer(getVariable("fr.offline.item.height"))
   pItemWidth = integer(getVariable("fr.list.panel.width"))
@@ -55,9 +55,8 @@ on renderListImage me
   tImage = image(pItemWidth, (pItemHeight * pContentList.count), 32)
   tCurrentPosV = 0
   tNameWriter = getWriter(pWriterIdPlain)
-  repeat while pContentList <= undefined
-    tFriend = getAt(undefined, undefined)
-    tName = tFriend.getAt(#name)
+  repeat with tFriend in pContentList
+    tName = tFriend[#name]
     if me.isFriendselected(tName) then
       tImage.fill(0, tCurrentPosV, pItemWidth, (tCurrentPosV + pItemHeight), tSelectedBg)
     end if
@@ -71,42 +70,40 @@ on renderListImage me
   pListImg = tImage.duplicate()
 end
 
-on renderBackgroundImage me 
-  if ilk(pContentList) <> #propList then
-    return(image(1, 1, 32))
+on renderBackgroundImage me
+  if (ilk(pContentList) <> #propList) then
+    return image(1, 1, 32)
   end if
   if (pContentList.count = 0) then
-    return(image(1, 1, 32))
+    return image(1, 1, 32)
   end if
   tDarkBg = rgb(string(getVariable("fr.offline.bg.dark")))
   pItemHeight = integer(getVariable("fr.offline.item.height"))
   pItemWidth = integer(getVariable("fr.list.panel.width"))
   tImage = image(pItemWidth, (pContentList.count * pItemHeight), 32)
   tCurrentPosV = 0
-  tIndex = 1
-  repeat while tIndex <= ((pContentList.count / 2) + 1)
+  repeat with tIndex = 1 to ((pContentList.count / 2) + 1)
     tImage.fill(0, tCurrentPosV, pItemWidth, (tCurrentPosV + pItemHeight), tDarkBg)
     tCurrentPosV = (tCurrentPosV + (pItemHeight * 2))
-    tIndex = (1 + tIndex)
   end repeat
-  return(tImage)
+  return tImage
 end
 
-on relayEvent me, tEvent, tLocX, tLocY 
+on relayEvent me, tEvent, tLocX, tLocY
   tListIndex = ((tLocY / me.pItemHeight) + 1)
   tEventResult = [:]
-  tEventResult.setAt(#Event, tEvent)
+  tEventResult[#Event] = tEvent
   if (tEvent = #mouseWithin) then
-    return(tEventResult)
+    return tEventResult
   end if
-  if tListIndex > me.count(#pContentList) then
+  if (tListIndex > me.pContentList.count) then
     nothing()
   else
-    tFriend = me.getProp(#pContentList, tListIndex)
-    tEventResult.setAt(#friend, tFriend)
-    tEventResult.setAt(#element, #name)
-    me.userSelectionEvent(tFriend.getAt(#name))
-    tEventResult.setAt(#update, 1)
+    tFriend = me.pContentList[tListIndex]
+    tEventResult[#friend] = tFriend
+    tEventResult[#element] = #name
+    me.userSelectionEvent(tFriend[#name])
+    tEventResult[#update] = 1
   end if
-  return(tEventResult)
+  return tEventResult
 end

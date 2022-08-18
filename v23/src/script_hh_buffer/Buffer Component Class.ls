@@ -1,18 +1,18 @@
-property pTempTimeOutID, pSimulatedDownload, pTempDownloadList, pPlaceHolderList, pMessageBuffer
+property pMessageBuffer, pPlaceHolderList, pDownloader, pTempTimeOutID, pTempDownloadList, pSimulatedDownload
 
-on construct me 
+on construct me
   registerMessage(#leaveRoom, me.getID(), #leaveRoom)
   registerMessage(#changeRoom, me.getID(), #leaveRoom)
   registerMessage(#downloadObject, me.getID(), #downloadObject)
-  pPlaceHolderList = ["active":[:], "item":[:]]
-  pMessageBuffer = ["active":[:], "item":[:]]
+  pPlaceHolderList = ["active": [:], "item": [:]]
+  pMessageBuffer = ["active": [:], "item": [:]]
   pTempTimeOutID = "temp_temp_timeout"
   pTempDownloadList = [:]
   pSimulatedDownload = max(0, getIntVariable("buffer.simulateddownload", 0))
-  return TRUE
+  return 1
 end
 
-on deconstruct me 
+on deconstruct me
   unregisterMessage(#leaveRoom, me.getID())
   unregisterMessage(#changeRoom, me.getID())
   unregisterMessage(#downloadObject, me.getID())
@@ -21,20 +21,20 @@ on deconstruct me
   if timeoutExists(pTempTimeOutID) then
     removeTimeout(pTempTimeOutID)
   end if
-  return TRUE
+  return 1
 end
 
-on processObject me, tObj, ttype 
-  tClass = me.getClassName(tObj.getAt(#class), tObj.getAt(#type))
-  tID = tObj.getAt(#id)
-  if voidp(tClass) or voidp(tID) then
-    return(tObj)
+on processObject me, tObj, ttype
+  tClass = me.getClassName(tObj[#class], tObj[#type])
+  tID = tObj[#id]
+  if (voidp(tClass) or voidp(tID)) then
+    return tObj
   end if
-  if ttype <> "active" and ttype <> "item" then
-    return(tObj)
+  if ((ttype <> "active") and (ttype <> "item")) then
+    return tObj
   end if
   if pSimulatedDownload then
-    tIsDownloaded = pTempDownloadList.getAt(tClass)
+    tIsDownloaded = pTempDownloadList[tClass]
   else
     if (getThread(#dynamicdownloader) = 0) then
       tIsDownloaded = 1
@@ -43,44 +43,42 @@ on processObject me, tObj, ttype
     end if
   end if
   if not tIsDownloaded then
-    if voidp(pPlaceHolderList.getAt(ttype)) then
-      pPlaceHolderList.setAt(ttype, [:])
+    if voidp(pPlaceHolderList[ttype]) then
+      pPlaceHolderList[ttype] = [:]
     end if
     tObjCopy = tObj.duplicate()
-    if voidp(pPlaceHolderList.getAt(ttype).findPos(tID)) then
-      pPlaceHolderList.getAt(ttype).addProp(tID, tObjCopy)
+    if voidp(pPlaceHolderList[ttype].findPos(tID)) then
+      pPlaceHolderList[ttype].addProp(tID, tObjCopy)
     else
-      pPlaceHolderList.getAt(ttype).setAt(tID, tObjCopy)
+      pPlaceHolderList[ttype][tID] = tObjCopy
     end if
-    tAssetType = ""
+    tAssetType = EMPTY
     if (ttype = "active") then
-      tObj.setAt(#dimensions, [1, 1])
-      tObj.setAt(#class, "active_placeholder")
+      tObj[#dimensions] = [1, 1]
+      tObj[#class] = "active_placeholder"
       tAssetType = #Active
     else
       if (ttype = "item") then
-        tObj.setAt(#class, "item_placeholder")
-        tObj.setAt(#type, "")
+        tObj[#class] = "item_placeholder"
+        tObj[#type] = EMPTY
         tAssetType = #item
       end if
     end if
     me.downloadClass(tClass, tAssetType)
   end if
-  return(tObj)
+  return tObj
 end
 
-on downloadCompleted me, tClassID, tSuccess 
-  ttype = 1
-  repeat while ttype <= pPlaceHolderList.count
+on downloadCompleted me, tClassID, tSuccess
+  repeat with ttype = 1 to pPlaceHolderList.count
     tUpdated = 0
     tTypeName = pPlaceHolderList.getPropAt(ttype)
-    tPlaceHolderList = pPlaceHolderList.getAt(ttype)
-    tIndex = tPlaceHolderList.count
-    repeat while tIndex >= 1
-      tObj = tPlaceHolderList.getAt(tIndex)
-      tClass = me.getClassName(tObj.getAt(#class), tObj.getAt(#type))
+    tPlaceHolderList = pPlaceHolderList[ttype]
+    repeat with tIndex = tPlaceHolderList.count down to 1
+      tObj = tPlaceHolderList[tIndex]
+      tClass = me.getClassName(tObj[#class], tObj[#type])
       if (tClass = tClassID) then
-        tID = tObj.getAt(#id)
+        tID = tObj[#id]
         tExists = 0
         if (tTypeName = "active") then
           tExists = getThread(#room).getComponent().activeObjectExists(tID)
@@ -89,17 +87,17 @@ on downloadCompleted me, tClassID, tSuccess
             tExists = getThread(#room).getComponent().itemObjectExists(tID)
           end if
         end if
-        if tExists and tSuccess then
+        if (tExists and tSuccess) then
           if (tTypeName = "active") then
             getThread(#room).getComponent().validateActiveObjects(tObj)
             if not voidp(tObj.findPos(#stripId)) then
-              getThread(#room).getComponent().getActiveObject(tID).setaProp(#stripId, tObj.getAt(#stripId))
+              getThread(#room).getComponent().getActiveObject(tID).setaProp(#stripId, tObj[#stripId])
             end if
           else
             if (tTypeName = "item") then
               getThread(#room).getComponent().validateItemObjects(tObj)
               if not voidp(tObj.findPos(#stripId)) then
-                getThread(#room).getComponent().getItemObject(tID).setaProp(#stripId, tObj.getAt(#stripId))
+                getThread(#room).getComponent().getItemObject(tID).setaProp(#stripId, tObj[#stripId])
               end if
             end if
           end if
@@ -107,158 +105,146 @@ on downloadCompleted me, tClassID, tSuccess
           tUpdated = 1
           executeMessage(#objectFinalized, tID)
         else
-          if not voidp(pMessageBuffer.getAt(ttype)) then
-            pMessageBuffer.getAt(ttype).deleteProp(tID)
+          if not voidp(pMessageBuffer[ttype]) then
+            pMessageBuffer[ttype].deleteProp(tID)
           end if
         end if
         tPlaceHolderList.deleteAt(tIndex)
       end if
-      tIndex = (255 + tIndex)
     end repeat
     if tUpdated then
       if (tTypeName = "active") then
         executeMessage(#activeObjectsUpdated)
-      else
-        if (tTypeName = "item") then
-          executeMessage(#itemObjectsUpdated)
-        end if
+        next repeat
+      end if
+      if (tTypeName = "item") then
+        executeMessage(#itemObjectsUpdated)
       end if
     end if
-    ttype = (1 + ttype)
   end repeat
 end
 
-on downloadObject me, tdata 
-  if ilk(tdata) <> #propList then
-    return FALSE
+on downloadObject me, tdata
+  if (ilk(tdata) <> #propList) then
+    return 0
   end if
-  tClass = me.getClassName(tdata.getAt(#class), tdata.getAt(#type))
+  tClass = me.getClassName(tdata[#class], tdata[#type])
   if (getThread(#dynamicdownloader) = 0) then
     tIsDownloaded = 1
   else
     tIsDownloaded = getThread(#dynamicdownloader).getComponent().isAssetDownloaded(tClass)
   end if
   if tIsDownloaded then
-    tdata.setAt(#ready, 1)
-    return TRUE
+    tdata[#ready] = 1
+    return 1
   end if
-  tdata.setAt(#ready, 0)
-  me.downloadClass(tClass, tdata.getAt(#type))
-  return TRUE
+  tdata[#ready] = 0
+  me.downloadClass(tClass, tdata[#type])
+  return 1
 end
 
-on removeObject me, tID, ttype 
-  if not voidp(pPlaceHolderList.getAt(ttype)) then
-    pPlaceHolderList.getAt(ttype).deleteProp(tID)
+on removeObject me, tID, ttype
+  if not voidp(pPlaceHolderList[ttype]) then
+    pPlaceHolderList[ttype].deleteProp(tID)
   end if
-  if not voidp(pMessageBuffer.getAt(ttype)) then
-    pMessageBuffer.getAt(ttype).deleteProp(tID)
+  if not voidp(pMessageBuffer[ttype]) then
+    pMessageBuffer[ttype].deleteProp(tID)
   end if
 end
 
-on bufferMessage me, tMsg, tID, ttype 
+on bufferMessage me, tMsg, tID, ttype
   if not listp(tMsg) then
-    return FALSE
+    return 0
   end if
-  tSubject = tMsg.getAt(#subject)
-  if voidp(tID) or voidp(ttype) or voidp(tSubject) then
-    return FALSE
+  tSubject = tMsg[#subject]
+  if ((voidp(tID) or voidp(ttype)) or voidp(tSubject)) then
+    return 0
   end if
-  if voidp(pPlaceHolderList.getAt(ttype)) or voidp(pMessageBuffer.getAt(ttype)) then
-    return FALSE
+  if (voidp(pPlaceHolderList[ttype]) or voidp(pMessageBuffer[ttype])) then
+    return 0
   end if
-  if not voidp(pPlaceHolderList.getAt(ttype).findPos(tID)) then
-    if voidp(pMessageBuffer.getAt(ttype).findPos(tID)) then
-      pMessageBuffer.getAt(ttype).setAt(tID, [])
+  if not voidp(pPlaceHolderList[ttype].findPos(tID)) then
+    if voidp(pMessageBuffer[ttype].findPos(tID)) then
+      pMessageBuffer[ttype][tID] = []
     end if
-    tBuffer = pMessageBuffer.getAt(ttype).getAt(tID)
-    tIndex = 1
-    repeat while tIndex <= tBuffer.count
-      tMsg_old = tBuffer.getAt(tIndex)
-      tSubjectOld = tMsg_old.getAt(#subject)
+    tBuffer = pMessageBuffer[ttype][tID]
+    repeat with tIndex = 1 to tBuffer.count
+      tMsg_old = tBuffer[tIndex]
+      tSubjectOld = tMsg_old[#subject]
       if (tSubject = tSubjectOld) then
         tBuffer.deleteAt(tIndex)
-      else
-        tIndex = (1 + tIndex)
+        exit repeat
       end if
     end repeat
-    pMessageBuffer.getAt(ttype).getAt(tID).add(tMsg)
+    pMessageBuffer[ttype][tID].add(tMsg)
   end if
 end
 
-on processMessageBuffer me, tID, ttype 
-  if voidp(tID) or voidp(ttype) then
-    return FALSE
+on processMessageBuffer me, tID, ttype
+  if (voidp(tID) or voidp(ttype)) then
+    return 0
   end if
-  if voidp(pMessageBuffer.getAt(ttype)) then
-    return FALSE
+  if voidp(pMessageBuffer[ttype]) then
+    return 0
   end if
-  tBuffer = pMessageBuffer.getAt(ttype).getaProp(tID)
+  tBuffer = pMessageBuffer[ttype].getaProp(tID)
   if not voidp(tBuffer) then
-    repeat while tBuffer <= ttype
-      tMsg = getAt(ttype, tID)
-      tSubject = tMsg.getAt(#subject)
+    repeat with tMsg in tBuffer
+      tSubject = tMsg[#subject]
       tContent = tMsg.content
       tConn = tMsg.connection
       if not voidp(tConn) then
         tMsgStr = tConn.getProperty(#message)
         tMsgCopy = [:]
-        tIndex = 1
-        repeat while tIndex <= tMsgStr.count
+        repeat with tIndex = 1 to tMsgStr.count
           tProp = tMsgStr.getPropAt(tIndex)
-          tValue = tMsgStr.getAt(tIndex)
-          tMsgCopy.setAt(tProp, tValue)
-          tMsgStr.setAt(tProp, tMsg.getaProp(tProp))
-          tIndex = (1 + tIndex)
+          tValue = tMsgStr[tIndex]
+          tMsgCopy[tProp] = tValue
+          tMsgStr[tProp] = tMsg.getaProp(tProp)
         end repeat
-        if (tBuffer = "88") then
-          getThread(#room).getHandler().handle_stuffdataupdate(tMsg)
-        else
-          if (tBuffer = "95") then
+        case tSubject of
+          "88":
+            getThread(#room).getHandler().handle_stuffdataupdate(tMsg)
+          "95":
             getThread(#room).getHandler().handle_activeobject_update(tMsg)
-          else
-            if (tBuffer = "85") then
-              getThread(#room).getHandler().handle_updateitem(tMsg)
-            end if
-          end if
-        end if
-        tIndex = 1
-        repeat while tIndex <= tMsgCopy.count
+          "85":
+            getThread(#room).getHandler().handle_updateitem(tMsg)
+        end case
+        repeat with tIndex = 1 to tMsgCopy.count
           tProp = tMsgCopy.getPropAt(tIndex)
-          tValue = tMsgCopy.getAt(tIndex)
-          tMsgStr.setAt(tProp, tValue)
-          tIndex = (1 + tIndex)
+          tValue = tMsgCopy[tIndex]
+          tMsgStr[tProp] = tValue
         end repeat
       end if
     end repeat
-    pMessageBuffer.getAt(ttype).deleteProp(tID)
+    pMessageBuffer[ttype].deleteProp(tID)
   end if
-  return TRUE
+  return 1
 end
 
-on leaveRoom me 
-  pPlaceHolderList = ["active":[:], "item":[:]]
-  pMessageBuffer = ["active":[:], "item":[:]]
+on leaveRoom me
+  pPlaceHolderList = ["active": [:], "item": [:]]
+  pMessageBuffer = ["active": [:], "item": [:]]
 end
 
-on getClassName me, tClass, ttype 
+on getClassName me, tClass, ttype
   tName = tClass
-  if tName contains "*" then
+  if (tName contains "*") then
     tDelim = the itemDelimiter
     the itemDelimiter = "*"
-    tName = tName.getProp(#item, 1)
+    tName = tName.item[1]
     the itemDelimiter = tDelim
   end if
-  if getThread(#room).getInterface().getGeometry().getTileWidth() < 64 then
-    tName = "s_" & tName
+  if (getThread(#room).getInterface().getGeometry().getTileWidth() < 64) then
+    tName = ("s_" & tName)
   end if
-  if not voidp(ttype) and ttype <> "" and (tClass = "poster") then
-    tName = tName && string(ttype)
+  if ((not voidp(ttype) and (ttype <> EMPTY)) and (tClass = "poster")) then
+    tName = (tName && string(ttype))
   end if
-  return(tName)
+  return tName
 end
 
-on downloadClass me, tClass, ttype 
+on downloadClass me, tClass, ttype
   if pSimulatedDownload then
     if voidp(pTempDownloadList.findPos(tClass)) then
       pTempDownloadList.addProp(tClass, 0)
@@ -266,20 +252,20 @@ on downloadClass me, tClass, ttype
     if timeoutExists(pTempTimeOutID) then
       removeTimeout(pTempTimeOutID)
     end if
-    createTimeout(pTempTimeOutID, pSimulatedDownload, #tempCallback, me.getID(), void(), 1)
+    createTimeout(pTempTimeOutID, pSimulatedDownload, #tempCallback, me.getID(), VOID, 1)
   else
     getThread(#dynamicdownloader).getComponent().downloadCastDynamically(tClass, ttype, me.getID(), #downloadCompleted)
   end if
 end
 
-on tempCallback me 
+on tempCallback me
   tIndex = pTempDownloadList.getPos(0)
-  if tIndex > 0 then
-    pTempDownloadList.setAt(tIndex, 1)
+  if (tIndex > 0) then
+    pTempDownloadList[tIndex] = 1
     me.downloadCompleted(pTempDownloadList.getPropAt(tIndex), 1)
     if timeoutExists(pTempTimeOutID) then
       removeTimeout(pTempTimeOutID)
     end if
-    createTimeout(pTempTimeOutID, pSimulatedDownload, #tempCallback, me.getID(), void(), 1)
+    createTimeout(pTempTimeOutID, pSimulatedDownload, #tempCallback, me.getID(), VOID, 1)
   end if
 end

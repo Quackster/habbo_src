@@ -1,52 +1,52 @@
-on construct me 
-  return(me.regMsgList(1))
+on construct me
+  return me.regMsgList(1)
 end
 
-on deconstruct me 
-  return(me.regMsgList(0))
+on deconstruct me
+  return me.regMsgList(0)
 end
 
-on handle_opengameboard me, tMsg 
+on handle_opengameboard me, tMsg
   tDelim = the itemDelimiter
-  tLine = tMsg.content.getProp(#line, 1)
-  if tLine contains "\t" then
-    the itemDelimiter = "\t"
+  tLine = tMsg.content.line[1]
+  if (tLine contains TAB) then
+    the itemDelimiter = TAB
   else
     the itemDelimiter = ";"
   end if
   tProps = [:]
-  tProps.setAt(#id, tLine.getProp(#item, 1))
-  tProps.setAt(#name, tLine.getProp(#item, 2))
-  tProps.setAt(#data, tMsg.content.getProp(#line, 1, tMsg.content.count(#line)))
+  tProps[#id] = tLine.item[1]
+  tProps[#name] = tLine.item[2]
+  tProps[#data] = tMsg.content.line[1]
   the itemDelimiter = tDelim
   me.getComponent().openGameBoard(tProps)
 end
 
-on handle_closegameboard me, tMsg 
+on handle_closegameboard me, tMsg
   tDelim = the itemDelimiter
-  tLine = tMsg.content.getProp(#line, 1)
-  if tLine contains "\t" then
-    the itemDelimiter = "\t"
+  tLine = tMsg.content.line[1]
+  if (tLine contains TAB) then
+    the itemDelimiter = TAB
   else
     the itemDelimiter = ";"
   end if
   tProps = [:]
-  tProps.setAt(#id, tLine.getProp(#item, 1))
-  tProps.setAt(#name, tLine.getProp(#item, 2))
-  tProps.setAt(#data, tMsg.content.getProp(#line, 1, tMsg.content.count(#line)))
+  tProps[#id] = tLine.item[1]
+  tProps[#name] = tLine.item[2]
+  tProps[#data] = tMsg.content.line[1]
   the itemDelimiter = tDelim
   me.getComponent().closeGameBoard(tProps)
 end
 
-on handle_itemmsg me, tMsg 
+on handle_itemmsg me, tMsg
   tProps = [:]
-  tProps.setAt(#id, tMsg.content.getProp(#line, 1))
-  tProps.setAt(#command, tMsg.content.getProp(#line, 2))
-  tProps.setAt(#data, tMsg.content.getProp(#line, 3, tMsg.content.count(#line)))
+  tProps[#id] = tMsg.content.line[1]
+  tProps[#command] = tMsg.content.line[2]
+  tProps[#data] = tMsg.content.line[3]
   me.getComponent().processItemMessage(tProps)
 end
 
-on regMsgList me, tBool 
+on regMsgList me, tBool
   tList = [:]
   tList.setaProp(144, #handle_itemmsg)
   tList.setaProp(145, #handle_opengameboard)
@@ -60,5 +60,5 @@ on regMsgList me, tBool
     unregisterListener(getVariable("connection.room.id"), me.getID(), tList)
     unregisterCommands(getVariable("connection.room.id"), me.getID(), tCmds)
   end if
-  return TRUE
+  return 1
 end
