@@ -1,23 +1,23 @@
 property pWindowTitle
 
-on construct me 
+on construct me
   pWindowTitle = getText("win_partner_registration", "win_partner_registration")
-  return TRUE
+  return 1
 end
 
-on deconstruct me 
+on deconstruct me
   me.hideDialog()
-  return TRUE
+  return 1
 end
 
-on showDialog me 
+on showDialog me
   me.hideDialog()
   if not createWindow(pWindowTitle, "habbo_basic.window", 0, 0, #modal) then
-    return FALSE
+    return 0
   end if
   tWndObj = getWindow(pWindowTitle)
   if not objectp(tWndObj) then
-    return FALSE
+    return 0
   end if
   if not tWndObj.merge("cn_partner_registration.window") then
     tWndObj.close()
@@ -27,34 +27,34 @@ on showDialog me
   tWndObj.registerProcedure(#eventProc, me.getID(), #mouseDown)
 end
 
-on hideDialog me 
+on hideDialog me
   if windowExists(pWindowTitle) then
     removeWindow(pWindowTitle)
   end if
 end
 
-on openEBossPopup me 
+on openEBossPopup me
   tUserID = me.getComponent().userID()
   tPartnerURL = getVariable("partner.registration.url")
-  tPartnerURL = tPartnerURL & string(tUserID)
+  tPartnerURL = (tPartnerURL & string(tUserID))
   openNetPage(tPartnerURL)
 end
 
-on eventProc me, tEvent, tElemID, tParm 
+on eventProc me, tEvent, tElemID, tParm
   if (tEvent = #mouseDown) then
-    if (tElemID = "close") then
-      me.getComponent().login()
-      me.hideDialog()
-    end if
+    case tElemID of
+      "close":
+        me.getComponent().login()
+        me.hideDialog()
+    end case
   end if
   if (tEvent = #mouseUp) then
-    if (tElemID = "cn_partner_enter") then
-      me.getComponent().login()
-      me.hideDialog()
-    else
-      if (tElemID = "cn_partner_link") then
+    case tElemID of
+      "cn_partner_enter":
+        me.getComponent().login()
+        me.hideDialog()
+      "cn_partner_link":
         me.openEBossPopup()
-      end if
-    end if
+    end case
   end if
 end

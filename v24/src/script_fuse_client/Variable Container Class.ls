@@ -1,102 +1,101 @@
-on construct me 
+on construct me
   me.pItemList = [:]
   me.pItemList.sort()
-  return TRUE
+  return 1
 end
 
-on deconstruct me 
+on deconstruct me
   me.pItemList = [:]
-  return TRUE
+  return 1
 end
 
-on create me, tVariable, tValue 
-  if not stringp(tVariable) and not symbolp(tVariable) then
-    return(error(me, "String or symbol expected:" && tVariable, #create, #major))
+on create me, tVariable, tValue
+  if (not stringp(tVariable) and not symbolp(tVariable)) then
+    return error(me, ("String or symbol expected:" && tVariable), #create, #major)
   end if
-  me.setProp(#pItemList, tVariable, tValue)
-  return TRUE
+  me.pItemList[tVariable] = tValue
+  return 1
 end
 
-on set me, tVariable, tValue 
-  if not stringp(tVariable) and not symbolp(tVariable) then
-    return(error(me, "String or symbol expected:" && tVariable, #set, #major))
+on set me, tVariable, tValue
+  if (not stringp(tVariable) and not symbolp(tVariable)) then
+    return error(me, ("String or symbol expected:" && tVariable), #set, #major)
   end if
-  me.setProp(#pItemList, tVariable, tValue)
-  return TRUE
+  me.pItemList[tVariable] = tValue
+  return 1
 end
 
-on GET me, tVariable, tDefault 
-  tValue = me.getProp(#pItemList, tVariable)
+on GET me, tVariable, tDefault
+  tValue = me.pItemList[tVariable]
   if voidp(tValue) then
-    tError = "Variable not found:" && "\"" & tVariable & "\""
+    tError = ((("Variable not found:" && QUOTE) & tVariable) & QUOTE)
     if not voidp(tDefault) then
       tValue = tDefault
-      tError = tError & "\r" & "Using given default:" && tDefault
+      tError = (((tError & RETURN) & "Using given default:") && tDefault)
     else
       tValue = 0
     end if
     error(me, tError, #GET, #minor)
   end if
-  return(tValue)
+  return tValue
 end
 
-on getInt me, tVariable, tDefault 
-  tValue = integer(me.getProp(#pItemList, tVariable))
+on getInt me, tVariable, tDefault
+  tValue = integer(me.pItemList[tVariable])
   if not integerp(tValue) then
-    tError = "Variable not found:" && "\"" & tVariable & "\""
+    tError = ((("Variable not found:" && QUOTE) & tVariable) & QUOTE)
     if not voidp(tDefault) then
       tValue = tDefault
-      tError = tError & "\r" & "Using given default:" && tDefault
+      tError = (((tError & RETURN) & "Using given default:") && tDefault)
     end if
     error(me, tError, #getInt, #minor)
   end if
-  return(tValue)
+  return tValue
 end
 
-on GetValue me, tVariable, tDefault 
-  tValue = value(me.getProp(#pItemList, tVariable))
+on GetValue me, tVariable, tDefault
+  tValue = value(me.pItemList[tVariable])
   if voidp(tValue) then
-    tError = "Variable not found:" && "\"" & tVariable & "\""
+    tError = ((("Variable not found:" && QUOTE) & tVariable) & QUOTE)
     if not voidp(tDefault) then
       tValue = tDefault
-      tError = tError & "\r" & "Using given default:" && tDefault
+      tError = (((tError & RETURN) & "Using given default:") && tDefault)
     end if
     error(me, tError, #GetValue, #minor)
   end if
-  if (ilk(tValue) = #list) or (ilk(tValue) = #propList) then
-    return(tValue.duplicate())
+  if ((ilk(tValue) = #list) or (ilk(tValue) = #propList)) then
+    return tValue.duplicate()
   end if
-  return(tValue)
+  return tValue
 end
 
-on Remove me, tVariable 
-  return(me.pItemList.deleteProp(tVariable))
+on Remove me, tVariable
+  return me.pItemList.deleteProp(tVariable)
 end
 
-on exists me, tVariable 
-  return(not voidp(me.getProp(#pItemList, tVariable)))
+on exists me, tVariable
+  return not voidp(me.pItemList[tVariable])
 end
 
-on dump me, tField, tDelimiter, tOverride 
-  tStr = field(0)
+on dump me, tField, tDelimiter, tOverride
+  tStr = field(tField)
   tDelim = the itemDelimiter
   if voidp(tDelimiter) then
-    tDelimiter = "\r"
+    tDelimiter = RETURN
   end if
   the itemDelimiter = tDelimiter
   if voidp(tOverride) then
     tOverride = 1
   end if
-  i = 1
-  repeat while i <= tStr.count(#item)
-    tPair = tStr.getProp(#item, i)
-    if tPair.getPropRef(#word, 1).getProp(#char, 1) <> "#" and tPair <> "" then
+  repeat with i = 1 to tStr.item.count
+    tPair = tStr.item[i]
+    if ((tPair.word[1].char[1] <> "#") and (tPair <> EMPTY)) then
       the itemDelimiter = "="
-      tProp = tPair.getPropRef(#item, 1).getProp(#word, 1, tPair.getPropRef(#item, 1).count(#word))
-      tValue = tPair.getProp(#item, 2, tPair.count(#item))
-      tValue = tValue.getProp(#word, 1, tValue.count(#word))
-      if not tValue contains space() then
-        if (tValue.getProp(#char, 1) = "#") then
+      tProp = tPair.item[1].word[1]
+      tValue = tPair.item[2]
+      tValue = tValue.word[1]
+      if not (tValue contains SPACE) then
+        if (tValue.char[1] = "#") then
           tValue = symbol(chars(tValue, 2, length(tValue)))
         else
           if integerp(integer(tValue)) then
@@ -111,23 +110,20 @@ on dump me, tField, tDelimiter, tOverride
         end if
       end if
       if stringp(tValue) then
-        j = 1
-        repeat while j <= length(tValue)
-          j = (1 + j)
+        repeat with j = 1 to length(tValue)
         end repeat
       end if
       tPos = me.pItemList.findPos(tProp)
-      if tOverride or voidp(tPos) then
-        me.setProp(#pItemList, tProp, tValue)
+      if (tOverride or voidp(tPos)) then
+        me.pItemList[tProp] = tValue
       end if
       the itemDelimiter = tDelimiter
     end if
-    i = (1 + i)
   end repeat
   the itemDelimiter = tDelim
-  return TRUE
+  return 1
 end
 
-on clear me 
+on clear me
   me.pItemList = [:]
 end

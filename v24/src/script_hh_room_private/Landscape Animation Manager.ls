@@ -1,6 +1,6 @@
-property pwidth, pAnimInstanceList, pTurnPoint, pREquiresUpdate, pheight, pMaxItemAmount, pAnimTop, pAnimBottom, pStopped, pSkip, pSkippedFrames, pAnimImage, pMember
+property pREquiresUpdate, pwidth, pheight, pRoomType, pAnimBottom, pAnimTop, pAnimImage, pAnimID, pScale, pSize, pAnimInstanceList, pIsUpdated, pTurnPoint, pMember, pClouds, pSkip, pSkippedFrames, pMaxItemAmount, pStopped
 
-on construct me 
+on construct me
   tMemberName = "anim_frame_test"
   if memberExists(tMemberName) then
     pMember = getMember(tMemberName)
@@ -20,46 +20,44 @@ on construct me
   pSkippedFrames = 20
   pREquiresUpdate = 1
   pStopped = 1
-  return TRUE
+  return 1
 end
 
-on deconstruct me 
+on deconstruct me
   tMemberName = "anim_frame_test"
   if memberExists(tMemberName) then
     removeMember(tMemberName)
   end if
-  repeat while pAnimInstanceList <= undefined
-    pAnimInstance = getAt(undefined, undefined)
+  repeat with pAnimInstance in pAnimInstanceList
     removeObject(pAnimInstance.getID())
   end repeat
   removeUpdate(me.getID())
-  return TRUE
+  return 1
 end
 
-on define me, tdata 
-  pwidth = tdata.getAt(#width)
-  pheight = tdata.getAt(#height)
-  pAnimID = tdata.getAt(#id)
-  pRoomTypeID = tdata.getAt(#roomtypeid)
-  if variableExists("landscape.def." & pRoomTypeID) then
-    tRoomDef = getVariableValue("landscape.def." & pRoomTypeID)
-    pTurnPoint = tRoomDef.getAt(#middle)
-    pAnimBottom = tRoomDef.getAt(#anim_bottom)
-    pAnimTop = tRoomDef.getAt(#anim_top)
+on define me, tdata
+  pwidth = tdata[#width]
+  pheight = tdata[#height]
+  pAnimID = tdata[#id]
+  pRoomTypeID = tdata[#roomtypeid]
+  if variableExists(("landscape.def." & pRoomTypeID)) then
+    tRoomDef = getVariableValue(("landscape.def." & pRoomTypeID))
+    pTurnPoint = tRoomDef[#middle]
+    pAnimBottom = tRoomDef[#anim_bottom]
+    pAnimTop = tRoomDef[#anim_top]
   end if
-  pTurnPoint = (pTurnPoint + tdata.getAt(#offset))
+  pTurnPoint = (pTurnPoint + tdata[#offset])
   me.initAnimation()
   receiveUpdate(me.getID())
 end
 
-on requiresUpdate me 
-  return(pREquiresUpdate)
+on requiresUpdate me
+  return pREquiresUpdate
 end
 
-on initAnimation me 
+on initAnimation me
   pAnimImage = image(pwidth, pheight, 8)
-  i = 1
-  repeat while i <= pMaxItemAmount
+  repeat with i = 1 to pMaxItemAmount
     tProps = [:]
     tProps.setaProp(#type, (random(3) - 1))
     tProps.setaProp(#turnpoint, pTurnPoint)
@@ -68,32 +66,30 @@ on initAnimation me
     tCloud = createObject(getUniqueID(), "Landscape Cloud")
     tCloud.define(tProps)
     pAnimInstanceList.setaProp(tCloud.getID(), tCloud)
-    i = (1 + i)
   end repeat
   me.renderFrame()
 end
 
-on setStopped me, tStopped 
+on setStopped me, tStopped
   pStopped = tStopped
 end
 
-on update me 
+on update me
   if pStopped then
-    return FALSE
+    return 0
   end if
   pSkip = (pSkip - 1)
-  if pSkip <= 0 then
+  if (pSkip <= 0) then
     pSkip = pSkippedFrames
   else
-    return FALSE
+    return 0
   end if
   me.renderFrame()
 end
 
-on renderFrame me 
+on renderFrame me
   pAnimImage.fill(pAnimImage.rect, rgb(255, 51, 255))
-  repeat while pAnimInstanceList <= undefined
-    tAnimInstance = getAt(undefined, undefined)
+  repeat with tAnimInstance in pAnimInstanceList
     tAnimInstance.updateAnim()
     tAnimInstance.render(pAnimImage)
   end repeat
@@ -101,7 +97,7 @@ on renderFrame me
   pREquiresUpdate = 1
 end
 
-on getImage me 
+on getImage me
   pREquiresUpdate = 0
-  return(pAnimImage)
+  return pAnimImage
 end

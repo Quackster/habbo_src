@@ -1,38 +1,38 @@
-on construct me 
+on construct me
   getThread(#room).getComponent().getClassContainer().set("hububar", ["Passive Object Class", "Hububar Class"])
   initThread("hubu.index")
-  return TRUE
+  return 1
 end
 
-on deconstruct me 
+on deconstruct me
   closeThread(#hubu)
-  return TRUE
+  return 1
 end
 
-on prepare me 
+on prepare me
   tRoomVis = getThread(#room).getInterface().getRoomVisualizer()
-  repeat while ["goawaybus"] <= undefined
-    tID = getAt(undefined, undefined)
+  repeat with tID in ["goawaybus"]
     tsprite = tRoomVis.getSprById(tID)
     registerProcedure(tsprite, #busTeleport, me.getID(), #mouseDown)
   end repeat
 end
 
-on showprogram me, tMsg 
+on showprogram me, tMsg
   if voidp(tMsg) then
-    return FALSE
+    return 0
   end if
-  tDst = tMsg.getAt(#show_dest)
-  tCmd = tMsg.getAt(#show_command)
-  tPar = tMsg.getAt(#show_params)
+  tDst = tMsg[#show_dest]
+  tCmd = tMsg[#show_command]
+  tPar = tMsg[#show_params]
 end
 
-on busTeleport me, tEvent, tSprID, tParm 
+on busTeleport me, tEvent, tSprID, tParm
   tConnection = getThread(#room).getComponent().getRoomConnection()
   if (tConnection = 0) then
-    return FALSE
+    return 0
   end if
-  if (tSprID = "goawaybus") then
-    tConnection.send("CHANGEWORLD", "0")
-  end if
+  case tSprID of
+    "goawaybus":
+      tConnection.send("CHANGEWORLD", "0")
+  end case
 end

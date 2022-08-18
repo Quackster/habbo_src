@@ -1,21 +1,21 @@
-property pSprite, pUserId, pMemberName, pGameId, pGameType, pAnimCounter, pSelfCheckCounter, pAnimFrame, pLastLoc, pLastDir, pSize, pOwnGame
+property pUserId, pGameId, pGameType, pOwnGame, pSprite, pSize, pLastLoc, pLastDir, pSelfCheckCounter, pAnimCounter, pMemberName, pAnimFrame
 
-on construct me 
-  pLastLoc = void()
-  pLastDir = void()
-  pUserId = ""
+on construct me
+  pLastLoc = VOID
+  pLastDir = VOID
+  pUserId = EMPTY
   pOwnGame = 0
-  return TRUE
+  return 1
 end
 
-on deconstruct me 
+on deconstruct me
   releaseSprite(pSprite.spriteNum)
-  return TRUE
+  return 1
 end
 
-on show_ig_icon me, tParams 
+on show_ig_icon me, tParams
   tXFactor = getThread(#room).getInterface().getGeometry().pXFactor
-  if integer(tXFactor) > 32 then
+  if (integer(tXFactor) > 32) then
     pSize = "h"
   else
     pSize = "sh"
@@ -25,174 +25,148 @@ on show_ig_icon me, tParams
   pUserId = tParams.getaProp("userid")
   me.checkMemberName()
   if not (pSprite.ilk = #sprite) then
-    tSpriteNum = reserveSprite("HEHHOSPR_" & pUserId)
-    if tSpriteNum < 1 then
-      return FALSE
+    tSpriteNum = reserveSprite(("HEHHOSPR_" & pUserId))
+    if (tSpriteNum < 1) then
+      return 0
     end if
     pSprite = sprite(tSpriteNum)
-    pSprite.member = member(pMemberName & "0")
+    pSprite.member = member((pMemberName & "0"))
     pSprite.blend = 80
     pSprite.ink = 8
     pSprite.locZ = tParams.getaProp("locz")
     tTargetID = "ig_interface"
-    setEventBroker(pSprite.spriteNum, pGameId & "_" & pGameType)
+    setEventBroker(pSprite.spriteNum, ((pGameId & "_") & pGameType))
     pSprite.registerProcedure(#eventProcMouseDownIcon, tTargetID, #mouseDown)
     pSprite.registerProcedure(#eventProcRollOverIcon, tTargetID, #mouseEnter)
     pSprite.registerProcedure(#eventProcRollOverIcon, tTargetID, #mouseLeave)
     pSprite.visible = 1
     pAnimCounter = 0
-    pLastLoc = void()
-    pLastDir = void()
+    pLastLoc = VOID
+    pLastDir = VOID
     pAnimFrame = 0
   end if
   me.update()
-  return TRUE
+  return 1
 end
 
-on hide me 
+on hide me
   pSprite.loc = point(-1000, -1000)
-  return TRUE
+  return 1
 end
 
-on Refresh me 
-  return TRUE
+on Refresh me
+  return 1
 end
 
-on update me 
+on update me
   pAnimCounter = (pAnimCounter + 1)
-  if pAnimCounter > 2 then
+  if (pAnimCounter > 2) then
     pAnimCounter = 0
-    if pSelfCheckCounter < 10 then
+    if (pSelfCheckCounter < 10) then
       pSelfCheckCounter = (pSelfCheckCounter + 1)
     else
       pSelfCheckCounter = 0
       me.checkMemberName()
     end if
     pAnimFrame = (pAnimFrame + 1)
-    if pAnimFrame > 3 then
+    if (pAnimFrame > 3) then
       pAnimFrame = 0
     end if
-    tMemNum = getmemnum(pMemberName & pAnimFrame)
-    if tMemNum <= 0 then
-      return FALSE
+    tMemNum = getmemnum((pMemberName & pAnimFrame))
+    if (tMemNum <= 0) then
+      return 0
     end if
     pSprite.member = member(tMemNum)
   end if
   tHumanObj = getThread(#room).getComponent().getUserObject(pUserId)
   if (tHumanObj = 0) then
-    return(me.hide())
+    return me.hide()
   end if
   tHumanLoc = tHumanObj.getPartLocation("hd")
   tHumanDir = tHumanObj.getDirection()
   if voidp(pLastLoc) then
     pLastLoc = point(0, 0)
   end if
-  if tHumanDir <> pLastDir then
+  if (tHumanDir <> pLastDir) then
     tChanges = 1
   else
-    if tHumanLoc <> pLastLoc then
-      if tHumanLoc.getAt(1) <> pLastLoc.getAt(1) then
+    if (tHumanLoc <> pLastLoc) then
+      if (tHumanLoc[1] <> pLastLoc[1]) then
         tChanges = 1
       else
-        if abs((tHumanLoc.getAt(2) - pLastLoc.getAt(2))) > 1 then
+        if (abs((tHumanLoc[2] - pLastLoc[2])) > 1) then
           tChanges = 1
         end if
       end if
     end if
   end if
   if not tChanges then
-    return TRUE
+    return 1
   end if
   pSprite.locZ = (tHumanObj.getProperty(#locZ) + 3200)
   pLastLoc = tHumanLoc
   pLastDir = tHumanDir
   if (pSize = "h") then
-    tLocV = (tHumanLoc.getAt(2) - 65)
-    if (tHumanDir = 7) then
-      pSprite.loc = point(((tHumanLoc.getAt(1) - (pSprite.width / 2)) - 2), tLocV)
-    else
-      if (tHumanDir = 6) then
-        pSprite.loc = point(((tHumanLoc.getAt(1) - (pSprite.width / 2)) + 1), tLocV)
-      else
-        if (tHumanDir = 5) then
-          pSprite.loc = point(((tHumanLoc.getAt(1) - (pSprite.width / 2)) + 2), tLocV)
-        else
-          if (tHumanDir = 4) then
-            pSprite.loc = point(((tHumanLoc.getAt(1) - (pSprite.width / 2)) - 1), tLocV)
-          else
-            if (tHumanDir = 3) then
-              pSprite.loc = point(((tHumanLoc.getAt(1) - (pSprite.width / 2)) - 2), tLocV)
-            else
-              if (tHumanDir = 2) then
-                pSprite.loc = point(((tHumanLoc.getAt(1) - (pSprite.width / 2)) - 2), tLocV)
-              else
-                if (tHumanDir = 1) then
-                  pSprite.loc = point((tHumanLoc.getAt(1) - (pSprite.width / 2)), tLocV)
-                else
-                  if (tHumanDir = 0) then
-                    pSprite.loc = point(((tHumanLoc.getAt(1) - (pSprite.width / 2)) - 1), tLocV)
-                  end if
-                end if
-              end if
-            end if
-          end if
-        end if
-      end if
-    end if
+    tLocV = (tHumanLoc[2] - 65)
+    case tHumanDir of
+      7:
+        pSprite.loc = point(((tHumanLoc[1] - (pSprite.width / 2)) - 2), tLocV)
+      6:
+        pSprite.loc = point(((tHumanLoc[1] - (pSprite.width / 2)) + 1), tLocV)
+      5:
+        pSprite.loc = point(((tHumanLoc[1] - (pSprite.width / 2)) + 2), tLocV)
+      4:
+        pSprite.loc = point(((tHumanLoc[1] - (pSprite.width / 2)) - 1), tLocV)
+      3:
+        pSprite.loc = point(((tHumanLoc[1] - (pSprite.width / 2)) - 2), tLocV)
+      2:
+        pSprite.loc = point(((tHumanLoc[1] - (pSprite.width / 2)) - 2), tLocV)
+      1:
+        pSprite.loc = point((tHumanLoc[1] - (pSprite.width / 2)), tLocV)
+      0:
+        pSprite.loc = point(((tHumanLoc[1] - (pSprite.width / 2)) - 1), tLocV)
+    end case
   else
-    tLocV = (tHumanLoc.getAt(2) - 44)
-    if (tHumanDir = 7) then
-      pSprite.loc = point(((tHumanLoc.getAt(1) - (pSprite.width / 2)) - 2), tLocV)
-    else
-      if (tHumanDir = 6) then
-        pSprite.loc = point(((tHumanLoc.getAt(1) - (pSprite.width / 2)) - 1), tLocV)
-      else
-        if (tHumanDir = 5) then
-          pSprite.loc = point(((tHumanLoc.getAt(1) - (pSprite.width / 2)) - 1), tLocV)
-        else
-          if (tHumanDir = 4) then
-            pSprite.loc = point(((tHumanLoc.getAt(1) - (pSprite.width / 2)) + 1), tLocV)
-          else
-            if (tHumanDir = 3) then
-              pSprite.loc = point(((tHumanLoc.getAt(1) - (pSprite.width / 2)) - 2), tLocV)
-            else
-              if (tHumanDir = 2) then
-                pSprite.loc = point(((tHumanLoc.getAt(1) - (pSprite.width / 2)) - 2), tLocV)
-              else
-                if (tHumanDir = 1) then
-                  pSprite.loc = point(((tHumanLoc.getAt(1) - (pSprite.width / 2)) - 1), tLocV)
-                else
-                  if (tHumanDir = 0) then
-                    pSprite.loc = point(((tHumanLoc.getAt(1) - (pSprite.width / 2)) - 2), tLocV)
-                  end if
-                end if
-              end if
-            end if
-          end if
-        end if
-      end if
-    end if
+    tLocV = (tHumanLoc[2] - 44)
+    case tHumanDir of
+      7:
+        pSprite.loc = point(((tHumanLoc[1] - (pSprite.width / 2)) - 2), tLocV)
+      6:
+        pSprite.loc = point(((tHumanLoc[1] - (pSprite.width / 2)) - 1), tLocV)
+      5:
+        pSprite.loc = point(((tHumanLoc[1] - (pSprite.width / 2)) - 1), tLocV)
+      4:
+        pSprite.loc = point(((tHumanLoc[1] - (pSprite.width / 2)) + 1), tLocV)
+      3:
+        pSprite.loc = point(((tHumanLoc[1] - (pSprite.width / 2)) - 2), tLocV)
+      2:
+        pSprite.loc = point(((tHumanLoc[1] - (pSprite.width / 2)) - 2), tLocV)
+      1:
+        pSprite.loc = point(((tHumanLoc[1] - (pSprite.width / 2)) - 1), tLocV)
+      0:
+        pSprite.loc = point(((tHumanLoc[1] - (pSprite.width / 2)) - 2), tLocV)
+    end case
   end if
 end
 
-on checkMemberName me 
+on checkMemberName me
   tThread = getThread(#ig)
   if (tThread = 0) then
-    return FALSE
+    return 0
   end if
   tComponent = tThread.getComponent()
   tService = tComponent.getIGComponent("GameList")
   if (tService = 0) then
-    return FALSE
+    return 0
   end if
   if (tService.getJoinedGameId() = pGameId) then
     pOwnGame = 1
   else
     pOwnGame = 0
   end if
-  pMemberName = "ig_iconbubble_" & pGameType & "_" & pOwnGame & "_"
+  pMemberName = (((("ig_iconbubble_" & pGameType) & "_") & pOwnGame) & "_")
   if (pSize = "sh") then
-    pMemberName = "s_" & pMemberName
+    pMemberName = ("s_" & pMemberName)
   end if
-  return TRUE
+  return 1
 end

@@ -1,21 +1,21 @@
-property pMemberIDBase, pDLCounter, pToolTipSpr, pTimeOutID, pMemberID, pAdMemNum, pRegisteredLayout, pBlendFlag, pClickURL, pSprite, pState, pFrame
+property pAdMemNum, pClickURL, pSprite, pState, pFrame, pTimeOutID, pToolTipSpr, pBlendFlag, pRegisteredLayout, pDLCounter, pMemberID, pMemberIDBase
 
-on construct me 
+on construct me
   pState = 0
   pFrame = 0
   pTimeOutID = "showAdTimeOut"
   pBlendFlag = 0
   pDLCounter = 0
   pMemberIDBase = "billboard-image"
-  pMemberID = pMemberIDBase & pDLCounter
+  pMemberID = (pMemberIDBase & pDLCounter)
   registerMessage(#leaveRoom, me.getID(), #removeAd)
   registerMessage(#changeRoom, me.getID(), #removeAd)
   registerMessage(#takingPhoto, me.getID(), #hideAd)
   registerMessage(#photoTaken, me.getID(), #showAd)
-  return TRUE
+  return 1
 end
 
-on deconstruct me 
+on deconstruct me
   removeUpdate(me.getID())
   if (pToolTipSpr.ilk = #sprite) then
     releaseSprite(pToolTipSpr.spriteNum)
@@ -28,17 +28,17 @@ on deconstruct me
   unregisterMessage(#takingPhoto, me.getID())
   unregisterMessage(#photoTaken, me.getID())
   me.removeAd()
-  return TRUE
+  return 1
 end
 
-on hideAd me 
+on hideAd me
   tThread = getThread(#room)
   if (tThread = 0) then
-    return FALSE
+    return 0
   end if
   tVisObj = tThread.getInterface().getRoomVisualizer()
   if (tVisObj = 0) then
-    return FALSE
+    return 0
   end if
   if tVisObj.spriteExists("billboard_img") then
     tSpr = tVisObj.getSprById("billboard_img")
@@ -46,14 +46,14 @@ on hideAd me
   end if
 end
 
-on showAd me 
+on showAd me
   tThread = getThread(#room)
   if (tThread = 0) then
-    return FALSE
+    return 0
   end if
   tVisObj = tThread.getInterface().getRoomVisualizer()
   if (tVisObj = 0) then
-    return FALSE
+    return 0
   end if
   if tVisObj.spriteExists("billboard_img") then
     tSpr = tVisObj.getSprById("billboard_img")
@@ -61,41 +61,41 @@ on showAd me
   end if
 end
 
-on Init me, tSourceURL, tClickURL, tRegisteredLayout 
-  if tSourceURL <> 0 then
-    if not tSourceURL starts "http" then
+on Init me, tSourceURL, tClickURL, tRegisteredLayout
+  if (tSourceURL <> 0) then
+    if not (tSourceURL starts "http") then
       pState = 0
-      return(error(me, "Incorrect URL!", #Init, #minor))
+      return error(me, "Incorrect URL!", #Init, #minor)
     end if
     pDLCounter = (pDLCounter + 1)
-    pMemberID = pMemberIDBase & pDLCounter
+    pMemberID = (pMemberIDBase & pDLCounter)
     pAdMemNum = queueDownload(tSourceURL, pMemberID, #bitmap, 1, #httpcookie)
-    if not pAdMemNum > 0 then
+    if not (pAdMemNum > 0) then
       pState = 0
-      return(error(me, "Incorrect URL!", #Init, #major))
+      return error(me, "Incorrect URL!", #Init, #major)
     end if
     pRegisteredLayout = tRegisteredLayout
     member(pAdMemNum).image = image(1, 1, 32)
     member(pAdMemNum).trimWhiteSpace = 0
     registerDownloadCallback(pAdMemNum, #adLoaded, me.getID())
-    if not tClickURL starts "http" then
-      pClickURL = void()
+    if not (tClickURL starts "http") then
+      pClickURL = VOID
     else
       pClickURL = tClickURL
     end if
     tThread = getThread(#room)
     if (tThread = 0) then
-      return FALSE
+      return 0
     end if
     tVisObj = tThread.getInterface().getRoomVisualizer()
     if (tVisObj = 0) then
-      return FALSE
+      return 0
     end if
     if tVisObj.spriteExists("billboard_bg") then
       tSprBg = tVisObj.getSprById("billboard_bg")
       tSprImg = tVisObj.getSprById("billboard_img")
       tSprBg.member.paletteRef = member(getmemnum("adframe_palette1"))
-      if tSprBg.member.name contains "left" then
+      if (tSprBg.member.name contains "left") then
         tSprImg.setMember(member(getmemnum("ad_warning_L")))
       else
         tSprImg.setMember(member(getmemnum("ad_warning_R")))
@@ -105,33 +105,33 @@ on Init me, tSourceURL, tClickURL, tRegisteredLayout
     end if
   else
     pState = 0
-    pClickURL = void()
+    pClickURL = VOID
   end if
 end
 
-on adLoaded me 
+on adLoaded me
   if timeoutExists(pTimeOutID) then
     removeTimeout(pTimeOutID)
   end if
-  createTimeout(pTimeOutID, 5000, #adReady, me.getID(), void(), 1)
+  createTimeout(pTimeOutID, 5000, #adReady, me.getID(), VOID, 1)
 end
 
-on adReady me 
+on adReady me
   tThread = getThread(#room)
   if (tThread = 0) then
-    return FALSE
+    return 0
   end if
   tVisObj = tThread.getInterface().getRoomVisualizer()
   if (tVisObj = 0) then
-    return FALSE
+    return 0
   end if
   if (member(pAdMemNum).type = #empty) then
     unregisterMember(pMemberID)
-    return FALSE
+    return 0
   end if
   if tVisObj.spriteExists("billboard_img") then
-    if tVisObj.pLayout <> pRegisteredLayout then
-      return FALSE
+    if (tVisObj.pLayout <> pRegisteredLayout) then
+      return 0
     end if
     tSpr = tVisObj.getSprById("billboard_img")
     pSprite = tSpr
@@ -161,12 +161,12 @@ on adReady me
   end if
 end
 
-on removeAd me 
+on removeAd me
   pState = 0
   pSprite = 0
   if (pToolTipSpr.ilk = #sprite) then
     releaseSprite(pToolTipSpr.spriteNum)
-    pToolTipSpr = void()
+    pToolTipSpr = VOID
   end if
   if memberExists(pMemberID) then
     removeMember(pMemberID)
@@ -177,8 +177,8 @@ on removeAd me
   removeUpdate(me.getID())
 end
 
-on ShowToolTip me 
-  if pToolTipSpr.ilk <> #sprite then
+on ShowToolTip me
+  if (pToolTipSpr.ilk <> #sprite) then
     pToolTipSpr = sprite(reserveSprite(me.getID()))
     pToolTipSpr.ink = 8
     if not memberExists("adtooltip") then
@@ -187,19 +187,19 @@ on ShowToolTip me
     pToolTipSpr.member = member(getmemnum("adtooltip"))
   end if
   tNewLoc = (the mouseLoc + point(0, 30))
-  if (tNewLoc.locV - (pToolTipSpr.height / 2)) < 10 then
+  if ((tNewLoc.locV - (pToolTipSpr.height / 2)) < 10) then
     tNewLoc.locV = (10 + (pToolTipSpr.height / 2))
   end if
-  if (tNewLoc.locH - (pToolTipSpr.width / 2)) < 10 then
+  if ((tNewLoc.locH - (pToolTipSpr.width / 2)) < 10) then
     tNewLoc.locH = (10 + (pToolTipSpr.width / 2))
   end if
-  if (tNewLoc.locH + (pToolTipSpr.width / 2)) > (the stage.rect.width - 10) then
+  if ((tNewLoc.locH + (pToolTipSpr.width / 2)) > (the stage.rect.width - 10)) then
     tNewLoc.locH = ((the stage.rect.width - 10) - (pToolTipSpr.width / 2))
   end if
   pToolTipSpr.loc = tNewLoc
 end
 
-on createToolTipMember me 
+on createToolTipMember me
   createMember("adtooltip", #bitmap)
   tText = getText("ad_note", "Clicking this advertisement will open a new window")
   tFontStruct = getStructVariable("struct.font.bold")
@@ -211,35 +211,30 @@ on createToolTipMember me
   tmember.fontSize = tFontStruct.getaProp(#fontSize)
   tmember.fontStyle = tFontStruct.getaProp(#fontStyle)
   tmember.text = tText
-  tList = ["left":"ad.tooltip.left", "middle":"ad.tooltip.middle", "right":"ad.tooltip.right"]
+  tList = ["left": "ad.tooltip.left", "middle": "ad.tooltip.middle", "right": "ad.tooltip.right"]
   tImgs = [:]
-  repeat while ["left", "middle", "right"] <= undefined
-    i = getAt(undefined, undefined)
-    tImgs.addProp(i, member(getmemnum(tList.getAt(i))).image)
+  repeat with i in ["left", "middle", "right"]
+    tImgs.addProp(i, member(getmemnum(tList[i])).image)
   end repeat
-  tTextWidth = (tmember.charPosToLoc(tmember.count(#char)).locH + (tImgs.getAt("left").width * 2))
+  tTextWidth = (tmember.charPosToLoc(tmember.char.count).locH + (tImgs["left"].width * 2))
   tWidth = (tTextWidth + 9)
   tmember.rect = rect(0, 0, tTextWidth, tmember.height)
   tTextImg = tmember.image
-  tNewImg = image(tWidth, tImgs.getAt("left").height, 8)
+  tNewImg = image(tWidth, tImgs["left"].height, 8)
   tStartPointY = 0
   tEndPointY = tNewImg.height
   tStartPointX = 0
   tEndPointX = 0
-  repeat while ["left", "middle", "right"] <= undefined
-    i = getAt(undefined, undefined)
+  repeat with i in ["left", "middle", "right"]
     tStartPointX = tEndPointX
-    if (["left", "middle", "right"] = "left") then
-      tEndPointX = (tEndPointX + tImgs.getProp(i).width)
-    else
-      if (["left", "middle", "right"] = "middle") then
+    case i of
+      "left":
+        tEndPointX = (tEndPointX + tImgs.getProp(i).width)
+      "middle":
         tEndPointX = (((tEndPointX + tWidth) - tImgs.getProp("left").width) - tImgs.getProp("right").width)
-      else
-        if (["left", "middle", "right"] = "right") then
-          tEndPointX = (tEndPointX + tImgs.getProp(i).width)
-        end if
-      end if
-    end if
+      "right":
+        tEndPointX = (tEndPointX + tImgs.getProp(i).width)
+    end case
     tdestrect = rect(tStartPointX, tStartPointY, tEndPointX, tEndPointY)
     tNewImg.copyPixels(tImgs.getProp(i), tdestrect, tImgs.getProp(i).rect)
   end repeat
@@ -251,31 +246,32 @@ on createToolTipMember me
   removeMember("adtooltiptext")
 end
 
-on update me 
+on update me
   if (pState = 0) then
     removeUpdate(me.getID())
-    return()
+    return 
   end if
   pFrame = not pFrame
   if pFrame then
-    return()
+    return 
   end if
-  if (pState = "fadein") then
-    if pSprite.blend < 100 then
-      pSprite.blend = (pSprite.blend + 10)
-    else
-      pState = 0
-    end if
-  end if
+  case pState of
+    "fadein":
+      if (pSprite.blend < 100) then
+        pSprite.blend = (pSprite.blend + 10)
+      else
+        pState = 0
+      end if
+  end case
 end
 
-on eventProc me, tEvent, tSprID, tParm 
+on eventProc me, tEvent, tSprID, tParm
   if (tEvent = #mouseUp) then
     if not voidp(pClickURL) then
-      queueDownload(pClickURL, "temp" & the milliSeconds, #text, 1, #httpcookie, #openredirect)
+      queueDownload(pClickURL, ("temp" & the milliSeconds), #text, 1, #httpcookie, #openredirect)
     end if
   else
-    if (tEvent = #mouseEnter) or (tEvent = #mouseWithin) then
+    if ((tEvent = #mouseEnter) or (tEvent = #mouseWithin)) then
       if not voidp(pClickURL) then
         ShowToolTip(me)
       end if

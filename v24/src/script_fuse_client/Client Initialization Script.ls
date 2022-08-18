@@ -1,41 +1,42 @@
-on initCore  
+on initCore
   if not constructObjectManager() then
-    return FALSE
+    return 0
   end if
   if not dumpVariableField("System Props") then
-    return(stopClient())
+    return stopClient()
   end if
   if not resetCastLibs(0, 0) then
-    return(stopClient())
+    return stopClient()
   end if
   if not getResourceManager().preIndexMembers() then
-    return(stopClient())
+    return stopClient()
   end if
   if not dumpTextField("System Texts") then
-    return(stopClient())
+    return stopClient()
   end if
   if not getThreadManager().create(#core, #core) then
-    return(stopClient())
+    return stopClient()
   end if
-  return TRUE
+  return 1
 end
 
-on stopClient  
-  if the runMode contains "Author" then
+on stopClient
+  global gCore
+  if (the runMode contains "Author") then
     if voidp(gCore) then
-      return FALSE
+      return 0
     end if
-    if the runMode contains "Author" then
+    if (the runMode contains "Author") then
       deconstructConnectionManager()
       deconstructObjectManager()
       deconstructErrorManager()
     end if
   end if
-  return FALSE
+  return 0
 end
 
-on resetClient  
-  if the runMode contains "Author" then
+on resetClient
+  if (the runMode contains "Author") then
     stopClient()
   else
     tURL = getMoviePath()
@@ -46,5 +47,5 @@ on resetClient
     end if
     gotoNetPage(tURL)
   end if
-  return TRUE
+  return 1
 end

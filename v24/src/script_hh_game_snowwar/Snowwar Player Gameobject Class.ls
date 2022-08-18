@@ -1,12 +1,12 @@
-on construct me 
-  return TRUE
+on construct me
+  return 1
 end
 
-on deconstruct me 
+on deconstruct me
   me.removeControllingAvatar()
-  return TRUE
+  return 1
 end
 
-on removeControllingAvatar me 
-  return(me.getGameSystem().executeGameObjectEvent(me.getProp(#pGameObjectSyncValues, #human_id), #reset_player))
+on removeControllingAvatar me
+  return me.getGameSystem().executeGameObjectEvent(me.pGameObjectSyncValues[#human_id], #reset_player)
 end

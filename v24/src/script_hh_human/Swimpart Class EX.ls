@@ -1,80 +1,76 @@
-property pUnderWater, pSwimProps
+property pSwimProps, pUnderWater
 
-on define me, tPart, tmodel, tColor, tDirection, tAction, tBody, tFlipPart 
-  pSwimProps = [#maskImage:0, #ink:0, #bgColor:rgb(0, 156, 156), #color:rgb(0, 156, 156), #blend:60]
+on define me, tPart, tmodel, tColor, tDirection, tAction, tBody, tFlipPart
+  pSwimProps = [#maskImage: 0, #ink: 0, #bgColor: rgb(0, 156, 156), #color: rgb(0, 156, 156), #blend: 60]
   callAncestor(#define, [me], tPart, tmodel, tColor, tDirection, tAction, tBody, tFlipPart)
   pUnderWater = 1
-  return TRUE
+  return 1
 end
 
-on update me, tForcedUpdate, tRectMod 
+on update me, tForcedUpdate, tRectMod
   callAncestor(#update, [me], tForcedUpdate, tRectMod)
-  if pUnderWater and me.pBody.pSwim then
-    i = 1
-    repeat while i <= me.count(#pLayerPropList)
-      tdata = me.getProp(#pLayerPropList, i)
-      tDrawProps = tdata.getAt("drawProps")
-      pSwimProps.setAt(#maskImage, tDrawProps.getAt(#maskImage))
+  if (pUnderWater and me.pBody.pSwim) then
+    repeat with i = 1 to me.pLayerPropList.count
+      tdata = me.pLayerPropList[i]
+      tDrawProps = tdata["drawProps"]
+      pSwimProps[#maskImage] = tDrawProps[#maskImage]
       tDrawArea = me.getDrawArea(i)
-      if tdata.getAt("cacheImage") <> 0 then
-        me.pBody.pBuffer.copyPixels(tdata.getAt("cacheImage"), tDrawArea, tdata.getAt("cacheImage").rect, pSwimProps)
+      if (tdata["cacheImage"] <> 0) then
+        me.pBody.pBuffer.copyPixels(tdata["cacheImage"], tDrawArea, tdata["cacheImage"].rect, pSwimProps)
       end if
-      i = (1 + i)
     end repeat
   end if
 end
 
-on render me 
+on render me
   callAncestor(#render, [me])
-  i = 1
-  repeat while i <= me.count(#pLayerPropList)
-    tdata = me.getProp(#pLayerPropList, i)
-    if memberExists(tdata.getAt("memString")) then
+  repeat with i = 1 to me.pLayerPropList.count
+    tdata = me.pLayerPropList[i]
+    if memberExists(tdata["memString"]) then
       if me.pBody.pSwim then
-        pSwimProps.setAt(#maskImage, tdata.getAt("drawProps").getAt(#maskImage))
+        pSwimProps[#maskImage] = tdata["drawProps"][#maskImage]
         tDrawArea = me.getDrawArea(i)
-        if tdata.getAt("cacheImage") <> 0 then
-          me.pBody.pBuffer.copyPixels(tdata.getAt("cacheImage"), tDrawArea, tdata.getAt("cacheImage").rect, pSwimProps)
+        if (tdata["cacheImage"] <> 0) then
+          me.pBody.pBuffer.copyPixels(tdata["cacheImage"], tDrawArea, tdata["cacheImage"].rect, pSwimProps)
         end if
       end if
     end if
-    i = (1 + i)
   end repeat
 end
 
-on defineInk me, tInk 
+on defineInk me, tInk
   callAncestor(#defineInk, [me], tInk)
-  if me.count(#pLayerPropList) > 0 then
-    pSwimProps.setAt(#ink, me.getPropRef(#pLayerPropList, 1).getAt("drawProps").getAt(#ink))
-    return TRUE
+  if (me.pLayerPropList.count > 0) then
+    pSwimProps[#ink] = me.pLayerPropList[1]["drawProps"][#ink]
+    return 1
   end if
-  return FALSE
+  return 0
 end
 
-on setUnderWater me, tUnderWater 
+on setUnderWater me, tUnderWater
   pUnderWater = tUnderWater
 end
 
-on getMemberNumber me, tdir, tHumanSize, tAction, tAnimFrame, tLayerIndex 
+on getMemberNumber me, tdir, tHumanSize, tAction, tAnimFrame, tLayerIndex
   tArray = callAncestor(#getMemberNumber, [me], tdir, tHumanSize, tAction, tAnimFrame, tLayerIndex)
-  tMemNum = tArray.getAt(#memberNumber)
+  tMemNum = tArray[#memberNumber]
   if (tMemNum = 0) then
     if voidp(tLayerIndex) then
       tLayerIndex = 1
     end if
-    if tLayerIndex < 1 or tLayerIndex > me.count(#pLayerPropList) then
+    if ((tLayerIndex < 1) or (tLayerIndex > me.pLayerPropList.count)) then
       tLayerIndex = 1
     end if
-    if me.count(#pLayerPropList) >= tLayerIndex then
-      tmodel = me.getPropRef(#pLayerPropList, tLayerIndex).getAt("model")
+    if (me.pLayerPropList.count >= tLayerIndex) then
+      tmodel = me.pLayerPropList[tLayerIndex]["model"]
     end if
     if not voidp(tmodel) then
-      tmodel = tmodel.getProp(#char, 2, tmodel.length)
-      repeat while (tmodel.getProp(#char, 1) = "0")
-        tmodel = tmodel.getProp(#char, 2, tmodel.length)
+      tmodel = tmodel.char[2]
+      repeat while (tmodel.char[1] = "0")
+        tmodel = tmodel.char[2]
       end repeat
     end if
     tArray = callAncestor(#getMemberNumber, [me], tdir, tHumanSize, tAction, tAnimFrame, tLayerIndex, tmodel)
   end if
-  return(tArray)
+  return tArray
 end

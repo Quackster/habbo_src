@@ -1,44 +1,39 @@
 property pLocX, pLocY, pTargetX, pTargetY, pBubbleId
 
-on construct me 
+on construct me
   me.pWindowType = "bubble_static.window"
   me.pTextWidth = 160
   pLocX = -1000
   pLocY = 0
   pTargetX = pLocX
   pTargetY = pLocY
-  pBubbleId = void()
+  pBubbleId = VOID
   me.Init()
   me.pWindow.registerProcedure(#eventHandler, me.getID(), #mouseUp)
-  return TRUE
+  return 1
 end
 
-on setProperty me, tProperty, tValue 
+on setProperty me, tProperty, tValue
   if listp(tProperty) then
-    i = 1
-    repeat while i <= tProperty.count
-      me.setProperty(tProperty.getPropAt(i), tProperty.getAt(i))
-      i = (1 + i)
+    repeat with i = 1 to tProperty.count
+      me.setProperty(tProperty.getPropAt(i), tProperty[i])
     end repeat
   end if
-  if (tProperty = #bubbleId) then
-    pBubbleId = tValue
-  else
-    if (tProperty = #targetX) then
+  case tProperty of
+    #bubbleId:
+      pBubbleId = tValue
+    #targetX:
       pTargetX = tValue
       me.selectPointerAndPosition(me.pDirection)
-    else
-      if (tProperty = #targetY) then
-        pTargetY = tValue
-        me.selectPointerAndPosition(me.pDirection)
-      else
-        callAncestor(#setProperty, [me], tProperty, tValue)
-      end if
-    end if
-  end if
+    #targetY:
+      pTargetY = tValue
+      me.selectPointerAndPosition(me.pDirection)
+    otherwise:
+      callAncestor(#setProperty, [me], tProperty, tValue)
+  end case
 end
 
-on moveTo me, tLocX, tLocY 
+on moveTo me, tLocX, tLocY
   pLocX = tLocX
   pLocY = tLocY
   if objectp(me.pWindow) then
@@ -46,10 +41,10 @@ on moveTo me, tLocX, tLocY
   end if
 end
 
-on setText me, tText 
+on setText me, tText
   callAncestor(#setText, [me], tText)
   if not objectp(me.pWindow) then
-    return FALSE
+    return 0
   end if
   tCloseElemId = "bubble_close"
   if me.pWindow.elementExists(tCloseElemId) then
@@ -60,47 +55,34 @@ on setText me, tText
   me.selectPointerAndPosition(me.pDirection)
 end
 
-on selectPointerAndPosition me, tPointerIndex 
+on selectPointerAndPosition me, tPointerIndex
   callAncestor(#selectPointer, [me], tPointerIndex)
   if not objectp(me.pWindow) then
-    return FALSE
+    return 0
   end if
   tMarginH = 20
   tMarginV = 15
-  if (tPointerIndex = 1) then
-    me.pWindow.moveTo((pTargetX - tMarginH), pTargetY)
-  else
-    if (tPointerIndex = 2) then
+  case tPointerIndex of
+    1:
+      me.pWindow.moveTo((pTargetX - tMarginH), pTargetY)
+    2:
       me.pWindow.moveTo(((pTargetX - me.pWindow.getProperty(#width)) + tMarginH), pTargetY)
-    else
-      if (tPointerIndex = 3) then
-        me.pWindow.moveTo((pTargetX - me.pWindow.getProperty(#width)), (pTargetY - tMarginV))
-      else
-        if (tPointerIndex = 4) then
-          me.pWindow.moveTo((pTargetX - me.pWindow.getProperty(#width)), ((pTargetY - me.pWindow.getProperty(#height)) + tMarginV))
-        else
-          if (tPointerIndex = 5) then
-            me.pWindow.moveTo(((pTargetX - me.pWindow.getProperty(#width)) + tMarginH), (pTargetY - me.pWindow.getProperty(#height)))
-          else
-            if (tPointerIndex = 6) then
-              me.pWindow.moveTo((pTargetX - tMarginH), (pTargetY - me.pWindow.getProperty(#height)))
-            else
-              if (tPointerIndex = 7) then
-                me.pWindow.moveTo(pTargetX, ((pTargetY - me.pWindow.getProperty(#height)) + tMarginV))
-              else
-                if (tPointerIndex = 8) then
-                  me.pWindow.moveTo(pTargetX, (pTargetY - tMarginV))
-                end if
-              end if
-            end if
-          end if
-        end if
-      end if
-    end if
-  end if
+    3:
+      me.pWindow.moveTo((pTargetX - me.pWindow.getProperty(#width)), (pTargetY - tMarginV))
+    4:
+      me.pWindow.moveTo((pTargetX - me.pWindow.getProperty(#width)), ((pTargetY - me.pWindow.getProperty(#height)) + tMarginV))
+    5:
+      me.pWindow.moveTo(((pTargetX - me.pWindow.getProperty(#width)) + tMarginH), (pTargetY - me.pWindow.getProperty(#height)))
+    6:
+      me.pWindow.moveTo((pTargetX - tMarginH), (pTargetY - me.pWindow.getProperty(#height)))
+    7:
+      me.pWindow.moveTo(pTargetX, ((pTargetY - me.pWindow.getProperty(#height)) + tMarginV))
+    8:
+      me.pWindow.moveTo(pTargetX, (pTargetY - tMarginV))
+  end case
 end
 
-on hideCloseButton me 
+on hideCloseButton me
   tWndObj = getWindow(me.pWindowID)
   if objectp(tWndObj) then
     if tWndObj.elementExists("bubble_close") then
@@ -110,7 +92,7 @@ on hideCloseButton me
   end if
 end
 
-on eventHandler me, tEvent, tSpriteID, tParam 
+on eventHandler me, tEvent, tSpriteID, tParam
   if (tSpriteID = "bubble_close") then
     executeMessage(#NUH_close, pBubbleId)
   end if

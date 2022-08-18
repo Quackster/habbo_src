@@ -1,13 +1,13 @@
-property pTutorWindowID, pPose, pTutorWindow
+property pTopicList, pTutorWindowID, pTutorWindow, pBubble, pDefPosX, pDefPosY, pDefPose, pDefSex, pPosX, pPosY, pPose, pSex, pimage, pFlipped
 
-on construct me 
+on construct me
   me.pTutorWindowID = "Tutor_character"
   createWindow(pTutorWindowID, "guide_character.window")
   me.pTutorWindow = getWindow(pTutorWindowID)
   me.pBubble = createObject(getUniqueID(), ["Bubble Class", "Link Bubble Class"])
   me.hide()
   me.pBubble.setProperty(#targetID, "guide_image")
-  me.pBubble.setProperty([#offsetx:50])
+  me.pBubble.setProperty([#offsetx: 50])
   me.pBubble.update()
   if variableExists("tutorial.tutor.default.x") then
     me.pDefPosX = getVariable("tutorial.tutor.default.x")
@@ -20,47 +20,46 @@ on construct me
     me.pDefPosY = 250
   end if
   me.pPose = 1
-  return TRUE
+  return 1
 end
 
-on deconstruct me 
+on deconstruct me
   removeObject(me.pBubble.getID())
   removeWindow(me.pTutorWindow.getProperty(#id))
 end
 
-on hideLinks me 
-  me.pBubble.setLinks(void())
+on hideLinks me
+  me.pBubble.setLinks(VOID)
 end
 
-on update me 
+on update me
   me.pBubble.update()
-  return([me.pTutorWindowID, me.pBubble.getProperty(#windowId)])
+  return [me.pTutorWindowID, me.pBubble.getProperty(#windowID)]
 end
 
-on setProperties me, tProperties 
+on setProperties me, tProperties
   if not listp(tProperties) then
-    return FALSE
+    return 0
   end if
-  i = 1
-  repeat while i <= tProperties.count
-    me.setProperty(tProperties.getPropAt(i), tProperties.getAt(i))
-    i = (1 + i)
+  repeat with i = 1 to tProperties.count
+    me.setProperty(tProperties.getPropAt(i), tProperties[i])
   end repeat
 end
 
-on getProperty me, tProp 
-  if (tProp = #sex) then
-    return(me.pSex)
-  end if
+on getProperty me, tProp
+  case tProp of
+    #sex:
+      return me.pSex
+  end case
 end
 
-on setProperty me, tProperty, tValue 
-  if (tProperty = #textKey) then
-    tText = getText(tValue)
-    tText = replaceChunks(tText, "\\n", "\r" & "\r")
-    me.pBubble.setText(tText)
-  else
-    if (tProperty = #offsetx) then
+on setProperty me, tProperty, tValue
+  case tProperty of
+    #textKey:
+      tText = getText(tValue)
+      tText = replaceChunks(tText, "\n", (RETURN & RETURN))
+      me.pBubble.setText(tText)
+    #offsetx:
       tValue = value(tValue)
       if not tValue then
         me.pPosX = me.pDefPosX
@@ -68,88 +67,73 @@ on setProperty me, tProperty, tValue
         me.pPosX = tValue
       end if
       me.pTutorWindow.moveTo(me.pPosX, me.pPosY)
-    else
-      if (tProperty = #offsety) then
-        tValue = value(tValue)
-        if not tValue then
-          me.pPosY = me.pDefPosY
-        else
-          me.pPosY = tValue
-        end if
-        me.pTutorWindow.moveTo(me.pPosX, me.pPosY)
+    #offsety:
+      tValue = value(tValue)
+      if not tValue then
+        me.pPosY = me.pDefPosY
       else
-        if (tProperty = #links) then
-          me.pBubble.setLinks(tValue)
-          if (tValue.ilk = #propList) then
-            if not voidp(tValue.getaProp(#menu)) then
-              me.pBubble.addText("tutorial_next")
-            end if
-          end if
-        else
-          if (tProperty = #sex) then
-            me.pSex = tValue
-            me.updateImage()
-          else
-            if tProperty <> #pose then
-              if (tProperty = #direction) then
-                me.pPose = tValue
-                me.updateImage()
-              else
-                if (tProperty = #topics) then
-                  me.pTopicList = tValue
-                else
-                  if (tProperty = #statuses) then
-                    me.pBubble.setCheckmarks(tValue)
-                  end if
-                end if
-              end if
-            end if
-          end if
+        me.pPosY = tValue
+      end if
+      me.pTutorWindow.moveTo(me.pPosX, me.pPosY)
+    #links:
+      me.pBubble.setLinks(tValue)
+      if (tValue.ilk = #propList) then
+        if not voidp(tValue.getaProp(#menu)) then
+          me.pBubble.addText("tutorial_next")
         end if
       end if
-    end if
-  end if
+    #sex:
+      me.pSex = tValue
+      me.updateImage()
+    #pose, #direction:
+      me.pPose = tValue
+      me.updateImage()
+    #topics:
+      me.pTopicList = tValue
+    #statuses:
+      me.pBubble.setCheckmarks(tValue)
+  end case
 end
 
-on moveTo me, tX, tY 
+on moveTo me, tX, tY
   me.pPosX = tX
   me.pPosY = tY
   me.pTutorWindow.moveTo(me.pPosX, me.pPosY)
   me.pBubble.update()
 end
 
-on hide me 
+on hide me
   me.pTutorWindow.hide()
   me.pBubble.hide()
 end
 
-on show me 
+on show me
   if voidp(me.pimage) then
-    return FALSE
+    return 0
   end if
   me.updateImage()
   me.pTutorWindow.show()
   me.pBubble.show()
 end
 
-on updateImage me 
-  if voidp(me.pSex) or voidp(pPose) then
-    return FALSE
+on updateImage me
+  if (voidp(me.pSex) or voidp(pPose)) then
+    return 0
   end if
   tPose = integer(me.pPose)
   me.pFlipped = 0
-  if tPose > 10 then
-    return FALSE
+  if (tPose > 10) then
+    return 0
   end if
   tImageElem = pTutorWindow.getElement("guide_image")
-  if tPose < 0 then
+  if (tPose < 0) then
     tPose = -tPose
     me.pFlipped = 1
   end if
-  tMemberName = "tutor_" & me.pSex & "_" & string(tPose)
+  tMemberName = ((("tutor_" & me.pSex) & "_") & string(tPose))
   me.pimage = member(getmemnum(tMemberName)).image
   if voidp(me.pimage) then
-    return FALSE
+    return 0
   end if
   tImageElem.feedImage(me.pimage)
   if me.pFlipped then
@@ -160,11 +144,11 @@ on updateImage me
   me.updateShadow()
 end
 
-on updateShadow me 
+on updateShadow me
   tShadow = image(me.pimage.width, me.pimage.height, 8)
   tBlack = image(me.pimage.width, me.pimage.height, 8)
   tBlack.fill(tBlack.rect, rgb("#000000"))
-  tShadow.copyPixels(tBlack, tShadow.rect, tBlack.rect, [#maskImage:me.pimage.createMatte()])
+  tShadow.copyPixels(tBlack, tShadow.rect, tBlack.rect, [#maskImage: me.pimage.createMatte()])
   tElem = me.pTutorWindow.getElement("guide_shadow")
   tElem.feedImage(tShadow)
   tElem.resizeTo(tShadow.width, tShadow.height, 1)
