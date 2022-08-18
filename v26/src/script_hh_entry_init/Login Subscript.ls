@@ -1,8 +1,11 @@
-on doPowmodMathCs  
+on doPowmodMathCs
+  -- unk26
 end
 
-on doPowmodMathSc  
+on doPowmodMathSc
+  -- unk26
 end
 
-on handlers  
+on handlers
+  -- unk26
 end

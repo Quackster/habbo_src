@@ -1,8 +1,7 @@
-on prepare me 
-  tCount = me.count(#pSprList)
-  i = 1
-  repeat while i <= tCount
-    tOldSpr = me.pSprList.getAt(i)
+on prepare me
+  tCount = me.pSprList.count
+  repeat with i = 1 to tCount
+    tOldSpr = me.pSprList[i]
     tOldSpr.ink = 41
     tNewSpr = sprite(reserveSprite(me.getID()))
     tNewSpr.member = tOldSpr.member
@@ -10,19 +9,18 @@ on prepare me
     tNewSpr.locZ = ((tOldSpr.locZ + 1) + 75)
     tNewSpr.ink = 8
     tNewSpr.blend = 0
-    tBroker = tOldSpr.scriptInstanceList.getAt(1)
+    tBroker = tOldSpr.scriptInstanceList[1]
     tNewSpr.scriptInstanceList.add(tBroker)
     tOldSpr.scriptInstanceList.deleteAt(1)
     me.pSprList.add(tNewSpr)
-    i = (1 + i)
   end repeat
-  return TRUE
+  return 1
 end
 
-on getInfo me 
+on getInfo me
   tInfo = [:]
-  tInfo.setAt(#name, "wall door")
-  tInfo.setAt(#class, me.pClass)
-  tInfo.setAt(#custom, me.pCustom)
-  return(tInfo)
+  tInfo[#name] = "wall door"
+  tInfo[#class] = me.pClass
+  tInfo[#custom] = me.pCustom
+  return tInfo
 end

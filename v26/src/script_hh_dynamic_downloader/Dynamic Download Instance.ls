@@ -1,81 +1,80 @@
-property pListenerList, pAssetId, pAssetType, pDownloadURL, pAllowindexing, pParentId
+property pListenerList, pAssetId, pDownloadURL, pAllowindexing, pAssetType, pParentId
 
-on construct me 
+on construct me
   pListenerList = []
-  pAssetId = void()
-  pDownloadID = void()
+  pAssetId = VOID
+  pDownloadID = VOID
   pAllowindexing = 0
 end
 
-on addCallbackListener me, tObjectID, tHandlerName, tCallbackParams 
-  tNewListener = [#objectID:tObjectID, #handlerName:tHandlerName, #callbackParams:tCallbackParams]
+on addCallbackListener me, tObjectID, tHandlerName, tCallbackParams
+  tNewListener = [#objectID: tObjectID, #handlerName: tHandlerName, #callbackParams: tCallbackParams]
   pListenerList.add(tNewListener)
 end
 
-on purgeCallbacks me, tSuccess 
-  tTimeoutName = "dyndownload" & the milliSeconds
+on purgeCallbacks me, tSuccess
+  tTimeoutName = ("dyndownload" & the milliSeconds)
   tCounter = 1
-  repeat while pListenerList <= undefined
-    tListener = getAt(undefined, tSuccess)
-    tObject = getObject(tListener.getAt(#objectID))
-    tHandler = tListener.getAt(#handlerName)
-    tCallbackParams = tListener.getAt(#callbackParams)
-    if tObject <> 0 and symbolp(tHandler) then
-      createTimeout(tTimeoutName & tCounter, 10, #sendTimeoutCallbacks, me.getID(), [tHandler, tObject, pAssetId, tSuccess, tCallbackParams], 1)
+  repeat with tListener in pListenerList
+    tObject = getObject(tListener[#objectID])
+    tHandler = tListener[#handlerName]
+    tCallbackParams = tListener[#callbackParams]
+    if ((tObject <> 0) and symbolp(tHandler)) then
+      createTimeout((tTimeoutName & tCounter), 10, #sendTimeoutCallbacks, me.getID(), [tHandler, tObject, pAssetId, tSuccess, tCallbackParams], 1)
     else
-      error(me, "Object or handler invalid:" && tObject && tHandler, #purgeCallbacks, #minor)
+      error(me, (("Object or handler invalid:" && tObject) && tHandler), #purgeCallbacks, #minor)
     end if
     tCounter = (tCounter + 1)
   end repeat
   pListenerList = []
 end
 
-on setAssetId me, tAssetId 
+on setAssetId me, tAssetId
   pAssetId = tAssetId
 end
 
-on getAssetId me 
-  return(pAssetId)
+on getAssetId me
+  return pAssetId
 end
 
-on setAssetType me, tAssetType 
+on setAssetType me, tAssetType
   pAssetType = tAssetType
 end
 
-on getAssetType me 
-  return(pAssetType)
+on getAssetType me
+  return pAssetType
 end
 
-on setDownloadName me, tURL 
+on setDownloadName me, tURL
   pDownloadURL = tURL
 end
 
-on getDownloadName me 
+on getDownloadName me
   tOffset = offset("?", pDownloadURL)
   if tOffset then
-    tDownloadURLNoParams = pDownloadURL.getProp(#char, 1, (tOffset - 1))
+    tDownloadURLNoParams = pDownloadURL.char[1]
   else
     tDownloadURLNoParams = pDownloadURL
   end if
-  return(tDownloadURLNoParams)
+  return tDownloadURLNoParams
 end
 
-on setIndexing me, tAllowIndexing 
+on setIndexing me, tAllowIndexing
   pAllowindexing = tAllowIndexing
 end
 
-on getIndexing me 
-  return(pAllowindexing)
+on getIndexing me
+  return pAllowindexing
 end
 
-on setParentId me, tParentId 
+on setParentId me, tParentId
   pParentId = tParentId
 end
 
-on getParentId me 
-  return(pParentId)
+on getParentId me
+  return pParentId
 end
 
-on sendTimeoutCallbacks me, tArguments 
-  call(tArguments.getAt(1), tArguments.getAt(2), tArguments.getAt(3), tArguments.getAt(4), tArguments.getAt(5))
+on sendTimeoutCallbacks me, tArguments
+  call(tArguments[1], tArguments[2], tArguments[3], tArguments[4], tArguments[5])
 end

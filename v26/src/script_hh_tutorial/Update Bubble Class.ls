@@ -1,6 +1,6 @@
-property pSkipFrames
+property pUpdate, pSkipFrames
 
-on construct me 
+on construct me
   pUpdate = 1
   receiveUpdate(me.getID())
   pSkipFrames = 1
@@ -10,23 +10,23 @@ on construct me
   pLocY = 0
   pTargetX = pLocX
   pTargetY = pLocY
-  pBubbleId = void()
+  pBubbleId = VOID
   me.Init()
   me.pWindow.registerProcedure(#eventHandler, me.getID(), #mouseUp)
-  return TRUE
+  return 1
 end
 
-on deconstruct me 
+on deconstruct me
   pUpdate = 0
   removeUpdate(me.getID())
   callAncestor(#deconstruct, [me])
-  return TRUE
+  return 1
 end
 
-on setText me, tText 
+on setText me, tText
   callAncestor(#setText, [me], tText)
   if not objectp(me.pWindow) then
-    return FALSE
+    return 0
   end if
   tCloseElemId = "bubble_close"
   if me.pWindow.elementExists(tCloseElemId) then
@@ -38,25 +38,25 @@ on setText me, tText
   me.selectPointerAndPosition(me.pDirection)
 end
 
-on update me 
+on update me
   pSkipFrames = not pSkipFrames
   if (pSkipFrames = 1) then
-    return FALSE
+    return 0
   end if
   tRoomComponent = getThread("room").getComponent()
   tOwnRoomId = tRoomComponent.getUsersRoomId(getObject(#session).GET("user_name"))
   tHumanObj = tRoomComponent.getUserObject(tOwnRoomId)
   if (tHumanObj = 0) then
-    return FALSE
+    return 0
   end if
   tHumanLoc = tHumanObj.getPartLocation("hd")
-  me.setProperty(#targetX, tHumanLoc.getAt(1))
-  me.setProperty(#targetY, tHumanLoc.getAt(2))
+  me.setProperty(#targetX, tHumanLoc[1])
+  me.setProperty(#targetY, tHumanLoc[2])
   tSideThreshold = 200
   if objectp(me.pWindow) then
     tSideThreshold = (me.pWindow.getProperty(#width) - 10)
   end if
-  if tHumanLoc.getAt(1) < tSideThreshold then
+  if (tHumanLoc[1] < tSideThreshold) then
     me.selectPointerAndPosition(7)
   else
     me.selectPointerAndPosition(4)

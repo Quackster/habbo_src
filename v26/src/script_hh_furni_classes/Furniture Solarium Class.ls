@@ -1,73 +1,73 @@
 property pToggleParts, pState
 
-on prepare me, tdata 
-  pToggleParts = ["0":[[#sprite:"c", #member:void()]], "1":[[#sprite:"c", #member:"0"]]]
-  me.setState(tdata.getAt(#stuffdata))
-  return TRUE
+on prepare me, tdata
+  pToggleParts = ["0": [[#sprite: "c", #member: VOID]], "1": [[#sprite: "c", #member: "0"]]]
+  me.setState(tdata[#stuffdata])
+  return 1
 end
 
-on updateStuffdata me, tValue 
+on updateStuffdata me, tValue
   me.setState(tValue)
 end
 
-on setState me, tValue 
+on setState me, tValue
   if not listp(pToggleParts) then
-    return FALSE
+    return 0
   end if
-  if (tValue = void()) then
+  if (tValue = VOID) then
     tValue = pToggleParts.getPropAt(1)
   end if
-  tPartStates = pToggleParts.getAt(tValue)
+  tPartStates = pToggleParts[tValue]
   if not listp(tPartStates) then
-    tPartStates = pToggleParts.getAt(1)
+    tPartStates = pToggleParts[1]
     tValue = pToggleParts.getPropAt(1)
   end if
   pState = tValue
-  repeat while tPartStates <= undefined
-    tPart = getAt(undefined, tValue)
+  repeat with tPart in tPartStates
     tPartId = tPart.sprite
     tmember = tPart.member
-    if tmember <> void() then
+    if (tmember <> VOID) then
       me.switchMember(tPartId, tmember)
     end if
-    me.setPartVisible(tPartId, tmember <> void())
+    me.setPartVisible(tPartId, (tmember <> VOID))
   end repeat
-  return TRUE
+  return 1
 end
 
-on select me 
+on select me
   if the doubleClick then
-    if (pState = "1") then
-      pState = "0"
-    else
-      pState = "1"
-    end if
-    getThread(#room).getComponent().getRoomConnection().send("SETSTUFFDATA", [#string:string(me.getID()), #string:pState])
+    case pState of
+      "1":
+        pState = "0"
+      otherwise:
+        pState = "1"
+    end case
+    getThread(#room).getComponent().getRoomConnection().send("SETSTUFFDATA", [#string: string(me.getID()), #string: pState])
   end if
-  return TRUE
+  return 1
 end
 
-on switchMember me, tPart, tNewMem 
+on switchMember me, tPart, tNewMem
   tSprNum = (charToNum(tPart) - (charToNum("a") - 1))
-  if me.count(#pSprList) < tSprNum or tSprNum <= 0 then
-    return FALSE
+  if ((me.pSprList.count < tSprNum) or (tSprNum <= 0)) then
+    return 0
   end if
-  tName = me.getPropRef(#pSprList, tSprNum).member.name
-  tName = tName.getProp(#char, 1, (tName.length - 1)) & tNewMem
+  tName = me.pSprList[tSprNum].member.name
+  tName = (tName.char[1] & tNewMem)
   if memberExists(tName) then
     tmember = member(getmemnum(tName))
-    me.getPropRef(#pSprList, tSprNum).castNum = tmember.number
-    me.getPropRef(#pSprList, tSprNum).width = tmember.width
-    me.getPropRef(#pSprList, tSprNum).height = tmember.height
+    me.pSprList[tSprNum].castNum = tmember.number
+    me.pSprList[tSprNum].width = tmember.width
+    me.pSprList[tSprNum].height = tmember.height
   end if
-  return TRUE
+  return 1
 end
 
-on setPartVisible me, tPart, tstate 
+on setPartVisible me, tPart, tstate
   tSprNum = (charToNum(tPart) - (charToNum("a") - 1))
-  if me.count(#pSprList) < tSprNum or tSprNum <= 0 then
-    return FALSE
+  if ((me.pSprList.count < tSprNum) or (tSprNum <= 0)) then
+    return 0
   end if
-  me.getPropRef(#pSprList, tSprNum).visible = tstate
-  return TRUE
+  me.pSprList[tSprNum].visible = tstate
+  return 1
 end

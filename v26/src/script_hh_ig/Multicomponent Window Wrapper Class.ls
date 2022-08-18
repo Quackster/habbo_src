@@ -1,117 +1,108 @@
-property pUpdateCounter, pSetList, pVisible, pSetIndex, pSetOrderIndex, pLocX, pLocY, pProcedureList
+property pSetIndex, pSetList, pSetOrderIndex, pProcedureList, pLocX, pLocY, pLocZ, pVisible, pUpdateCounter
 
-on construct me 
+on construct me
   pSetIndex = [:]
   pSetOrderIndex = []
   pSetList = [:]
   pProcedureList = [:]
   pVisible = 1
   receiveUpdate(me.getID())
-  return TRUE
+  return 1
 end
 
-on deconstruct me 
+on deconstruct me
   removeUpdate(me.getID())
   me.removeAllParts()
-  return TRUE
+  return 1
 end
 
-on update me 
+on update me
   pUpdateCounter = (pUpdateCounter + 1)
-  if pUpdateCounter < 3 then
-    return TRUE
+  if (pUpdateCounter < 3) then
+    return 1
   end if
   pUpdateCounter = 0
-  repeat while pSetList <= undefined
-    tObject = getAt(undefined, undefined)
+  repeat with tObject in pSetList
     tObject.update()
   end repeat
-  return TRUE
+  return 1
 end
 
-on getProperty me, tKey 
-  if (tKey = #visible) then
-    return(pVisible)
-  else
-    if (tKey = #height) then
-      return(me.getWrapperProperty(#height, #max))
-    else
-      if (tKey = #width) then
-        tSetCount = me.count(#pSetOrderIndex)
-        tWidth = 0
-        i = 1
-        repeat while i <= tSetCount
-          tWidth = (tWidth + me.getWrapperProperty(#width, #max, i))
-          i = (1 + i)
-        end repeat
-        return(tWidth)
-      end if
-    end if
-  end if
-  return FALSE
+on getProperty me, tKey
+  case tKey of
+    #visible:
+      return pVisible
+    #height:
+      return me.getWrapperProperty(#height, #max)
+    #width:
+      tSetCount = me.pSetOrderIndex.count
+      tWidth = 0
+      repeat with i = 1 to tSetCount
+        tWidth = (tWidth + me.getWrapperProperty(#width, #max, i))
+      end repeat
+      return tWidth
+  end case
+  return 0
 end
 
-on moveTo me, tLocX, tLocY 
+on moveTo me, tLocX, tLocY
   me.pLocX = tLocX
   me.pLocY = tLocY
   tOffsetX = 0
   tTopOffsetY = 0
-  tColumnCount = me.count(#pSetOrderIndex)
-  repeat while me.pSetOrderIndex <= tLocY
-    tSetColumn = getAt(tLocY, tLocX)
+  tColumnCount = me.pSetOrderIndex.count
+  repeat with tSetColumn in me.pSetOrderIndex
     tOffsetY = tTopOffsetY
     tColumnMaxWidth = 0
-    repeat while me.pSetOrderIndex <= tLocY
-      tSetID = getAt(tLocY, tLocX)
+    repeat with tSetID in tSetColumn
       tSetObject = pSetList.getaProp(tSetID)
-      if tSetObject <> 0 then
+      if (tSetObject <> 0) then
         tSetObject.moveTo((tLocX + tOffsetX), (tLocY + tOffsetY))
         tOffsetY = (tOffsetY + tSetObject.getProperty(#height))
         if tSetObject.getProperty(#span_all_columns) then
           tTopOffsetY = tOffsetY
-        else
-          tWidth = tSetObject.getProperty(#width)
-          if tWidth > tColumnMaxWidth then
-            tColumnMaxWidth = tWidth
-          end if
+          next repeat
+        end if
+        tWidth = tSetObject.getProperty(#width)
+        if (tWidth > tColumnMaxWidth) then
+          tColumnMaxWidth = tWidth
         end if
       end if
     end repeat
     tOffsetX = (tOffsetX + tColumnMaxWidth)
   end repeat
-  return TRUE
+  return 1
 end
 
-on moveZ me, tZ 
+on moveZ me, tZ
   me.pLocZ = tZ
-  repeat while me.pSetList <= undefined
-    tSetObject = getAt(undefined, tZ)
-    if tSetObject <> 0 then
+  repeat with tSetObject in me.pSetList
+    if (tSetObject <> 0) then
       tSetObject.moveZ(me.pLocZ)
     end if
   end repeat
-  return TRUE
+  return 1
 end
 
-on addOneWindow me, tPartId, tLayout, tSetID, tProps 
-  if (tSetID = void()) then
-    return FALSE
+on addOneWindow me, tPartId, tLayout, tSetID, tProps
+  if (tSetID = VOID) then
+    return 0
   end if
-  if pSetIndex.findPos(tPartId) > 0 then
-    return(me.replaceOneWindow(tPartId, tLayout, 0))
+  if (pSetIndex.findPos(tPartId) > 0) then
+    return me.replaceOneWindow(tPartId, tLayout, 0)
   end if
   tSetItem = me.getSet(tSetID)
   if (tSetItem = 0) then
     tSetItem = me.createSet(tSetID)
   end if
   if (tSetItem = 0) then
-    return FALSE
+    return 0
   end if
   tOrderNum = (tSetItem.getHighestIndex(tSetID) + 1)
   createWindow(tPartId, tLayout)
   tWndObj = getWindow(tPartId)
   if (tWndObj = 0) then
-    return FALSE
+    return 0
   end if
   tWndObj.lock()
   if not pVisible then
@@ -120,181 +111,173 @@ on addOneWindow me, tPartId, tLayout, tSetID, tProps
   me.addCurrentProceduresOnWindow(tWndObj)
   if listp(tProps) then
     tScrollToPlace = tProps.findPos(#scrollFromLocX)
-    if not tScrollToPlace and tProps.findPos(#locX) and tProps.findPos(#locY) then
+    if ((not tScrollToPlace and tProps.findPos(#locX)) and tProps.findPos(#locY)) then
       tWndObj.moveTo(tProps.getaProp(#locX), tProps.getaProp(#locY))
     end if
   end if
   if not tSetItem.addOneWindow(tPartId, tOrderNum, tProps) then
-    return FALSE
+    return 0
   end if
   pSetIndex.setaProp(tPartId, tSetID)
-  return TRUE
+  return 1
 end
 
-on initSet me, tSetID, tColumnNum, tOrderNum 
+on initSet me, tSetID, tColumnNum, tOrderNum
   if me.existsSet(tSetID) then
-    return(me.clearSet(tSetID))
+    return me.clearSet(tSetID)
   else
-    return(me.createSet(tSetID, tColumnNum, tOrderNum))
+    return me.createSet(tSetID, tColumnNum, tOrderNum)
   end if
 end
 
-on Activate me 
-  repeat while me.pSetOrderIndex <= undefined
-    tSetColumn = getAt(undefined, undefined)
-    repeat while me.pSetOrderIndex <= undefined
-      tSetID = getAt(undefined, undefined)
+on Activate me
+  repeat with tSetColumn in me.pSetOrderIndex
+    repeat with tSetID in tSetColumn
       tSetObject = pSetList.getaProp(tSetID)
-      if tSetObject <> 0 then
+      if (tSetObject <> 0) then
         tSetObject.Activate()
       end if
     end repeat
   end repeat
 end
 
-on activateSet me, tSetID 
+on activateSet me, tSetID
   tSetObject = me.getSet(tSetID)
   if (tSetObject = 0) then
-    return FALSE
+    return 0
   end if
-  return(tSetObject.Activate())
+  return tSetObject.Activate()
 end
 
-on createSet me, tSetID, tColumnNum, tOrderNum 
+on createSet me, tSetID, tColumnNum, tOrderNum
   if me.existsSet(tSetID) then
-    return TRUE
+    return 1
   end if
   tSetObject = createObject(#temp, "Multicomponent Window Wrapper Set Class")
   if (tSetObject = 0) then
-    return FALSE
+    return 0
   end if
   tSetObject.define(tSetID)
-  if (tColumnNum = void()) then
+  if (tColumnNum = VOID) then
     tColumnNum = 1
   end if
-  if (tOrderNum = void()) then
+  if (tOrderNum = VOID) then
     tOrderNum = me.getNextFreeSetIndex(tColumnNum)
   end if
   pSetList.setaProp(tSetID, tSetObject)
-  if pSetOrderIndex.count < tColumnNum then
+  if (pSetOrderIndex.count < tColumnNum) then
     tCount = pSetOrderIndex.count
-    i = (tCount + 1)
-    repeat while i <= tColumnNum
-      pSetOrderIndex.setAt(i, [:])
-      i = (1 + i)
+    repeat with i = (tCount + 1) to tColumnNum
+      pSetOrderIndex[i] = [:]
     end repeat
   end if
-  pSetOrderIndex.getAt(tColumnNum).setaProp(tOrderNum, tSetID)
-  me.getPropRef(#pSetOrderIndex, tColumnNum).sort()
+  pSetOrderIndex[tColumnNum].setaProp(tOrderNum, tSetID)
+  me.pSetOrderIndex[tColumnNum].sort()
   me.moveTo(pLocX, pLocY)
-  return(tSetObject)
+  return tSetObject
 end
 
-on clearSet me, tSetID, tRender 
-  if (tSetID = void()) then
-    return FALSE
+on clearSet me, tSetID, tRender
+  if (tSetID = VOID) then
+    return 0
   end if
   tSetObject = me.getSet(tSetID)
-  if (tSetObject = void()) then
-    return TRUE
+  if (tSetObject = VOID) then
+    return 1
   end if
   tSetObject.clearSet()
   i = 1
-  repeat while i <= me.count(#pSetIndex)
-    if (me.getProp(#pSetIndex, i) = tSetID) then
+  repeat while (i <= me.pSetIndex.count)
+    if (me.pSetIndex[i] = tSetID) then
       me.pSetIndex.deleteAt(i)
       next repeat
     end if
     i = (i + 1)
   end repeat
   me.moveTo(pLocX, pLocY)
-  return TRUE
+  return 1
 end
 
-on removeSet me, tSetID, tRender 
-  if (tSetID = void()) then
-    return FALSE
+on removeSet me, tSetID, tRender
+  if (tSetID = VOID) then
+    return 0
   end if
   tSetObject = me.getSet(tSetID)
-  if (tSetObject = void()) then
-    return TRUE
+  if (tSetObject = VOID) then
+    return 1
   end if
   tSetObject.deconstruct()
   me.pSetList.deleteProp(tSetID)
   i = 1
-  repeat while i <= me.count(#pSetIndex)
-    if (me.getProp(#pSetIndex, i) = tSetID) then
+  repeat while (i <= me.pSetIndex.count)
+    if (me.pSetIndex[i] = tSetID) then
       me.pSetIndex.deleteAt(i)
       next repeat
     end if
     i = (i + 1)
   end repeat
   tDone = 0
-  i = 1
-  repeat while i <= pSetOrderIndex.count
-    tSetColumn = pSetOrderIndex.getAt(i)
-    j = 1
-    repeat while j <= tSetColumn.count
-      if (tSetColumn.getAt(j) = tSetID) then
+  repeat with i = 1 to pSetOrderIndex.count
+    tSetColumn = pSetOrderIndex[i]
+    repeat with j = 1 to tSetColumn.count
+      if (tSetColumn[j] = tSetID) then
         tDone = 1
         tSetColumn.deleteAt(j)
       end if
       if (tDone = 1) then
-      else
-        j = (1 + j)
+        exit repeat
       end if
     end repeat
     if (tDone = 1) then
-    else
-      i = (1 + i)
+      exit repeat
     end if
   end repeat
   if tRender then
     me.render()
   end if
-  return TRUE
+  return 1
 end
 
-on removeMatchingSets me, tWindowSetId, tRender 
-  if (tWindowSetId = void()) then
-    return FALSE
+on removeMatchingSets me, tWindowSetId, tRender
+  if (tWindowSetId = VOID) then
+    return 0
   end if
   tIdLength = tWindowSetId.length
   i = 1
-  repeat while i <= me.count(#pSetIndex)
-    tTestString = me.getProp(#pSetIndex, i)
-    if (tTestString.getProp(#char, 1, tIdLength) = tWindowSetId) then
+  repeat while (i <= me.pSetIndex.count)
+    tTestString = me.pSetIndex[i]
+    if (tTestString.char[1] = tWindowSetId) then
       me.removeSet(tTestString, tRender)
       next repeat
     end if
     i = (i + 1)
   end repeat
-  return TRUE
+  return 1
 end
 
-on existsSet me, tSetID 
-  if pSetList.findPos(tSetID) > 0 then
-    return TRUE
+on existsSet me, tSetID
+  if (pSetList.findPos(tSetID) > 0) then
+    return 1
   end if
-  return FALSE
+  return 0
 end
 
-on getSetItems me, tSetID 
+on getSetItems me, tSetID
   tSetObject = pSetList.getaProp(tSetID)
   if (tSetObject = 0) then
-    return FALSE
+    return 0
   end if
-  return(tSetObject.getItems())
+  return tSetObject.getItems()
 end
 
-on removeOneWindow me, tPartId, tRender 
+on removeOneWindow me, tPartId, tRender
   tSetID = me.pSetIndex.getaProp(tPartId)
   if (tSetID = 0) then
-    return(error(me, "Part not found in any set:" && tPartId, #removeOneWindow))
+    return error(me, ("Part not found in any set:" && tPartId), #removeOneWindow)
   end if
   tSetObject = pSetList.getaProp(tSetID)
   if (tSetObject = 0) then
-    return(error(me, "Set object not found:" && tSetID, #removeOneWindow))
+    return error(me, ("Set object not found:" && tSetID), #removeOneWindow)
   end if
   if tSetObject.removeOneWindow(tPartId) then
     pSetIndex.deleteProp(tPartId)
@@ -305,26 +288,26 @@ on removeOneWindow me, tPartId, tRender
   if tRender then
     me.render()
   end if
-  return TRUE
+  return 1
 end
 
-on replaceOneWindow me, tPartId, tLayout, tRender 
-  if (tPartId = void()) then
-    return FALSE
+on replaceOneWindow me, tPartId, tLayout, tRender
+  if (tPartId = VOID) then
+    return 0
   end if
   tSetID = me.pSetIndex.getaProp(tPartId)
   if (tSetID = 0) then
-    return(error(me, "Part not found in set index:" && tPartId, #replaceOneWindow))
+    return error(me, ("Part not found in set index:" && tPartId), #replaceOneWindow)
   end if
   tSetObject = pSetList.getaProp(tSetID)
   if (tSetObject = 0) then
-    return(error(me, "Set object not found:" && tSetID, #replaceOneWindow))
+    return error(me, ("Set object not found:" && tSetID), #replaceOneWindow)
   end if
   removeWindow(tPartId)
   createWindow(tPartId, tLayout)
   tWndObj = getWindow(tPartId)
   if (tWndObj = 0) then
-    return(error(me, "New window not found:" && tPartId, #replaceOneWindow))
+    return error(me, ("New window not found:" && tPartId), #replaceOneWindow)
   end if
   tWndObj.lock()
   me.addCurrentProceduresOnWindow(tWndObj)
@@ -334,37 +317,34 @@ on replaceOneWindow me, tPartId, tLayout, tRender
   if tRender then
     me.render()
   end if
-  return TRUE
+  return 1
 end
 
-on windowExists me, tPartId 
-  if (tPartId = void()) then
-    return FALSE
+on windowExists me, tPartId
+  if (tPartId = VOID) then
+    return 0
   end if
-  return(me.pSetIndex.findPos(tPartId) <> 0)
+  return (me.pSetIndex.findPos(tPartId) <> 0)
 end
 
-on getElement me, tElemID, tWndID 
-  repeat while me.pSetList <= tWndID
-    tSetObject = getAt(tWndID, tElemID)
+on getElement me, tElemID, tWndID
+  repeat with tSetObject in me.pSetList
     tElem = tSetObject.getElement(tElemID)
     if objectp(tElem) then
-      return(tElem)
+      return tElem
     end if
   end repeat
-  return FALSE
+  return 0
 end
 
-on render me 
+on render me
   tOldLocation = me.getRealLocation()
   tMaxHeight = me.getWrapperProperty(#height, #total, 1)
-  tColumnCount = me.count(#pSetOrderIndex)
-  repeat while me.pSetOrderIndex <= undefined
-    tSetColumn = getAt(undefined, undefined)
-    repeat while me.pSetOrderIndex <= undefined
-      tSetID = getAt(undefined, undefined)
+  tColumnCount = me.pSetOrderIndex.count
+  repeat with tSetColumn in me.pSetOrderIndex
+    repeat with tSetID in tSetColumn
       tSetObject = pSetList.getaProp(tSetID)
-      if tSetObject <> 0 then
+      if (tSetObject <> 0) then
         tSetObject.render(-1, tMaxHeight)
         if tSetObject.getProperty(#span_all_columns) then
           tMaxHeight = (tMaxHeight - tSetObject.getProperty(#height))
@@ -372,187 +352,168 @@ on render me
       end if
     end repeat
   end repeat
-  me.moveTo(tOldLocation.getAt(1), tOldLocation.getAt(2))
-  return TRUE
+  me.moveTo(tOldLocation[1], tOldLocation[2])
+  return 1
 end
 
-on hide me 
+on hide me
   pVisible = 0
-  repeat while me.pSetList <= undefined
-    tSetObject = getAt(undefined, undefined)
+  repeat with tSetObject in me.pSetList
     if objectp(tSetObject) then
       tSetObject.hide()
     end if
   end repeat
-  return TRUE
+  return 1
 end
 
-on show me 
+on show me
   pVisible = 1
-  repeat while me.pSetList <= undefined
-    tSetObject = getAt(undefined, undefined)
+  repeat with tSetObject in me.pSetList
     if objectp(tSetObject) then
       tSetObject.show()
     end if
   end repeat
-  return TRUE
+  return 1
 end
 
-on registerProcedure me, tMethod, tClientID, tEvent 
-  if (tEvent = void()) then
-    return FALSE
+on registerProcedure me, tMethod, tClientID, tEvent
+  if (tEvent = VOID) then
+    return 0
   end if
-  if (tClientID = void()) then
-    return FALSE
+  if (tClientID = VOID) then
+    return 0
   end if
-  if (tMethod = void()) then
-    return FALSE
+  if (tMethod = VOID) then
+    return 0
   end if
   tEventItem = pProcedureList.getaProp(tEvent)
-  if (tEventItem = void()) then
+  if (tEventItem = VOID) then
     tEventItem = [:]
   end if
   tEventItem.setaProp(tClientID, tMethod)
   pProcedureList.setaProp(tEvent, tEventItem)
-  repeat while me.pSetList <= tClientID
-    tSetObject = getAt(tClientID, tMethod)
+  repeat with tSetObject in me.pSetList
     if (tSetObject = 0) then
-      return FALSE
+      return 0
     end if
     tPartList = tSetObject.getItems()
-    repeat while me.pSetList <= tClientID
-      tWindowID = getAt(tClientID, tMethod)
+    repeat with tWindowID in tPartList
       tWindow = getWindow(tWindowID)
       if (tWindow = 0) then
-        return FALSE
+        return 0
       end if
       tWindow.registerProcedure(tMethod, tClientID, tEvent)
     end repeat
   end repeat
-  return TRUE
+  return 1
 end
 
-on removeProcedure me, tEvent 
-  if (tEvent = void()) then
-    return FALSE
+on removeProcedure me, tEvent
+  if (tEvent = VOID) then
+    return 0
   end if
   tEventItem = pProcedureList.getaProp(tEvent)
-  if (tEventItem = void()) then
-    return TRUE
+  if (tEventItem = VOID) then
+    return 1
   end if
-  i = 1
-  repeat while i <= tEventItem.count
+  repeat with i = 1 to tEventItem.count
     tItemClientId = tEventItem.getPropAt(i)
     tWindow = getWindow(tItemClientId)
-    if tWindow <> 0 then
+    if (tWindow <> 0) then
       tWindow.removeProcedure(tEvent)
     end if
-    i = (1 + i)
   end repeat
   pProcedureList.deleteProp(tEvent)
-  return TRUE
+  return 1
 end
 
-on getRealLocation me 
-  if (me.count(#pSetOrderIndex) = 0) then
-    return(point(pLocX, pLocY))
+on getRealLocation me
+  if (me.pSetOrderIndex.count = 0) then
+    return point(pLocX, pLocY)
   end if
-  tSetColumn = me.getProp(#pSetOrderIndex, 1)
+  tSetColumn = me.pSetOrderIndex[1]
   if (tSetColumn.count = 0) then
-    return(point(pLocX, pLocY))
+    return point(pLocX, pLocY)
   end if
-  tSetObject = me.getSet(tSetColumn.getAt(1))
-  return(tSetObject.getRealLocation())
+  tSetObject = me.getSet(tSetColumn[1])
+  return tSetObject.getRealLocation()
 end
 
-on getSet me, tSetID 
-  return(pSetList.getaProp(tSetID))
+on getSet me, tSetID
+  return pSetList.getaProp(tSetID)
 end
 
-on getWrapperProperty me, tKey, tMode, tColumnNum, tResult 
-  tSetCount = me.count(#pSetOrderIndex)
-  if tColumnNum > tSetCount then
-    return FALSE
+on getWrapperProperty me, tKey, tMode, tColumnNum, tResult
+  tSetCount = me.pSetOrderIndex.count
+  if (tColumnNum > tSetCount) then
+    return 0
   end if
-  if tColumnNum < 1 then
-    i = 1
-    repeat while i <= tSetCount
+  if (tColumnNum < 1) then
+    repeat with i = 1 to tSetCount
       tValue = me.getWrapperProperty(tKey, #total, i)
-      if (tMode = #total) then
-        tResult = (tResult + tValue)
-      else
-        if (tMode = #max) then
-          if tValue > tResult then
+      case tMode of
+        #total:
+          tResult = (tResult + tValue)
+        #max:
+          if (tValue > tResult) then
             tResult = tValue
           end if
-        end if
-      end if
-      i = (1 + i)
+      end case
     end repeat
-    exit repeat
+  else
+    tSetColumn = me.pSetOrderIndex[tColumnNum]
+    repeat with j = 1 to tSetColumn.count
+      tSetObject = me.getSet(tSetColumn[j])
+      if (tSetObject = 0) then
+        return error(me, ("Set object not found:" && tSetColumn[j]), #getWrapperProperty)
+      end if
+      tResult = tSetObject.getAllWindowProperty(tKey, tMode, tResult)
+    end repeat
   end if
-  tSetColumn = me.getProp(#pSetOrderIndex, tColumnNum)
-  j = 1
-  repeat while j <= tSetColumn.count
-    tSetObject = me.getSet(tSetColumn.getAt(j))
-    if (tSetObject = 0) then
-      return(error(me, "Set object not found:" && tSetColumn.getAt(j), #getWrapperProperty))
-    end if
-    tResult = tSetObject.getAllWindowProperty(tKey, tMode, tResult)
-    j = (1 + j)
-  end repeat
-  return(tResult)
+  return tResult
 end
 
-on getNextFreeSetIndex me, tColumnNum 
-  if tColumnNum > me.count(#pSetOrderIndex) then
-    return TRUE
+on getNextFreeSetIndex me, tColumnNum
+  if (tColumnNum > me.pSetOrderIndex.count) then
+    return 1
   end if
-  tSetColumn = me.getProp(#pSetOrderIndex, tColumnNum)
-  i = 1
-  repeat while i <= tSetColumn.count
+  tSetColumn = me.pSetOrderIndex[tColumnNum]
+  repeat with i = 1 to tSetColumn.count
     tNextIndex = (tSetColumn.getPropAt(i) + 1)
     if (tSetColumn.findPos(tNextIndex) = 0) then
-      return(tNextIndex)
+      return tNextIndex
     end if
-    i = (1 + i)
   end repeat
-  return FALSE
+  return 0
 end
 
-on addCurrentProceduresOnWindow me, tWndObj 
+on addCurrentProceduresOnWindow me, tWndObj
   if (tWndObj = 0) then
-    return FALSE
+    return 0
   end if
-  i = 1
-  repeat while i <= pProcedureList.count
+  repeat with i = 1 to pProcedureList.count
     tEvent = pProcedureList.getPropAt(i)
-    tProc = pProcedureList.getAt(i)
-    j = 1
-    repeat while j <= tProc.count
+    tProc = pProcedureList[i]
+    repeat with j = 1 to tProc.count
       tClientID = tProc.getPropAt(j)
-      tMethod = tProc.getAt(j)
+      tMethod = tProc[j]
       tWndObj.registerProcedure(tMethod, tClientID, tEvent)
-      j = (1 + j)
     end repeat
-    i = (1 + i)
   end repeat
-  return TRUE
+  return 1
 end
 
-on removeAllParts me 
-  i = 1
-  repeat while i <= me.count(#pSetOrderIndex)
-    tSetColumn = me.getProp(#pSetOrderIndex, i)
-    repeat while tSetColumn.count > 0
-      tSetID = tSetColumn.getAt(1)
+on removeAllParts me
+  repeat with i = 1 to me.pSetOrderIndex.count
+    tSetColumn = me.pSetOrderIndex[i]
+    repeat while (tSetColumn.count > 0)
+      tSetID = tSetColumn[1]
       me.removeSet(tSetID)
     end repeat
-    i = (1 + i)
   end repeat
   pItemList = [:]
   pSetIndex = [:]
   pSetList = [:]
   pSetOrderIndex = []
-  return TRUE
+  return 1
 end

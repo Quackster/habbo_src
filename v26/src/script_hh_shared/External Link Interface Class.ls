@@ -1,104 +1,104 @@
 property pWindowID, pTimeOutID, pActivateID
 
-on construct me 
+on construct me
   pWindowID = getUniqueID()
   pTimeOutID = getUniqueID()
   pActivateID = getUniqueID()
   registerMessage(#externalLinkClick, me.getID(), #notifyExternalLinkClick)
-  return TRUE
+  return 1
 end
 
-on deconstruct me 
+on deconstruct me
   me.removeTooltipWindow()
   me.removeWindowTimeout()
   me.removeActivateTimeout()
   unregisterMessage(#externalLinkClick)
-  return TRUE
+  return 1
 end
 
-on removeTooltipWindow me 
+on removeTooltipWindow me
   if windowExists(pWindowID) then
     removeWindow(pWindowID)
   end if
 end
 
-on removeWindowTimeout me 
+on removeWindowTimeout me
   if timeoutExists(pTimeOutID) then
     removeTimeout(pTimeOutID)
   end if
 end
 
-on createWindowTimeout me 
+on createWindowTimeout me
   me.removeWindowTimeout()
   tTimeoutTime = integer(getVariable("external_link_win_timeout", 2000))
-  createTimeout(pTimeOutID, tTimeoutTime, #removeTooltipWindow, me.getID(), void(), 1)
+  createTimeout(pTimeOutID, tTimeoutTime, #removeTooltipWindow, me.getID(), VOID, 1)
 end
 
-on createActivateTimeout me 
+on createActivateTimeout me
   me.removeActivateTimeout()
   tTimeoutTime = integer(getVariable("external_link_win_activate_timeout", 500))
-  createTimeout(pActivateID, tTimeoutTime, #activateToolTip, me.getID(), void(), 1)
+  createTimeout(pActivateID, tTimeoutTime, #activateToolTip, me.getID(), VOID, 1)
 end
 
-on removeActivateTimeout me 
+on removeActivateTimeout me
   if timeoutExists(pActivateID) then
     removeTimeout(pActivateID)
   end if
 end
 
-on activateToolTip me 
+on activateToolTip me
   tWndObj = getWindow(pWindowID)
   if (tWndObj = 0) then
-    return FALSE
+    return 0
   end if
   activateWindowObj(pWindowID)
 end
 
-on createTooltipWindow me 
+on createTooltipWindow me
   createWindow(pWindowID, "tooltip_external_link.window")
   tWndObj = getWindow(pWindowID)
   if (tWndObj = 0) then
-    return FALSE
+    return 0
   end if
   tWndObj.registerProcedure(#eventProc, me.getID(), #mouseUp)
 end
 
-on notifyExternalLinkClick me, tClickLocation 
+on notifyExternalLinkClick me, tClickLocation
   if voidp(tClickLocation) then
-    return FALSE
+    return 0
   end if
-  if ilk(tClickLocation) <> #point then
-    return FALSE
+  if (ilk(tClickLocation) <> #point) then
+    return 0
   end if
   if not windowExists(pWindowID) then
     me.createTooltipWindow()
   end if
   tWndObj = getWindow(pWindowID)
   if (tWndObj = 0) then
-    return FALSE
+    return 0
   end if
   tWndWidth = tWndObj.getProperty(#width)
   tWndHeight = tWndObj.getProperty(#height)
   tMarginH = getVariable("external_link_win_offset_h")
   tMarginV = getVariable("external_link_win_offset_v")
   tScreenWidth = (the stageRight - the stageLeft)
-  tOpenLocH = (tClickLocation.getAt(1) + tMarginH)
-  if (tOpenLocH + tWndWidth) > tScreenWidth then
-    tOpenLocH = ((tClickLocation.getAt(1) - tMarginH) - tWndWidth)
+  tOpenLocH = (tClickLocation[1] + tMarginH)
+  if ((tOpenLocH + tWndWidth) > tScreenWidth) then
+    tOpenLocH = ((tClickLocation[1] - tMarginH) - tWndWidth)
   end if
-  tOpenLocV = ((tClickLocation.getAt(2) - tMarginV) - tWndHeight)
-  if (tOpenLocV - tMarginV) < 0 then
-    tOpenLocV = (tClickLocation.getAt(2) + tMarginV)
+  tOpenLocV = ((tClickLocation[2] - tMarginV) - tWndHeight)
+  if ((tOpenLocV - tMarginV) < 0) then
+    tOpenLocV = (tClickLocation[2] + tMarginV)
   end if
   tWndObj.moveTo(tOpenLocH, tOpenLocV)
   me.createWindowTimeout()
   me.createActivateTimeout()
 end
 
-on eventProc me, tEvent, tElemID, tParam 
+on eventProc me, tEvent, tElemID, tParam
   tWndObj = getWindow(pWindowID)
   if (tWndObj = 0) then
-    return FALSE
+    return 0
   end if
   if (tEvent = #mouseUp) then
     me.removeTooltipWindow()

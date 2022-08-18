@@ -1,161 +1,215 @@
-on findPrimes  
+on findPrimes
+  -- unk26
 end
 
-on millerRabin  
+on millerRabin
+  -- unk26
 end
 
-on bitSize  
+on bitSize
+  -- unk26
 end
 
-on expand  
+on expand
+  -- unk26
 end
 
-on randTruePrime  
+on randTruePrime
+  -- unk26
 end
 
-on mod  
+on mod
+  -- unk26
 end
 
-on addInt  
+on addInt
+  -- unk26
 end
 
-on mult  
+on mult
+  -- unk26
 end
 
-on powMod  
+on powMod
+  -- unk26
 end
 
-on sub  
+on sub
+  -- unk26
 end
 
-on add  
+on add
+  -- unk26
 end
 
-on inverseMod  
+on inverseMod
+  -- unk26
 end
 
-on multMod  
+on multMod
+  -- unk26
 end
 
-on randTruePrime_  
+on randTruePrime_
+  -- unk26
 end
 
-on rand  
+on rand
+  -- unk26
 end
 
-on GCD_  
+on GCD_
+  -- unk26
 end
 
-on inverseMod_  
+on inverseMod_
+  -- unk26
 end
 
-on inverseModInt_  
+on inverseModInt_
+  -- unk26
 end
 
-on eGCD_  
+on eGCD_
+  -- unk26
 end
 
-on negative  
+on negative
+  -- unk26
 end
 
-on greaterShift  
+on greaterShift
+  -- unk26
 end
 
-on greater  
+on greater
+  -- unk26
 end
 
-on divide_  
+on divide_
+  -- unk26
 end
 
-on carry_  
+on carry_
+  -- unk26
 end
 
-on modInt  
+on modInt
+  -- unk26
 end
 
-on int2bigInt  
+on int2bigInt
+  -- unk26
 end
 
-on str2bigInt  
+on str2bigInt
+  -- unk26
 end
 
-on equalsInt  
+on equalsInt
+  -- unk26
 end
 
-on equals  
+on equals
+  -- unk26
 end
 
-on isZero  
+on isZero
+  -- unk26
 end
 
-on bigInt2str  
+on bigInt2str
+  -- unk26
 end
 
-on dup  
+on dup
+  -- unk26
 end
 
-on copy_  
+on copy_
+  -- unk26
 end
 
-on copyInt_  
+on copyInt_
+  -- unk26
 end
 
-on addInt_  
+on addInt_
+  -- unk26
 end
 
-on rightShift_  
+on rightShift_
+  -- unk26
 end
 
-on halve_  
+on halve_
+  -- unk26
 end
 
-on leftShift_  
+on leftShift_
+  -- unk26
 end
 
-on multInt_  
+on multInt_
+  -- unk26
 end
 
-on divInt_  
+on divInt_
+  -- unk26
 end
 
-on linComb_  
+on linComb_
+  -- unk26
 end
 
-on linCombShift_  
+on linCombShift_
+  -- unk26
 end
 
-on addShift_  
+on addShift_
+  -- unk26
 end
 
-on subShift_  
+on subShift_
+  -- unk26
 end
 
-on sub_  
+on sub_
+  -- unk26
 end
 
-on add_  
+on add_
+  -- unk26
 end
 
-on mult_  
+on mult_
+  -- unk26
 end
 
-on mod_  
+on mod_
+  -- unk26
 end
 
-on multMod_  
+on multMod_
+  -- unk26
 end
 
-on squareMod_  
+on squareMod_
+  -- unk26
 end
 
-on trim  
+on trim
+  -- unk26
 end
 
-on powMod_  
+on powMod_
+  -- unk26
 end
 
-on mont_  
+on mont_
+  -- unk26
 end
 
-on handlers  
+on handlers
+  -- unk26
 end

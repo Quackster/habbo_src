@@ -1,13 +1,14 @@
-property q, pR3hu24v5, j, i
+property pR3hu24v5, q, j, i
+global _player
 
-on qe2AkKOGGKDTTnd1Nei me, tMyKey, tMode, tOtherKey 
-  if _player <> void() then
+on qe2AkKOGGKDTTnd1Nei me, tMyKey, tMode, tOtherKey
+  if (_player <> VOID) then
     if _player.traceScript then
-      return FALSE
+      return 0
     end if
   end if
   _player.traceScript = 0
-  _player.traceScript = 0
+  _movie.traceScript = 0
   tMyKeyS = string(tMyKey)
   pR3hu24v5 = []
   tKey = []
@@ -20,19 +21,15 @@ on qe2AkKOGGKDTTnd1Nei me, tMyKey, tMode, tOtherKey
       tMode = #artificialKey
     end if
   end if
-  if tMode <> #old then
-    if (tMode = void()) then
-      q = 0
-      repeat while q <= 255
-        tKey.setAt((q + 1), charToNum(tMyKeyS.getProp(#char, ((q mod length(tMyKeyS)) + 1))))
-        pR3hu24v5.setAt((q + 1), q)
-        q = (1 + q)
+  case tMode of
+    #old, VOID:
+      repeat with q = 0 to 255
+        tKey[(q + 1)] = charToNum(tMyKeyS.char[((q mod length(tMyKeyS)) + 1)])
+        pR3hu24v5[(q + 1)] = q
       end repeat
-      exit repeat
-    end if
-    if (tMode = #artificialKey) then
+    #artificialKey:
       len = (bitAnd(tMyKey, 248) / 8)
-      if len < 20 then
+      if (len < 20) then
         len = (len + 20)
       end if
       tOffset = (tMyKey mod 1024)
@@ -40,217 +37,180 @@ on qe2AkKOGGKDTTnd1Nei me, tMyKey, tMode, tOtherKey
       fakeKey = []
       prevKey = 0
       m = 5
-      q = 0
-      repeat while q <= (len - 1)
+      repeat with q = 0 to (len - 1)
         tGiven = me.b6(tMyKey, (q mod 32))
-        tOwn = artificialKey.getAt(((abs((tOffset + q)) mod artificialKey.count) + 1))
-        ckey.setAt((q + 1), bitAnd(bitXor(tGiven, tOwn), 32767))
-        q = (1 + q)
+        tOwn = artificialKey[((abs((tOffset + q)) mod artificialKey.count) + 1)]
+        ckey[(q + 1)] = bitAnd(bitXor(tGiven, tOwn), 32767)
       end repeat
-      q = 0
-      repeat while q <= 255
-        tKey.setAt((q + 1), ckey.getAt(((q mod len) + 1)))
-        fakeKey.setAt((q + 1), tKey.getAt((q + 1)))
-        pR3hu24v5.setAt((q + 1), q)
-        q = (1 + q)
+      repeat with q = 0 to 255
+        tKey[(q + 1)] = ckey[((q mod len) + 1)]
+        fakeKey[(q + 1)] = tKey[(q + 1)]
+        pR3hu24v5[(q + 1)] = q
       end repeat
-      exit repeat
-    end if
-    if (tMode = #new) then
-      q = 0
-      repeat while q <= 255
-        tKey.setAt((q + 1), q)
-        q = (1 + q)
+    #new:
+      repeat with q = 0 to 255
+        tKey[(q + 1)] = q
       end repeat
-      q = 0
-      repeat while q <= 1019
-        tKey.setAt(((q mod 256) + 1), ((charToNum(tMyKeyS.getProp(#char, ((q mod length(tMyKeyS)) + 1))) + tKey.getAt(((q mod 256) + 1))) mod 256))
-        q = (1 + q)
+      repeat with q = 0 to 1019
+        tKey[((q mod 256) + 1)] = ((charToNum(tMyKeyS.char[((q mod length(tMyKeyS)) + 1)]) + tKey[((q mod 256) + 1)]) mod 256)
       end repeat
-      q = 0
-      repeat while q <= 255
-        pR3hu24v5.setAt((q + 1), q)
-        q = (1 + q)
+      repeat with q = 0 to 255
+        pR3hu24v5[(q + 1)] = q
       end repeat
-      exit repeat
-    end if
-    if (tMode = #initMUS) then
-      tModKey = ""
+    #initMUS:
+      tModKey = EMPTY
       l = 1
-      k = 1
-      repeat while k <= tMyKeyS.count(#char)
+      repeat with k = 1 to tMyKeyS.char.count
         tVal = bitXor(charToNum(chars(tMyKeyS, k, k)), charToNum(chars("mWxFRJnGJ5T9Si0OMVvEBBm8laihXkN8GmH6fuv7ldZhLyGRRKCcGzziPYBaJom", l, l)))
-        tModKey = tModKey & numToChar(tVal)
+        tModKey = (tModKey & numToChar(tVal))
         l = (l + 1)
-        if l > 63 then
+        if (l > 63) then
           l = 1
         end if
-        k = (1 + k)
       end repeat
-      q = 0
-      repeat while q <= 255
-        tKey.setAt((q + 1), charToNum(tModKey.getProp(#char, ((q mod length(tModKey)) + 1))))
-        pR3hu24v5.setAt((q + 1), q)
-        q = (1 + q)
+      repeat with q = 0 to 255
+        tKey[(q + 1)] = charToNum(tModKey.char[((q mod length(tModKey)) + 1)])
+        pR3hu24v5[(q + 1)] = q
       end repeat
-      exit repeat
-    end if
-    if (tMode = #initConnect) then
-      tModKey = ""
+    #initConnect:
+      tModKey = EMPTY
       l = 1
-      k = 1
-      repeat while k <= tMyKeyS.count(#char)
+      repeat with k = 1 to tMyKeyS.char.count
         tVal = bitXor(charToNum(chars(tMyKeyS, k, k)), charToNum(chars(tOtherKey, l, l)))
-        tModKey = tModKey & numToChar(tVal)
+        tModKey = (tModKey & numToChar(tVal))
         l = (l + 1)
-        if l > tOtherKey.count(#char) then
+        if (l > tOtherKey.char.count) then
           l = 1
         end if
-        k = (1 + k)
       end repeat
       tMyKeyS = tModKey
-      tModKey = ""
+      tModKey = EMPTY
       l = 1
-      k = 1
-      repeat while k <= tMyKeyS.count(#char)
+      repeat with k = 1 to tMyKeyS.char.count
         tVal = bitXor(charToNum(chars(tMyKeyS, k, k)), charToNum(chars("mWxFRJnGJ5T9Si0OMVvEBBm8laihXkN8GmH6fuv7ldZhLyGRRKCcGzziPYBaJom", l, l)))
-        tModKey = tModKey & numToChar(tVal)
+        tModKey = (tModKey & numToChar(tVal))
         l = (l + 1)
-        if l > 63 then
+        if (l > 63) then
           l = 1
         end if
-        k = (1 + k)
       end repeat
-      q = 0
-      repeat while q <= 255
-        tKey.setAt((q + 1), charToNum(tModKey.getProp(#char, ((q mod length(tModKey)) + 1))))
-        pR3hu24v5.setAt((q + 1), q)
-        q = (1 + q)
+      repeat with q = 0 to 255
+        tKey[(q + 1)] = charToNum(tModKey.char[((q mod length(tModKey)) + 1)])
+        pR3hu24v5[(q + 1)] = q
       end repeat
-    end if
-    j = 0
-    q = 0
-    repeat while q <= 255
-      j = (((j + pR3hu24v5.getAt((q + 1))) + tKey.getAt((q + 1))) mod 256)
-      k = pR3hu24v5.getAt((q + 1))
-      pR3hu24v5.setAt((q + 1), pR3hu24v5.getAt((j + 1)))
-      pR3hu24v5.setAt((j + 1), k)
-      q = (1 + q)
+  end case
+  j = 0
+  repeat with q = 0 to 255
+    j = (((j + pR3hu24v5[(q + 1)]) + tKey[(q + 1)]) mod 256)
+    k = pR3hu24v5[(q + 1)]
+    pR3hu24v5[(q + 1)] = pR3hu24v5[(j + 1)]
+    pR3hu24v5[(j + 1)] = k
+  end repeat
+  q = 0
+  j = 0
+  i = 0
+  if ((tMode = #initConnect) or (tMode = #initMUS)) then
+    tPrMixString = "NV6VVFPoC7FLDlzDUri3qcOAg9cRoFOmsYR9ffDGy5P8HfF6eekX40SFSVfJ1mDb3lcpYRqdg28sp61eHkPukKbqTu1JsVEKiRavi04YtSzUsLXaYSa5BEGwg5G2OF"
+    repeat with l = 1 to 52
+      me.zLmj71sZDldCwpaZLbqHds(tPrMixString)
     end repeat
-    q = 0
-    j = 0
-    i = 0
-    if (tMode = #initConnect) or (tMode = #initMUS) then
-      tPrMixString = "NV6VVFPoC7FLDlzDUri3qcOAg9cRoFOmsYR9ffDGy5P8HfF6eekX40SFSVfJ1mDb3lcpYRqdg28sp61eHkPukKbqTu1JsVEKiRavi04YtSzUsLXaYSa5BEGwg5G2OF"
-      l = 1
-      repeat while l <= 52
-        me.zLmj71sZDldCwpaZLbqHds(tPrMixString)
-        l = (1 + l)
-      end repeat
-    end if
   end if
 end
 
-on lzNP3UFWUtBTs1stvSHGgk me, tdata 
+on lzNP3UFWUtBTs1stvSHGgk me, tdata
   tCipher = me.zLmj71sZDldCwpaZLbqHds(tdata)
   me.zLmj71sZDldCwpaZLbqHds("xllVGKnnQcW8aX4WefdKrBWTqiW5EwT")
-  return(tCipher)
+  return tCipher
 end
 
-on zLmj71sZDldCwpaZLbqHds me, tdata 
-  if _player <> void() then
+on zLmj71sZDldCwpaZLbqHds me, tdata
+  if (_player <> VOID) then
     if _player.traceScript then
-      return FALSE
+      return 0
     end if
   end if
   _player.traceScript = 0
-  _player.traceScript = 0
-  tCipher = ""
+  _movie.traceScript = 0
+  tCipher = EMPTY
   tBytes = []
-  e = 1
-  repeat while e <= length(tdata)
-    a = charToNum(tdata.char[e])
-    if a > 255 then
+  repeat with e = 1 to length(tdata)
+    a = charToNum(char e of tdata)
+    if (a > 255) then
       add(tBytes, ((a - (a mod 256)) / 256))
       if (a mod 256) then
         add(tBytes, (a mod 256))
       end if
-    else
-      add(tBytes, a)
+      next repeat
     end if
-    e = (1 + e)
+    add(tBytes, a)
   end repeat
   tStrServ = getStringServices()
-  a = 1
-  repeat while a <= tBytes.count
+  repeat with a = 1 to tBytes.count
     q = ((q + 1) mod 256)
-    j = ((j + pR3hu24v5.getAt((q + 1))) mod 256)
-    temp = pR3hu24v5.getAt((q + 1))
-    pR3hu24v5.setAt((q + 1), pR3hu24v5.getAt((j + 1)))
-    pR3hu24v5.setAt((j + 1), temp)
+    j = ((j + pR3hu24v5[(q + 1)]) mod 256)
+    temp = pR3hu24v5[(q + 1)]
+    pR3hu24v5[(q + 1)] = pR3hu24v5[(j + 1)]
+    pR3hu24v5[(j + 1)] = temp
     t_i = ((17 * (q + 19)) mod 256)
-    t_j = ((j + pR3hu24v5.getAt((t_i + 1))) mod 256)
-    temp = pR3hu24v5.getAt((t_i + 1))
-    pR3hu24v5.setAt((t_i + 1), pR3hu24v5.getAt((t_j + 1)))
-    pR3hu24v5.setAt((t_j + 1), temp)
-    if (q = 46) or (q = 67) or (q = 192) then
+    t_j = ((j + pR3hu24v5[(t_i + 1)]) mod 256)
+    temp = pR3hu24v5[(t_i + 1)]
+    pR3hu24v5[(t_i + 1)] = pR3hu24v5[(t_j + 1)]
+    pR3hu24v5[(t_j + 1)] = temp
+    if (((q = 46) or (q = 67)) or (q = 192)) then
       t2_i = ((297 * (t_i + 67)) mod 256)
-      t2_j = ((t_j + pR3hu24v5.getAt((t2_i + 1))) mod 256)
-      temp = pR3hu24v5.getAt((t2_i + 1))
-      pR3hu24v5.setAt((t2_i + 1), pR3hu24v5.getAt((t2_j + 1)))
-      pR3hu24v5.setAt((t2_j + 1), temp)
+      t2_j = ((t_j + pR3hu24v5[(t2_i + 1)]) mod 256)
+      temp = pR3hu24v5[(t2_i + 1)]
+      pR3hu24v5[(t2_i + 1)] = pR3hu24v5[(t2_j + 1)]
+      pR3hu24v5[(t2_j + 1)] = temp
     end if
-    d = pR3hu24v5.getAt((((pR3hu24v5.getAt((q + 1)) + pR3hu24v5.getAt((j + 1))) mod 256) + 1))
-    tCipher = tCipher & tStrServ.convertIntToHex(bitXor(tBytes.getAt(a), d))
-    a = (1 + a)
+    d = pR3hu24v5[(((pR3hu24v5[(q + 1)] + pR3hu24v5[(j + 1)]) mod 256) + 1)]
+    tCipher = (tCipher & tStrServ.convertIntToHex(bitXor(tBytes[a], d)))
   end repeat
   i = (random(256) - 1)
-  return(tCipher)
+  return tCipher
 end
 
-on TTF97D0LvibV6X me, tdata 
-  if _player <> void() then
+on TTF97D0LvibV6X me, tdata
+  if (_player <> VOID) then
     if _player.traceScript then
-      return FALSE
+      return 0
     end if
   end if
   _player.traceScript = 0
-  _player.traceScript = 0
-  tCipher = ""
+  _movie.traceScript = 0
+  tCipher = EMPTY
   tStrServ = getStringServices()
-  a = 1
-  repeat while a <= length(tdata)
+  repeat with a = 1 to length(tdata)
     q = ((q + 1) mod 256)
-    j = ((j + pR3hu24v5.getAt((q + 1))) mod 256)
-    temp = pR3hu24v5.getAt((q + 1))
-    pR3hu24v5.setAt((q + 1), pR3hu24v5.getAt((j + 1)))
-    pR3hu24v5.setAt((j + 1), temp)
+    j = ((j + pR3hu24v5[(q + 1)]) mod 256)
+    temp = pR3hu24v5[(q + 1)]
+    pR3hu24v5[(q + 1)] = pR3hu24v5[(j + 1)]
+    pR3hu24v5[(j + 1)] = temp
     t_i = ((17 * (q + 19)) mod 256)
-    t_j = ((j + pR3hu24v5.getAt((t_i + 1))) mod 256)
-    temp = pR3hu24v5.getAt((t_i + 1))
-    pR3hu24v5.setAt((t_i + 1), pR3hu24v5.getAt((t_j + 1)))
-    pR3hu24v5.setAt((t_j + 1), temp)
-    if (q = 46) or (q = 67) or (q = 192) then
+    t_j = ((j + pR3hu24v5[(t_i + 1)]) mod 256)
+    temp = pR3hu24v5[(t_i + 1)]
+    pR3hu24v5[(t_i + 1)] = pR3hu24v5[(t_j + 1)]
+    pR3hu24v5[(t_j + 1)] = temp
+    if (((q = 46) or (q = 67)) or (q = 192)) then
       t2_i = ((297 * (t_i + 67)) mod 256)
-      t2_j = ((t_j + pR3hu24v5.getAt((t2_i + 1))) mod 256)
-      temp = pR3hu24v5.getAt((t2_i + 1))
-      pR3hu24v5.setAt((t2_i + 1), pR3hu24v5.getAt((t2_j + 1)))
-      pR3hu24v5.setAt((t2_j + 1), temp)
+      t2_j = ((t_j + pR3hu24v5[(t2_i + 1)]) mod 256)
+      temp = pR3hu24v5[(t2_i + 1)]
+      pR3hu24v5[(t2_i + 1)] = pR3hu24v5[(t2_j + 1)]
+      pR3hu24v5[(t2_j + 1)] = temp
     end if
-    d = pR3hu24v5.getAt((((pR3hu24v5.getAt((q + 1)) + pR3hu24v5.getAt((j + 1))) mod 256) + 1))
-    t = tStrServ.convertHexToInt(tdata.getProp(#char, a, (a + 1)))
-    tCipher = tCipher & numToChar(bitXor(t, d))
+    d = pR3hu24v5[(((pR3hu24v5[(q + 1)] + pR3hu24v5[(j + 1)]) mod 256) + 1)]
+    t = tStrServ.convertHexToInt(tdata.char[a])
+    tCipher = (tCipher & numToChar(bitXor(t, d)))
     a = (a + 1)
-    a = (1 + a)
   end repeat
   i = (random(256) - 1)
-  return(tCipher)
+  return tCipher
 end
 
-on jfh2ZSJi5QnANFH me 
-  if _player <> void() then
+on jfh2ZSJi5QnANFH me
+  if (_player <> VOID) then
     if _player.traceScript then
-      return FALSE
+      return 0
     end if
   end if
   tKeyMinLength = 30
@@ -259,30 +219,28 @@ on jfh2ZSJi5QnANFH me
   tSeed = the randomSeed
   the randomSeed = the milliSeconds
   tLength = (tKeyMinLength + abs((random(65536) mod tKeyLengthVariation)))
-  tTable = ""
-  tKey = ""
-  i = 1
-  repeat while i <= tLength
-    c = tCharacters.getProp(#char, ((random(65536) mod tCharacters.length) + 1))
-    tTable = tTable & c
-    c = tCharacters.getProp(#char, ((random(65536) mod tCharacters.length) + 1))
-    tTable = tTable & c
-    tKey = tKey & c
-    i = (1 + i)
+  tTable = EMPTY
+  tKey = EMPTY
+  repeat with i = 1 to tLength
+    c = tCharacters.char[((random(65536) mod tCharacters.length) + 1)]
+    tTable = (tTable & c)
+    c = tCharacters.char[((random(65536) mod tCharacters.length) + 1)]
+    tTable = (tTable & c)
+    tKey = (tKey & c)
   end repeat
-  tCodedKey = tTable & tKey
+  tCodedKey = (tTable & tKey)
   the randomSeed = tSeed
-  return(tCodedKey)
+  return tCodedKey
 end
 
-on b6 me, x, n 
-  return(bitOr((x / power(2, n)), 0))
+on b6 me, x, n
+  return bitOr((x / power(2, n)), 0)
 end
 
-on handlers me 
-  return([])
+on handlers me
+  return []
 end
 
-on handler me 
-  return FALSE
+on handler me
+  return 0
 end

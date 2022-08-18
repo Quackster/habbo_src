@@ -1,208 +1,188 @@
-property pGeometry, pWorldMaxY, pTileGrid, pWorldMaxX, pTileWidth, pAccuracyFactor, pObjectCache, pWorldReady, pLocationClass, pTileSpaceReserveList, pRoomGeometry
+property pGeometry, pRoomGeometry, pWorldReady, pObjectCache, pReceivedMap, pWorldMaxX, pWorldMaxY, pTileGrid, pTileSpaceReserveList, pTileWidth, pAccuracyFactor, pLocationClass
 
-on construct me 
+on construct me
   pLocationClass = getClassVariable("gamesystem.location.class")
   pRoomGeometry = getThread(#room).getInterface().getGeometry()
   pGeometry = createObject(#temp, getClassVariable("gamesystem.geometry.class"))
   if not objectp(pGeometry) then
-    return(error(me, "Cannot create pGeometry.", #construct))
+    return error(me, "Cannot create pGeometry.", #construct)
   end if
   pWorldReady = 0
   pTileWidth = 32
   pAccuracyFactor = 100
   pTileGrid = []
   pTileSpaceReserveList = [:]
-  return TRUE
+  return 1
 end
 
-on deconstruct me 
+on deconstruct me
   pReady = 0
-  pTileGrid = void()
-  pComponentToAngle = void()
-  pGeometry = void()
-  return TRUE
+  pTileGrid = VOID
+  pComponentToAngle = VOID
+  pGeometry = VOID
+  return 1
 end
 
-on storeHeightmap me, tdata 
+on storeHeightmap me, tdata
   pReceivedMap = tdata
-  pWorldMaxY = tdata.count(#line)
-  pWorldMaxX = tdata.getPropRef(#line, 1).length
+  pWorldMaxY = tdata.line.count
+  pWorldMaxX = tdata.line[1].length
   pTileGrid = []
   tTileClass = getClassVariable("gamesystem.tile.class")
-  tLocY = 1
-  repeat while tLocY <= pWorldMaxY
-    pTileGrid.setAt(tLocY, [])
-    tLocX = 1
-    repeat while tLocX <= pWorldMaxX
+  repeat with tLocY = 1 to pWorldMaxY
+    pTileGrid[tLocY] = []
+    repeat with tLocX = 1 to pWorldMaxX
       tTile = createObject(#temp, tTileClass)
-      pTileGrid.getAt(tLocY).setAt(tLocX, tTile)
+      pTileGrid[tLocY][tLocX] = tTile
       tTileLocX = (tLocX - 1)
       tTileLocY = (tLocY - 1)
       tCenterLocX = (tTileLocX * (pTileWidth * pAccuracyFactor))
       tCenterLocY = (tTileLocY * (pTileWidth * pAccuracyFactor))
-      tTile.define(tTileLocX, tTileLocY, tCenterLocX, tCenterLocY, tdata.getPropRef(#line, tLocY).getProp(#char, tLocX))
-      tLocX = (1 + tLocX)
+      tTile.define(tTileLocX, tTileLocY, tCenterLocX, tCenterLocY, tdata.line[tLocY].char[tLocX])
     end repeat
-    tLocY = (1 + tLocY)
   end repeat
   pWorldReady = 1
-  if pObjectCache <> void() then
+  if (pObjectCache <> VOID) then
     me.storeObjects(pObjectCache)
   end if
   me.getProcManager().distributeEvent(#world_ready)
-  return TRUE
+  return 1
 end
 
-on storeObjects me, tdata 
+on storeObjects me, tdata
   if (pWorldReady = 0) then
     pObjectCache = tdata
-    return FALSE
+    return 0
   end if
-  repeat while tdata <= undefined
-    tItem = getAt(undefined, tdata)
-    if (tItem.getAt(#height) = 0) then
-      if not listp(tItem.getAt(#dimensions)) then
-        tItem.setAt(#height, 0)
+  repeat with tItem in tdata
+    if (tItem[#height] = 0) then
+      if not listp(tItem[#dimensions]) then
+        tItem[#height] = 0
       else
-        tItem.setAt(#height, tItem.getAt(#dimensions).getAt(2))
+        tItem[#height] = tItem[#dimensions][2]
       end if
     end if
-    if not me.reserveTileForObject(tItem.getAt(#x), tItem.getAt(#y), tItem.getAt(#id), tItem.getAt(#height)) then
+    if not me.reserveTileForObject(tItem[#x], tItem[#y], tItem[#id], tItem[#height]) then
       error(me, "Unable to reserve tile for furniture!", #storeObjects)
     end if
   end repeat
   me.getProcManager().distributeEvent(#objects_ready)
-  return TRUE
+  return 1
 end
 
-on initLocation me, tX, tY, tZ 
+on initLocation me, tX, tY, tZ
   tObject = createObject(#temp, pLocationClass)
   if (tObject = 0) then
-    return(error(me, "Cannot initialize location object.", #initLocation))
+    return error(me, "Cannot initialize location object.", #initLocation)
   end if
   tObject.define(tX, tY, tZ, pTileWidth, pAccuracyFactor)
-  return(tObject)
+  return tObject
 end
 
-on initLocationAsTile me, tX, tY, tZ 
+on initLocationAsTile me, tX, tY, tZ
   tObject = me.initLocation(tX, tY, tZ)
   if (tObject = 0) then
-    return FALSE
+    return 0
   end if
   tObject.setTileLoc(tX, tY, tZ)
-  return(tObject)
+  return tObject
 end
 
-on getTile me, tLocX, tLocY 
+on getTile me, tLocX, tLocY
   tLocX = (tLocX + 1)
   tLocY = (tLocY + 1)
-  if tLocX <= 0 or tLocY <= 0 then
-    return FALSE
+  if ((tLocX <= 0) or (tLocY <= 0)) then
+    return 0
   end if
-  if pTileGrid.count < tLocY then
-    return FALSE
+  if (pTileGrid.count < tLocY) then
+    return 0
   end if
-  if pTileGrid.getAt(tLocY).count < tLocX then
-    return FALSE
+  if (pTileGrid[tLocY].count < tLocX) then
+    return 0
   end if
-  return(pTileGrid.getAt(tLocY).getAt(tLocX))
+  return pTileGrid[tLocY][tLocX]
 end
 
-on getTileNeighborInDirection me, tX, tY, tdir 
-  if (tdir = 0) then
-    return(me.getTile(tX, (tY - 1)))
-  else
-    if (tdir = 1) then
-      return(me.getTile((tX + 1), (tY - 1)))
-    else
-      if (tdir = 2) then
-        return(me.getTile((tX + 1), tY))
-      else
-        if (tdir = 3) then
-          return(me.getTile((tX + 1), (tY + 1)))
-        else
-          if (tdir = 4) then
-            return(me.getTile(tX, (tY + 1)))
-          else
-            if (tdir = 5) then
-              return(me.getTile((tX - 1), (tY + 1)))
-            else
-              if (tdir = 6) then
-                return(me.getTile((tX - 1), tY))
-              else
-                if (tdir = 7) then
-                  return(me.getTile((tX - 1), (tY - 1)))
-                else
-                  return(error(me, "Invalid direction for tile:" && tdir, #getTileNeighborInDirection))
-                end if
-              end if
-            end if
-          end if
-        end if
-      end if
-    end if
-  end if
+on getTileNeighborInDirection me, tX, tY, tdir
+  case tdir of
+    0:
+      return me.getTile(tX, (tY - 1))
+    1:
+      return me.getTile((tX + 1), (tY - 1))
+    2:
+      return me.getTile((tX + 1), tY)
+    3:
+      return me.getTile((tX + 1), (tY + 1))
+    4:
+      return me.getTile(tX, (tY + 1))
+    5:
+      return me.getTile((tX - 1), (tY + 1))
+    6:
+      return me.getTile((tX - 1), tY)
+    7:
+      return me.getTile((tX - 1), (tY - 1))
+  end case
+  return error(me, ("Invalid direction for tile:" && tdir), #getTileNeighborInDirection)
 end
 
-on reserveTileForObject me, tLocX, tLocY, tObjectID, tObjectHeight 
+on reserveTileForObject me, tLocX, tLocY, tObjectID, tObjectHeight
   tTile = me.getTile(tLocX, tLocY)
   if (tTile = 0) then
-    return FALSE
+    return 0
   end if
-  if not listp(pTileSpaceReserveList.getAt(tObjectID)) then
+  if not listp(pTileSpaceReserveList[tObjectID]) then
     pTileSpaceReserveList.setaProp(tObjectID, [])
   end if
-  pTileSpaceReserveList.getAt(tObjectID).append(tTile)
-  return(tTile.addContent(tObjectID, [#height:tObjectHeight]))
+  pTileSpaceReserveList[tObjectID].append(tTile)
+  return tTile.addContent(tObjectID, [#height: tObjectHeight])
 end
 
-on clearObjectFromTileSpace me, tObjectID 
-  if not listp(pTileSpaceReserveList.getAt(tObjectID)) then
-    return TRUE
+on clearObjectFromTileSpace me, tObjectID
+  if not listp(pTileSpaceReserveList[tObjectID]) then
+    return 1
   end if
-  repeat while pTileSpaceReserveList.getAt(tObjectID) <= undefined
-    tTile = getAt(undefined, tObjectID)
+  repeat with tTile in pTileSpaceReserveList[tObjectID]
     tTile.removeContent(tObjectID)
   end repeat
   pTileSpaceReserveList.setaProp(tObjectID, [])
-  return TRUE
+  return 1
 end
 
-on gettileatworldcoordinate me, tLocX, tLocY 
+on gettileatworldcoordinate me, tLocX, tLocY
   tMultiplier = (pTileWidth * pAccuracyFactor)
-  if tLocX < -(tMultiplier / 2) or tLocY < -(tMultiplier / 2) then
-    return FALSE
+  if ((tLocX < -(tMultiplier / 2)) or (tLocY < -(tMultiplier / 2))) then
+    return 0
   end if
-  return(me.getTile(((tLocX + (tMultiplier / 2)) / tMultiplier), ((tLocY + (tMultiplier / 2)) / tMultiplier)))
+  return me.getTile(((tLocX + (tMultiplier / 2)) / tMultiplier), ((tLocY + (tMultiplier / 2)) / tMultiplier))
 end
 
-on convertTileToWorldCoordinate me, tLocX, tLocY, tlocz 
+on convertTileToWorldCoordinate me, tLocX, tLocY, tlocz
   tMultiplier = (pTileWidth * pAccuracyFactor)
-  return([#x:(tLocX * tMultiplier), #y:(tLocY * tMultiplier), #h:(tlocz * tMultiplier)])
+  return [#x: (tLocX * tMultiplier), #y: (tLocY * tMultiplier), #h: (tlocz * tMultiplier)]
 end
 
-on convertworldtotilecoordinate me, tLocX, tLocY, tlocz 
+on convertworldtotilecoordinate me, tLocX, tLocY, tlocz
   tMultiplier = (pTileWidth * pAccuracyFactor)
-  return([#x:((tLocX + (tMultiplier / 2)) / tMultiplier), #y:((tLocY + (tMultiplier / 2)) / tMultiplier)])
-  return([#x:(tLocX * tMultiplier), #y:(tLocY * tMultiplier), #h:(tlocz * tMultiplier)])
+  return [#x: ((tLocX + (tMultiplier / 2)) / tMultiplier), #y: ((tLocY + (tMultiplier / 2)) / tMultiplier)]
+  return [#x: (tLocX * tMultiplier), #y: (tLocY * tMultiplier), #h: (tlocz * tMultiplier)]
 end
 
-on convertWorldToScreenCoordinate me, tX, tY, tZ 
+on convertWorldToScreenCoordinate me, tX, tY, tZ
   if (pRoomGeometry = 0) then
-    return FALSE
+    return 0
   end if
   tMultiplier = float((pTileWidth * pAccuracyFactor))
   tX = (0.5 + (tX / tMultiplier))
   tY = (-0.5 + (tY / tMultiplier))
   tZ = (tZ / tMultiplier)
   tloc = pRoomGeometry.getScreenCoordinate(tX, tY, tZ)
-  return(tloc)
+  return tloc
 end
 
-on getWorldReady me 
-  return(pWorldReady)
+on getWorldReady me
+  return pWorldReady
 end
 
-on getGeometry me 
-  return(pGeometry)
+on getGeometry me
+  return pGeometry
 end

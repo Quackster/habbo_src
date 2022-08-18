@@ -1,18 +1,18 @@
-property pPalette, pProps, pimage, pDepth, pParams, pSprite, pLocX, pLocY, pScaleH, pScaleV, pBuffer, pVisible, pheight, pwidth
+property pID, pMotherId, pType, pBuffer, pSprite, pPalette, pScaleH, pScaleV, pLocX, pLocY, pwidth, pheight, pVisible, pDepth, pimage, pParams, pProps
 
-on define me, tProps 
-  pID = tProps.getAt(#id)
-  pMotherId = tProps.getAt(#mother)
-  pType = tProps.getAt(#type)
-  pScaleH = tProps.getAt(#scaleH)
-  pScaleV = tProps.getAt(#scaleV)
-  pBuffer = tProps.getAt(#buffer)
-  pSprite = tProps.getAt(#sprite)
-  pLocX = tProps.getAt(#locH)
-  pLocY = tProps.getAt(#locV)
-  pwidth = tProps.getAt(#width)
-  pheight = tProps.getAt(#height)
-  pPalette = tProps.getAt(#palette)
+on define me, tProps
+  pID = tProps[#id]
+  pMotherId = tProps[#mother]
+  pType = tProps[#type]
+  pScaleH = tProps[#scaleH]
+  pScaleV = tProps[#scaleV]
+  pBuffer = tProps[#buffer]
+  pSprite = tProps[#sprite]
+  pLocX = tProps[#locH]
+  pLocY = tProps[#locV]
+  pwidth = tProps[#width]
+  pheight = tProps[#height]
+  pPalette = tProps[#palette]
   pProps = tProps
   pDepth = the colorDepth
   pVisible = 1
@@ -23,13 +23,13 @@ on define me, tProps
       pPalette = member(getResourceManager().getmemnum(pPalette))
     end if
   end if
-  tMemNum = getResourceManager().getmemnum(pProps.getAt(#member))
-  if tMemNum > 0 then
+  tMemNum = getResourceManager().getmemnum(pProps[#member])
+  if (tMemNum > 0) then
     tmember = member(tMemNum)
     if (tmember.type = #bitmap) then
       pimage = tmember.image.duplicate()
       pDepth = tmember.image.depth
-      if pimage.paletteRef <> pPalette then
+      if (pimage.paletteRef <> pPalette) then
         pimage.paletteRef = pPalette
       end if
     end if
@@ -38,47 +38,47 @@ on define me, tProps
     pDepth = the colorDepth
     pimage = image(1, 1, pDepth, pPalette)
   end if
-  if pProps.getAt(#flipH) then
+  if pProps[#flipH] then
     me.flipH()
   end if
-  if pProps.getAt(#flipV) then
+  if pProps[#flipV] then
     me.flipV()
   end if
   pParams = [:]
-  if tProps.getAt(#blend) < 100 then
-    pParams.setAt(#blend, tProps.getAt(#blend))
+  if (tProps[#blend] < 100) then
+    pParams[#blend] = tProps[#blend]
   end if
-  if tProps.getAt(#color) <> rgb(0, 0, 0) then
-    pParams.setAt(#color, tProps.getAt(#color))
+  if (tProps[#color] <> rgb(0, 0, 0)) then
+    pParams[#color] = tProps[#color]
   end if
-  if tProps.getAt(#bgColor) <> rgb(255, 255, 255) then
-    pParams.setAt(#bgColor, tProps.getAt(#bgColor))
+  if (tProps[#bgColor] <> rgb(255, 255, 255)) then
+    pParams[#bgColor] = tProps[#bgColor]
   end if
-  if tProps.getAt(#ink) <> 0 then
-    pParams.setAt(#ink, tProps.getAt(#ink))
+  if (tProps[#ink] <> 0) then
+    pParams[#ink] = tProps[#ink]
   end if
   if (pParams.count = 0) then
-    pParams = void()
+    pParams = VOID
   end if
-  return TRUE
+  return 1
 end
 
-on prepare me 
+on prepare me
 end
 
-on show me 
+on show me
   pVisible = 1
   pSprite.visible = 1
-  return TRUE
+  return 1
 end
 
-on hide me 
+on hide me
   pVisible = 0
   pSprite.visible = 0
-  return TRUE
+  return 1
 end
 
-on moveTo me, tLocX, tLocY 
+on moveTo me, tLocX, tLocY
   tOffX = (tLocX - pLocX)
   tOffY = (tLocY - pLocY)
   pLocX = tLocX
@@ -86,281 +86,187 @@ on moveTo me, tLocX, tLocY
   pSprite.loc = (pSprite.loc + [tOffX, tOffY])
 end
 
-on moveBy me, tOffX, tOffY 
+on moveBy me, tOffX, tOffY
   pLocX = (pLocX + tOffX)
   pLocY = (pLocY + tOffY)
   pSprite.loc = (pSprite.loc + [tOffX, tOffY])
 end
 
-on resizeTo me, tX, tY, tForcedTag 
+on resizeTo me, tX, tY, tForcedTag
   tOffX = (tX - pSprite.width)
   tOffY = (tY - pSprite.height)
-  return(me.resizeBy(tOffX, tOffY, tForcedTag))
+  return me.resizeBy(tOffX, tOffY, tForcedTag)
 end
 
-on resizeBy me, tOffH, tOffV, tForcedTag 
-  if tOffH <> 0 or tOffV <> 0 then
-    if (pScaleH = #move) then
-      me.moveBy(tOffH, 0)
-    else
-      if (pScaleH = #scale) then
+on resizeBy me, tOffH, tOffV, tForcedTag
+  if ((tOffH <> 0) or (tOffV <> 0)) then
+    case pScaleH of
+      #move:
+        me.moveBy(tOffH, 0)
+      #scale:
         pSprite.width = (pSprite.width + tOffH)
-      else
-        if (pScaleH = #center) then
-          me.moveBy((tOffH / 2), 0)
-        else
-          if (pScaleH = #fixed) then
-            if tForcedTag then
-              pSprite.width = (pSprite.width + tOffH)
-            end if
-          end if
+      #center:
+        me.moveBy((tOffH / 2), 0)
+      #fixed:
+        if tForcedTag then
+          pSprite.width = (pSprite.width + tOffH)
         end if
-      end if
-    end if
-    if (pScaleH = #move) then
-      me.moveBy(0, tOffV)
-    else
-      if (pScaleH = #scale) then
+    end case
+    case pScaleV of
+      #move:
+        me.moveBy(0, tOffV)
+      #scale:
         pSprite.height = (pSprite.height + tOffV)
-      else
-        if (pScaleH = #center) then
-          me.moveBy(0, (tOffV / 2))
-        else
-          if (pScaleH = #fixed) then
-            if tForcedTag then
-              pSprite.height = (pSprite.height + tOffV)
-            end if
-          end if
+      #center:
+        me.moveBy(0, (tOffV / 2))
+      #fixed:
+        if tForcedTag then
+          pSprite.height = (pSprite.height + tOffV)
         end if
-      end if
-    end if
+    end case
     pwidth = pSprite.width
     pheight = pSprite.height
     me.render()
   end if
 end
 
-on flipH me 
+on flipH me
   tImage = image(pimage.width, pimage.height, pimage.depth, me.pimage.paletteRef)
   tQuad = [point(pimage.width, 0), point(0, 0), point(0, pimage.height), point(pimage.width, pimage.height)]
   tImage.copyPixels(pimage, tQuad, pimage.rect)
   pimage = tImage
 end
 
-on flipV me 
+on flipV me
   tImage = image(pimage.width, pimage.height, pimage.depth, me.pimage.paletteRef)
   tQuad = [point(0, pimage.height), point(pimage.width, pimage.height), point(pimage.width, 0), point(0, 0)]
   tImage.copyPixels(pimage, tQuad, pimage.rect)
   pimage = tImage
 end
 
-on getProperty me, tProp 
-  if (tProp = #image) then
-    return(pimage)
-  else
-    if (tProp = #buffer) then
-      return(pBuffer)
-    else
-      if (tProp = #member) then
-        return(pBuffer)
-      else
-        if (tProp = #sprite) then
-          return(pSprite)
-        else
-          if (tProp = #scaleH) then
-            return(pScaleH)
-          else
-            if (tProp = #scaleV) then
-              return(pScaleV)
-            else
-              if (tProp = #locX) then
-                return(pLocX)
-              else
-                if (tProp = #locY) then
-                  return(pLocY)
-                else
-                  if (tProp = #locH) then
-                    return(pLocX)
-                  else
-                    if (tProp = #locV) then
-                      return(pLocY)
-                    else
-                      if (tProp = #locZ) then
-                        return(pSprite.locZ)
-                      else
-                        if (tProp = #width) then
-                          return(pSprite.width)
-                        else
-                          if (tProp = #height) then
-                            return(pSprite.height)
-                          else
-                            if (tProp = #rect) then
-                              return(pSprite.rect)
-                            else
-                              if (tProp = #depth) then
-                                return(pimage.depth)
-                              else
-                                if (tProp = #color) then
-                                  return(pSprite.color)
-                                else
-                                  if (tProp = #bgColor) then
-                                    return(pSprite.bgColor)
-                                  else
-                                    if (tProp = #blend) then
-                                      return(pSprite.blend)
-                                    else
-                                      if (tProp = #ink) then
-                                        return(pSprite.ink)
-                                      else
-                                        if (tProp = #palette) then
-                                          return(pPalette)
-                                        else
-                                          if (tProp = #visible) then
-                                            return(pVisible)
-                                          else
-                                            if (tProp = #cursor) then
-                                              return(pSprite.cursor)
-                                            else
-                                              return FALSE
-                                            end if
-                                          end if
-                                        end if
-                                      end if
-                                    end if
-                                  end if
-                                end if
-                              end if
-                            end if
-                          end if
-                        end if
-                      end if
-                    end if
-                  end if
-                end if
-              end if
-            end if
-          end if
-        end if
-      end if
-    end if
-  end if
+on getProperty me, tProp
+  case tProp of
+    #image:
+      return pimage
+    #buffer:
+      return pBuffer
+    #member:
+      return pBuffer
+    #sprite:
+      return pSprite
+    #scaleH:
+      return pScaleH
+    #scaleV:
+      return pScaleV
+    #locX:
+      return pLocX
+    #locY:
+      return pLocY
+    #locH:
+      return pLocX
+    #locV:
+      return pLocY
+    #locZ:
+      return pSprite.locZ
+    #width:
+      return pSprite.width
+    #height:
+      return pSprite.height
+    #rect:
+      return pSprite.rect
+    #depth:
+      return pimage.depth
+    #color:
+      return pSprite.color
+    #bgColor:
+      return pSprite.bgColor
+    #blend:
+      return pSprite.blend
+    #ink:
+      return pSprite.ink
+    #palette:
+      return pPalette
+    #visible:
+      return pVisible
+    #cursor:
+      return pSprite.cursor
+  end case
+  return 0
 end
 
-on setProperty me, tProp, tValue 
-  if (tProp = #scaleH) then
-    pScaleH = tValue
-  else
-    if (tProp = #scaleV) then
+on setProperty me, tProp, tValue
+  case tProp of
+    #scaleH:
+      pScaleH = tValue
+    #scaleV:
       pScaleV = tValue
-    else
-      if (tProp = #locX) then
-        me.moveTo(tValue, pLocY)
+    #locX:
+      me.moveTo(tValue, pLocY)
+    #locY:
+      me.moveTo(pLocX, tValue)
+    #locH:
+      me.moveTo(tValue, pLocY)
+    #locV:
+      me.moveTo(pLocX, tValue)
+    #width:
+      me.resizeTo(tValue, pheight)
+    #height:
+      me.resizeTo(pwidth, tValue)
+    #color:
+      pSprite.color = tValue
+    #bgColor:
+      pSprite.bgColor = tValue
+    #blend:
+      pSprite.blend = tValue
+    #ink:
+      pSprite.ink = tValue
+    #cursor:
+      pSprite.setcursor(tValue)
+    #image:
+      pimage = tValue
+      me.render()
+    #buffer, #member:
+      case ilk(tValue) of
+        #member:
+          pSprite.member = tValue
+        #string:
+          pSprite.member = getMember(tValue)
+        #integer:
+          pSprite.member = member(tValue)
+      end case
+      return error(me, ("Can't set #buffer/#member to type : " & ilk(tValue)), #setProperty, #minor)
+      pSprite.width = pSprite.member.width
+      pSprite.height = pSprite.member.height
+    #palette:
+      pPalette = tValue
+      pimage.paletteRef = pPalette
+    #depth:
+      pDepth = tValue
+      tImage = pimage.duplicate()
+      pimage = image(pimage.width, pimage.height, pDepth)
+      pimage.copyPixels(tImage, tImage.rect, tImage.rect)
+      pimage.paletteRef = pPalette
+    #visible:
+      if (tValue = 1) then
+        me.show()
       else
-        if (tProp = #locY) then
-          me.moveTo(pLocX, tValue)
-        else
-          if (tProp = #locH) then
-            me.moveTo(tValue, pLocY)
-          else
-            if (tProp = #locV) then
-              me.moveTo(pLocX, tValue)
-            else
-              if (tProp = #width) then
-                me.resizeTo(tValue, pheight)
-              else
-                if (tProp = #height) then
-                  me.resizeTo(pwidth, tValue)
-                else
-                  if (tProp = #color) then
-                    pSprite.color = tValue
-                  else
-                    if (tProp = #bgColor) then
-                      pSprite.bgColor = tValue
-                    else
-                      if (tProp = #blend) then
-                        pSprite.blend = tValue
-                      else
-                        if (tProp = #ink) then
-                          pSprite.ink = tValue
-                        else
-                          if (tProp = #cursor) then
-                            pSprite.setcursor(tValue)
-                          else
-                            if (tProp = #image) then
-                              pimage = tValue
-                              me.render()
-                            else
-                              if tProp <> #buffer then
-                                if (tProp = #member) then
-                                  if (tProp = #member) then
-                                    pSprite.member = tValue
-                                  else
-                                    if (tProp = #string) then
-                                      pSprite.member = getMember(tValue)
-                                    else
-                                      if (tProp = #integer) then
-                                        pSprite.member = member(tValue)
-                                      else
-                                        return(error(me, "Can't set #buffer/#member to type : " & ilk(tValue), #setProperty, #minor))
-                                      end if
-                                    end if
-                                  end if
-                                  pSprite.width = pSprite.member.width
-                                  pSprite.height = pSprite.member.height
-                                else
-                                  if (tProp = #palette) then
-                                    pPalette = tValue
-                                    pimage.paletteRef = pPalette
-                                  else
-                                    if (tProp = #depth) then
-                                      pDepth = tValue
-                                      tImage = pimage.duplicate()
-                                      pimage = image(pimage.width, pimage.height, pDepth)
-                                      pimage.copyPixels(tImage, tImage.rect, tImage.rect)
-                                      pimage.paletteRef = pPalette
-                                    else
-                                      if (tProp = #visible) then
-                                        if (tValue = 1) then
-                                          me.show()
-                                        else
-                                          me.hide()
-                                        end if
-                                      else
-                                        if (tProp = #image) then
-                                          pimage = tValue
-                                          me.render()
-                                        else
-                                          return FALSE
-                                        end if
-                                      end if
-                                    end if
-                                  end if
-                                end if
-                                return TRUE
-                              end if
-                            end if
-                          end if
-                        end if
-                      end if
-                    end if
-                  end if
-                end if
-              end if
-            end if
-          end if
-        end if
+        me.hide()
       end if
-    end if
-  end if
+    #image:
+      pimage = tValue
+      me.render()
+  end case
+  return 0
+  return 1
 end
 
-on render me 
+on render me
   pBuffer.image.copyPixels(pimage, pBuffer.image.rect, pimage.rect, pParams)
 end
 
-on draw me, tRGB 
+on draw me, tRGB
   if not ilk(tRGB, #color) then
     tRGB = rgb(255, 0, 0)
   end if
-  pBuffer.image.draw(pBuffer.image.rect, [#shapeType:#rect, #color:tRGB])
+  pBuffer.image.draw(pBuffer.image.rect, [#shapeType: #rect, #color: tRGB])
 end
