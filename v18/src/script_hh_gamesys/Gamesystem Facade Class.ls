@@ -1,10 +1,10 @@
-property pThread
+property pThread, pVarMgrObj
 
-on construct me 
-  return TRUE
+on construct me
+  return 1
 end
 
-on deconstruct me 
+on deconstruct me
   if objectp(pThread) then
     if objectp(pThread.getBaseLogic()) then
       pThread.getBaseLogic().initVariables()
@@ -13,409 +13,409 @@ on deconstruct me
       pThread.getProcManager().removeProcessors()
     end if
   end if
-  pThread = void()
-  return TRUE
+  pThread = VOID
+  return 1
 end
 
-on defineClient me, tSystemObj 
+on defineClient me, tSystemObj
   pThread = tSystemObj
   if (pThread = 0) then
-    return(error(me, "Client game framework not found:" && me.getID(), #defineClient))
+    return error(me, ("Client game framework not found:" && me.getID()), #defineClient)
   end if
-  if getmemnum(me.getID() & ".variable.index") then
-    dumpVariableField(me.getID() & ".variable.index")
+  if getmemnum((me.getID() & ".variable.index")) then
+    dumpVariableField((me.getID() & ".variable.index"))
   end if
   pThread.getBaseLogic().defineClient(me.getID())
   pThread.getMessageHandler().defineClient(me.getID())
   pThread.getComponent().defineClient(me.getID())
   pThread.getProcManager().defineClient(me.getID())
   pThread.getProcManager().distributeEvent(#facadeok, me.getID())
-  return TRUE
+  return 1
 end
 
-on getNumTickets me 
+on getNumTickets me
   if (getObject(#session) = 0) then
-    return FALSE
+    return 0
   end if
-  return(getObject(#session).GET("user_ph_tickets"))
+  return getObject(#session).GET("user_ph_tickets")
 end
 
-on getSpectatorModeFlag me 
+on getSpectatorModeFlag me
   if (me.getVarMgr() = 0) then
-    return FALSE
+    return 0
   end if
-  return(me.getVarMgr().GET(#spectatormode_flag))
+  return me.getVarMgr().GET(#spectatormode_flag)
 end
 
-on getTournamentFlag me 
+on getTournamentFlag me
   if (me.getVarMgr() = 0) then
-    return FALSE
+    return 0
   end if
   if not me.getVarMgr().exists(#tournament_flag) then
-    return FALSE
+    return 0
   end if
-  return(me.getVarMgr().GET(#tournament_flag))
+  return me.getVarMgr().GET(#tournament_flag)
 end
 
-on getWorldReady me 
+on getWorldReady me
   if (pThread = 0) then
-    return FALSE
+    return 0
   end if
-  return(pThread.getWorld().getWorldReady())
+  return pThread.getWorld().getWorldReady()
 end
 
-on getGamestatus me 
+on getGamestatus me
   if (pThread = 0) then
-    return FALSE
+    return 0
   end if
-  return(pThread.getBaseLogic().getGamestatus())
+  return pThread.getBaseLogic().getGamestatus()
 end
 
-on setGameStatus me, tStatus 
+on setGameStatus me, tStatus
   tVarMgr = me.getVarMgr()
   if (tVarMgr = 0) then
-    return FALSE
+    return 0
   end if
-  return(tVarMgr.set(#game_status, tStatus))
+  return tVarMgr.set(#game_status, tStatus)
 end
 
-on getInstanceList me 
+on getInstanceList me
   if (me.getVarMgr() = 0) then
-    return FALSE
+    return 0
   end if
-  return(me.getVarMgr().GET(#instancelist))
+  return me.getVarMgr().GET(#instancelist)
 end
 
-on getObservedInstance me 
+on getObservedInstance me
   if (me.getVarMgr() = 0) then
-    return FALSE
+    return 0
   end if
-  return(me.getVarMgr().GET(#observed_instance_data))
+  return me.getVarMgr().GET(#observed_instance_data)
 end
 
-on getGameParameters me 
+on getGameParameters me
   if (me.getVarMgr() = 0) then
-    return FALSE
+    return 0
   end if
   if not me.getVarMgr().exists(#gameparametervalues_format) then
-    return FALSE
+    return 0
   end if
-  return(me.getVarMgr().GET(#gameparametervalues_format))
+  return me.getVarMgr().GET(#gameparametervalues_format)
 end
 
-on getJoinParameters me 
+on getJoinParameters me
   if (me.getVarMgr() = 0) then
-    return FALSE
+    return 0
   end if
   if not me.getVarMgr().exists(#joinparametervalues_format) then
-    return FALSE
+    return 0
   end if
-  return(me.getVarMgr().GET(#joinparametervalues_format))
+  return me.getVarMgr().GET(#joinparametervalues_format)
 end
 
-on setInstanceListUpdates me, tBoolean 
+on setInstanceListUpdates me, tBoolean
   if (pThread = 0) then
-    return FALSE
+    return 0
   end if
-  return(pThread.getMessageSender().setInstanceListUpdates(tBoolean))
+  return pThread.getMessageSender().setInstanceListUpdates(tBoolean)
 end
 
-on sendGetInstanceList me 
+on sendGetInstanceList me
   if (pThread = 0) then
-    return FALSE
+    return 0
   end if
-  return(pThread.getMessageSender().sendGetInstanceList())
+  return pThread.getMessageSender().sendGetInstanceList()
 end
 
-on observeInstance me, tID 
+on observeInstance me, tID
   if (pThread = 0) then
-    return FALSE
+    return 0
   end if
-  return(pThread.getMessageSender().sendObserveInstance(tID))
+  return pThread.getMessageSender().sendObserveInstance(tID)
 end
 
-on unobserveInstance me 
+on unobserveInstance me
   if (pThread = 0) then
-    return FALSE
+    return 0
   end if
-  return(pThread.getMessageSender().sendUnobserveInstance())
+  return pThread.getMessageSender().sendUnobserveInstance()
 end
 
-on initiateCreateGame me, tTeamId 
+on initiateCreateGame me, tTeamId
   if (pThread = 0) then
-    return FALSE
+    return 0
   end if
-  return(pThread.getMessageSender().sendInitiateCreateGame(tTeamId))
+  return pThread.getMessageSender().sendInitiateCreateGame(tTeamId)
 end
 
-on cancelCreateGame me 
+on cancelCreateGame me
   if (pThread = 0) then
-    return FALSE
+    return 0
   end if
-  return(pThread.getBaseLogic().cancelCreateGame())
+  return pThread.getBaseLogic().cancelCreateGame()
 end
 
-on createGame me, tParamList, tTeamId 
+on createGame me, tParamList, tTeamId
   if (pThread = 0) then
-    return FALSE
+    return 0
   end if
-  return(pThread.getMessageSender().sendGameParameterValues(tParamList, tTeamId))
+  return pThread.getMessageSender().sendGameParameterValues(tParamList, tTeamId)
 end
 
-on deleteGame me 
+on deleteGame me
   if (pThread = 0) then
-    return FALSE
+    return 0
   end if
-  return(pThread.getMessageSender().sendDeleteGame())
+  return pThread.getMessageSender().sendDeleteGame()
 end
 
-on initiateJoinGame me, tInstanceId, tTeamId 
+on initiateJoinGame me, tInstanceId, tTeamId
   if (pThread = 0) then
-    return FALSE
+    return 0
   end if
   pThread.getBaseLogic().store_joinparameters(me, [:])
-  return(pThread.getMessageSender().sendInitiateJoinGame(tInstanceId, tTeamId))
+  return pThread.getMessageSender().sendInitiateJoinGame(tInstanceId, tTeamId)
 end
 
-on joinGame me, tInstanceId, tTeamId, tParamList 
+on joinGame me, tInstanceId, tTeamId, tParamList
   if (pThread = 0) then
-    return FALSE
+    return 0
   end if
-  return(pThread.getMessageSender().sendJoinParameterValues(tInstanceId, tTeamId, tParamList))
+  return pThread.getMessageSender().sendJoinParameterValues(tInstanceId, tTeamId, tParamList)
 end
 
-on leaveGame me 
+on leaveGame me
   if (pThread = 0) then
-    return FALSE
+    return 0
   end if
-  return(pThread.getMessageSender().sendLeaveGame())
+  return pThread.getMessageSender().sendLeaveGame()
 end
 
-on kickPlayer me, tPlayerId 
+on kickPlayer me, tPlayerId
   if (pThread = 0) then
-    return FALSE
+    return 0
   end if
-  return(pThread.getMessageSender().sendKickPlayer(tPlayerId))
+  return pThread.getMessageSender().sendKickPlayer(tPlayerId)
 end
 
-on watchGame me, tInstanceId 
+on watchGame me, tInstanceId
   if (pThread = 0) then
-    return FALSE
+    return 0
   end if
-  if (tInstanceId = void()) then
+  if (tInstanceId = VOID) then
     tInstance = me.getObservedInstance()
     if (tInstance = 0) then
-      return FALSE
+      return 0
     end if
-    tInstanceId = tInstance.getAt(#id)
+    tInstanceId = tInstance[#id]
   end if
-  return(pThread.getMessageSender().sendWatchGame(tInstanceId))
+  return pThread.getMessageSender().sendWatchGame(tInstanceId)
 end
 
-on startGame  
+on startGame
   if (pThread = 0) then
-    return FALSE
+    return 0
   end if
-  return(pThread.getMessageSender().sendStartGame())
+  return pThread.getMessageSender().sendStartGame()
 end
 
-on rejoinGame me 
+on rejoinGame me
   if (pThread = 0) then
-    return FALSE
+    return 0
   end if
-  return(pThread.getMessageSender().sendRejoinGame())
+  return pThread.getMessageSender().sendRejoinGame()
 end
 
-on enterLounge me 
+on enterLounge me
   if (pThread = 0) then
-    return FALSE
+    return 0
   end if
-  return(pThread.getBaseLogic().enterLounge())
+  return pThread.getBaseLogic().enterLounge()
 end
 
-on sendGameEventMessage me, tdata 
+on sendGameEventMessage me, tdata
   if (pThread = 0) then
-    return FALSE
+    return 0
   end if
-  return(pThread.getMessageSender().sendGameEventMessage(tdata))
+  return pThread.getMessageSender().sendGameEventMessage(tdata)
 end
 
-on sendGameSystemEvent me, tTopic, tdata 
+on sendGameSystemEvent me, tTopic, tdata
   if (pThread = 0) then
-    return FALSE
+    return 0
   end if
-  return(pThread.getProcManager().distributeEvent(tTopic, tdata))
+  return pThread.getProcManager().distributeEvent(tTopic, tdata)
 end
 
-on sendHabboRoomMove me, tLocX, tLocY 
+on sendHabboRoomMove me, tLocX, tLocY
   if (pThread = 0) then
-    return FALSE
+    return 0
   end if
-  return(pThread.getMessageSender().sendHabboRoomMove(tLocX, tLocY))
+  return pThread.getMessageSender().sendHabboRoomMove(tLocX, tLocY)
 end
 
-on createGameObject me, tID, ttype, tDataToStore 
+on createGameObject me, tID, ttype, tDataToStore
   if (pThread = 0) then
-    return FALSE
+    return 0
   end if
-  return(pThread.getComponent().createGameObject(tID, ttype, tDataToStore))
+  return pThread.getComponent().createGameObject(tID, ttype, tDataToStore)
 end
 
-on getGameObject me, tID 
+on getGameObject me, tID
   if (pThread = 0) then
-    return FALSE
+    return 0
   end if
-  return(pThread.getComponent().getGameObject(tID))
+  return pThread.getComponent().getGameObject(tID)
 end
 
-on getGameObjectProperty me, tID, tProp 
+on getGameObjectProperty me, tID, tProp
   if (pThread = 0) then
-    return FALSE
+    return 0
   end if
   tObject = pThread.getComponent().getGameObject(tID)
   if (tObject = 0) then
-    return(error(me, "Game object doesn't exist:" && tID, #getGameObjectProperty))
+    return error(me, ("Game object doesn't exist:" && tID), #getGameObjectProperty)
   end if
-  return(tObject.getGameObjectProperty(tProp))
+  return tObject.getGameObjectProperty(tProp)
 end
 
-on getGameObjectIdsOfType me, ttype 
+on getGameObjectIdsOfType me, ttype
   if (pThread = 0) then
-    return FALSE
+    return 0
   end if
-  return(pThread.getComponent().getGameObjectIdsOfType(ttype))
+  return pThread.getComponent().getGameObjectIdsOfType(ttype)
 end
 
-on updateGameObject me, tID, tdata 
+on updateGameObject me, tID, tdata
   if (pThread = 0) then
-    return FALSE
+    return 0
   end if
-  return(pThread.getComponent().updateGameObject(tID, tdata))
+  return pThread.getComponent().updateGameObject(tID, tdata)
 end
 
-on removeGameObject me, tID 
+on removeGameObject me, tID
   if (pThread = 0) then
-    return FALSE
+    return 0
   end if
-  return(pThread.getComponent().removeGameObject(tID))
+  return pThread.getComponent().removeGameObject(tID)
 end
 
-on clearTurnBuffer me 
+on clearTurnBuffer me
   if (pThread = 0) then
-    return FALSE
+    return 0
   end if
-  return(pThread.getTurnManager()._ClearTurnBuffer())
+  return pThread.getTurnManager()._ClearTurnBuffer()
 end
 
-on executeGameObjectEvent me, tID, tEvent, tdata 
+on executeGameObjectEvent me, tID, tEvent, tdata
   if (pThread = 0) then
-    return FALSE
+    return 0
   end if
-  return(pThread.getComponent().executeGameObjectEvent(tID, tEvent, tdata))
+  return pThread.getComponent().executeGameObjectEvent(tID, tEvent, tdata)
 end
 
-on get360AngleFromComponents me, tX, tY 
+on get360AngleFromComponents me, tX, tY
   if (pThread = 0) then
-    return FALSE
+    return 0
   end if
-  return(pThread.getWorld().getGeometry().getAngleFromComponents(tX, tY))
+  return pThread.getWorld().getGeometry().getAngleFromComponents(tX, tY)
 end
 
-on get8AngleFromComponents me, tX, tY 
+on get8AngleFromComponents me, tX, tY
   if (pThread = 0) then
-    return FALSE
+    return 0
   end if
   tAngle360 = pThread.getWorld().getGeometry().getAngleFromComponents(tX, tY)
-  return(pThread.getWorld().getGeometry().direction360to8(tAngle360))
+  return pThread.getWorld().getGeometry().direction360to8(tAngle360)
 end
 
-on GetVelocityTable me 
+on GetVelocityTable me
   if (pThread = 0) then
-    return FALSE
+    return 0
   end if
-  return(pThread.getWorld().getGeometry().GetVelocityTable())
+  return pThread.getWorld().getGeometry().GetVelocityTable()
 end
 
-on convertTileToWorldCoordinate me, tX, tY, tZ 
+on convertTileToWorldCoordinate me, tX, tY, tZ
   if (pThread = 0) then
-    return FALSE
+    return 0
   end if
-  return(pThread.getWorld().convertTileToWorldCoordinate(tX, tY, tZ))
+  return pThread.getWorld().convertTileToWorldCoordinate(tX, tY, tZ)
 end
 
-on gettileatworldcoordinate me, tX, tY, tZ 
+on gettileatworldcoordinate me, tX, tY, tZ
   if (pThread = 0) then
-    return FALSE
+    return 0
   end if
-  return(pThread.getWorld().gettileatworldcoordinate(tX, tY, tZ))
+  return pThread.getWorld().gettileatworldcoordinate(tX, tY, tZ)
 end
 
-on convertworldtotilecoordinate me, tX, tY, tZ 
+on convertworldtotilecoordinate me, tX, tY, tZ
   if (pThread = 0) then
-    return FALSE
+    return 0
   end if
-  return(pThread.getWorld().convertworldtotilecoordinate(tX, tY, tZ))
+  return pThread.getWorld().convertworldtotilecoordinate(tX, tY, tZ)
 end
 
-on convertWorldToScreenCoordinate me, tX, tY, tZ 
+on convertWorldToScreenCoordinate me, tX, tY, tZ
   if (pThread = 0) then
-    return FALSE
+    return 0
   end if
-  return(pThread.getWorld().convertWorldToScreenCoordinate(tX, tY, tZ))
+  return pThread.getWorld().convertWorldToScreenCoordinate(tX, tY, tZ)
 end
 
-on sqrt me, tInteger 
+on sqrt me, tInteger
   if (pThread = 0) then
-    return FALSE
+    return 0
   end if
-  return(pThread.getComponent().pSquareRoot.fast_sqrt(tInteger))
+  return pThread.getComponent().pSquareRoot.fast_sqrt(tInteger)
 end
 
-on getGeometry me 
+on getGeometry me
   if (pThread = 0) then
-    return FALSE
+    return 0
   end if
-  return(pThread.getWorld().getGeometry())
+  return pThread.getWorld().getGeometry()
 end
 
-on getWorld me 
+on getWorld me
   if (pThread = 0) then
-    return FALSE
+    return 0
   end if
-  return(pThread.getWorld())
+  return pThread.getWorld()
 end
 
-on startTurnManager me 
+on startTurnManager me
   if (pThread = 0) then
-    return FALSE
+    return 0
   end if
-  return(pThread.getBaseLogic().startTurnManager())
+  return pThread.getBaseLogic().startTurnManager()
 end
 
-on stopTurnManager me 
+on stopTurnManager me
   if (pThread = 0) then
-    return FALSE
+    return 0
   end if
-  return(pThread.getBaseLogic().stopTurnManager())
+  return pThread.getBaseLogic().stopTurnManager()
 end
 
-on getNewTurnContainer me 
+on getNewTurnContainer me
   if (pThread = 0) then
-    return FALSE
+    return 0
   end if
-  return(pThread.getTurnManager().getNewTurnContainer())
+  return pThread.getTurnManager().getNewTurnContainer()
 end
 
-on dump me 
+on dump me
   if (pThread = 0) then
-    return FALSE
+    return 0
   end if
-  return(pThread.getComponent().dump())
+  return pThread.getComponent().dump()
 end
 
-on getVarMgr me 
+on getVarMgr me
   if (pThread = 0) then
-    return FALSE
+    return 0
   end if
-  return(pThread.getVariableManager())
+  return pThread.getVariableManager()
 end

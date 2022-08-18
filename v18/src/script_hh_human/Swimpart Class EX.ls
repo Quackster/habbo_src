@@ -1,24 +1,24 @@
-property pPart, pAction, pDirection, pYFix, pXFix, pActionLh, pActionRh, pmodel, pLastLocFix, pMemString, pCacheRectA, pCacheImage, pDrawProps, pCacheRectB, pSwimProps, pAnimation, pAnimFrame, pTotalFrame
+property ancestor, pPart, pmodel, pDirection, pDrawProps, pSwimProps, pAction, pActionLh, pActionRh, pMemString, pXFix, pYFix, pLastLocFix, pCacheImage, pCacheRectA, pCacheRectB, pAnimation, pAnimFrame, pTotalFrame
 
-on deconstruct me 
-  ancestor = void()
-  return TRUE
+on deconstruct me
+  ancestor = VOID
+  return 1
 end
 
-on define me, tPart, tmodel, tColor, tDirection, tAction, tAncestor 
+on define me, tPart, tmodel, tColor, tDirection, tAction, tAncestor
   ancestor = tAncestor
   pPart = tPart
   pmodel = tmodel
-  pDrawProps = [#maskImage:0, #ink:0, #bgColor:0]
-  pSwimProps = [#maskImage:0, #ink:0, #bgColor:rgb(0, 156, 156), #color:rgb(0, 156, 156), #blend:60]
+  pDrawProps = [#maskImage: 0, #ink: 0, #bgColor: 0]
+  pSwimProps = [#maskImage: 0, #ink: 0, #bgColor: rgb(0, 156, 156), #color: rgb(0, 156, 156), #blend: 60]
   pCacheImage = 0
   pCacheRectA = rect(0, 0, 0, 0)
   pCacheRectB = rect(0, 0, 0, 0)
   me.defineInk()
   me.setColor(tColor)
-  if (tAction = "sws") or (tAction = "swm") or (tAction = "sit") then
+  if (((tAction = "sws") or (tAction = "swm")) or (tAction = "sit")) then
     tNoSwimFramesList = ["hr", "fc", "ey", "hd"]
-    if tNoSwimFramesList.getPos(pPart) > 0 then
+    if (tNoSwimFramesList.getPos(pPart) > 0) then
       tAction = "std"
     end if
   end if
@@ -26,351 +26,312 @@ on define me, tPart, tmodel, tColor, tDirection, tAction, tAncestor
   pAction = tAction
   pActionLh = tAction
   pActionRh = tAction
-  pMemString = ""
+  pMemString = EMPTY
   pXFix = 0
   pYFix = 0
   pLastLocFix = point(1000, 1000)
   pAnimation = 0
   pAnimFrame = 1
   pTotalFrame = 1
-  return TRUE
+  return 1
 end
 
-on update me 
+on update me
   tAnimCounter = 0
   tAction = pAction
   tPart = pPart
-  tdir = me.getProp(#pFlipList, (pDirection + 1))
+  tdir = me.pFlipList[(pDirection + 1)]
   pXFix = 0
   pYFix = 0
   if me.pAnimating then
     tMemString = me.animate()
     tAncestorDir = me.pDirection
     if (me.pPeopleSize = "sh") then
-      tSizeMultiplier = 0.7
+      tSizeMultiplier = 0.69999999999999996
     else
       tSizeMultiplier = 1
     end if
-    if (tAncestorDir = 0) then
-      pYFix = (pYFix + (pXFix / 2))
-      pXFix = (pXFix / 2)
-    else
-      if (tAncestorDir = 1) then
+    case tAncestorDir of
+      0:
+        pYFix = (pYFix + (pXFix / 2))
+        pXFix = (pXFix / 2)
+      1:
         pYFix = (pYFix + pXFix)
         pXFix = 0
-      else
-        if (tAncestorDir = 2) then
-          pYFix = (pYFix - (pXFix / 2))
-          pXFix = (pXFix / 2)
-        else
-          if (tAncestorDir = 4) then
-            pYFix = (pYFix + (pXFix / 2))
-            pXFix = (-pXFix / 2)
-          else
-            if (tAncestorDir = 5) then
-              pYFix = (pYFix - pXFix)
-              pXFix = 0
-            else
-              if (tAncestorDir = 6) then
-                pYFix = (pYFix - (pXFix / 2))
-                pXFix = (-pXFix / 2)
-              else
-                if (tAncestorDir = 7) then
-                  pXFix = -pXFix
-                end if
-              end if
-            end if
-          end if
-        end if
-      end if
-    end if
+      2:
+        pYFix = (pYFix - (pXFix / 2))
+        pXFix = (pXFix / 2)
+      4:
+        pYFix = (pYFix + (pXFix / 2))
+        pXFix = (-pXFix / 2)
+      5:
+        pYFix = (pYFix - pXFix)
+        pXFix = 0
+      6:
+        pYFix = (pYFix - (pXFix / 2))
+        pXFix = (-pXFix / 2)
+      7:
+        pXFix = -pXFix
+    end case
     pXFix = (pXFix * tSizeMultiplier)
     pYFix = (pYFix * tSizeMultiplier)
   else
-    if tAncestorDir <> "bd" then
-      if tAncestorDir <> "lg" then
-        if (tAncestorDir = "sh") then
-          tUnderWater = 1
-          if (pAction = "wlk") or (pAction = "swm") or (pAction = "sws") then
-            tAnimCounter = me.pAnimCounter
+    case pPart of
+      "bd", "lg", "sh":
+        tUnderWater = 1
+        if (((pAction = "wlk") or (pAction = "swm")) or (pAction = "sws")) then
+          tAnimCounter = me.pAnimCounter
+        end if
+      "lh", "ls":
+        tUnderWater = 1
+        if (pDirection = tdir) then
+          if not voidp(pActionLh) then
+            tAction = pActionLh
           end if
         else
-          if tAncestorDir <> "lh" then
-            if (tAncestorDir = "ls") then
-              tUnderWater = 1
-              if (pDirection = tdir) then
-                if not voidp(pActionLh) then
-                  tAction = pActionLh
-                end if
-              else
-                if not voidp(pActionRh) then
-                  tAction = pActionRh
-                end if
-              end if
-              if (tAction = "wlk") or (pAction = "swm") or (pAction = "sws") then
-                tAnimCounter = me.pAnimCounter
-              else
-                if (tAction = "wav") then
-                  tUnderWater = 0
-                  tAnimCounter = (me.pAnimCounter mod 2)
-                else
-                  if ["crr", "drk", "ohd"].getPos(tAction) <> 0 then
-                    pXFix = -40
-                    tPart = "r" & pPart.getProp(#char, 2)
-                    tdir = pDirection
-                  end if
-                end if
-              end if
-            else
-              if tAncestorDir <> "rh" then
-                if (tAncestorDir = "rs") then
-                  tUnderWater = 1
-                  if (pDirection = tdir) then
-                    if not voidp(pActionRh) then
-                      tAction = pActionRh
-                    end if
-                  else
-                    if not voidp(pActionLh) then
-                      tAction = pActionLh
-                    end if
-                  end if
-                  if (tAction = "wlk") or (pAction = "swm") or (pAction = "sws") then
-                    tAnimCounter = me.pAnimCounter
-                  else
-                    if (tAction = "wav") then
-                      tUnderWater = 0
-                      tAnimCounter = (me.pAnimCounter mod 2)
-                      tPart = "l" & pPart.getProp(#char, 2)
-                      tdir = pDirection
-                    end if
-                  end if
-                else
-                  if tAncestorDir <> "hd" then
-                    if (tAncestorDir = "fc") then
-                      tUnderWater = 0
-                      if me.pTalking then
-                        if (pAction = "lay") then
-                          tAction = "lsp"
-                        else
-                          tAction = "spk"
-                        end if
-                        tAnimCounter = (me.pAnimCounter mod 2)
-                      end if
-                    else
-                      if (tAncestorDir = "ey") then
-                        tUnderWater = 0
-                        if me.pTalking and pAction <> "lay" and ((me.pAnimCounter mod 2) = 0) then
-                          pYFix = -1
-                        end if
-                      else
-                        if (tAncestorDir = "hr") then
-                          tUnderWater = 0
-                          if me.pTalking and ((me.pAnimCounter mod 2) = 0) then
-                            if pAction <> "lay" then
-                              tAction = "spk"
-                            end if
-                          end if
-                        else
-                          if (tAncestorDir = "ri") then
-                            if not me.pCarrying then
-                              return()
-                            end if
-                            tAction = pActionRh
-                            tdir = pDirection
-                          else
-                            if (tAncestorDir = "li") then
-                              tAction = pActionLh
-                              tdir = pDirection
-                            else
-                              tUnderWater = 1
-                            end if
-                          end if
-                        end if
-                      end if
-                    end if
-                    tMemString = me.pPeopleSize & "_" & tAction & "_" & tPart & "_" & pmodel & "_" & tdir & "_" & tAnimCounter
-                    tLocFixChanged = pLastLocFix <> point(pXFix, pYFix)
-                    pLastLocFix = point(pXFix, pYFix)
-                    if pMemString <> tMemString or tLocFixChanged then
-                      tMemNum = getmemnum(tMemString)
-                      if tMemNum > 0 then
-                        pMemString = tMemString
-                        tmember = member(tMemNum)
-                        tRegPnt = tmember.regPoint
-                        tX = -tRegPnt.getAt(1)
-                        tY = ((me.pBuffer.rect.height - tRegPnt.getAt(2)) - 10)
-                        me.pUpdateRect = union(me.pUpdateRect, pCacheRectA)
-                        pCacheImage = tmember.image
-                        pCacheRectA = rect(tX, tY, (tX + pCacheImage.width), (tY + pCacheImage.height))
-                        pCacheRectB = pCacheImage.rect
-                        pDrawProps.setAt(#maskImage, pCacheImage.createMatte())
-                        me.pUpdateRect = union(me.pUpdateRect, pCacheRectA)
-                      else
-                        return()
-                      end if
-                    end if
-                    if (me.pMainAction = "swm") then
-                      tRectMod = ((rect(14, 0, 14, 0) + rect(me.pLocFix, me.pLocFix)) + [pXFix, pYFix, pXFix, pYFix])
-                    else
-                      tRectMod = (rect(me.pLocFix, me.pLocFix) + [pXFix, pYFix, pXFix, pYFix])
-                    end if
-                    me.pBuffer.copyPixels(pCacheImage, (pCacheRectA + tRectMod), pCacheRectB, pDrawProps)
-                    if tUnderWater and me.pSwim then
-                      pSwimProps.setAt(#maskImage, pDrawProps.getAt(#maskImage))
-                      me.pBuffer.copyPixels(pCacheImage, (pCacheRectA + tRectMod), pCacheRectB, pSwimProps)
-                    end if
-                  end if
-                end if
-              end if
+          if not voidp(pActionRh) then
+            tAction = pActionRh
+          end if
+        end if
+        if (((tAction = "wlk") or (pAction = "swm")) or (pAction = "sws")) then
+          tAnimCounter = me.pAnimCounter
+        else
+          if (tAction = "wav") then
+            tUnderWater = 0
+            tAnimCounter = (me.pAnimCounter mod 2)
+          else
+            if (["crr", "drk", "ohd"].getPos(tAction) <> 0) then
+              pXFix = -40
+              tPart = ("r" & pPart.char[2])
+              tdir = pDirection
             end if
           end if
         end if
-      end if
+      "rh", "rs":
+        tUnderWater = 1
+        if (pDirection = tdir) then
+          if not voidp(pActionRh) then
+            tAction = pActionRh
+          end if
+        else
+          if not voidp(pActionLh) then
+            tAction = pActionLh
+          end if
+        end if
+        if (((tAction = "wlk") or (pAction = "swm")) or (pAction = "sws")) then
+          tAnimCounter = me.pAnimCounter
+        else
+          if (tAction = "wav") then
+            tUnderWater = 0
+            tAnimCounter = (me.pAnimCounter mod 2)
+            tPart = ("l" & pPart.char[2])
+            tdir = pDirection
+          end if
+        end if
+      "hd", "fc":
+        tUnderWater = 0
+        if me.pTalking then
+          if (pAction = "lay") then
+            tAction = "lsp"
+          else
+            tAction = "spk"
+          end if
+          tAnimCounter = (me.pAnimCounter mod 2)
+        end if
+      "ey":
+        tUnderWater = 0
+        if ((me.pTalking and (pAction <> "lay")) and ((me.pAnimCounter mod 2) = 0)) then
+          pYFix = -1
+        end if
+      "hr":
+        tUnderWater = 0
+        if (me.pTalking and ((me.pAnimCounter mod 2) = 0)) then
+          if (pAction <> "lay") then
+            tAction = "spk"
+          end if
+        end if
+      "ri":
+        if not me.pCarrying then
+          return 
+        end if
+        tAction = pActionRh
+        tdir = pDirection
+      "li":
+        tAction = pActionLh
+        tdir = pDirection
+      otherwise:
+        tUnderWater = 1
+    end case
+    tMemString = ((((((((((me.pPeopleSize & "_") & tAction) & "_") & tPart) & "_") & pmodel) & "_") & tdir) & "_") & tAnimCounter)
+  end if
+  tLocFixChanged = (pLastLocFix <> point(pXFix, pYFix))
+  pLastLocFix = point(pXFix, pYFix)
+  if ((pMemString <> tMemString) or tLocFixChanged) then
+    tMemNum = getmemnum(tMemString)
+    if (tMemNum > 0) then
+      pMemString = tMemString
+      tmember = member(tMemNum)
+      tRegPnt = tmember.regPoint
+      tX = -tRegPnt[1]
+      tY = ((me.pBuffer.rect.height - tRegPnt[2]) - 10)
+      me.pUpdateRect = union(me.pUpdateRect, pCacheRectA)
+      pCacheImage = tmember.image
+      pCacheRectA = rect(tX, tY, (tX + pCacheImage.width), (tY + pCacheImage.height))
+      pCacheRectB = pCacheImage.rect
+      pDrawProps[#maskImage] = pCacheImage.createMatte()
+      me.pUpdateRect = union(me.pUpdateRect, pCacheRectA)
+    else
+      return 
     end if
+  end if
+  if (me.pMainAction = "swm") then
+    tRectMod = ((rect(14, 0, 14, 0) + rect(me.pLocFix, me.pLocFix)) + [pXFix, pYFix, pXFix, pYFix])
+  else
+    tRectMod = (rect(me.pLocFix, me.pLocFix) + [pXFix, pYFix, pXFix, pYFix])
+  end if
+  me.pBuffer.copyPixels(pCacheImage, (pCacheRectA + tRectMod), pCacheRectB, pDrawProps)
+  if (tUnderWater and me.pSwim) then
+    pSwimProps[#maskImage] = pDrawProps[#maskImage]
+    me.pBuffer.copyPixels(pCacheImage, (pCacheRectA + tRectMod), pCacheRectB, pSwimProps)
   end if
 end
 
-on render me 
+on render me
   if memberExists(pMemString) then
     me.pBuffer.copyPixels(pCacheRectB, pCacheRectA, pCacheRectB, pDrawProps)
     if me.pSwim then
-      pSwimProps.setAt(#maskImage, pDrawProps.getAt(#maskImage))
+      pSwimProps[#maskImage] = pDrawProps[#maskImage]
       me.pBuffer.copyPixels(pCacheImage, ((pCacheRectA + [pXFix, pYFix, pXFix, pYFix]) + rect(me.pLocFix, me.pLocFix)), pCacheRectB, pSwimProps)
     end if
   end if
 end
 
-on setItemObj me, tmodel 
-  if pPart <> "ri" and pPart <> "li" then
-    return()
+on setItemObj me, tmodel
+  if ((pPart <> "ri") and (pPart <> "li")) then
+    return 
   end if
   pmodel = tmodel
 end
 
-on defineDir me, tdir, tPart 
-  if voidp(tPart) or (tPart = pPart) then
+on defineDir me, tdir, tPart
+  if (voidp(tPart) or (tPart = pPart)) then
     pDirection = tdir
   end if
 end
 
-on defineDirMultiple me, tdir, tTargetPartList 
+on defineDirMultiple me, tdir, tTargetPartList
   if (tTargetPartList.getPos(pPart) = 0) then
-    return()
+    return 
   end if
   pDirection = tdir
 end
 
-on defineAct me, tAct, tTargetPartList 
+on defineAct me, tAct, tTargetPartList
   if (pAction = "std") then
     pAction = tAct
   end if
 end
 
-on defineActMultiple me, tAct, tTargetPartList 
+on defineActMultiple me, tAct, tTargetPartList
   if (tTargetPartList.getPos(pPart) = 0) then
-    return()
+    return 
   end if
   if (pAction = "std") then
     pAction = tAct
   end if
-  if (pPart = "ey") and (tAct = "std") then
+  if ((pPart = "ey") and (tAct = "std")) then
     pAction = "std"
   end if
 end
 
-on defineInk me, tInk 
+on defineInk me, tInk
   if voidp(tInk) then
-    if (pPart = "ey") then
-      tInk = 36
-    else
-      if (pPart = "sd") then
+    case pPart of
+      "ey":
+        tInk = 36
+      "sd":
         tInk = 32
-      else
-        if (pPart = "ri") then
-          tInk = 8
-        else
-          if (pPart = "li") then
-            tInk = 8
-          else
-            tInk = 41
-          end if
-        end if
-      end if
-    end if
+      "ri":
+        tInk = 8
+      "li":
+        tInk = 8
+      otherwise:
+        tInk = 41
+    end case
   end if
-  pDrawProps.setAt(#ink, tInk)
-  pSwimProps.setAt(#ink, tInk)
-  return TRUE
+  pDrawProps[#ink] = tInk
+  pSwimProps[#ink] = tInk
+  return 1
 end
 
-on setModel me, tmodel 
+on setModel me, tmodel
   pmodel = tmodel
 end
 
-on setColor me, tColor 
+on setColor me, tColor
   if voidp(tColor) then
-    return FALSE
+    return 0
   end if
-  if (tColor = "") then
-    return FALSE
+  if (tColor = EMPTY) then
+    return 0
   end if
-  if (tColor.ilk = #color) and pDrawProps.getAt(#ink) <> 36 then
-    pDrawProps.setAt(#bgColor, tColor)
+  if ((tColor.ilk = #color) and (pDrawProps[#ink] <> 36)) then
+    pDrawProps[#bgColor] = tColor
   else
-    pDrawProps.setAt(#bgColor, rgb(255, 255, 255))
+    pDrawProps[#bgColor] = rgb(255, 255, 255)
   end if
-  return TRUE
+  return 1
 end
 
-on doHandWork me, tAct 
-  if ["lh", "ls", "li", "rh", "rs", "ri"].getOne(pPart) <> 0 then
+on doHandWork me, tAct
+  if (["lh", "ls", "li", "rh", "rs", "ri"].getOne(pPart) <> 0) then
     pAction = tAct
   end if
 end
 
-on doHandWorkLeft me, tAct 
+on doHandWorkLeft me, tAct
   pActionLh = tAct
 end
 
-on doHandWorkRight me, tAct 
+on doHandWorkRight me, tAct
   pActionRh = tAct
 end
 
-on layDown me 
+on layDown me
   pAction = "lay"
 end
 
-on getCurrentMember me 
-  return(pMemString)
+on getCurrentMember me
+  return pMemString
 end
 
-on getColor me 
-  return(pDrawProps.getAt(#bgColor))
+on getColor me
+  return pDrawProps[#bgColor]
 end
 
-on getDirection me 
-  return(pDirection)
+on getDirection me
+  return pDirection
 end
 
-on getLocation me 
+on getLocation me
   if voidp(pMemString) then
-    return FALSE
+    return 0
   end if
   tMemNum = getmemnum(pMemString)
   if (tMemNum = 0) then
-    return FALSE
+    return 0
   end if
   tImgRect = member(tMemNum).rect
   tCenterPoint = point((tImgRect.width / 2), (tImgRect.height / 2))
   tRegPoint = member(tMemNum).regPoint
-  return(((tRegPoint * -1) + tCenterPoint))
+  return ((tRegPoint * -1) + tCenterPoint)
 end
 
-on getPartID me 
-  return(pPart)
+on getPartID me
+  return pPart
 end
 
-on copyPicture me, tImg, tdir, tHumanSize, tAction, tAnimFrame 
+on copyPicture me, tImg, tdir, tHumanSize, tAction, tAnimFrame
   if voidp(tdir) then
     tdir = "2"
   end if
@@ -383,83 +344,83 @@ on copyPicture me, tImg, tdir, tHumanSize, tAction, tAnimFrame
   if voidp(tAnimFrame) then
     tAnimFrame = "0"
   end if
-  tMemName = tHumanSize & "_" & tAction & "_" & pPart & "_" & pmodel & "_" & tdir & "_" & tAnimFrame
+  tMemName = ((((((((((tHumanSize & "_") & tAction) & "_") & pPart) & "_") & pmodel) & "_") & tdir) & "_") & tAnimFrame)
   tMemNum = getmemnum(tMemName)
   if (tMemNum = 0) then
-    tmodel = "0" & pmodel.getProp(#char, 2, 3)
-    tMemName = tHumanSize & "_" & tAction & "_" & pPart & "_" & tmodel & "_" & tdir & "_" & tAnimFrame
+    tmodel = ("0" & pmodel.char[2])
+    tMemName = ((((((((((tHumanSize & "_") & tAction) & "_") & pPart) & "_") & tmodel) & "_") & tdir) & "_") & tAnimFrame)
     tMemNum = getmemnum(tMemName)
     if (tMemNum = 0) then
-      return FALSE
+      return 0
     end if
   end if
   tmember = member(tMemNum)
   tImage = tmember.image
   tRegPnt = tmember.regPoint
-  tX = -tRegPnt.getAt(1)
-  tY = ((tImg.rect.height - tRegPnt.getAt(2)) - 10)
+  tX = -tRegPnt[1]
+  tY = ((tImg.rect.height - tRegPnt[2]) - 10)
   tRect = rect(tX, tY, (tX + tImage.width), (tY + tImage.height))
   tMatte = tImage.createMatte()
-  tImg.copyPixels(tImage, tRect, tImage.rect, [#maskImage:tMatte, #ink:pDrawProps.getAt(#ink), #bgColor:pDrawProps.getAt(#bgColor)])
-  return TRUE
+  tImg.copyPixels(tImage, tRect, tImage.rect, [#maskImage: tMatte, #ink: pDrawProps[#ink], #bgColor: pDrawProps[#bgColor]])
+  return 1
 end
 
-on reset me, tSwimFlag 
+on reset me, tSwimFlag
   pAction = "std"
-  pActionLh = void()
-  pActionRh = void()
+  pActionLh = VOID
+  pActionRh = VOID
 end
 
-on changePartData me, tmodel, tColor 
-  if voidp(tmodel) or voidp(tColor) then
-    return FALSE
+on changePartData me, tmodel, tColor
+  if (voidp(tmodel) or voidp(tColor)) then
+    return 0
   end if
   if (pPart = "ch") then
-    return TRUE
+    return 1
   end if
   pmodel = tmodel
-  pDrawProps.setAt(#bgColor, tColor)
+  pDrawProps[#bgColor] = tColor
   tMemNameList = explode(pMemString, "_")
-  tMemNameList.setAt(4, tmodel)
+  tMemNameList[4] = tmodel
   pMemString = implode(tMemNameList, "_")
   tForced = 1
   me.update(tForced)
 end
 
-on setAnimation me, tPart, tAnim 
-  if tPart <> pPart then
-    return()
+on setAnimation me, tPart, tAnim
+  if (tPart <> pPart) then
+    return 
   end if
   pAnimation = value(tAnim)
-  pTotalFrame = pAnimation.getAt(1).count
+  pTotalFrame = pAnimation[1].count
   pAnimFrame = 1
 end
 
-on remAnimation me 
+on remAnimation me
   pAnimation = 0
   pAnimFrame = 1
   pTotalFrame = 1
 end
 
-on animate me 
+on animate me
   if not pAnimation then
-    return("")
+    return EMPTY
   end if
-  tdir = (pDirection + pAnimation.getAt(#OffD).getAt(pAnimFrame))
-  if tdir > 7 then
+  tdir = (pDirection + pAnimation[#OffD][pAnimFrame])
+  if (tdir > 7) then
     tdir = (tdir - (tdir mod 7))
   else
-    if tdir < 0 then
+    if (tdir < 0) then
       tdir = ((7 + tdir) + 1)
     end if
   end if
-  tdir = me.getProp(#pFlipList, (tdir + 1))
-  pXFix = pAnimation.getAt(#OffX).getAt(pAnimFrame)
-  pYFix = pAnimation.getAt(#OffY).getAt(pAnimFrame)
-  tMemName = me.pPeopleSize & "_" & pAnimation.getAt(#act).getAt(pAnimFrame) & "_" & pPart & "_" & pmodel & "_" & tdir & "_" & pAnimation.getAt(#frm).getAt(pAnimFrame)
+  tdir = me.pFlipList[(tdir + 1)]
+  pXFix = pAnimation[#OffX][pAnimFrame]
+  pYFix = pAnimation[#OffY][pAnimFrame]
+  tMemName = ((((((((((me.pPeopleSize & "_") & pAnimation[#act][pAnimFrame]) & "_") & pPart) & "_") & pmodel) & "_") & tdir) & "_") & pAnimation[#frm][pAnimFrame])
   pAnimFrame = (pAnimFrame + 1)
-  if pAnimFrame > pTotalFrame then
+  if (pAnimFrame > pTotalFrame) then
     pAnimFrame = 1
   end if
-  return(tMemName)
+  return tMemName
 end

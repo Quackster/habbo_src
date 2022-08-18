@@ -1,51 +1,45 @@
-on construct me 
-  return(me.regMsgList(1))
+on construct me
+  return me.regMsgList(1)
 end
 
-on deconstruct me 
-  return(me.regMsgList(0))
+on deconstruct me
+  return me.regMsgList(0)
 end
 
-on handle_furni_revisions me, tMsg 
+on handle_furni_revisions me, tMsg
   tConn = tMsg.connection
   if not tConn then
-    return FALSE
+    return 0
   end if
   tTypeList = [1, 0]
-  ttype = 1
-  repeat while ttype <= tTypeList.count
+  repeat with ttype = 1 to tTypeList.count
     tCount = tConn.GetIntFrom()
-    tIndex = 1
-    repeat while tIndex <= tCount
+    repeat with tIndex = 1 to tCount
       tClass = tConn.GetStrFrom()
       tRevision = tConn.GetIntFrom()
-      me.getComponent().setFurniRevision(tClass, tRevision, tTypeList.getAt(ttype))
-      tIndex = (1 + tIndex)
+      me.getComponent().setFurniRevision(tClass, tRevision, tTypeList[ttype])
     end repeat
-    ttype = (1 + ttype)
   end repeat
-  me.getComponent().setFurniRevision(void(), void(), void())
-  return TRUE
+  me.getComponent().setFurniRevision(VOID, VOID, VOID)
+  return 1
 end
 
-on handle_alias_list me, tMsg 
+on handle_alias_list me, tMsg
   tConn = tMsg.connection
   if not tConn then
-    return FALSE
+    return 0
   end if
   tCount = tConn.GetIntFrom()
-  tIndex = 1
-  repeat while tIndex <= tCount
+  repeat with tIndex = 1 to tCount
     tOriginalClass = tConn.GetStrFrom()
     tAliasClass = tConn.GetStrFrom()
     me.getComponent().setAssetAlias(tOriginalClass, tAliasClass)
-    tIndex = (1 + tIndex)
   end repeat
-  me.getComponent().setAssetAlias(void(), void())
+  me.getComponent().setAssetAlias(VOID, VOID)
   me.getComponent().tryNextDownload()
 end
 
-on regMsgList me, tBool 
+on regMsgList me, tBool
   tMsgs = [:]
   tMsgs.setaProp(295, #handle_furni_revisions)
   tMsgs.setaProp(297, #handle_alias_list)
@@ -59,5 +53,5 @@ on regMsgList me, tBool
     unregisterListener(getVariable("connection.room.id"), me.getID(), tMsgs)
     unregisterCommands(getVariable("connection.room.id"), me.getID(), tCmds)
   end if
-  return TRUE
+  return 1
 end

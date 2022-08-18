@@ -1,121 +1,100 @@
 property pWindowCreator, pWindowList
 
-on construct me 
+on construct me
   pWindowList = []
   tcreatorId = "room.object.displayer.window.creator"
   createObject(tcreatorId, "Room Object Window Creator Class")
   pWindowCreator = getObject(tcreatorId)
-  return TRUE
+  return 1
 end
 
-on deconstruct me 
+on deconstruct me
   removeObject("room.object.displayer.window.creator")
-  return TRUE
+  return 1
 end
 
-on showObjectInfo me, tObjType 
+on showObjectInfo me, tObjType
   if (pWindowCreator = 0) then
-    return FALSE
+    return 0
   end if
   tRoomComponent = getThread(#room).getComponent()
   tRoomInterface = getThread(#room).getInterface()
   tSelectedObj = tRoomInterface.getSelectedObject()
   tWindowTypes = []
-  if (tObjType = "user") then
-    tObj = tRoomComponent.getUserObject(tSelectedObj)
-    tWindowTypes = getVariableValue("object.display.windows.human")
-  else
-    if (tObjType = "bot") then
+  case tObjType of
+    "user":
+      tObj = tRoomComponent.getUserObject(tSelectedObj)
+      tWindowTypes = getVariableValue("object.display.windows.human")
+    "bot":
       tObj = tRoomComponent.getUserObject(tSelectedObj)
       tWindowTypes = getVariableValue("object.display.windows.bot")
-    else
-      if (tObjType = "active") then
-        tObj = tRoomComponent.getActiveObject(tSelectedObj)
-        tWindowTypes = getVariableValue("object.display.windows.furni.rights")
-      else
-        if (tObjType = "item") then
-          tObj = tRoomComponent.getItemObject(tSelectedObj)
-          tWindowTypes = getVariableValue("object.display.windows.furni.rights")
-        else
-          if (tObjType = "pet") then
-            tObj = tRoomComponent.getUserObject(tSelectedObj)
-            tWindowTypes = getVariableValue("object.display.windows.pet")
-          else
-            error(me, "Unsupported object type:" && tObjType, #showObjectInfo, #minor)
-            tObj = 0
-          end if
-        end if
-      end if
-    end if
-  end if
+    "active":
+      tObj = tRoomComponent.getActiveObject(tSelectedObj)
+      tWindowTypes = getVariableValue("object.display.windows.furni.rights")
+    "item":
+      tObj = tRoomComponent.getItemObject(tSelectedObj)
+      tWindowTypes = getVariableValue("object.display.windows.furni.rights")
+    "pet":
+      tObj = tRoomComponent.getUserObject(tSelectedObj)
+      tWindowTypes = getVariableValue("object.display.windows.pet")
+    otherwise:
+      error(me, ("Unsupported object type:" && tObjType), #showObjectInfo, #minor)
+      tObj = 0
+  end case
   if (tObj = 0) then
-    return FALSE
+    return 0
   else
     tProps = tObj.getInfo()
   end if
-  tPos = tWindowTypes.count
-  repeat while tPos >= 1
-    tWindowType = tWindowTypes.getAt(tPos)
-    if (tObjType = "human") then
-      tID = pWindowCreator.createHumanWindow(tProps.getAt(#class), tProps.getAt(#name), tProps.getAt(#custom), tProps.getAt(#image), tProps.getAt(#badge), tProps.getAt(#groupid))
-      me.pushWindowToDisplayList(tID)
-    else
-      if (tObjType = "furni") then
-        tID = pWindowCreator.createFurnitureWindow(tProps.getAt(#class), tProps.getAt(#name), tProps.getAt(#custom), tProps.getAt(#smallmember))
+  repeat with tPos = tWindowTypes.count down to 1
+    tWindowType = tWindowTypes[tPos]
+    case tWindowType of
+      "human":
+        tID = pWindowCreator.createHumanWindow(tProps[#class], tProps[#name], tProps[#custom], tProps[#image], tProps[#badge], tProps[#groupid])
         me.pushWindowToDisplayList(tID)
-      else
-        if (tObjType = "links_human") then
-          if (tProps.getAt(#name) = getObject(#session).GET("user_name")) then
-            tID = pWindowCreator.createLinksWindow(#own)
-          else
-            tID = pWindowCreator.createLinksWindow(#peer)
-          end if
-          me.pushWindowToDisplayList(tID)
+      "furni":
+        tID = pWindowCreator.createFurnitureWindow(tProps[#class], tProps[#name], tProps[#custom], tProps[#smallmember])
+        me.pushWindowToDisplayList(tID)
+      "links_human":
+        if (tProps[#name] = getObject(#session).GET("user_name")) then
+          tID = pWindowCreator.createLinksWindow(#own)
         else
-          if (tObjType = "links_furni") then
-            tID = pWindowCreator.createLinksWindow(#furni)
-            me.pushWindowToDisplayList(tID)
-          else
-            if (tObjType = "actions_human") then
-              if (tProps.getAt(#name) = getObject(#session).GET("user_name")) then
-                tID = pWindowCreator.createActionsHumanWindow(#own)
-              else
-                tID = pWindowCreator.createActionsHumanWindow(#peer)
-              end if
-              me.pushWindowToDisplayList(tID)
-            else
-              if (tObjType = "actions_furni") then
-                tID = pWindowCreator.createActionsFurniWindow()
-                me.pushWindowToDisplayList(tID)
-              else
-                if (tObjType = "bottom") then
-                  tID = pWindowCreator.createBottomWindow()
-                  me.pushWindowToDisplayList(tID)
-                end if
-              end if
-            end if
-          end if
+          tID = pWindowCreator.createLinksWindow(#peer)
         end if
-      end if
-    end if
-    tPos = (255 + tPos)
+        me.pushWindowToDisplayList(tID)
+      "links_furni":
+        tID = pWindowCreator.createLinksWindow(#furni)
+        me.pushWindowToDisplayList(tID)
+      "actions_human":
+        if (tProps[#name] = getObject(#session).GET("user_name")) then
+          tID = pWindowCreator.createActionsHumanWindow(#own)
+        else
+          tID = pWindowCreator.createActionsHumanWindow(#peer)
+        end if
+        me.pushWindowToDisplayList(tID)
+      "actions_furni":
+        tID = pWindowCreator.createActionsFurniWindow()
+        me.pushWindowToDisplayList(tID)
+      "bottom":
+        tID = pWindowCreator.createBottomWindow()
+        me.pushWindowToDisplayList(tID)
+    end case
   end repeat
-  createTimeout(#temp, 20, #alignWindows, me.getID(), void(), 1)
+  createTimeout(#temp, 20, #alignWindows, me.getID(), VOID, 1)
 end
 
-on clearWindowDisplayList me 
-  repeat while pWindowList <= undefined
-    tWindowID = getAt(undefined, undefined)
+on clearWindowDisplayList me
+  repeat with tWindowID in pWindowList
     removeWindow(tWindowID)
   end repeat
   pWindowList = []
 end
 
-on pushWindowToDisplayList me, tWindowID 
+on pushWindowToDisplayList me, tWindowID
   tNewWindow = getWindow(tWindowID)
   tLeftPos = getVariable("object.display.pos.left")
-  if pWindowList.count > 0 then
-    tPrevWindowID = pWindowList.getAt(pWindowList.count)
+  if (pWindowList.count > 0) then
+    tPrevWindowID = pWindowList[pWindowList.count]
     tPrevWindow = getWindow(tPrevWindowID)
     tTopPos = (tPrevWindow.getProperty(#locY) - tNewWindow.getProperty(#height))
   else
@@ -126,5 +105,5 @@ on pushWindowToDisplayList me, tWindowID
   pWindowList.add(tWindowID)
 end
 
-on alignWindows me 
+on alignWindows me
 end
