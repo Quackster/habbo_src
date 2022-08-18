@@ -1,54 +1,54 @@
-on construct me 
-  return(me.regMsgList(1))
+on construct me
+  return me.regMsgList(1)
 end
 
-on deconstruct me 
-  return(me.regMsgList(0))
+on deconstruct me
+  return me.regMsgList(0)
 end
 
-on handleIMMessage me, tMsg 
+on handleIMMessage me, tMsg
   tConn = tMsg.getaProp(#connection)
   if (tConn = 0) then
-    return FALSE
+    return 0
   end if
   tSenderId = string(tConn.GetIntFrom())
   tText = tConn.GetStrFrom()
   me.getComponent().receiveMessage(tSenderId, tText)
-  return TRUE
+  return 1
 end
 
-on handleIMInvitation me, tMsg 
+on handleIMInvitation me, tMsg
   tConn = tMsg.getaProp(#connection)
   if (tConn = 0) then
-    return FALSE
+    return 0
   end if
   tSenderId = string(tConn.GetIntFrom())
   tText = tConn.GetStrFrom()
   me.getComponent().receiveInvitation(tSenderId, tText)
-  return TRUE
+  return 1
 end
 
-on handleIMError me, tMsg 
+on handleIMError me, tMsg
   tConn = tMsg.getaProp(#connection)
   if (tConn = 0) then
-    return FALSE
+    return 0
   end if
   tErrorCode = tConn.GetIntFrom()
   tChatID = tConn.GetIntFrom()
   me.getComponent().receiveError(tChatID, tErrorCode)
-  return TRUE
+  return 1
 end
 
-on handleInvitationError me, tMsg 
+on handleInvitationError me, tMsg
   tConn = tMsg.getaProp(#connection)
   if (tConn = 0) then
-    return FALSE
+    return 0
   end if
   tErrorCode = tConn.GetIntFrom()
   executeMessage(#alert, getText("friend_invitation_error"))
 end
 
-on regMsgList me, tBool 
+on regMsgList me, tBool
   tMsgs = [:]
   tMsgs.setaProp(134, #handleIMMessage)
   tMsgs.setaProp(135, #handleIMInvitation)
@@ -64,5 +64,5 @@ on regMsgList me, tBool
     unregisterListener(getVariable("connection.info.id"), me.getID(), tMsgs)
     unregisterCommands(getVariable("connection.info.id"), me.getID(), tCmds)
   end if
-  return TRUE
+  return 1
 end

@@ -1,7 +1,7 @@
-on construct me 
+on construct me
   the romanLingo = 1
   the inlineImeEnabled = 0
-  if the platform contains "windows" then
+  if (the platform contains "windows") then
     tLine = getIntVariable("win.font.line", 14)
     tFontMember = member("win_font_chinese")
     setVariable("balloon.margin.offset.v", -1)
@@ -14,10 +14,10 @@ on construct me
   tSize = tFontMember.fontSize
   tui = the environment.uiLanguage
   tos = the environment.osLanguage
-  if (tui = "Other") and (tos = "Chinese") then
+  if ((tui = "Other") and (tos = "Chinese")) then
     setVariable("writer.instance.class", string(["Writer Class", "Writer Patch A"]))
   else
-    if (tui = "Chinese") and (tos = "Chinese") then
+    if ((tui = "Chinese") and (tos = "Chinese")) then
       setVariable("writer.instance.class", string(["Writer Class", "Writer Patch A"]))
     else
       if (tos = "Chinese") then
@@ -57,15 +57,15 @@ on construct me
   createObject(#string_validator, "String Validator Cls")
   registerMessage(#Initialize, me.getID(), #delayedPatch)
   registerMessage(#BalloonManagerCreated, me.getID(), #patchBalloonText)
-  return TRUE
+  return 1
 end
 
-on delayedPatch me 
+on delayedPatch me
   replaceMember("matik_upp", "matik_upp_jp")
   unregisterMessage(#Initialize, me.getID())
 end
 
-on patchBalloonText me, tProps 
-  tManagerID = tProps.getAt(#objectPointer)
+on patchBalloonText me, tProps
+  tManagerID = tProps[#objectPointer]
   tManagerID.setProperty("SHOUT", #color, rgb(255, 0, 0))
 end

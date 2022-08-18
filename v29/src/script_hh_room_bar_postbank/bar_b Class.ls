@@ -1,69 +1,69 @@
 property pDiscoTimer
 
-on construct me 
+on construct me
   pDiscoTimer = 0
-  return TRUE
+  return 1
 end
 
-on deconstruct me 
-  return(removeUpdate(me.getID()))
+on deconstruct me
+  return removeUpdate(me.getID())
 end
 
-on prepare me 
-  return(receiveUpdate(me.getID()))
+on prepare me
+  return receiveUpdate(me.getID())
 end
 
-on update me 
-  if the milliSeconds < (pDiscoTimer + 500) then
-    return TRUE
+on update me
+  if (the milliSeconds < (pDiscoTimer + 500)) then
+    return 1
   end if
   pDiscoTimer = the milliSeconds
   tThread = getThread(#room)
   if (tThread = 0) then
-    return FALSE
+    return 0
   end if
   tRoomVis = tThread.getInterface().getRoomVisualizer()
   if (tRoomVis = 0) then
-    return FALSE
+    return 0
   end if
-  tDst = "df" & random(3)
-  tCmd = "setfloor" & ["a", "b"].getAt(random(2))
+  tDst = ("df" & random(3))
+  tCmd = ("setfloor" & ["a", "b"][random(2)])
   tNum = string(random(12))
-  tSpr = tRoomVis.getSprById("show_" & tDst)
+  tSpr = tRoomVis.getSprById(("show_" & tDst))
   if not tSpr then
-    return(error(me, "Sprite not found:" && "show_" & tDst, #showprogram))
+    return error(me, (("Sprite not found:" && "show_") & tDst), #showprogram)
   else
-    if (tCmd = "setfloora") then
-      tSpr.member.paletteRef = member(getmemnum("clubfloorparta" & tNum))
-    else
-      if (tCmd = "setfloorb") then
-        tSpr.member.paletteRef = member(getmemnum("clubfloorpartb" & tNum))
-      end if
-    end if
+    case tCmd of
+      "setfloora":
+        tSpr.member.paletteRef = member(getmemnum(("clubfloorparta" & tNum)))
+      "setfloorb":
+        tSpr.member.paletteRef = member(getmemnum(("clubfloorpartb" & tNum)))
+    end case
   end if
 end
 
-on showprogram me, tMsg 
+on showprogram me, tMsg
   if voidp(tMsg) then
-    return FALSE
+    return 0
   end if
   tThread = getThread(#room)
   if (tThread = 0) then
-    return FALSE
+    return 0
   end if
   tRoomVis = tThread.getInterface().getRoomVisualizer()
   if (tRoomVis = 0) then
-    return FALSE
+    return 0
   end if
-  tDst = tMsg.getAt(#show_dest)
-  tCmd = tMsg.getAt(#show_command)
-  tNum = tMsg.getAt(#show_params)
-  tSpr = tRoomVis.getSprById("show_" & tDst)
+  tDst = tMsg[#show_dest]
+  tCmd = tMsg[#show_command]
+  tNum = tMsg[#show_params]
+  tSpr = tRoomVis.getSprById(("show_" & tDst))
   if not tSpr then
-    return(error(me, "Sprite not found:" && "show_" & tDst, #showprogram))
+    return error(me, (("Sprite not found:" && "show_") & tDst), #showprogram)
   else
-    if (tCmd = "setlamp") then
-      tSpr.member.paletteRef = member(getmemnum("lattialamppu" & tNum))
-    end if
+    case tCmd of
+      "setlamp":
+        tSpr.member.paletteRef = member(getmemnum(("lattialamppu" & tNum)))
+    end case
   end if
 end

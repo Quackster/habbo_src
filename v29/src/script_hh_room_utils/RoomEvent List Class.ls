@@ -1,6 +1,6 @@
-property pEventData, pListWidth, pLineHeight, pWriter
+property pEventData, pListLine, pWriter, pLineHeight, pListWidth
 
-on construct me 
+on construct me
   pEventData = []
   pLineHeight = 20
   pListWidth = 200
@@ -8,41 +8,38 @@ on construct me
   tID = getUniqueID()
   createWriter(tID, tFont)
   pWriter = getWriter(tID)
-  return TRUE
+  return 1
 end
 
-on deconstruct me 
-  return TRUE
+on deconstruct me
+  return 1
 end
 
-on setEvents me, tEventData 
+on setEvents me, tEventData
   pEventData = tEventData
 end
 
-on generateTestData me, tCount 
+on generateTestData me, tCount
   pEventData = []
-  i = 1
-  repeat while i <= tCount
+  repeat with i = 1 to tCount
     tEvent = [:]
     tEvent.setaProp(#flatId, i)
-    tEvent.setaProp(#host, "host" && i)
-    tEvent.setaProp(#time, "time" && i)
-    tEvent.setaProp(#name, "name" && i)
-    tEvent.setaProp(#desc, "desc" && i)
+    tEvent.setaProp(#host, ("host" && i))
+    tEvent.setaProp(#time, ("time" && i))
+    tEvent.setaProp(#name, ("name" && i))
+    tEvent.setaProp(#desc, ("desc" && i))
     pEventData.add(tEvent.duplicate())
-    i = (1 + i)
   end repeat
 end
 
-on renderListImage me 
+on renderListImage me
   if not listp(pEventData) then
-    return FALSE
+    return 0
   end if
   tListImage = image(pListWidth, (pLineHeight * pEventData.count), 8)
   tListColors = [rgb("#EFEFEF"), rgb("#E1E1E1")]
   tBgImages = []
-  repeat while tListColors <= undefined
-    tColor = getAt(undefined, undefined)
+  repeat with tColor in tListColors
     tImage = image(pListWidth, pLineHeight, 8)
     tImage.fill(tImage.rect, tColor)
     tBgImages.add(tImage)
@@ -51,37 +48,35 @@ on renderListImage me
   tArrowImage = pWriter.render(tArrowsString).duplicate()
   tMarginH = rect(5, 0, 5, 0)
   tMarginV = rect(0, 5, 0, 5)
-  if pEventData.count > 0 then
-    tLine = 1
-    repeat while tLine <= pEventData.count
-      tLineImage = tBgImages.getAt(((tLine mod 2) + 1)).duplicate()
-      tName = pEventData.getAt(tLine).getaProp(#name)
+  if (pEventData.count > 0) then
+    repeat with tLine = 1 to pEventData.count
+      tLineImage = tBgImages[((tLine mod 2) + 1)].duplicate()
+      tName = pEventData[tLine].getaProp(#name)
       tTextImage = pWriter.render(tName).duplicate()
       tLineImage.copyPixels(tTextImage, ((tTextImage.rect + tMarginH) + tMarginV), tTextImage.rect)
       tTargetRect = rect((tLineImage.width - tArrowImage.width), 0, tLineImage.width, tArrowImage.height)
       tLineImage.copyPixels(tArrowImage, (tTargetRect + tMarginV), tArrowImage.rect)
       tTargetRect = rect(0, ((tLine - 1) * pLineHeight), pListWidth, (tLine * pLineHeight))
       tListImage.copyPixels(tLineImage, tTargetRect, tLineImage.rect)
-      pEventData.getAt(tLine).setaProp(#rect, tTargetRect)
-      tLine = (1 + tLine)
+      pEventData[tLine].setaProp(#rect, tTargetRect)
     end repeat
-    exit repeat
+  else
+    tListImage = image(pListWidth, pLineHeight, 8)
+    tLineImage = tBgImages[1].duplicate()
+    tTextImage = pWriter.render(getText("roomevent_not_available")).duplicate()
+    tLineImage.copyPixels(tTextImage, ((tTextImage.rect + tMarginH) + tMarginV), tTextImage.rect)
+    tListImage.copyPixels(tLineImage, tLineImage.rect, tLineImage.rect)
   end if
-  tListImage = image(pListWidth, pLineHeight, 8)
-  tLineImage = tBgImages.getAt(1).duplicate()
-  tTextImage = pWriter.render(getText("roomevent_not_available")).duplicate()
-  tLineImage.copyPixels(tTextImage, ((tTextImage.rect + tMarginH) + tMarginV), tTextImage.rect)
-  tListImage.copyPixels(tLineImage, tLineImage.rect, tLineImage.rect)
-  return(tListImage)
+  return tListImage
 end
 
-on getEventAt me, tpoint 
-  if ilk(tpoint) <> #point then
-    return FALSE
+on getEventAt me, tpoint
+  if (ilk(tpoint) <> #point) then
+    return 0
   end if
-  tLine = ((tpoint.getAt(2) / pLineHeight) + 1)
-  if tLine > pEventData.count then
-    return FALSE
+  tLine = ((tpoint[2] / pLineHeight) + 1)
+  if (tLine > pEventData.count) then
+    return 0
   end if
-  return(pEventData.getAt(tLine))
+  return pEventData[tLine]
 end

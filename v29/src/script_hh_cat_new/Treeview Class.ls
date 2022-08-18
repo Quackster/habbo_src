@@ -1,52 +1,51 @@
 property pNodes, pInterface
 
-on construct me 
-  pNodes = void()
+on construct me
+  pNodes = VOID
   pInterface = createObject(#random, "Treeview Interface Class")
 end
 
-on deconstruct me 
+on deconstruct me
   if objectp(pNodes) then
     if pNodes.valid then
       removeObject(pNodes.getID())
     end if
   end if
-  pNodes = void()
+  pNodes = VOID
   if objectExists(pInterface.getID()) then
     removeObject(pInterface.getID())
   end if
 end
 
-on define me, tdata, tWidth, tHeight 
+on define me, tdata, tWidth, tHeight
   pNodes = me.createNode(tdata, tWidth, 0)
   pInterface.feedData(me)
-  pInterface.define([#width:tWidth, #height:tHeight])
+  pInterface.define([#width: tWidth, #height: tHeight])
 end
 
-on getRootNode me 
-  return(pNodes)
+on getRootNode me
+  return pNodes
 end
 
-on getInterface me 
-  return(pInterface)
+on getInterface me
+  return pInterface
 end
 
-on handlePageRequest me, tPageID 
+on handlePageRequest me, tPageID
   getThread(#catalogue).getComponent().preparePage(tPageID)
 end
 
-on createNode me, tdata, tWidth, tLevel 
-  if ilk(tdata) <> #propList then
-    return FALSE
+on createNode me, tdata, tWidth, tLevel
+  if (ilk(tdata) <> #propList) then
+    return 0
   end if
   tNode = createObject(#random, "Treeview Node Class")
-  tNode.feedData([#level:tLevel, #navigateable:tdata.navigateable, #color:tdata.color, #icon:tdata.icon, #pageid:tdata.pageid, #nodename:tdata.nodename], tWidth)
+  tNode.feedData([#level: tLevel, #navigateable: tdata.navigateable, #color: tdata.color, #icon: tdata.icon, #pageid: tdata.pageid, #nodename: tdata.nodename], tWidth)
   if not voidp(tdata.getaProp(#subnodes)) then
-    repeat while tdata.subnodes <= tWidth
-      tSubNodeData = getAt(tWidth, tdata)
+    repeat with tSubNodeData in tdata.subnodes
       tSubNode = me.createNode(tSubNodeData, tWidth, (tLevel + 1))
       tNode.addChild(tSubNode)
     end repeat
   end if
-  return(tNode)
+  return tNode
 end

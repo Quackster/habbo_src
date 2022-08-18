@@ -1,6 +1,6 @@
-property pData, pDataLoaded, pMemberName
+property pData, pMemberName, pDataLoaded
 
-on construct me 
+on construct me
   pDataLoaded = 0
   pData = [:]
   pData.sort()
@@ -8,7 +8,7 @@ on construct me
   if variableExists("productdata.load.url") then
     tURL = getVariable("productdata.load.url")
     tHash = getSpecialServices().getSessionHash()
-    if (tHash = "") then
+    if (tHash = EMPTY) then
       tHash = string(random(1000000))
     end if
     tURL = replaceChunks(tURL, "%hash%", tHash)
@@ -16,47 +16,44 @@ on construct me
   end if
 end
 
-on deconstruct me 
+on deconstruct me
   pData = [:]
 end
 
-on getProps me, tProductCode 
-  return(pData.getaProp(tProductCode))
+on getProps me, tProductCode
+  return pData.getaProp(tProductCode)
 end
 
-on getIsDataDownloaded me 
-  return(pDataLoaded)
+on getIsDataDownloaded me
+  return pDataLoaded
 end
 
-on initDownload me, tSourceURL 
+on initDownload me, tSourceURL
   if not createMember(pMemberName, #field) then
-    return(error(me, "Could not create member!", #initDownload))
+    return error(me, "Could not create member!", #initDownload)
   end if
   tMemNum = queueDownload(tSourceURL, pMemberName, #field, 1)
   registerDownloadCallback(tMemNum, #downloadCallback, me.getID(), tMemNum)
 end
 
-on downloadCallback me, tParams, tSuccess 
+on downloadCallback me, tParams, tSuccess
   if tSuccess then
     tTime = the milliSeconds
     pData = [:]
     tmember = member(tParams)
     i = 1
-    l = 1
-    repeat while l <= tmember.text.count(#line)
-      tVal = value(tmember.text.getProp(#line, l))
+    repeat with l = 1 to tmember.text.line.count
+      tVal = value(tmember.text.line[l])
       if (ilk(tVal) = #list) then
-        repeat while tVal <= tSuccess
-          tItem = getAt(tSuccess, tParams)
+        repeat with tItem in tVal
           tdata = [:]
-          tdata.setAt(#code, tItem.getAt(1))
-          tdata.setAt(#name, decodeUTF8(tItem.getAt(2)))
-          tdata.setAt(#description, decodeUTF8(tItem.getAt(3)))
-          tdata.setAt(#specialText, decodeUTF8(tItem.getAt(4)))
-          pData.setaProp(tItem.getAt(1), tdata)
+          tdata[#code] = tItem[1]
+          tdata[#name] = decodeUTF8(tItem[2])
+          tdata[#description] = decodeUTF8(tItem[3])
+          tdata[#specialText] = decodeUTF8(tItem[4])
+          pData.setaProp(tItem[1], tdata)
         end repeat
       end if
-      l = (1 + l)
     end repeat
     pDataLoaded = 1
   end if

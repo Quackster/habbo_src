@@ -1,69 +1,67 @@
 property pState
 
-on prepare me, tdata 
-  me.setState(tdata.getAt(#stuffdata))
-  return TRUE
+on prepare me, tdata
+  me.setState(tdata[#stuffdata])
+  return 1
 end
 
-on updateStuffdata me, tValue 
+on updateStuffdata me, tValue
   me.setState(tValue)
 end
 
-on setState me, tValue 
+on setState me, tValue
   tValue = string(tValue)
-  if me.count(#pSprList) < 3 then
-    return FALSE
+  if (me.pSprList.count < 3) then
+    return 0
   end if
   pState = tValue
-  if (tValue = "1") then
-    me.switchMember("c", "0")
-    me.getPropRef(#pSprList, 3).visible = 1
-  else
-    if (tValue = "2") then
+  case tValue of
+    "1":
+      me.switchMember("c", "0")
+      me.pSprList[3].visible = 1
+    "2":
       me.switchMember("c", "1")
-      me.getPropRef(#pSprList, 3).visible = 1
-    else
-      me.getPropRef(#pSprList, 3).visible = 0
-    end if
-  end if
-  return TRUE
+      me.pSprList[3].visible = 1
+    otherwise:
+      me.pSprList[3].visible = 0
+  end case
+  return 1
 end
 
-on switchMember me, tPart, tNewMem 
+on switchMember me, tPart, tNewMem
   tSprNum = ["a", "b", "c", "d", "e", "f"].getPos(tPart)
-  if me.count(#pSprList) < tSprNum or (tSprNum = 0) then
-    return FALSE
+  if ((me.pSprList.count < tSprNum) or (tSprNum = 0)) then
+    return 0
   end if
-  tName = me.getPropRef(#pSprList, tSprNum).member.name
-  tName = tName.getProp(#char, 1, (tName.length - 1)) & tNewMem
+  tName = me.pSprList[tSprNum].member.name
+  tName = (tName.char[1] & tNewMem)
   if memberExists(tName) then
     tmember = member(getmemnum(tName))
-    me.getPropRef(#pSprList, tSprNum).castNum = tmember.number
-    me.getPropRef(#pSprList, tSprNum).width = tmember.width
-    me.getPropRef(#pSprList, tSprNum).height = tmember.height
+    me.pSprList[tSprNum].castNum = tmember.number
+    me.pSprList[tSprNum].width = tmember.width
+    me.pSprList[tSprNum].height = tmember.height
   end if
-  return TRUE
+  return 1
 end
 
-on select me 
+on select me
   if the doubleClick then
     tUserObj = getThread(#room).getComponent().getOwnUser()
     if not tUserObj then
-      return TRUE
+      return 1
     end if
-    if abs((tUserObj.pLocX - me.pLocX)) > 1 or abs((tUserObj.pLocY - me.pLocY)) > 1 then
-      return TRUE
+    if ((abs((tUserObj.pLocX - me.pLocX)) > 1) or (abs((tUserObj.pLocY - me.pLocY)) > 1)) then
+      return 1
     end if
-    if (pState = "0") then
-      pState = "1"
-    else
-      if (pState = "1") then
+    case pState of
+      "0":
+        pState = "1"
+      "1":
         pState = "2"
-      else
+      otherwise:
         pState = "0"
-      end if
-    end if
-    getThread(#room).getComponent().getRoomConnection().send("SETSTUFFDATA", [#string:string(me.getID()), #string:pState])
+    end case
+    getThread(#room).getComponent().getRoomConnection().send("SETSTUFFDATA", [#string: string(me.getID()), #string: pState])
   end if
-  return TRUE
+  return 1
 end
