@@ -1,22 +1,22 @@
-property pSliderEventAgentID, pWindowID, pPaletteColorsRGB, pPaletteColorsHSL, pSelectedEffectID, pMinLightnesses, pUIShown, pSelectedPresetID, pSelectedColor, pSelectedLightness
+property pWindowID, pSliderEventAgentID, pSelectedColor, pSelectedLightness, pSelectedEffectID, pSelectedPresetID, pSliderValue, pMinLightnesses, pCheckboxValue, pUIShown, pPaletteColorsRGB, pPaletteColorsHSL
 
-on construct me 
+on construct me
   pWindowID = "RoomdimmerWindow"
   pSliderEventAgentID = getUniqueID()
-  pMinLightnesses = [1:0.6, 2:0.3]
+  pMinLightnesses = [1: 0.59999999999999998, 2: 0.29999999999999999]
   pUIShown = 0
   pSelectedEffectID = 1
   pPaletteColorsRGB = []
   pPaletteColorsHSL = []
   createObject(pSliderEventAgentID, getClassVariable("event.agent.class"))
-  return TRUE
+  return 1
 end
 
-on deconstruct me 
-  return TRUE
+on deconstruct me
+  return 1
 end
 
-on showControlPanel me 
+on showControlPanel me
   if not windowExists(pWindowID) then
     createWindow(pWindowID, "roomdimmer_control_panel.window")
   end if
@@ -31,45 +31,43 @@ on showControlPanel me
   tWnd.registerProcedure(#eventProc, me.getID(), #mouseDown)
 end
 
-on update me 
+on update me
   me.updateInterface()
   removeUpdate(me.getID())
 end
 
-on hide me 
+on hide me
   if windowExists(pWindowID) then
     removeWindow(pWindowID)
   end if
   pUIShown = 0
-  return TRUE
+  return 1
 end
 
-on preparePaletteSlots me 
+on preparePaletteSlots me
   tWnd = getWindow(pWindowID)
   tColorCount = getVariable("dimmer.color.count")
-  tSlotNum = 1
-  repeat while tSlotNum <= tColorCount
-    tSlot = tWnd.getElement("dimmer.paletteslot." & tSlotNum)
+  repeat with tSlotNum = 1 to tColorCount
+    tSlot = tWnd.getElement(("dimmer.paletteslot." & tSlotNum))
     tWidth = tSlot.getProperty(#width)
     tHeight = tSlot.getProperty(#height)
     tImage = image(tWidth, tHeight, 8)
-    tColor = rgb(string(getVariable("dimmer.color." & tSlotNum)))
-    pPaletteColorsRGB.setAt(tSlotNum, tColor)
-    pPaletteColorsHSL.setAt(tSlotNum, RGBtoHSL(tColor))
+    tColor = rgb(string(getVariable(("dimmer.color." & tSlotNum))))
+    pPaletteColorsRGB[tSlotNum] = tColor
+    pPaletteColorsHSL[tSlotNum] = RGBtoHSL(tColor)
     tImage.fill(tImage.rect, tColor)
     tSlot.feedImage(tImage)
-    tSlotNum = (1 + tSlotNum)
   end repeat
 end
 
-on selectPaletteSlot me, tSlotNum 
-  tSlotColor = rgb(string(getVariable("dimmer.color." & tSlotNum)))
+on selectPaletteSlot me, tSlotNum
+  tSlotColor = rgb(string(getVariable(("dimmer.color." & tSlotNum))))
   pSelectedColor = tSlotColor
   me.highlightPaletteSlot(tSlotNum)
   me.updatePreview()
 end
 
-on selectPreset me, tPresetNum 
+on selectPreset me, tPresetNum
   tPreset = me.getComponent().getPreset(tPresetNum)
   pSelectedPresetID = tPresetNum
   pSelectedEffectID = tPreset.getaProp(#effectID)
@@ -78,21 +76,21 @@ on selectPreset me, tPresetNum
   me.updateInterface()
 end
 
-on highlightPaletteSlot me, tSlotNum 
+on highlightPaletteSlot me, tSlotNum
   tWnd = getWindow(pWindowID)
-  tSlot = tWnd.getElement("dimmer.paletteslot." & tSlotNum)
+  tSlot = tWnd.getElement(("dimmer.paletteslot." & tSlotNum))
   tHighlighter = tWnd.getElement("dimmer.color.highlighter")
   tLocH = (tSlot.getProperty(#locH) - 2)
   tLocV = (tSlot.getProperty(#locV) - 2)
   tHighlighter.moveTo(tLocH, tLocV)
 end
 
-on toggleEffect me 
+on toggleEffect me
   pSelectedEffectID = (3 - pSelectedEffectID)
   me.updateInterface()
 end
 
-on initSliderAgent me, tBoolean 
+on initSliderAgent me, tBoolean
   tAgent = getObject(pSliderEventAgentID)
   if tBoolean then
     tAgent.registerEvent(me, #mouseUp, #sliderMouseUp)
@@ -104,19 +102,19 @@ on initSliderAgent me, tBoolean
   pDrag = tBoolean
 end
 
-on sliderMouseUp me 
+on sliderMouseUp me
   me.initSliderAgent(0)
 end
 
-on sliderMouseWithin me 
+on sliderMouseWithin me
   tWndObj = getWindow(pWindowID)
   tScaleElem = tWndObj.getElement("dimmer.slider.scale")
   tRect = tScaleElem.getProperty(#rect)
-  tValue = (float((the mouseH - tRect.getAt(1))) / tRect.width)
-  if tValue < 0 then
+  tValue = (float((the mouseH - tRect[1])) / tRect.width)
+  if (tValue < 0) then
     tValue = 0
   else
-    if tValue > 1 then
+    if (tValue > 1) then
       tValue = 1
     end if
   end if
@@ -127,9 +125,9 @@ on sliderMouseWithin me
   me.updatePreview()
 end
 
-on updateInterface me 
+on updateInterface me
   if not pUIShown then
-    return TRUE
+    return 1
   end if
   me.updateOnOff()
   me.updatePresetSelection()
@@ -139,7 +137,7 @@ on updateInterface me
   me.updatePreview()
 end
 
-on updateOnOff me 
+on updateOnOff me
   tIsOn = me.getComponent().isOn()
   tWnd = getWindow(pWindowID)
   tButton = tWnd.getElement("dimmer.button.onoff.text")
@@ -156,47 +154,44 @@ on updateOnOff me
   end if
 end
 
-on updatePresetSelection me 
+on updatePresetSelection me
   tPresetID = pSelectedPresetID
   tWnd = getWindow(pWindowID)
-  tNum = 1
-  repeat while tNum <= 3
-    tElem = tWnd.getElement("dimmer.button.preset." & tNum)
+  repeat with tNum = 1 to 3
+    tElem = tWnd.getElement(("dimmer.button.preset." & tNum))
     if (tNum = tPresetID) then
       tmember = member(getmemnum("dimmer.button.radio.on"))
     else
       tmember = member(getmemnum("dimmer.button.radio.off"))
     end if
     tElem.setProperty(#member, tmember)
-    tNum = (1 + tNum)
   end repeat
 end
 
-on updateColorSelection me 
+on updateColorSelection me
   tColor = pSelectedColor
   if voidp(pSelectedColor) then
-    return FALSE
+    return 0
   end if
   tPos = pPaletteColorsRGB.findPos(tColor)
   if (tPos = 0) then
     tHSL = RGBtoHSL(tColor)
     tHueDiff = []
-    repeat while pPaletteColorsHSL <= undefined
-      tPaletteColor = getAt(undefined, undefined)
-      tHueDiff.add(abs((tPaletteColor.getAt(1) - tHSL.getAt(1))))
+    repeat with tPaletteColor in pPaletteColorsHSL
+      tHueDiff.add(abs((tPaletteColor[1] - tHSL[1])))
     end repeat
     tPos = tHueDiff.findPos(tHueDiff.min())
-    pSelectedColor = pPaletteColorsRGB.getAt(tPos)
+    pSelectedColor = pPaletteColorsRGB[tPos]
   end if
   me.highlightPaletteSlot(tPos)
 end
 
-on updateSlider me 
+on updateSlider me
   tLightness = pSelectedLightness
-  tLightness = (tLightness / 255)
+  tLightness = (tLightness / 255.0)
   tMinLightness = pMinLightnesses.getaProp(pSelectedEffectID)
   tMappedValue = ((tLightness - tMinLightness) / (1 - tMinLightness))
-  if tMappedValue < 0 then
+  if (tMappedValue < 0) then
     tMappedValue = 0
   end if
   tWndObj = getWindow(pWindowID)
@@ -208,7 +203,7 @@ on updateSlider me
   tHandle.moveTo(tLocH, tLocV)
 end
 
-on updateCheckbox me 
+on updateCheckbox me
   tEffectId = pSelectedEffectID
   tWndObj = getWindow(pWindowID)
   tElem = tWndObj.getElement("dimmer.bgonly.checkbox")
@@ -220,19 +215,19 @@ on updateCheckbox me
   pCheckboxValue = tEffectId
 end
 
-on updatePreview me 
+on updatePreview me
   tColor = pSelectedColor
   tLightness = pSelectedLightness
   tEffectId = pSelectedEffectID
-  if voidp(tColor) or voidp(tLightness) or voidp(tEffectId) then
-    return FALSE
+  if ((voidp(tColor) or voidp(tLightness)) or voidp(tEffectId)) then
+    return 0
   end if
   tHSL = RGBtoHSL(tColor)
-  tHSL.setAt(3, tLightness)
+  tHSL[3] = tLightness
   tColor = HSLtoRGB(tHSL)
   tImage = member("dimmer.preview.all").image.duplicate()
   tNewImage = image(tImage.width, tImage.height, 32)
-  tNewImage.copyPixels(tImage, tNewImage.rect, tImage.rect, [#ink:41, #bgColor:tColor])
+  tNewImage.copyPixels(tImage, tNewImage.rect, tImage.rect, [#ink: 41, #bgColor: tColor])
   tWnd = getWindow(pWindowID)
   tElem = tWnd.getElement("dimmer.preview.bg")
   tElem.feedImage(tNewImage)
@@ -244,7 +239,7 @@ on updatePreview me
   end if
 end
 
-on applyEffect me 
+on applyEffect me
   tPreset = [:]
   tPreset.setaProp(#presetID, pSelectedPresetID)
   tPreset.setaProp(#effectID, pSelectedEffectID)
@@ -254,41 +249,30 @@ on applyEffect me
   me.getComponent().savePreset(tPreset)
 end
 
-on eventProc me, tEvent, tElemID, tParam 
+on eventProc me, tEvent, tElemID, tParam
   if (tEvent = #mouseUp) then
-    if tElemID <> "dimmer.bgonly.text" then
-      if (tElemID = "dimmer.bgonly.checkbox") then
+    case tElemID of
+      "dimmer.bgonly.text", "dimmer.bgonly.checkbox":
         me.toggleEffect()
-      else
-        if (tElemID = "close") then
-          me.hide()
-        else
-          if tElemID <> "dimmer.button.onoff" then
-            if (tElemID = "dimmer.button.onoff.text") then
-              me.getComponent().toggleOnoff()
-            else
-              if tElemID <> "dimmer.button.apply" then
-                if (tElemID = "dimmer.button.apply.text") then
-                  me.applyEffect()
-                else
-                  if tElemID contains "dimmer.paletteslot" then
-                    tSlotNum = tElemID.getProp(#char, tElemID.length)
-                    me.selectPaletteSlot(tSlotNum)
-                  end if
-                  if tElemID contains "dimmer.button.preset" then
-                    tItems = explode(tElemID, ".")
-                    tPresetNum = value(tItems.getAt(4))
-                    me.selectPreset(tPresetNum)
-                  end if
-                end if
-                if (tEvent = #mouseDown) and tElemID contains "dimmer.slider" then
-                  me.initSliderAgent(1)
-                end if
-              end if
-            end if
-          end if
+      "close":
+        me.hide()
+      "dimmer.button.onoff", "dimmer.button.onoff.text":
+        me.getComponent().toggleOnoff()
+      "dimmer.button.apply", "dimmer.button.apply.text":
+        me.applyEffect()
+      otherwise:
+        if (tElemID contains "dimmer.paletteslot") then
+          tSlotNum = tElemID.char[tElemID.length]
+          me.selectPaletteSlot(tSlotNum)
         end if
-      end if
-    end if
+        if (tElemID contains "dimmer.button.preset") then
+          tItems = explode(tElemID, ".")
+          tPresetNum = value(tItems[4])
+          me.selectPreset(tPresetNum)
+        end if
+    end case
+  end if
+  if ((tEvent = #mouseDown) and (tElemID contains "dimmer.slider")) then
+    me.initSliderAgent(1)
   end if
 end

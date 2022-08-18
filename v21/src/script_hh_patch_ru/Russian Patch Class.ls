@@ -1,16 +1,12 @@
-on construct me 
+on construct me
   the romanLingo = 1
   the inlineImeEnabled = 1
-  if the platform contains "windows" then
+  if (the platform contains "windows") then
     tFont = getVariable("win.font.name", "Arial CYR")
     tSize = getIntVariable("win.font.size", 11)
     tLine = getIntVariable("win.font.line", 11)
   else
-    if value(_global.productVersion) >= 11 then
-      tFont = getVariable("mac.font.unicode.name", "Lucida Grande")
-    else
-      tFont = getVariable("mac.font.name", "Lucida Grande CY")
-    end if
+    tFont = getVariable("mac.font.name", "Lucida Grande CY")
     tSize = getIntVariable("mac.font.size", 11)
     tLine = getIntVariable("mac.font.line", 11)
   end if
@@ -49,15 +45,15 @@ on construct me
   createObject(#string_validator, "String Validator Cls")
   registerMessage(#Initialize, me.getID(), #delayedPatch)
   registerMessage(#BalloonManagerCreated, me.getID(), #patchBalloonText)
-  return TRUE
+  return 1
 end
 
-on delayedPatch me 
+on delayedPatch me
   replaceMember("matik_upp", "matik_upp_jp")
   unregisterMessage(#Initialize, me.getID())
 end
 
-on patchBalloonText me, tProps 
-  tManagerID = tProps.getAt(#objectPointer)
+on patchBalloonText me, tProps
+  tManagerID = tProps[#objectPointer]
   tManagerID.setProperty("SHOUT", #color, rgb(255, 0, 0))
 end

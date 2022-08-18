@@ -1,8 +1,11 @@
-on newJavaScriptLog  
+on newJavaScriptLog
+  -- unk26
 end
 
-on JavaScriptLog  
+on JavaScriptLog
+  -- unk26
 end
 
-on _call  
+on _call
+  -- unk26
 end

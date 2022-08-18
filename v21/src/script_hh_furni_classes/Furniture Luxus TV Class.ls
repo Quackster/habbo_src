@@ -1,6 +1,6 @@
-property pAnimFrameDuration, pUpdateCount, pProgramOn, pAnimLoop, pAnimFrameCounter, pAnimFrame, pTotalFrameCount, pTotalLoopCount, pUpdatesToWaitOnLastFrame
+property pProgramOn, pAnimFrame, pAnimFrameDuration, pAnimFrameCounter, pUpdateCount, pAnimLoop, pTotalLoopCount, pUpdatesToWaitOnLastFrame, pTotalFrameCount
 
-on prepare me, tdata 
+on prepare me, tdata
   pUpdateCount = 0
   pAnimFrame = 0
   pAnimLoop = 1
@@ -14,15 +14,15 @@ on prepare me, tdata
   end if
   pAnimFrameCounter = pAnimFrameDuration
   pTotalFrameCount = 1
-  if (tdata.getAt(#stuffdata) = "ON") then
+  if (tdata[#stuffdata] = "ON") then
     me.setOn()
   else
     me.setOff()
   end if
-  return TRUE
+  return 1
 end
 
-on updateStuffdata me, tValue 
+on updateStuffdata me, tValue
   if (tValue = "ON") then
     me.setOn()
   else
@@ -30,67 +30,67 @@ on updateStuffdata me, tValue
   end if
 end
 
-on update me 
-  if me.count(#pSprList) < 4 then
-    return FALSE
+on update me
+  if (me.pSprList.count < 4) then
+    return 0
   end if
   pUpdateCount = (pUpdateCount + 1)
-  if pUpdateCount < 3 then
-    return TRUE
+  if (pUpdateCount < 3) then
+    return 1
   end if
   pUpdateCount = 0
-  tName = me.getPropRef(#pSprList, 4).member.name
+  tName = me.pSprList[4].member.name
   tDelim = the itemDelimiter
   the itemDelimiter = "_"
-  tName = tName.getProp(#item, 1, (tName.count(#item) - 1)) & "_"
+  tName = (tName.item[1] & "_")
   the itemDelimiter = tDelim
   if pProgramOn then
-    if pAnimLoop >= 1 then
+    if (pAnimLoop >= 1) then
       pAnimFrameCounter = (pAnimFrameCounter + 1)
-      if pAnimFrameCounter < pAnimFrameDuration then
-        return TRUE
+      if (pAnimFrameCounter < pAnimFrameDuration) then
+        return 1
       end if
       pAnimFrameCounter = 0
-      tNewName = tName & pAnimFrame
+      tNewName = (tName & pAnimFrame)
       pAnimFrame = (pAnimFrame + 1)
-      if pTotalFrameCount <= pAnimFrame and memberExists(tName & (pAnimFrame + 1)) then
+      if ((pTotalFrameCount <= pAnimFrame) and memberExists((tName & (pAnimFrame + 1)))) then
         pTotalFrameCount = (pAnimFrame + 1)
       end if
       if (pAnimFrame = pTotalFrameCount) then
-        if pAnimLoop < pTotalLoopCount then
+        if (pAnimLoop < pTotalLoopCount) then
           pAnimFrame = 1
           pAnimLoop = (pAnimLoop + 1)
         else
           pAnimLoop = 0
-          tNewName = tName & pAnimFrame
+          tNewName = (tName & pAnimFrame)
           pUpdatesToWaitOnLastFrame = (30 + random(40))
         end if
       end if
     else
       if (pAnimLoop = 0) then
-        if pAnimFrame <= pUpdatesToWaitOnLastFrame then
+        if (pAnimFrame <= pUpdatesToWaitOnLastFrame) then
           pAnimFrame = (pAnimFrame + 1)
-          return TRUE
+          return 1
         else
           pAnimFrame = 1
           pAnimLoop = 1
-          return TRUE
+          return 1
         end if
       end if
     end if
   else
-    tNewName = tName & "0"
+    tNewName = (tName & "0")
   end if
   if memberExists(tNewName) then
     tmember = member(getmemnum(tNewName))
-    me.getPropRef(#pSprList, 4).castNum = tmember.number
-    me.getPropRef(#pSprList, 4).width = tmember.width
-    me.getPropRef(#pSprList, 4).height = tmember.height
+    me.pSprList[4].castNum = tmember.number
+    me.pSprList[4].width = tmember.width
+    me.pSprList[4].height = tmember.height
   end if
-  me.getPropRef(#pSprList, 4).locZ = (me.getPropRef(#pSprList, 1).locZ + 2)
+  me.pSprList[4].locZ = (me.pSprList[1].locZ + 2)
 end
 
-on setOn me 
+on setOn me
   pFramesToWaitOnLastFrame = 0
   pAnimFrameCounter = pAnimFrameDuration
   if (me.pXFactor = 32) then
@@ -103,17 +103,17 @@ on setOn me
   pProgramOn = 1
 end
 
-on setOff me 
+on setOff me
   pProgramOn = 0
 end
 
-on select me 
+on select me
   if the doubleClick then
     if pProgramOn then
       tOnString = "OFF"
     else
       tOnString = "ON"
     end if
-    getThread(#room).getComponent().getRoomConnection().send("SETSTUFFDATA", [#string:string(me.getID()), #string:tOnString])
+    getThread(#room).getComponent().getRoomConnection().send("SETSTUFFDATA", [#string: string(me.getID()), #string: tOnString])
   end if
 end

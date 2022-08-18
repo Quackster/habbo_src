@@ -1,12 +1,12 @@
-property pSprite, pCount, pAdd, pRandom
+property pSprite, pRandom, pFrameCount, pCount, pAdd
 
-on define me, tsprite 
+on define me, tsprite
   pSprite = tsprite
   me.reset()
-  return TRUE
+  return 1
 end
 
-on reset me 
+on reset me
   pRandom = random(30)
   pSprite.member = getmemnum("twinkle_0")
   pFrameCount = 1
@@ -15,20 +15,17 @@ on reset me
   sprite(pSprite).blend = pCount
 end
 
-on update me 
+on update me
   pCount = (pCount + pAdd)
   if (pRandom = 1) then
-    if (1 = pCount >= 0 and pCount <= 100) then
-      sprite(pSprite).blend = pCount
-    else
-      if (1 = pCount > 100) then
+    case 1 of
+      ((pCount >= 0) and (pCount <= 100)):
+        sprite(pSprite).blend = pCount
+      (pCount > 100):
         pAdd = (pAdd * -1)
-      else
-        if (1 = pCount < 0) then
-          me.reset()
-        end if
-      end if
-    end if
+      (pCount < 0):
+        me.reset()
+    end case
   else
     me.reset()
   end if

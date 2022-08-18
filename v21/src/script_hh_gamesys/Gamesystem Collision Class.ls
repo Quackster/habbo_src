@@ -1,136 +1,109 @@
-on construct me 
-  return TRUE
+property pSquareRoot
+
+on construct me
+  return 1
 end
 
-on deconstruct me 
-  return TRUE
+on deconstruct me
+  return 1
 end
 
-on testForObjectToObjectCollision me, tThisObject, tOtherObject, tDump 
+on testForObjectToObjectCollision me, tThisObject, tOtherObject, tDump
   if (tThisObject = tOtherObject) then
-    return FALSE
+    return 0
   end if
-  if (tOtherObject.getGameObjectProperty(#gameobject_collisionshape_type) = #none) then
-    return FALSE
-  else
-    if (tOtherObject.getGameObjectProperty(#gameobject_collisionshape_type) = #point) then
-      if (tOtherObject.getGameObjectProperty(#gameobject_collisionshape_type) = #none) then
-        return FALSE
-      else
-        if (tOtherObject.getGameObjectProperty(#gameobject_collisionshape_type) = #point) then
-          return FALSE
-        else
-          if (tOtherObject.getGameObjectProperty(#gameobject_collisionshape_type) = #circle) then
-            return(me.TestPointToCircleCollision(tOtherObject, tThisObject))
-          else
-            if (tOtherObject.getGameObjectProperty(#gameobject_collisionshape_type) = #triplecircle) then
-            else
-              if (tOtherObject.getGameObjectProperty(#gameobject_collisionshape_type) = #box) then
-              end if
-            end if
-          end if
-        end if
-      end if
-    else
-      if (tOtherObject.getGameObjectProperty(#gameobject_collisionshape_type) = #circle) then
-        if (tOtherObject.getGameObjectProperty(#gameobject_collisionshape_type) = #none) then
-          return FALSE
-        else
-          if (tOtherObject.getGameObjectProperty(#gameobject_collisionshape_type) = #point) then
-            return(me.TestPointToCircleCollision(tThisObject, tOtherObject))
-          else
-            if (tOtherObject.getGameObjectProperty(#gameobject_collisionshape_type) = #circle) then
-              return(me.TestCircleToCircleCollision(tThisObject, tOtherObject, tDump))
-            else
-              if (tOtherObject.getGameObjectProperty(#gameobject_collisionshape_type) = #triplecircle) then
-              else
-                if (tOtherObject.getGameObjectProperty(#gameobject_collisionshape_type) = #box) then
-                  return FALSE
-                end if
-              end if
-            end if
-          end if
-        end if
-      else
-        if (tOtherObject.getGameObjectProperty(#gameobject_collisionshape_type) = #triplecircle) then
-          if (tOtherObject.getGameObjectProperty(#gameobject_collisionshape_type) = #none) then
-            return FALSE
-          else
-            if (tOtherObject.getGameObjectProperty(#gameobject_collisionshape_type) = #box) then
-              return FALSE
-            end if
-          end if
-        else
-          if (tOtherObject.getGameObjectProperty(#gameobject_collisionshape_type) = #box) then
-            if (tOtherObject.getGameObjectProperty(#gameobject_collisionshape_type) = #none) then
-              return FALSE
-            else
-              if (tOtherObject.getGameObjectProperty(#gameobject_collisionshape_type) = #point) then
-              else
-                if (tOtherObject.getGameObjectProperty(#gameobject_collisionshape_type) = #circle) then
-                  return FALSE
-                else
-                  if (tOtherObject.getGameObjectProperty(#gameobject_collisionshape_type) = #triplecircle) then
-                    return FALSE
-                  else
-                    if (tOtherObject.getGameObjectProperty(#gameobject_collisionshape_type) = #box) then
-                      return FALSE
-                    end if
-                  end if
-                end if
-              end if
-            end if
-          end if
-        end if
-      end if
-    end if
-  end if
-  return FALSE
+  case tOtherObject.getGameObjectProperty(#gameobject_collisionshape_type) of
+    #none:
+      return 0
+    #point:
+      case tThisObject.getGameObjectProperty(#gameobject_collisionshape_type) of
+        #none:
+          return 0
+        #point:
+          return 0
+        #circle:
+          return me.TestPointToCircleCollision(tOtherObject, tThisObject)
+        #triplecircle:
+        #box:
+      end case
+    #circle:
+      case tThisObject.getGameObjectProperty(#gameobject_collisionshape_type) of
+        #none:
+          return 0
+        #point:
+          return me.TestPointToCircleCollision(tThisObject, tOtherObject)
+        #circle:
+          return me.TestCircleToCircleCollision(tThisObject, tOtherObject, tDump)
+        #triplecircle:
+        #box:
+          return 0
+      end case
+    #triplecircle:
+      case tThisObject.getGameObjectProperty(#gameobject_collisionshape_type) of
+        #none:
+          return 0
+        #box:
+          return 0
+      end case
+    #box:
+      case tThisObject.getGameObjectProperty(#gameobject_collisionshape_type) of
+        #none:
+          return 0
+        #point:
+        #circle:
+          return 0
+        #triplecircle:
+          return 0
+        #box:
+          return 0
+      end case
+  end case
+  return 0
 end
 
-on TestPointToCircleCollision me, tThisObject, tOtherObject 
+on TestPointToCircleCollision me, tThisObject, tOtherObject
   distanceX = (tOtherObject.getLocation().x - tThisObject.getLocation().x)
-  if distanceX < 0 then
+  if (distanceX < 0) then
     distanceX = -distanceX
   end if
   distanceY = (tOtherObject.getLocation().y - tThisObject.getLocation().y)
-  if distanceY < 0 then
+  if (distanceY < 0) then
     distanceY = -distanceY
   end if
-  if sqrt(((distanceX * distanceX) + (distanceY * distanceY))) < tOtherObject.getGameObjectProperty(#gameobject_collisionshape_radius) then
-    return TRUE
+  if (sqrt(((distanceX * distanceX) + (distanceY * distanceY))) < tOtherObject.getGameObjectProperty(#gameobject_collisionshape_radius)) then
+    return 1
   else
-    return FALSE
+    return 0
   end if
 end
 
-on TestCircleToCircleCollision me, tThisObject, tOtherObject, tDump 
+on TestCircleToCircleCollision me, tThisObject, tOtherObject, tDump
   distanceX = (tOtherObject.getLocation().x - tThisObject.getLocation().x)
-  if distanceX < 0 then
+  if (distanceX < 0) then
     distanceX = -distanceX
   end if
   distanceY = (tOtherObject.getLocation().y - tThisObject.getLocation().y)
-  if distanceY < 0 then
+  if (distanceY < 0) then
     distanceY = -distanceY
   end if
   collisionDistance = (tOtherObject.getGameObjectProperty(#gameobject_collisionshape_radius) + tThisObject.getGameObjectProperty(#gameobject_collisionshape_radius))
-  if distanceY < collisionDistance and distanceX < collisionDistance then
-    if ((distanceX * distanceX) + (distanceY * distanceY)) < (collisionDistance * collisionDistance) then
-      return TRUE
+  if ((distanceY < collisionDistance) and (distanceX < collisionDistance)) then
+    if (((distanceX * distanceX) + (distanceY * distanceY)) < (collisionDistance * collisionDistance)) then
+      return 1
     end if
   end if
-  return FALSE
+  return 0
 end
 
-on testDistance me, i_pos1X, i_pos1Y, i_pos2X, i_pos2Y, i_distance 
+on testDistance me, i_pos1X, i_pos1Y, i_pos2X, i_pos2Y, i_distance
   distX = abs((i_pos2X - i_pos1X))
   distY = abs((i_pos2Y - i_pos1Y))
-  if distX > i_distance or distY > i_distance then
-    return FALSE
+  if ((distX > i_distance) or (distY > i_distance)) then
+    return 0
   else
-    if ((distX * distX) + (distY * distY)) < (i_distance * i_distance) then
-      return TRUE
+    if (((distX * distX) + (distY * distY)) < (i_distance * i_distance)) then
+      return 1
     end if
   end if
-  return FALSE
+  return 0
 end
