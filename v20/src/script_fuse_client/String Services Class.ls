@@ -1,123 +1,118 @@
 property pConvList, pDigits
 
-on construct me 
+on construct me
   pConvList = [:]
   pDigits = "0123456789ABCDEF"
   me.initConvList()
-  return TRUE
+  return 1
 end
 
-on convertToPropList me, tStr, tDelim 
+on convertToPropList me, tStr, tDelim
   tOldDelim = the itemDelimiter
-  if (tDelim = void()) then
+  if (tDelim = VOID) then
     tDelim = ","
   end if
   the itemDelimiter = tDelim
   tProps = [:]
-  i = 1
-  repeat while i <= tStr.count(#item)
-    tPair = tStr.getPropRef(#item, i).getProp(#word, 1, tStr.getPropRef(#item, i).count(#word))
-    tProp = tPair.getProp(#char, 1, (offset("=", tPair) - 1))
-    tValue = tPair.getProp(#char, (offset("=", tPair) + 1), length(tStr))
-    tProps.setAt(tProp.getProp(#word, 1, tProp.count(#word)), tValue.getProp(#word, 1, tValue.count(#word)))
-    i = (1 + i)
+  repeat with i = 1 to tStr.item.count
+    tPair = tStr.item[i].word[1]
+    tProp = tPair.char[1]
+    tValue = tPair.char[(offset("=", tPair) + 1)]
+    tProps[tProp.word[1]] = tValue.word[1]
   end repeat
   the itemDelimiter = tOldDelim
-  return(tProps)
+  return tProps
 end
 
-on convertToLowerCase me, tString 
-  tValueStr = ""
-  i = 1
-  repeat while i <= length(tString)
-    tChar = tString.getProp(#char, i)
+on convertToLowerCase me, tString
+  tValueStr = EMPTY
+  repeat with i = 1 to length(tString)
+    tChar = tString.char[i]
     tNum = charToNum(tChar)
-    if tNum >= 65 and tNum <= 90 then
+    if ((tNum >= 65) and (tNum <= 90)) then
       tChar = numToChar((tNum + 32))
     end if
-    tValueStr = tValueStr & tChar
-    i = (1 + i)
+    tValueStr = (tValueStr & tChar)
   end repeat
-  return(tValueStr)
+  return tValueStr
 end
 
-on convertToHigherCase me, tString 
-  tValueStr = ""
-  i = 1
-  repeat while i <= length(tString)
-    tChar = tString.getProp(#char, i)
+on convertToHigherCase me, tString
+  tValueStr = EMPTY
+  repeat with i = 1 to length(tString)
+    tChar = tString.char[i]
     tNum = charToNum(tChar)
-    if tNum >= 97 and tNum <= 122 then
+    if ((tNum >= 97) and (tNum <= 122)) then
       tChar = numToChar((tNum - 32))
     end if
-    tValueStr = tValueStr & tChar
-    i = (1 + i)
+    tValueStr = (tValueStr & tChar)
   end repeat
-  return(tValueStr)
+  return tValueStr
 end
 
-on convertSpecialChars me, tString, tDirection 
-  tRetString = ""
+on convertSpecialChars me, tString, tDirection
+  tRetString = EMPTY
   tLength = tString.length
   if voidp(tDirection) then
     tDirection = 0
   end if
   if (tDirection = 0) then
-    pos = 1
-    repeat while pos <= tLength
-      tChar = tString.char[pos]
-      tConv = pConvList.getAt(tChar)
+    repeat with pos = 1 to tLength
+      tChar = char pos of tString
+      tConv = pConvList[tChar]
       if not voidp(tConv) then
-      else
+        put tConv after tRetString
+        next repeat
       end if
-      pos = (1 + pos)
+      put tChar after tRetString
     end repeat
-    exit repeat
+  else
+    repeat with pos = 1 to tLength
+      tChar = char pos of tString
+      tPos = pConvList.getPos(tChar)
+      if (tPos > 0) then
+        put pConvList.getPropAt(tPos) after tRetString
+        next repeat
+      end if
+      put tChar after tRetString
+    end repeat
   end if
-  pos = 1
-  repeat while pos <= tLength
-    tChar = tString.char[pos]
-    tPos = pConvList.getPos(tChar)
-    if tPos > 0 then
-    else
-    end if
-    pos = (1 + pos)
-  end repeat
-  return(tRetString)
+  return tRetString
 end
 
-on convertIntToHex me, tInt 
-  if tInt <= 0 then
-    return("00")
+on convertIntToHex me, tInt
+  if (tInt <= 0) then
+    return "00"
   else
-    repeat while tInt > 0
+    repeat while (tInt > 0)
       tD = (tInt mod 16)
       tInt = (tInt / 16)
-      tHexstr = pDigits.getProp(#char, (tD + 1)) & tHexstr
+      tHexstr = (pDigits.char[(tD + 1)] & tHexstr)
     end repeat
   end if
   if ((length(tHexstr) mod 2) = 1) then
-    tHexstr = "0" & tHexstr
+    tHexstr = ("0" & tHexstr)
   end if
-  return(tHexstr)
+  return tHexstr
 end
 
-on convertHexToInt me, tHex 
+on convertHexToInt me, tHex
   tBase = 1
   tValue = 0
-  repeat while length(tHex) > 0
+  repeat while (length(tHex) > 0)
     tLc = the last char in tHex
+    delete char -30000 of tHex
     tVl = (offset(tLc, pDigits) - 1)
     tValue = (tValue + (tBase * tVl))
     tBase = (tBase * 16)
   end repeat
-  return(tValue)
+  return tValue
 end
 
-on explode me, tStr, tDelim, tLimit 
+on explode me, tStr, tDelim, tLimit
   tList = []
   if voidp(tStr) then
-    return(tList)
+    return tList
   end if
   if voidp(tLimit) then
     tLimit = the maxinteger
@@ -126,146 +121,146 @@ on explode me, tStr, tDelim, tLimit
   repeat while 1
     tPos = offset(tDelim, tStr)
     if (tPos = 0) then
-    else
-      tSubStr = tStr.getProp(#char, 1, (tPos - 1))
-      tList.add(tSubStr)
-      if (tList.count = (tLimit - 1)) then
-        tList.add(tStr)
-        return(tList)
-      end if
+      exit repeat
+    end if
+    tSubStr = tStr.char[1]
+    tList.add(tSubStr)
+    delete char 1 to ((tPos + tDelimLength) - 1) of tStr
+    if (tList.count = (tLimit - 1)) then
+      tList.add(tStr)
+      return tList
     end if
   end repeat
   if (tPos = 0) then
     tPos = (1 - tDelimLength)
   end if
-  tList.add(tStr.getProp(#char, (tPos + tDelimLength), length(tStr)))
-  return(tList)
+  tList.add(tStr.char[(tPos + tDelimLength)])
+  return tList
 end
 
-on implode me, tList, tDelim 
+on implode me, tList, tDelim
   if voidp(tDelim) then
-    return FALSE
+    return 0
   end if
   if voidp(tList) then
-    return FALSE
+    return 0
   end if
-  tStr = ""
-  repeat while tList <= tDelim
-    tListItem = getAt(tDelim, tList)
-    tStr = tStr & tListItem & tDelim
+  tStr = EMPTY
+  repeat with tListItem in tList
+    tStr = ((tStr & tListItem) & tDelim)
   end repeat
   tStr = chars(tStr, 1, (tStr.length - tDelim.length))
-  return(tStr)
+  return tStr
 end
 
-on replaceChars me, tString, tCharA, tCharB 
+on replaceChars me, tString, tCharA, tCharB
   if (tCharA = tCharB) then
-    return(tString)
+    return tString
   end if
-  repeat while offset(tCharA, tString) > 0
+  repeat while (offset(tCharA, tString) > 0)
+    put tCharB into char offset(tCharA, tString) of tString
   end repeat
-  return(tString)
+  return tString
 end
 
-on replaceChunks me, tString, tChunkA, tChunkB 
-  tStr = ""
-  if voidp(tString) or voidp(tChunkA) or voidp(tChunkB) then
+on replaceChunks me, tString, tChunkA, tChunkB
+  tStr = EMPTY
+  if ((voidp(tString) or voidp(tChunkA)) or voidp(tChunkB)) then
     error(me, "At least one of the parameters was void!", me.getID(), #replaceChunks, #minor)
-    return(tStr)
+    return tStr
   end if
-  repeat while tString contains tChunkA
+  repeat while (tString contains tChunkA)
     tPos = (offset(tChunkA, tString) - 1)
-    if tPos > 0 then
+    if (tPos > 0) then
+      put tString.char[1] after tStr
     end if
-    (tPos + length(tChunkA)).getPropRef().delete()
+    put tChunkB after tStr
+    delete tString.char[1]
   end repeat
-  return(tStr)
+  put tString after tStr
+  return tStr
 end
 
-on urlEncode me, tStr 
-  tEncodedStr = ""
+on urlEncode me, tStr
+  tEncodedStr = EMPTY
   tOkChars = "-.0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ_"
-  i = 1
-  repeat while i <= tStr.length
-    tChar = tStr.getProp(#char, i)
+  repeat with i = 1 to tStr.length
+    tChar = tStr.char[i]
     if offset(tChar, tOkChars) then
-    else
-      if (tChar = space()) then
-      else
-      end if
+      put tChar after tEncodedStr
+      next repeat
     end if
-    i = (1 + i)
+    if (tChar = SPACE) then
+      put "+" after tEncodedStr
+      next repeat
+    end if
+    put ("%" & rgb(charToNum(tChar), 0, 0).hexString().char[2]) after tEncodedStr
   end repeat
-  return(tEncodedStr)
+  return tEncodedStr
 end
 
-on obfuscate me, tStr 
-  tResult = ""
-  i = 1
-  repeat while i <= tStr.length
-    tNumber = charToNum(tStr.getProp(#char, i))
+on obfuscate me, tStr
+  tResult = EMPTY
+  repeat with i = 1 to tStr.length
+    tNumber = charToNum(tStr.char[i])
     tNewNumber1 = (bitAnd(tNumber, 15) * 2)
     tNewNumber2 = (bitAnd(tNumber, 240) / 8)
     tRandom = (random(6) + 1)
     tNewNumber1 = ((tNewNumber1 + (bitAnd(tRandom, 6) * 16)) + bitAnd(tRandom, 1))
     tRandom = (random(6) + 1)
     tNewNumber2 = ((tNewNumber2 + (bitAnd(tRandom, 6) * 16)) + bitAnd(tRandom, 1))
-    tResult = tResult & numToChar(tNewNumber2) & numToChar(tNewNumber1)
-    i = (1 + i)
+    tResult = ((tResult & numToChar(tNewNumber2)) & numToChar(tNewNumber1))
   end repeat
-  return(tResult)
+  return tResult
 end
 
-on deobfuscate me, tStr 
-  tResult = ""
-  i = 1
-  repeat while i <= tStr.length
-    if i >= tStr.length then
-    else
-      tRawNumbers = [charToNum(tStr.getProp(#char, (i + 1))), charToNum(tStr.getProp(#char, i))]
-      tNumbers = [(bitAnd(tRawNumbers.getAt(1), 30) / 2), (bitAnd(tRawNumbers.getAt(2), 30) * 8)]
-      tNumber = bitOr(tNumbers.getAt(1), tNumbers.getAt(2))
-      tResult = tResult & numToChar(tNumber)
-      i = (i + 1)
-      i = (1 + i)
+on deobfuscate me, tStr
+  tResult = EMPTY
+  repeat with i = 1 to tStr.length
+    if (i >= tStr.length) then
+      exit repeat
     end if
+    tRawNumbers = [charToNum(tStr.char[(i + 1)]), charToNum(tStr.char[i])]
+    tNumbers = [(bitAnd(tRawNumbers[1], 30) / 2), (bitAnd(tRawNumbers[2], 30) * 8)]
+    tNumber = bitOr(tNumbers[1], tNumbers[2])
+    tResult = (tResult & numToChar(tNumber))
+    i = (i + 1)
   end repeat
-  return(tResult)
+  return tResult
 end
 
-on getLocalFloat me, tStrFloat 
+on getLocalFloat me, tStrFloat
   if not stringp(tStrFloat) then
-    return(float(tStrFloat))
+    return float(tStrFloat)
   end if
-  if not tStrFloat contains "." then
-    return(float(tStrFloat))
+  if not (tStrFloat contains ".") then
+    return float(tStrFloat)
   end if
   tStrFloatLocal = tStrFloat
-  if not value("1.2") > value("1.0") then
+  if not (value("1.2") > value("1.0")) then
+    put "," into char offset(".", tStrFloat) of tStrFloatLocal
   end if
-  return(float(tStrFloatLocal))
+  return float(tStrFloatLocal)
 end
 
-on initConvList me 
-  if the platform contains "win" then
+on initConvList me
+  if (the platform contains "win") then
     tMachineType = ".win"
   else
     tMachineType = ".mac"
   end if
   pConvList = [:]
-  tCharList = getVariableValue("char.conversion" & tMachineType, [:])
-  i = 1
-  repeat while i <= tCharList.count
+  tCharList = getVariableValue(("char.conversion" & tMachineType), [:])
+  repeat with i = 1 to tCharList.count
     tKey = tCharList.getPropAt(i)
-    tVal = tCharList.getAt(i)
+    tVal = tCharList[i]
     if integerp(integer(tKey)) then
       tKey = numToChar(integer(tKey))
     end if
     if integerp(integer(tVal)) then
       tVal = numToChar(integer(tVal))
     end if
-    pConvList.setAt(tKey, tVal)
-    i = (1 + i)
+    pConvList[tKey] = tVal
   end repeat
-  return TRUE
+  return 1
 end

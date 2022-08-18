@@ -1,7 +1,7 @@
-on construct me 
+on construct me
   the romanLingo = 1
   the inlineImeEnabled = 1
-  if the platform contains "windows" then
+  if (the platform contains "windows") then
     tFont = getVariable("win.font.name", "MS UI Gothic")
     tSize = getIntVariable("win.font.size", 11)
     tLine = getIntVariable("win.font.line", 11)
@@ -12,7 +12,7 @@ on construct me
   end if
   tui = the environment.uiLanguage
   tos = the environment.osLanguage
-  if (tui = "Japanese") and (tos = "Japanese") then
+  if ((tui = "Japanese") and (tos = "Japanese")) then
     setVariable("writer.instance.class", string(["Writer Class", "Writer Patch A"]))
   else
     if (tos = "Japanese") then
@@ -47,16 +47,13 @@ on construct me
   if objectExists(#layout_parser) then
     removeObject(#layout_parser)
   end if
-  createObject(#layout_parser, getClassVariable("layout.parser.class.patch"))
-  if variableExists("window.textimage.class.patch") then
-    setVariable("window.textimage.class", getVariable("window.textimage.class.patch"))
-  end if
+  createObject(#layout_parser, getClassVariable("layout.parser.class"))
   createObject(#string_validator, "String Validator Cls")
   registerMessage(#Initialize, me.getID(), #delayedPatch)
-  return TRUE
+  return 1
 end
 
-on delayedPatch me 
+on delayedPatch me
   replaceMember("matik_upp", "matik_upp_jp")
   unregisterMessage(#Initialize, me.getID())
 end

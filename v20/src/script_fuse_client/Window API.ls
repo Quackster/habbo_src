@@ -1,93 +1,93 @@
-on constructWindowManager  
-  return(createManager(#window_manager, getClassVariable("window.manager.class")))
+on constructWindowManager
+  return createManager(#window_manager, getClassVariable("window.manager.class"))
 end
 
-on deconstructWindowManager  
-  return(removeManager(#window_manager))
+on deconstructWindowManager
+  return removeManager(#window_manager)
 end
 
-on getWindowManager  
+on getWindowManager
   tMgr = getObjectManager()
   if not tMgr.managerExists(#window_manager) then
-    return(constructWindowManager())
+    return constructWindowManager()
   end if
-  return(tMgr.getManager(#window_manager))
+  return tMgr.getManager(#window_manager)
 end
 
-on createWindow tID, tLayout, tLocX, tLocY, tSpecial 
-  return(getWindowManager().create(tID, tLayout, tLocX, tLocY, tSpecial))
+on createWindow tID, tLayout, tLocX, tLocY, tSpecial
+  return getWindowManager().create(tID, tLayout, tLocX, tLocY, tSpecial)
 end
 
-on removeWindow tID 
-  return(getWindowManager().Remove(tID))
+on removeWindow tID
+  return getWindowManager().Remove(tID)
 end
 
-on getWindow tID 
-  return(getWindowManager().GET(tID))
+on getWindow tID
+  return getWindowManager().GET(tID)
 end
 
-on getWindowIDList  
-  return(getWindowManager().getIDList())
+on getWindowIDList
+  return getWindowManager().getIDList()
 end
 
-on windowExists tID 
-  return(getWindowManager().exists(tID))
+on windowExists tID
+  return getWindowManager().exists(tID)
 end
 
-on mergeWindow tID, tLayout 
+on mergeWindow tID, tLayout
   if windowExists(tID) then
-    return(getWindow(tID).merge(tLayout))
+    return getWindow(tID).merge(tLayout)
   else
-    return FALSE
+    return 0
   end if
 end
 
-on activateWindow tID 
+on activateWindow tID
   if voidp(tID) then
-    return FALSE
+    return 0
   end if
-  return(getWindowManager().Activate(tID))
+  return getWindowManager().Activate(tID)
 end
 
-on deactivateWindow tID 
+on deactivateWindow tID
   if voidp(tID) then
-    return FALSE
+    return 0
   end if
-  return(getWindowManager().deactivate(tID))
+  return getWindowManager().deactivate(tID)
 end
 
-on registerClient tID, tClientID 
+on registerClient tID, tClientID
   if windowExists(tID) then
-    return(getWindow(tID).registerClient(tClientID))
+    return getWindow(tID).registerClient(tClientID)
   else
-    return FALSE
+    return 0
   end if
 end
 
-on registerProcedure tID, tHandler, tClientID, tEvent 
+on registerProcedure tID, tHandler, tClientID, tEvent
   if windowExists(tID) then
-    return(getWindow(tID).registerProcedure(tHandler, tClientID, tEvent))
+    return getWindow(tID).registerProcedure(tHandler, tClientID, tEvent)
   else
-    return FALSE
+    return 0
   end if
 end
 
-on showWindows  
-  return(getWindowManager().showAll())
+on showWindows
+  return getWindowManager().showAll()
 end
 
-on hideWindows  
-  return(getWindowManager().hideAll())
+on hideWindows
+  return getWindowManager().hideAll()
 end
 
-on lockWindowLayering  
-  return(getWindowManager().lock())
+on lockWindowLayering
+  return getWindowManager().lock()
 end
 
-on unlockWindowLayering  
-  return(getWindowManager().unlock())
+on unlockWindowLayering
+  return getWindowManager().unlock()
 end
 
-on printWindows  
-  return(getWindowManager().print())
+on printWindows
+  return getWindowManager().print()
 end
