@@ -1,23 +1,23 @@
-on RGBtoHSL tRGB 
+on RGBtoHSL tRGB
   if (tRGB.ilk = #color) then
     tRGB = [tRGB.red, tRGB.green, tRGB.blue]
   end if
-  tRGB = (tRGB / 255)
+  tRGB = (tRGB / 255.0)
   tDiff = float((tRGB.max() - tRGB.min()))
   if (tDiff = 0) then
     tH = 0
   else
-    if (tRGB.max() = tRGB.getAt(1)) and tRGB.getAt(2) >= tRGB.getAt(3) then
-      tH = ((60 * (tRGB.getAt(2) - tRGB.getAt(3))) / tDiff)
+    if ((tRGB.max() = tRGB[1]) and (tRGB[2] >= tRGB[3])) then
+      tH = ((60 * (tRGB[2] - tRGB[3])) / tDiff)
     else
-      if (tRGB.max() = tRGB.getAt(1)) and tRGB.getAt(2) < tRGB.getAt(3) then
-        tH = (((60 * (tRGB.getAt(2) - tRGB.getAt(3))) / tDiff) + 360)
+      if ((tRGB.max() = tRGB[1]) and (tRGB[2] < tRGB[3])) then
+        tH = (((60 * (tRGB[2] - tRGB[3])) / tDiff) + 360)
       else
-        if (tRGB.max() = tRGB.getAt(2)) then
-          tH = (((60 * (tRGB.getAt(3) - tRGB.getAt(1))) / tDiff) + 120)
+        if (tRGB.max() = tRGB[2]) then
+          tH = (((60 * (tRGB[3] - tRGB[1])) / tDiff) + 120)
         else
-          if (tRGB.max() = tRGB.getAt(3)) then
-            tH = (((60 * (tRGB.getAt(1) - tRGB.getAt(2))) / tDiff) + 240)
+          if (tRGB.max() = tRGB[3]) then
+            tH = (((60 * (tRGB[1] - tRGB[2])) / tDiff) + 240)
           end if
         end if
       end if
@@ -27,10 +27,10 @@ on RGBtoHSL tRGB
   if (tDiff = 0) then
     tS = 0
   else
-    if tL <= 0.5 then
+    if (tL <= 0.5) then
       tS = ((tDiff / tL) * 0.5)
     else
-      if tL > 0.5 then
+      if (tL > 0.5) then
         tS = ((tDiff / (1 - tL)) * 0.5)
       end if
     end if
@@ -38,72 +38,72 @@ on RGBtoHSL tRGB
   tH = integer(((tH / 360) * 255))
   tS = integer((tS * 255))
   tL = integer((tL * 255))
-  return([tH, tS, tL])
+  return [tH, tS, tL]
 end
 
-on HSLtoRGB tHSL 
-  tHSL = (tHSL / 255)
-  if tHSL.getAt(3) < 0.5 then
-    tQ = (tHSL.getAt(3) * (1 + tHSL.getAt(2)))
+on HSLtoRGB tHSL
+  tHSL = (tHSL / 255.0)
+  if (tHSL[3] < 0.5) then
+    tQ = (tHSL[3] * (1 + tHSL[2]))
   else
-    tQ = ((tHSL.getAt(3) + tHSL.getAt(2)) - (tHSL.getAt(3) * tHSL.getAt(2)))
+    tQ = ((tHSL[3] + tHSL[2]) - (tHSL[3] * tHSL[2]))
   end if
-  tP = ((2 * tHSL.getAt(3)) - tQ)
-  tTR = (tHSL.getAt(1) + (1 / 3))
-  tTG = tHSL.getAt(1)
-  tTB = (tHSL.getAt(1) - (1 / 3))
-  if tTR < 0 then
+  tP = ((2 * tHSL[3]) - tQ)
+  tTR = (tHSL[1] + (1 / 3.0))
+  tTG = tHSL[1]
+  tTB = (tHSL[1] - (1 / 3.0))
+  if (tTR < 0) then
     tTR = (tTR + 1)
   end if
-  if tTG < 0 then
+  if (tTG < 0) then
     tTG = (tTG + 1)
   end if
-  if tTB < 0 then
+  if (tTB < 0) then
     tTB = (tTB + 1)
   end if
-  if tTR > 1 then
+  if (tTR > 1) then
     tTR = (tTR - 1)
   end if
-  if tTG > 1 then
+  if (tTG > 1) then
     tTG = (tTG - 1)
   end if
-  if tTB > 1 then
+  if (tTB > 1) then
     tTB = (tTB - 1)
   end if
-  if tTR < (1 / 6) then
+  if (tTR < (1 / 6.0)) then
     tR = (tP + (((tQ - tP) * 6) * tTR))
   else
-    if tTR >= (1 / 6) and tTR < 0.5 then
+    if ((tTR >= (1 / 6.0)) and (tTR < 0.5)) then
       tR = tQ
     else
-      if tTR >= 0.5 and tTR < (2 / 3) then
-        tR = (tP + (((tQ - tP) * 6) * ((2 / 3) - tTR)))
+      if ((tTR >= 0.5) and (tTR < (2 / 3.0))) then
+        tR = (tP + (((tQ - tP) * 6) * ((2 / 3.0) - tTR)))
       else
         tR = tP
       end if
     end if
   end if
-  if tTG < (1 / 6) then
+  if (tTG < (1 / 6.0)) then
     tG = (tP + (((tQ - tP) * 6) * tTG))
   else
-    if tTG >= (1 / 6) and tTG < 0.5 then
+    if ((tTG >= (1 / 6.0)) and (tTG < 0.5)) then
       tG = tQ
     else
-      if tTG >= 0.5 and tTG < (2 / 3) then
-        tG = (tP + (((tQ - tP) * 6) * ((2 / 3) - tTG)))
+      if ((tTG >= 0.5) and (tTG < (2 / 3.0))) then
+        tG = (tP + (((tQ - tP) * 6) * ((2 / 3.0) - tTG)))
       else
         tG = tP
       end if
     end if
   end if
-  if tTB < (1 / 6) then
+  if (tTB < (1 / 6.0)) then
     tB = (tP + (((tQ - tP) * 6) * tTB))
   else
-    if tTB >= (1 / 6) and tTB < 0.5 then
+    if ((tTB >= (1 / 6.0)) and (tTB < 0.5)) then
       tB = tQ
     else
-      if tTB >= 0.5 and tTB < (2 / 3) then
-        tB = (tP + (((tQ - tP) * 6) * ((2 / 3) - tTB)))
+      if ((tTB >= 0.5) and (tTB < (2 / 3.0))) then
+        tB = (tP + (((tQ - tP) * 6) * ((2 / 3.0) - tTB)))
       else
         tB = tP
       end if
@@ -112,5 +112,5 @@ on HSLtoRGB tHSL
   tR = integer((tR * 255))
   tG = integer((tG * 255))
   tB = integer((tB * 255))
-  return(rgb(tR, tG, tB))
+  return rgb(tR, tG, tB)
 end

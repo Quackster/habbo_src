@@ -1,18 +1,17 @@
-on construct me 
-  return(me.regMsgList(1))
+on construct me
+  return me.regMsgList(1)
 end
 
-on deconstruct me 
-  return(me.regMsgList(0))
+on deconstruct me
+  return me.regMsgList(0)
 end
 
-on handleDimmerPresets me, tMsg 
+on handleDimmerPresets me, tMsg
   tConn = tMsg.getaProp(#connection)
   tNumOfPresets = tConn.GetIntFrom()
   tSelectedPresetID = tConn.GetIntFrom()
   tPresets = [:]
-  tPresetNum = 1
-  repeat while tPresetNum <= tNumOfPresets
+  repeat with tPresetNum = 1 to tNumOfPresets
     tPresetData = [:]
     tPresetID = tConn.GetIntFrom()
     tEffectID = tConn.GetIntFrom()
@@ -22,13 +21,12 @@ on handleDimmerPresets me, tMsg
     tPresetData.setaProp(#color, rgb(tColor))
     tPresetData.setaProp(#lightness, tLightness)
     tPresets.setaProp(tPresetID, tPresetData)
-    tPresetNum = (1 + tPresetNum)
   end repeat
   me.getComponent().setPresets(tPresets)
-  return(tPresets)
+  return tPresets
 end
 
-on regMsgList me, tBool 
+on regMsgList me, tBool
   tMsgs = [:]
   tMsgs.setaProp(365, #handleDimmerPresets)
   tCmds = [:]
@@ -42,5 +40,5 @@ on regMsgList me, tBool
     unregisterListener(getVariable("connection.info.id"), me.getID(), tMsgs)
     unregisterCommands(getVariable("connection.info.id"), me.getID(), tCmds)
   end if
-  return TRUE
+  return 1
 end

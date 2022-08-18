@@ -1,99 +1,95 @@
 property pBottomBarId
 
-on construct me 
+on construct me
   pBottomBarId = "RoomBarID"
-  return TRUE
+  return 1
 end
 
-on deconstruct me 
-  return(me.ancestor.deconstruct())
+on deconstruct me
+  return me.ancestor.deconstruct()
 end
 
-on displayEvent me, ttype 
+on displayEvent me, ttype
   tInterface = getObject(#room_interface)
   if (tInterface = 0) then
-    return FALSE
+    return 0
   end if
-  if ttype <> #stage_starting then
-    if (ttype = #game_ending) then
+  case ttype of
+    #stage_starting, #game_ending:
       tInterface.showRoomBar("ig_roombar.window")
-    else
-      return FALSE
-    end if
-    me.createMyHeadIcon()
-    me.updateSoundButton()
-    tWndObj = getWindow(pBottomBarId)
-    if (tWndObj = 0) then
-      return FALSE
-    end if
-    tWndObj.registerClient(me.getID())
-    tWndObj.registerProcedure(#eventProcRoomBar, me.getID(), #mouseUp)
-    tWndObj.registerProcedure(#eventProcRoomBar, me.getID(), #keyDown)
-    tWndObj.registerProcedure(#eventProcRoomBar, me.getID(), #mouseEnter)
-    tWndObj.registerProcedure(#eventProcRoomBar, me.getID(), #mouseLeave)
-    return TRUE
-  end if
-end
-
-on updateSoundButton me 
+  end case
+  return 0
+  me.createMyHeadIcon()
+  me.updateSoundButton()
   tWndObj = getWindow(pBottomBarId)
   if (tWndObj = 0) then
-    return FALSE
+    return 0
+  end if
+  tWndObj.registerClient(me.getID())
+  tWndObj.registerProcedure(#eventProcRoomBar, me.getID(), #mouseUp)
+  tWndObj.registerProcedure(#eventProcRoomBar, me.getID(), #keyDown)
+  tWndObj.registerProcedure(#eventProcRoomBar, me.getID(), #mouseEnter)
+  tWndObj.registerProcedure(#eventProcRoomBar, me.getID(), #mouseLeave)
+  return 1
+end
+
+on updateSoundButton me
+  tWndObj = getWindow(pBottomBarId)
+  if (tWndObj = 0) then
+    return 0
   end if
   tstate = getSoundState()
   tElem = tWndObj.getElement("int_sound_image")
-  if tElem <> 0 then
+  if (tElem <> 0) then
     if tstate then
       tMemNum = getmemnum("sounds_small_on_icon")
-      if tMemNum > 0 then
+      if (tMemNum > 0) then
         tElem.feedImage(member(tMemNum).image)
       end if
     else
       tMemNum = getmemnum("sounds_small_off_icon")
-      if tMemNum > 0 then
+      if (tMemNum > 0) then
         tElem.feedImage(member(tMemNum).image)
       end if
     end if
   end if
 end
 
-on createMyHeadIcon me 
+on createMyHeadIcon me
   if objectExists("Figure_Preview") then
     getObject("Figure_Preview").createHumanPartPreview(pBottomBarId, "ownhabbo_icon_image", #head)
   end if
 end
 
-on eventProcRoomBar me, tEvent, tSprID, tParam 
-  if (tSprID = "game_rules_image") then
-    if (tSprID = #mouseUp) then
-      return(executeMessage(#ig_show_game_rules))
-    else
-      if (tSprID = #mouseEnter) then
-        return(executeMessage(#setRollOverInfo, getText("interface_icon_game_rules")))
-      else
-        if (tSprID = #mouseLeave) then
-          return(executeMessage(#setRollOverInfo, ""))
-        end if
-      end if
-    end if
-    return TRUE
-  end if
+on eventProcRoomBar me, tEvent, tSprID, tParam
+  case tSprID of
+    "game_rules_image":
+      case tEvent of
+        #mouseUp:
+          return executeMessage(#ig_show_game_rules)
+        #mouseEnter:
+          return executeMessage(#setRollOverInfo, getText("interface_icon_game_rules"))
+        #mouseLeave:
+          return executeMessage(#setRollOverInfo, EMPTY)
+      end case
+      return 1
+  end case
   tRoomBarObj = getObject("RoomBarProgram")
   if (tRoomBarObj = 0) then
-    return FALSE
+    return 0
   end if
-  if (tEvent = #keyDown) and (tSprID = "chat_field") then
+  if ((tEvent = #keyDown) and (tSprID = "chat_field")) then
     tChatField = getWindow(tRoomBarObj.pBottomBarId).getElement(tSprID)
-    if tSprID <> 36 then
-      if (tSprID = 76) then
-        if (tChatField.getText() = "") then
-          return TRUE
+    case the keyCode of
+      36, 76:
+        if (tChatField.getText() = EMPTY) then
+          return 1
         end if
         if tRoomBarObj.pFloodblocking then
-          if the milliSeconds < tRoomBarObj.pFloodTimer then
-            return FALSE
+          if (the milliSeconds < tRoomBarObj.pFloodTimer) then
+            return 0
           else
-            tRoomBarObj.pFloodEnterCount = void()
+            tRoomBarObj.pFloodEnterCount = VOID
           end if
         end if
         if voidp(tRoomBarObj.pFloodEnterCount) then
@@ -105,29 +101,26 @@ on eventProcRoomBar me, tEvent, tSprID, tParam
           tFloodCountLimit = 2
           tFloodTimerLimit = 3000
           tFloodTimeout = 30000
-          if tRoomBarObj.pFloodEnterCount > tFloodCountLimit then
-            if the milliSeconds < (tRoomBarObj.pFloodTimer + tFloodTimerLimit) then
-              tChatField.setText("")
+          if (tRoomBarObj.pFloodEnterCount > tFloodCountLimit) then
+            if (the milliSeconds < (tRoomBarObj.pFloodTimer + tFloodTimerLimit)) then
+              tChatField.setText(EMPTY)
               createObject("FloodBlocking", "Flood Blocking Class")
               getObject("FloodBlocking").Init(tRoomBarObj.pBottomBarId, tSprID, tFloodTimeout)
               tRoomBarObj.pFloodblocking = 1
               tRoomBarObj.pFloodTimer = (the milliSeconds + tFloodTimeout)
             else
-              tRoomBarObj.pFloodEnterCount = void()
+              tRoomBarObj.pFloodEnterCount = VOID
             end if
           end if
         end if
-        getConnection(#info).send("GAME_CHAT", [#string:tChatField.getText()])
-        tChatField.setText("")
-        return TRUE
-      else
-        if (tSprID = 117) then
-          tChatField.setText("")
-        end if
-      end if
-      return FALSE
-      tResult = tRoomBarObj.eventProcRoomBar(tEvent, tSprID, tParam)
-      return TRUE
-    end if
+        getConnection(#Info).send("GAME_CHAT", [#string: tChatField.getText()])
+        tChatField.setText(EMPTY)
+        return 1
+      117:
+        tChatField.setText(EMPTY)
+    end case
+    return 0
   end if
+  tResult = tRoomBarObj.eventProcRoomBar(tEvent, tSprID, tParam)
+  return 1
 end

@@ -1,9 +1,9 @@
-property pWndID, pWndObj, pTreeView, pLastOpenedPage, pInfoWindowID, pCurrentPageObj
+property pWndObj, pWndID, pCurrentPageObj, pTreeView, pDealPreviewObject, pLastOpenedPage, pInfoWindowID
 
-on construct me 
-  pWndObj = void()
-  pCurrentPageObj = void()
-  pTreeView = void()
+on construct me
+  pWndObj = VOID
+  pCurrentPageObj = VOID
+  pTreeView = VOID
   pWndID = "Catalogue"
   pDealPreviewObject = createObject("catalogue_deal_preview_object", ["Deal Preview Class"])
   pLastOpenedPage = -1
@@ -18,7 +18,7 @@ on construct me
   registerMessage(#playPixelPurchaseSound, me.getID(), #playPixelPurchaseSound)
 end
 
-on deconstruct me 
+on deconstruct me
   me.destroyWindow()
   if objectExists("catalogue_deal_preview_object") then
     removeObject("catalogue_deal_preview_object")
@@ -33,7 +33,7 @@ on deconstruct me
   unregisterMessage(#playPixelPurchaseSound, me.getID())
 end
 
-on displayPage me, tPageID 
+on displayPage me, tPageID
   tPageData = me.getComponent().getPageData(tPageID)
   me.showWindow()
   me.showPage(tPageData)
@@ -41,16 +41,16 @@ on displayPage me, tPageID
   pLastOpenedPage = tPageID
 end
 
-on updateTreeView me 
-  if not windowExists(pWndID) and objectp(pWndObj) then
-    return(error(me, "Catalogue Window does not exist!", #updateTreweView, #major))
+on updateTreeView me
+  if not (windowExists(pWndID) and objectp(pWndObj)) then
+    return error(me, "Catalogue Window does not exist!", #updateTreweView, #major)
   end if
   tTreeviewImage = pTreeView.getInterface().getImage()
   tDestElement = pWndObj.getElement("ctlg_pages")
-  if voidp(tDestElement) or (tDestElement = 0) then
-    return(error(me, "ctlg_pages element missing from window!", #updateTreeView, #major))
+  if (voidp(tDestElement) or (tDestElement = 0)) then
+    return error(me, "ctlg_pages element missing from window!", #updateTreeView, #major)
   end if
-  if tTreeviewImage.height > tDestElement.getProperty(#height) then
+  if (tTreeviewImage.height > tDestElement.getProperty(#height)) then
     pWndObj.getElement("back_hide").show()
     pWndObj.getElement("ctlg_pages_scroll").show()
   else
@@ -61,15 +61,15 @@ on updateTreeView me
   tDestElement.feedImage(tTreeviewImage)
 end
 
-on showCatalogue me 
+on showCatalogue me
   me.getComponent().prepareFrontPage()
 end
 
-on hideCatalogue me 
+on hideCatalogue me
   me.destroyWindow()
 end
 
-on showHideCatalogue me 
+on showHideCatalogue me
   if voidp(pWndObj) then
     me.showCatalogue()
   else
@@ -77,41 +77,41 @@ on showHideCatalogue me
   end if
 end
 
-on updatePurseSaldo me 
-  if windowExists(pWndID) and objectp(pWndObj) then
+on updatePurseSaldo me
+  if (windowExists(pWndID) and objectp(pWndObj)) then
     tSaldo = getObject(#session).GET("user_walletbalance")
     if integerp(tSaldo) then
       tElement = pWndObj.getElement("catalog_credits_bottom")
       if objectp(tElement) then
-        tElement.setText(tSaldo && getText("credits", "Credits"))
+        tElement.setText((tSaldo && getText("credits", "Credits")))
       end if
     end if
     if getObject(#session).exists("user_pixelbalance") then
       tPixels = getObject(#session).GET("user_pixelbalance")
       tElement = pWndObj.getElement("catalog_pixels_bottom")
       if objectp(tElement) then
-        tElement.setText(tPixels && getText("pixels", "Pixels"))
+        tElement.setText((tPixels && getText("pixels", "Pixels")))
       end if
     end if
   end if
 end
 
-on getLastOpenedPage me 
-  return(pLastOpenedPage)
+on getLastOpenedPage me
+  return pLastOpenedPage
 end
 
-on showVoucherRedeemOk me, tProductName, tProductDesc 
-  if not createWindow(pInfoWindowID, "habbo_simple.window", void(), void(), #modal) then
-    return(error(me, "Couldn't create window to show purchase info!", #showNoBalance, #major))
+on showVoucherRedeemOk me, tProductName, tProductDesc
+  if not createWindow(pInfoWindowID, "habbo_simple.window", VOID, VOID, #modal) then
+    return error(me, "Couldn't create window to show purchase info!", #showNoBalance, #major)
   end if
   tWndObj = getWindow(pInfoWindowID)
   if not tWndObj.merge("habbo_message_dialog.window") then
     tWndObj.close()
-    return(error(me, "Couldn't create window to show purchase info!", #showNoBalance, #major))
+    return error(me, "Couldn't create window to show purchase info!", #showNoBalance, #major)
   end if
-  if tProductName <> "" then
+  if (tProductName <> EMPTY) then
     tMsgA = getText("purse_vouchers_furni_success")
-    tMsgA = tMsgA & "\r" && tProductName && tProductDesc
+    tMsgA = (((tMsgA & RETURN) && tProductName) && tProductDesc)
   else
     tMsgA = getText("purse_vouchers_success")
   end if
@@ -126,29 +126,29 @@ on showVoucherRedeemOk me, tProductName, tProductDesc
       pCurrentPageObj.clearVoucherCodeField()
     end if
   end if
-  return TRUE
+  return 1
 end
 
-on showVoucherRedeemError me, tError 
-  if not createWindow(pInfoWindowID, "habbo_simple.window", void(), void(), #modal) then
-    return(error(me, "Couldn't create window to show purchase info!", #showNoBalance, #major))
+on showVoucherRedeemError me, tError
+  if not createWindow(pInfoWindowID, "habbo_simple.window", VOID, VOID, #modal) then
+    return error(me, "Couldn't create window to show purchase info!", #showNoBalance, #major)
   end if
   tWndFile = "habbo_message_dialog.window"
-  if textExists("purse_vouchers_error" & tError & "_url") then
+  if textExists((("purse_vouchers_error" & tError) & "_url")) then
     tWndFile = "habbo_alert_c.window"
   end if
   tWndObj = getWindow(pInfoWindowID)
   if not tWndObj.merge(tWndFile) then
     tWndObj.close()
-    return(error(me, "Couldn't create window to show purchase info!", #showNoBalance, #major))
+    return error(me, "Couldn't create window to show purchase info!", #showNoBalance, #major)
   end if
-  if not textExists("purse_vouchers_error" & tError & "_url") then
-    tMsgA = getText("purse_vouchers_error" & tError)
+  if not textExists((("purse_vouchers_error" & tError) & "_url")) then
+    tMsgA = getText(("purse_vouchers_error" & tError))
     tWndObj.getElement("habbo_message_text_b").setText(tMsgA)
     tWndObj.getElement("habbo_message_text_a").setText(getText("purse_voucherbutton"))
   else
-    tMsgA = getText("purse_vouchers_error" & tError)
-    tLink = getSpecialServices().getPredefinedURL(getText("purse_vouchers_error" & tError & "_url"))
+    tMsgA = getText(("purse_vouchers_error" & tError))
+    tLink = getSpecialServices().getPredefinedURL(getText((("purse_vouchers_error" & tError) & "_url")))
     tWndObj.getElement("alert_text").setText(tMsgA)
     tWndObj.getElement("alert_link").setText(tLink)
     tWndObj.getElement("alert_title").setText(getText("purse_voucherbutton"))
@@ -157,12 +157,12 @@ on showVoucherRedeemError me, tError
   tWndObj.registerProcedure(#hidePurchaseOk, me.getID(), #mouseUp)
   tWndObj.setProperty(#locZ, 22000000)
   tWndObj.lock(1)
-  return TRUE
+  return 1
 end
 
-on showCatalogWasPublishedDialog me 
-  if not createWindow(pInfoWindowID, "habbo_simple.window", void(), void(), #modal) then
-    return(error(me, "Couldn't create window to show purchase info!", #showNoBalance, #major))
+on showCatalogWasPublishedDialog me
+  if not createWindow(pInfoWindowID, "habbo_simple.window", VOID, VOID, #modal) then
+    return error(me, "Couldn't create window to show purchase info!", #showNoBalance, #major)
   end if
   tWndFile = "habbo_alert_c.window"
   tWndObj = getWindow(pInfoWindowID)
@@ -173,36 +173,36 @@ on showCatalogWasPublishedDialog me
   tWndObj.registerClient(me.getID())
   tWndObj.registerProcedure(#hidePurchaseOk, me.getID(), #mouseUp)
   tWndObj.lock(1)
-  return TRUE
+  return 1
 end
 
-on isVisible me 
-  return(objectp(pWndObj) and windowExists(pWndID))
+on isVisible me
+  return (objectp(pWndObj) and windowExists(pWndID))
 end
 
-on playPixelPurchaseSound me 
-  playSound("plim_2", #queue, [#loopCount:1, #infiniteloop:0, #volume:255])
+on playPixelPurchaseSound me
+  playSound("plim_2", #queue, [#loopCount: 1, #infiniteloop: 0, #volume: 255])
 end
 
-on followLink me, tLinkContent 
-  if tLinkContent contains "http://" or tLinkContent contains "https://" then
+on followLink me, tLinkContent
+  if ((tLinkContent contains "http://") or (tLinkContent contains "https://")) then
     executeMessage(#externalLinkClick, the mouseLoc)
     openNetPage(getPredefinedURL(tLinkContent))
-    return()
+    return 
   end if
   tNodeName = tLinkContent
   tNode = me.getComponent().getNodeByName(tNodeName)
   if voidp(tNode) then
-    return(error(me, "Node by name '" & tNodeName & "' not found!", #handleClick))
+    return error(me, (("Node by name '" & tNodeName) & "' not found!"), #handleClick)
   end if
-  me.getComponent().preparePage(tNode.getAt(#pageid))
+  me.getComponent().preparePage(tNode[#pageid])
   me.activateTreeviewNodeByName(tNodeName)
 end
 
-on showWindow me 
+on showWindow me
   if voidp(pWndObj) then
     if not createWindow(pWndID, "habbo_catalogue.window") then
-      return(error(me, "Unable to create catalogue window.", #showWindow, #major))
+      return error(me, "Unable to create catalogue window.", #showWindow, #major)
     end if
     pWndObj = getWindow(pWndID)
     pWndObj.center()
@@ -214,13 +214,13 @@ on showWindow me
     pWndObj.registerProcedure(#eventProcCatalogue, me.getID(), #keyDown)
   end if
   if not objectp(pWndObj) then
-    return(error(me, "No window object in catalogue!", #showWindow, #critical))
+    return error(me, "No window object in catalogue!", #showWindow, #critical)
   end if
   if voidp(pTreeView) then
     pTreeView = createObject(getUniqueID(), ["Treeview Class"])
     tDestElement = pWndObj.getElement("ctlg_pages")
     if not objectp(tDestElement) then
-      return(error(me, "No destination element for treeview", #showWindow, #critical))
+      return error(me, "No destination element for treeview", #showWindow, #critical)
     end if
     if not voidp(me.getComponent().getCatalogIndex()) then
       pTreeView.define(me.getComponent().getCatalogIndex(), tDestElement.getProperty(#width), tDestElement.getProperty(#height))
@@ -234,91 +234,86 @@ on showWindow me
   me.updatePurseSaldo()
 end
 
-on destroyWindow me 
+on destroyWindow me
   if objectp(pWndObj) then
     if windowExists(pWndID) then
       removeWindow(pWndID)
     end if
   end if
-  pWndObj = void()
+  pWndObj = VOID
   if objectp(pCurrentPageObj) then
     if objectExists(pCurrentPageObj.getID()) then
       removeObject(pCurrentPageObj.getID())
     end if
   end if
-  pCurrentPageObj = void()
+  pCurrentPageObj = VOID
   if objectp(pTreeView) then
     if objectExists(pTreeView.getID()) then
       removeObject(pTreeView.getID())
     end if
   end if
-  pTreeView = void()
+  pTreeView = VOID
 end
 
-on showPage me, tPageData 
+on showPage me, tPageData
   if not windowExists(pWndID) then
-    return(error(me, "Catalogue Window does not exist!", #showPage, #major))
+    return error(me, "Catalogue Window does not exist!", #showPage, #major)
   end if
   if objectp(pCurrentPageObj) then
     pCurrentPageObj.unmergeWindow(pWndObj)
     removeObject(pCurrentPageObj.getID())
   end if
-  if variableExists("layout.class." & tPageData.getAt(#layout)) then
-    tClass = getClassVariable("layout.class." & tPageData.getAt(#layout))
+  if variableExists(("layout.class." & tPageData[#layout])) then
+    tClass = getClassVariable(("layout.class." & tPageData[#layout]))
   else
     tClass = getClassVariable("layout.class.default")
   end if
   pCurrentPageObj = createObject("Current Catalog Page", tClass)
   if not objectp(pCurrentPageObj) then
-    return(error(me, "Unable to create catalogpage object for page " & tPageData.getAt(#layout)))
+    return error(me, ("Unable to create catalogpage object for page " & tPageData[#layout]))
   end if
   pCurrentPageObj.define(tPageData)
   pCurrentPageObj.mergeWindow(pWndObj)
 end
 
-on activateTreeviewNodeByName me, tNodeName 
+on activateTreeviewNodeByName me, tNodeName
   if windowExists(pWndID) then
     pTreeView.getInterface().simulateClickByName(tNodeName)
     me.updateTreeView()
   end if
 end
 
-on eventProcCatalogue me, tEvent, tSprID, tProp 
+on eventProcCatalogue me, tEvent, tSprID, tProp
   if (tEvent = #mouseUp) then
-    if (tSprID = "ctlg_pages") then
-      pTreeView.getInterface().handleClick(tProp)
-      me.updateTreeView()
-    else
-      if (tSprID = "close") then
+    case tSprID of
+      "ctlg_pages":
+        pTreeView.getInterface().handleClick(tProp)
+        me.updateTreeView()
+      "close":
         me.destroyWindow()
-      else
-        if (tSprID = "catalog_get_pixels_bottom") then
-          me.getComponent().preparePixelsInfoPage()
-        else
-          if (tSprID = "catalog_get_credits_bottom") then
-            me.getComponent().prepareCreditsInfoPage()
-          end if
-        end if
-      end if
-    end if
+      "catalog_get_pixels_bottom":
+        me.getComponent().preparePixelsInfoPage()
+      "catalog_get_credits_bottom":
+        me.getComponent().prepareCreditsInfoPage()
+    end case
   end if
   if objectp(pCurrentPageObj) then
     pCurrentPageObj.handleClick(tEvent, tSprID, tProp)
   end if
 end
 
-on getCatalogWindow me 
-  return(pWndObj)
+on getCatalogWindow me
+  return pWndObj
 end
 
-on getSelectedProduct me 
+on getSelectedProduct me
   if objectp(pCurrentPageObj) then
-    return(pCurrentPageObj.pSelectedProduct)
+    return pCurrentPageObj.pSelectedProduct
   end if
-  return([:])
+  return [:]
 end
 
-on showPreviewImage me, tProps, tElemID 
+on showPreviewImage me, tProps, tElemID
   if not windowExists(pWndID) then
     error(me, "Catalogue Window does not exist!", #showPreviewImage, #major)
   end if
@@ -327,17 +322,17 @@ on showPreviewImage me, tProps, tElemID
     tElemID = "ctlg_teaserimg_1"
   end if
   if not tWndObj.elementExists(tElemID) then
-    return()
+    return 
   end if
-  if tProps.ilk <> #propList then
-    return()
+  if (tProps.ilk <> #propList) then
+    return 
   end if
   tElem = tWndObj.getElement(tElemID)
-  if voidp(tProps.getAt("prewImage")) then
-    tProps.setAt("prewImage", 0)
+  if voidp(tProps["prewImage"]) then
+    tProps["prewImage"] = 0
   end if
-  if tProps.getAt("prewImage") > 0 then
-    tImage = member(tProps.getAt("prewImage")).image
+  if (tProps["prewImage"] > 0) then
+    tImage = member(tProps["prewImage"]).image
   else
     tImage = me.renderPreviewImage(tProps)
   end if
@@ -348,76 +343,76 @@ on showPreviewImage me, tProps, tElemID
     tdestrect = (tDestImg.rect - tSourceImg.rect)
     tMargins = rect(0, 0, 0, 0)
     tdestrect = (rect((tdestrect.width / 2), (tdestrect.height / 2), (tSourceImg.width + (tdestrect.width / 2)), ((tdestrect.height / 2) + tSourceImg.height)) + tMargins)
-    tDestImg.copyPixels(tSourceImg, tdestrect, tSourceImg.rect, [#ink:36])
+    tDestImg.copyPixels(tSourceImg, tdestrect, tSourceImg.rect, [#ink: 36])
     tElem.feedImage(tDestImg)
   end if
-  return TRUE
+  return 1
 end
 
-on renderPreviewImage me, tProps 
-  if not voidp(tProps.getAt("dealList")) then
+on renderPreviewImage me, tProps
+  if not voidp(tProps["dealList"]) then
     if not objectExists("ctlg_dealpreviewObj") then
       tObj = createObject("ctlg_dealpreviewObj", ["Deal Preview Class"])
       if (tObj = 0) then
-        return(error(me, "Failed object creation!", #showHideDialog, #major))
+        return error(me, "Failed object creation!", #showHideDialog, #major)
       end if
     else
       tObj = getObject("ctlg_dealpreviewObj")
     end if
-    tObj.define(tProps.getAt("dealList"))
+    tObj.define(tProps["dealList"])
     tImage = tObj.getPicture()
   else
-    if voidp(tProps.getAt("class")) then
-      return(error(me, "Class property missing", #showPreviewImage, #minor))
+    if voidp(tProps["class"]) then
+      return error(me, "Class property missing", #showPreviewImage, #minor)
     else
-      tClass = tProps.getAt("class")
+      tClass = tProps["class"]
     end if
     if me.getComponent().getPageItemDownloader().isAssetDownloading(me.getClassAsset(tClass)) then
-      return(member("ctlg_loading_icon2").image)
+      return member("ctlg_loading_icon2").image
     end if
-    if voidp(tProps.getAt("direction")) then
-      return(error(me, "Direction property missing", #showPreviewImage, #minor))
+    if voidp(tProps["direction"]) then
+      return error(me, "Direction property missing", #showPreviewImage, #minor)
     else
-      tProps.setAt("direction", "2,2,2")
-      tDirection = value("[" & tProps.getAt("direction") & "]")
-      if tDirection.count < 3 then
+      tProps["direction"] = "2,2,2"
+      tDirection = value((("[" & tProps["direction"]) & "]"))
+      if (tDirection.count < 3) then
         tDirection = [0, 0, 0]
       end if
     end if
-    if voidp(tProps.getAt("dimensions")) then
-      return(error(me, "Dimensions property missing", #showPreviewImage, #minor))
+    if voidp(tProps["dimensions"]) then
+      return error(me, "Dimensions property missing", #showPreviewImage, #minor)
     else
-      tDimensions = value("[" & tProps.getAt("dimensions") & "]")
-      if tDimensions.count < 2 then
+      tDimensions = value((("[" & tProps["dimensions"]) & "]"))
+      if (tDimensions.count < 2) then
         tDimensions = [1, 1]
       end if
     end if
-    if voidp(tProps.getAt("partColors")) then
-      return(error(me, "PartColors property missing", #showPreviewImage, #minor))
+    if voidp(tProps["partColors"]) then
+      return error(me, "PartColors property missing", #showPreviewImage, #minor)
     else
-      tpartColors = tProps.getAt("partColors")
-      if (tpartColors = "") or (tpartColors = "0,0,0") then
+      tpartColors = tProps["partColors"]
+      if ((tpartColors = EMPTY) or (tpartColors = "0,0,0")) then
         tpartColors = "*ffffff"
       end if
     end if
-    if voidp(tProps.getAt("objectType")) then
-      return(error(me, "objectType property missing", #showPreviewImage, #minor))
+    if voidp(tProps["objectType"]) then
+      return error(me, "objectType property missing", #showPreviewImage, #minor)
     else
-      tObjectType = tProps.getAt("objectType")
+      tObjectType = tProps["objectType"]
     end if
     tdata = [:]
-    tdata.setAt(#id, "ctlg_previewObj")
-    tdata.setAt(#class, tClass)
-    tdata.setAt(#name, tClass)
-    tdata.setAt(#custom, tClass)
-    tdata.setAt(#direction, tDirection)
-    tdata.setAt(#dimensions, tDimensions)
-    tdata.setAt(#colors, tpartColors)
-    tdata.setAt(#objectType, tObjectType)
+    tdata[#id] = "ctlg_previewObj"
+    tdata[#class] = tClass
+    tdata[#name] = tClass
+    tdata[#custom] = tClass
+    tdata[#direction] = tDirection
+    tdata[#dimensions] = tDimensions
+    tdata[#colors] = tpartColors
+    tdata[#objectType] = tObjectType
     if not objectExists("ctlg_previewObj") then
       tObj = createObject("ctlg_previewObj", ["Product Preview Class"])
       if (tObj = 0) then
-        return(error(me, "Failed object creation!", #showHideDialog, #major))
+        return error(me, "Failed object creation!", #showHideDialog, #major)
       end if
     else
       tObj = getObject("ctlg_previewObj")
@@ -425,21 +420,21 @@ on renderPreviewImage me, tProps
     tObj.define(tdata.duplicate())
     tImage = tObj.getPicture()
   end if
-  return(tImage)
+  return tImage
 end
 
-on showNoBalance me, tNotEnoughCredits, tNotEnoughPixels 
+on showNoBalance me, tNotEnoughCredits, tNotEnoughPixels
   if windowExists(pInfoWindowID) then
-    return FALSE
+    return 0
   end if
-  tMsgA = ""
-  if tNotEnoughCredits and not tNotEnoughPixels then
+  tMsgA = EMPTY
+  if (tNotEnoughCredits and not tNotEnoughPixels) then
     tMsgA = getText("Alert_no_credits")
   else
-    if tNotEnoughCredits and tNotEnoughPixels then
+    if (tNotEnoughCredits and tNotEnoughPixels) then
       tMsgA = getText("Alert_no_credits_and_pixels")
     else
-      if not tNotEnoughCredits and tNotEnoughPixels then
+      if (not tNotEnoughCredits and tNotEnoughPixels) then
         tMsgA = getText("Alert_no_pixels")
       end if
     end if
@@ -453,13 +448,13 @@ on showNoBalance me, tNotEnoughCredits, tNotEnoughPixels
   else
     tWndFile = "habbo_message_dialog.window"
   end if
-  if not createWindow(pInfoWindowID, "habbo_simple.window", void(), void(), #modal) then
-    return(error(me, "Couldn't create window to show purchase info!", #showNoBalance, #major))
+  if not createWindow(pInfoWindowID, "habbo_simple.window", VOID, VOID, #modal) then
+    return error(me, "Couldn't create window to show purchase info!", #showNoBalance, #major)
   end if
   tWndObj = getWindow(pInfoWindowID)
   if not tWndObj.merge(tWndFile) then
     tWndObj.close()
-    return(error(me, "Couldn't create window to show purchase info!", #showNoBalance, #major))
+    return error(me, "Couldn't create window to show purchase info!", #showNoBalance, #major)
   end if
   tWndObj.center()
   tWndObj.getElement("habbo_message_text_a").setText(tMsgA)
@@ -467,42 +462,42 @@ on showNoBalance me, tNotEnoughCredits, tNotEnoughPixels
   tWndObj.registerProcedure(#hidePurchaseOk, me.getID(), #mouseUp)
   tWndObj.setProperty(#locZ, 22000000)
   tWndObj.lock(1)
-  return TRUE
+  return 1
 end
 
-on showPurchaseOk me 
-  if not createWindow(pInfoWindowID, "habbo_basic.window", void(), void(), #modal) then
-    return FALSE
+on showPurchaseOk me
+  if not createWindow(pInfoWindowID, "habbo_basic.window", VOID, VOID, #modal) then
+    return 0
   end if
   tWndObj = getWindow(pInfoWindowID)
   if not tWndObj.merge("habbo_message_dialog.window") then
-    return(tWndObj.close())
+    return tWndObj.close()
   end if
   tWndObj.registerClient(me.getID())
   tWndObj.registerProcedure(#hidePurchaseOk, me.getID(), #mouseUp)
   tWndObj.center()
   tWndObj.setProperty(#locZ, 22000000)
   tWndObj.getElement("habbo_message_text_b").setText(getText("catalog_itsurs"))
-  return TRUE
+  return 1
 end
 
-on hidePurchaseOk me, tOptionalEvent, tOptionalSprID 
+on hidePurchaseOk me, tOptionalEvent, tOptionalSprID
   if (tOptionalEvent = #mouseUp) then
     if stringp(tOptionalSprID) then
-      if (tOptionalSprID = "close") or (tOptionalSprID = "habbo_message_ok") or (tOptionalSprID = "button_cancel") or (tOptionalSprID = "alert_ok") then
+      if ((((tOptionalSprID = "close") or (tOptionalSprID = "habbo_message_ok")) or (tOptionalSprID = "button_cancel")) or (tOptionalSprID = "alert_ok")) then
         if windowExists(pInfoWindowID) then
           removeWindow(pInfoWindowID)
         end if
       end if
       if (tOptionalSprID = "nobalance_ok") then
         if not textExists("url_nobalance") then
-          return FALSE
+          return 0
         end if
         tSession = getObject(#session)
         tURL = getText("url_nobalance")
-        tURL = tURL & urlEncode(tSession.GET(#userName))
+        tURL = (tURL & urlEncode(tSession.GET(#userName)))
         if tSession.exists("user_checksum") then
-          tURL = tURL & "&sum=" & urlEncode(tSession.GET("user_checksum"))
+          tURL = ((tURL & "&sum=") & urlEncode(tSession.GET("user_checksum")))
         end if
         executeMessage(#externalLinkClick, the mouseLoc)
         openNetPage(tURL)
@@ -517,16 +512,16 @@ on hidePurchaseOk me, tOptionalEvent, tOptionalSprID
       end if
     end if
   end if
-  return TRUE
+  return 1
 end
 
-on getClassAsset me, tClassName 
-  if ilk(tClassName) <> #string then
-    return("")
+on getClassAsset me, tClassName
+  if (ilk(tClassName) <> #string) then
+    return EMPTY
   end if
   tClass = tClassName
-  if tClass contains "*" then
-    tClass = tClass.getProp(#char, 1, (offset("*", tClass) - 1))
+  if (tClass contains "*") then
+    tClass = tClass.char[1]
   end if
-  return(tClass)
+  return tClass
 end

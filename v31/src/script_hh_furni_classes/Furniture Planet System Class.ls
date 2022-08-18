@@ -1,118 +1,116 @@
-property pScene, pObjectMoverSprite, pThisSystem, pGeometry
+property pGeometry, pScene, pThisSystem, pObjectMoverSprite
 
-on construct me 
+on construct me
   pGeometry = getThread(#room).getInterface().getGeometry()
   pThisSystem = getUniqueID()
-  pScene = void()
-  pObjectMoverSprite = void()
-  return TRUE
+  pScene = VOID
+  pObjectMoverSprite = VOID
+  return 1
 end
 
-on deconstruct me 
+on deconstruct me
   me.releaseScene(pScene)
 end
 
-on define me, tdata 
+on define me, tdata
   callAncestor(#define, [me], tdata)
-  tFieldName = me.pClass & ".planetsystem.props"
+  tFieldName = (me.pClass & ".planetsystem.props")
   tConfField = getMember(tFieldName)
-  if ilk(tConfField) <> #member then
-    return(error(me, "Unable to find planet system configuration", #define, #major))
+  if (ilk(tConfField) <> #member) then
+    return error(me, "Unable to find planet system configuration", #define, #major)
   end if
   tArcRandom = random(360)
-  if not variableExists(me.pClass & ".planetsystem.props.confdumped") then
-    me.dumpVariableField(me.pClass & ".planetsystem.props", void(), void(), me.pClass & ".")
-    setVariable(me.pClass & ".planetsystem.props.confdumped", 1)
+  if not variableExists((me.pClass & ".planetsystem.props.confdumped")) then
+    me.dumpVariableField((me.pClass & ".planetsystem.props"), VOID, VOID, (me.pClass & "."))
+    setVariable((me.pClass & ".planetsystem.props.confdumped"), 1)
   end if
-  tObjectCount = getIntVariable(me.pClass & "." & "object.count")
-  i = 1
-  repeat while i <= tObjectCount
+  tObjectCount = getIntVariable(((me.pClass & ".") & "object.count"))
+  repeat with i = 1 to tObjectCount
     tProps = [:]
-    tProps.setAt(#name, getStringVariable(me.pClass & "." & "object." & i & ".name"))
-    if variableExists(me.pClass & "." & "object." & i & ".parent") then
-      tProps.setAt(#parent, getStringVariable(me.pClass & "." & "object." & i & ".parent"))
+    tProps[#name] = getStringVariable(((((me.pClass & ".") & "object.") & i) & ".name"))
+    if variableExists(((((me.pClass & ".") & "object.") & i) & ".parent")) then
+      tProps[#parent] = getStringVariable(((((me.pClass & ".") & "object.") & i) & ".parent"))
     else
-      tProps.setAt(#parent, "")
+      tProps[#parent] = EMPTY
     end if
-    if variableExists(me.pClass & "." & "object." & i & ".radius") then
-      tProps.setAt(#radius, float(getStringVariable(me.pClass & "." & "object." & i & ".radius")))
+    if variableExists(((((me.pClass & ".") & "object.") & i) & ".radius")) then
+      tProps[#radius] = float(getStringVariable(((((me.pClass & ".") & "object.") & i) & ".radius")))
     else
-      tProps.setAt(#radius, "")
+      tProps[#radius] = EMPTY
     end if
-    if variableExists(me.pClass & "." & "object." & i & ".arcspeed") then
-      tProps.setAt(#arcspeed, float(getStringVariable(me.pClass & "." & "object." & i & ".arcspeed")))
+    if variableExists(((((me.pClass & ".") & "object.") & i) & ".arcspeed")) then
+      tProps[#arcspeed] = float(getStringVariable(((((me.pClass & ".") & "object.") & i) & ".arcspeed")))
     else
-      tProps.setAt(#arcspeed, "")
+      tProps[#arcspeed] = EMPTY
     end if
-    if variableExists(me.pClass & "." & "object." & i & ".arcoffset") then
-      tProps.setAt(#arcoffset, float(getStringVariable(me.pClass & "." & "object." & i & ".arcoffset")))
+    if variableExists(((((me.pClass & ".") & "object.") & i) & ".arcoffset")) then
+      tProps[#arcoffset] = float(getStringVariable(((((me.pClass & ".") & "object.") & i) & ".arcoffset")))
     else
-      tProps.setAt(#arcoffset, "")
+      tProps[#arcoffset] = EMPTY
     end if
-    if variableExists(me.pClass & "." & "object." & i & ".sprites") then
-      tProps.setAt(#sprites, getStructVariable(me.pClass & "." & "object." & i & ".sprites"))
+    if variableExists(((((me.pClass & ".") & "object.") & i) & ".sprites")) then
+      tProps[#sprites] = getStructVariable(((((me.pClass & ".") & "object.") & i) & ".sprites"))
     else
-      tProps.setAt(#sprites, [:])
+      tProps[#sprites] = [:]
     end if
-    if variableExists(me.pClass & "." & "object." & i & ".framelist") then
-      tProps.setAt(#frameList, getStructVariable(me.pClass & "." & "object." & i & ".framelist"))
+    if variableExists(((((me.pClass & ".") & "object.") & i) & ".framelist")) then
+      tProps[#frameList] = getStructVariable(((((me.pClass & ".") & "object.") & i) & ".framelist"))
     else
-      tProps.setAt(#frameList, [])
+      tProps[#frameList] = []
     end if
-    if variableExists(me.pClass & "." & "object." & i & ".ink") then
-      tProps.setAt(#ink, integer(getStringVariable(me.pClass & "." & "object." & i & ".ink")))
+    if variableExists(((((me.pClass & ".") & "object.") & i) & ".ink")) then
+      tProps[#ink] = integer(getStringVariable(((((me.pClass & ".") & "object.") & i) & ".ink")))
     else
-      tProps.setAt(#ink, 36)
+      tProps[#ink] = 36
     end if
-    if variableExists(me.pClass & "." & "object." & i & ".blend") then
-      tProps.setAt(#blend, integer(getStringVariable(me.pClass & "." & "object." & i & ".blend")))
+    if variableExists(((((me.pClass & ".") & "object.") & i) & ".blend")) then
+      tProps[#blend] = integer(getStringVariable(((((me.pClass & ".") & "object.") & i) & ".blend")))
     else
-      tProps.setAt(#blend, 0)
+      tProps[#blend] = 0
     end if
-    if variableExists(me.pClass & "." & "object." & i & ".zshift") then
-      tProps.setAt(#zshift, integer(getStringVariable(me.pClass & "." & "object." & i & ".zshift")))
+    if variableExists(((((me.pClass & ".") & "object.") & i) & ".zshift")) then
+      tProps[#zshift] = integer(getStringVariable(((((me.pClass & ".") & "object.") & i) & ".zshift")))
     else
-      tProps.setAt(#zshift, 0)
+      tProps[#zshift] = 0
     end if
-    if variableExists(me.pClass & "." & "object." & i & ".height") then
-      tProps.setAt(#height, float(getStringVariable(me.pClass & "." & "object." & i & ".height")))
+    if variableExists(((((me.pClass & ".") & "object.") & i) & ".height")) then
+      tProps[#height] = float(getStringVariable(((((me.pClass & ".") & "object.") & i) & ".height")))
     else
-      tProps.setAt(#height, "")
+      tProps[#height] = EMPTY
     end if
-    if (tProps.getAt(#radius) = "") then
-      tProps.setAt(#radius, 0)
+    if (tProps[#radius] = EMPTY) then
+      tProps[#radius] = 0.0
     end if
-    if (tProps.getAt(#arcspeed) = "") then
-      tProps.setAt(#arcspeed, 0)
+    if (tProps[#arcspeed] = EMPTY) then
+      tProps[#arcspeed] = 0.0
     end if
-    if (tProps.getAt(#arcoffset) = "") then
-      tProps.setAt(#arcoffset, 0)
+    if (tProps[#arcoffset] = EMPTY) then
+      tProps[#arcoffset] = 0.0
     end if
-    if (tProps.getAt(#height) = "") then
-      tProps.setAt(#height, 0)
+    if (tProps[#height] = EMPTY) then
+      tProps[#height] = 0.0
     end if
-    tProps.setAt(#arcoffset, (tProps.getAt(#arcoffset) + tArcRandom))
-    me.addPlanet(tProps.getAt(#name), tProps.getAt(#parent), tProps)
-    i = (1 + i)
+    tProps[#arcoffset] = (tProps[#arcoffset] + tArcRandom)
+    me.addPlanet(tProps[#name], tProps[#parent], tProps)
   end repeat
   if not voidp(pObjectMoverSprite) then
     releaseSprite(pObjectMoverSprite.spriteNum)
-    pObjectMoverSprite = void()
+    pObjectMoverSprite = VOID
   end if
-  return TRUE
+  return 1
 end
 
-on addPlanet me, tName, tParentName, tProps 
-  if not (tParentName = "") then
+on addPlanet me, tName, tParentName, tProps
+  if not (tParentName = EMPTY) then
     tParent = me.getPlanetByName(tParentName, pScene)
     if voidp(tParent) then
-      return(error(me, "Unable to find parent planet!", #addPlanet, #major))
+      return error(me, "Unable to find parent planet!", #addPlanet, #major)
     end if
   else
-    if not objectExists(tName & pThisSystem) then
-      tObject = createObject(tName & pThisSystem, ["Planet System Object Class"])
+    if not objectExists((tName & pThisSystem)) then
+      tObject = createObject((tName & pThisSystem), ["Planet System Object Class"])
       if not objectp(tObject) then
-        return(error(me, "Unable to create planet system object!", #addPlanet, #major))
+        return error(me, "Unable to create planet system object!", #addPlanet, #major)
       end if
       tObject.setProps(tProps)
       pScene = tObject
@@ -122,13 +120,13 @@ on addPlanet me, tName, tParentName, tProps
       tSpr.registerProcedure(#eventProcActiveObj, tTargetID, #mouseDown)
       tSpr.registerProcedure(#eventProcActiveRollOver, tTargetID, #mouseEnter)
       tSpr.registerProcedure(#eventProcActiveRollOver, tTargetID, #mouseLeave)
-      return()
+      return 
     end if
   end if
-  if not objectExists(tName & pThisSystem) then
-    tObject = createObject(tName & pThisSystem, ["Planet System Object Class"])
+  if not objectExists((tName & pThisSystem)) then
+    tObject = createObject((tName & pThisSystem), ["Planet System Object Class"])
     if not objectp(tObject) then
-      return(error(me, "Unable to create planet system object!", #addPlanet, #major))
+      return error(me, "Unable to create planet system object!", #addPlanet, #major)
     end if
     tObject.setProps(tProps)
     tParent.addChild(tObject)
@@ -141,136 +139,127 @@ on addPlanet me, tName, tParentName, tProps
   end if
 end
 
-on getPlanetByName me, tName, tTarget 
-  if (tTarget.getID() = tName & pThisSystem) then
-    return(tTarget)
+on getPlanetByName me, tName, tTarget
+  if (tTarget.getID() = (tName & pThisSystem)) then
+    return tTarget
   else
-    repeat while tTarget.getChildren() <= tTarget
-      tItem = getAt(tTarget, tName)
+    repeat with tItem in tTarget.getChildren()
       tOut = me.getPlanetByName(tName, tItem)
       if not voidp(tOut) then
-        return(tOut)
+        return tOut
       end if
     end repeat
   end if
 end
 
-on releaseScene me, tTarget 
+on releaseScene me, tTarget
   tSpr = tTarget.getSprite()
   removeEventBroker(tSpr.spriteNum)
   tChildren = tTarget.getChildren().duplicate()
-  repeat while tChildren <= undefined
-    tItem = getAt(undefined, tTarget)
+  repeat with tItem in tChildren
     me.releaseScene(tItem)
   end repeat
   removeObject(tTarget.getID())
 end
 
-on updateScene me, tTarget 
+on updateScene me, tTarget
   tTarget.updateObject()
-  repeat while tTarget.getChildren() <= undefined
-    tItem = getAt(undefined, tTarget)
+  repeat with tItem in tTarget.getChildren()
     me.updateScene(tItem)
   end repeat
 end
 
-on getScenePos me, tRootPos, tTarget, tPosTable 
+on getScenePos me, tRootPos, tTarget, tPosTable
   tItemID = tTarget.getID()
   tItemPos = tTarget.getWorldPosition()
-  tNewPos = [(tRootPos.getAt(1) + tItemPos.getAt(1)), (tRootPos.getAt(2) + tItemPos.getAt(2)), (tRootPos.getAt(3) + tItemPos.getAt(3))]
+  tNewPos = [(tRootPos[1] + tItemPos[1]), (tRootPos[2] + tItemPos[2]), (tRootPos[3] + tItemPos[3])]
   tPosTable.setaProp(tItemID, tNewPos)
-  repeat while tTarget.getChildren() <= tTarget
-    tItem = getAt(tTarget, tRootPos)
+  repeat with tItem in tTarget.getChildren()
     me.getScenePos(tNewPos, tItem, tPosTable)
   end repeat
 end
 
-on getProjectedPosition me, tloc 
+on getProjectedPosition me, tloc
   tXOffset = pGeometry.pXOffset
   tYOffset = pGeometry.pYOffset
   tZOffset = pGeometry.pZOffset
-  tloc = pGeometry.getScreenCoordinate(tloc.getAt(1), tloc.getAt(2), tloc.getAt(3))
-  return([(tloc.getAt(1) - tXOffset), (tloc.getAt(2) - tYOffset), (tloc.getAt(3) - tZOffset)])
+  tloc = pGeometry.getScreenCoordinate(tloc[1], tloc[2], tloc[3])
+  return [(tloc[1] - tXOffset), (tloc[2] - tYOffset), (tloc[3] - tZOffset)]
 end
 
-on updateSprites me, tRootPos, tTarget, tPosTable 
+on updateSprites me, tRootPos, tTarget, tPosTable
   tTarget.updateSprite()
   tsprite = tTarget.getSprite()
   if not voidp(tsprite) then
-    tProj = me.getProjectedPosition(tPosTable.getAt(tTarget.getID()))
-    tloc = [(tProj.getAt(1) + tRootPos.getAt(1)), (tProj.getAt(2) + tRootPos.getAt(2)), (tProj.getAt(3) + tRootPos.getAt(3))]
-    tsprite.loc = point(integer(tloc.getAt(1)), integer(tloc.getAt(2)))
-    tsprite.locZ = (integer(tloc.getAt(3)) + tTarget.getZShift())
+    tProj = me.getProjectedPosition(tPosTable[tTarget.getID()])
+    tloc = [(tProj[1] + tRootPos[1]), (tProj[2] + tRootPos[2]), (tProj[3] + tRootPos[3])]
+    tsprite.loc = point(integer(tloc[1]), integer(tloc[2]))
+    tsprite.locZ = (integer(tloc[3]) + tTarget.getZShift())
   end if
-  repeat while tTarget.getChildren() <= tTarget
-    tItem = getAt(tTarget, tRootPos)
+  repeat with tItem in tTarget.getChildren()
     me.updateSprites(tRootPos, tItem, tPosTable)
   end repeat
 end
 
-on render me 
+on render me
   tPosTable = [:]
   tPosTable.sort()
-  me.getScenePos([0, 0, 0], pScene, tPosTable)
+  me.getScenePos([0.0, 0.0, 0.0], pScene, tPosTable)
   tRootPos = pGeometry.getScreenCoordinate(me.pLocX, me.pLocY, me.pLocH)
-  tRootPos.setAt(1, (tRootPos.getAt(1) + (pGeometry.pXFactor / 2)))
+  tRootPos[1] = (tRootPos[1] + (pGeometry.pXFactor / 2))
   me.updateSprites(tRootPos, pScene, tPosTable)
 end
 
-on update me 
+on update me
   me.updateScene(pScene)
   me.render()
 end
 
-on getSprites me 
+on getSprites me
   if voidp(pObjectMoverSprite) then
     pObjectMoverSprite = sprite(reserveSprite(me.getID()))
     pObjectMoverSprite.member = getMember("planet_of_love_small")
     pObjectMoverSprite.ink = 36
   end if
-  return([pObjectMoverSprite])
+  return [pObjectMoverSprite]
 end
 
-on dumpVariableField me, tField, tDelimiter, tOverride, tPrefix 
-  tStr = field(0)
+on dumpVariableField me, tField, tDelimiter, tOverride, tPrefix
+  tStr = field(tField)
   tDelim = the itemDelimiter
   if voidp(tDelimiter) then
-    tDelimiter = "\r"
+    tDelimiter = RETURN
   end if
   the itemDelimiter = tDelimiter
   if voidp(tOverride) then
     tOverride = 1
   end if
-  i = 1
-  repeat while i <= tStr.count(#item)
-    tPair = tStr.getProp(#item, i)
-    if tPair.getPropRef(#word, 1).getProp(#char, 1) <> "#" and tPair <> "" then
+  repeat with i = 1 to tStr.item.count
+    tPair = tStr.item[i]
+    if ((tPair.word[1].char[1] <> "#") and (tPair <> EMPTY)) then
       the itemDelimiter = "="
-      tProp = tPair.getPropRef(#item, 1).getProp(#word, 1, tPair.getPropRef(#item, 1).count(#word))
-      tValue = tPair.getProp(#item, 2, tPair.count(#item))
-      tValue = tValue.getProp(#word, 1, tValue.count(#word))
+      tProp = tPair.item[1].word[1]
+      tValue = tPair.item[2]
+      tValue = tValue.word[1]
       if not voidp(tPrefix) then
-        tProp = tPrefix & tProp
+        tProp = (tPrefix & tProp)
       end if
-      if not tValue contains space() then
-        if (tValue.getProp(#char, 1) = "#") then
+      if not (tValue contains SPACE) then
+        if (tValue.char[1] = "#") then
           tValue = symbol(chars(tValue, 2, length(tValue)))
         end if
       end if
       if stringp(tValue) then
-        j = 1
-        repeat while j <= length(tValue)
-          j = (1 + j)
+        repeat with j = 1 to length(tValue)
         end repeat
       end if
       tExists = variableExists(tProp)
-      if tOverride or not tExists then
+      if (tOverride or not tExists) then
         setVariable(tProp, tValue)
       end if
       the itemDelimiter = tDelimiter
     end if
-    i = (1 + i)
   end repeat
   the itemDelimiter = tDelim
-  return TRUE
+  return 1
 end

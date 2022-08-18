@@ -1,34 +1,34 @@
-property pState
+property pState, pValidPartProps, pValidPartGroups
 
-on construct me 
+on construct me
   registerMessage(#userlogin, me.getID(), #checkWebShortcuts)
-  return(me.updateState("start"))
+  return me.updateState("start")
 end
 
-on deconstruct me 
+on deconstruct me
   unregisterMessage(#userlogin, me.getID())
-  return(me.updateState("reset"))
+  return me.updateState("reset")
 end
 
-on showHideRoomKiosk me 
-  return(me.getInterface().showHideRoomKiosk())
+on showHideRoomKiosk me
+  return me.getInterface().showHideRoomKiosk()
 end
 
-on sendNewRoomData me, tName, tMarker, tDoorinfo, tShowOwnerName 
+on sendNewRoomData me, tName, tMarker, tDoorinfo, tShowOwnerName
   if connectionExists(getVariable("connection.info.id")) then
     if not integerp(integer(tShowOwnerName)) then
-      return(error(me, #sendNewRoomData, "Illegal type for showOwnerName, must be number", #major))
+      return error(me, #sendNewRoomData, "Illegal type for showOwnerName, must be number", #major)
     end if
-    return(getConnection(getVariable("connection.info.id")).send("CREATEFLAT", [#string:tName, #string:tMarker, #string:tDoorinfo, #integer:integer(tShowOwnerName)]))
+    return getConnection(getVariable("connection.info.id")).send("CREATEFLAT", [#string: tName, #string: tMarker, #string: tDoorinfo, #integer: integer(tShowOwnerName)])
   else
-    return FALSE
+    return 0
   end if
 end
 
-on sendSetFlatInfo me, tFlatID, tDesc, tPassword, tAbleToMoveFurniture, tMaxVisitors 
+on sendSetFlatInfo me, tFlatID, tDesc, tPassword, tAbleToMoveFurniture, tMaxVisitors
   if connectionExists(getVariable("connection.info.id")) then
     if voidp(tPassword) then
-      tPassword = ""
+      tPassword = EMPTY
     end if
     tMsg = [:]
     tMsg.addProp(#integer, integer(tFlatID))
@@ -40,46 +40,44 @@ on sendSetFlatInfo me, tFlatID, tDesc, tPassword, tAbleToMoveFurniture, tMaxVisi
     end if
     getConnection(getVariable("connection.info.id")).send("SETFLATINFO", tMsg)
   else
-    return FALSE
+    return 0
   end if
 end
 
-on sendFlatCategory me, tNodeId, tCategoryID 
+on sendFlatCategory me, tNodeId, tCategoryID
   if voidp(tNodeId) then
-    return(error(me, "Node ID expected!", #sendFlatCategory, #major))
+    return error(me, "Node ID expected!", #sendFlatCategory, #major)
   end if
   if voidp(tCategoryID) then
-    return(error(me, "Category ID expected!", #sendFlatCategory, #major))
+    return error(me, "Category ID expected!", #sendFlatCategory, #major)
   end if
   if connectionExists(getVariable("connection.info.id")) then
-    return(getConnection(getVariable("connection.info.id")).send("SETFLATCAT", [#integer:integer(tNodeId), #integer:integer(tCategoryID)]))
+    return getConnection(getVariable("connection.info.id")).send("SETFLATCAT", [#integer: integer(tNodeId), #integer: integer(tCategoryID)])
   else
-    return FALSE
+    return 0
   end if
 end
 
-on updateState me, tstate, tProps 
-  if (tstate = "reset") then
-    pState = tstate
-    return(unregisterMessage(#open_roomkiosk, me.getID()))
-  else
-    if (tstate = "start") then
+on updateState me, tstate, tProps
+  case tstate of
+    "reset":
       pState = tstate
-      return(registerMessage(#open_roomkiosk, me.getID(), #showHideRoomKiosk))
-    else
-      return(error(me, "Unknown state:" && tstate, #updateState, #minor))
-    end if
-  end if
+      return unregisterMessage(#open_roomkiosk, me.getID())
+    "start":
+      pState = tstate
+      return registerMessage(#open_roomkiosk, me.getID(), #showHideRoomKiosk)
+  end case
+  return error(me, ("Unknown state:" && tstate), #updateState, #minor)
 end
 
-on getState me 
-  return(pState)
+on getState me
+  return pState
 end
 
-on checkWebShortcuts me, tChecked 
+on checkWebShortcuts me, tChecked
   if (tChecked = 1) then
     executeMessage(#open_roomkiosk)
-    return TRUE
+    return 1
   end if
   if variableExists("shortcut.id") then
     tShortcutID = getIntVariable("shortcut.id")
@@ -90,5 +88,5 @@ on checkWebShortcuts me, tChecked
       end if
     end if
   end if
-  return TRUE
+  return 1
 end

@@ -1,50 +1,50 @@
-on construct me 
+on construct me
   me.regMsgList(1)
   registerMessage(#externalGiveRespect, me.getID(), #externalGiveRespect)
-  return TRUE
+  return 1
 end
 
-on deconstruct me 
+on deconstruct me
   unregisterMessage(#externalGiveRespect, me.getID())
   me.regMsgList(0)
-  return TRUE
+  return 1
 end
 
-on externalGiveRespect me, tWebID 
+on externalGiveRespect me, tWebID
   tWebID = integer(tWebID)
   if not integerp(tWebID) then
-    return FALSE
+    return 0
   end if
-  tConnection = getConnection(#info)
+  tConnection = getConnection(#Info)
   if (tConnection = 0) then
-    return FALSE
+    return 0
   end if
   me.substractRespectCount()
-  return(tConnection.send("RESPECT_USER", [#integer:tWebID]))
+  return tConnection.send("RESPECT_USER", [#integer: tWebID])
 end
 
-on getRespectCount me 
+on getRespectCount me
   tSession = getObject(#session)
   if (tSession = 0) then
-    return FALSE
+    return 0
   end if
   if not tSession.exists(#user_respect_ticket_count) then
-    return(-1)
+    return -1
   end if
-  return(tSession.GET(#user_respect_ticket_count))
+  return tSession.GET(#user_respect_ticket_count)
 end
 
-on substractRespectCount me 
+on substractRespectCount me
   tCount = me.getRespectCount()
-  if tCount > 0 then
+  if (tCount > 0) then
     tCount = (tCount - 1)
     getObject(#session).set(#user_respect_ticket_count, tCount)
     executeMessage(#updateInfoStandButtons)
   end if
-  return TRUE
+  return 1
 end
 
-on regMsgList me, tBool 
+on regMsgList me, tBool
   tMsgs = [:]
   tCmds = [:]
   tCmds.setaProp("RESPECT_USER", 371)
@@ -55,5 +55,5 @@ on regMsgList me, tBool
     unregisterListener(getVariable("connection.room.id"), me.getID(), tMsgs)
     unregisterCommands(getVariable("connection.room.id"), me.getID(), tCmds)
   end if
-  return TRUE
+  return 1
 end
