@@ -1,26 +1,25 @@
-on construct me 
-  return TRUE
+on construct me
+  return 1
 end
 
-on deconstruct me 
-  return TRUE
+on deconstruct me
+  return 1
 end
 
-on Refresh me, tTopic, tdata 
+on Refresh me, tTopic, tdata
   if (tdata = 0) then
-    return FALSE
+    return 0
   end if
-  if (tdata.getAt(#reason) = "game_deleted") then
-    tAlertStr = "gs_error_game_deleted"
-  else
-    if (tdata.getAt(#reason) = "nocredits") then
+  case tdata[#reason] of
+    "game_deleted":
+      tAlertStr = "gs_error_game_deleted"
+    "nocredits":
       tAlertStr = "gs_error_nocredits"
-    else
-      tAlertStr = "gs_error_" & tdata.getAt(#request) & "_" & tdata.getAt(#reason)
+    otherwise:
+      tAlertStr = ((("gs_error_" & tdata[#request]) & "_") & tdata[#reason])
       if not textExists(tAlertStr) then
-        tAlertStr = "gs_error_" & tdata.getAt(#reason)
+        tAlertStr = ("gs_error_" & tdata[#reason])
       end if
-    end if
-  end if
-  return(executeMessage(#alert, [#id:"gs_error", #Msg:tAlertStr]))
+  end case
+  return executeMessage(#alert, [#id: "gs_error", #Msg: tAlertStr])
 end

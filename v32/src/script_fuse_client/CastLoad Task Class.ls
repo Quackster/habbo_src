@@ -1,66 +1,66 @@
-property pCastList, pLoadedSoFar, pCastcount, pCurLoadCount, pTmpLoadCount, pTempPercent, pLastPercent, pStatus, pCurrPercent, pAllowindexing, pCallBack, pGroupId, pContainsFailedItems
+property pGroupId, pStatus, pLoadedSoFar, pCastList, pCastcount, pCallBack, pCurrPercent, pTempPercent, pLastPercent, pTmpLoadCount, pCurLoadCount, pAllowindexing, pContainsFailedItems
 
-on define me, tdata 
-  pGroupId = tdata.getAt(#id)
-  pStatus = tdata.getAt(#status)
-  pLoadedSoFar = tdata.getAt(#sofar)
-  pCastcount = tdata.getAt(#casts).count
-  pCallBack = tdata.getAt(#callback)
-  pCurrPercent = tdata.getAt(#Percent)
-  pAllowindexing = tdata.getAt(#doindexing)
+on define me, tdata
+  pGroupId = tdata[#id]
+  pStatus = tdata[#status]
+  pLoadedSoFar = tdata[#sofar]
+  pCastcount = tdata[#casts].count
+  pCallBack = tdata[#callback]
+  pCurrPercent = tdata[#Percent]
+  pAllowindexing = tdata[#doindexing]
   pTempPercent = 0
   pLastPercent = 0
   pCurLoadCount = 0
   pTmpLoadCount = 0
   pContainsFailedItems = 0
   pCastList = [:]
-  repeat while tdata.getAt(#casts) <= undefined
-    tCast = getAt(undefined, tdata)
-    pCastList.setAt(tCast, 0)
+  repeat with tCast in tdata[#casts]
+    pCastList[tCast] = 0
   end repeat
-  return TRUE
+  return 1
 end
 
-on OneCastDone me, tFile 
+on OneCastDone me, tFile
   startProfilingTask("CastLoad Task::oneCastDone")
-  pLoadedSoFar = (pLoadedSoFar + 1)
+  pLoadedSoFar = (pLoadedSoFar + 1.0)
   if (integer(pLoadedSoFar) = pCastcount) then
     pStatus = #ready
   end if
-  pCastList.setAt(tFile, 1)
+  pCastList[tFile] = 1
   repeat while 1
     if (count(pCastList) = 0) then
-    else
-      if (pCastList.getAt(1) = 1) then
-        tCastName = pCastList.getPropAt(1)
-        if getCastLoadManager().exists(tCastName) then
-          getThreadManager().initThread(castLib(tCastName).number)
-        end if
-        pCastList.deleteProp(tCastName)
-        next repeat
-      end if
+      exit repeat
     end if
+    if (pCastList[1] = 1) then
+      tCastName = pCastList.getPropAt(1)
+      if getCastLoadManager().exists(tCastName) then
+        getThreadManager().initThread(castLib(tCastName).number)
+      end if
+      pCastList.deleteProp(tCastName)
+      next repeat
+    end if
+    exit repeat
   end repeat
   finishProfilingTask("CastLoad Task::oneCastDone")
-  return TRUE
+  return 1
 end
 
-on changeLoadingCount me, tPosOrNeg 
+on changeLoadingCount me, tPosOrNeg
   pCurLoadCount = (pCurLoadCount + tPosOrNeg)
 end
 
-on resetPercentCounter me 
+on resetPercentCounter me
   pTempPercent = 0
   pTmpLoadCount = 0
-  return TRUE
+  return 1
 end
 
-on UpdateTaskPercent me, tInstancePercent, tFile 
+on UpdateTaskPercent me, tInstancePercent, tFile
   pTmpLoadCount = (pTmpLoadCount + 1)
   pTempPercent = (pTempPercent + tInstancePercent)
   if (pTmpLoadCount = pCurLoadCount) then
-    tTemp = ((1 * (pTempPercent + pLoadedSoFar)) / pCastcount)
-    if tTemp <= 1 and pLastPercent <= tTemp then
+    tTemp = ((1.0 * (pTempPercent + pLoadedSoFar)) / pCastcount)
+    if ((tTemp <= 1.0) and (pLastPercent <= tTemp)) then
       pCurrPercent = tTemp
     else
       pCurrPercent = pLastPercent
@@ -68,44 +68,43 @@ on UpdateTaskPercent me, tInstancePercent, tFile
   end if
 end
 
-on getTaskState me 
-  return(pStatus)
+on getTaskState me
+  return pStatus
 end
 
-on getTaskPercent me 
-  return(pCurrPercent)
+on getTaskPercent me
+  return pCurrPercent
 end
 
-on getIndexingAllowed me 
-  return(pAllowindexing)
+on getIndexingAllowed me
+  return pAllowindexing
 end
 
-on DoCallBack me, tstate 
+on DoCallBack me, tstate
   tSuccess = 1
-  if tstate <> #done then
+  if (tstate <> #done) then
     tSuccess = 0
   end if
   if (pStatus = #ready) then
     if listp(pCallBack) then
-      repeat while pCallBack <= undefined
-        tCall = getAt(undefined, tstate)
-        if objectExists(tCall.getAt(#client)) then
-          call(tCall.getAt(#method), getObject(tCall.getAt(#client)), tCall.getAt(#argument), tSuccess)
+      repeat with tCall in pCallBack
+        if objectExists(tCall[#client]) then
+          call(tCall[#method], getObject(tCall[#client]), tCall[#argument], tSuccess)
         end if
       end repeat
     end if
   end if
 end
 
-on addCallBack me, tID, tMethod, tClientID, tArgument 
+on addCallBack me, tID, tMethod, tClientID, tArgument
   if not symbolp(tMethod) then
-    return(error(me, "Symbol referring to handler expected:" && tMethod, #addCallBack, #major))
+    return error(me, ("Symbol referring to handler expected:" && tMethod), #addCallBack, #major)
   end if
   if not objectExists(tClientID) then
-    return(error(me, "Object not found:" && tClientID, #addCallBack, #major))
+    return error(me, ("Object not found:" && tClientID), #addCallBack, #major)
   end if
   if not getObject(tClientID).handler(tMethod) then
-    return(error(me, "Handler not found in object:" && tMethod & "/" & tClientID, #addCallBack, #major))
+    return error(me, ((("Handler not found in object:" && tMethod) & "/") & tClientID), #addCallBack, #major)
   end if
   if (pStatus = #ready) then
     call(tMethod, getObject(tClientID), tArgument)
@@ -113,23 +112,23 @@ on addCallBack me, tID, tMethod, tClientID, tArgument
   else
     if (pStatus = #LOADING) then
       if voidp(pCallBack) then
-        pCallBack = list([#method:tMethod, #client:tClientID, #argument:tArgument])
+        pCallBack = list([#method: tMethod, #client: tClientID, #argument: tArgument])
       else
-        pCallBack.add([#method:tMethod, #client:tClientID, #argument:tArgument])
+        pCallBack.add([#method: tMethod, #client: tClientID, #argument: tArgument])
       end if
     end if
   end if
-  return TRUE
+  return 1
 end
 
-on setFailed  
+on setFailed
   pContainsFailedItems = 1
 end
 
-on getFailed  
-  return(pContainsFailedItems)
+on getFailed
+  return pContainsFailedItems
 end
 
-on handlers  
-  return([])
+on handlers
+  return []
 end

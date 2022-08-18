@@ -1,43 +1,43 @@
-property pRoomGeometry, pFrameworkId, pLastGameClickCoordinate, pConnection
+property pFrameworkId, pRoomGeometry, pLastGameClickCoordinate, pConnection
 
-on construct me 
+on construct me
   pFrameworkId = getVariable("bb.gamesystem.id")
   executeMessage(#gamesystem_getfacade, getVariable("bb.gamesystem.id"))
   registerMessage(#spectatorMode_off, me.getID(), #handleSpectatorModeOff)
   me.registerEventProc(1)
-  return TRUE
+  return 1
 end
 
-on deconstruct me 
-  pConnection = void()
+on deconstruct me
+  pConnection = VOID
   me.registerEventProc(0)
   executeMessage(#gamesystem_removefacade, getVariable("bb.gamesystem.id"))
-  return TRUE
+  return 1
 end
 
-on prepare me 
-  if getObject(#room_interface) <> 0 then
+on prepare me
+  if (getObject(#room_interface) <> 0) then
     getObject(#room_interface).hideInfoStand()
   end if
-  return TRUE
+  return 1
 end
 
-on registerEventProc me, tBoolean 
+on registerEventProc me, tBoolean
   tRoomThread = getThread(#room)
   if (tRoomThread = 0) then
-    return FALSE
+    return 0
   end if
   tRoomInt = tRoomThread.getInterface()
   if (tRoomInt = 0) then
-    return FALSE
+    return 0
   end if
   pRoomGeometry = tRoomInt.getGeometry()
   if (pRoomGeometry = 0) then
-    return FALSE
+    return 0
   end if
   tVisObj = tRoomInt.getRoomVisualizer()
   if (tVisObj = 0) then
-    return FALSE
+    return 0
   end if
   tSprList = tVisObj.getProperty(#spriteList)
   if tBoolean then
@@ -51,48 +51,48 @@ on registerEventProc me, tBoolean
   end if
 end
 
-on eventProcRoom me, tEvent, tSprID, tParam 
+on eventProcRoom me, tEvent, tSprID, tParam
   if (tEvent = #mouseDown) then
     if (tSprID = "floor") then
       tloc = pRoomGeometry.getWorldCoordinate(the mouseH, the mouseV)
       if listp(tloc) then
-        return(me.sendMoveGoal(tloc))
+        return me.sendMoveGoal(tloc)
       end if
     end if
   end if
 end
 
-on sendMoveGoal me, tloc 
+on sendMoveGoal me, tloc
   tFramework = getObject(pFrameworkId)
   if (tFramework = 0) then
-    return FALSE
+    return 0
   end if
   tStatus = tFramework.getGamestatus()
   if (pLastGameClickCoordinate = [tloc, tStatus]) then
-    return TRUE
+    return 1
   end if
   pLastGameClickCoordinate = [tloc, tStatus]
   tConnection = me.getRoomConnection()
   if not objectp(tConnection) then
-    return(error(me, "Info connection has disappeared!", #sendMoveGoal))
+    return error(me, "Info connection has disappeared!", #sendMoveGoal)
   end if
   if (tStatus = #game_started) then
-    return(tConnection.send("GAMEEVENT", [#integer:tloc.getAt(1), #integer:tloc.getAt(2)]))
+    return tConnection.send("GAMEEVENT", [#integer: tloc[1], #integer: tloc[2]])
   else
-    return(tConnection.send("MOVE", [#short:tloc.getAt(1), #short:tloc.getAt(2)]))
+    return tConnection.send("MOVE", [#short: tloc[1], #short: tloc[2]])
   end if
 end
 
-on handleSpectatorModeOff me 
+on handleSpectatorModeOff me
   if (getObject(pFrameworkId) = 0) then
-    return FALSE
+    return 0
   end if
   getObject(pFrameworkId).enterLounge()
 end
 
-on getRoomConnection me 
+on getRoomConnection me
   if (pConnection = 0) then
     pConnection = getConnection(getVariable("connection.info.id"))
   end if
-  return(pConnection)
+  return pConnection
 end

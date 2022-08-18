@@ -1,6 +1,6 @@
-property pDirection, pSprite, pIndex, pPausedTime, pOffset, pTurnPnt
+property pSprite, pOffset, pTurnPnt, pDirection, pPausedTime, pIndex
 
-on define me, tsprite, tCount 
+on define me, tsprite, tCount
   pIndex = (tCount - 1)
   if (tCount mod 2) then
     tdir = #right
@@ -12,11 +12,11 @@ on define me, tsprite, tCount
   pTurnPnt = 0
   pDirection = tdir
   me.reset()
-  return TRUE
+  return 1
 end
 
-on reset me 
-  tmodel = ["car2", "car_b2"].getAt(random(2))
+on reset me
+  tmodel = ["car2", "car_b2"][random(2)]
   if (pDirection = #left) then
     pSprite.castNum = getmemnum(tmodel)
     pSprite.flipH = 0
@@ -37,26 +37,26 @@ on reset me
   pPausedTime = ((pIndex * 30) + random(50))
 end
 
-on update me 
-  if pPausedTime > 0 then
+on update me
+  if (pPausedTime > 0) then
     pPausedTime = (pPausedTime - 1)
-    return FALSE
+    return 0
   end if
   pSprite.loc = (pSprite.loc + pOffset)
   if (pSprite.locH = pTurnPnt) then
-    pOffset.setAt(2, -pOffset.getAt(2))
+    pOffset[2] = -pOffset[2]
     tMemName = pSprite.member.name
-    tDirNum = integer(tMemName.getProp(#char, length(tMemName)))
+    tDirNum = integer(tMemName.char[length(tMemName)])
     tDirNum = (not (tDirNum - 1) + 1)
-    tMemName = tMemName.getProp(#char, 1, (length(tMemName) - 1)) & tDirNum
+    tMemName = (tMemName.char[1] & tDirNum)
     pSprite.castNum = getmemnum(tMemName)
   end if
-  if pSprite.locV > 510 then
+  if (pSprite.locV > 510) then
     if (random(2) = 1) then
       pDirection = #left
     else
       pDirection = #right
     end if
-    return(me.reset())
+    return me.reset()
   end if
 end
