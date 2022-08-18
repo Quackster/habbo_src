@@ -1,51 +1,51 @@
-on constructConnectionManager  
-  return(createManager(#connection_manager, getClassVariable("connection.manager.class")))
+on constructConnectionManager
+  return createManager(#connection_manager, getClassVariable("connection.manager.class"))
 end
 
-on deconstructConnectionManager  
-  return(removeManager(#connection_manager))
+on deconstructConnectionManager
+  return removeManager(#connection_manager)
 end
 
-on getConnectionManager  
+on getConnectionManager
   tMgr = getObjectManager()
   if not tMgr.managerExists(#connection_manager) then
-    return(constructConnectionManager())
+    return constructConnectionManager()
   end if
-  return(tMgr.getManager(#connection_manager))
+  return tMgr.getManager(#connection_manager)
 end
 
-on createConnection tID, tHost, tPort 
-  return(getConnectionManager().create(tID, tHost, tPort))
+on createConnection tid, tHost, tPort
+  return getConnectionManager().create(tid, tHost, tPort)
 end
 
-on removeConnection tID 
-  return(getConnectionManager().Remove(tID))
+on removeConnection tid
+  return getConnectionManager().Remove(tid)
 end
 
-on getConnection tID 
-  return(getConnectionManager().GET(tID))
+on getConnection tid
+  return getConnectionManager().GET(tid)
 end
 
-on connectionExists tID 
-  return(getConnectionManager().exists(tID))
+on connectionExists tid
+  return getConnectionManager().exists(tid)
 end
 
-on printConnections  
-  return(getConnectionManager().print())
+on printConnections
+  return getConnectionManager().print()
 end
 
-on registerListener tID, tObjID, tMsgList 
-  return(getConnectionManager().registerListener(tID, tObjID, tMsgList))
+on registerListener tid, tObjID, tMsgList
+  return getConnectionManager().registerListener(tid, tObjID, tMsgList)
 end
 
-on unregisterListener tID, tObjID, tMsgList 
-  return(getConnectionManager().unregisterListener(tID, tObjID, tMsgList))
+on unregisterListener tid, tObjID, tMsgList
+  return getConnectionManager().unregisterListener(tid, tObjID, tMsgList)
 end
 
-on registerCommands tID, tObjID, tCmdList 
-  return(getConnectionManager().registerCommands(tID, tObjID, tCmdList))
+on registerCommands tid, tObjID, tCmdList
+  return getConnectionManager().registerCommands(tid, tObjID, tCmdList)
 end
 
-on unregisterCommands tID, tObjID, tCmdList 
-  return(getConnectionManager().unregisterCommands(tID, tObjID, tCmdList))
+on unregisterCommands tid, tObjID, tCmdList
+  return getConnectionManager().unregisterCommands(tid, tObjID, tCmdList)
 end

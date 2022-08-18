@@ -1,125 +1,115 @@
 property pAnimPhase, pAnimTimer
 
-on construct me 
+on construct me
   pAnimPhase = 0
   pAnimTimer = the timer
-  return TRUE
+  return 1
 end
 
-on deconstruct me 
-  return(removeUpdate(me.getID()))
+on deconstruct me
+  return removeUpdate(me.getID())
 end
 
-on prepare me 
-  return(receiveUpdate(me.getID()))
+on prepare me
+  return receiveUpdate(me.getID())
 end
 
-on update me 
-  if (pAnimPhase = 0) then
-    if the timer > (pAnimTimer + (60 * 20)) then
-      if (random(20) = 1) then
-        tMode = random(4)
-        tObj = getThread(#room).getInterface().getRoomVisualizer()
-        if (tObj = 0) then
-          return FALSE
-        end if
-        if (tMode = 1) then
-          tSp = tObj.getSprById("valentinebear_eyes")
-          if (tSp = 0) then
-            return FALSE
+on update me
+  case pAnimPhase of
+    0:
+      if (the timer > (pAnimTimer + (60 * 20))) then
+        if (random(20) = 1) then
+          tMode = random(4)
+          tObj = getThread(#room).getInterface().getRoomVisualizer()
+          if (tObj = 0) then
+            return 0
           end if
-          tSp.blend = 100
-          pAnimPhase = 3
-        else
-          if (tMode = 2) then
-            tSp = tObj.getSprById("valentinebear_ears")
-            if (tSp = 0) then
-              return FALSE
-            end if
-            tSp.blend = 100
-            pAnimPhase = 3
-          else
-            if (tMode = 3) then
+          case tMode of
+            1:
+              tSp = tObj.getSprById("valentinebear_eyes")
+              if (tSp = 0) then
+                return 0
+              end if
+              tSp.blend = 100
+              pAnimPhase = 3
+            2:
+              tSp = tObj.getSprById("valentinebear_ears")
+              if (tSp = 0) then
+                return 0
+              end if
+              tSp.blend = 100
+              pAnimPhase = 3
+            3:
               tSp1 = tObj.getSprById("valentinebear_ears")
               tSp2 = tObj.getSprById("valentinebear_eyes")
-              if (tSp1 = 0) or (tSp2 = 0) then
-                return FALSE
+              if ((tSp1 = 0) or (tSp2 = 0)) then
+                return 0
               end if
               tSp1.blend = 100
               tSp2.blend = 100
               pAnimPhase = 3
-            else
-              if (tMode = 4) then
-                tSp = tObj.getSprById("valentinebear_eyes")
-                if (tSp = 0) then
-                  return FALSE
-                end if
-                tSp.blend = 100
-                pAnimPhase = 1
+            4:
+              tSp = tObj.getSprById("valentinebear_eyes")
+              if (tSp = 0) then
+                return 0
               end if
-            end if
-          end if
+              tSp.blend = 100
+              pAnimPhase = 1
+          end case
+          pAnimTimer = the timer
         end if
-        pAnimTimer = the timer
       end if
-    end if
-  else
-    if (tMode = 1) then
-      if the timer > (pAnimTimer + 10) then
+    1:
+      if (the timer > (pAnimTimer + 10)) then
         tObj = getThread(#room).getInterface().getRoomVisualizer()
         if (tObj = 0) then
-          return FALSE
+          return 0
         end if
         tSp1 = tObj.getSprById("valentinebear_eyes")
         if (tSp1 = 0) then
-          return FALSE
+          return 0
         end if
         tSp1.blend = 0
         pAnimPhase = 2
       end if
-    else
-      if (tMode = 2) then
-        if the timer > (pAnimTimer + 20) then
-          tObj = getThread(#room).getInterface().getRoomVisualizer()
-          if (tObj = 0) then
-            return FALSE
-          end if
-          tSp1 = tObj.getSprById("valentinebear_eyes")
-          if (tSp1 = 0) then
-            return FALSE
-          end if
-          tSp1.blend = 100
-          pAnimPhase = 3
+    2:
+      if (the timer > (pAnimTimer + 20)) then
+        tObj = getThread(#room).getInterface().getRoomVisualizer()
+        if (tObj = 0) then
+          return 0
         end if
-      else
-        if (tMode = 3) then
-          if the timer > (pAnimTimer + 30) then
-            tObj = getThread(#room).getInterface().getRoomVisualizer()
-            if (tObj = 0) then
-              return FALSE
-            end if
-            tSp1 = tObj.getSprById("valentinebear_ears")
-            tSp2 = tObj.getSprById("valentinebear_eyes")
-            if (tSp1 = 0) or (tSp2 = 0) then
-              return FALSE
-            end if
-            tSp1.blend = 0
-            tSp2.blend = 0
-            pAnimPhase = 0
-            pAnimTimer = the timer
-          end if
+        tSp1 = tObj.getSprById("valentinebear_eyes")
+        if (tSp1 = 0) then
+          return 0
         end if
+        tSp1.blend = 100
+        pAnimPhase = 3
       end if
-    end if
-  end if
+    3:
+      if (the timer > (pAnimTimer + 30)) then
+        tObj = getThread(#room).getInterface().getRoomVisualizer()
+        if (tObj = 0) then
+          return 0
+        end if
+        tSp1 = tObj.getSprById("valentinebear_ears")
+        tSp2 = tObj.getSprById("valentinebear_eyes")
+        if ((tSp1 = 0) or (tSp2 = 0)) then
+          return 0
+        end if
+        tSp1.blend = 0
+        tSp2.blend = 0
+        pAnimPhase = 0
+        pAnimTimer = the timer
+      end if
+  end case
 end
 
-on showprogram me, tMsg 
+on showprogram me, tMsg
   if voidp(tMsg) then
-    return FALSE
+    return 0
   end if
-  tDst = tMsg.getAt(#show_dest)
-  tCmd = tMsg.getAt(#show_command)
-  tPar = tMsg.getAt(#show_params)
-  put(tDst, tCmd, tPar)
+  tDst = tMsg[#show_dest]
+  tCmd = tMsg[#show_command]
+  tPar = tMsg[#show_params]
+  put tDst, tCmd, tPar
 end

@@ -1,121 +1,106 @@
 property pTileImages, pPriorityTaskList, pSecondaryTaskList, pPriorityTilesPerUpdate, pGeometry, pSprite, pBuffer, pMember
 
-on construct me 
+on construct me
   pPriorityTilesPerUpdate = 4
   pPriorityTaskList = []
   pSecondaryTaskList = []
   pGeometry = getObject(#room_interface).getGeometry()
   pTileImages = []
-  tTeamId = 1
-  repeat while tTeamId <= 4
+  repeat with tTeamId = 1 to 4
     tTemp = []
-    tstate = 1
-    repeat while tstate <= 4
-      tTemp.add(member("tile" & tTeamId & "_" & tstate).image)
-      tstate = (1 + tstate)
+    repeat with tstate = 1 to 4
+      tTemp.add(member(((("tile" & tTeamId) & "_") & tstate)).image)
     end repeat
     pTileImages.add(tTemp)
-    tTeamId = (1 + tTeamId)
   end repeat
-  return TRUE
+  return 1
 end
 
-on deconstruct me 
+on deconstruct me
   removeUpdate(me.getID())
   me.clearAll()
 end
 
-on Refresh me, tTopic, tdata 
-  if (tTopic = #fullgamestatus_tiles) then
-    me.initBuffer()
-    receiveUpdate(me.getID())
-    me.Refresh(#gamestatus_flood, tdata)
-  else
-    if (tTopic = #gamereset) then
+on Refresh me, tTopic, tdata
+  case tTopic of
+    #fullgamestatus_tiles:
       me.initBuffer()
       receiveUpdate(me.getID())
-    else
-      if (tTopic = #gamestatus_tiles) then
-        repeat while tTopic <= count(tTopic)
-          tTileProps = getAt(count(tTopic), tdata)
-          pPriorityTaskList.add(tTileProps)
-          me.removeSecondaryTask(tTileProps)
-        end repeat
-      else
-        if (tTopic = #gamestatus_flood) then
-          repeat while tTopic <= count(tTopic)
-            tTileProps = getAt(count(tTopic), tdata)
-            pSecondaryTaskList.add(tTileProps)
-          end repeat
-        end if
-      end if
-    end if
-  end if
+      me.Refresh(#gamestatus_flood, tdata)
+    #gamereset:
+      me.initBuffer()
+      receiveUpdate(me.getID())
+    #gamestatus_tiles:
+      repeat with tTileProps in tdata
+        pPriorityTaskList.add(tTileProps)
+        me.removeSecondaryTask(tTileProps)
+      end repeat
+    #gamestatus_flood:
+      repeat with tTileProps in tdata
+        pSecondaryTaskList.add(tTileProps)
+      end repeat
+  end case
 end
 
-on update me 
+on update me
   if (pPriorityTaskList.count = 0) then
     if (pSecondaryTaskList.count = 0) then
-      return TRUE
+      return 1
     end if
-    tProps = pSecondaryTaskList.getAt(1)
+    tProps = pSecondaryTaskList[1]
     pSecondaryTaskList.deleteAt(1)
     me.render(tProps)
   else
-    tTilesToRender = 1
-    repeat while tTilesToRender <= pPriorityTilesPerUpdate
-      tProps = pPriorityTaskList.getAt(1)
+    repeat with tTilesToRender = 1 to pPriorityTilesPerUpdate
+      tProps = pPriorityTaskList[1]
       pPriorityTaskList.deleteAt(1)
       me.render(tProps)
       if (pPriorityTaskList.count = 0) then
-        return(me.update())
+        return me.update()
       end if
-      tTilesToRender = (1 + tTilesToRender)
     end repeat
   end if
-  return TRUE
+  return 1
 end
 
-on removeSecondaryTask me, tProps 
-  tLocX = tProps.getAt(#locX)
-  tLocY = tProps.getAt(#locY)
-  i = 1
-  repeat while i <= pSecondaryTaskList.count
-    tItem = pSecondaryTaskList.getAt(i)
-    if (tItem.getAt(#locX) = tLocX) and (tItem.getAt(#locY) = tLocY) then
+on removeSecondaryTask me, tProps
+  tLocX = tProps[#locX]
+  tLocY = tProps[#locY]
+  repeat with i = 1 to pSecondaryTaskList.count
+    tItem = pSecondaryTaskList[i]
+    if ((tItem[#locX] = tLocX) and (tItem[#locY] = tLocY)) then
       pSecondaryTaskList.deleteAt(i)
-      return TRUE
+      return 1
     end if
-    i = (1 + i)
   end repeat
-  return TRUE
+  return 1
 end
 
-on render me, tProps 
+on render me, tProps
   if not (ilk(tProps) = #propList) then
-    return FALSE
+    return 0
   end if
-  tstate = tProps.getAt(#jumps)
-  tTeamId = (tProps.getAt(#teamId) + 1)
+  tstate = tProps[#jumps]
+  tTeamId = (tProps[#teamId] + 1)
   if (tstate = 0) then
-    return TRUE
+    return 1
   end if
-  tImage = pTileImages.getAt(tTeamId).getAt(tstate)
-  if (tImage = void()) then
-    return FALSE
+  tImage = pTileImages[tTeamId][tstate]
+  if (tImage = VOID) then
+    return 0
   end if
-  tScreenLoc = pGeometry.getScreenCoordinate(tProps.getAt(#locX), tProps.getAt(#locY), 0)
-  if (pSprite = void()) then
-    return FALSE
+  tScreenLoc = pGeometry.getScreenCoordinate(tProps[#locX], tProps[#locY], 0.0)
+  if (pSprite = VOID) then
+    return 0
   end if
-  tScreenLoc.setAt(1, ((tScreenLoc.getAt(1) - pSprite.left) + 2))
-  tScreenLoc.setAt(2, (((tScreenLoc.getAt(2) - pSprite.top) - (tImage.height / 2)) - 1))
-  tTargetRect = (tImage.rect + rect(tScreenLoc.getAt(1), tScreenLoc.getAt(2), tScreenLoc.getAt(1), tScreenLoc.getAt(2)))
-  pBuffer.copyPixels(tImage, tTargetRect, tImage.rect, [#ink:36])
-  return TRUE
+  tScreenLoc[1] = ((tScreenLoc[1] - pSprite.left) + 2)
+  tScreenLoc[2] = (((tScreenLoc[2] - pSprite.top) - (tImage.height / 2)) - 1)
+  tTargetRect = (tImage.rect + rect(tScreenLoc[1], tScreenLoc[2], tScreenLoc[1], tScreenLoc[2]))
+  pBuffer.copyPixels(tImage, tTargetRect, tImage.rect, [#ink: 36])
+  return 1
 end
 
-on initBuffer me 
+on initBuffer me
   pPriorityTaskList = []
   pSecondaryTaskList = []
   tName = "__bounce_tempworld"
@@ -126,11 +111,11 @@ on initBuffer me
   end if
   tVisObj = getObject(#room_interface).getRoomVisualizer()
   if (tVisObj = 0) then
-    return(error(me, "Room visualizer not found.", #initBuffer))
+    return error(me, "Room visualizer not found.", #initBuffer)
   end if
   pSprite = tVisObj.getSprById("floor")
   if (pSprite = 0) then
-    return(error(me, "Arena floor not found.", #initBuffer))
+    return error(me, "Arena floor not found.", #initBuffer)
   end if
   tImg = member("bb_arena").image
   pMember.image = image(tImg.width, tImg.height, 8)
@@ -138,14 +123,14 @@ on initBuffer me
   pMember.regPoint = member("bb_arena").regPoint
   pBuffer = pMember.image
   pSprite.setMember(pMember)
-  return TRUE
+  return 1
 end
 
-on clearAll me 
-  pBuffer = void()
-  if pMember <> void() then
+on clearAll me
+  pBuffer = VOID
+  if (pMember <> VOID) then
     removeMember(pMember.name)
   end if
-  pMember = void()
-  return TRUE
+  pMember = VOID
+  return 1
 end

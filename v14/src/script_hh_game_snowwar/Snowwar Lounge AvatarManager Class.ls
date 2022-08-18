@@ -1,81 +1,78 @@
-property pSkillLevelList
+property pSkillLevelList, pCreatedAvatarObjList
 
-on construct me 
+on construct me
   pSkillLevelList = [:]
   registerMessage(#create_user, me.getID(), #storeCreatedAvatarInfo)
   registerMessage(#userKeywordInput, me.getID(), #showScoresChooser)
-  return TRUE
+  return 1
 end
 
-on deconstruct me 
+on deconstruct me
   unregisterMessage(#create_user, me.getID())
   unregisterMessage(#userKeywordInput, me.getID())
-  return TRUE
+  return 1
 end
 
-on Refresh me, tTopic, tdata 
-  if (tTopic = #users) then
-    return TRUE
-  else
-    if (tTopic = #gameplayerinfo) then
-      return(me.storeSkillLevels(tdata))
-    end if
+on Refresh me, tTopic, tdata
+  case tTopic of
+    #users:
+      return 1
+    #gameplayerinfo:
+      return me.storeSkillLevels(tdata)
+  end case
+end
+
+on storeCreatedAvatarInfo me, tName, tStrId
+  if (pSkillLevelList.findPos(tStrId) <> 0) then
+    return me.showSkillLevel(pSkillLevelList[tStrId])
   end if
+  return 1
 end
 
-on storeCreatedAvatarInfo me, tName, tStrId 
-  if pSkillLevelList.findPos(tStrId) <> 0 then
-    return(me.showSkillLevel(pSkillLevelList.getAt(tStrId)))
-  end if
-  return TRUE
-end
-
-on storeSkillLevels me, tdata 
-  repeat while tdata <= 1
-    tuser = getAt(1, count(tdata))
+on storeSkillLevels me, tdata
+  repeat with tuser in tdata
     if not me.showSkillLevel(tuser) then
-      pSkillLevelList.addProp(string(tuser.getAt(#id)), tuser)
+      pSkillLevelList.addProp(string(tuser[#id]), tuser)
     end if
   end repeat
-  return TRUE
+  return 1
 end
 
-on showSkillLevel me, tdata 
-  tStrId = string(tdata.getAt(#id))
-  tSkillValue = tdata.getAt(#skillvalue)
-  tSkillLevel = tdata.getAt(#skilllevel)
+on showSkillLevel me, tdata
+  tStrId = string(tdata[#id])
+  tSkillValue = tdata[#skillvalue]
+  tSkillLevel = tdata[#skilllevel]
   tRoomComponent = getObject(#room_component)
   if (tRoomComponent = 0) then
-    return FALSE
+    return 0
   end if
   tUserObj = tRoomComponent.getUserObject(tStrId)
   if (tUserObj = 0) then
-    return FALSE
+    return 0
   end if
-  tSkillStr = replaceChunks(getText("sw_user_skill"), "\\x", tSkillLevel)
-  tSkillStr = replaceChunks(tSkillStr, "\\y", tSkillValue)
-  tSkillStr = replaceChunks(tSkillStr, "\\r", "\r")
+  tSkillStr = replaceChunks(getText("sw_user_skill"), "\x", tSkillLevel)
+  tSkillStr = replaceChunks(tSkillStr, "\y", tSkillValue)
+  tSkillStr = replaceChunks(tSkillStr, "\r", RETURN)
   tUserObj.pCustom = tSkillStr
-  tUserObj.setProp(#pInfoStruct, #custom, tSkillStr)
-  return TRUE
+  tUserObj.pInfoStruct[#custom] = tSkillStr
+  return 1
 end
 
-on showScoresChooser me, tKeyword 
-  if tKeyword <> ":roomscore" then
-    return FALSE
+on showScoresChooser me, tKeyword
+  if (tKeyword <> ":roomscore") then
+    return 0
   end if
-  tString = ""
+  tString = EMPTY
   tRoomComponent = getObject(#room_component)
   if (tRoomComponent = 0) then
-    return FALSE
+    return 0
   end if
-  repeat while pSkillLevelList <= 1
-    tItem = getAt(1, count(pSkillLevelList))
-    tUserObj = tRoomComponent.getUserObject(string(tItem.getAt(#id)))
-    if tUserObj <> 0 then
-      tString = tUserObj.getName() && ":" && tItem.getAt(#skillvalue) && " - " && tItem.getAt(#skilllevel) & "\r"
+  repeat with tItem in pSkillLevelList
+    tUserObj = tRoomComponent.getUserObject(string(tItem[#id]))
+    if (tUserObj <> 0) then
+      tString = (((((tUserObj.getName() && ":") && tItem[#skillvalue]) && " - ") && tItem[#skilllevel]) & RETURN)
     end if
   end repeat
   executeMessage(#alert, tString)
-  return TRUE
+  return 1
 end

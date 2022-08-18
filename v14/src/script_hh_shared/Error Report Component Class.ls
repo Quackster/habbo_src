@@ -1,38 +1,36 @@
 property pErrorLists
 
-on construct me 
+on construct me
   pErrorLists = []
   registerMessage(#showErrorMessage, me.getID(), #showErrorMessage)
-  return TRUE
+  return 1
 end
 
-on deconstruct me 
+on deconstruct me
   unregisterMessage(#showErrorMessage, me.getID())
   pErrorLists = []
-  return TRUE
+  return 1
 end
 
-on showErrorMessage me, tErrorID, tErrorMessage 
+on showErrorMessage me, tErrorID, tErrorMessage
   tErrorList = [:]
-  tErrorList.setAt(#errorId, tErrorID)
-  tErrorList.setAt(#errorMsg, tErrorMessage)
+  tErrorList[#errorId] = tErrorID
+  tErrorList[#errorMsg] = tErrorMessage
   me.storeErrorReport(tErrorList)
   me.getInterface().showErrors()
 end
 
-on storeErrorReport me, tErrorList 
+on storeErrorReport me, tErrorList
   pErrorLists.add(tErrorList)
 end
 
-on getErrorLists me 
-  return(pErrorLists)
+on getErrorLists me
+  return pErrorLists
 end
 
-on clearErrorLists me, tIndex 
+on clearErrorLists me, tIndex
   tIndex = min(tIndex, pErrorLists.count)
-  i = 1
-  repeat while i <= tIndex
+  repeat with i = 1 to tIndex
     pErrorLists.deleteAt(1)
-    i = (1 + i)
   end repeat
 end

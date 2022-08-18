@@ -1,90 +1,88 @@
-property pSongPlayer, pSampleList
+property pSampleList, pSongPlayer
 
-on construct me 
+on construct me
   pSampleList = [:]
   pSongPlayer = "song player"
   createObject(pSongPlayer, "Song Player Class")
-  return()
+  return 
 end
 
-on deconstruct me 
+on deconstruct me
   if objectExists(pSongPlayer) then
     removeObject(pSongPlayer)
   end if
-  return()
+  return 
 end
 
-on preloadSounds me, tSampleList 
-  i = 1
-  repeat while i <= tSampleList.count
-    tItem = tSampleList.getAt(i)
+on preloadSounds me, tSampleList
+  repeat with i = 1 to tSampleList.count
+    tItem = tSampleList[i]
     if (ilk(tItem) = #propList) then
-      me.startSampleDownload(tItem.getAt(#sound), tItem.getAt(#parent))
-    else
-      if (ilk(tItem) = #string) then
-        me.startSampleDownload(tItem)
-      end if
+      me.startSampleDownload(tItem[#sound], tItem[#parent])
+      next repeat
     end if
-    i = (1 + i)
+    if (ilk(tItem) = #string) then
+      me.startSampleDownload(tItem)
+    end if
   end repeat
 end
 
-on getSampleLoadingStatus me, tMemName 
+on getSampleLoadingStatus me, tMemName
   if memberExists(tMemName) then
-    return TRUE
+    return 1
   end if
-  return FALSE
+  return 0
 end
 
-on getSampleLength me, tMemName 
-  if (getMember(tMemName) = void()) then
-    return FALSE
+on getSampleLength me, tMemName
+  if (getMember(tMemName) = VOID) then
+    return 0
   end if
-  if getMember(tMemName).type <> #sound then
-    return FALSE
+  if (getMember(tMemName).type <> #sound) then
+    return 0
   end if
   tLength = getMember(tMemName).duration
-  return(tLength)
+  return tLength
 end
 
-on startSamplePreview me, tMemberName 
-  return(getObject(pSongPlayer).startSamplePreview([#name:tMemberName]))
+on startSamplePreview me, tMemberName
+  return getObject(pSongPlayer).startSamplePreview([#name: tMemberName])
 end
 
-on stopSamplePreview me 
-  return(getObject(pSongPlayer).stopSamplePreview())
+on stopSamplePreview me
+  return getObject(pSongPlayer).stopSamplePreview()
 end
 
-on playSong me, tSongData 
-  return(getObject(pSongPlayer).startSong(tSongData))
+on playSong me, tSongData
+  return getObject(pSongPlayer).startSong(tSongData)
 end
 
-on stopSong me 
-  return(getObject(pSongPlayer).stopSong())
+on stopSong me
+  return getObject(pSongPlayer).stopSong()
 end
 
-on startSampleDownload me, tMemberName, tParentId 
+on startSampleDownload me, tMemberName, tParentId
   if memberExists(tMemberName) then
-    if (pSampleList.getaProp(tMemberName) = void()) then
-      tSample = [#status:"ready"]
+    if (pSampleList.getaProp(tMemberName) = VOID) then
+      tSample = [#status: "ready"]
       pSampleList.addProp(tMemberName, tSample)
     else
     end if
   else
-    if (pSampleList.getaProp(tMemberName) = void()) then
+    if (pSampleList.getaProp(tMemberName) = VOID) then
       if threadExists(#dynamicdownloader) then
-        getThread(#dynamicdownloader).getComponent().downloadCastDynamically(tMemberName, #sound, me.getID(), #soundDownloadCompleted, void(), void(), tParentId)
-        tSample = [#status:"loading"]
+        getThread(#dynamicdownloader).getComponent().downloadCastDynamically(tMemberName, #sound, me.getID(), #soundDownloadCompleted, VOID, VOID, tParentId)
+        tSample = [#status: "loading"]
         pSampleList.addProp(tMemberName, tSample)
       else
-        return(error(me, "Dynamic downloader does not exist, cannot download sound.", #startSampleDownload, #major))
+        return error(me, "Dynamic downloader does not exist, cannot download sound.", #startSampleDownload, #major)
       end if
     end if
   end if
-  return TRUE
+  return 1
 end
 
-on soundDownloadCompleted me, tName, tParam2 
+on soundDownloadCompleted me, tName, tParam2
   tSample = pSampleList.getaProp(tName)
   if not voidp(tSample) then
     tSample.status = "ready"

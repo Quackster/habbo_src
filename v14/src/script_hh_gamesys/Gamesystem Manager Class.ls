@@ -1,77 +1,75 @@
-property pSystemThread, pSystemId, pModules
+property pSystemId, pSystemThread, pModules
 
-on construct me 
+on construct me
   pSystemId = "gamesystem"
   pModules = ["baselogic", "messagesender", "messagehandler", "procmanager", "turnmanager", "world", "component"]
   dumpVariableField("gamesystem.variable.index")
   registerMessage(#gamesystem_getfacade, me.getID(), #getFacade)
   registerMessage(#gamesystem_removefacade, me.getID(), #removeFacade)
-  return TRUE
+  return 1
 end
 
-on deconstruct me 
+on deconstruct me
   unregisterMessage(#gamesystem_getfacade, me.getID())
   unregisterMessage(#gamesystem_removefacade, me.getID())
   me.removeGamesystem()
-  return TRUE
+  return 1
 end
 
-on getFacade me, tID 
+on getFacade me, tid
   if not objectp(pSystemThread) then
-    me.createGamesystem(tID)
+    me.createGamesystem(tid)
   end if
-  if (getObject(tID) = 0) then
-    createObject(tID, getClassVariable("gamesystem.facade.class"))
-    if (getObject(tID) = 0) then
-      return FALSE
+  if (getObject(tid) = 0) then
+    createObject(tid, getClassVariable("gamesystem.facade.class"))
+    if (getObject(tid) = 0) then
+      return 0
     end if
-    getObject(tID).defineClient(pSystemThread)
+    getObject(tid).defineClient(pSystemThread)
   end if
-  return(getObject(tID))
+  return getObject(tid)
 end
 
-on removeFacade me, tID 
-  if (getObject(tID) = 0) then
-    return FALSE
+on removeFacade me, tid
+  if (getObject(tid) = 0) then
+    return 0
   else
-    if (removeObject(tID) = 0) then
-      return FALSE
+    if (removeObject(tid) = 0) then
+      return 0
     end if
   end if
   me.removeGamesystem()
-  return TRUE
+  return 1
 end
 
-on createGamesystem me, tSystemId 
-  pSystemThread = createObject(#temp, getClassVariable(pSystemId & ".subsystem.superclass"))
+on createGamesystem me, tSystemId
+  pSystemThread = createObject(#temp, getClassVariable((pSystemId & ".subsystem.superclass")))
   pSystemThread.setaProp(#systemid, tSystemId)
-  repeat while pModules <= 1
-    tModule = getAt(1, count(pModules))
-    tObjID = symbol(pSystemId & "_" & tModule)
-    tClassVarName = pSystemId & "." & tModule & ".class"
+  repeat with tModule in pModules
+    tObjID = symbol(((pSystemId & "_") & tModule))
+    tClassVarName = (((pSystemId & ".") & tModule) & ".class")
     tClass = getClassVariable(tClassVarName)
     if not getmemnum(tClass) then
-      return(error(me, "Game system class not found!:" && tClassVarName, #createGamesystem))
+      return error(me, ("Game system class not found!:" && tClassVarName), #createGamesystem)
     end if
     createObject(tObjID, tClass)
     tObj = getObject(tObjID)
-    tObj.setAt(#ancestor, pSystemThread)
+    tObj[#ancestor] = pSystemThread
     pSystemThread.setaProp(symbol(tModule), tObj)
   end repeat
-  tModuleObj = createObject(symbol(pSystemId & "_variablemanager"), getClassVariable("variable.manager.class"))
+  tModuleObj = createObject(symbol((pSystemId & "_variablemanager")), getClassVariable("variable.manager.class"))
   pSystemThread.setaProp(#variablemanager, tModuleObj)
   executeMessage(#gamesystem_constructed)
-  return TRUE
+  return 1
 end
 
-on removeGamesystem me 
-  repeat while pModules <= 1
-    tModule = getAt(1, count(pModules))
-    tObjID = symbol(pSystemId & "_" & tModule)
+on removeGamesystem me
+  repeat with tModule in pModules
+    tObjID = symbol(((pSystemId & "_") & tModule))
     removeObject(tObjID)
   end repeat
-  removeObject(symbol(pSystemId & "_variablemanager"))
-  pSystemThread = void()
+  removeObject(symbol((pSystemId & "_variablemanager")))
+  pSystemThread = VOID
   executeMessage(#gamesystem_deconstructed)
-  return TRUE
+  return 1
 end

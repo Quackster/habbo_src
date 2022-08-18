@@ -1,51 +1,51 @@
-on constructThreadManager  
-  return(createManager(#thread_manager, getClassVariable("thread.manager.class")))
+on constructThreadManager
+  return createManager(#thread_manager, getClassVariable("thread.manager.class"))
 end
 
-on deconstructThreadManager  
-  return(removeManager(#thread_manager))
+on deconstructThreadManager
+  return removeManager(#thread_manager)
 end
 
-on getThreadManager  
+on getThreadManager
   tMgr = getObjectManager()
   if not tMgr.managerExists(#thread_manager) then
-    return(constructThreadManager())
+    return constructThreadManager()
   end if
-  return(tMgr.getManager(#thread_manager))
+  return tMgr.getManager(#thread_manager)
 end
 
-on createThread tID, tInitField 
-  return(getThreadManager().create(tID, tInitField))
+on createThread tid, tInitField
+  return getThreadManager().create(tid, tInitField)
 end
 
-on removeThread tID 
-  return(getThreadManager().Remove(tID))
+on removeThread tid
+  return getThreadManager().Remove(tid)
 end
 
-on getThread tID 
-  return(getThreadManager().GET(tID))
+on getThread tid
+  return getThreadManager().GET(tid)
 end
 
-on threadExists tID 
-  return(getThreadManager().exists(tID))
+on threadExists tid
+  return getThreadManager().exists(tid)
 end
 
-on initThread tCastNumOrMemName 
-  return(getThreadManager().initThread(tCastNumOrMemName))
+on initThread tCastNumOrMemName
+  return getThreadManager().initThread(tCastNumOrMemName)
 end
 
-on initExistingThreads  
-  return(getThreadManager().initAll())
+on initExistingThreads
+  return getThreadManager().initAll()
 end
 
-on closeThread tCastNumOrID 
-  return(getThreadManager().closeThread(tCastNumOrID))
+on closeThread tCastNumOrID
+  return getThreadManager().closeThread(tCastNumOrID)
 end
 
-on closeExistingThreads  
-  return(getThreadManager().closeAll())
+on closeExistingThreads
+  return getThreadManager().closeAll()
 end
 
-on printThreads  
-  return(getThreadManager().print())
+on printThreads
+  return getThreadManager().print()
 end

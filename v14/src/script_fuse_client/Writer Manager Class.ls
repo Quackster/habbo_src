@@ -1,54 +1,55 @@
-property pItemList, pWriterClass, pPlainStruct
+property pWriterClass, pPlainStruct, pItemList
 
-on construct me 
+on construct me
   pWriterClass = getClassVariable("writer.instance.class")
   pPlainStruct = getStructVariable("struct.font.plain")
   pItemList = [:]
-  return TRUE
+  return 1
 end
 
-on deconstruct me 
+on deconstruct me
   call(#deconstruct, pItemList)
   pItemList = [:]
-  return TRUE
+  return 1
 end
 
-on create me, tID, tMetrics 
-  if not voidp(pItemList.getAt(tID)) then
-    return(error(me, "Writer already exists:" && tID, #create, #major))
+on create me, tid, tMetrics
+  if not voidp(pItemList[tid]) then
+    return error(me, ("Writer already exists:" && tid), #create, #major)
   end if
   tObj = getObjectManager().create(#temp, pWriterClass)
   if not tObj then
-    return FALSE
+    return 0
   end if
-  if (tMetrics.ilk = #struct) then
-    tObj.setFont(tMetrics)
-  else
-    tObj.setFont(pPlainStruct)
-    tObj.define(tMetrics)
-  end if
-  pItemList.setAt(tID, tObj)
-  tObj.setID(tID)
-  return TRUE
+  case tMetrics.ilk of
+    #struct:
+      tObj.setFont(tMetrics)
+    otherwise:
+      tObj.setFont(pPlainStruct)
+      tObj.define(tMetrics)
+  end case
+  pItemList[tid] = tObj
+  tObj.setID(tid)
+  return 1
 end
 
-on Remove me, tID 
-  tObj = pItemList.getAt(tID)
+on Remove me, tid
+  tObj = pItemList[tid]
   if voidp(tObj) then
-    return(error(me, "Writer not found:" && tID, #Remove, #minor))
+    return error(me, ("Writer not found:" && tid), #Remove, #minor)
   end if
   tObj.deconstruct()
-  return(pItemList.deleteProp(tID))
+  return pItemList.deleteProp(tid)
 end
 
-on GET me, tID 
-  tObj = pItemList.getAt(tID)
+on GET me, tid
+  tObj = pItemList[tid]
   if voidp(tObj) then
-    return FALSE
+    return 0
   end if
-  return(tObj)
+  return tObj
 end
 
-on exists me, tID 
-  return(not voidp(pItemList.getAt(tID)))
+on exists me, tid
+  return not voidp(pItemList[tid])
 end

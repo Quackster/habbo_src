@@ -1,6 +1,6 @@
-property pDelayLength, pTimeOutID, pWindowID
+property pTimeOutID, pWindowID, pDelayLength
 
-on construct me 
+on construct me
   pTimeOutID = "connection_problem_timeout"
   pWindowID = "connection_problem_window"
   if variableExists("failed.connection.delay") then
@@ -10,13 +10,13 @@ on construct me
   end if
   registerMessage(#userlogin, me.getID(), #Remove)
   if (pDelayLength = 0) then
-    return(removeObject(me.getID()))
+    return removeObject(me.getID())
   else
-    return(createTimeout(pTimeOutID, pDelayLength, #showDialog, me.getID(), void(), 1))
+    return createTimeout(pTimeOutID, pDelayLength, #showDialog, me.getID(), VOID, 1)
   end if
 end
 
-on deconstruct me 
+on deconstruct me
   if timeoutExists(pTimeOutID) then
     removeTimeout(pTimeOutID)
   end if
@@ -24,14 +24,14 @@ on deconstruct me
     removeWindow(pWindowID)
   end if
   unregisterMessage(#userlogin, me.getID())
-  return TRUE
+  return 1
 end
 
-on Remove me 
-  return(removeObject(me.getID()))
+on Remove me
+  return removeObject(me.getID())
 end
 
-on showDialog me 
+on showDialog me
   if createWindow(pWindowID) then
     tWndObj = getWindow(pWindowID)
     tWndObj.setProperty(#title, getText("log_problem_title"))
@@ -47,16 +47,13 @@ on showDialog me
   end if
 end
 
-on eventProc me, tEvent, tElemID 
+on eventProc me, tEvent, tElemID
   if (tEvent = #mouseUp) then
-    if tElemID <> "close" then
-      if (tElemID = "alert_ok") then
-        return(removeObject(me.getID()))
-      else
-        if (tElemID = "alert_link") then
-          return(openNetPage(getText("log_problem_url")))
-        end if
-      end if
-    end if
+    case tElemID of
+      "close", "alert_ok":
+        return removeObject(me.getID())
+      "alert_link":
+        return openNetPage(getText("log_problem_url"))
+    end case
   end if
 end

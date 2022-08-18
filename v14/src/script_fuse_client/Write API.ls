@@ -1,35 +1,35 @@
-on constructWriterManager  
-  return(createManager(#writer_manager, getClassVariable("writer.manager.class")))
+on constructWriterManager
+  return createManager(#writer_manager, getClassVariable("writer.manager.class"))
 end
 
-on deconstructWriterManager  
-  return(removeManager(#writer_manager))
+on deconstructWriterManager
+  return removeManager(#writer_manager)
 end
 
-on getWriterManager  
+on getWriterManager
   tMgr = getObjectManager()
   if not tMgr.managerExists(#writer_manager) then
-    return(constructWriterManager())
+    return constructWriterManager()
   end if
-  return(tMgr.getManager(#writer_manager))
+  return tMgr.getManager(#writer_manager)
 end
 
-on createWriter tID, tMetrics 
-  return(getWriterManager().create(tID, tMetrics))
+on createWriter tid, tMetrics
+  return getWriterManager().create(tid, tMetrics)
 end
 
-on removeWriter tID 
-  return(getWriterManager().Remove(tID))
+on removeWriter tid
+  return getWriterManager().Remove(tid)
 end
 
-on getWriter tID, tDefault 
-  return(getWriterManager().GET(tID, tDefault))
+on getWriter tid, tDefault
+  return getWriterManager().GET(tid, tDefault)
 end
 
-on writerExists tID 
-  return(getWriterManager().exists(tID))
+on writerExists tid
+  return getWriterManager().exists(tid)
 end
 
-on printWriters  
-  return(getWriterManager().print())
+on printWriters
+  return getWriterManager().print()
 end
