@@ -1,3 +1,1 @@
-on mouseDown me 
-  close(gPoker)
-end
+global gPokeron mouseDown me  close(gPoker)end

@@ -1,631 +1,1 @@
-property pFigureDataMember, pValidPartsList, pValidSetIDList, pSelectablePartsList, pSelectableSetIDList
-
-on construct me 
-  pValidPartsList = [:]
-  pValidSetIDList = [:]
-  pSelectablePartsList = [:]
-  pSelectableSetIDList = [:]
-  me.startFigureConverter(me.getID())
-  return TRUE
-end
-
-on startFigureConverter me, tid 
-  if tid <> #pellehyppy_component then
-    if (tid = #mountain_interface) then
-      pFigureDataMember = "swimfigure_ids_"
-      me.createValidPartList()
-    end if
-  end if
-end
-
-on createValidPartList me 
-  pValidPartsList = [:]
-  pValidSetIDList = [:]
-  pSelectablePartsList = [:]
-  pSelectableSetIDList = [:]
-  tTempItemdelimiter = the itemDelimiter
-  repeat while ["Male", "Female"] <= undefined
-    tsex = getAt(undefined, undefined)
-    if not memberExists(pFigureDataMember & tsex) then
-      error(me, "Can't create list of valid figure parts, member not found:" && pFigureDataMember & tsex, #createValidPartList)
-    else
-      tFigureIds = member(getmemnum(pFigureDataMember & tsex)).text
-      tsex = tsex.getProp(#char, 1)
-      if voidp(pValidPartsList.getAt(tsex)) then
-        pValidPartsList.setAt(tsex, [:])
-      end if
-      ttempProp = void()
-      tPartId = void()
-      tMainPart = void()
-      tMultiPartProps = void()
-      ttempColor = []
-      f = 1
-      repeat while f <= tFigureIds.count(#line)
-        tLine = tFigureIds.getProp(#line, f)
-        if tLine.getProp(#char, 1) <> "*" and tLine.count(#char) > 7 then
-          the itemDelimiter = ":"
-          if not voidp(ttempProp) then
-            ttempColor.add(tLine.getProp(#item, 2))
-          end if
-        else
-          if (tLine.getProp(#char, 1) = "*") or (f = tFigureIds.count(#line)) then
-            if not voidp(tMainPart) then
-              if voidp(pValidPartsList.getAt(tsex).getAt(tMainPart)) then
-                pValidPartsList.getAt(tsex).setAt(tMainPart, [])
-              end if
-            end if
-            if not voidp(ttempProp) and ttempColor <> [:] then
-              pValidPartsList.getAt(tsex).getAt(tMainPart).add(["s":value(tPartId), "p":tMultiPartProps, "c":ttempColor])
-              if voidp(pValidSetIDList.getAt(tsex)) then
-                pValidSetIDList.setAt(tsex, [:])
-              end if
-              if voidp(pValidSetIDList.getAt(tsex).getAt(tPartId)) then
-                pValidSetIDList.getAt(tsex).addProp(value(tPartId), [#part:tMainPart, #location:pValidPartsList.getAt(tsex).getAt(tMainPart).count])
-              end if
-            end if
-            ttempColor = []
-            tMultiPartProps = [:]
-            the itemDelimiter = "/"
-            tPartId = tLine.getPropRef(#item, 2).getProp(#char, 8, tLine.getPropRef(#item, 2).count(#char))
-            ttempProp = tLine.getProp(#item, 3)
-            the itemDelimiter = "="
-            tMainPart = ttempProp.getProp(#item, 1)
-            tMainPartModel = ttempProp.getProp(#item, 2)
-            the itemDelimiter = "/"
-            tMultiPartProps.addProp(tMainPart, tMainPartModel)
-            if tLine.count(#item) > 3 then
-              tMultiParts = 4
-              repeat while tMultiParts <= tLine.count(#item)
-                tPartItem = tLine.getProp(#item, tMultiParts)
-                ttempProp = ttempProp & "/" & tPartItem
-                the itemDelimiter = "="
-                tMultiPartProps.addProp(tPartItem.getProp(#item, 1), tPartItem.getProp(#item, 2))
-                the itemDelimiter = "/"
-                tMultiParts = (1 + tMultiParts)
-              end repeat
-            end if
-          end if
-        end if
-        f = (1 + f)
-      end repeat
-    end if
-  end repeat
-  the itemDelimiter = tTempItemdelimiter
-  pSelectablePartsList = pValidPartsList
-  pSelectableSetIDList = pValidSetIDList
-end
-
-on initializeValidPartLists me, tPlist 
-  if not (tPlist.ilk = #propList) then
-    error(me, "Can't initialize valid part list", #initializeValidPartLists)
-    if memberExists("DefaultPartList") then
-      tPlist = value(member(getmemnum("DefaultPartList")).text)
-    else
-      return(error(me, "not found default part list"))
-    end if
-  end if
-  pValidPartsList = tPlist
-  pValidSetIDList = [:]
-  repeat while ["M", "F"] <= undefined
-    tsex = getAt(undefined, tPlist)
-    pValidSetIDList.setAt(tsex, [:])
-    tPartSet = 1
-    repeat while tPartSet <= pValidPartsList.getAt(tsex).count
-      tProp = pValidPartsList.getAt(tsex).getPropAt(tPartSet)
-      tDesc = pValidPartsList.getAt(tsex).getAt(tProp)
-      tP = 1
-      repeat while tP <= tDesc.count
-        tSetID = tDesc.getAt(tP).getAt("s")
-        pValidSetIDList.getAt(tsex).addProp(tSetID, [#part:tProp, #location:tP])
-        tP = (1 + tP)
-      end repeat
-      tPartSet = (1 + tPartSet)
-    end repeat
-  end repeat
-end
-
-on initializeSelectablePartList me, tSetIDList 
-  if not (tSetIDList.ilk = #list) then
-    return(error(me, "Can't initialize selectable partlist", #initializeSelectablePartList))
-  end if
-  tTempSetIDList = [:]
-  tTempSetIDList.setAt("M", [])
-  tTempSetIDList.setAt("F", [])
-  repeat while tSetIDList <= undefined
-    tSetID = getAt(undefined, tSetIDList)
-    if not voidp(pValidSetIDList.getAt("M").findPos(tSetID)) then
-      tTempSetIDList.getAt("M").add(tSetID)
-    else
-      tTempSetIDList.getAt("F").add(tSetID)
-    end if
-  end repeat
-  pSelectablePartsList = [:]
-  pSelectableSetIDList = [:]
-  repeat while tSetIDList <= undefined
-    tsex = getAt(undefined, tSetIDList)
-    pSelectablePartsList.setAt(tsex, [:])
-    pSelectableSetIDList.setAt(tsex, [:])
-    tSelectableIDs = tTempSetIDList.getAt(tsex)
-    repeat while tSetIDList <= undefined
-      tSetID = getAt(undefined, tSetIDList)
-      if not voidp(pValidSetIDList.getAt(tsex).findPos(tSetID)) then
-        tPart = pValidSetIDList.getAt(tsex).getProp(tSetID).getAt(#part)
-        tlocation = pValidSetIDList.getAt(tsex).getProp(tSetID).getAt(#location)
-        tPropList = pValidPartsList.getAt(tsex).getAt(tPart).getAt(tlocation)
-        if voidp(pSelectablePartsList.getAt(tsex).getAt(tPart)) then
-          pSelectablePartsList.getAt(tsex).setAt(tPart, [])
-        end if
-        pSelectablePartsList.getAt(tsex).getAt(tPart).add(tPropList)
-        pSelectableSetIDList.getAt(tsex).addProp(tSetID, [#part:tPart, #location:pSelectablePartsList.getAt(tsex).getAt(tPart).count])
-      end if
-    end repeat
-  end repeat
-end
-
-on GenerateFigureDataToServerMode me, tFigure, tsex 
-  tFigure = me.checkAndFixFigure(tFigure, tsex)
-  tFigureToServer = ""
-  repeat while ["hr", "hd", "lg", "sh", "ch"] <= tsex
-    tPart = getAt(tsex, tFigure)
-    if not voidp(tFigure.getAt(tPart)) then
-      if not voidp(tFigure.getAt(tPart).getAt("setid")) and not voidp(tFigure.getAt(tPart).getAt("colorid")) then
-        tSetID = tFigure.getAt(tPart).getAt("setid")
-        tColorId = tFigure.getAt(tPart).getAt("colorid")
-        if not stringp(tSetID) then
-          tSetID = string(tSetID)
-        end if
-        if not stringp(tColorId) then
-          tColorId = string(tColorId)
-        end if
-        if (tSetID.count(#char) = 1) then
-          tSetID = "00" & tSetID
-        else
-          if (tSetID.count(#char) = 2) then
-            tSetID = "0" & tSetID
-          end if
-        end if
-        if (tColorId.count(#char) = 1) then
-          tColorId = "0" & tColorId
-        end if
-        tFigureToServer = tFigureToServer & tSetID & tColorId
-      end if
-    end if
-  end repeat
-  return(["figuretoServer":tFigureToServer, "parsedfigure":tFigure])
-end
-
-on checkAndFixFigure me, tFigure, tsex 
-  if tFigure.ilk <> #propList then
-    tFigure = [:]
-  end if
-  repeat while ["hr", "hd", "ey", "fc", "bd", "lh", "rh", "ch", "ls", "rs", "lg", "sh"] <= tsex
-    tPart = getAt(tsex, tFigure)
-    if ["hr", "hd", "ey", "fc", "bd", "lh", "rh", "ch", "ls", "rs", "lg", "sh"] <> "ls" then
-      if ["hr", "hd", "ey", "fc", "bd", "lh", "rh", "ch", "ls", "rs", "lg", "sh"] <> "ch" then
-        if (["hr", "hd", "ey", "fc", "bd", "lh", "rh", "ch", "ls", "rs", "lg", "sh"] = "rs") then
-          tMainPart = "ch"
-        else
-          if ["hr", "hd", "ey", "fc", "bd", "lh", "rh", "ch", "ls", "rs", "lg", "sh"] <> "hd" then
-            if ["hr", "hd", "ey", "fc", "bd", "lh", "rh", "ch", "ls", "rs", "lg", "sh"] <> "ey" then
-              if ["hr", "hd", "ey", "fc", "bd", "lh", "rh", "ch", "ls", "rs", "lg", "sh"] <> "fc" then
-                if ["hr", "hd", "ey", "fc", "bd", "lh", "rh", "ch", "ls", "rs", "lg", "sh"] <> "bd" then
-                  if ["hr", "hd", "ey", "fc", "bd", "lh", "rh", "ch", "ls", "rs", "lg", "sh"] <> "lh" then
-                    if (["hr", "hd", "ey", "fc", "bd", "lh", "rh", "ch", "ls", "rs", "lg", "sh"] = "rh") then
-                      tMainPart = "hd"
-                    else
-                      tMainPart = tPart
-                    end if
-                    tChageParts = pValidPartsList.getAt(tsex).getAt(tMainPart).getAt(1).getAt("p")
-                    tmodel = pValidPartsList.getAt(tsex).getAt(tMainPart).getAt(1).getAt("p").getAt(tPart)
-                    tColorList = pValidPartsList.getAt(tsex).getAt(tMainPart).getAt(1).getAt("c").getAt(1)
-                    tSetID = pValidPartsList.getAt(tsex).getAt(tMainPart).getAt(1).getAt("s")
-                    if not listp(tColorList) then
-                      tColorList = list(tColorList)
-                    end if
-                    if not voidp(tChageParts.findPos(tPart)) then
-                      tColorId = tChageParts.findPos(tPart)
-                    else
-                      tColorId = 1
-                    end if
-                    if tColorList.count >= tColorId then
-                      tColor = rgb(tColorList.getAt(tColorId))
-                    else
-                      tColor = rgb(tColorList.getAt(1))
-                    end if
-                    if (tmodel.count(#char) = 1) then
-                      tmodel = "00" & tmodel
-                    else
-                      if (tmodel.count(#char) = 2) then
-                        tmodel = "0" & tmodel
-                      end if
-                    end if
-                    if voidp(tFigure.getAt(tPart)) then
-                      tFigure.setAt(tPart, ["model":tmodel, "color":tColor, "setid":tSetID, "colorid":1])
-                    else
-                      if tFigure.getAt(tPart).ilk <> #propList then
-                        tFigure.setAt(tPart, [:])
-                      end if
-                      if voidp(tFigure.getAt(tPart).getAt("model")) or voidp(tFigure.getAt(tPart).getAt("color")) or voidp(tFigure.getAt(tPart).getAt("setid")) or voidp(tFigure.getAt(tPart).getAt("colorid")) then
-                        tFigure.setAt(tPart, ["model":tmodel, "color":tColor, "setid":tSetID, "colorid":1])
-                      end if
-                    end if
-                    return(tFigure)
-                  end if
-                end if
-              end if
-            end if
-          end if
-        end if
-      end if
-    end if
-  end repeat
-end
-
-on generateFigureDataToOldServerMode me, tFigure, tsex, tCheckValidParts 
-  if voidp(tsex) then
-    tsex = "M"
-  end if
-  if tsex contains "f" or tsex contains "F" then
-    tsex = "F"
-  else
-    tsex = "M"
-  end if
-  if voidp(tCheckValidParts) then
-    tCheckValidParts = 0
-  end if
-  if tCheckValidParts then
-    tNewFigure = me.GenerateFigureDataToServerMode(tFigure, tsex)
-    tFigureData = me.ConvertServerModeFigureData(tNewFigure.getAt("parsedfigure"), tsex)
-  else
-    tFigureData = tFigure
-  end if
-  tTemp = the itemDelimiter
-  the itemDelimiter = ","
-  tNewFigure = "sd=001/0"
-  if listp(tFigureData) then
-    f = 1
-    repeat while f <= tFigureData.count
-      tPart = tFigureData.getPropAt(f)
-      tmodel = tFigureData.getAt(tPart).getAt("model")
-      tColor = tFigureData.getAt(tPart).getAt("color")
-      if tPart <> "sd" then
-        if (tmodel.count(#char) = 1) then
-          tmodel = "00" & tmodel
-        else
-          if (tmodel.count(#char) = 2) then
-            tmodel = "0" & tmodel
-          end if
-        end if
-        if (tColor = rgb("#EEEEEE")) then
-          tColor = rgb(255, 255, 255)
-        end if
-        tColor = string(tColor)
-        if tColor.count(#item) < 3 then
-          put("VIKAA SILMISSï¿½")
-        else
-          tR = value(tColor.getPropRef(#item, 1).getProp(#char, 5, length(tColor.getProp(#item, 1))))
-          tG = value(tColor.getProp(#item, 2))
-          tB = value(tColor.getPropRef(#item, 3).getProp(#char, 1, (length(tColor.getProp(#item, 3)) - 1)))
-          tColor = string(tR) & "," & string(tG) & "," & string(tB)
-        end if
-        if (tPart = "ey") then
-          tColor = "0"
-        end if
-        tNewFigure = tNewFigure & "&" & tPart & "=" & tmodel & "/" & tColor
-      end if
-      f = (1 + f)
-    end repeat
-    exit repeat
-  end if
-  error(me, "Weirdness in figure data!!!", #generateFigureDataToOldServerMode)
-  tNewFigure = tFigureData
-  the itemDelimiter = tTemp
-  return(["figuretoServer":tNewFigure])
-end
-
-on validateFigure me, tFigure, tsex 
-  if (tsex.getProp(#char, 1) = "F") or (tsex.getProp(#char, 1) = "f") then
-    tsex = "F"
-  else
-    tsex = "M"
-  end if
-  if voidp(pSelectablePartsList.getAt(tsex)) then
-    return(tFigure)
-  end if
-  if tFigure.ilk <> #propList then
-    tFigure = [:]
-  end if
-  tTempFigure = [:]
-  f = 1
-  repeat while f <= tFigure.count
-    if not voidp(tFigure.getAt(f).getAt("setid")) then
-      if voidp(tFigure.getAt(f).getAt("setid")) then
-        tColor = 1
-      else
-        tColor = tFigure.getAt(f).getAt("colorid")
-      end if
-      tPart = tFigure.getPropAt(1)
-      tSetID = tFigure.getAt(f).getAt("setid")
-      if not voidp(pSelectableSetIDList.getAt(tsex).getaProp(integer(tSetID))) then
-        tTempFigure.setAt(string(tSetID), tColor)
-      end if
-    end if
-    f = (1 + f)
-  end repeat
-  tFigure = me.parseNewTypeFigure(tTempFigure, tsex)
-  return(tFigure)
-end
-
-on parseFigure me, tFigureData, tsex, tClass, tCommand 
-  if voidp(tCommand) then
-    tCommand = ""
-  end if
-  if tClass <> "bot" then
-    tTempFigure = [:]
-    if (tFigureData.count(#char) = 25) and integerp(integer(tFigureData)) then
-      tFigureData = tFigureData.getProp(#char, 1, tFigureData.count(#char))
-      tPartCount = (tFigureData.count(#char) / 5)
-      i = 0
-      repeat while i <= (tPartCount - 1)
-        tPart = tFigureData.getProp(#char, ((i * 5) + 1), ((i * 5) + 5))
-        tSetID = tPart.getProp(#char, 1, 3)
-        tColorId = tPart.getProp(#char, 4, 5)
-        tTempFigure.setAt(tSetID, value(tColorId))
-        i = (1 + i)
-      end repeat
-    end if
-    tFigure = me.parseNewTypeFigure(tTempFigure, tsex)
-  else
-    the itemDelimiter = "&"
-    tPartCount = tFigureData.count(#item)
-    tFigure = [:]
-    i = 1
-    repeat while i <= tPartCount
-      tPart = tFigureData.getProp(#item, i)
-      the itemDelimiter = "="
-      tProp = tPart.getProp(#item, 1)
-      tDesc = tPart.getProp(#item, 2)
-      the itemDelimiter = "/"
-      tValue = [:]
-      tValue.setAt("model", tDesc.getProp(#item, 1))
-      tColor = tDesc.getPropRef(#item, 2).getProp(#line, 1)
-      the itemDelimiter = ","
-      if (tColor.count(#item) = 1) then
-        if (integer(tColor) = 0) then
-          tValue.setAt("color", rgb("EEEEEE"))
-        else
-          tPalette = paletteIndex(integer(tColor))
-          tValue.setAt("color", rgb(tPalette.red, tPalette.green, tPalette.blue))
-        end if
-      else
-        if (tColor.count(#item) = 3) then
-          tValue.setAt("color", value("rgb(" & tColor & ")"))
-          if voidp(tValue.getAt("color")) then
-            tValue.setAt("color", rgb("EEEEEE"))
-          end if
-          if ((tValue.getAt("color").red + tValue.getAt("color").green) + tValue.getAt("color").blue) > (238 * 3) then
-            tValue.setAt("color", rgb("EEEEEE"))
-          end if
-        else
-          tValue.setAt("color", rgb("EEEEEE"))
-        end if
-      end if
-      tFigure.setAt(tProp, tValue)
-      the itemDelimiter = "&"
-      i = (1 + i)
-    end repeat
-    tRequiredParts = ["hr", "hd", "ey", "fc", "bd", "lh", "rh", "ch", "ls", "rs", "lg", "sh"]
-    repeat while tRequiredParts <= tsex
-      tItem = getAt(tsex, tFigureData)
-      if not listp(tFigure.getAt(tItem)) then
-        tFigure.setAt(tItem, [:])
-      end if
-      if not ilk(tFigure.getAt(tItem).getAt("color"), #color) then
-        tFigure.getAt(tItem).setAt("color", rgb(238, 238, 238))
-      end if
-      if not stringp(tFigure.getAt(tItem).getAt("model")) then
-        tFigure.getAt(tItem).setAt("model", "001")
-      end if
-    end repeat
-  end if
-  return(tFigure)
-end
-
-on parseNewTypeFigure me, tFigure, tsex 
-  tMainPartsList = [:]
-  if voidp(tsex) then
-    tsex = "M"
-  end if
-  if (tsex.getProp(#char, 1) = "F") or (tsex.getProp(#char, 1) = "f") then
-    tsex = "F"
-  else
-    tsex = "M"
-  end if
-  f = 1
-  repeat while f <= tFigure.count
-    tSetID = tFigure.getPropAt(f)
-    tColorId = value(tFigure.getAt(tSetID))
-    if not voidp(value(tSetID)) then
-      if voidp(tColorId) then
-        tColorId = 1
-      end if
-      if not voidp(pValidSetIDList.getAt(tsex).getAt(tSetID)) then
-        tMainPart = pValidSetIDList.getAt(tsex).getProp(tSetID).getAt(#part)
-        tlocation = pValidSetIDList.getAt(tsex).getProp(tSetID).getAt(#location)
-        tchangeparts = pValidPartsList.getAt(tsex).getAt(tMainPart).getAt(tlocation).getAt("p")
-        tColorList = pValidPartsList.getAt(tsex).getAt(tMainPart).getAt(tlocation).getAt("c")
-      end if
-      if not voidp(tMainPart) then
-        tMainPartsList.setAt(tMainPart, ["changeparts":tchangeparts, "setid":tSetID, "colorlist":tColorList, "colorID":tColorId])
-      end if
-    end if
-    f = (1 + f)
-  end repeat
-  tTempFigure = [:]
-  repeat while ["hr", "hd", "lg", "sh", "ch"] <= tsex
-    tMainPart = getAt(tsex, tFigure)
-    if not voidp(tMainPartsList.getAt(tMainPart)) then
-      tSetID = tMainPartsList.getAt(tMainPart).getAt("setid")
-      tColorId = tMainPartsList.getAt(tMainPart).getAt("colorID")
-      tColorList = tMainPartsList.getAt(tMainPart).getAt("colorlist")
-      tchangeparts = tMainPartsList.getAt(tMainPart).getAt("changeparts")
-      if value(tColorId) < 1 then
-        tColorId = 1
-      end if
-      if not listp(tColorList) then
-        tColor = rgb("#EEEEEE")
-        tColorId = 1
-        error(me, "Weirdness in the list of figure parts!", #parseNewTypeFigure)
-      else
-        if tColorId > tColorList.count then
-          tColorId = 1
-        end if
-        if not listp(tColorList.getAt(tColorId)) then
-          if voidp(tColorList.getAt(tColorId)) then
-            tColor = rgb("#EEEEEE")
-          end if
-          tColor = rgb(tColorList.getAt(tColorId))
-        end if
-      end if
-      i = 1
-      repeat while i <= tchangeparts.count
-        tPart = tchangeparts.getPropAt(i)
-        tmodel = tchangeparts.getAt(tPart)
-        if (tmodel.count(#char) = 1) then
-          tmodel = "00" & tmodel
-        else
-          if (tmodel.count(#char) = 2) then
-            tmodel = "0" & tmodel
-          end if
-        end if
-        if listp(tColorList.getAt(tColorId)) then
-          if tColorList.getAt(tColorId).count >= i then
-            tPartColor = rgb(tColorList.getAt(tColorId).getAt(i))
-          else
-            tPartColor = rgb(tColorList.getAt(tColorId).getAt(1))
-          end if
-          tTempFigure.setAt(tPart, ["model":tmodel, "color":tPartColor, "setid":tSetID, "colorid":tColorId])
-        else
-          tTempFigure.setAt(tPart, ["model":tmodel, "color":tColor, "setid":tSetID, "colorid":tColorId])
-        end if
-        i = (1 + i)
-      end repeat
-    end if
-  end repeat
-  tTempFigure = me.checkAndFixFigure(tTempFigure, tsex)
-  return(tTempFigure)
-end
-
-on getDefaultFigure me, tsex 
-  return(me.checkAndFixFigure([:], tsex))
-end
-
-on getCountOfPart me, tPart, tsex 
-  if voidp(tPart) or voidp(tsex) then
-    return(error(me, "canï¿½t get part count becouse tPart or tSex is VOID:" && tPart && tsex, #getCountOfPart))
-  end if
-  if (tsex.getProp(#char, 1) = "F") or (tsex.getProp(#char, 1) = "f") then
-    tsex = "F"
-  else
-    tsex = "M"
-  end if
-  if voidp(pSelectablePartsList.getAt(tsex)) then
-    return FALSE
-  end if
-  if not voidp(pSelectablePartsList.getAt(tsex).getAt(tPart)) then
-    return(pSelectablePartsList.getAt(tsex).getAt(tPart).count)
-  else
-    return(error(me, "Canï¿½t get part count:" && tPart && tsex, #getCountOfPart))
-  end if
-end
-
-on getCountOfPartColors me, tPart, tSetID, tsex 
-  if voidp(tPart) or voidp(tSetID) or voidp(tsex) then
-    return(error(me, "Canï¿½t get part color count because tPart or setid or tSex is VOID" && tPart && tsex, #getCountOfPartColors))
-  end if
-  if (tsex.getProp(#char, 1) = "F") or (tsex.getProp(#char, 1) = "f") then
-    tsex = "F"
-  else
-    tsex = "M"
-  end if
-  if voidp(pSelectablePartsList.getAt(tsex)) then
-    return FALSE
-  end if
-  if voidp(pSelectablePartsList.getAt(tsex).getAt(tPart)) then
-    return(error(me, "Figure part not found" && tPart, #getCountOfPartColors))
-  end if
-  if voidp(pSelectableSetIDList.getAt(tsex).getaProp(tSetID)) then
-    return(error(me, "SetID not found" && tSetID, #getCountOfPartColors))
-  end if
-  tSetOrderNum = pSelectableSetIDList.getAt(tsex).getProp(tSetID).getAt(#location)
-  if not voidp(pSelectablePartsList.getAt(tsex).getAt(tPart).getAt(tSetOrderNum).getAt("c")) then
-    return(pSelectablePartsList.getAt(tsex).getAt(tPart).getAt(tSetOrderNum).getAt("c").count)
-  else
-    return(error(me, "Canï¿½t get part color count" && tPart && tSetID && tsex, #getCountOfPartColors))
-  end if
-end
-
-on getModelOfPartByOrderNum me, tPart, tOrderNum, tsex 
-  if voidp(tOrderNum) or voidp(tPart) or voidp(tsex) then
-    return(error(me, "Canï¿½t get the model of part becouse tOrderNum or tPart or tSex is VOID" && tOrderNum && tPart && tsex, #getModelOfPartByOrderNum))
-  end if
-  if (tsex.getProp(#char, 1) = "F") or (tsex.getProp(#char, 1) = "f") then
-    tsex = "F"
-  else
-    tsex = "M"
-  end if
-  if voidp(pSelectablePartsList.getAt(tsex)) then
-    return FALSE
-  end if
-  if voidp(pSelectablePartsList.getAt(tsex).getAt(tPart)) then
-    return(error(me, "figure part not found" && tPart))
-  end if
-  if tOrderNum < 1 then
-    tOrderNum = pSelectablePartsList.getAt(tsex).getAt(tPart).count
-  end if
-  if tOrderNum > pSelectablePartsList.getAt(tsex).getAt(tPart).count then
-    tOrderNum = 1
-  end if
-  if not voidp(pSelectablePartsList.getAt(tsex).getAt(tPart).getAt(tOrderNum)) then
-    tChangePartPropList = pSelectablePartsList.getAt(tsex).getAt(tPart).getAt(tOrderNum).getAt("p")
-    tSetID = pSelectablePartsList.getAt(tsex).getAt(tPart).getAt(tOrderNum).getAt("s")
-    tSelectedPart = tOrderNum
-    tColor = pSelectablePartsList.getAt(tsex).getAt(tPart).getAt(tOrderNum).getAt("c").getAt(1)
-    return(["selectedpart":tSelectedPart, "changeparts":tChangePartPropList, "ordernum":tOrderNum, "firstcolor":tColor, "setid":tSetID])
-  end if
-end
-
-on getColorOfPartByOrderNum me, tPart, tOrderNum, tSetID, tsex 
-  if voidp(tOrderNum) or voidp(tPart) or voidp(tsex) then
-    return(error(me, "Canï¿½t get part color beaouse tOrderNum or tPart or tSex is VOID:" && tOrderNum && tPart && tsex, #getColorOfPartByOrderNum))
-  end if
-  if voidp(tSetID) then
-    return(error(me, "Canï¿½t get part color because tSetID is VOID" && tsex, #getColorOfPartByOrderNum))
-  end if
-  if (tsex.getProp(#char, 1) = "F") or (tsex.getProp(#char, 1) = "f") then
-    tsex = "F"
-  else
-    tsex = "M"
-  end if
-  if voidp(pSelectablePartsList.getAt(tsex)) then
-    return FALSE
-  end if
-  if voidp(pSelectablePartsList.getAt(tsex).getAt(tPart)) then
-    return(error(me, "Figure part not found:" && tPart, #getColorOfPartByOrderNum))
-  end if
-  if voidp(pSelectableSetIDList.getAt(tsex).getaProp(tSetID)) then
-    return(error(me, "SetID not found" && tSetID, #getCountOfPartColors))
-  end if
-  tSetOrderNum = pSelectableSetIDList.getAt(tsex).getProp(tSetID).getAt(#location)
-  if tOrderNum < 1 then
-    tOrderNum = pSelectablePartsList.getAt(tsex).getAt(tPart).getAt(tSetOrderNum).getAt("c").count
-  end if
-  if tOrderNum > pSelectablePartsList.getAt(tsex).getAt(tPart).getAt(tSetOrderNum).getAt("c").count then
-    tOrderNum = 1
-  end if
-  if not voidp(pSelectablePartsList.getAt(tsex).getAt(tPart).getAt(tSetOrderNum).getAt("c").getAt(tOrderNum)) then
-    tChangePartPropList = pSelectablePartsList.getAt(tsex).getAt(tPart).getAt(tSetOrderNum).getAt("p")
-    tColor = pSelectablePartsList.getAt(tsex).getAt(tPart).getAt(tSetOrderNum).getAt("c").getAt(tOrderNum)
-    return(["color":tColor, "changeparts":tChangePartPropList, "ordernum":tOrderNum])
-  end if
-end
+property pValidPartsList, pValidSetIDList, pSelectablePartsList, pSelectableSetIDList, pFigureDataMemberon construct me  pValidPartsList = [:]  pValidSetIDList = [:]  pSelectablePartsList = [:]  pSelectableSetIDList = [:]  me.startFigureConverter(me.getID())  return 1endon startFigureConverter me, tid  case tid of    #pellehyppy_component, #mountain_interface:      pFigureDataMember = "swimfigure_ids_"      me.createValidPartList()  end caseendon createValidPartList me  pValidPartsList = [:]  pValidSetIDList = [:]  pSelectablePartsList = [:]  pSelectableSetIDList = [:]  tTempItemdelimiter = the itemDelimiter  repeat with tsex in ["Male", "Female"]    if not memberExists((pFigureDataMember & tsex)) then      error(me, (("Can't create list of valid figure parts, member not found:" && pFigureDataMember) & tsex), #createValidPartList)      next repeat    end if    tFigureIds = member(getmemnum((pFigureDataMember & tsex))).text    tsex = tsex.char[1]    if voidp(pValidPartsList[tsex]) then      pValidPartsList[tsex] = [:]    end if    ttempProp = VOID    tPartId = VOID    tMainPart = VOID    tMultiPartProps = VOID    ttempColor = []    repeat with f = 1 to tFigureIds.line.count      tLine = tFigureIds.line[f]      if ((tLine.char[1] <> "*") and (tLine.char.count > 7)) then        the itemDelimiter = ":"        if not voidp(ttempProp) then          ttempColor.add(tLine.item[2])        end if        next repeat      end if      if ((tLine.char[1] = "*") or (f = tFigureIds.line.count)) then        if not voidp(tMainPart) then          if voidp(pValidPartsList[tsex][tMainPart]) then            pValidPartsList[tsex][tMainPart] = []          end if        end if        if (not voidp(ttempProp) and (ttempColor <> [:])) then          pValidPartsList[tsex][tMainPart].add(["s": value(tPartId), "p": tMultiPartProps, "c": ttempColor])          if voidp(pValidSetIDList[tsex]) then            pValidSetIDList[tsex] = [:]          end if          if voidp(pValidSetIDList[tsex][tPartId]) then            pValidSetIDList[tsex].addProp(value(tPartId), [#part: tMainPart, #location: pValidPartsList[tsex][tMainPart].count])          end if        end if        ttempColor = []        tMultiPartProps = [:]        the itemDelimiter = "/"        tPartId = tLine.item[2].char[8]        ttempProp = tLine.item[3]        the itemDelimiter = "="        tMainPart = ttempProp.item[1]        tMainPartModel = ttempProp.item[2]        the itemDelimiter = "/"        tMultiPartProps.addProp(tMainPart, tMainPartModel)        if (tLine.item.count > 3) then          repeat with tMultiParts = 4 to tLine.item.count            tPartItem = tLine.item[tMultiParts]            ttempProp = ((ttempProp & "/") & tPartItem)            the itemDelimiter = "="            tMultiPartProps.addProp(tPartItem.item[1], tPartItem.item[2])            the itemDelimiter = "/"          end repeat        end if      end if    end repeat  end repeat  the itemDelimiter = tTempItemdelimiter  pSelectablePartsList = pValidPartsList  pSelectableSetIDList = pValidSetIDListendon initializeValidPartLists me, tPlist  if not (tPlist.ilk = #propList) then    error(me, "Can't initialize valid part list", #initializeValidPartLists)    if memberExists("DefaultPartList") then      tPlist = value(member(getmemnum("DefaultPartList")).text)    else      return error(me, "not found default part list")    end if  end if  pValidPartsList = tPlist  pValidSetIDList = [:]  repeat with tsex in ["M", "F"]    pValidSetIDList[tsex] = [:]    repeat with tPartSet = 1 to pValidPartsList[tsex].count      tProp = pValidPartsList[tsex].getPropAt(tPartSet)      tDesc = pValidPartsList[tsex][tProp]      repeat with tP = 1 to tDesc.count        tSetID = tDesc[tP]["s"]        pValidSetIDList[tsex].addProp(tSetID, [#part: tProp, #location: tP])      end repeat    end repeat  end repeatendon initializeSelectablePartList me, tSetIDList  if not (tSetIDList.ilk = #list) then    return error(me, "Can't initialize selectable partlist", #initializeSelectablePartList)  end if  tTempSetIDList = [:]  tTempSetIDList["M"] = []  tTempSetIDList["F"] = []  repeat with tSetID in tSetIDList    if not voidp(pValidSetIDList["M"].findPos(tSetID)) then      tTempSetIDList["M"].add(tSetID)      next repeat    end if    tTempSetIDList["F"].add(tSetID)  end repeat  pSelectablePartsList = [:]  pSelectableSetIDList = [:]  repeat with tsex in ["M", "F"]    pSelectablePartsList[tsex] = [:]    pSelectableSetIDList[tsex] = [:]    tSelectableIDs = tTempSetIDList[tsex]    repeat with tSetID in tSelectableIDs      if not voidp(pValidSetIDList[tsex].findPos(tSetID)) then        tPart = pValidSetIDList[tsex].getProp(tSetID)[#part]        tlocation = pValidSetIDList[tsex].getProp(tSetID)[#location]        tPropList = pValidPartsList[tsex][tPart][tlocation]        if voidp(pSelectablePartsList[tsex][tPart]) then          pSelectablePartsList[tsex][tPart] = []        end if        pSelectablePartsList[tsex][tPart].add(tPropList)        pSelectableSetIDList[tsex].addProp(tSetID, [#part: tPart, #location: pSelectablePartsList[tsex][tPart].count])      end if    end repeat  end repeatendon GenerateFigureDataToServerMode me, tFigure, tsex  tFigure = me.checkAndFixFigure(tFigure, tsex)  tFigureToServer = EMPTY  repeat with tPart in ["hr", "hd", "lg", "sh", "ch"]    if not voidp(tFigure[tPart]) then      if (not voidp(tFigure[tPart]["setid"]) and not voidp(tFigure[tPart]["colorid"])) then        tSetID = tFigure[tPart]["setid"]        tColorId = tFigure[tPart]["colorid"]        if not stringp(tSetID) then          tSetID = string(tSetID)        end if        if not stringp(tColorId) then          tColorId = string(tColorId)        end if        if (tSetID.char.count = 1) then          tSetID = ("00" & tSetID)        else          if (tSetID.char.count = 2) then            tSetID = ("0" & tSetID)          end if        end if        if (tColorId.char.count = 1) then          tColorId = ("0" & tColorId)        end if        tFigureToServer = ((tFigureToServer & tSetID) & tColorId)      end if    end if  end repeat  return ["figuretoServer": tFigureToServer, "parsedfigure": tFigure]endon checkAndFixFigure me, tFigure, tsex  if (tFigure.ilk <> #propList) then    tFigure = [:]  end if  repeat with tPart in ["hr", "hd", "ey", "fc", "bd", "lh", "rh", "ch", "ls", "rs", "lg", "sh"]    case tPart of      "ls", "ch", "rs":        tMainPart = "ch"      "hd", "ey", "fc", "bd", "lh", "rh":        tMainPart = "hd"      otherwise:        tMainPart = tPart    end case    tChageParts = pValidPartsList[tsex][tMainPart][1]["p"]    tmodel = pValidPartsList[tsex][tMainPart][1]["p"][tPart]    tColorList = pValidPartsList[tsex][tMainPart][1]["c"][1]    tSetID = pValidPartsList[tsex][tMainPart][1]["s"]    if not listp(tColorList) then      tColorList = list(tColorList)    end if    if not voidp(tChageParts.findPos(tPart)) then      tColorId = tChageParts.findPos(tPart)    else      tColorId = 1    end if    if (tColorList.count >= tColorId) then      tColor = rgb(tColorList[tColorId])    else      tColor = rgb(tColorList[1])    end if    if (tmodel.char.count = 1) then      tmodel = ("00" & tmodel)    else      if (tmodel.char.count = 2) then        tmodel = ("0" & tmodel)      end if    end if    if voidp(tFigure[tPart]) then      tFigure[tPart] = ["model": tmodel, "color": tColor, "setid": tSetID, "colorid": 1]      next repeat    end if    if (tFigure[tPart].ilk <> #propList) then      tFigure[tPart] = [:]    end if    if (((voidp(tFigure[tPart]["model"]) or voidp(tFigure[tPart]["color"])) or voidp(tFigure[tPart]["setid"])) or voidp(tFigure[tPart]["colorid"])) then      tFigure[tPart] = ["model": tmodel, "color": tColor, "setid": tSetID, "colorid": 1]    end if  end repeat  return tFigureendon generateFigureDataToOldServerMode me, tFigure, tsex, tCheckValidParts  if voidp(tsex) then    tsex = "M"  end if  if ((tsex contains "f") or (tsex contains "F")) then    tsex = "F"  else    tsex = "M"  end if  if voidp(tCheckValidParts) then    tCheckValidParts = 0  end if  if tCheckValidParts then    tNewFigure = me.GenerateFigureDataToServerMode(tFigure, tsex)    tFigureData = me.ConvertServerModeFigureData(tNewFigure["parsedfigure"], tsex)  else    tFigureData = tFigure  end if  tTemp = the itemDelimiter  the itemDelimiter = ","  tNewFigure = "sd=001/0"  if listp(tFigureData) then    repeat with f = 1 to tFigureData.count      tPart = tFigureData.getPropAt(f)      tmodel = tFigureData[tPart]["model"]      tColor = tFigureData[tPart]["color"]      if (tPart <> "sd") then        if (tmodel.char.count = 1) then          tmodel = ("00" & tmodel)        else          if (tmodel.char.count = 2) then            tmodel = ("0" & tmodel)          end if        end if        if (tColor = rgb("#EEEEEE")) then          tColor = rgb(255, 255, 255)        end if        tColor = string(tColor)        if (tColor.item.count < 3) then          put "VIKAA SILMISS€"        else          tR = value(tColor.item[1].char[5])          tG = value(tColor.item[2])          tB = value(tColor.item[3].char[1])          tColor = ((((string(tR) & ",") & string(tG)) & ",") & string(tB))        end if        if (tPart = "ey") then          tColor = "0"        end if        tNewFigure = ((((((tNewFigure & "&") & tPart) & "=") & tmodel) & "/") & tColor)      end if    end repeat  else    error(me, "Weirdness in figure data!!!", #generateFigureDataToOldServerMode)    tNewFigure = tFigureData  end if  the itemDelimiter = tTemp  return ["figuretoServer": tNewFigure]endon validateFigure me, tFigure, tsex  if ((tsex.char[1] = "F") or (tsex.char[1] = "f")) then    tsex = "F"  else    tsex = "M"  end if  if voidp(pSelectablePartsList[tsex]) then    return tFigure  end if  if (tFigure.ilk <> #propList) then    tFigure = [:]  end if  tTempFigure = [:]  repeat with f = 1 to tFigure.count    if not voidp(tFigure[f]["setid"]) then      if voidp(tFigure[f]["setid"]) then        tColor = 1      else        tColor = tFigure[f]["colorid"]      end if      tPart = tFigure.getPropAt(1)      tSetID = tFigure[f]["setid"]      if not voidp(pSelectableSetIDList[tsex].getaProp(integer(tSetID))) then        tTempFigure[string(tSetID)] = tColor      end if    end if  end repeat  tFigure = me.parseNewTypeFigure(tTempFigure, tsex)  return tFigureendon parseFigure me, tFigureData, tsex, tClass, tCommand  if voidp(tCommand) then    tCommand = EMPTY  end if  if (tClass <> "bot") then    tTempFigure = [:]    if ((tFigureData.char.count = 25) and integerp(integer(tFigureData))) then      tFigureData = tFigureData.char[1]      tPartCount = (tFigureData.char.count / 5)      repeat with i = 0 to (tPartCount - 1)        tPart = tFigureData.char[((i * 5) + 1)]        tSetID = tPart.char[1]        tColorId = tPart.char[4]        tTempFigure[tSetID] = value(tColorId)      end repeat    end if    tFigure = me.parseNewTypeFigure(tTempFigure, tsex)  else    the itemDelimiter = "&"    tPartCount = tFigureData.item.count    tFigure = [:]    repeat with i = 1 to tPartCount      tPart = tFigureData.item[i]      the itemDelimiter = "="      tProp = tPart.item[1]      tDesc = tPart.item[2]      the itemDelimiter = "/"      tValue = [:]      tValue["model"] = tDesc.item[1]      tColor = tDesc.item[2].line[1]      the itemDelimiter = ","      if (tColor.item.count = 1) then        if (integer(tColor) = 0) then          tValue["color"] = rgb("EEEEEE")        else          tPalette = paletteIndex(integer(tColor))          tValue["color"] = rgb(tPalette.red, tPalette.green, tPalette.blue)        end if      else        if (tColor.item.count = 3) then          tValue["color"] = value((("rgb(" & tColor) & ")"))          if voidp(tValue["color"]) then            tValue["color"] = rgb("EEEEEE")          end if          if (((tValue["color"].red + tValue["color"].green) + tValue["color"].blue) > (238 * 3)) then            tValue["color"] = rgb("EEEEEE")          end if        else          tValue["color"] = rgb("EEEEEE")        end if      end if      tFigure[tProp] = tValue      the itemDelimiter = "&"    end repeat    tRequiredParts = ["hr", "hd", "ey", "fc", "bd", "lh", "rh", "ch", "ls", "rs", "lg", "sh"]    repeat with tItem in tRequiredParts      if not listp(tFigure[tItem]) then        tFigure[tItem] = [:]      end if      if not ilk(tFigure[tItem]["color"], #color) then        tFigure[tItem]["color"] = rgb(238, 238, 238)      end if      if not stringp(tFigure[tItem]["model"]) then        tFigure[tItem]["model"] = "001"      end if    end repeat  end if  return tFigureendon parseNewTypeFigure me, tFigure, tsex  tMainPartsList = [:]  if voidp(tsex) then    tsex = "M"  end if  if ((tsex.char[1] = "F") or (tsex.char[1] = "f")) then    tsex = "F"  else    tsex = "M"  end if  repeat with f = 1 to tFigure.count    tSetID = tFigure.getPropAt(f)    tColorId = value(tFigure[tSetID])    if not voidp(value(tSetID)) then      if voidp(tColorId) then        tColorId = 1      end if      if not voidp(pValidSetIDList[tsex][tSetID]) then        tMainPart = pValidSetIDList[tsex].getProp(tSetID)[#part]        tlocation = pValidSetIDList[tsex].getProp(tSetID)[#location]        tchangeparts = pValidPartsList[tsex][tMainPart][tlocation]["p"]        tColorList = pValidPartsList[tsex][tMainPart][tlocation]["c"]      end if      if not voidp(tMainPart) then        tMainPartsList[tMainPart] = ["changeparts": tchangeparts, "setid": tSetID, "colorlist": tColorList, "colorID": tColorId]      end if    end if  end repeat  tTempFigure = [:]  repeat with tMainPart in ["hr", "hd", "lg", "sh", "ch"]    if not voidp(tMainPartsList[tMainPart]) then      tSetID = tMainPartsList[tMainPart]["setid"]      tColorId = tMainPartsList[tMainPart]["colorID"]      tColorList = tMainPartsList[tMainPart]["colorlist"]      tchangeparts = tMainPartsList[tMainPart]["changeparts"]      if (value(tColorId) < 1) then        tColorId = 1      end if      if not listp(tColorList) then        tColor = rgb("#EEEEEE")        tColorId = 1        error(me, "Weirdness in the list of figure parts!", #parseNewTypeFigure)      else        if (tColorId > tColorList.count) then          tColorId = 1        end if        if not listp(tColorList[tColorId]) then          if voidp(tColorList[tColorId]) then            tColor = rgb("#EEEEEE")          end if          tColor = rgb(tColorList[tColorId])        end if      end if      repeat with i = 1 to tchangeparts.count        tPart = tchangeparts.getPropAt(i)        tmodel = tchangeparts[tPart]        if (tmodel.char.count = 1) then          tmodel = ("00" & tmodel)        else          if (tmodel.char.count = 2) then            tmodel = ("0" & tmodel)          end if        end if        if listp(tColorList[tColorId]) then          if (tColorList[tColorId].count >= i) then            tPartColor = rgb(tColorList[tColorId][i])          else            tPartColor = rgb(tColorList[tColorId][1])          end if          tTempFigure[tPart] = ["model": tmodel, "color": tPartColor, "setid": tSetID, "colorid": tColorId]          next repeat        end if        tTempFigure[tPart] = ["model": tmodel, "color": tColor, "setid": tSetID, "colorid": tColorId]      end repeat    end if  end repeat  tTempFigure = me.checkAndFixFigure(tTempFigure, tsex)  return tTempFigureendon getDefaultFigure me, tsex  return me.checkAndFixFigure([:], tsex)endon getCountOfPart me, tPart, tsex  if (voidp(tPart) or voidp(tsex)) then    return error(me, (("can«t get part count becouse tPart or tSex is VOID:" && tPart) && tsex), #getCountOfPart)  end if  if ((tsex.char[1] = "F") or (tsex.char[1] = "f")) then    tsex = "F"  else    tsex = "M"  end if  if voidp(pSelectablePartsList[tsex]) then    return 0  end if  if not voidp(pSelectablePartsList[tsex][tPart]) then    return pSelectablePartsList[tsex][tPart].count  else    return error(me, (("Can«t get part count:" && tPart) && tsex), #getCountOfPart)  end ifendon getCountOfPartColors me, tPart, tSetID, tsex  if ((voidp(tPart) or voidp(tSetID)) or voidp(tsex)) then    return error(me, (("Can«t get part color count because tPart or setid or tSex is VOID" && tPart) && tsex), #getCountOfPartColors)  end if  if ((tsex.char[1] = "F") or (tsex.char[1] = "f")) then    tsex = "F"  else    tsex = "M"  end if  if voidp(pSelectablePartsList[tsex]) then    return 0  end if  if voidp(pSelectablePartsList[tsex][tPart]) then    return error(me, ("Figure part not found" && tPart), #getCountOfPartColors)  end if  if voidp(pSelectableSetIDList[tsex].getaProp(tSetID)) then    return error(me, ("SetID not found" && tSetID), #getCountOfPartColors)  end if  tSetOrderNum = pSelectableSetIDList[tsex].getProp(tSetID)[#location]  if not voidp(pSelectablePartsList[tsex][tPart][tSetOrderNum]["c"]) then    return pSelectablePartsList[tsex][tPart][tSetOrderNum]["c"].count  else    return error(me, ((("Can«t get part color count" && tPart) && tSetID) && tsex), #getCountOfPartColors)  end ifendon getModelOfPartByOrderNum me, tPart, tOrderNum, tsex  if ((voidp(tOrderNum) or voidp(tPart)) or voidp(tsex)) then    return error(me, ((("Can«t get the model of part becouse tOrderNum or tPart or tSex is VOID" && tOrderNum) && tPart) && tsex), #getModelOfPartByOrderNum)  end if  if ((tsex.char[1] = "F") or (tsex.char[1] = "f")) then    tsex = "F"  else    tsex = "M"  end if  if voidp(pSelectablePartsList[tsex]) then    return 0  end if  if voidp(pSelectablePartsList[tsex][tPart]) then    return error(me, ("figure part not found" && tPart))  end if  if (tOrderNum < 1) then    tOrderNum = pSelectablePartsList[tsex][tPart].count  end if  if (tOrderNum > pSelectablePartsList[tsex][tPart].count) then    tOrderNum = 1  end if  if not voidp(pSelectablePartsList[tsex][tPart][tOrderNum]) then    tChangePartPropList = pSelectablePartsList[tsex][tPart][tOrderNum]["p"]    tSetID = pSelectablePartsList[tsex][tPart][tOrderNum]["s"]    tSelectedPart = tOrderNum    tColor = pSelectablePartsList[tsex][tPart][tOrderNum]["c"][1]    return ["selectedpart": tSelectedPart, "changeparts": tChangePartPropList, "ordernum": tOrderNum, "firstcolor": tColor, "setid": tSetID]  end ifendon getColorOfPartByOrderNum me, tPart, tOrderNum, tSetID, tsex  if ((voidp(tOrderNum) or voidp(tPart)) or voidp(tsex)) then    return error(me, ((("Can«t get part color beaouse tOrderNum or tPart or tSex is VOID:" && tOrderNum) && tPart) && tsex), #getColorOfPartByOrderNum)  end if  if voidp(tSetID) then    return error(me, ("Can«t get part color because tSetID is VOID" && tsex), #getColorOfPartByOrderNum)  end if  if ((tsex.char[1] = "F") or (tsex.char[1] = "f")) then    tsex = "F"  else    tsex = "M"  end if  if voidp(pSelectablePartsList[tsex]) then    return 0  end if  if voidp(pSelectablePartsList[tsex][tPart]) then    return error(me, ("Figure part not found:" && tPart), #getColorOfPartByOrderNum)  end if  if voidp(pSelectableSetIDList[tsex].getaProp(tSetID)) then    return error(me, ("SetID not found" && tSetID), #getCountOfPartColors)  end if  tSetOrderNum = pSelectableSetIDList[tsex].getProp(tSetID)[#location]  if (tOrderNum < 1) then    tOrderNum = pSelectablePartsList[tsex][tPart][tSetOrderNum]["c"].count  end if  if (tOrderNum > pSelectablePartsList[tsex][tPart][tSetOrderNum]["c"].count) then    tOrderNum = 1  end if  if not voidp(pSelectablePartsList[tsex][tPart][tSetOrderNum]["c"][tOrderNum]) then    tChangePartPropList = pSelectablePartsList[tsex][tPart][tSetOrderNum]["p"]    tColor = pSelectablePartsList[tsex][tPart][tSetOrderNum]["c"][tOrderNum]    return ["color": tColor, "changeparts": tChangePartPropList, "ordernum": tOrderNum]  end ifend
