@@ -56,7 +56,7 @@ end
 on update me
   pCounter = not pCounter
   if pCounter then
-    return 
+    return 0
   end if
   tHumanObj = getThread(#room).getComponent().getUserObject(pUserId)
   if (tHumanObj = 0) then
@@ -67,8 +67,12 @@ on update me
   if voidp(pLastLoc) then
     pLastLoc = point(0, 0)
   end if
+  tChanges = 0
   if (tHumanDir <> pLastDir) then
     tChanges = 1
+  end if
+  if ((ilk(tHumanLoc) <> #point) or (ilk(pLastLoc) <> #point)) then
+    return 0
   else
     if (tHumanLoc <> pLastLoc) then
       if (tHumanLoc[1] <> pLastLoc[1]) then

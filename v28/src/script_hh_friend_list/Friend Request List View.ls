@@ -62,7 +62,7 @@ on addRequest me, tRequest
 end
 
 on handleRequestState me, tRequestId, tstate
-  if (pContentList.findPos(tRequestId) = VOID) then
+  if (pContentList.findPos(string(tRequestId)) = VOID) then
     return 0
   end if
   tRequest = pContentList[string(tRequestId)]
@@ -165,8 +165,7 @@ on relayEvent me, tEvent, tLocX, tLocY
   if (tEvent = #mouseWithin) then
     return tEventResult
   end if
-  if (tListIndex > me.pContentList.count) then
-    nothing()
+  if ((tListIndex > me.pContentList.count) or (tListIndex < 1)) then
     tEventResult[#cursor] = "cursor.arrow"
   else
     tRequest = me.pContentList[tListIndex]

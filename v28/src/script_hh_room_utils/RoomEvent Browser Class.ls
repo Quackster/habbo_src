@@ -157,8 +157,14 @@ on updateDetailsBubble me, tpoint
   tEventRect = tEventData.getaProp(#rect)
   tWnd = getWindow(pWindowID)
   tListElem = tWnd.getElement("roomevent.browser.list")
+  if not objectp(tListElem) then
+    return 0
+  end if
   tListRect = tListElem.getProperty(#rect)
   tScrollElem = tWnd.getElement("roomevent.browser.scroll")
+  if not objectp(tScrollElem) then
+    return 0
+  end if
   tScrollOffset = tScrollElem.getScrollOffset()
   tLocY = (tListRect[2] - tScrollOffset)
   tLocX = tListRect[1]
@@ -169,6 +175,9 @@ on updateDetailsBubble me, tpoint
   tDetailsBubble = createObject(pDetailsWindowID, "Details Bubble Class")
   tDetailsBubble.createWithContent("roomevent_info.window", tTargetRect, #right)
   tDetailsWindow = tDetailsBubble.getWindowObj()
+  if not objectp(tDetailsWindow) then
+    return error(me, "Failed to create event details bubble window", #updateDetailsBubble, #minor)
+  end if
   tHost = (getText("roomevent_host") && tEventData.getaProp(#hostName))
   tDetailsWindow.getElement("roomevent.info.host").setText(tHost)
   tText = ((QUOTE & tEventData.getaProp(#desc)) & QUOTE)

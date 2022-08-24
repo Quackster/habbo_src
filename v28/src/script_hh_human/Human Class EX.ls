@@ -1213,7 +1213,11 @@ end
 
 on carryObject me, tProps, tDefaultItem, tDefaultItemPublic
   tItem = tProps.word[2]
-  if (value(tItem) > 0) then
+  tItemInt = integer(tItem)
+  tItemString = string(tItem)
+  tIsInteger = (string(tItemInt) = tItemString)
+  if (tIsInteger and (tItemInt > 0)) then
+    tItem = tItemInt
     tCarrying = tItem
     if variableExists(("handitem.right." & tCarrying)) then
       tCarryItm = getVariable(("handitem.right." & tCarrying), string(tDefaultItem))
@@ -1249,7 +1253,11 @@ end
 
 on useObject me, tProps, tDefaultItem, tDefaultItemPublic
   tItem = tProps.word[2]
-  if integerp(value(tItem)) then
+  tItemInt = integer(tItem)
+  tItemString = string(tItem)
+  tIsInteger = (string(tItemInt) = tItemString)
+  if (tIsInteger and (tItemInt > 0)) then
+    tItem = tItemInt
     tCarrying = tItem
     if variableExists(("handitem.right." & tCarrying)) then
       tCarryItm = getVariable(("handitem.right." & tCarrying), string(tDefaultItem))

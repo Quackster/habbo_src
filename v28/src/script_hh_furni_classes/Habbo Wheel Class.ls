@@ -11,7 +11,7 @@ end
 
 on select me
   if the doubleClick then
-    getThread(#room).getComponent().getRoomConnection().send("SPIN_WHEEL_OF_FORTUNE", [#integer: value(me.getID())])
+    getThread(#room).getComponent().getRoomConnection().send("SPIN_WHEEL_OF_FORTUNE", [#integer: integer(me.getID())])
   end if
   return 1
 end
@@ -39,7 +39,7 @@ on update me
 end
 
 on setState me, tNewState
-  tNewState = value(tNewState)
+  tNewState = integer(tNewState)
   if (tNewState = -1) then
     if pRunning then
       tNewState = ((pStateCount * 3) + 1)

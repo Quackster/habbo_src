@@ -4,6 +4,9 @@ on mouseDown me
   if (me.pSprite.blend < 100) then
     return 0
   end if
+  if not listp(me.pTextlist) then
+    return executeMessage(#openFxWindow)
+  end if
   if (me.pTextlist.count < 2) then
     return executeMessage(#openFxWindow)
   end if

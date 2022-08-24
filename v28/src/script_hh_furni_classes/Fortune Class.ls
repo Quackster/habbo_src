@@ -48,14 +48,20 @@ on update me
 end
 
 on setState me, tNewState
-  tNewState = value(tNewState)
+  if integerp(integer(tNewState)) then
+    tNewState = integer(tNewState)
+  else
+    tNewState = string(tNewState)
+  end if
   if (tNewState.ilk <> #integer) then
     tNewState = 2
     pShowSymbol = 0
   else
     tNewState = (tNewState + 2)
-    tsprite = me.pSprList[6]
-    tsprite.blend = 0
+    if (me.pSprList.count >= 6) then
+      tsprite = me.pSprList[6]
+      tsprite.blend = 0
+    end if
     pShowSymbol = 1
   end if
   callAncestor(#setState, [me], tNewState)

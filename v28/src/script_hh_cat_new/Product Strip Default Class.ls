@@ -23,6 +23,9 @@ end
 on setTargetElement me, tElement, tScroll
   callAncestor(#setTargetElement, [me], tElement, tScroll)
   pItemsPerRow = (me.pwidth / (pBgImages[#unselected].image.width + pSpacing))
+  if (ilk(me.pStripData) <> #propList) then
+    return error(me, "Stripdata was invalid", #setTargetElement, #major)
+  end if
   me.renderStripBg()
   pSelectedItem = 0
   repeat with i = 1 to me.pStripData.count
@@ -44,6 +47,9 @@ on disableRefreshTimeout me
 end
 
 on renderStripBg me
+  if (ilk(me.pStripData) <> #propList) then
+    return error(me, "Strip data invalid", #renderStripBg, #major)
+  end if
   tItemCount = me.pStripData.count
   tRowCount = ((tItemCount / pItemsPerRow) + 1)
   if ((tItemCount mod pItemsPerRow) = 0) then
@@ -58,10 +64,13 @@ on renderStripItem me, tItemIndex, tImageOverride
   if (me.pItemsPerRow = 0) then
     return error(me, "Cannot render, strip items per row not resolved yet!", #renderStripItem)
   end if
+  if (ilk(me.pStripData) <> #propList) then
+    return error(me, "Strip data invalid", #renderStripItem, #major)
+  end if
   tRowHeight = (pBgImages[#unselected].image.height + pSpacing)
   tItemWidth = (pBgImages[#unselected].image.width + pSpacing)
   tItemCount = me.pStripData.count
-  if (tItemIndex > tItemCount) then
+  if ((tItemIndex > tItemCount) or (tItemIndex < 1)) then
     return 
   end if
   tOffsetY = (tRowHeight * ((tItemIndex - 1) / pItemsPerRow))
@@ -117,6 +126,9 @@ on downloadCompleted me, tProps
 end
 
 on refreshDownloadingSlots me
+  if (ilk(me.pStripData) <> #propList) then
+    return error(me, "Strip data invalid", #refreshDownloadingSlots, #major)
+  end if
   tIcon = getMember("ctlg_loading_icon2")
   t1 = pRotationQuad[1]
   t2 = pRotationQuad[2]
@@ -151,11 +163,17 @@ on pushImage me
 end
 
 on selectItemAt me, tloc
+  if (ilk(tloc) <> #point) then
+    return 
+  end if
+  if (ilk(me.pStripData) <> #propList) then
+    return error(me, "Strip data invalid", #selectItemAt, #major)
+  end if
   tItemIndex = me.getItemIndexAt(tloc)
   if ((tItemIndex <> pSelectedItem) and (tItemIndex <= me.pStripData.count)) then
     tOldSelection = pSelectedItem
     pSelectedItem = tItemIndex
-    if (tOldSelection > 0) then
+    if ((tOldSelection > 0) and (tOldSelection < me.pStripData.count)) then
       me.renderStripItem(tOldSelection)
     end if
     me.renderStripItem(tItemIndex)
@@ -164,6 +182,14 @@ on selectItemAt me, tloc
 end
 
 on getSelectedItem me
+  if (ilk(me.pStripData) <> #propList) then
+    error(me, "Strip data invalid", #getSelectedItem, #major)
+    return VOID
+  end if
+  if (pSelectedItem > me.pStripData.count) then
+    error(me, "Selected item index was larger than stripitem count!", #getSelectedItem, #major)
+    return VOID
+  end if
   if (pSelectedItem > 0) then
     return me.pStripData[pSelectedItem]
   else

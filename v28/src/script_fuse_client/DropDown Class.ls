@@ -114,6 +114,9 @@ on updateData me, tTextList, tTextKeys, tChosenIndex, tChosenValue
   if ((tChosenIndex > 0) and (tChosenIndex <= pShowOrder.count)) then
     pSelectedItemNum = tChosenIndex
   end if
+  if (tChosenIndex > pShowOrder.count) then
+    pSelectedItemNum = 1
+  end if
   if not voidp(tChosenValue) then
     me.setSelection(tChosenValue)
   end if
@@ -136,6 +139,12 @@ end
 
 on setSelection me, tSelNumOrStr, tUpdate
   tEarlierSelection = pSelectedItemNum
+  if not listp(pTextKeys) then
+    return error(me, "pTextKeys is not a list!", #arrangeTextList, #major)
+  end if
+  if not listp(pShowOrder) then
+    return error(me, "pShowOrder is not a list!", #arrangeTextList, #major)
+  end if
   if stringp(tSelNumOrStr) then
     tSelNum = pTextlist.getPos(tSelNumOrStr)
     if (tSelNum = 0) then
@@ -168,6 +177,9 @@ on setShowOrder me, tStyle, tFirstNum, tDeleteOne, tOpenDir
   if not pOrdering then
     return 1
   end if
+  if not listp(pShowOrder) then
+    return error(me, "pShowOrder is not a list!", #arrangeTextList, #major)
+  end if
   tChoice = pShowOrder[pSelectedItemNum]
   case tStyle of
     #normal:
@@ -199,6 +211,9 @@ on setOrdering me, tMode
 end
 
 on arrangeTextList me, tStyle
+  if not listp(pShowOrder) then
+    return error(me, "pShowOrder is not a list!", #arrangeTextList, #major)
+  end if
   if (pDropDownType = #titleWithCancel) then
     case tStyle of
       #open:
@@ -285,6 +300,15 @@ on chooseFromMenu me
     me.pimage = pDropActiveBtnImg
     me.pSprite.loc = pLoc
     me.render()
+    if not listp(pTextKeys) then
+      return error(me, "pTextKeys is not a list!", #chooseFromMenu, #major)
+    end if
+    if not listp(pShowOrder) then
+      return error(me, "pShowOrder is not a list!", #chooseFromMenu, #major)
+    end if
+    if (pSelectedItemNum > pShowOrder.count) then
+      return error(me, "pShowOrder is out of sync!", #chooseFromMenu, #major)
+    end if
     if (pTextKeys.count < 1) then
       return EMPTY
     end if

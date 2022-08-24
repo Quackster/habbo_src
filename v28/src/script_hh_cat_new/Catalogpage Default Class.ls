@@ -14,8 +14,10 @@ on construct me
 end
 
 on deconstruct me
-  if objectExists(pProductStrip.getID()) then
-    removeObject(pProductStrip.getID())
+  if not voidp(me.pProductStrip) then
+    if objectExists(pProductStrip.getID()) then
+      removeObject(pProductStrip.getID())
+    end if
   end if
   pPageItemDownloader.removeCallback(me, #downloadCompleted)
   return callAncestor(#deconstruct, [me])
@@ -28,8 +30,10 @@ on define me, tdata
   else
     tClass = getVariableValue("layout.class.default.productstrip")
   end if
-  pProductStrip = createObject(getUniqueID(), tClass)
-  pProductStrip.define(me.pPageData.offers)
+  if (tClass.count > 1) then
+    pProductStrip = createObject(getUniqueID(), tClass)
+    pProductStrip.define(me.pPageData.offers)
+  end if
   if voidp(pPersistentFurniData) then
     pPersistentFurniData = getThread("dynamicdownloader").getComponent().getPersistentFurniDataObject()
   end if
@@ -57,9 +61,7 @@ on mergeWindow me, tParentWndObj
   tTextFields = me.pPageData[#localization][#texts]
   repeat with i = 1 to tTextFields.count
     if (pTextElements.count >= i) then
-      if tParentWndObj.elementExists(pTextElements[i]) then
-        pWndObj.getElement(pTextElements[i]).setText(tTextFields[i])
-      end if
+      me.setElementText(pWndObj, pTextElements[i], tTextFields[i])
     end if
   end repeat
   tBitmaps = me.pPageData[#localization][#images]
@@ -76,7 +78,7 @@ on mergeWindow me, tParentWndObj
       end if
     end if
   end repeat
-  if tParentWndObj.elementExists("ctlg_productstrip") then
+  if (objectp(pProductStrip) and tParentWndObj.elementExists("ctlg_productstrip")) then
     pProductStrip.setTargetElement(tParentWndObj.getElement("ctlg_productstrip"), tParentWndObj.getElement("ctlg_products_scroll"))
   end if
   pOfferTypesAvailable = me.getPossibleBuyButtonTypes(tParentWndObj)
@@ -95,7 +97,9 @@ on hidePriceBox me
   repeat with i = 1 to pOfferTypesAvailable.count
     tElementList = pOfferTypesAvailable[i][#hideelements]
     repeat with j = 1 to tElementList.count
-      pWndObj.getElement(tElementList[j]).hide()
+      if pWndObj.elementExists(tElementList[j]) then
+        pWndObj.getElement(tElementList[j]).hide()
+      end if
     end repeat
   end repeat
 end
@@ -104,19 +108,25 @@ on showPriceBox me
   repeat with i = 1 to pOfferTypesAvailable.count
     tElementList = pOfferTypesAvailable[i][#hideelements]
     repeat with j = 1 to tElementList.count
-      pWndObj.getElement(tElementList[j]).show()
+      if pWndObj.elementExists(tElementList[j]) then
+        pWndObj.getElement(tElementList[j]).show()
+      end if
     end repeat
   end repeat
 end
 
 on setBuyButtonStates me, tOfferTypeList
   repeat with i = 1 to pOfferTypesAvailable.count
-    pWndObj.getElement(pOfferTypesAvailable.getPropAt(i)).deactivate()
+    if pWndObj.elementExists(pOfferTypesAvailable.getPropAt(i)) then
+      pWndObj.getElement(pOfferTypesAvailable.getPropAt(i)).deactivate()
+    end if
   end repeat
   repeat with j = 1 to tOfferTypeList.count
     repeat with i = 1 to pOfferTypesAvailable.count
       if (pOfferTypesAvailable[i][#type] = tOfferTypeList[j]) then
-        pWndObj.getElement(pOfferTypesAvailable.getPropAt(i)).Activate()
+        if pWndObj.elementExists(pOfferTypesAvailable.getPropAt(i)) then
+          pWndObj.getElement(pOfferTypesAvailable.getPropAt(i)).Activate()
+        end if
       end if
     end repeat
   end repeat
@@ -187,7 +197,9 @@ on showPreview me, tOffer
   if (ilk(tPrevImage) <> #image) then
     return error(me, "Could not resolve preview image", #showPreview, #major)
   end if
-  me.centerBlitImageToElement(tPrevImage, pWndObj.getElement(pImageElements[2]))
+  if pWndObj.elementExists(pImageElements[2]) then
+    me.centerBlitImageToElement(tPrevImage, pWndObj.getElement(pImageElements[2]))
+  end if
   tCatalogProps = pPersistentCatalogData.getProps(tOffer[#offerList][1][#offername])
   if listp(tCatalogProps) then
     tDesc = tCatalogProps[#description]
@@ -199,7 +211,8 @@ on showPreview me, tOffer
       tExpText = replaceChunks(tExpText, "%y%", tMins)
       tDesc = (tDesc && tExpText)
     end if
-    pWndObj.getElement("ctlg_description").setText(tDesc)
+    me.setElementText(pWndObj, "ctlg_description", tDesc)
+    me.setElementText(pWndObj, "ctlg_product_name", tCatalogProps[#name])
   else
     error(me, ("Missing catalogprops for offer " & tOffer[#offerList][1][#offername]), #showPreview, #minor)
   end if
@@ -207,9 +220,7 @@ on showPreview me, tOffer
     tElements = pOfferTypesAvailable[i].getaProp(#elements)
     tText = me.getOfferPriceTextByType(tOffer[#offerList], pOfferTypesAvailable[i].getaProp(#type))
     repeat with tElement in tElements
-      if pWndObj.elementExists(tElement) then
-        pWndObj.getElement(tElement).setText(tText)
-      end if
+      me.setElementText(pWndObj, tElement, tText)
     end repeat
   end repeat
   if (listp(tCatalogProps) and (pTextElements.count >= 3)) then
@@ -273,6 +284,9 @@ on handleClick me, tEvent, tSprID, tProp
   if (tEvent = #mouseUp) then
     case tSprID of
       "ctlg_productstrip":
+        if (ilk(tProp) <> #point) then
+          return 
+        end if
         tSelectedItem = VOID
         if objectp(pProductStrip) then
           pProductStrip.selectItemAt(tProp)
@@ -289,6 +303,9 @@ on handleClick me, tEvent, tSprID, tProp
           me.showPreview(tSelectedItem)
         end if
       "ctlg_buy_button", "ctlg_buy_pixels_credits", "ctlg_buy_pixels", "ctlg_buy_andwear":
+        if not objectp(pProductStrip) then
+          return 
+        end if
         tSelectedItem = pProductStrip.getSelectedItem()
         if not voidp(tSelectedItem) then
           tOfferType = pOfferTypesAvailable[tSprID].getaProp(#type)

@@ -13,12 +13,14 @@ on construct me
   pCreditInfoPageID = VOID
   pPixelInfoPageID = VOID
   pPurchaseProcessor = VOID
+  registerMessage(#refresh_catalogue, me.getID(), #refreshCatalogue)
 end
 
 on deconstruct me
   if objectExists(pPersistentCatalogDataId) then
     removeObject(pPersistentCatalogDataId)
   end if
+  unregisterMessage(#refresh_catalogue, me.getID())
 end
 
 on updatePageData me, tPageID, tdata
@@ -228,10 +230,14 @@ on getArePixelsEnabled me
   end if
 end
 
-on refreshCatalogue me
-  if me.getInterface().isVisible() then
+on refreshCatalogue me, tMode
+  if (tMode = #club) then
     me.getInterface().hideCatalogue()
-    me.getInterface().showCatalogWasPublishedDialog()
+  else
+    if me.getInterface().isVisible() then
+      me.getInterface().hideCatalogue()
+      me.getInterface().showCatalogWasPublishedDialog()
+    end if
   end if
   me.getHandler().requestCatalogIndex()
 end

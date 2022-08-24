@@ -71,6 +71,9 @@ on renderListImage me
 end
 
 on getEventAt me, tpoint
+  if (ilk(tpoint) <> #point) then
+    return 0
+  end if
   tLine = ((tpoint[2] / pLineHeight) + 1)
   if (tLine > pEventData.count) then
     return 0

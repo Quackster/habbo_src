@@ -19,6 +19,9 @@ on getPageId me
 end
 
 on getClassAsset me, tClassName
+  if (ilk(tClassName) <> #string) then
+    return EMPTY
+  end if
   tClass = tClassName
   if (tClass contains "*") then
     tClass = tClass.char[1]
@@ -176,6 +179,9 @@ on centerRectInRect me, tSmallrect, tLargeRect
 end
 
 on centerBlitImageToElement me, tImage, tElement
+  if not objectp(tElement) then
+    return error(me, "Image element was invalid", #centerBlitImageToElement, #minor)
+  end if
   tElement.clearBuffer()
   tOffset = me.centerRectInRect(tImage.rect, tElement.getProperty(#image).rect)
   tOldImage = tElement.getProperty(#image)
@@ -183,7 +189,21 @@ on centerBlitImageToElement me, tImage, tElement
   tElement.feedImage(tOldImage)
 end
 
+on setElementText me, tWndObj, tElemName, tText
+  if voidp(tWndObj) then
+    return 0
+  end if
+  if tWndObj.elementExists(tElemName) then
+    tWndObj.getElement(tElemName).setText(tText)
+  else
+  end if
+end
+
 on mergeWindow me
+  return error(me, "Calling virtual function from Catalogpage Base Class, you shouldn't be doing this!")
+end
+
+on downloadCompleted me
   return error(me, "Calling virtual function from Catalogpage Base Class, you shouldn't be doing this!")
 end
 
@@ -192,6 +212,10 @@ on unmergeWindow me
 end
 
 on renderPage me
+  return error(me, "Calling virtual function from Catalogpage Base Class, you shouldn't be doing this!")
+end
+
+on getSelectedProduct me
   return error(me, "Calling virtual function from Catalogpage Base Class, you shouldn't be doing this!")
 end
 

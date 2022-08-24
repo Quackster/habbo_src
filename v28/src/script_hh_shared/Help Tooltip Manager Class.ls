@@ -16,6 +16,9 @@ on deconstruct me
 end
 
 on createHelpTooltip me, tParams
+  if (ilk(tParams) <> #propList) then
+    return error(me, "Wrong param format", #createHelpTooltip, #major)
+  end if
   if (tParams.count < 2) then
     return error(me, "Wrong param count", #createHelpTooltip, #major)
   end if

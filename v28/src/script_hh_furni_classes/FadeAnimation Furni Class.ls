@@ -58,7 +58,7 @@ on update me
 end
 
 on setState me, tNewState
-  tNewState = value(tNewState)
+  tNewState = integer(tNewState)
   if (tNewState = pAnimState) then
     pCounter = 1
   end if

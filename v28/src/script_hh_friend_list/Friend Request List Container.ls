@@ -61,12 +61,3 @@ on getPendingRequests me
   end repeat
   return tPendingList
 end
-
-on cleanUpHandled me
-  repeat with tNo = 1 to pRequestList.count
-    tRequest = pRequestList[tNo]
-    if ((tRequest[#status] = #rejected) or (tRequest[#status] = #accepted)) then
-      pRequestList.deleteAt(tNo)
-    end if
-  end repeat
-end

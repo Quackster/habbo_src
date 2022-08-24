@@ -118,7 +118,7 @@ on relayEvent me, tEvent, tLocX, tLocY
   tListIndex = ((tLocY / me.pItemHeight) + 1)
   tEventResult = [:]
   tEventResult[#Event] = tEvent
-  if (tListIndex > me.pContentList.count) then
+  if ((tListIndex > me.pContentList.count) or (tListIndex < 1)) then
     nothing()
   else
     tFriend = me.pContentList[tListIndex]

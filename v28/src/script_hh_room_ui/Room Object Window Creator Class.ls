@@ -199,6 +199,9 @@ on createActionsHumanWindow me, tID, tTargetUserName, tShowButtons
     end if
     if tDancing then
       tButtonList["fx"] = #deactive
+      if not tFxFeatureOn then
+        tButtonList["fx"] = #hidden
+      end if
     end if
     tDanceButtonState = #visible
     if ((tLaying or tSwimming) or tFxOn) then
@@ -582,7 +585,7 @@ on updateFXDropDown me, tWndObj
   end if
   if (tAvailableFX.count = 0) then
     tNewKeyList = ["fx_btn_inventory"]
-    tNewTextList = ["fx_btn_inventory"]
+    tNewTextList = [getText("fx_btn_inventory")]
     tNewTextList2 = [EMPTY]
   else
     tOwnUser = getThread("room").getComponent().getOwnUser()

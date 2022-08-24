@@ -5,7 +5,7 @@ on construct me
   pimage = VOID
   pwidth = 0
   pheight = 0
-  pClickAreas = VOID
+  pClickAreas = []
 end
 
 on deconstruct me
@@ -94,6 +94,9 @@ on simulateClickByName me, tNodeName
 end
 
 on handleClick me, tloc
+  if (ilk(tloc) <> #point) then
+    return 
+  end if
   tNode = VOID
   repeat with i = 1 to pClickAreas.count
     if ((pClickAreas[i][#min] < tloc.locV) and (pClickAreas[i][#max] > tloc.locV)) then

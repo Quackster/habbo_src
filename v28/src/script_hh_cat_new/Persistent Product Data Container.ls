@@ -48,9 +48,9 @@ on downloadCallback me, tParams, tSuccess
         repeat with tItem in tVal
           tdata = [:]
           tdata[#code] = tItem[1]
-          tdata[#name] = tItem[2]
-          tdata[#description] = tItem[3]
-          tdata[#specialText] = tItem[4]
+          tdata[#name] = decodeUTF8(tItem[2])
+          tdata[#description] = decodeUTF8(tItem[3])
+          tdata[#specialText] = decodeUTF8(tItem[4])
           pData.setaProp(tItem[1], tdata)
         end repeat
       end if

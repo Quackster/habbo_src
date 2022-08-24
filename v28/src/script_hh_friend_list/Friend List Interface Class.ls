@@ -719,6 +719,9 @@ on handleListPanelEvent me, tEvent, tLocX, tLocY
     return me.removeInfoPopup()
   end if
   tViewObj = me.getViewListObject(pCurrentCategoryID)
+  if (tViewObj = 0) then
+    return error(me, "View List Object not found.", #handleListPanelEvent, #major)
+  end if
   tEventData = tViewObj.relayEvent(tEvent, tLocX, tLocY)
   if (ilk(tEventData) <> #propList) then
     return 0

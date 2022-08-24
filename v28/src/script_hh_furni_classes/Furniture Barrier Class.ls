@@ -14,7 +14,7 @@ on setState me, tValue
     return 0
   end if
   pBlinkCounter = 0
-  pState = tValue
+  pState = string(tValue)
   me.pSprList[5].visible = (pState = "1")
   return 1
 end

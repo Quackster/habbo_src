@@ -159,7 +159,7 @@ on relayEvent me, tEvent, tLocX, tLocY
   tEventResult = [:]
   tEventResult[#Event] = tEvent
   tEventResult[#cursor] = "cursor.arrow"
-  if (tListIndex > pContentList.count) then
+  if ((tListIndex > pContentList.count) or (tListIndex < 1)) then
     return tEventResult
   end if
   tFriend = pContentList[tListIndex]

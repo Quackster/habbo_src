@@ -23,54 +23,6 @@ on define me, tdata
   end if
 end
 
-on mergeWindow me, tParentWndObj
-  tLayoutMember = (("ctlg_" & me.pPageData[#layout]) & ".window")
-  if not memberExists(tLayoutMember) then
-    return error(me, (("Layout member " & tLayoutMember) & " missing."), #mergeWindow)
-  end if
-  tParentWndObj.merge(tLayoutMember)
-  pWndObj = tParentWndObj
-  tTextFields = me.pPageData[#localization][#texts]
-  repeat with i = 1 to tTextFields.count
-    if tParentWndObj.elementExists(pTextElements[i]) then
-      pWndObj.getElement(pTextElements[i]).setText(tTextFields[i])
-    end if
-  end repeat
-  tBitmaps = me.pPageData[#localization][#images]
-  repeat with i = 1 to tBitmaps.count
-    tBitmap = tBitmaps[i]
-    if (tParentWndObj.elementExists(pImageElements[i]) and (tBitmap.length > 1)) then
-      if memberExists(tBitmap) then
-        me.centerBlitImageToElement(getMember(tBitmap).image, tParentWndObj.getElement(pImageElements[i]))
-        next repeat
-      end if
-      pPageItemDownloader.defineCallback(me, #downloadCompleted)
-      pPageItemDownloader.registerDownload(#bitmap, tBitmap, [#imagedownload: 1, #element: pImageElements[i], #assetId: tBitmap, #pageid: me.pPageData[#pageid]])
-    end if
-  end repeat
-end
-
-on unmergeWindow me, tParentWndObj
-  tLayoutMember = (("ctlg_" & me.pPageData[#layout]) & ".window")
-  if not memberExists(tLayoutMember) then
-    return error(me, (("Layout member " & tLayoutMember) & " missing."), #mergeWindow)
-  end if
-  tParentWndObj.unmerge()
-end
-
-on centerRectInRect me, tSmallrect, tLargeRect
-  tpoint = point(0, 0)
-  tpoint.locH = ((tLargeRect.width - tSmallrect.width) / 2)
-  tpoint.locV = ((tLargeRect.height - tSmallrect.height) / 2)
-  if (tpoint.locH < 0) then
-    tpoint.locH = 0
-  end if
-  if (tpoint.locV < 0) then
-    tpoint.locV = 0
-  end if
-  return tpoint
-end
-
 on downloadCompleted me, tProps
   if (tProps[#props][#pageid] <> me.pPageData[#pageid]) then
     return 

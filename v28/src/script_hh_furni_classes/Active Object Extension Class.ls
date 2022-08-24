@@ -417,7 +417,11 @@ on updateStuffdata me, tValue
       tValue = pStateStringList.findPos(tValue)
     end if
   end if
-  me.setState(value(tValue))
+  tstate = integer(tValue)
+  if not integerp(tstate) then
+    tstate = tValue
+  end if
+  me.setState(tValue)
 end
 
 on setState me, tNewState
@@ -427,10 +431,10 @@ on setState me, tNewState
   if (tNewState = EMPTY) then
     tNewState = 1
   end if
-  if (ilk(value(tNewState)) <> #integer) then
+  if (ilk(integer(tNewState)) <> #integer) then
     return 0
   end if
-  tNewState = value(tNewState)
+  tNewState = integer(tNewState)
   tNewIndex = 0
   repeat with tIndex = 1 to pStateSequenceList.count
     tstate = pStateSequenceList[tIndex]

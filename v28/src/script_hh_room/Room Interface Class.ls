@@ -404,6 +404,9 @@ on updateQueueWindow me, tQueueCollection
     if tWndObj.elementExists(tTextElementList[i]) then
       tQueueTxtElem = tWndObj.getElement(tTextElementList[i])
       tQueueTxt = getText((("queue_set." & tQueueSetName) & ".info"))
+      if (ilk(tQueueData) <> #propList) then
+        return error(me, "tQueueData is not a propList", #updateQueueWindow, #major)
+      end if
       repeat with tCount = 1 to tQueueData.count
         tQueueProp = getPropAt(tQueueData, tCount)
         tQueueValue = tQueueData[tQueueProp]
@@ -658,14 +661,11 @@ on stopObjectMover me
   return 1
 end
 
-on startTrading me, tTargetUser
+on startTrading me, tTargetUserRoomId
   if (pSelectedType <> "user") then
     return 0
   end if
-  if (tTargetUser = getObject(#session).GET("user_name")) then
-    return 0
-  end if
-  me.getComponent().getRoomConnection().send("TRADE_OPEN", tTargetUser)
+  me.getComponent().getRoomConnection().send("TRADE_OPEN", [#integer: integer(tTargetUserRoomId)])
   if objectExists(pObjMoverID) then
     getObject(pObjMoverID).moveTrade()
   end if

@@ -181,13 +181,18 @@ on resolveSmallPreview me, tOffer
     end if
     tClass = me.getClassAsset(tFurniProps.getaProp(#class))
     if getThread(#dynamicdownloader).getComponent().isAssetDownloaded(tClass) then
-      tImage = getObject("Preview_renderer").renderPreviewImage(VOID, VOID, tFurniProps.getaProp(#partColors), tFurniProps.getaProp(#class))
+      tImage = getObject("Preview_renderer").renderPreviewImage(VOID, VOID, tFurniProps.getaProp(#partColors), tFurniProps.getaProp(#class)).duplicate()
       if (tOffer[#content][1][#productcount] > 1) then
         if not objectp(pDealPreviewObj) then
           error(me, "Deal preview renderer object missing.", #resolveSmallPreview)
           return tImage
         end if
         tCountImg = pDealPreviewObj.getNumberImage(tOffer[#content][1][#productcount])
+        if ((tCountImg.width + 2) > tImage.width) then
+          tNewImg = image((tCountImg.width + 2), tImage.height, tImage.depth)
+          tNewImg.copyPixels(tImage, tImage.rect, tImage.rect)
+          tImage = tNewImg
+        end if
         tImage.copyPixels(tCountImg, (tCountImg.rect + rect(2, 0, 2, 0)), tCountImg.rect, [#ink: 36])
       end if
       return tImage
@@ -215,6 +220,12 @@ on downloadCompleted me, tProps
     end if
     me.centerBlitImageToElement(getMember(tDlProps.getaProp(#assetId)).image, pWndObj.getElement(tDlProps[#element]))
   else
+    if (ilk(me.pPageData) <> #propList) then
+      return error(me, "Pagedata was invalid", #downloadCompleted, #major)
+    end if
+    if (ilk(pOldPageData["productList"]) <> #list) then
+      return 
+    end if
     tItemIndex = tProps[#props].getaProp(#itemIndex)
     pDealNumber = tItemIndex
     if (me.pPageData.offers.count < tItemIndex) then
@@ -232,6 +243,9 @@ end
 
 on renderGridPreview me, tItemIndex
   if objectp(pPageImplObj) then
+    if (me.pPageData.offers.count < tItemIndex) then
+      return 
+    end if
     me.ShowSmallIcons(#furniLoaded, me.pPageData.offers[tItemIndex][#offerList][1][#offername])
     pPageImplObj.define(pOldPageData)
   end if

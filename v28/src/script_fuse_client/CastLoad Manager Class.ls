@@ -221,6 +221,12 @@ on InitPreloader me
 end
 
 on AddNextpreloadNetThing me
+  if the traceScript then
+    return 0
+  end if
+  the traceScript = 0
+  _movie.traceScript = 0
+  _player.traceScript = 0
   if (pCurrentDownLoads.count < getIntVariable("net.operation.count", 2)) then
     if (pWaitList.count > 0) then
       if (count(pWaitList[1]) > 0) then
@@ -239,10 +245,20 @@ on AddNextpreloadNetThing me
           tFileExtension = tPossibleExtension
           tParsedFile = chars(tFile, 1, (tFile.length - tPossibleExtension.length))
         end if
-        if (not tParsedFile contains "http://") then
-          tURL = (((getMoviePath() & tParsedFile) & tFileExtension) & tParamString)
+        if ((tParsedFile contains "http://") or (tParsedFile contains "https://")) then
+          if (the runMode contains "Author") then
+            tURL = ((tParsedFile & tFileExtension) & tParamString)
+          else
+            tClientDomain = me.getDomainAndTld(getMoviePath())
+            tUrlDomain = me.getDomainAndTld(tParsedFile)
+            if (tClientDomain <> tUrlDomain) then
+              tURL = (getMoviePath() & "empty.cct")
+            else
+              tURL = ((tParsedFile & tFileExtension) & tParamString)
+            end if
+          end if
         else
-          tURL = ((tParsedFile & tFileExtension) & tParamString)
+          tURL = (((getMoviePath() & tParsedFile) & tFileExtension) & tParamString)
         end if
         tID = pWaitList.getPropAt(1)
         pWaitList[1].deleteAt(1)
@@ -258,6 +274,47 @@ on AddNextpreloadNetThing me
     end if
   end if
   return 0
+end
+
+on getDomainAndTld me, tURL
+  if the traceScript then
+    return 0
+  end if
+  the traceScript = 0
+  _movie.traceScript = 0
+  _player.traceScript = 0
+  if (ilk(tURL) <> #string) then
+    return tURL
+  end if
+  if (offset("?", tURL) > 0) then
+    tURL = chars(tURL, 0, (offset("?", tURL) - 1))
+  end if
+  if (chars(tURL, tURL.length, tURL.length) = "/") then
+    tURL = chars(tURL, 0, (tURL.length - 1))
+  end if
+  tDelim = the itemDelimiter
+  the itemDelimiter = "/"
+  if ((tURL contains "http://") or (tURL contains "https://")) then
+    tURL = tURL.item[3]
+  else
+    tURL = tURL.item[1]
+  end if
+  the itemDelimiter = ":"
+  tURL = tURL.item[1]
+  the itemDelimiter = "."
+  tTldItemCount = 1
+  tDomainAndTld = EMPTY
+  if (tURL.item.count > 2) then
+    tExtTld = tURL.item[(tURL.item.count - 1)]
+    if (((tExtTld = "co.uk") or (tExtTld = "com.br")) or (tExtTld = "com.au")) then
+      tTldItemCount = 2
+    end if
+    tDomainAndTld = tURL.item[(tURL.item.count - tTldItemCount)]
+  else
+    tDomainAndTld = tURL
+  end if
+  the itemDelimiter = tDelim
+  return tDomainAndTld
 end
 
 on DoneCurrentDownLoad me, tFile, tURL, tID, tstate

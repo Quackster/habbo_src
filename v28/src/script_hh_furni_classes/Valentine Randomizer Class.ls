@@ -24,7 +24,7 @@ end
 on select me
   if the doubleClick then
     if ((me.pState = 1) or ((me.pState = pExtraStateCount) and ((the milliSeconds - pRollStartMillis) > (15 * 1000)))) then
-      getThread(#room).getComponent().getRoomConnection().send("SET_RANDOM_STATE", [#integer: value(me.getID())])
+      getThread(#room).getComponent().getRoomConnection().send("SET_RANDOM_STATE", [#integer: integer(me.getID())])
       pRunning = 1
     end if
   else
@@ -65,7 +65,7 @@ on update me
 end
 
 on setState me, tNewState
-  tNewState = value(tNewState)
+  tNewState = integer(tNewState)
   if (tNewState > 1000) then
     tNewState = 0
     pRunning = 1
@@ -77,7 +77,7 @@ on setState me, tNewState
 end
 
 on setStateInternal me, tNewState
-  tNewState = value(tNewState)
+  tNewState = integer(tNewState)
   if not pRunning then
     if (tNewState > 0) then
       tNewState = 1

@@ -43,6 +43,13 @@ on queue me, tURL, tMemName, ttype, tForceFlag, tDownloadMethod, tRedirectType, 
     ttype = me.recognizeMemberType(tURL)
   end if
   tURL = getPredefinedURL(tURL)
+  if not (the runMode contains "Author") then
+    tClientDomain = me.getDomainAndTld(getMoviePath())
+    tUrlDomain = me.getDomainAndTld(tURL)
+    if (tClientDomain <> tUrlDomain) then
+      return 0
+    end if
+  end if
   tOwnDomain = getDomainPart(getMoviePath())
   tDownloadDomain = getDomainPart(tURL)
   if (((tOwnDomain <> tDownloadDomain) and ((tURL contains "http://") or (tURL contains "https://"))) and not (tURL contains "://localhost")) then
@@ -377,4 +384,45 @@ on fillTypeDefinitions me
   pTypeDefList["ttf"] = #font
   pTypeDefList["cur"] = #cursor
   return 1
+end
+
+on getDomainAndTld me, tURL
+  if the traceScript then
+    return 0
+  end if
+  the traceScript = 0
+  _movie.traceScript = 0
+  _player.traceScript = 0
+  if (ilk(tURL) <> #string) then
+    return tURL
+  end if
+  if (offset("?", tURL) > 0) then
+    tURL = chars(tURL, 0, (offset("?", tURL) - 1))
+  end if
+  if (chars(tURL, tURL.length, tURL.length) = "/") then
+    tURL = chars(tURL, 0, (tURL.length - 1))
+  end if
+  tDelim = the itemDelimiter
+  the itemDelimiter = "/"
+  if ((tURL contains "http://") or (tURL contains "https://")) then
+    tURL = tURL.item[3]
+  else
+    tURL = tURL.item[1]
+  end if
+  the itemDelimiter = ":"
+  tURL = tURL.item[1]
+  the itemDelimiter = "."
+  tTldItemCount = 1
+  tDomainAndTld = EMPTY
+  if (tURL.item.count > 2) then
+    tExtTld = tURL.item[(tURL.item.count - 1)]
+    if (((tExtTld = "co.uk") or (tExtTld = "com.br")) or (tExtTld = "com.au")) then
+      tTldItemCount = 2
+    end if
+    tDomainAndTld = tURL.item[(tURL.item.count - tTldItemCount)]
+  else
+    tDomainAndTld = tURL
+  end if
+  the itemDelimiter = tDelim
+  return tDomainAndTld
 end

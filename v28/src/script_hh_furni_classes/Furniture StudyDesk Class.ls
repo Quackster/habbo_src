@@ -22,7 +22,7 @@ on setState me, tValue
     tPartStates = pToggleParts[1]
     tValue = pToggleParts.getPropAt(1)
   end if
-  pState = tValue
+  pState = string(tValue)
   repeat with tPart in tPartStates
     tPartId = tPart.sprite
     tmember = tPart.member

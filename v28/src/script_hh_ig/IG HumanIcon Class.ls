@@ -56,7 +56,9 @@ on show_ig_icon me, tParams
 end
 
 on hide me
-  pSprite.loc = point(-1000, -1000)
+  if (ilk(pSprite) = #sprite) then
+    pSprite.loc = point(-1000, -1000)
+  end if
   return 1
 end
 
@@ -82,7 +84,9 @@ on update me
     if (tMemNum <= 0) then
       return 0
     end if
-    pSprite.member = member(tMemNum)
+    if (ilk(pSprite) = #sprite) then
+      pSprite.member = member(tMemNum)
+    end if
   end if
   tHumanObj = getThread(#room).getComponent().getUserObject(pUserId)
   if (tHumanObj = 0) then
@@ -109,49 +113,51 @@ on update me
   if not tChanges then
     return 1
   end if
-  pSprite.locZ = (tHumanObj.getProperty(#locZ) + 3200)
-  pLastLoc = tHumanLoc
-  pLastDir = tHumanDir
-  if (pSize = "h") then
-    tLocV = (tHumanLoc[2] - 65)
-    case tHumanDir of
-      7:
-        pSprite.loc = point(((tHumanLoc[1] - (pSprite.width / 2)) - 2), tLocV)
-      6:
-        pSprite.loc = point(((tHumanLoc[1] - (pSprite.width / 2)) + 1), tLocV)
-      5:
-        pSprite.loc = point(((tHumanLoc[1] - (pSprite.width / 2)) + 2), tLocV)
-      4:
-        pSprite.loc = point(((tHumanLoc[1] - (pSprite.width / 2)) - 1), tLocV)
-      3:
-        pSprite.loc = point(((tHumanLoc[1] - (pSprite.width / 2)) - 2), tLocV)
-      2:
-        pSprite.loc = point(((tHumanLoc[1] - (pSprite.width / 2)) - 2), tLocV)
-      1:
-        pSprite.loc = point((tHumanLoc[1] - (pSprite.width / 2)), tLocV)
-      0:
-        pSprite.loc = point(((tHumanLoc[1] - (pSprite.width / 2)) - 1), tLocV)
-    end case
-  else
-    tLocV = (tHumanLoc[2] - 44)
-    case tHumanDir of
-      7:
-        pSprite.loc = point(((tHumanLoc[1] - (pSprite.width / 2)) - 2), tLocV)
-      6:
-        pSprite.loc = point(((tHumanLoc[1] - (pSprite.width / 2)) - 1), tLocV)
-      5:
-        pSprite.loc = point(((tHumanLoc[1] - (pSprite.width / 2)) - 1), tLocV)
-      4:
-        pSprite.loc = point(((tHumanLoc[1] - (pSprite.width / 2)) + 1), tLocV)
-      3:
-        pSprite.loc = point(((tHumanLoc[1] - (pSprite.width / 2)) - 2), tLocV)
-      2:
-        pSprite.loc = point(((tHumanLoc[1] - (pSprite.width / 2)) - 2), tLocV)
-      1:
-        pSprite.loc = point(((tHumanLoc[1] - (pSprite.width / 2)) - 1), tLocV)
-      0:
-        pSprite.loc = point(((tHumanLoc[1] - (pSprite.width / 2)) - 2), tLocV)
-    end case
+  if (ilk(pSprite) = #sprite) then
+    pSprite.locZ = (tHumanObj.getProperty(#locZ) + 3200)
+    pLastLoc = tHumanLoc
+    pLastDir = tHumanDir
+    if (pSize = "h") then
+      tLocV = (tHumanLoc[2] - 65)
+      case tHumanDir of
+        7:
+          pSprite.loc = point(((tHumanLoc[1] - (pSprite.width / 2)) - 2), tLocV)
+        6:
+          pSprite.loc = point(((tHumanLoc[1] - (pSprite.width / 2)) + 1), tLocV)
+        5:
+          pSprite.loc = point(((tHumanLoc[1] - (pSprite.width / 2)) + 2), tLocV)
+        4:
+          pSprite.loc = point(((tHumanLoc[1] - (pSprite.width / 2)) - 1), tLocV)
+        3:
+          pSprite.loc = point(((tHumanLoc[1] - (pSprite.width / 2)) - 2), tLocV)
+        2:
+          pSprite.loc = point(((tHumanLoc[1] - (pSprite.width / 2)) - 2), tLocV)
+        1:
+          pSprite.loc = point((tHumanLoc[1] - (pSprite.width / 2)), tLocV)
+        0:
+          pSprite.loc = point(((tHumanLoc[1] - (pSprite.width / 2)) - 1), tLocV)
+      end case
+    else
+      tLocV = (tHumanLoc[2] - 44)
+      case tHumanDir of
+        7:
+          pSprite.loc = point(((tHumanLoc[1] - (pSprite.width / 2)) - 2), tLocV)
+        6:
+          pSprite.loc = point(((tHumanLoc[1] - (pSprite.width / 2)) - 1), tLocV)
+        5:
+          pSprite.loc = point(((tHumanLoc[1] - (pSprite.width / 2)) - 1), tLocV)
+        4:
+          pSprite.loc = point(((tHumanLoc[1] - (pSprite.width / 2)) + 1), tLocV)
+        3:
+          pSprite.loc = point(((tHumanLoc[1] - (pSprite.width / 2)) - 2), tLocV)
+        2:
+          pSprite.loc = point(((tHumanLoc[1] - (pSprite.width / 2)) - 2), tLocV)
+        1:
+          pSprite.loc = point(((tHumanLoc[1] - (pSprite.width / 2)) - 1), tLocV)
+        0:
+          pSprite.loc = point(((tHumanLoc[1] - (pSprite.width / 2)) - 2), tLocV)
+      end case
+    end if
   end if
 end
 

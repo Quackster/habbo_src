@@ -71,8 +71,12 @@ on define me, tProps
       end if
     end if
   end if
-  tstate = tProps[#type]
-  if ((ilk(value(tstate)) <> #integer) or (value(tstate) = 0)) then
+  if (integerp(integer(tProps[#type])) and not ((tProps[#type] contains ",") or (tProps[#type] contains "#"))) then
+    tstate = integer(tProps[#type])
+  else
+    tstate = tProps[#type]
+  end if
+  if (tstate = 0) then
     tstate = 1
   end if
   me.setState(tstate)
@@ -347,10 +351,10 @@ on setState me, tNewState
   repeat with tLayer = 1 to pLayerDataList.count
     pLoopCountList[tLayer] = 0
   end repeat
-  if (ilk(value(tNewState)) <> #integer) then
+  if (ilk(integer(tNewState)) <> #integer) then
     return 0
   end if
-  tNewState = value(tNewState)
+  tNewState = integer(tNewState)
   tNewIndex = 0
   repeat with tIndex = 1 to pStateSequenceList.count
     tstate = pStateSequenceList[tIndex]

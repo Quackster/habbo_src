@@ -491,7 +491,7 @@ on eventProcTrading me, tEvent, tSprID, tParam
             if pAcceptFlagMe then
               getThread(#room).getComponent().getRoomConnection().send("TRADE_UNACCEPT")
             end if
-            getThread(#room).getComponent().getRoomConnection().send("TRADE_ADDITEM", tStripID)
+            getThread(#room).getComponent().getRoomConnection().send("TRADE_ADDITEM", [#integer: integer(tStripID)])
             return tObjMover.clear()
           end if
         end if

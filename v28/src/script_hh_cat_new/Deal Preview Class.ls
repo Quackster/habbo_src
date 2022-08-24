@@ -82,7 +82,7 @@ on getPicture me, tImg
     tmember = getImage(tClass)
     if (tmember <> 0) then
       if (not voidp(tClass) and not voidp(tpartColors)) then
-        tRenderedImage = getObject("Preview_renderer").renderPreviewImage(VOID, VOID, tpartColors, tClass)
+        tRenderedImage = getObject("Preview_renderer").renderPreviewImage(VOID, VOID, tpartColors, tClass).duplicate()
       else
         tRenderedImage = member(tmember).image
       end if

@@ -462,7 +462,7 @@ on handle_items me, tMsg
     if (tLine <> EMPTY) then
       tObj = [:]
       tObj[#id] = tLine.item[1]
-      tClassID = value(tLine.item[2])
+      tClassID = integer(tLine.item[2])
       tFurniData = pPersistentFurniData.getProps("i", tClassID)
       if voidp(tFurniData) then
         error(me, ("Persistent properties missing for item classid " & tClassID), #handle_items, #major)
@@ -488,11 +488,11 @@ on handle_items me, tMsg
           tLocString = tLine.item[4]
           tWallLoc = tLocString.word[1].char[4]
           the itemDelimiter = ","
-          tObj[#wall_x] = value(tWallLoc.item[1])
-          tObj[#wall_y] = value(tWallLoc.item[2])
+          tObj[#wall_x] = integer(tWallLoc.item[1])
+          tObj[#wall_y] = integer(tWallLoc.item[2])
           tLocalLoc = tLocString.word[2].char[3]
-          tObj[#local_x] = value(tLocalLoc.item[1])
-          tObj[#local_y] = value(tLocalLoc.item[2])
+          tObj[#local_x] = integer(tLocalLoc.item[1])
+          tObj[#local_y] = integer(tLocalLoc.item[2])
           tDirChar = tLocString.word[3]
           case tDirChar of
             "r":
@@ -577,7 +577,10 @@ on handle_room_rights me, tMsg
   end case
 end
 
-on handle_stripinfo me, tMsg
+on handle_stripinfo me, tMsg, tItemDeLim
+  if voidp(tItemDeLim) then
+    tItemDeLim = numToChar(30)
+  end if
   if voidp(pPersistentFurniData) then
     pPersistentFurniData = getThread("dynamicdownloader").getComponent().getPersistentFurniDataObject()
   end if
@@ -594,7 +597,7 @@ on handle_stripinfo me, tMsg
     if (tItem = EMPTY) then
       exit repeat
     end if
-    the itemDelimiter = numToChar(30)
+    the itemDelimiter = tItemDeLim
     if (tItem.item.count < 2) then
       tTotalItemCount = integer((tItem - 1))
       exit repeat
@@ -604,7 +607,10 @@ on handle_stripinfo me, tMsg
     tObjectPos = integer(tItem.item[3])
     tObj[#striptype] = tItem.item[4]
     tObj[#id] = tItem.item[5]
-    tClassID = value(tItem.item[6])
+    tClassID = integer(tItem.item[6])
+    if not integerp(tClassID) then
+      tClassID = tItem.item[6]
+    end if
     case tObj[#striptype] of
       "S":
         tFurniProps = pPersistentFurniData.getProps("s", tClassID)
@@ -621,11 +627,14 @@ on handle_stripinfo me, tMsg
         tObj[#stuffdata] = tItem.item[7]
         tObj[#isRecyclable] = tItem.item[8]
         tObj[#isTradeable] = tItem.item[9]
-        if ((tItem.item[10] <> EMPTY) and (tItem.item.count >= 10)) then
-          tObj[#slotID] = tItem.item[10]
+        if (tItem.item.count >= 10) then
+          tObj[#expire] = tItem.item[10]
         end if
         if ((tItem.item[11] <> EMPTY) and (tItem.item.count >= 11)) then
-          tObj[#songID] = tItem.item[11]
+          tObj[#slotID] = tItem.item[11]
+        end if
+        if ((tItem.item[12] <> EMPTY) and (tItem.item.count >= 12)) then
+          tObj[#songID] = tItem.item[12]
         end if
         the itemDelimiter = ","
         if (tObj[#colors].char[1] = "#") then
@@ -648,6 +657,9 @@ on handle_stripinfo me, tMsg
         tObj[#props] = tItem.item[7]
         tObj[#isRecyclable] = tItem.item[8]
         tObj[#isTradeable] = tItem.item[9]
+        if (tItem.item.count >= 10) then
+          tObj[#expire] = tItem.item[10]
+        end if
         case tObj[#class] of
           "poster":
             tObj[#name] = getText((("poster_" & tObj[#props]) & "_name"), (("poster_" & tObj[#props]) & "_name"))
@@ -707,17 +719,26 @@ on handle_idata me, tMsg
 end
 
 on handle_trade_items me, tMsg
+  tConn = tMsg.connection
+  if not tConn then
+    return 0
+  end if
+  tMsgParts = []
+  tMsgParts.add(tConn.GetStrFrom())
+  tMsgParts.add(tConn.GetStrFrom())
   tMessage = [:]
-  repeat with i = 1 to 2
-    tLine = tMsg.content.line[i]
+  repeat with i = 1 to tMsgParts.count
+    tLine = tMsgParts[i]
     tdata = [:]
-    tdata[#accept] = tLine.word[2]
-    tItemStr = (((("foo" & RETURN) & tLine.word[3]) & RETURN) & 1)
-    tdata[#items] = me.handle_stripinfo([#subject: 108, #content: tItemStr]).getaProp(#objects)
+    tDelim = the itemDelimiter
+    the itemDelimiter = ";"
+    tdata[#accept] = tLine.item[2]
+    tItemStr = (((("foo" & RETURN) & tLine.item[3]) & RETURN) & 1)
+    tdata[#items] = me.handle_stripinfo([#subject: 108, #content: tItemStr], ";").getaProp(#objects)
     if not listp(tdata[#items]) then
       return error(me, "Invalid itemdata from server!", #handle_trade_items, #major)
     end if
-    tUserName = tLine.word[1]
+    tUserName = tLine.item[1]
     if (tUserName = EMPTY) then
       return error(me, "No username from server", #handle_trade_items, #major)
     end if
@@ -735,12 +756,13 @@ on handle_trade_close me, tMsg
 end
 
 on handle_trade_accept me, tMsg
-  tDelim = the itemDelimiter
-  the itemDelimiter = "/"
-  tuser = tMsg.content.item[1]
-  tValue = (tMsg.content.item[2] = "true")
-  the itemDelimiter = tDelim
-  me.getInterface().getSafeTrader().accept(tuser, tValue)
+  tConn = tMsg.connection
+  if not tConn then
+    return 0
+  end if
+  tUserName = tConn.GetStrFrom()
+  tValue = tConn.GetIntFrom()
+  me.getInterface().getSafeTrader().accept(tUserName, tValue)
 end
 
 on handle_trade_completed me, tMsg
@@ -1132,12 +1154,6 @@ on handle_ignore_list me, tMsg
   return executeMessage(#save_ignore_list, tList)
 end
 
-on handle_furni_expired me, tMsg
-  tConn = tMsg.getaProp(#connection)
-  tObjID = tConn.GetIntFrom()
-  executeMessage(#furni_expired, tObjID)
-end
-
 on regMsgList me, tBool
   tMsgs = [:]
   tMsgs.setaProp(-1, #handle_disconnect)
@@ -1212,7 +1228,6 @@ on regMsgList me, tBool
   tMsgs.setaProp(370, #handle_roomevent_info)
   tMsgs.setaProp(419, #handle_ignore_user_result)
   tMsgs.setaProp(420, #handle_ignore_list)
-  tMsgs.setaProp(999, #handle_furni_expired)
   tCmds = [:]
   tCmds.setaProp(#room_directory, 2)
   tCmds.setaProp("GETDOORFLAT", 28)

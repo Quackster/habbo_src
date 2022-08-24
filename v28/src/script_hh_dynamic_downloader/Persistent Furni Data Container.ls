@@ -31,7 +31,7 @@ on getProps me, ttype, tID
   case ttype of
     "s":
       return pStuffData.getaProp(tID)
-    "i":
+    "i", "e":
       return pWallitemData.getaProp(tID)
     otherwise:
       error(me, "invalid item type", #getProps, #minor)
@@ -42,7 +42,7 @@ on getPropsByClass me, ttype, tClass
   case ttype of
     "s":
       return pStuffDataByClass.getaProp(tClass)
-    "i":
+    "i", "e":
       return pWallitemDataByClass.getaProp(tClass)
     otherwise:
       error(me, "invalid item type", #getProps, #minor)

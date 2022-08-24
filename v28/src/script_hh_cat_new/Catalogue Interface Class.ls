@@ -4,7 +4,7 @@ on construct me
   pWndObj = VOID
   pCurrentPageObj = VOID
   pTreeView = VOID
-  pWndID = EMPTY
+  pWndID = "Catalogue"
   pDealPreviewObject = createObject("catalogue_deal_preview_object", ["Deal Preview Class"])
   pLastOpenedPage = -1
   pInfoWindowID = "Catalog Info Dialog"
@@ -42,6 +42,9 @@ on displayPage me, tPageID
 end
 
 on updateTreeView me
+  if not (windowExists(pWndID) and objectp(pWndObj)) then
+    return error(me, "Catalogue Window does not exist!", #updateTreweView, #major)
+  end if
   tTreeviewImage = pTreeView.getInterface().getImage()
   tDestElement = pWndObj.getElement("ctlg_pages")
   if (voidp(tDestElement) or (tDestElement = 0)) then
@@ -75,14 +78,20 @@ on showHideCatalogue me
 end
 
 on updatePurseSaldo me
-  if objectp(pWndObj) then
+  if (windowExists(pWndID) and objectp(pWndObj)) then
     tSaldo = getObject(#session).GET("user_walletbalance")
     if integerp(tSaldo) then
-      pWndObj.getElement("catalog_credits_bottom").setText((tSaldo && getText("credits", "Credits")))
+      tElement = pWndObj.getElement("catalog_credits_bottom")
+      if objectp(tElement) then
+        tElement.setText((tSaldo && getText("credits", "Credits")))
+      end if
     end if
-    tPixels = getObject(#session).GET("user_pixelbalance")
-    if integerp(tPixels) then
-      pWndObj.getElement("catalog_pixels_bottom").setText((tPixels && getText("pixels", "Pixels")))
+    if getObject(#session).exists("user_pixelbalance") then
+      tPixels = getObject(#session).GET("user_pixelbalance")
+      tElement = pWndObj.getElement("catalog_pixels_bottom")
+      if objectp(tElement) then
+        tElement.setText((tPixels && getText("pixels", "Pixels")))
+      end if
     end if
   end if
 end
@@ -163,7 +172,7 @@ on showCatalogWasPublishedDialog me
 end
 
 on isVisible me
-  return objectp(pWndObj)
+  return (objectp(pWndObj) and windowExists(pWndID))
 end
 
 on playPixelPurchaseSound me
@@ -172,7 +181,6 @@ end
 
 on showWindow me
   if voidp(pWndObj) then
-    pWndID = "Catalogue"
     if not createWindow(pWndID, "habbo_catalogue.window") then
       return error(me, "Unable to create catalogue window.", #showWindow, #major)
     end if
@@ -183,13 +191,17 @@ on showWindow me
     pWndObj.registerProcedure(#eventProcCatalogue, me.getID(), #mouseUp)
     pWndObj.registerProcedure(#eventProcCatalogue, me.getID(), #mouseDown)
     pWndObj.registerProcedure(#eventProcCatalogue, me.getID(), #keyDown)
-    pWndObj.registerProcedure(#eventProcCatalogue, me.getID(), #mouseEnter)
-    pWndObj.registerProcedure(#eventProcCatalogue, me.getID(), #mouseLeave)
+  end if
+  if not objectp(pWndObj) then
+    return error(me, "No window object in catalogue!", #showWindow, #critical)
   end if
   if voidp(pTreeView) then
     pTreeView = createObject(getUniqueID(), ["Treeview Class"])
     tDestElement = pWndObj.getElement("ctlg_pages")
-    if (objectp(tDestElement) and not voidp(me.getComponent().getCatalogIndex())) then
+    if not objectp(tDestElement) then
+      return error(me, "No destination element for treeview", #showWindow, #critical)
+    end if
+    if not voidp(me.getComponent().getCatalogIndex()) then
       pTreeView.define(me.getComponent().getCatalogIndex(), tDestElement.getProperty(#width), tDestElement.getProperty(#height))
     end if
   end if
@@ -223,6 +235,9 @@ on destroyWindow me
 end
 
 on showPage me, tPageData
+  if not windowExists(pWndID) then
+    return error(me, "Catalogue Window does not exist!", #showPage, #major)
+  end if
   if objectp(pCurrentPageObj) then
     pCurrentPageObj.unmergeWindow(pWndObj)
     removeObject(pCurrentPageObj.getID())
@@ -241,8 +256,10 @@ on showPage me, tPageData
 end
 
 on activateTreeviewNodeByName me, tNodeName
-  pTreeView.getInterface().simulateClickByName(tNodeName)
-  me.updateTreeView()
+  if windowExists(pWndID) then
+    pTreeView.getInterface().simulateClickByName(tNodeName)
+    me.updateTreeView()
+  end if
 end
 
 on eventProcCatalogue me, tEvent, tSprID, tProp
@@ -276,6 +293,9 @@ on getSelectedProduct me
 end
 
 on showPreviewImage me, tProps, tElemID
+  if not windowExists(pWndID) then
+    error(me, "Catalogue Window does not exist!", #showPreviewImage, #major)
+  end if
   tWndObj = pWndObj
   if voidp(tElemID) then
     tElemID = "ctlg_teaserimg_1"
@@ -475,6 +495,9 @@ on hidePurchaseOk me, tOptionalEvent, tOptionalSprID
 end
 
 on getClassAsset me, tClassName
+  if (ilk(tClassName) <> #string) then
+    return EMPTY
+  end if
   tClass = tClassName
   if (tClass contains "*") then
     tClass = tClass.char[1]

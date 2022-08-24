@@ -44,7 +44,10 @@ on update me
 end
 
 on setState me, tNewState
-  tNewState = value(tNewState)
+  tNewState = integer(tNewState)
+  if not integerp(tNewState) then
+    tNewState = 1
+  end if
   if (tNewState = 2) then
     pCounter = 1
     if voidp(pBlendSpriteList) then

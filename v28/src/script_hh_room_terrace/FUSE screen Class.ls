@@ -28,6 +28,8 @@ on construct me
   adIdNum = VOID
   pPaaluPlayers = [:]
   pWriterID = getUniqueID()
+  registerMessage(#takingPhoto, me.getID(), #useLogoMember)
+  registerMessage(#photoTaken, me.getID(), #useCamMember)
   tMetrics = getStructVariable("struct.font.bold")
   tMetrics.setaProp(#color, rgb("#FFFF99"))
   tMetrics.setaProp(#bgColor, rgb(0, 0, 0))
@@ -42,9 +44,23 @@ on construct me
 end
 
 on deconstruct me
+  unregisterMessage(#takingPhoto, me.getID())
+  unregisterMessage(#photoTaken, me.getID())
   removeWriter(pWriterID)
   removePrepare(me.getID())
   return 1
+end
+
+on useLogoMember me
+  if (ilk(pSprite) = #sprite) then
+    pSprite.blend = 0
+  end if
+end
+
+on useCamMember me
+  if (ilk(pSprite) = #sprite) then
+    pSprite.blend = 100
+  end if
 end
 
 on activatePaaluPlayer me, tName, tObj

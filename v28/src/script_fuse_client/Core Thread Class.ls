@@ -1,6 +1,32 @@
-property pState, pLogoSpr, pFadingLogo, pLogoStartTime, pCrapFixing, pCrapFixSpr, pCrapFixRegionInvalidated, pFullScreenRefreshSpr
+property pState, pLogoSpr, pFadingLogo, pLogoStartTime, pCrapFixing, pCrapFixSpr, pCrapFixRegionInvalidated, pFullScreenRefreshSpr, pWhiteListEmbedParams
 
 on construct me
+  pWhiteListEmbedParams = []
+  pWhiteListEmbedParams.add("client.connection.failed.url")
+  pWhiteListEmbedParams.add("external.variables.txt")
+  pWhiteListEmbedParams.add("sso.ticket")
+  pWhiteListEmbedParams.add("processlog.url")
+  pWhiteListEmbedParams.add("connection.info.host")
+  pWhiteListEmbedParams.add("connection.info.port")
+  pWhiteListEmbedParams.add("site.url")
+  pWhiteListEmbedParams.add("url.prefix")
+  pWhiteListEmbedParams.add("connection.mus.host")
+  pWhiteListEmbedParams.add("connection.mus.port")
+  pWhiteListEmbedParams.add("client.allow.cross.domain")
+  pWhiteListEmbedParams.add("client.notify.cross.domain")
+  pWhiteListEmbedParams.add("external.texts.txt")
+  pWhiteListEmbedParams.add("use.sso.ticket")
+  pWhiteListEmbedParams.add("account_id")
+  pWhiteListEmbedParams.add("client.reload.url")
+  pWhiteListEmbedParams.add("client.fatal.error.url")
+  pWhiteListEmbedParams.add("client.connection.failed.url")
+  pWhiteListEmbedParams.add("user_partnersite")
+  pWhiteListEmbedParams.add("user_isp")
+  pWhiteListEmbedParams.add("friend.id")
+  pWhiteListEmbedParams.add("forward.type")
+  pWhiteListEmbedParams.add("forward.id")
+  pWhiteListEmbedParams.add("forward.open.hand")
+  pWhiteListEmbedParams.add("shortcut.id")
   tSession = createObject(#session, getClassVariable("variable.manager.class"))
   tSession.set("client_startdate", the date)
   tSession.set("client_starttime", the long time)
@@ -222,6 +248,9 @@ on updateState me, tstate
               tParam = tParamBundle.item[j]
               the itemDelimiter = "="
               if (tParam.item.count > 1) then
+                if (pWhiteListEmbedParams.getPos(tParam.item[1]) = 0) then
+                  next repeat
+                end if
                 getVariableManager().set(tParam.item[1], tParam.item[2])
               end if
               the itemDelimiter = ";"

@@ -221,6 +221,7 @@ on updateClubStatus me, tStatus, tResponseFlag, tOldClubStatus
     else
       me.setupStatusWindow(#BeenHcBefore)
     end if
+    executeMessage(#refresh_catalogue, #club)
   end if
   if (tResponseFlag = 3) then
     me.setupWindow(pDialogId, #modal)

@@ -11,10 +11,12 @@ on construct me
   createObject(pObjectDispID, "Room Object Displayer Class")
   createObject(pBadgeObjID, "Badge Manager Class")
   createObject(pFxInvObjID, "Effect Inventory Class")
+  registerMessage(#takingPhoto, me.getID(), #hideInfoStand)
   return 1
 end
 
 on deconstruct me
+  unregisterMessage(#takingPhoto, me.getID())
   removeObject(pRoomInfoID)
   removeObject(pRoomBarID)
   removeObject(pObjectDispID)

@@ -10,6 +10,7 @@ on updateStuffdata me, tValue
 end
 
 on setState me, tValue
+  tValue = string(tValue)
   if (me.pSprList.count < 3) then
     return 0
   end if

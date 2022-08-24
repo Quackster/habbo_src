@@ -32,6 +32,9 @@ on define me, tdata, tWidth, tHeight, tPageID
 end
 
 on setStripItemState me, tItemIndex, tstate
+  if (ilk(pStripData) <> #propList) then
+    return error(me, "Strip data invalid", #setStripItemState, #major)
+  end if
   pStripData[tItemIndex][#state] = tstate
 end
 
@@ -47,7 +50,7 @@ on selectItemAt me, tloc
 end
 
 on getSelectedItem me
-  return 
+  return VOID
 end
 
 on convertOfferListToDeallist me, tOfferList
@@ -79,13 +82,18 @@ on resolveSmallPreview me, tOffer
       tClass = (tClass && tOffer[#content][1][#extra_param])
     end if
     if getThread(#dynamicdownloader).getComponent().isAssetDownloaded(tClass) then
-      tImage = getObject("Preview_renderer").renderPreviewImage(VOID, VOID, tFurniProps.getaProp(#partColors), tClass)
+      tImage = getObject("Preview_renderer").renderPreviewImage(VOID, VOID, tFurniProps.getaProp(#partColors), tClass).duplicate()
       if (tOffer[#content][1][#productcount] > 1) then
         if not objectp(pDealPreviewObj) then
           error(me, "Deal preview renderer object missing.", #resolveSmallPreview)
           return tImage
         end if
         tCountImg = pDealPreviewObj.getNumberImage(tOffer[#content][1][#productcount])
+        if ((tCountImg.width + 2) > tImage.width) then
+          tNewImg = image((tCountImg.width + 2), tImage.height, tImage.depth)
+          tNewImg.copyPixels(tImage, tImage.rect, tImage.rect)
+          tImage = tNewImg
+        end if
         tImage.copyPixels(tCountImg, (tCountImg.rect + rect(2, 0, 2, 0)), tCountImg.rect, [#ink: 36])
       end if
       return tImage
@@ -155,6 +163,9 @@ on resolveMembers me
 end
 
 on getClassAsset me, tClassName
+  if (ilk(tClassName) <> #string) then
+    return EMPTY
+  end if
   tClass = tClassName
   if (tClass contains "*") then
     tClass = tClass.char[1]
@@ -167,6 +178,9 @@ on downloadCompleted me, tProps
     return 
   end if
   if (tProps[#props].getaProp(#pageid) <> me.pPageId) then
+    return 
+  end if
+  if (ilk(pStripData) <> #propList) then
     return 
   end if
   tItemIndex = tProps[#props][#itemIndex]

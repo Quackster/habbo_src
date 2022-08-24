@@ -19,6 +19,8 @@ on construct me
   if memberExists("fuse_screen_logo") then
     pScrImg.copyPixels(member(getmemnum("fuse_screen_logo")).image, pScrImg.rect, pScrImg.rect)
   end if
+  registerMessage(#takingPhoto, me.getID(), #useLogoMember)
+  registerMessage(#photoTaken, me.getID(), #useCamMember)
   pTransition = 0
   pTextShowState = 0
   StateOfAd = 0
@@ -38,9 +40,23 @@ on construct me
 end
 
 on deconstruct me
+  unregisterMessage(#takingPhoto, me.getID())
+  unregisterMessage(#photoTaken, me.getID())
   removeWriter(pWriterID)
   removePrepare(me.getID())
   return 1
+end
+
+on useLogoMember me
+  if (ilk(pSprite) = #sprite) then
+    pSprite.blend = 0
+  end if
+end
+
+on useCamMember me
+  if (ilk(pSprite) = #sprite) then
+    pSprite.blend = 100
+  end if
 end
 
 on fuseShow_setcamera me, tNumber
