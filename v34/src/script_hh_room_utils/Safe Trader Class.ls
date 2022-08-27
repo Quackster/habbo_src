@@ -748,7 +748,11 @@ on updateDetailsBubble me, towner, tSlotNumber
     return 0
   end if
   tPreviewObj.define(tPreviewData)
-  tImage = tPreviewObj.getPicture()
+  if memberExists(("ctlg_pic_" & tClass)) then
+    tImage = getMember(("ctlg_pic_" & tClass)).image
+  else
+    tImage = tPreviewObj.getPicture()
+  end if
   if (tImage = 0) then
     return 0
   end if

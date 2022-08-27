@@ -1,86 +1,80 @@
 property pItemList
 
-on construct me 
+on construct me
   pItemList = []
   pItemList.sort()
-  return TRUE
+  return 1
 end
 
-on deconstruct me 
+on deconstruct me
   tObjMngr = getObjectManager()
-  i = 1
-  repeat while i <= pItemList.count
-    if tObjMngr.exists(pItemList.getAt(i)) then
-      tObjMngr.Remove(pItemList.getAt(i))
+  repeat with i = 1 to pItemList.count
+    if tObjMngr.exists(pItemList[i]) then
+      tObjMngr.Remove(pItemList[i])
     end if
-    i = (1 + i)
   end repeat
   pItemList = []
-  return TRUE
+  return 1
 end
 
-on create me, tID, tClass 
+on create me, tID, tClass
   if getObjectManager().exists(tID) then
-    return(error(me, "Object already exists:" && tID, #create, #major))
+    return error(me, ("Object already exists:" && tID), #create, #major)
   end if
   if not getObjectManager().create(tID, tClass) then
-    return FALSE
+    return 0
   end if
   pItemList.add(tID)
-  return TRUE
+  return 1
 end
 
-on GET me, tID 
-  return(getObjectManager().GET(tID))
+on GET me, tID
+  return getObjectManager().GET(tID)
 end
 
-on getIDList me 
+on getIDList me
   tIDList = []
   tListMode = ilk(me.pItemList)
-  i = 1
-  repeat while i <= me.count(#pItemList)
+  repeat with i = 1 to me.pItemList.count
     if (tListMode = #list) then
-      tID = me.getProp(#pItemList, i)
+      tID = me.pItemList[i]
     else
       tID = me.pItemList.getPropAt(i)
     end if
     tIDList.add(tID)
-    i = (1 + i)
   end repeat
-  return(tIDList)
+  return tIDList
 end
 
-on Remove me, tID 
+on Remove me, tID
   if not me.exists(tID) then
-    return FALSE
+    return 0
   end if
   pItemList.deleteOne(tID)
-  return(getObjectManager().Remove(tID))
+  return getObjectManager().Remove(tID)
 end
 
-on exists me, tID 
-  return(me.pItemList.getOne(tID) > 0)
+on exists me, tID
+  return (me.pItemList.getOne(tID) > 0)
 end
 
-on print me 
+on print me
   tListMode = ilk(me.pItemList)
-  i = 1
-  repeat while i <= me.count(#pItemList)
+  repeat with i = 1 to me.pItemList.count
     if (tListMode = #list) then
-      tID = me.getProp(#pItemList, i)
+      tID = me.pItemList[i]
     else
       tID = me.pItemList.getPropAt(i)
     end if
     tObj = me.GET(tID)
     if symbolp(tID) then
-      tID = "#" & tID
+      tID = ("#" & tID)
     end if
-    put(tID && ":" && tObj)
-    i = (1 + i)
+    put ((tID && ":") && tObj)
   end repeat
-  return TRUE
+  return 1
 end
 
-on handlers  
-  return([])
+on handlers
+  return []
 end

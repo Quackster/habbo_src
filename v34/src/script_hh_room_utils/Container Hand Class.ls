@@ -543,6 +543,18 @@ on eventProcContainer me, tEvent, tSprID, tParam
     end if
     tdata = tStripList[tItemNum]
     tItemID = tdata[#stripId]
+    if threadExists(#room) then
+      tSafeTrader = getThread(#room).getInterface().getSafeTrader()
+      if (tSafeTrader <> 0) then
+        tInTrade = tSafeTrader.isUnderTrade(tItemID)
+      end if
+    end if
+    if threadExists(#recycler) then
+      tInRecycler = getThread(#recycler).getComponent().isFurniInRecycler(tItemID)
+    end if
+    if (tInTrade or tInRecycler) then
+      return 0
+    end if
     if tdata[#downloadLocked] then
       return 0
     end if
