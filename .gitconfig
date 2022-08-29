@@ -1,5 +1,0 @@
-[pull]
-    ff = only
-
-[core]
-    mergeoptions = --ff-only
