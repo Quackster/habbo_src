@@ -4,7 +4,7 @@ https://github.com/ProjectorRays/ProjectorRays
 
 Source files used: 
 
-- DCR-Project:
+- DCR-Project
   - https://h4bbo.net/archive/dcp/dcrs/
 
 - Tidesj's v28 DCR pack
@@ -13,5 +13,5 @@ Source files used:
 - Release 6 DCRs from Habbo.com
   - [https://web.archive.org/web/*/http://www.habbohotel.com/dcr/release6_20040906/\*](https://web.archive.org/web/*/http://www.habbohotel.com/dcr/release6_20040906/\*)
 
-- Release 1 DCRs from habbo.magentarep.net
+- Release 1 DCRs from habborep.magenta.net
   - [https://web.archive.org/web/*/http://habborep.magenta.net/\*](https://web.archive.org/web/*/http://habborep.magenta.net/\*)
