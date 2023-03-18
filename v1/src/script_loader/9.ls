@@ -1,1 +1,0 @@
-global UNKNOWN_NAME_19444, UNKNOWN_NAME_-1, scriptType, UNKNOWN_NAME_1140, rect
