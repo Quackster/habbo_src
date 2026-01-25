@@ -4,20 +4,18 @@
  * Ported from: hh_shared/Cast External ParentScript 55 - Error Report Interface Class.ls
  */
 
-import { BaseObject } from '../../../core/BaseObject';
+import { BaseInterface } from '../../../core/BaseInterface';
 import { ErrorReportComponent } from './ErrorReportComponent';
 import { ErrorReportData } from '../types';
 
 /**
  * Error report interface - displays error messages to user
  */
-export class ErrorReportInterface extends BaseObject {
-  private component: ErrorReportComponent | null = null;
-  private windowVisible: boolean = false;
+export class ErrorReportInterface extends BaseInterface {
+  private pWindowId: string = 'error_report_window';
 
   construct(): void {
     super.construct();
-    this.windowVisible = false;
   }
 
   deconstruct(): void {
@@ -26,57 +24,70 @@ export class ErrorReportInterface extends BaseObject {
   }
 
   /**
-   * Set component reference
-   */
-  setComponent(component: ErrorReportComponent): void {
-    this.component = component;
-  }
-
-  /**
-   * Get component
-   */
-  getComponent(): ErrorReportComponent | null {
-    return this.component;
-  }
-
-  /**
    * Show errors window
+   *
+   * Lingo: showErrors()
    */
-  showErrors(): void {
-    const errors = this.component?.getErrorLists() || [];
+  async showErrors(): Promise<void> {
+    const component = this.getComponent() as ErrorReportComponent | null;
+    const errors = component?.getErrorLists() || [];
 
     if (errors.length === 0) {
       return;
     }
 
-    this.windowVisible = true;
-    this.emit('errors_shown', { errors });
+    if (!this.windowExists(this.pWindowId)) {
+      await this.createWindow(this.pWindowId, 'error_report.window');
+
+      if (this.windowExists(this.pWindowId)) {
+        this.registerWindowProcedure(this.pWindowId, 'eventProcError', 'mouseUp');
+        this.centerWindow(this.pWindowId);
+      }
+    }
+
+    // Update error list
+    if (this.elementExists(this.pWindowId, 'error_list')) {
+      const formattedErrors = errors.map((e) => this.formatError(e));
+      this.setElementProperty(this.pWindowId, 'error_list', 'data', formattedErrors);
+    }
+
+    // Update count
+    if (this.elementExists(this.pWindowId, 'error_count')) {
+      this.setText(this.pWindowId, 'error_count', `${errors.length} error(s)`);
+    }
   }
 
   /**
    * Hide errors window
+   *
+   * Lingo: hideWindow()
    */
   hideWindow(): void {
-    if (!this.windowVisible) return;
-
-    this.windowVisible = false;
-    this.emit('window_hidden');
+    if (this.windowExists(this.pWindowId)) {
+      this.removeWindow(this.pWindowId);
+    }
   }
 
   /**
    * Show single error as alert
+   *
+   * Lingo: showErrorAlert()
    */
-  showErrorAlert(error: ErrorReportData): void {
-    this.emit('error_alert', error);
+  async showErrorAlert(error: ErrorReportData): Promise<void> {
+    // Would show modal alert with error message
+    if (this.elementExists(this.pWindowId, 'error_text')) {
+      this.setText(this.pWindowId, 'error_text', this.formatError(error));
+    }
   }
 
   /**
    * Dismiss error by index
    */
   dismissError(index: number): void {
-    this.component?.clearErrorLists(index + 1);
+    const component = this.getComponent() as ErrorReportComponent | null;
+    component?.clearErrorLists(index + 1);
 
-    const remaining = this.component?.getErrorCount() || 0;
+    const remaining = component?.getErrorCount() || 0;
     if (remaining === 0) {
       this.hideWindow();
     } else {
@@ -88,15 +99,38 @@ export class ErrorReportInterface extends BaseObject {
    * Dismiss all errors
    */
   dismissAllErrors(): void {
-    this.component?.clearAllErrors();
+    const component = this.getComponent() as ErrorReportComponent | null;
+    component?.clearAllErrors();
     this.hideWindow();
+  }
+
+  /**
+   * Error window event procedure
+   *
+   * Lingo: eventProcError(tEvent, tSprID, tParam, tWindowID)
+   */
+  eventProcError(event: string, spriteId: string, param: unknown, windowId: string): void {
+    if (event !== 'mouseUp') return;
+
+    switch (spriteId) {
+      case 'close':
+        this.hideWindow();
+        break;
+      case 'dismiss_button':
+        // Would get selected error index
+        this.dismissError(0);
+        break;
+      case 'dismiss_all_button':
+        this.dismissAllErrors();
+        break;
+    }
   }
 
   /**
    * Check if window is visible
    */
   isWindowVisible(): boolean {
-    return this.windowVisible;
+    return this.windowExists(this.pWindowId);
   }
 
   /**
@@ -108,5 +142,12 @@ export class ErrorReportInterface extends BaseObject {
       : '';
 
     return `[${error.errorId}] ${timestamp}\n${error.errorMsg}`;
+  }
+
+  /**
+   * Get window ID
+   */
+  getWindowId(): string {
+    return this.pWindowId;
   }
 }

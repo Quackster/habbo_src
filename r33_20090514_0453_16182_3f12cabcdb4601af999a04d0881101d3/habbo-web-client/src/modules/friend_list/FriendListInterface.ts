@@ -4,11 +4,10 @@
  * Ported from: hh_friend_list/Cast External ParentScript 3 - Friend List Interface Class.ls
  */
 
-import { BaseObject } from '../../core/BaseObject';
+import { BaseInterface } from '../../core/BaseInterface';
 import { registerMessage, unregisterMessage, executeMessage } from '../../core/MessageBus';
 import { getVariable, variableExists } from '../../core/VariableContainer';
 import { getConnection } from '../../managers/ConnectionManager';
-import { EventEmitter } from '../../core/events';
 import { FriendData, FriendRequest, ListPanelEventData, CategoryIds } from './types';
 import { FriendListComponent } from './FriendListComponent';
 
@@ -30,49 +29,38 @@ export interface FriendListViewObject {
   handleAll(state: 'accepted' | 'rejected'): void;
 }
 
-export class FriendListInterface extends BaseObject {
-  private friendListWindowId: string = 'Friend List';
-  private removeConfirmId: string = '';
-  private confirmDeleteFriend: FriendData | null = null;
-  private maxCategories: number = 0;
-  private maxFreeCategories: number = 5;
-  private windowDefaultHeight: number = 400;
-  private currentCategoryId: string = '0';
-  private minimized: boolean = false;
-  private viewsList: Map<string, FriendListViewObject> = new Map();
-  private highlightedCategories: Set<string> = new Set();
-  private highlightTimeouts: Map<string, ReturnType<typeof setTimeout>> = new Map();
-  private inboxBlinkStep: number = 0;
-  private inboxBlinkInterval: ReturnType<typeof setInterval> | null = null;
-  private events: EventEmitter = new EventEmitter();
+export class FriendListInterface extends BaseInterface {
+  private pWindowId: string = 'friendlist_window';
+  private pRemoveConfirmId: string = 'friend_list_confirm_remove';
+  private pConfirmDeleteFriend: FriendData | null = null;
+  private pMaxCategories: number = 0;
+  private pMaxFreeCategories: number = 5;
+  private pWindowDefaultHeight: number = 400;
+  private pCurrentCategoryId: string = '0';
+  private pMinimized: boolean = false;
+  private pViewsList: Map<string, FriendListViewObject> = new Map();
+  private pHighlightedCategories: Set<string> = new Set();
+  private pInboxBlinkStep: number = 0;
 
   construct(): void {
     super.construct();
 
-    this.removeConfirmId = 'friend_list_confirm_remove';
-    this.currentCategoryId = getVariable('fr.window.default.category.id', '0') as string;
-    this.maxFreeCategories = getVariable('fr.window.max.free.categories', 5) as number;
-    this.maxCategories = this.maxFreeCategories + 4;
+    this.pRemoveConfirmId = 'friend_list_confirm_remove';
+    this.pCurrentCategoryId = getVariable('fr.window.default.category.id', '0') as string;
+    this.pMaxFreeCategories = getVariable('fr.window.max.free.categories', 5) as number;
+    this.pMaxCategories = this.pMaxFreeCategories + 4;
 
-    registerMessage('toggle_friend_list', this.id, 'toggleFriendList');
-    registerMessage('enterRoom', this.id, 'updateActionIconsState');
-    registerMessage('leaveRoom', this.id, 'updateActionIconsState');
-    registerMessage('changeRoom', this.id, 'updateActionIconsState');
-    registerMessage('enterRoomDirect', this.id, 'updateActionIconsState');
-    registerMessage('gamesystem_constructed', this.id, 'closeFriendList');
+    this.registerMsg('toggle_friend_list', 'toggleFriendList');
+    this.registerMsg('enterRoom', 'updateActionIconsState');
+    this.registerMsg('leaveRoom', 'updateActionIconsState');
+    this.registerMsg('changeRoom', 'updateActionIconsState');
+    this.registerMsg('enterRoomDirect', 'updateActionIconsState');
+    this.registerMsg('gamesystem_constructed', 'closeFriendList');
   }
 
   deconstruct(): void {
     this.endInboxBlink();
     this.clearHighlightTimeouts();
-
-    unregisterMessage('toggle_friend_list', this.id);
-    unregisterMessage('enterRoom', this.id);
-    unregisterMessage('leaveRoom', this.id);
-    unregisterMessage('changeRoom', this.id);
-    unregisterMessage('enterRoomDirect', this.id);
-    unregisterMessage('gamesystem_constructed', this.id);
-
     super.deconstruct();
   }
 
@@ -80,50 +68,81 @@ export class FriendListInterface extends BaseObject {
    * Clear all highlight timeouts
    */
   private clearHighlightTimeouts(): void {
-    for (const timeout of this.highlightTimeouts.values()) {
-      clearTimeout(timeout);
+    for (const categoryId of this.pHighlightedCategories) {
+      this.removeTimeout(`highlight_${categoryId}`);
     }
-    this.highlightTimeouts.clear();
+    this.pHighlightedCategories.clear();
   }
 
   /**
    * Create friend list window
+   *
+   * Lingo: createWindow(pWindowID, "friends_list_base.window")
    */
-  createFriendList(): boolean {
+  async createFriendList(): Promise<boolean> {
     const component = this.getComponent() as FriendListComponent | null;
     if (!component?.isFriendListInited()) {
       return false;
     }
 
-    this.events.emit('createWindow', {
-      id: this.friendListWindowId,
-      template: 'friends_list_base.window',
-    });
+    if (this.windowExists(this.pWindowId)) {
+      return true;
+    }
 
-    this.changeCategory(this.currentCategoryId);
+    const result = await this.createWindow(this.pWindowId, 'friends_list_base.window');
+    if (!result) {
+      return false;
+    }
+
+    // Register event handler
+    this.registerWindowProcedure(this.pWindowId, 'eventProc');
+
+    this.changeCategory(this.pCurrentCategoryId);
     return true;
   }
 
   /**
    * Open friend list
+   *
+   * Lingo: openFriendList()
    */
-  openFriendList(): void {
-    this.createFriendList();
-    this.events.emit('showWindow', { id: this.friendListWindowId, x: 15, y: 65 });
+  async openFriendList(): Promise<void> {
+    await this.createFriendList();
+    if (this.windowExists(this.pWindowId)) {
+      this.moveWindow(this.pWindowId, 15, 65);
+      this.showWindow(this.pWindowId);
+      this.activateWindow(this.pWindowId);
+    }
   }
 
   /**
    * Close friend list
+   *
+   * Lingo: closeFriendList()
    */
   closeFriendList(): void {
-    this.events.emit('hideWindow', { id: this.friendListWindowId });
+    if (this.windowExists(this.pWindowId)) {
+      this.hideWindow(this.pWindowId);
+    }
   }
 
   /**
    * Toggle friend list visibility
+   *
+   * Lingo: toggleFriendList()
    */
-  toggleFriendList(): void {
-    this.events.emit('toggleWindow', { id: this.friendListWindowId });
+  async toggleFriendList(): Promise<void> {
+    if (this.windowExists(this.pWindowId)) {
+      const wnd = this.getWindow(this.pWindowId);
+      if (wnd?.getProperty('visible')) {
+        this.closeFriendList();
+      } else {
+        this.showWindow(this.pWindowId);
+        this.activateWindow(this.pWindowId);
+      }
+    } else {
+      await this.openFriendList();
+    }
   }
 
   /**
@@ -131,18 +150,18 @@ export class FriendListInterface extends BaseObject {
    */
   minimizedView(minimized?: boolean): void {
     if (minimized === undefined) {
-      this.minimized = !this.minimized;
+      this.pMinimized = !this.pMinimized;
     } else {
-      this.minimized = minimized;
+      this.pMinimized = minimized;
     }
-    this.changeCategory(this.currentCategoryId);
+    this.changeCategory(this.pCurrentCategoryId);
   }
 
   /**
    * Check if friend request view is open
    */
   isFriendRequestViewOpen(): boolean {
-    return this.currentCategoryId === CategoryIds.REQUESTS;
+    return this.pCurrentCategoryId === CategoryIds.REQUESTS;
   }
 
   /**
@@ -158,7 +177,7 @@ export class FriendListInterface extends BaseObject {
     viewObj.addFriend(friendData);
     this.setCategoryHighlight(categoryId);
 
-    if (!holdRender && this.currentCategoryId === categoryId) {
+    if (!holdRender && this.pCurrentCategoryId === categoryId) {
       this.updateOpenCategoryPanel();
     }
     this.updateCategoryCounts();
@@ -175,7 +194,7 @@ export class FriendListInterface extends BaseObject {
     viewObj.addRequest(request);
     this.setCategoryHighlight(categoryId);
 
-    if (this.currentCategoryId === categoryId) {
+    if (this.pCurrentCategoryId === categoryId) {
       this.updateOpenCategoryPanel();
     }
   }
@@ -186,20 +205,13 @@ export class FriendListInterface extends BaseObject {
   setCategoryHighlight(categoryId: string): void {
     const allowedCategories = getVariable('fr.category.highlights.allowed', ['-2']) as string[];
 
-    if (allowedCategories.includes(categoryId) && (this.currentCategoryId !== categoryId || this.minimized)) {
-      this.highlightedCategories.add(categoryId);
+    if (allowedCategories.includes(categoryId) && (this.pCurrentCategoryId !== categoryId || this.pMinimized)) {
+      this.pHighlightedCategories.add(categoryId);
       this.showCategoryTitle(categoryId);
 
-      // Clear existing timeout
-      const existingTimeout = this.highlightTimeouts.get(categoryId);
-      if (existingTimeout) {
-        clearTimeout(existingTimeout);
-      }
-
-      // Set new timeout
+      // Create timeout to remove highlight
       const duration = getVariable('fr.category.highlight.duration', 5000) as number;
-      const timeout = setTimeout(() => this.removeCategoryHighlight(categoryId), duration);
-      this.highlightTimeouts.set(categoryId, timeout);
+      this.createTimeout(`highlight_${categoryId}`, duration, 'removeCategoryHighlight', [categoryId]);
     }
   }
 
@@ -207,14 +219,10 @@ export class FriendListInterface extends BaseObject {
    * Remove category highlight
    */
   removeCategoryHighlight(categoryId: string): void {
-    if (this.highlightedCategories.delete(categoryId)) {
+    if (this.pHighlightedCategories.delete(categoryId)) {
       this.showCategoryTitle(categoryId);
     }
-    const timeout = this.highlightTimeouts.get(categoryId);
-    if (timeout) {
-      clearTimeout(timeout);
-      this.highlightTimeouts.delete(categoryId);
-    }
+    this.removeTimeout(`highlight_${categoryId}`);
   }
 
   /**
@@ -228,7 +236,7 @@ export class FriendListInterface extends BaseObject {
       viewObj.updateFriend(friendData);
     }
 
-    if (!holdRender && this.currentCategoryId === friendData.categoryId) {
+    if (!holdRender && this.pCurrentCategoryId === friendData.categoryId) {
       this.updateOpenCategoryPanel();
     }
   }
@@ -242,7 +250,7 @@ export class FriendListInterface extends BaseObject {
       viewObj.removeFriend(friendId);
     }
 
-    if (!holdRender && this.currentCategoryId === category) {
+    if (!holdRender && this.pCurrentCategoryId === category) {
       this.updateOpenCategoryPanel();
     }
   }
@@ -266,23 +274,15 @@ export class FriendListInterface extends BaseObject {
    */
   changeCategory(categoryId?: string): void {
     if (categoryId === undefined) {
-      categoryId = this.currentCategoryId;
+      categoryId = this.pCurrentCategoryId;
     }
 
     this.removeCategoryHighlight(categoryId);
-
-    if (categoryId !== this.currentCategoryId) {
-      this.events.emit('categoryChanged', {
-        from: this.currentCategoryId,
-        to: categoryId,
-      });
-    }
-
-    this.currentCategoryId = categoryId;
+    this.pCurrentCategoryId = categoryId;
     this.updateOpenCategoryPanel();
     this.updateActionIconsState();
 
-    if (!this.minimized && categoryId === CategoryIds.REQUESTS) {
+    if (!this.pMinimized && categoryId === CategoryIds.REQUESTS) {
       executeMessage('FriendRequestListOpened');
     }
   }
@@ -291,10 +291,12 @@ export class FriendListInterface extends BaseObject {
    * Update open category panel
    */
   updateOpenCategoryPanel(): void {
-    const viewObj = this.getViewListObject(this.currentCategoryId);
+    if (!this.windowExists(this.pWindowId)) return;
+
+    const viewObj = this.getViewListObject(this.pCurrentCategoryId);
     if (!viewObj) return;
 
-    if (this.currentCategoryId === CategoryIds.REQUESTS) {
+    if (this.pCurrentCategoryId === CategoryIds.REQUESTS) {
       viewObj.cleanUp();
     }
 
@@ -304,86 +306,133 @@ export class FriendListInterface extends BaseObject {
     }
 
     const listImage = viewObj.getViewImage();
-    this.events.emit('updateListPanel', { image: listImage });
+    if (listImage && this.elementExists(this.pWindowId, 'list_panel')) {
+      // Feed image to list panel element
+      const canvas = document.createElement('canvas');
+      canvas.width = listImage.width;
+      canvas.height = listImage.height;
+      const ctx = canvas.getContext('2d')!;
+      ctx.putImageData(listImage, 0, 0);
+      this.feedImage(this.pWindowId, 'list_panel', canvas);
+    }
+
     this.updateActionIconsState();
   }
 
   /**
    * Show category title
+   *
+   * Lingo: showCategoryTitle(id, locV, name, itemCount)
    */
   showCategoryTitle(id: string, locV?: number, name?: string, itemCount?: number): void {
+    if (!this.windowExists(this.pWindowId)) return;
+
     const component = this.getComponent() as FriendListComponent | null;
     if (!component) return;
 
-    const highlighted = this.highlightedCategories.has(id);
+    const highlighted = this.pHighlightedCategories.has(id);
     const categoryName = name ?? component.getCategoryName(id);
     const count = itemCount ?? component.getItemCountForCategory(id);
 
-    this.events.emit('updateCategoryTitle', {
-      id,
-      name: categoryName,
-      count,
-      highlighted,
-      locV,
-    });
+    // Update category element
+    const elemId = `category_${id}`;
+    if (this.elementExists(this.pWindowId, elemId)) {
+      this.setText(this.pWindowId, elemId, `${categoryName} (${count})`);
+      this.setElementProperty(this.pWindowId, elemId, 'highlighted', highlighted);
+      if (locV !== undefined) {
+        this.setElementProperty(this.pWindowId, elemId, 'locV', locV);
+      }
+    }
   }
 
   /**
    * Activate/deactivate mail icon
+   *
+   * Lingo: activateMailIcon(active)
    */
   activateMailIcon(active: boolean): void {
-    this.events.emit('mailIconState', { active });
+    if (!this.windowExists(this.pWindowId)) return;
+
+    if (this.elementExists(this.pWindowId, 'mail_icon')) {
+      this.setElementProperty(this.pWindowId, 'mail_icon', 'active', active);
+    }
   }
 
   /**
    * Start inbox blink animation
    */
   startInboxBlink(): void {
-    if (this.inboxBlinkInterval) return;
+    if (this.timeoutExists('inbox_blink')) return;
 
-    this.inboxBlinkInterval = setInterval(() => {
-      this.inboxBlinkStep = this.inboxBlinkStep > 0 ? 0 : 1;
-      this.events.emit('mailIconBlink', { step: this.inboxBlinkStep });
-    }, 1000);
+    const blink = (): void => {
+      this.pInboxBlinkStep = this.pInboxBlinkStep > 0 ? 0 : 1;
+      if (this.windowExists(this.pWindowId) && this.elementExists(this.pWindowId, 'mail_icon')) {
+        this.setElementProperty(this.pWindowId, 'mail_icon', 'blink_step', this.pInboxBlinkStep);
+      }
+      this.createTimeout('inbox_blink', 1000, 'inboxBlinkTick');
+    };
+
+    blink();
+  }
+
+  /**
+   * Inbox blink tick handler
+   */
+  private inboxBlinkTick(): void {
+    this.pInboxBlinkStep = this.pInboxBlinkStep > 0 ? 0 : 1;
+    if (this.windowExists(this.pWindowId) && this.elementExists(this.pWindowId, 'mail_icon')) {
+      this.setElementProperty(this.pWindowId, 'mail_icon', 'blink_step', this.pInboxBlinkStep);
+    }
+    this.createTimeout('inbox_blink', 1000, 'inboxBlinkTick');
   }
 
   /**
    * End inbox blink animation
    */
   endInboxBlink(): void {
-    if (this.inboxBlinkInterval) {
-      clearInterval(this.inboxBlinkInterval);
-      this.inboxBlinkInterval = null;
-    }
-    this.events.emit('mailIconState', { active: false });
+    this.removeTimeout('inbox_blink');
+    this.activateMailIcon(false);
   }
 
   /**
    * Update action icons state
    */
   updateActionIconsState(): void {
-    const viewObj = this.getViewListObject(this.currentCategoryId);
+    if (!this.windowExists(this.pWindowId)) return;
+
+    const viewObj = this.getViewListObject(this.pCurrentCategoryId);
     if (!viewObj) return;
 
-    const catIdNum = parseInt(this.currentCategoryId);
+    const catIdNum = parseInt(this.pCurrentCategoryId);
 
     if (catIdNum >= -1) {
       const selectedFriends = viewObj.getSelectedFriends();
       const invitesInUse = variableExists('client.use.invites') && getVariable('client.use.invites') === 1;
 
-      this.events.emit('updateActionIcons', {
-        selectedCount: selectedFriends.length,
-        invitesEnabled: invitesInUse,
-        categoryId: this.currentCategoryId,
-      });
+      // Update action button states
+      const hasSelection = selectedFriends.length > 0;
+      if (this.elementExists(this.pWindowId, 'btn_im')) {
+        this.setElementProperty(this.pWindowId, 'btn_im', 'enabled', hasSelection);
+      }
+      if (this.elementExists(this.pWindowId, 'btn_follow')) {
+        this.setElementProperty(this.pWindowId, 'btn_follow', 'enabled', hasSelection);
+      }
+      if (this.elementExists(this.pWindowId, 'btn_invite')) {
+        this.setElementProperty(this.pWindowId, 'btn_invite', 'visible', invitesInUse);
+        this.setElementProperty(this.pWindowId, 'btn_invite', 'enabled', hasSelection);
+      }
     } else if (catIdNum === -2) {
       const component = this.getComponent() as FriendListComponent | null;
       const requests = component?.getPendingFriendRequests();
       const count = requests?.size ?? 0;
 
-      this.events.emit('updateRequestActions', {
-        hasRequests: count > 0,
-      });
+      // Update request action buttons
+      if (this.elementExists(this.pWindowId, 'btn_accept_all')) {
+        this.setElementProperty(this.pWindowId, 'btn_accept_all', 'enabled', count > 0);
+      }
+      if (this.elementExists(this.pWindowId, 'btn_reject_all')) {
+        this.setElementProperty(this.pWindowId, 'btn_reject_all', 'enabled', count > 0);
+      }
     }
   }
 
@@ -392,7 +441,7 @@ export class FriendListInterface extends BaseObject {
    */
   getViewListObject(categoryId: string): FriendListViewObject | null {
     const catIdStr = String(categoryId);
-    let viewObj = this.viewsList.get(catIdStr);
+    let viewObj = this.pViewsList.get(catIdStr);
 
     if (!viewObj) {
       viewObj = this.createListViewObject(catIdStr);
@@ -408,7 +457,7 @@ export class FriendListInterface extends BaseObject {
         }
       }
 
-      this.viewsList.set(catIdStr, viewObj);
+      this.pViewsList.set(catIdStr, viewObj);
     }
 
     return viewObj;
@@ -456,33 +505,57 @@ export class FriendListInterface extends BaseObject {
 
   /**
    * Show confirm remove user dialog
+   *
+   * Lingo: createWindow(pRemoveConfirmID, "confirm_remove.window", VOID, VOID, #modal)
    */
-  showConfirmRemoveUser(friend: FriendData): void {
-    this.confirmDeleteFriend = friend;
-    this.events.emit('showConfirmRemove', {
-      id: this.removeConfirmId,
-      friendName: friend.name,
-    });
+  async showConfirmRemoveUser(friend: FriendData): Promise<void> {
+    this.pConfirmDeleteFriend = friend;
+    await this.createModalWindow(this.pRemoveConfirmId, 'confirm_remove.window');
+    this.registerWindowProcedure(this.pRemoveConfirmId, 'confirmDialogEventProc');
+
+    // Set text with friend name
+    if (this.elementExists(this.pRemoveConfirmId, 'confirm_text')) {
+      this.setText(this.pRemoveConfirmId, 'confirm_text', `Remove ${friend.name} from your friends?`);
+    }
   }
 
   /**
    * Hide confirm remove user dialog
    */
   hideConfirmRemoveUser(): void {
-    this.events.emit('hideConfirmRemove', { id: this.removeConfirmId });
-    this.confirmDeleteFriend = null;
+    this.removeWindow(this.pRemoveConfirmId);
+    this.pConfirmDeleteFriend = null;
   }
 
   /**
    * Confirm remove user
    */
   confirmRemoveUser(): void {
-    if (this.confirmDeleteFriend) {
+    if (this.pConfirmDeleteFriend) {
       const component = this.getComponent() as FriendListComponent | null;
       if (component) {
-        component.sendRemoveFriend(this.confirmDeleteFriend.id);
+        component.sendRemoveFriend(this.pConfirmDeleteFriend.id);
       }
       this.hideConfirmRemoveUser();
+    }
+  }
+
+  /**
+   * Confirm dialog event procedure
+   */
+  confirmDialogEventProc(event: string, spriteId: string, param: unknown, windowId: string): void {
+    if (event !== 'mouseUp') return;
+
+    switch (spriteId) {
+      case 'confirm_ok':
+      case 'btn_ok':
+        this.confirmRemoveUser();
+        break;
+      case 'confirm_cancel':
+      case 'btn_cancel':
+      case 'close':
+        this.hideConfirmRemoveUser();
+        break;
     }
   }
 
@@ -490,11 +563,11 @@ export class FriendListInterface extends BaseObject {
    * Handle list panel events
    */
   handleListPanelEvent(event: string, locX: number, locY: number): void {
-    const viewObj = this.getViewListObject(this.currentCategoryId);
+    const viewObj = this.getViewListObject(this.pCurrentCategoryId);
     if (!viewObj) return;
 
     if (event === 'mouseLeave') {
-      this.events.emit('hideInfoPopup');
+      // Hide any info popup
       return;
     }
 
@@ -505,7 +578,7 @@ export class FriendListInterface extends BaseObject {
     const element = eventData.element;
 
     if (eventData.event === 'mouseWithin') {
-      this.events.emit('showInfoPopup', { data: eventData });
+      // Show info popup
       return;
     }
 
@@ -542,7 +615,7 @@ export class FriendListInterface extends BaseObject {
         break;
       case 'mail':
         if (friend) {
-          this.events.emit('openMailCompose', { recipientId: friend.id });
+          executeMessage('openMailCompose', { recipientId: friend.id });
         }
         break;
       case 'addFriend':
@@ -559,23 +632,130 @@ export class FriendListInterface extends BaseObject {
   }
 
   /**
-   * Get events emitter
+   * Main window event procedure
+   *
+   * Lingo: eventProc(tEvent, tSpriteID, tParam, tWindowID)
    */
-  getEvents(): EventEmitter {
-    return this.events;
+  override eventProc(event: string, spriteId: string, param: unknown, windowId: string): void {
+    if (event !== 'mouseUp') return;
+
+    switch (spriteId) {
+      case 'close':
+      case 'btn_close':
+        this.closeFriendList();
+        break;
+      case 'btn_minimize':
+        this.minimizedView();
+        break;
+      case 'btn_search':
+        // Open search
+        break;
+      case 'btn_im':
+        this.handleIMAction();
+        break;
+      case 'btn_follow':
+        this.handleFollowAction();
+        break;
+      case 'btn_remove':
+        this.handleRemoveAction();
+        break;
+      case 'btn_accept_all':
+        this.handleAcceptAllRequests();
+        break;
+      case 'btn_reject_all':
+        this.handleRejectAllRequests();
+        break;
+      default:
+        // Check for category buttons
+        if (spriteId.startsWith('category_')) {
+          const categoryId = spriteId.replace('category_', '');
+          this.changeCategory(categoryId);
+        }
+        break;
+    }
+  }
+
+  /**
+   * Handle IM action
+   */
+  private handleIMAction(): void {
+    const viewObj = this.getViewListObject(this.pCurrentCategoryId);
+    if (!viewObj) return;
+
+    const selectedFriends = viewObj.getSelectedFriends();
+    if (selectedFriends.length > 0) {
+      executeMessage('startIMChat', selectedFriends[0].name, '');
+    }
+  }
+
+  /**
+   * Handle follow action
+   */
+  private handleFollowAction(): void {
+    const viewObj = this.getViewListObject(this.pCurrentCategoryId);
+    if (!viewObj) return;
+
+    const selectedFriends = viewObj.getSelectedFriends();
+    if (selectedFriends.length > 0) {
+      const connId = getVariable('connection.info.id', 'Info') as string;
+      const conn = getConnection(connId);
+      if (conn) {
+        conn.send('FOLLOW_FRIEND', { integer: selectedFriends[0].id });
+      }
+    }
+  }
+
+  /**
+   * Handle remove action
+   */
+  private handleRemoveAction(): void {
+    const viewObj = this.getViewListObject(this.pCurrentCategoryId);
+    if (!viewObj) return;
+
+    const selectedFriends = viewObj.getSelectedFriends();
+    if (selectedFriends.length > 0) {
+      this.showConfirmRemoveUser(selectedFriends[0]);
+    }
+  }
+
+  /**
+   * Handle accept all requests
+   */
+  private handleAcceptAllRequests(): void {
+    const viewObj = this.getViewListObject(CategoryIds.REQUESTS);
+    if (viewObj) {
+      viewObj.handleAll('accepted');
+    }
+  }
+
+  /**
+   * Handle reject all requests
+   */
+  private handleRejectAllRequests(): void {
+    const viewObj = this.getViewListObject(CategoryIds.REQUESTS);
+    if (viewObj) {
+      viewObj.handleAll('rejected');
+    }
   }
 
   /**
    * Get current category ID
    */
   getCurrentCategoryId(): string {
-    return this.currentCategoryId;
+    return this.pCurrentCategoryId;
   }
 
   /**
    * Check if minimized
    */
   isMinimized(): boolean {
-    return this.minimized;
+    return this.pMinimized;
+  }
+
+  /**
+   * Get window ID
+   */
+  getWindowId(): string {
+    return this.pWindowId;
   }
 }

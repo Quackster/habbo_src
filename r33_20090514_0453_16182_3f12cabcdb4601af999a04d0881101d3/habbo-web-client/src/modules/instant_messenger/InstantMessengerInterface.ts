@@ -4,85 +4,82 @@
  * Ported from: hh_instant_messenger/Cast External ParentScript 3 - Instant Messenger Interface Class.ls
  */
 
-import { BaseObject } from '../../core/BaseObject';
-import { registerMessage, unregisterMessage, executeMessage } from '../../core/MessageBus';
+import { BaseInterface } from '../../core/BaseInterface';
+import { executeMessage } from '../../core/MessageBus';
 import { getVariable } from '../../core/VariableContainer';
 import { getConnection } from '../../managers/ConnectionManager';
 import { session } from '../../core/Session';
-import { EventEmitter } from '../../core/events';
 import { FriendData } from '../friend_list/types';
 import { ChatEntry, IMState, IMWindowView } from './types';
 import { InstantMessengerComponent } from './InstantMessengerComponent';
 
-export class InstantMessengerInterface extends BaseObject {
-  private windowId: string = 'Instant Messenger';
-  private invitationWindowId: string = 'Friend Invitation Window';
-  private activeChatId: string = '';
-  private names: Map<string, string> = new Map();
-  private cachedChatIds: string[] = [];
-  private followFlashList: string[] = [];
-  private followFlashState: boolean = false;
-  private followFlashInterval: ReturnType<typeof setInterval> | null = null;
-  private minHeight: number = 200;
-  private batchSize: number = 10;
-  private batchInterval: number = 100;
-  private cacheSize: number = 5;
-  private state: IMState = 'Active';
-  private view: IMWindowView = 'normal';
-  private events: EventEmitter = new EventEmitter();
-  private chatRenderers: Map<string, unknown> = new Map();
-  private tabsObj: unknown = null;
+export class InstantMessengerInterface extends BaseInterface {
+  private pWindowId: string = 'im_window';
+  private pInvitationWindowId: string = 'im_invitation_window';
+  private pActiveChatId: string = '';
+  private pNames: Map<string, string> = new Map();
+  private pCachedChatIds: string[] = [];
+  private pFollowFlashList: string[] = [];
+  private pFollowFlashState: boolean = false;
+  private pMinHeight: number = 200;
+  private pBatchSize: number = 10;
+  private pBatchInterval: number = 100;
+  private pCacheSize: number = 5;
+  private pState: IMState = 'Active';
+  private pView: IMWindowView = 'normal';
+  private pChatRenderers: Map<string, unknown> = new Map();
 
   construct(): void {
     super.construct();
 
-    this.minHeight = getVariable('im.window.height.min', 200) as number;
-    this.batchSize = getVariable('im.batch.size', 10) as number;
-    this.batchInterval = getVariable('im.batch.interval', 100) as number;
-    this.cacheSize = getVariable('im.cached.chats', 5) as number;
+    this.pMinHeight = getVariable('im.window.height.min', 200) as number;
+    this.pBatchSize = getVariable('im.batch.size', 10) as number;
+    this.pBatchInterval = getVariable('im.batch.interval', 100) as number;
+    this.pCacheSize = getVariable('im.cached.chats', 5) as number;
 
-    registerMessage('toggle_im', this.id, 'toggleIMWindow');
-    registerMessage('gamesystem_constructed', this.id, 'closeIMWindow');
+    this.registerMsg('toggle_im', 'toggleIMWindow');
+    this.registerMsg('gamesystem_constructed', 'closeIMWindow');
 
     this.setState('Active');
   }
 
   deconstruct(): void {
-    if (this.followFlashInterval) {
-      clearInterval(this.followFlashInterval);
-      this.followFlashInterval = null;
-    }
-
-    unregisterMessage('toggle_im', this.id);
-    unregisterMessage('gamesystem_constructed', this.id);
-
+    this.removeTimeout('follow_flash');
     super.deconstruct();
   }
 
   /**
    * Create IM window
+   *
+   * Lingo: createWindow(pWindowID, "instant_message.window", locX, locY)
    */
-  createIMWindow(): void {
+  async createIMWindow(): Promise<void> {
     const marginRight = getVariable('im.window.margin.right', 300) as number;
     const marginTop = getVariable('im.window.margin.top', 100) as number;
 
-    this.events.emit('createWindow', {
-      id: this.windowId,
-      template: 'instant_message.window',
-      x: window.innerWidth - marginRight,
-      y: marginTop,
-    });
+    const locX = window.innerWidth - marginRight;
+    const locY = marginTop;
 
-    this.view = 'normal';
+    await this.createWindow(this.pWindowId, 'instant_message.window', locX, locY);
+    this.registerWindowProcedure(this.pWindowId, 'eventProc');
+
+    this.pView = 'normal';
   }
 
   /**
    * Open IM window
+   *
+   * Lingo: openIMWindow()
    */
-  openIMWindow(): void {
-    this.events.emit('showWindow', { id: this.windowId });
+  async openIMWindow(): Promise<void> {
+    if (!this.windowExists(this.pWindowId)) {
+      await this.createIMWindow();
+    }
 
-    if (this.chatRenderers.size === 0) {
+    this.showWindow(this.pWindowId);
+    this.activateWindow(this.pWindowId);
+
+    if (this.pChatRenderers.size === 0) {
       this.changeWindowView('empty');
     }
 
@@ -92,32 +89,56 @@ export class InstantMessengerInterface extends BaseObject {
 
   /**
    * Close IM window
+   *
+   * Lingo: closeIMWindow()
    */
   closeIMWindow(): void {
-    this.events.emit('hideWindow', { id: this.windowId });
+    if (this.windowExists(this.pWindowId)) {
+      this.hideWindow(this.pWindowId);
+    }
   }
 
   /**
    * Toggle IM window
+   *
+   * Lingo: toggleIMWindow()
    */
-  toggleIMWindow(): void {
-    this.events.emit('toggleWindow', { id: this.windowId });
+  async toggleIMWindow(): Promise<void> {
+    if (this.windowExists(this.pWindowId)) {
+      const wnd = this.getWindow(this.pWindowId);
+      if (wnd?.getProperty('visible')) {
+        this.closeIMWindow();
+      } else {
+        this.showWindow(this.pWindowId);
+        this.activateWindow(this.pWindowId);
+        this.setState('Active');
+      }
+    } else {
+      await this.openIMWindow();
+    }
   }
 
   /**
    * Add a chat
+   *
+   * Lingo: addChat(chatId, friend, dontPlaySound)
    */
   addChat(chatId: string, friend: FriendData, dontPlaySound: boolean = false): boolean {
-    this.chatRenderers.set(chatId, {});
+    this.pChatRenderers.set(chatId, {});
 
     if (!dontPlaySound) {
       const soundName = getVariable('im.new.tab.sound', 'im_new') as string;
       executeMessage('playSound', soundName, { loopCount: 1 });
     }
 
-    this.names.set(chatId, friend.name);
+    this.pNames.set(chatId, friend.name);
 
-    if (this.chatRenderers.size === 1) {
+    // Add tab to window
+    if (this.windowExists(this.pWindowId) && this.elementExists(this.pWindowId, 'tabs')) {
+      this.setElementProperty(this.pWindowId, 'tabs', 'addTab', { id: chatId, name: friend.name });
+    }
+
+    if (this.pChatRenderers.size === 1) {
       this.activateChat(chatId);
     }
 
@@ -127,28 +148,35 @@ export class InstantMessengerInterface extends BaseObject {
 
   /**
    * Remove a chat
+   *
+   * Lingo: removeChat(chatId)
    */
   removeChat(chatId: string): boolean {
-    if (!this.chatRenderers.has(chatId)) {
+    if (!this.pChatRenderers.has(chatId)) {
       return false;
     }
 
-    this.activeChatId = '';
-    this.chatRenderers.delete(chatId);
-    this.names.delete(chatId);
+    this.pActiveChatId = '';
+    this.pChatRenderers.delete(chatId);
+    this.pNames.delete(chatId);
 
-    const cacheIdx = this.cachedChatIds.indexOf(chatId);
-    if (cacheIdx !== -1) {
-      this.cachedChatIds.splice(cacheIdx, 1);
+    // Remove tab from window
+    if (this.windowExists(this.pWindowId) && this.elementExists(this.pWindowId, 'tabs')) {
+      this.setElementProperty(this.pWindowId, 'tabs', 'removeTab', chatId);
     }
 
-    if (this.chatRenderers.size === 0) {
+    const cacheIdx = this.pCachedChatIds.indexOf(chatId);
+    if (cacheIdx !== -1) {
+      this.pCachedChatIds.splice(cacheIdx, 1);
+    }
+
+    if (this.pChatRenderers.size === 0) {
       this.changeWindowView('empty');
       return true;
     }
 
     // Activate another chat
-    const chatIds = Array.from(this.chatRenderers.keys());
+    const chatIds = Array.from(this.pChatRenderers.keys());
     if (chatIds.length > 0) {
       this.activateChat(chatIds[0]);
     }
@@ -158,10 +186,12 @@ export class InstantMessengerInterface extends BaseObject {
 
   /**
    * Remove all chats
+   *
+   * Lingo: removeAllChats()
    */
   removeAllChats(): void {
-    while (this.chatRenderers.size > 0) {
-      const chatId = Array.from(this.chatRenderers.keys())[0];
+    while (this.pChatRenderers.size > 0) {
+      const chatId = Array.from(this.pChatRenderers.keys())[0];
       this.removeChat(chatId);
     }
     this.closeIMWindow();
@@ -169,37 +199,45 @@ export class InstantMessengerInterface extends BaseObject {
 
   /**
    * Activate a chat
+   *
+   * Lingo: activateChat(chatId)
    */
   activateChat(chatId: string): void {
     if (!chatId) return;
 
     if (chatId === '#left' || chatId === '#right') {
-      this.events.emit('scrollTabs', { direction: chatId === '#left' ? 'left' : 'right' });
+      // Scroll tabs
+      if (this.elementExists(this.pWindowId, 'tabs')) {
+        this.setElementProperty(this.pWindowId, 'tabs', 'scroll', chatId === '#left' ? -1 : 1);
+      }
       return;
     }
 
     this.changeWindowView('normal');
-    this.activeChatId = chatId;
+    this.pActiveChatId = chatId;
 
-    this.events.emit('activateTab', { chatId });
+    // Activate tab in UI
+    if (this.windowExists(this.pWindowId) && this.elementExists(this.pWindowId, 'tabs')) {
+      this.setElementProperty(this.pWindowId, 'tabs', 'activeTab', chatId);
+    }
 
     // Update cache
-    const cacheIdx = this.cachedChatIds.indexOf(chatId);
+    const cacheIdx = this.pCachedChatIds.indexOf(chatId);
     if (cacheIdx === -1) {
-      if (this.cachedChatIds.length >= this.cacheSize) {
-        this.cachedChatIds.shift();
+      if (this.pCachedChatIds.length >= this.pCacheSize) {
+        this.pCachedChatIds.shift();
       }
-      this.cachedChatIds.push(chatId);
+      this.pCachedChatIds.push(chatId);
     } else {
-      this.cachedChatIds.splice(cacheIdx, 1);
-      this.cachedChatIds.push(chatId);
+      this.pCachedChatIds.splice(cacheIdx, 1);
+      this.pCachedChatIds.push(chatId);
     }
 
     // Handle follow flash
-    const flashIdx = this.followFlashList.indexOf(chatId);
+    const flashIdx = this.pFollowFlashList.indexOf(chatId);
     if (flashIdx !== -1) {
       this.flashFollowButton('start');
-      this.followFlashList.splice(flashIdx, 1);
+      this.pFollowFlashList.splice(flashIdx, 1);
     } else {
       this.flashFollowButton('stop');
     }
@@ -209,55 +247,74 @@ export class InstantMessengerInterface extends BaseObject {
 
   /**
    * Flash follow button
+   *
+   * Lingo: flashFollowButton(action)
    */
   private flashFollowButton(action: 'start' | 'stop' | 'flash'): void {
     switch (action) {
       case 'start':
-        if (!this.followFlashInterval) {
-          this.followFlashInterval = setInterval(() => this.flashFollowButton('flash'), 500);
-        }
-        this.followFlashState = false;
+        this.removeTimeout('follow_flash');
+        this.pFollowFlashState = false;
+        this.doFollowFlash();
         break;
       case 'stop':
-        if (this.followFlashInterval) {
-          clearInterval(this.followFlashInterval);
-          this.followFlashInterval = null;
+        this.removeTimeout('follow_flash');
+        if (this.windowExists(this.pWindowId) && this.elementExists(this.pWindowId, 'button_follow')) {
+          this.setElementProperty(this.pWindowId, 'button_follow', 'highlighted', false);
         }
-        this.events.emit('followButtonState', { highlighted: false });
         break;
       case 'flash':
-        this.followFlashState = !this.followFlashState;
-        this.events.emit('followButtonState', { highlighted: this.followFlashState });
+        this.doFollowFlash();
         break;
     }
   }
 
   /**
+   * Execute follow flash animation
+   */
+  private doFollowFlash(): void {
+    this.pFollowFlashState = !this.pFollowFlashState;
+    if (this.windowExists(this.pWindowId) && this.elementExists(this.pWindowId, 'button_follow')) {
+      this.setElementProperty(this.pWindowId, 'button_follow', 'highlighted', this.pFollowFlashState);
+    }
+    this.createTimeout('follow_flash', 500, 'flashFollowButton', ['flash']);
+  }
+
+  /**
    * Add a message to the chat
+   *
+   * Lingo: addMessage(chatId, entry)
    */
   addMessage(chatId: string, entry: ChatEntry): void {
-    if (!this.chatRenderers.has(chatId)) {
+    if (!this.pChatRenderers.has(chatId)) {
       const component = this.getComponent() as InstantMessengerComponent | null;
       if (component) {
         component.addChat(chatId);
       }
     }
 
-    this.events.emit('addMessage', { chatId, entry });
+    // Add message to chat display
+    if (this.windowExists(this.pWindowId) && chatId === this.pActiveChatId) {
+      if (this.elementExists(this.pWindowId, 'chat_display')) {
+        this.setElementProperty(this.pWindowId, 'chat_display', 'addMessage', entry);
+      }
+    }
 
     // Highlight tab for messages and invitations
     if (entry.type === 'message' || entry.type === 'invitation') {
-      this.events.emit('highlightTab', { chatId });
+      if (this.elementExists(this.pWindowId, 'tabs')) {
+        this.setElementProperty(this.pWindowId, 'tabs', 'highlightTab', chatId);
+      }
       this.setState('highlighted');
     }
 
     // Handle follow flash for invitations
     if (entry.type === 'invitation') {
-      if (chatId === this.activeChatId) {
+      if (chatId === this.pActiveChatId) {
         this.flashFollowButton('start');
       } else {
-        if (!this.followFlashList.includes(chatId)) {
-          this.followFlashList.push(chatId);
+        if (!this.pFollowFlashList.includes(chatId)) {
+          this.pFollowFlashList.push(chatId);
         }
       }
     }
@@ -267,31 +324,38 @@ export class InstantMessengerInterface extends BaseObject {
 
   /**
    * Update interface
+   *
+   * Lingo: updateInterface()
    */
   updateInterface(): void {
-    if (this.view === 'empty') return;
-    if (!this.activeChatId) return;
+    if (this.pView === 'empty') return;
+    if (!this.pActiveChatId) return;
+    if (!this.windowExists(this.pWindowId)) return;
 
     const component = this.getComponent() as InstantMessengerComponent | null;
     if (!component) return;
 
-    const friend = component.getFriend(this.activeChatId);
+    const friend = component.getFriend(this.pActiveChatId);
     if (!friend) return;
 
-    this.events.emit('updateInterface', {
-      chatId: this.activeChatId,
-      name: this.names.get(this.activeChatId),
-      canFollow: friend.canfollow,
-      figure: friend.figure,
-      sex: friend.sex,
-    });
+    // Update name display
+    if (this.elementExists(this.pWindowId, 'name_text')) {
+      this.setText(this.pWindowId, 'name_text', this.pNames.get(this.pActiveChatId) ?? '');
+    }
+
+    // Update follow button state
+    if (this.elementExists(this.pWindowId, 'button_follow')) {
+      this.setElementProperty(this.pWindowId, 'button_follow', 'enabled', friend.canfollow);
+    }
   }
 
   /**
    * Set state
+   *
+   * Lingo: setState(state)
    */
   setState(state: IMState): void {
-    this.state = state;
+    this.pState = state;
     executeMessage('IMStateChanged');
   }
 
@@ -299,29 +363,37 @@ export class InstantMessengerInterface extends BaseObject {
    * Get state
    */
   getState(): IMState {
-    return this.state;
+    return this.pState;
   }
 
   /**
    * Show invitation window
+   *
+   * Lingo: createWindow(pInvitationWindowID, "invitation.window", VOID, VOID, #modal)
    */
-  showInvitationWindow(count: number): void {
-    this.events.emit('showInvitationWindow', {
-      id: this.invitationWindowId,
-      count,
-      summary: `You are inviting ${count} friend(s).`,
-    });
+  async showInvitationWindow(count: number): Promise<void> {
+    await this.createModalWindow(this.pInvitationWindowId, 'invitation.window');
+    this.registerWindowProcedure(this.pInvitationWindowId, 'invitationEventProc');
+
+    // Set invitation text
+    if (this.elementExists(this.pInvitationWindowId, 'summary_text')) {
+      this.setText(this.pInvitationWindowId, 'summary_text', `You are inviting ${count} friend(s).`);
+    }
   }
 
   /**
    * Close invitation window
+   *
+   * Lingo: removeWindow(pInvitationWindowID)
    */
   closeInvitationWindow(): void {
-    this.events.emit('closeWindow', { id: this.invitationWindowId });
+    this.removeWindow(this.pInvitationWindowId);
   }
 
   /**
    * Send invitation
+   *
+   * Lingo: sendInvitation(text)
    */
   sendInvitation(text: string): void {
     const lastRoom = session.GET<string>('lastroom');
@@ -345,90 +417,122 @@ export class InstantMessengerInterface extends BaseObject {
 
   /**
    * Change window view
+   *
+   * Lingo: changeWindowView(view)
    */
   changeWindowView(view: IMWindowView): boolean {
-    if (view === this.view) return true;
+    if (view === this.pView) return true;
 
-    this.view = view;
-    this.events.emit('changeWindowView', { view });
+    this.pView = view;
+
+    if (!this.windowExists(this.pWindowId)) return true;
+
+    // Show/hide appropriate elements based on view
+    if (view === 'empty') {
+      if (this.elementExists(this.pWindowId, 'chat_container')) {
+        this.hideElement(this.pWindowId, 'chat_container');
+      }
+      if (this.elementExists(this.pWindowId, 'empty_message')) {
+        this.showElement(this.pWindowId, 'empty_message');
+      }
+    } else {
+      if (this.elementExists(this.pWindowId, 'chat_container')) {
+        this.showElement(this.pWindowId, 'chat_container');
+      }
+      if (this.elementExists(this.pWindowId, 'empty_message')) {
+        this.hideElement(this.pWindowId, 'empty_message');
+      }
+    }
+
     this.updateInterface();
-
     return true;
   }
 
   /**
-   * Handle window event
+   * Main window event procedure
+   *
+   * Lingo: eventProc(tEvent, tSpriteID, tParam, tWindowID)
    */
-  handleWindowEvent(event: string, elementId: string, param?: unknown): void {
+  override eventProc(event: string, spriteId: string, param: unknown, windowId: string): void {
     const component = this.getComponent() as InstantMessengerComponent | null;
 
-    switch (elementId) {
-      case 'button.close.window':
-        this.closeIMWindow();
-        break;
-      case 'button.close.chat':
-        if (component) {
-          component.removeChat(this.activeChatId);
-        }
-        break;
-      case 'tabs':
-        if (typeof param === 'string') {
-          this.activateChat(param);
-        }
-        break;
-      case 'button.follow':
-        const connId = getVariable('connection.info.id', 'Info') as string;
-        const conn = getConnection(connId);
-        if (conn) {
-          conn.send('FOLLOW_FRIEND', { integer: parseInt(this.activeChatId) });
-        }
-        break;
-      case 'button.minimail':
-        this.events.emit('openMailCompose', { recipientId: this.activeChatId });
-        break;
-      case 'chat.input':
-        if (event === 'submit' && typeof param === 'string' && param !== '') {
+    if (event === 'mouseUp') {
+      switch (spriteId) {
+        case 'close':
+        case 'button_close_window':
+          this.closeIMWindow();
+          break;
+        case 'button_close_chat':
           if (component) {
-            component.sendMessage(this.activeChatId, param);
+            component.removeChat(this.pActiveChatId);
           }
+          break;
+        case 'button_follow':
+          const connId = getVariable('connection.info.id', 'Info') as string;
+          const conn = getConnection(connId);
+          if (conn) {
+            conn.send('FOLLOW_FRIEND', { integer: parseInt(this.pActiveChatId) });
+          }
+          break;
+        case 'button_minimail':
+          executeMessage('openMailCompose', { recipientId: this.pActiveChatId });
+          break;
+        default:
+          // Handle tab clicks
+          if (spriteId.startsWith('tab_')) {
+            const chatId = spriteId.replace('tab_', '');
+            this.activateChat(chatId);
+          }
+          break;
+      }
+    } else if (event === 'submit' && spriteId === 'chat_input') {
+      if (typeof param === 'string' && param !== '') {
+        if (component) {
+          component.sendMessage(this.pActiveChatId, param);
         }
-        break;
+      }
     }
   }
 
   /**
-   * Handle invitation window event
+   * Invitation window event procedure
+   *
+   * Lingo: invitationEventProc(tEvent, tSpriteID, tParam, tWindowID)
    */
-  handleInvitationEvent(event: string, elementId: string): void {
-    switch (elementId) {
-      case 'button.send':
-        // The text would come from the input element
+  invitationEventProc(event: string, spriteId: string, param: unknown, windowId: string): void {
+    if (event !== 'mouseUp') return;
+
+    switch (spriteId) {
+      case 'button_send':
+        // Get text from input
+        const text = this.getText(this.pInvitationWindowId, 'invitation_input');
+        this.sendInvitation(text);
         break;
-      case 'button.cancel':
-      case 'button.close.window':
+      case 'button_cancel':
+      case 'close':
         this.closeInvitationWindow();
         break;
     }
   }
 
   /**
-   * Get events emitter
-   */
-  getEvents(): EventEmitter {
-    return this.events;
-  }
-
-  /**
    * Get active chat ID
    */
   getActiveChatId(): string {
-    return this.activeChatId;
+    return this.pActiveChatId;
   }
 
   /**
    * Get current view
    */
   getView(): IMWindowView {
-    return this.view;
+    return this.pView;
+  }
+
+  /**
+   * Get window ID
+   */
+  getWindowId(): string {
+    return this.pWindowId;
   }
 }

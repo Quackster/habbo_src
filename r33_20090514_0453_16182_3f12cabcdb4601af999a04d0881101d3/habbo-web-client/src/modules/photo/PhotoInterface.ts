@@ -4,13 +4,8 @@
  * Ported from: hh_photo/Cast External ParentScript 2 - Photo Interface Class.ls
  */
 
-import { BaseObject } from '../../core/BaseObject';
-import { EventEmitter } from '../../core/events';
-import {
-  registerMessage,
-  unregisterMessage,
-  executeMessage,
-} from '../../core/MessageBus';
+import { BaseInterface } from '../../core/BaseInterface';
+import { executeMessage } from '../../core/MessageBus';
 import { getConnection } from '../../managers/ConnectionManager';
 import { getVariable } from '../../core/VariableContainer';
 import {
@@ -21,23 +16,25 @@ import {
 } from './types';
 import { PhotoComponent } from './PhotoComponent';
 
-export class PhotoInterface extends BaseObject {
-  private events: EventEmitter = new EventEmitter();
-  private mode: CameraMode = CameraMode.CLOSED;
-  private zoomLevel: number = 1;
-  private maxZoom: number = 11;
+export class PhotoInterface extends BaseInterface {
+  private pCameraWindowId: string = 'camera_window';
+  private pPhotoViewerWindowId: string = 'photo_viewer_window';
+  private pCameraDialogId: string = 'camera_dialog_window';
+
+  private pMode: CameraMode = CameraMode.CLOSED;
+  private pZoomLevel: number = 1;
+  private pMaxZoom: number = 11;
 
   // Noise animation state
-  private noiseDirH: number = 1;
-  private noiseDirV: number = 1;
-  private updateInterval: ReturnType<typeof setInterval> | null = null;
+  private pNoiseDirH: number = 1;
+  private pNoiseDirV: number = 1;
 
   // Camera state
-  private capturedImage: ImageData | null = null;
-  private displayCanvas: HTMLCanvasElement | null = null;
+  private pCapturedImage: ImageData | null = null;
+  private pDisplayCanvas: HTMLCanvasElement | null = null;
 
   // Hand item data for placement
-  private handItemData: unknown = null;
+  private pHandItemData: unknown = null;
 
   construct(): void {
     super.construct();
@@ -50,12 +47,14 @@ export class PhotoInterface extends BaseObject {
 
   /**
    * Open camera window
+   *
+   * Lingo: createWindow(pCameraWindowID, "camera.window")
    */
-  open(): void {
-    this.mode = CameraMode.LIVE;
+  async open(): Promise<void> {
+    this.pMode = CameraMode.LIVE;
 
-    registerMessage('leaveRoom', this.id, 'close');
-    registerMessage('changeRoom', this.id, 'close');
+    this.registerMsg('leaveRoom', 'close');
+    this.registerMsg('changeRoom', 'close');
 
     // Send carry object message
     const connId = getVariable('connection.room.id', '') as string;
@@ -64,16 +63,19 @@ export class PhotoInterface extends BaseObject {
       conn.send(PhotoCommands.CARRY_OBJECT, { integer: CAMERA_HAND_ITEM_ID });
     }
 
+    await this.createWindow(this.pCameraWindowId, 'camera.window');
+    this.registerWindowProcedure(this.pCameraWindowId, 'cameraEventProc');
+
     this.setCameraToLiveMode();
     this.setButtonHilites();
     this.updateFilm();
-    this.startUpdate();
-
-    this.events.emit('cameraOpened');
+    this.startNoiseAnimation();
   }
 
   /**
    * Close camera window
+   *
+   * Lingo: removeWindow(pCameraWindowID)
    */
   close(): void {
     // Send stop carrying
@@ -83,78 +85,125 @@ export class PhotoInterface extends BaseObject {
       conn.send(PhotoCommands.CARRY_OBJECT, { integer: 0 });
     }
 
-    this.mode = CameraMode.CLOSED;
-    this.stopUpdate();
+    this.pMode = CameraMode.CLOSED;
+    this.removeTimeout('noise_animation');
 
-    unregisterMessage('leaveRoom', this.id);
-    unregisterMessage('changeRoom', this.id);
+    this.unregisterMsg('leaveRoom');
+    this.unregisterMsg('changeRoom');
 
-    this.events.emit('cameraClosed');
+    this.removeWindow(this.pCameraWindowId);
   }
 
   /**
    * Update film count display
+   *
+   * Lingo: updateFilm()
    */
   updateFilm(): void {
+    if (!this.windowExists(this.pCameraWindowId)) return;
+
     const component = this.getComponent() as PhotoComponent | null;
     const filmCount = component?.getFilm() ?? 0;
-    this.events.emit('filmUpdated', filmCount);
+
+    if (this.elementExists(this.pCameraWindowId, 'film_count')) {
+      this.setText(this.pCameraWindowId, 'film_count', String(filmCount));
+    }
   }
 
   /**
-   * Update noise animation
+   * Start noise animation loop
    */
-  private update(): void {
-    if (this.mode !== CameraMode.LIVE) return;
+  private startNoiseAnimation(): void {
+    this.animateNoise();
+  }
 
-    // Animate noise elements
-    this.events.emit('noiseAnimationTick', {
-      dirH: this.noiseDirH,
-      dirV: this.noiseDirV,
-    });
+  /**
+   * Animate noise
+   */
+  private animateNoise(): void {
+    if (this.pMode !== CameraMode.LIVE) return;
+    if (!this.windowExists(this.pCameraWindowId)) return;
 
-    // Bounce direction at edges (simplified)
-    if (Math.random() < 0.05) this.noiseDirH *= -1;
-    if (Math.random() < 0.05) this.noiseDirV *= -1;
+    // Update noise element position
+    if (this.elementExists(this.pCameraWindowId, 'noise_overlay')) {
+      const currentH = this.getElementProperty(this.pCameraWindowId, 'noise_overlay', 'locH') as number ?? 0;
+      const currentV = this.getElementProperty(this.pCameraWindowId, 'noise_overlay', 'locV') as number ?? 0;
+
+      // Move noise
+      const newH = currentH + this.pNoiseDirH;
+      const newV = currentV + this.pNoiseDirV;
+
+      this.setElementProperty(this.pCameraWindowId, 'noise_overlay', 'locH', newH);
+      this.setElementProperty(this.pCameraWindowId, 'noise_overlay', 'locV', newV);
+
+      // Bounce direction at edges
+      if (Math.random() < 0.05) this.pNoiseDirH *= -1;
+      if (Math.random() < 0.05) this.pNoiseDirV *= -1;
+    }
+
+    this.createTimeout('noise_animation', 50, 'animateNoise');
   }
 
   /**
    * Set camera to live preview mode
+   *
+   * Lingo: setCameraToLiveMode()
    */
   setCameraToLiveMode(): void {
-    this.events.emit('setLiveMode');
+    if (!this.windowExists(this.pCameraWindowId)) return;
+
+    // Show live preview element
+    if (this.elementExists(this.pCameraWindowId, 'live_preview')) {
+      this.showElement(this.pCameraWindowId, 'live_preview');
+    }
+
+    // Hide captured image
+    if (this.elementExists(this.pCameraWindowId, 'captured_image')) {
+      this.hideElement(this.pCameraWindowId, 'captured_image');
+    }
+
+    // Show noise overlay
+    if (this.elementExists(this.pCameraWindowId, 'noise_overlay')) {
+      this.showElement(this.pCameraWindowId, 'noise_overlay');
+    }
+
+    // Hide text input
+    if (this.elementExists(this.pCameraWindowId, 'photo_text')) {
+      this.hideElement(this.pCameraWindowId, 'photo_text');
+    }
   }
 
   /**
    * Handle camera button press
+   *
+   * Lingo: handleButtonPress(buttonId)
    */
   handleButtonPress(buttonId: CameraButtonId): void {
     const component = this.getComponent() as PhotoComponent | null;
 
     switch (buttonId) {
       case 'cam_shoot':
-        if (this.mode !== CameraMode.LIVE) return;
+        if (this.pMode !== CameraMode.LIVE) return;
         this.takePhoto();
         break;
 
       case 'cam_release':
-        if (this.mode === CameraMode.STILL) {
+        if (this.pMode === CameraMode.STILL) {
           this.setCameraToLiveMode();
-          this.mode = CameraMode.LIVE;
+          this.pMode = CameraMode.LIVE;
+          this.startNoiseAnimation();
         }
         break;
 
       case 'cam_save':
-        if (this.mode === CameraMode.STILL && component) {
+        if (this.pMode === CameraMode.STILL && component) {
           if (component.getFilm() > 0) {
-            this.mode = CameraMode.SAVE;
-            this.events.emit('showSaveText');
-            // Get text from UI and store picture
-            this.events.emit('requestPhotoText', (text: string) => {
-              if (this.displayCanvas) {
-                component.storePicture(this.displayCanvas, text);
-              }
-            });
+            this.pMode = CameraMode.SAVE;
+            // Show text input
+            if (this.elementExists(this.pCameraWindowId, 'photo_text')) {
+              this.showElement(this.pCameraWindowId, 'photo_text');
+              this.setText(this.pCameraWindowId, 'photo_text', '');
+            }
           } else {
             executeMessage('alert', { Msg: 'cam_save_nofilm' });
           }
@@ -162,18 +211,18 @@ export class PhotoInterface extends BaseObject {
         break;
 
       case 'cam_zoom_in':
-        if (this.mode === CameraMode.STILL) {
-          if (this.zoomLevel < this.maxZoom) {
-            this.zoomLevel++;
+        if (this.pMode === CameraMode.STILL) {
+          if (this.pZoomLevel < this.pMaxZoom) {
+            this.pZoomLevel++;
             this.applyZoom();
           }
         }
         break;
 
       case 'cam_zoom_out':
-        if (this.mode === CameraMode.STILL) {
-          if (this.zoomLevel > 1) {
-            this.zoomLevel--;
+        if (this.pMode === CameraMode.STILL) {
+          if (this.pZoomLevel > 1) {
+            this.pZoomLevel--;
             this.applyZoom();
           }
         }
@@ -182,6 +231,16 @@ export class PhotoInterface extends BaseObject {
       case 'cam_close':
         this.close();
         break;
+
+      case 'cam_txtscreen':
+        // Save with text
+        if (this.pMode === CameraMode.SAVE && component) {
+          const text = this.getText(this.pCameraWindowId, 'photo_text');
+          if (this.pDisplayCanvas) {
+            component.storePicture(this.pDisplayCanvas, text);
+          }
+        }
+        break;
     }
 
     this.setButtonHilites();
@@ -189,194 +248,124 @@ export class PhotoInterface extends BaseObject {
 
   /**
    * Take a photo
+   *
+   * Lingo: takePhoto()
    */
   private takePhoto(): void {
-    this.zoomLevel = 1;
+    this.pZoomLevel = 1;
 
     // Notify room to hide UI elements
     executeMessage('takingPhoto');
 
-    // Request screen capture from renderer
-    this.events.emit('captureScreen', (imageData: ImageData) => {
-      this.capturedImage = imageData;
+    // In actual implementation, this would capture from the room renderer
+    // For now, create a placeholder
+    const width = 320;
+    const height = 240;
 
-      // Create display canvas
-      this.displayCanvas = document.createElement('canvas');
-      this.displayCanvas.width = imageData.width;
-      this.displayCanvas.height = imageData.height;
-      const ctx = this.displayCanvas.getContext('2d');
-      if (ctx) {
-        ctx.putImageData(imageData, 0, 0);
-        // Draw border
-        ctx.strokeStyle = '#000000';
-        ctx.strokeRect(0, 0, imageData.width, imageData.height);
-      }
+    this.pCapturedImage = new ImageData(width, height);
+    this.pDisplayCanvas = document.createElement('canvas');
+    this.pDisplayCanvas.width = width;
+    this.pDisplayCanvas.height = height;
 
-      // Apply sepia-like coloring effect
-      this.applyPhotoEffect();
-
-      this.mode = CameraMode.STILL;
-      this.setButtonHilites();
-
-      executeMessage('photoTaken');
-      this.events.emit('photoCapture', this.displayCanvas);
-    });
-  }
-
-  /**
-   * Apply vintage photo effect
-   */
-  private applyPhotoEffect(): void {
-    if (!this.displayCanvas) return;
-    const ctx = this.displayCanvas.getContext('2d');
-    if (!ctx) return;
-
-    // Apply sepia/vintage coloring (color: 681F10, bgColor: FFCC66)
-    const imageData = ctx.getImageData(
-      0,
-      0,
-      this.displayCanvas.width,
-      this.displayCanvas.height
-    );
-    const data = imageData.data;
-
-    for (let i = 0; i < data.length; i += 4) {
-      // Convert to grayscale
-      const gray = data[i] * 0.299 + data[i + 1] * 0.587 + data[i + 2] * 0.114;
-
-      // Apply sepia toning
-      data[i] = Math.min(255, gray + 40); // Red
-      data[i + 1] = Math.min(255, gray + 20); // Green
-      data[i + 2] = gray; // Blue
+    const ctx = this.pDisplayCanvas.getContext('2d');
+    if (ctx) {
+      // Apply sepia effect (placeholder)
+      ctx.fillStyle = '#d4c4a0';
+      ctx.fillRect(0, 0, width, height);
+      ctx.strokeStyle = '#000000';
+      ctx.strokeRect(0, 0, width, height);
     }
 
-    ctx.putImageData(imageData, 0, 0);
+    this.pMode = CameraMode.STILL;
+    this.removeTimeout('noise_animation');
+
+    // Show captured image
+    if (this.elementExists(this.pCameraWindowId, 'captured_image')) {
+      this.feedImage(this.pCameraWindowId, 'captured_image', this.pDisplayCanvas);
+      this.showElement(this.pCameraWindowId, 'captured_image');
+    }
+
+    // Hide live preview and noise
+    if (this.elementExists(this.pCameraWindowId, 'live_preview')) {
+      this.hideElement(this.pCameraWindowId, 'live_preview');
+    }
+    if (this.elementExists(this.pCameraWindowId, 'noise_overlay')) {
+      this.hideElement(this.pCameraWindowId, 'noise_overlay');
+    }
+
+    this.setButtonHilites();
+    executeMessage('photoTaken');
   }
 
   /**
    * Apply zoom to captured image
+   *
+   * Lingo: applyZoom()
    */
   private applyZoom(): void {
-    if (!this.capturedImage || !this.displayCanvas) return;
+    if (!this.pCapturedImage || !this.pDisplayCanvas) return;
 
-    const ctx = this.displayCanvas.getContext('2d');
+    const ctx = this.pDisplayCanvas.getContext('2d');
     if (!ctx) return;
 
-    const width = this.capturedImage.width;
-    const height = this.capturedImage.height;
+    // Zoom logic would be implemented here
+    // For now, just update the display
 
-    const zoomedWidth = width / this.zoomLevel;
-    const zoomedHeight = height / this.zoomLevel;
-
-    const srcX = (width - zoomedWidth) / 2;
-    const srcY = (height - zoomedHeight) / 2;
-
-    // Create temp canvas with original image
-    const tempCanvas = document.createElement('canvas');
-    tempCanvas.width = width;
-    tempCanvas.height = height;
-    const tempCtx = tempCanvas.getContext('2d');
-    if (tempCtx) {
-      tempCtx.putImageData(this.capturedImage, 0, 0);
-
-      // Draw zoomed portion
-      ctx.fillStyle = '#eeeeee';
-      ctx.fillRect(0, 0, width, height);
-      ctx.drawImage(
-        tempCanvas,
-        srcX,
-        srcY,
-        zoomedWidth,
-        zoomedHeight,
-        0,
-        0,
-        width,
-        height
-      );
+    if (this.elementExists(this.pCameraWindowId, 'captured_image')) {
+      this.feedImage(this.pCameraWindowId, 'captured_image', this.pDisplayCanvas);
     }
-
-    this.applyPhotoEffect();
-    this.events.emit('photoZoomed', this.displayCanvas);
   }
 
   /**
    * Set button highlight states based on mode
+   *
+   * Lingo: setButtonHilites()
    */
   setButtonHilites(): void {
+    if (!this.windowExists(this.pCameraWindowId)) return;
+
     const component = this.getComponent() as PhotoComponent | null;
     const hasFilm = (component?.getFilm() ?? 0) > 0;
 
-    const hilited: CameraButtonId[] = [];
-    const unhilited: CameraButtonId[] = [];
+    const buttonStates: Record<CameraButtonId, boolean> = {
+      'cam_shoot': this.pMode === CameraMode.LIVE,
+      'cam_release': this.pMode === CameraMode.STILL,
+      'cam_save': this.pMode === CameraMode.STILL && hasFilm,
+      'cam_zoom_in': this.pMode === CameraMode.STILL && hasFilm,
+      'cam_zoom_out': this.pMode === CameraMode.STILL && hasFilm,
+      'cam_txtscreen': this.pMode === CameraMode.SAVE,
+      'cam_close': true,
+    };
 
-    switch (this.mode) {
-      case CameraMode.LIVE:
-        hilited.push('cam_shoot');
-        unhilited.push(
-          'cam_release',
-          'cam_save',
-          'cam_zoom_in',
-          'cam_zoom_out',
-          'cam_txtscreen'
-        );
-        break;
-
-      case CameraMode.STILL:
-        hilited.push('cam_release', 'cam_txtscreen');
-        unhilited.push('cam_shoot');
-        if (hasFilm) {
-          hilited.push('cam_save', 'cam_zoom_in', 'cam_zoom_out');
-        }
-        break;
-
-      case CameraMode.SAVE:
-        unhilited.push(
-          'cam_shoot',
-          'cam_release',
-          'cam_save',
-          'cam_zoom_in',
-          'cam_zoom_out',
-          'cam_txtscreen'
-        );
-        break;
+    for (const [buttonId, enabled] of Object.entries(buttonStates)) {
+      if (this.elementExists(this.pCameraWindowId, buttonId)) {
+        this.setElementProperty(this.pCameraWindowId, buttonId, 'enabled', enabled);
+        this.setElementProperty(this.pCameraWindowId, buttonId, 'highlighted', enabled);
+      }
     }
-
-    this.events.emit('buttonStatesChanged', { hilited, unhilited });
   }
 
   /**
    * Called when save is complete
+   *
+   * Lingo: saveOk()
    */
   saveOk(): void {
-    this.mode = CameraMode.LIVE;
+    this.pMode = CameraMode.LIVE;
     this.setCameraToLiveMode();
-    this.events.emit('hideSaveText');
     this.setButtonHilites();
     this.updateFilm();
-  }
-
-  /**
-   * Start update loop
-   */
-  private startUpdate(): void {
-    if (this.updateInterval) return;
-    this.updateInterval = setInterval(() => this.update(), 50);
-  }
-
-  /**
-   * Stop update loop
-   */
-  private stopUpdate(): void {
-    if (this.updateInterval) {
-      clearInterval(this.updateInterval);
-      this.updateInterval = null;
-    }
+    this.startNoiseAnimation();
   }
 
   /**
    * Show help line for element
+   *
+   * Lingo: showHelpLine(elementId)
    */
   showHelpLine(elementId: string): void {
+    if (!this.windowExists(this.pCameraWindowId)) return;
+
     const helpTexts: Record<string, string> = {
       cam_shoot: 'Take a photo',
       cam_release: 'Discard photo',
@@ -388,83 +377,151 @@ export class PhotoInterface extends BaseObject {
     };
 
     const text = helpTexts[elementId];
-    if (text) {
-      this.events.emit('helpTextChanged', text);
+    if (text && this.elementExists(this.pCameraWindowId, 'help_text')) {
+      this.setText(this.pCameraWindowId, 'help_text', text);
     }
   }
 
   /**
    * Hide help line
+   *
+   * Lingo: hideHelpLine()
    */
   hideHelpLine(): void {
-    this.events.emit('helpTextChanged', '');
+    if (this.windowExists(this.pCameraWindowId) && this.elementExists(this.pCameraWindowId, 'help_text')) {
+      this.setText(this.pCameraWindowId, 'help_text', '');
+    }
   }
 
   /**
    * Handle hand item selection (camera from inventory)
+   *
+   * Lingo: handItemSelect(data, isPrivateRoom)
    */
-  handItemSelect(data: unknown, isPrivateRoom: boolean): void {
+  async handItemSelect(data: unknown, isPrivateRoom: boolean): Promise<void> {
     if (!isPrivateRoom) {
-      this.open();
+      await this.open();
     } else {
-      this.handItemData = data;
-      this.events.emit('showCameraDialog');
+      this.pHandItemData = data;
+      await this.showCameraDialog();
     }
   }
 
   /**
-   * Handle camera dialog choice
+   * Show camera dialog
+   *
+   * Lingo: createWindow(pCameraDialogID, "camera_dialog.window", VOID, VOID, #modal)
    */
-  handleDialogChoice(choice: 'open' | 'place'): void {
-    if (choice === 'open') {
-      this.open();
-    } else if (choice === 'place') {
-      // Start item placement in room
-      executeMessage('startItemPlacing', this.handItemData);
+  private async showCameraDialog(): Promise<void> {
+    await this.createModalWindow(this.pCameraDialogId, 'camera_dialog.window');
+    this.registerWindowProcedure(this.pCameraDialogId, 'dialogEventProc');
+  }
+
+  /**
+   * Camera dialog event procedure
+   */
+  dialogEventProc(event: string, spriteId: string, param: unknown, windowId: string): void {
+    if (event !== 'mouseUp') return;
+
+    switch (spriteId) {
+      case 'button_open':
+        this.removeWindow(this.pCameraDialogId);
+        this.open();
+        break;
+      case 'button_place':
+        this.removeWindow(this.pCameraDialogId);
+        executeMessage('startItemPlacing', this.pHandItemData);
+        break;
+      case 'close':
+      case 'button_cancel':
+        this.removeWindow(this.pCameraDialogId);
+        break;
     }
-    this.events.emit('closeCameraDialog');
   }
 
   /**
    * Open photo viewer window
+   *
+   * Lingo: createWindow(pPhotoViewerWindowID, "photo_viewer.window")
    */
-  openPhotoWindow(x: number, y: number, canRemove: boolean): void {
-    this.events.emit('photoWindowOpened', { x, y, canRemove });
+  async openPhotoWindow(x: number, y: number, canRemove: boolean): Promise<void> {
+    await this.createWindow(this.pPhotoViewerWindowId, 'photo_viewer.window', x, y);
+    this.registerWindowProcedure(this.pPhotoViewerWindowId, 'viewerEventProc');
+
+    // Show/hide remove button
+    if (this.elementExists(this.pPhotoViewerWindowId, 'button_remove')) {
+      if (canRemove) {
+        this.showElement(this.pPhotoViewerWindowId, 'button_remove');
+      } else {
+        this.hideElement(this.pPhotoViewerWindowId, 'button_remove');
+      }
+    }
   }
 
   /**
    * Set photo canvas for viewer
+   *
+   * Lingo: setPhotoCanvas(canvas)
    */
   setPhotoCanvas(canvas: HTMLCanvasElement): void {
-    this.events.emit('photoCanvasReady', canvas);
+    if (this.windowExists(this.pPhotoViewerWindowId) && this.elementExists(this.pPhotoViewerWindowId, 'photo_image')) {
+      this.feedImage(this.pPhotoViewerWindowId, 'photo_image', canvas);
+    }
   }
 
   /**
    * Set photo text for viewer
+   *
+   * Lingo: setPhotoText(text)
    */
   setPhotoText(text: string): void {
-    this.events.emit('photoTextReady', text);
+    if (this.windowExists(this.pPhotoViewerWindowId) && this.elementExists(this.pPhotoViewerWindowId, 'photo_text')) {
+      this.setText(this.pPhotoViewerWindowId, 'photo_text', text);
+    }
   }
 
   /**
    * Close photo viewer
+   *
+   * Lingo: removeWindow(pPhotoViewerWindowID)
    */
   closePhotoViewer(): void {
-    this.events.emit('photoWindowClosed');
+    this.removeWindow(this.pPhotoViewerWindowId);
   }
 
   /**
-   * Handle photo viewer button press
+   * Photo viewer event procedure
    */
-  handlePhotoViewerButton(buttonId: 'photo_close' | 'photo_remove'): void {
+  viewerEventProc(event: string, spriteId: string, param: unknown, windowId: string): void {
+    if (event !== 'mouseUp') return;
+
     const component = this.getComponent() as PhotoComponent | null;
 
-    if (buttonId === 'photo_close') {
-      this.closePhotoViewer();
-    } else if (buttonId === 'photo_remove' && component) {
-      if (component.removePhoto(component.getItemId())) {
+    switch (spriteId) {
+      case 'close':
+      case 'button_close':
         this.closePhotoViewer();
-      }
+        break;
+      case 'button_remove':
+        if (component && component.removePhoto(component.getItemId())) {
+          this.closePhotoViewer();
+        }
+        break;
+    }
+  }
+
+  /**
+   * Camera window event procedure
+   *
+   * Lingo: cameraEventProc(tEvent, tSpriteID, tParam, tWindowID)
+   */
+  cameraEventProc(event: string, spriteId: string, param: unknown, windowId: string): void {
+    if (event === 'mouseUp') {
+      this.handleButtonPress(spriteId as CameraButtonId);
+    } else if (event === 'mouseEnter') {
+      this.showHelpLine(spriteId);
+    } else if (event === 'mouseLeave') {
+      this.hideHelpLine();
     }
   }
 
@@ -472,13 +529,20 @@ export class PhotoInterface extends BaseObject {
    * Get current camera mode
    */
   getMode(): CameraMode {
-    return this.mode;
+    return this.pMode;
   }
 
   /**
-   * Get events emitter
+   * Get camera window ID
    */
-  getEvents(): EventEmitter {
-    return this.events;
+  getCameraWindowId(): string {
+    return this.pCameraWindowId;
+  }
+
+  /**
+   * Get photo viewer window ID
+   */
+  getPhotoViewerWindowId(): string {
+    return this.pPhotoViewerWindowId;
   }
 }

@@ -4,49 +4,55 @@
  * Ported from: hh_club/Cast External ParentScript 2 - Club Interface Class.ls
  */
 
-import { BaseObject } from '../../core/BaseObject';
-import { registerMessage, unregisterMessage, executeMessage } from '../../core/MessageBus';
+import { BaseInterface } from '../../core/BaseInterface';
+import { executeMessage } from '../../core/MessageBus';
 import { getVariable, variableExists } from '../../core/VariableContainer';
 import { session } from '../../core/Session';
-import { EventEmitter } from '../../core/events';
 import { ClubStatus, ClubResponseFlag, ClubSubscriptionLength } from './types';
 import { ClubComponent } from './ClubComponent';
 
-export class ClubInterface extends BaseObject {
-  private dialogId: string = 'window_clubinfo1';
-  private giftDialogId: string = 'window_clubgift';
-  private chosenLength: ClubSubscriptionLength = 1;
-  private subscribeFromHotel: boolean = true;
-  private events: EventEmitter = new EventEmitter();
+export class ClubInterface extends BaseInterface {
+  private pWindowId: string = 'clubinfo_window';
+  private pGiftDialogId: string = 'clubgift_window';
+  private pChosenLength: ClubSubscriptionLength = 1;
+  private pSubscribeFromHotel: boolean = true;
 
   construct(): void {
     super.construct();
 
     if (variableExists('club.subscription.disabled')) {
-      this.subscribeFromHotel = !(getVariable('club.subscription.disabled') as number > 0);
+      this.pSubscribeFromHotel = !(getVariable('club.subscription.disabled') as number > 0);
     }
 
-    registerMessage('show_clubinfo', this.id, 'showClubInfo');
+    this.registerMsg('show_clubinfo', 'showClubInfo');
   }
 
   deconstruct(): void {
-    unregisterMessage('show_clubinfo', this.id);
     super.deconstruct();
   }
 
   /**
    * Show gift info dialog
+   *
+   * Lingo: createWindow(pGiftDialogID, "clubgift.window", VOID, VOID, #modal)
    */
-  showGiftInfo(): void {
-    this.events.emit('showGiftDialog', {
-      id: this.giftDialogId,
-      title: 'Club Gift', // getText("club_confirm_gift_title")
-      text: 'You have a gift waiting!', // getText("club_confirm_gift_text")
-    });
+  async showGiftInfo(): Promise<void> {
+    await this.createModalWindow(this.pGiftDialogId, 'clubgift.window');
+    this.registerWindowProcedure(this.pGiftDialogId, 'giftDialogEventProc');
+
+    // Set dialog text
+    if (this.elementExists(this.pGiftDialogId, 'title_text')) {
+      this.setText(this.pGiftDialogId, 'title_text', 'Club Gift');
+    }
+    if (this.elementExists(this.pGiftDialogId, 'body_text')) {
+      this.setText(this.pGiftDialogId, 'body_text', 'You have a gift waiting!');
+    }
   }
 
   /**
    * Setup ended window
+   *
+   * Lingo: setupEndedWindow()
    */
   private setupEndedWindow(): void {
     const component = this.getComponent() as ClubComponent | null;
@@ -55,14 +61,16 @@ export class ClubInterface extends BaseObject {
     const status = component.getStatus();
     if (!status) return;
 
-    this.events.emit('setupEndedWindow', {
-      id: this.dialogId,
-      elapsedPeriods: status.elapsedPeriods,
-    });
+    // Set elapsed periods text
+    if (this.elementExists(this.pWindowId, 'elapsed_text')) {
+      this.setText(this.pWindowId, 'elapsed_text', `${status.elapsedPeriods} months`);
+    }
   }
 
   /**
    * Setup status window
+   *
+   * Lingo: setupStatusWindow(type)
    */
   private setupStatusWindow(type?: 'FirstTimer' | 'BeenHcBefore'): void {
     const component = this.getComponent() as ClubComponent | null;
@@ -78,54 +86,87 @@ export class ClubInterface extends BaseObject {
     // Calculate arrow position (day indicator)
     const arrowOffset = (31 - daysLeft) * 5;
 
-    this.events.emit('setupStatusWindow', {
-      id: this.dialogId,
-      daysLeft,
-      elapsedPeriods: elapsed,
-      prepaidPeriods: prepaid,
-      arrowOffset,
-      isFirstTimer: type === 'FirstTimer',
-      hideExtend: prepaid === -1,
-    });
+    // Update days left text
+    if (this.elementExists(this.pWindowId, 'days_left_text')) {
+      this.setText(this.pWindowId, 'days_left_text', `${daysLeft} days left`);
+    }
+
+    // Update elapsed periods text
+    if (this.elementExists(this.pWindowId, 'elapsed_text')) {
+      this.setText(this.pWindowId, 'elapsed_text', `${elapsed} months`);
+    }
+
+    // Update prepaid periods text
+    if (this.elementExists(this.pWindowId, 'prepaid_text')) {
+      this.setText(this.pWindowId, 'prepaid_text', `${prepaid} months prepaid`);
+    }
+
+    // Position day indicator arrow
+    if (this.elementExists(this.pWindowId, 'day_arrow')) {
+      this.setElementProperty(this.pWindowId, 'day_arrow', 'locH', arrowOffset);
+    }
+
+    // Show/hide first timer message
+    if (this.elementExists(this.pWindowId, 'first_timer_msg')) {
+      if (type === 'FirstTimer') {
+        this.showElement(this.pWindowId, 'first_timer_msg');
+      } else {
+        this.hideElement(this.pWindowId, 'first_timer_msg');
+      }
+    }
+
+    // Hide extend button if prepaid is -1
+    if (prepaid === -1 && this.elementExists(this.pWindowId, 'club_button_extend')) {
+      this.hideElement(this.pWindowId, 'club_button_extend');
+    }
   }
 
   /**
    * Change texts to extend mode
+   *
+   * Lingo: changeTextsToExtend()
    */
   private changeTextsToExtend(): void {
-    this.events.emit('changeToExtendMode', {
-      id: this.dialogId,
-      headerText: 'Extend Your Subscription', // getText("club_extend_title")
-      bodyText: 'Extend your Habbo Club subscription.', // getText("club_extend_text")
-    });
+    if (this.elementExists(this.pWindowId, 'header_text')) {
+      this.setText(this.pWindowId, 'header_text', 'Extend Your Subscription');
+    }
+    if (this.elementExists(this.pWindowId, 'body_text')) {
+      this.setText(this.pWindowId, 'body_text', 'Extend your Habbo Club subscription.');
+    }
   }
 
   /**
    * Setup buy window
+   *
+   * Lingo: setupBuyWindow()
    */
   private setupBuyWindow(): void {
-    this.events.emit('setupBuyWindow', {
-      id: this.dialogId,
-    });
+    // Configure buy window elements
+    // Prices would come from variables
   }
 
   /**
    * Replace credits text in confirm dialog
+   *
+   * Lingo: replaceCreditsText()
    */
   private replaceCreditsText(): void {
     const credits = session.GET<number>('user_walletbalance') ?? 0;
 
-    this.events.emit('updateCreditsText', {
-      id: this.dialogId,
-      credits,
-      length: this.chosenLength,
-    });
+    if (this.elementExists(this.pWindowId, 'credits_text')) {
+      this.setText(this.pWindowId, 'credits_text', `You have ${credits} credits`);
+    }
+    if (this.elementExists(this.pWindowId, 'period_text')) {
+      this.setText(this.pWindowId, 'period_text', `${this.pChosenLength} month(s)`);
+    }
   }
 
   /**
    * Show club info
+   *
+   * Lingo: showClubInfo()
    */
-  showClubInfo(): boolean {
+  async showClubInfo(): Promise<boolean> {
     const component = this.getComponent() as ClubComponent | null;
     if (!component) return false;
 
@@ -141,27 +182,23 @@ export class ClubInterface extends BaseObject {
 
     if (status.daysLeft === 0 && status.elapsedPeriods === 0) {
       // Never been a member
-      if (!this.subscribeFromHotel) {
+      if (!this.pSubscribeFromHotel) {
         this.openBuyInHabboWeb();
         return true;
       }
 
-      this.events.emit('showBuyWindow', {
-        id: this.dialogId,
-        useJpLayout: false, // getText("club_paybycash_url").startsWith("http")
-      });
+      await this.createModalWindow(this.pWindowId, 'clubbuy.window');
+      this.registerWindowProcedure(this.pWindowId, 'eventProc');
       this.setupBuyWindow();
     } else if (status.daysLeft === 0 && status.elapsedPeriods > 0) {
       // Was a member, expired
-      this.events.emit('showEndedWindow', {
-        id: this.dialogId,
-      });
+      await this.createModalWindow(this.pWindowId, 'clubended.window');
+      this.registerWindowProcedure(this.pWindowId, 'eventProc');
       this.setupEndedWindow();
     } else {
       // Active member
-      this.events.emit('showStatusWindow', {
-        id: this.dialogId,
-      });
+      await this.createModalWindow(this.pWindowId, 'clubstatus.window');
+      this.registerWindowProcedure(this.pWindowId, 'eventProc');
       this.setupStatusWindow();
     }
 
@@ -170,13 +207,14 @@ export class ClubInterface extends BaseObject {
 
   /**
    * Update club status
+   *
+   * Lingo: updateClubStatus(status, responseFlag, oldStatus)
    */
-  updateClubStatus(status: ClubStatus, responseFlag: number, oldStatus: ClubStatus | null): void {
+  async updateClubStatus(status: ClubStatus, responseFlag: number, oldStatus: ClubStatus | null): Promise<void> {
     if (responseFlag === ClubResponseFlag.PURCHASED) {
-      // Just purchased
-      this.events.emit('showStatusWindow', {
-        id: this.dialogId,
-      });
+      // Just purchased - show status window
+      await this.createModalWindow(this.pWindowId, 'clubstatus.window');
+      this.registerWindowProcedure(this.pWindowId, 'eventProc');
 
       const isFirstTimer = oldStatus?.elapsedPeriods === 0 && oldStatus?.daysLeft === 0;
       this.setupStatusWindow(isFirstTimer ? 'FirstTimer' : 'BeenHcBefore');
@@ -184,101 +222,126 @@ export class ClubInterface extends BaseObject {
       executeMessage('refresh_catalogue', 'club');
     } else if (responseFlag === ClubResponseFlag.EXPIRED) {
       // Subscription expired
-      this.events.emit('showEndedWindow', {
-        id: this.dialogId,
-        modal: true,
-      });
+      await this.createModalWindow(this.pWindowId, 'clubended.window');
+      this.registerWindowProcedure(this.pWindowId, 'eventProc');
       this.setupEndedWindow();
     }
   }
 
   /**
    * Open buy page in Habbo web
+   *
+   * Lingo: openBuyInHabboWeb()
    */
   openBuyInHabboWeb(): boolean {
-    this.events.emit('openExternalBuy');
     executeMessage('externalLinkClick');
+    // Would open external URL
     return true;
   }
 
   /**
-   * Handle dialog events
+   * Show buy window
+   *
+   * Lingo: Shows buy selection after extend click
    */
-  handleDialogEvent(event: string, elementId: string): void {
+  private async showBuyWindow(): Promise<void> {
+    // Merge buy layout
+    await this.mergeWindow(this.pWindowId, 'clubbuy_selection.window');
+    this.changeTextsToExtend();
+  }
+
+  /**
+   * Show confirm window
+   *
+   * Lingo: Shows confirmation dialog
+   */
+  private async showConfirmWindow(): Promise<void> {
+    await this.mergeWindow(this.pWindowId, 'clubbuy_confirm.window');
+    this.replaceCreditsText();
+  }
+
+  /**
+   * Main window event procedure
+   *
+   * Lingo: eventProc(tEvent, tSpriteID, tParam, tWindowID)
+   */
+  override eventProc(event: string, spriteId: string, param: unknown, windowId: string): void {
+    if (event !== 'mouseUp') return;
+
     const component = this.getComponent() as ClubComponent | null;
     if (!component) return;
 
-    switch (elementId) {
+    switch (spriteId) {
       case 'club_button_extend':
-        if (!this.subscribeFromHotel) {
+        if (!this.pSubscribeFromHotel) {
           this.openBuyInHabboWeb();
-          this.events.emit('closeWindow', { id: this.dialogId });
+          this.removeWindow(this.pWindowId);
           return;
         }
-        this.events.emit('showBuyWindow', { id: this.dialogId });
-        this.changeTextsToExtend();
+        this.showBuyWindow();
         break;
 
       case 'club_isp_change':
-        this.events.emit('openIspChange');
+        // Open ISP change URL
         break;
 
       case 'club_intro_link':
       case 'club_general_infolink':
-        this.events.emit('openClubInfo');
+        // Open club info URL
         break;
 
       case 'club_isp_buy':
-        this.events.emit('openIspBuy');
+        // Open ISP buy URL
         break;
 
       case 'club_button_1_period':
-        this.chosenLength = 1;
-        this.events.emit('showConfirmWindow', { id: this.dialogId });
-        this.replaceCreditsText();
+        this.pChosenLength = 1;
+        this.showConfirmWindow();
         break;
 
       case 'club_button_2_period':
-        this.chosenLength = 2;
-        this.events.emit('showConfirmWindow', { id: this.dialogId });
-        this.replaceCreditsText();
+        this.pChosenLength = 2;
+        this.showConfirmWindow();
         break;
 
       case 'club_button_3_period':
-        this.chosenLength = 3;
-        this.events.emit('showConfirmWindow', { id: this.dialogId });
-        this.replaceCreditsText();
+        this.pChosenLength = 3;
+        this.showConfirmWindow();
         break;
 
       case 'club_confirm_ok':
-        component.subscribe(this.chosenLength);
-        this.events.emit('closeWindow', { id: this.dialogId });
+        component.subscribe(this.pChosenLength);
+        this.removeWindow(this.pWindowId);
         break;
 
       case 'club_confirm_cancel':
       case 'club_button_close':
       case 'close':
-        this.events.emit('closeWindow', { id: this.dialogId });
+        this.removeWindow(this.pWindowId);
         break;
     }
   }
 
   /**
-   * Handle gift dialog events
+   * Gift dialog event procedure
+   *
+   * Lingo: giftDialogEventProc(tEvent, tSpriteID, tParam, tWindowID)
    */
-  handleGiftDialogEvent(event: string, elementId: string): void {
+  giftDialogEventProc(event: string, spriteId: string, param: unknown, windowId: string): void {
+    if (event !== 'mouseUp') return;
+
     const component = this.getComponent() as ClubComponent | null;
     if (!component) return;
 
-    switch (elementId) {
+    switch (spriteId) {
       case 'club_confirm_ok':
-        this.events.emit('closeWindow', { id: this.giftDialogId });
+        this.removeWindow(this.pGiftDialogId);
         component.acceptGift();
         break;
 
       case 'club_confirm_cancel':
       case 'club_button_close':
-        this.events.emit('closeWindow', { id: this.giftDialogId });
+        this.removeWindow(this.pGiftDialogId);
         component.rejectGift();
         break;
 
@@ -289,16 +352,16 @@ export class ClubInterface extends BaseObject {
   }
 
   /**
-   * Get events emitter
-   */
-  getEvents(): EventEmitter {
-    return this.events;
-  }
-
-  /**
    * Can subscribe from hotel
    */
   canSubscribeFromHotel(): boolean {
-    return this.subscribeFromHotel;
+    return this.pSubscribeFromHotel;
+  }
+
+  /**
+   * Get window ID
+   */
+  getWindowId(): string {
+    return this.pWindowId;
   }
 }

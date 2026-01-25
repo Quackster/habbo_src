@@ -4,7 +4,7 @@
  * Ported from: hh_registrat/Cast External ParentScript 2 - Registration Interface Class.ls
  */
 
-import { BaseObject } from '../../core/BaseObject';
+import { BaseInterface } from '../../core/BaseInterface';
 import { RegistrationComponent } from './RegistrationComponent';
 import {
   RegistrationMode,
@@ -22,6 +22,7 @@ import {
   PasswordValidationResult,
   AccountUpdateStatus,
 } from './types';
+import { executeMessage } from '../../core/MessageBus';
 
 /**
  * Body part object for figure preview
@@ -77,7 +78,7 @@ interface WindowObject {
 /**
  * Registration interface - manages UI and user interaction
  */
-export class RegistrationInterface extends BaseObject {
+export class RegistrationInterface extends BaseInterface {
   private pTempPassword: Record<string, string> = {};
   private pOpenWindow: RegistrationWindow | '' = '';
   private pWindowTitle: string = 'Your own Habbo';
@@ -103,7 +104,6 @@ export class RegistrationInterface extends BaseObject {
   private pPasswordChecked: boolean = false;
   private pUpdatePropsToServer: UpdateAccountProps = {};
 
-  private component: RegistrationComponent | null = null;
   private canvas: HTMLCanvasElement | null = null;
   private ctx: CanvasRenderingContext2D | null = null;
 
@@ -133,28 +133,18 @@ export class RegistrationInterface extends BaseObject {
   deconstruct(): void {
     this.pBodyPartObjects = null;
 
-    // Would remove windows
-    // if (windowExists(pWindowTitle)) removeWindow(pWindowTitle)
-    // if (objectExists(#temp_humanobj_figurecreator)) removeObject(...)
+    // Remove windows
+    if (this.windowExists(this.pWindowTitle)) {
+      this.removeWindow(this.pWindowTitle);
+    }
+    if (this.windowExists(this.pVerifyChangeWndID)) {
+      this.removeWindow(this.pVerifyChangeWndID);
+    }
 
     this.canvas = null;
     this.ctx = null;
 
     super.deconstruct();
-  }
-
-  /**
-   * Set component reference
-   */
-  setComponent(component: RegistrationComponent): void {
-    this.component = component;
-  }
-
-  /**
-   * Get component
-   */
-  getComponent(): RegistrationComponent | null {
-    return this.component;
   }
 
   /**
@@ -189,18 +179,22 @@ export class RegistrationInterface extends BaseObject {
 
   /**
    * Close figure creator
+   *
+   * Lingo: closeFigureCreator()
    */
   closeFigureCreator(): boolean {
     this.pPropsToServer = {};
     this.pBodyPartObjects = null;
 
-    // Would remove window
-    // if (windowExists(pWindowTitle)) removeWindow(pWindowTitle)
+    // Remove window
+    if (this.windowExists(this.pWindowTitle)) {
+      this.removeWindow(this.pWindowTitle);
+    }
 
     // Would clear session flag
     // session.set('creatingCharacter', 0)
 
-    this.emit('figurecreator_closed');
+    executeMessage('figurecreator_closed', {});
     return true;
   }
 
@@ -244,7 +238,7 @@ export class RegistrationInterface extends BaseObject {
       this.changePage('reg_namepage.window');
     }
 
-    this.emit('alert', { msg: 'Alert_unacceptableName', id: 'namenogood', modal: true });
+    executeMessage('alert', { Msg: 'Alert_unacceptableName', Id: 'namenogood', Modal: true });
     this.clearUserNameField();
   }
 
@@ -256,7 +250,7 @@ export class RegistrationInterface extends BaseObject {
       this.changePage('reg_namepage.window');
     }
 
-    this.emit('alert', { msg: 'Alert_NameTooLong', id: 'nametoolong', modal: true });
+    executeMessage('alert', { Msg: 'Alert_NameTooLong', Id: 'nametoolong', Modal: true });
   }
 
   /**
@@ -267,7 +261,7 @@ export class RegistrationInterface extends BaseObject {
       this.changePage('reg_namepage.window');
     }
 
-    this.emit('alert', { msg: 'Alert_NameAlreadyUse', id: 'namereserved', modal: true });
+    executeMessage('alert', { Msg: 'Alert_NameAlreadyUse', Id: 'namereserved', Modal: true });
     this.clearUserNameField();
   }
 
@@ -287,11 +281,12 @@ export class RegistrationInterface extends BaseObject {
     this.pEmailChecked = false;
 
     if (this.pOpenWindow === 'reg_info_update.window') {
-      // Would remove verify window
-      // removeWindow(pVerifyChangeWndID)
+      if (this.windowExists(this.pVerifyChangeWndID)) {
+        this.removeWindow(this.pVerifyChangeWndID);
+      }
     }
 
-    this.emit('alert', { msg: 'reg_verification_invalidEmail', id: 'emailnogood', modal: true });
+    executeMessage('alert', { Msg: 'reg_verification_invalidEmail', Id: 'emailnogood', Modal: true });
     return true;
   }
 
@@ -409,7 +404,7 @@ export class RegistrationInterface extends BaseObject {
       this.changePage('reg_parent_email.window');
     }
 
-    this.emit('alert', { msg: 'alert_reg_parent_email', id: 'parentemailincorrect', modal: true });
+    executeMessage('alert', { Msg: 'alert_reg_parent_email', Id: 'parentemailincorrect', Modal: true });
     return false;
   }
 
@@ -429,8 +424,10 @@ export class RegistrationInterface extends BaseObject {
 
   /**
    * Open password/email update dialog
+   *
+   * Lingo: openPwdEmailUpdate()
    */
-  openPwdEmailUpdate(type: 'password' | 'email', forced?: boolean, msg?: string): void {
+  async openPwdEmailUpdate(type: 'password' | 'email', forced?: boolean, msg?: string): Promise<void> {
     if (forced) {
       this.pPwdEmailUpdateForced = true;
     }
@@ -443,21 +440,20 @@ export class RegistrationInterface extends BaseObject {
     this.pTempPassword = {};
     this.pLastWindow = wndType;
 
-    // Would create modal window
-    // createWindow(pVerifyChangeWndID, VOID, 0, 0, #modal)
-    // window.setProperty(#title, windowTitleStr)
-    // window.merge('habbo_simple.window')
-    // window.merge(wndType)
-    // window.center()
+    // Create modal window
+    await this.createModalWindow(this.pVerifyChangeWndID);
 
-    this.emit('open_update_dialog', {
-      type,
-      windowId: this.pVerifyChangeWndID,
-      title: windowTitleStr,
-      windowType: wndType,
-      forced: this.pPwdEmailUpdateForced,
-      message: msg,
-    });
+    if (this.windowExists(this.pVerifyChangeWndID)) {
+      this.setWindowProperty(this.pVerifyChangeWndID, 'title', windowTitleStr);
+      await this.mergeWindow(this.pVerifyChangeWndID, 'habbo_simple.window');
+      await this.mergeWindow(this.pVerifyChangeWndID, wndType);
+      this.centerWindow(this.pVerifyChangeWndID);
+      this.registerWindowProcedure(this.pVerifyChangeWndID, 'eventProcUpdateDialog', 'mouseUp');
+
+      if (msg && this.elementExists(this.pVerifyChangeWndID, 'message_text')) {
+        this.setText(this.pVerifyChangeWndID, 'message_text', msg);
+      }
+    }
   }
 
   /**
@@ -530,24 +526,34 @@ export class RegistrationInterface extends BaseObject {
 
   /**
    * Change window view
+   *
+   * Lingo: ChangeWindowView()
    */
-  changeWindowView(windowName: RegistrationWindow): void {
-    // Would create or update window
-    // if (!windowExists(pWindowTitle)) {
-    //   if (pMode === 'forced') {
-    //     createWindow(pWindowTitle, 'habbo_simple.window', 0, 0, #modal)
-    //   } else {
-    //     createWindow(pWindowTitle, 'habbo_basic.window', 381, 73)
-    //   }
-    //   window.registerClient(me.getID())
-    //   window.registerProcedure(#eventProcFigurecreator, ...)
-    // } else {
-    //   window.unmerge()
-    // }
-    // window.merge(windowName)
+  async changeWindowView(windowName: RegistrationWindow): Promise<void> {
+    if (!this.windowExists(this.pWindowTitle)) {
+      // Create new window
+      if (this.pMode === 'forced') {
+        await this.createModalWindow(this.pWindowTitle, 'habbo_simple.window');
+      } else {
+        await this.createWindow(this.pWindowTitle, 'habbo_basic.window', 381, 73);
+      }
+
+      if (this.windowExists(this.pWindowTitle)) {
+        this.registerClientForWindow(this.pWindowTitle);
+        this.registerWindowProcedure(this.pWindowTitle, 'eventProcFigurecreator', 'mouseUp');
+        this.registerWindowProcedure(this.pWindowTitle, 'eventProcFigurecreator', 'keyDown');
+      }
+    } else {
+      // Unmerge previous layout
+      this.unmergeWindow(this.pWindowTitle);
+    }
+
+    // Merge new layout
+    if (this.windowExists(this.pWindowTitle)) {
+      await this.mergeWindow(this.pWindowTitle, windowName);
+    }
 
     this.pOpenWindow = windowName;
-    this.emit('window_changed', { window: windowName, mode: this.pMode });
   }
 
   /**
@@ -883,13 +889,13 @@ export class RegistrationInterface extends BaseObject {
       this.pPropsToServer.name = name;
 
       if (name.length === 0) {
-        this.emit('alert', { msg: 'Alert_NoNameSet', id: 'nonameset', modal: true });
+        executeMessage('alert', { Msg: 'Alert_NoNameSet', Id: 'nonameset', Modal: true });
         return false;
       }
 
       const minLength = 3; // Would get from variable name.length.min
       if (name.length < minLength) {
-        this.emit('alert', { msg: 'Alert_YourNameIstooShort', id: 'name2short', modal: true });
+        executeMessage('alert', { Msg: 'Alert_YourNameIstooShort', Id: 'name2short', Modal: true });
         return false;
       }
 
@@ -1058,7 +1064,7 @@ export class RegistrationInterface extends BaseObject {
       case 'reg_legal.window':
         this.pErrorMsg = '';
         if (!this.checkAgreeTerms()) {
-          this.emit('alert', { title: 'alert_reg_t', msg: this.pErrorMsg, id: 'problems', modal: true });
+          executeMessage('alert', { Title: 'alert_reg_t', Msg: this.pErrorMsg, Id: 'problems', Modal: true });
           return false;
         }
         this.getMyDataFromFields();
@@ -1098,7 +1104,7 @@ export class RegistrationInterface extends BaseObject {
         }
 
         if (!proceed) {
-          this.emit('alert', { title: 'alert_reg_t', msg: this.pErrorMsg, id: 'problems', modal: true });
+          executeMessage('alert', { Title: 'alert_reg_t', Msg: this.pErrorMsg, Id: 'problems', Modal: true });
           return false;
         }
 
@@ -1183,7 +1189,7 @@ export class RegistrationInterface extends BaseObject {
         this.pPasswordChecked = false;
         this.setMyDataToFields();
         if (this.pMode === 'update') {
-          this.emit('alert', { title: 'reg_note_title', msg: 'reg_note_text', id: 'pwnote', modal: true });
+          executeMessage('alert', { Title: 'reg_note_title', Msg: 'reg_note_text', Id: 'pwnote', Modal: true });
         }
         break;
 

@@ -4,201 +4,209 @@
  * Ported from: hh_soundmachine/Cast External ParentScript 3 - SoundMachine Interface Class.ls
  */
 
-import { BaseObject } from '../../core/BaseObject';
-import { EventEmitter } from '../../core/events';
-import {
-  registerMessage,
-  unregisterMessage,
-  executeMessage,
-} from '../../core/MessageBus';
+import { BaseInterface } from '../../core/BaseInterface';
+import { executeMessage } from '../../core/MessageBus';
 import { ConfirmAction } from './types';
 import { SoundMachineComponent } from './SoundMachineComponent';
 
-export class SoundMachineInterface extends BaseObject {
-  private events: EventEmitter = new EventEmitter();
+export class SoundMachineInterface extends BaseInterface {
+  private pSelectActionWindowId: string = 'soundmachine_select_window';
+  private pSoundMachineWindowId: string = 'soundmachine_editor_window';
+  private pPlaylistWindowId: string = 'soundmachine_playlist_window';
+  private pSaveSongWindowId: string = 'soundmachine_save_window';
+  private pJukeboxWindowId: string = 'soundmachine_jukebox_window';
+  private pJukeboxDiskWindowId: string = 'soundmachine_disk_window';
+  private pConfirmWindowId: string = 'soundmachine_confirm_window';
 
-  // Window state
-  private soundMachineWindowOpen: boolean = false;
-  private playlistWindowOpen: boolean = false;
-  private saveSongWindowOpen: boolean = false;
-  private jukeboxWindowOpen: boolean = false;
-  private jukeboxDiskWindowOpen: boolean = false;
-  private confirmWindowOpen: boolean = false;
-  private selectActionWindowOpen: boolean = false;
-
-  // Playhead
-  private playHeadDrag: boolean = false;
+  // Window state tracking
+  private pPlayHeadDrag: boolean = false;
 
   construct(): void {
     super.construct();
 
-    registerMessage('show_select_disk', this.id, 'showSelectDisk');
-    registerMessage('get_jukebox_song_info', this.id, 'getJukeboxNowPlayingText');
-    registerMessage('s_machine', this.id, 'showJukebox');
+    this.registerMsg('show_select_disk', 'showSelectDisk');
+    this.registerMsg('get_jukebox_song_info', 'getJukeboxNowPlayingText');
+    this.registerMsg('s_machine', 'showJukebox');
   }
 
   deconstruct(): void {
-    unregisterMessage('show_select_disk', this.id);
-    unregisterMessage('get_jukebox_song_info', this.id);
-    unregisterMessage('s_machine', this.id);
-
     super.deconstruct();
   }
 
   /**
    * Show select action window
+   *
+   * Lingo: createWindow(pSelectActionWindowID, "soundmachine_select.window", VOID, VOID, #modal)
    */
-  showSelectAction(isOn: boolean): void {
-    this.selectActionWindowOpen = true;
-    this.events.emit('showSelectAction', { isOn });
+  async showSelectAction(isOn: boolean): Promise<void> {
+    await this.createModalWindow(this.pSelectActionWindowId, 'soundmachine_select.window');
+    this.registerWindowProcedure(this.pSelectActionWindowId, 'selectActionEventProc');
+
+    // Update state indicator
+    if (this.elementExists(this.pSelectActionWindowId, 'state_indicator')) {
+      this.setElementProperty(this.pSelectActionWindowId, 'state_indicator', 'on', isOn);
+    }
   }
 
   /**
    * Hide select action window
    */
   hideSelectAction(): void {
-    this.selectActionWindowOpen = false;
-    this.events.emit('hideSelectAction');
+    this.removeWindow(this.pSelectActionWindowId);
   }
 
   /**
    * Show playlist window
+   *
+   * Lingo: createWindow(pPlaylistWindowID, "soundmachine_playlist.window")
    */
-  showPlaylist(): void {
-    this.playlistWindowOpen = true;
-
+  async showPlaylist(): Promise<void> {
     const component = this.getComponent() as SoundMachineComponent | null;
     if (component) {
       component.getPlaylistManager().getSongListData();
     }
 
+    await this.createWindow(this.pPlaylistWindowId, 'soundmachine_playlist.window');
+    this.registerWindowProcedure(this.pPlaylistWindowId, 'playlistEventProc');
+
     this.updatePlaylists();
-    this.events.emit('showPlaylist');
   }
 
   /**
    * Hide playlist window
    */
   hidePlaylist(): void {
-    this.playlistWindowOpen = false;
-    this.events.emit('hidePlaylist');
+    this.removeWindow(this.pPlaylistWindowId);
   }
 
   /**
    * Show sound machine editor
+   *
+   * Lingo: createWindow(pSoundMachineWindowID, "soundmachine_editor.window")
    */
-  showSoundMachine(): void {
-    this.soundMachineWindowOpen = true;
-
+  async showSoundMachine(): Promise<void> {
     const component = this.getComponent() as SoundMachineComponent | null;
     if (component) {
       component.initializeEdit();
     }
 
+    await this.createWindow(this.pSoundMachineWindowId, 'soundmachine_editor.window');
+    this.registerWindowProcedure(this.pSoundMachineWindowId, 'editorEventProc');
+
     this.updateSoundSetVisualizations();
     this.renderTimeLine();
     this.updatePlayHead();
     this.updatePlayButton();
-    this.playHeadDrag = false;
-
-    this.events.emit('showSoundMachine');
+    this.pPlayHeadDrag = false;
   }
 
   /**
    * Hide sound machine editor
    */
   hideSoundMachine(): void {
-    this.soundMachineWindowOpen = false;
-
     const component = this.getComponent() as SoundMachineComponent | null;
     if (component) {
       component.closeEdit();
     }
 
-    this.events.emit('hideSoundMachine');
+    this.removeWindow(this.pSoundMachineWindowId);
   }
 
   /**
    * Show save song window
+   *
+   * Lingo: createWindow(pSaveSongWindowID, "soundmachine_save.window", VOID, VOID, #modal)
    */
-  showSaveSong(): void {
+  async showSaveSong(): Promise<void> {
     const component = this.getComponent() as SoundMachineComponent | null;
     if (!component?.getCanSaveSong()) {
       this.showAlert('song_not_ready');
       return;
     }
 
-    this.saveSongWindowOpen = true;
-    this.events.emit('showSaveSong', {
-      songName: component.getEditorSongName(),
-    });
+    await this.createModalWindow(this.pSaveSongWindowId, 'soundmachine_save.window');
+    this.registerWindowProcedure(this.pSaveSongWindowId, 'saveEventProc');
+
+    // Set current song name
+    if (this.elementExists(this.pSaveSongWindowId, 'song_name_input')) {
+      this.setText(this.pSaveSongWindowId, 'song_name_input', component.getEditorSongName());
+    }
   }
 
   /**
    * Hide save song window
    */
   hideSaveSong(): void {
-    this.saveSongWindowOpen = false;
-    this.events.emit('hideSaveSong');
+    this.removeWindow(this.pSaveSongWindowId);
   }
 
   /**
    * Show jukebox window
+   *
+   * Lingo: createWindow(pJukeboxWindowID, "soundmachine_jukebox.window")
    */
-  showJukebox(): void {
-    this.jukeboxWindowOpen = true;
-
+  async showJukebox(): Promise<void> {
     const component = this.getComponent() as SoundMachineComponent | null;
     if (component) {
       component.getUserDisks();
     }
 
+    await this.createWindow(this.pJukeboxWindowId, 'soundmachine_jukebox.window');
+    this.registerWindowProcedure(this.pJukeboxWindowId, 'jukeboxEventProc');
+
     this.renderJukebox();
-    this.events.emit('showJukebox');
   }
 
   /**
    * Hide jukebox window
    */
   hideJukebox(): void {
-    this.jukeboxWindowOpen = false;
-    this.events.emit('hideJukebox');
+    this.removeWindow(this.pJukeboxWindowId);
   }
 
   /**
    * Show select disk window
+   *
+   * Lingo: createWindow(pJukeboxDiskWindowID, "soundmachine_disk.window", VOID, VOID, #modal)
    */
-  showSelectDisk(): void {
+  async showSelectDisk(): Promise<void> {
     const component = this.getComponent() as SoundMachineComponent | null;
     if (!component?.getCanInsertDisk()) {
       this.showAlert('no_disks');
       return;
     }
 
-    this.jukeboxDiskWindowOpen = true;
+    await this.createModalWindow(this.pJukeboxDiskWindowId, 'soundmachine_disk.window');
+    this.registerWindowProcedure(this.pJukeboxDiskWindowId, 'diskEventProc');
+
     this.renderUserDiskList(true);
-    this.events.emit('showSelectDisk');
   }
 
   /**
    * Hide select disk window
    */
   hideJukeboxDisk(): void {
-    this.jukeboxDiskWindowOpen = false;
-    this.events.emit('hideSelectDisk');
+    this.removeWindow(this.pJukeboxDiskWindowId);
   }
 
   /**
    * Confirm action dialog
+   *
+   * Lingo: confirmAction(action, parameter)
    */
-  confirmAction(action: ConfirmAction, parameter?: string | number): boolean {
+  async confirmAction(action: ConfirmAction, parameter?: string | number): Promise<boolean> {
     const component = this.getComponent() as SoundMachineComponent | null;
     if (!component) return false;
 
     const needsConfirm = component.confirmAction(action, parameter ?? '');
     if (needsConfirm) {
-      this.confirmWindowOpen = true;
-      this.events.emit('showConfirm', { action, parameter });
+      await this.createModalWindow(this.pConfirmWindowId, 'soundmachine_confirm.window');
+      this.registerWindowProcedure(this.pConfirmWindowId, 'confirmEventProc');
+
+      // Store action for confirmation
+      if (this.elementExists(this.pConfirmWindowId, 'action_type')) {
+        this.setElementProperty(this.pConfirmWindowId, 'action_type', 'value', action);
+      }
     }
     return needsConfirm;
   }
@@ -207,8 +215,7 @@ export class SoundMachineInterface extends BaseObject {
    * Hide confirm window
    */
   hideConfirm(): void {
-    this.confirmWindowOpen = false;
-    this.events.emit('hideConfirm');
+    this.removeWindow(this.pConfirmWindowId);
   }
 
   /**
@@ -257,10 +264,7 @@ export class SoundMachineInterface extends BaseObject {
   /**
    * Get jukebox now playing text
    */
-  getJukeboxNowPlayingText(): {
-    songName: string;
-    author: string;
-  } | null {
+  getJukeboxNowPlayingText(): { songName: string; author: string } | null {
     const component = this.getComponent() as SoundMachineComponent | null;
     if (!component) return null;
 
@@ -277,50 +281,60 @@ export class SoundMachineInterface extends BaseObject {
    * Render sound sets
    */
   renderSoundSets(): void {
+    if (!this.windowExists(this.pSoundMachineWindowId)) return;
+
     const component = this.getComponent() as SoundMachineComponent | null;
     if (!component) return;
 
-    this.events.emit('renderSoundSets', {
-      soundSets: component.getSoundSetList(),
-      selected: {
-        set: component.getSelectedSoundSet(),
-        sample: component.getSelectedSoundSetSample(),
-      },
-      hovered: {
-        set: component.getHoveredSoundSet(),
-        sample: component.getHoveredSoundSetSample(),
-      },
-    });
+    const soundSets = component.getSoundSetList();
+    const selected = component.getSelectedSoundSet();
+    const hovered = component.getHoveredSoundSet();
+
+    // Update sound set elements
+    for (let i = 0; i < soundSets.length; i++) {
+      const elemId = `soundset_${i}`;
+      if (this.elementExists(this.pSoundMachineWindowId, elemId)) {
+        this.setElementProperty(this.pSoundMachineWindowId, elemId, 'data', soundSets[i]);
+        this.setElementProperty(this.pSoundMachineWindowId, elemId, 'selected', selected === i);
+        this.setElementProperty(this.pSoundMachineWindowId, elemId, 'hovered', hovered === i);
+      }
+    }
   }
 
   /**
    * Render song list
    */
   renderSongList(): void {
+    if (!this.windowExists(this.pPlaylistWindowId)) return;
+
     const component = this.getComponent() as SoundMachineComponent | null;
     if (!component) return;
 
     const manager = component.getPlaylistManager();
-    this.events.emit('renderSongList', {
-      songs: manager.getSongList(),
-      selected: manager.getSelectedSong(),
-      songName: manager.getSongName(),
-      songLength: manager.getSongLength(),
-    });
+
+    // Update song list element
+    if (this.elementExists(this.pPlaylistWindowId, 'song_list')) {
+      this.setElementProperty(this.pPlaylistWindowId, 'song_list', 'songs', manager.getSongList());
+      this.setElementProperty(this.pPlaylistWindowId, 'song_list', 'selected', manager.getSelectedSong());
+    }
   }
 
   /**
    * Render playlist
    */
   renderPlaylist(): void {
+    if (!this.windowExists(this.pPlaylistWindowId)) return;
+
     const component = this.getComponent() as SoundMachineComponent | null;
     if (!component) return;
 
     const manager = component.getPlaylistManager();
-    this.events.emit('renderPlaylist', {
-      playlist: manager.getPlaylist(),
-      selected: manager.getSelectedPlaylistSong(),
-    });
+
+    // Update playlist element
+    if (this.elementExists(this.pPlaylistWindowId, 'playlist')) {
+      this.setElementProperty(this.pPlaylistWindowId, 'playlist', 'songs', manager.getPlaylist());
+      this.setElementProperty(this.pPlaylistWindowId, 'playlist', 'selected', manager.getSelectedPlaylistSong());
+    }
   }
 
   /**
@@ -335,75 +349,81 @@ export class SoundMachineInterface extends BaseObject {
    * Render jukebox playlist
    */
   renderJukeboxPlaylist(): void {
+    if (!this.windowExists(this.pJukeboxWindowId)) return;
+
     const component = this.getComponent() as SoundMachineComponent | null;
     if (!component) return;
 
     const manager = component.getPlaylistManager();
-    const jukeboxManager = component.getJukeBoxManager();
 
-    const playTime = manager.getPlayTime() / 10;
-    const songLength =
-      (manager.getPlaylistSongLength(1) *
-        component.getTimeLineSlotLength()) /
-      1000;
-
-    this.events.emit('renderJukeboxPlaylist', {
-      songName: manager.getPlaylistSongName(1),
-      author: manager.getPlaylistSongAuthor(1),
-      songLength: component.getTimeStringBasic(songLength),
-      remaining: component.getTimeStringBasic(songLength - playTime),
-      nextUp: Array.from({ length: manager.getPlaylistCount() - 1 }, (_, i) =>
-        manager.getPlaylistSongName(i + 2)
-      ),
-    });
+    // Update now playing
+    if (this.elementExists(this.pJukeboxWindowId, 'now_playing')) {
+      this.setText(this.pJukeboxWindowId, 'now_playing', manager.getPlaylistSongName(1));
+    }
+    if (this.elementExists(this.pJukeboxWindowId, 'now_playing_author')) {
+      this.setText(this.pJukeboxWindowId, 'now_playing_author', manager.getPlaylistSongAuthor(1));
+    }
   }
 
   /**
    * Render jukebox disk list
    */
   renderJukeboxDiskList(): void {
+    if (!this.windowExists(this.pJukeboxWindowId)) return;
+
     const component = this.getComponent() as SoundMachineComponent | null;
     if (!component) return;
 
     const jukeboxManager = component.getJukeBoxManager();
-    this.events.emit('renderJukeboxDiskList', {
-      disks: jukeboxManager.getDiskList(),
-      selected: jukeboxManager.getSelectedDisk(),
-      hovered: jukeboxManager.getHoveredDisk(),
-    });
+
+    // Update disk list element
+    if (this.elementExists(this.pJukeboxWindowId, 'disk_list')) {
+      this.setElementProperty(this.pJukeboxWindowId, 'disk_list', 'disks', jukeboxManager.getDiskList());
+      this.setElementProperty(this.pJukeboxWindowId, 'disk_list', 'selected', jukeboxManager.getSelectedDisk());
+    }
   }
 
   /**
    * Render user disk list
    */
   renderUserDiskList(initialRender: boolean): void {
+    if (!this.windowExists(this.pJukeboxDiskWindowId)) return;
+
     const component = this.getComponent() as SoundMachineComponent | null;
     if (!component) return;
 
     const manager = component.getPlaylistManager();
-    this.events.emit('renderUserDiskList', {
-      disks: manager.getDiskList(),
-      selected: manager.getSelectedDiskIndex(),
-      initial: initialRender,
-    });
+
+    // Update user disk list element
+    if (this.elementExists(this.pJukeboxDiskWindowId, 'user_disk_list')) {
+      this.setElementProperty(this.pJukeboxDiskWindowId, 'user_disk_list', 'disks', manager.getDiskList());
+      this.setElementProperty(this.pJukeboxDiskWindowId, 'user_disk_list', 'selected', manager.getSelectedDiskIndex());
+    }
   }
 
   /**
    * Render timeline
    */
   renderTimeLine(): void {
+    if (!this.windowExists(this.pSoundMachineWindowId)) return;
+
     const component = this.getComponent() as SoundMachineComponent | null;
     if (!component) return;
 
-    const cursor = component.getTimelineCursor();
+    // Update timeline element
+    if (this.elementExists(this.pSoundMachineWindowId, 'timeline')) {
+      this.setElementProperty(this.pSoundMachineWindowId, 'timeline', 'data', component.getTimelineData());
+      this.setElementProperty(this.pSoundMachineWindowId, 'timeline', 'scrollX', component.getTimelineScrollX());
+      this.setElementProperty(this.pSoundMachineWindowId, 'timeline', 'cursor', component.getTimelineCursor());
+    }
 
-    this.events.emit('renderTimeLine', {
-      timelineData: component.getTimelineData(),
-      scrollX: component.getTimelineScrollX(),
-      cursor,
-      canScrollLeft: component.getScrollPossible(-1),
-      canScrollRight: component.getScrollPossible(1),
-    });
+    // Update scroll buttons
+    if (this.elementExists(this.pSoundMachineWindowId, 'scroll_left')) {
+      this.setElementProperty(this.pSoundMachineWindowId, 'scroll_left', 'enabled', component.getScrollPossible(-1));
+    }
+    if (this.elementExists(this.pSoundMachineWindowId, 'scroll_right')) {
+      this.setElementProperty(this.pSoundMachineWindowId, 'scroll_right', 'enabled', component.getScrollPossible(1));
+    }
 
     this.updatePlayHead(true);
   }
@@ -412,13 +432,21 @@ export class SoundMachineInterface extends BaseObject {
    * Update sound set tabs
    */
   updateSoundSetTabs(): void {
+    if (!this.windowExists(this.pSoundMachineWindowId)) return;
+
     const component = this.getComponent() as SoundMachineComponent | null;
     if (!component) return;
 
-    this.events.emit('updateSoundSetTabs', {
-      soundSets: component.getSoundSetList(),
-      hoveredTab: component.getSoundSetHoveredTab(),
-    });
+    const soundSets = component.getSoundSetList();
+    const hoveredTab = component.getSoundSetHoveredTab();
+
+    // Update tab elements
+    for (let i = 0; i < soundSets.length; i++) {
+      const tabId = `tab_${i}`;
+      if (this.elementExists(this.pSoundMachineWindowId, tabId)) {
+        this.setElementProperty(this.pSoundMachineWindowId, tabId, 'hovered', hoveredTab === i);
+      }
+    }
   }
 
   /**
@@ -434,13 +462,17 @@ export class SoundMachineInterface extends BaseObject {
    * Update sound set list
    */
   updateSoundSetList(): void {
+    if (!this.windowExists(this.pSoundMachineWindowId)) return;
+
     const component = this.getComponent() as SoundMachineComponent | null;
     if (!component) return;
 
-    this.events.emit('updateSoundSetList', {
-      page: component.getSoundListPage(),
-      pageCount: component.getSoundListPageCount(),
-    });
+    // Update page indicator
+    if (this.elementExists(this.pSoundMachineWindowId, 'page_indicator')) {
+      const page = component.getSoundListPage();
+      const pageCount = component.getSoundListPageCount();
+      this.setText(this.pSoundMachineWindowId, 'page_indicator', `${page + 1}/${pageCount}`);
+    }
   }
 
   /**
@@ -483,11 +515,17 @@ export class SoundMachineInterface extends BaseObject {
    * Update playhead
    */
   updatePlayHead(manualUpdate: boolean = false): void {
+    if (!this.windowExists(this.pSoundMachineWindowId)) return;
+
     const component = this.getComponent() as SoundMachineComponent | null;
     if (!component) return;
 
     const pos = component.getPlayHeadPosition();
-    this.events.emit('updatePlayHead', { position: pos, visible: pos > 0 });
+
+    if (this.elementExists(this.pSoundMachineWindowId, 'playhead')) {
+      this.setElementProperty(this.pSoundMachineWindowId, 'playhead', 'position', pos);
+      this.setElementProperty(this.pSoundMachineWindowId, 'playhead', 'visible', pos > 0);
+    }
 
     if (pos <= 0 && !manualUpdate) {
       this.scrollTimeLineTo(-pos - 1);
@@ -498,11 +536,16 @@ export class SoundMachineInterface extends BaseObject {
    * Update play button
    */
   updatePlayButton(): void {
+    if (!this.windowExists(this.pSoundMachineWindowId)) return;
+
     const component = this.getComponent() as SoundMachineComponent | null;
     if (!component) return;
 
     const isPlaying = component.getEditorPlayTime() > 0;
-    this.events.emit('updatePlayButton', { isPlaying });
+
+    if (this.elementExists(this.pSoundMachineWindowId, 'play_button')) {
+      this.setElementProperty(this.pSoundMachineWindowId, 'play_button', 'playing', isPlaying);
+    }
   }
 
   /**
@@ -516,98 +559,155 @@ export class SoundMachineInterface extends BaseObject {
    * Get editor window exists
    */
   getEditorWindowExists(): boolean {
-    return this.soundMachineWindowOpen;
+    return this.windowExists(this.pSoundMachineWindowId);
   }
 
-  /**
-   * Get events emitter
-   */
-  getEvents(): EventEmitter {
-    return this.events;
+  // Event procedures
+
+  selectActionEventProc(event: string, spriteId: string, param: unknown, windowId: string): void {
+    if (event !== 'mouseUp') return;
+
+    switch (spriteId) {
+      case 'button_editor':
+        this.hideSelectAction();
+        this.showSoundMachine();
+        break;
+      case 'button_playlist':
+        this.hideSelectAction();
+        this.showPlaylist();
+        break;
+      case 'close':
+        this.hideSelectAction();
+        break;
+    }
   }
 
-  /**
-   * Handle UI event
-   */
-  handleEvent(event: string, data: unknown): void {
+  editorEventProc(event: string, spriteId: string, param: unknown, windowId: string): void {
     const component = this.getComponent() as SoundMachineComponent | null;
     if (!component) return;
 
-    switch (event) {
-      case 'soundSetClick':
-        const ssClick = data as { setId: number; x: number; y: number };
-        if (component.soundSetEvent(ssClick.setId, ssClick.x, ssClick.y, 'mouseDown')) {
-          this.renderSoundSets();
+    if (event === 'mouseUp') {
+      switch (spriteId) {
+        case 'close':
+          this.hideSoundMachine();
+          break;
+        case 'play_button':
+          if (component.getEditorPlayTime() > 0) {
+            component.stopEditorSong();
+          } else {
+            component.playEditorSong();
+          }
+          this.updatePlayButton();
+          break;
+        case 'save_button':
+          this.showSaveSong();
+          break;
+        case 'clear_button':
+          this.confirmAction('clear');
+          break;
+        case 'scroll_left':
+          this.scrollTimeLine(-10);
+          break;
+        case 'scroll_right':
+          this.scrollTimeLine(10);
+          break;
+      }
+    }
+  }
+
+  playlistEventProc(event: string, spriteId: string, param: unknown, windowId: string): void {
+    if (event !== 'mouseUp') return;
+
+    switch (spriteId) {
+      case 'close':
+        this.hidePlaylist();
+        break;
+    }
+  }
+
+  saveEventProc(event: string, spriteId: string, param: unknown, windowId: string): void {
+    if (event !== 'mouseUp') return;
+
+    const component = this.getComponent() as SoundMachineComponent | null;
+
+    switch (spriteId) {
+      case 'button_save':
+        if (component) {
+          const name = this.getText(this.pSaveSongWindowId, 'song_name_input');
+          component.saveSong(name);
         }
+        this.hideSaveSong();
         break;
+      case 'button_cancel':
+      case 'close':
+        this.hideSaveSong();
+        break;
+    }
+  }
 
-      case 'soundSetHover':
-        const ssHover = data as { setId: number; x: number; y: number };
-        if (component.soundSetEvent(ssHover.setId, ssHover.x, ssHover.y, 'mouseWithin')) {
-          this.renderSoundSets();
+  jukeboxEventProc(event: string, spriteId: string, param: unknown, windowId: string): void {
+    if (event !== 'mouseUp') return;
+
+    switch (spriteId) {
+      case 'close':
+        this.hideJukebox();
+        break;
+      case 'button_add_disk':
+        this.showSelectDisk();
+        break;
+    }
+  }
+
+  diskEventProc(event: string, spriteId: string, param: unknown, windowId: string): void {
+    if (event !== 'mouseUp') return;
+
+    const component = this.getComponent() as SoundMachineComponent | null;
+
+    switch (spriteId) {
+      case 'button_insert':
+        if (component) {
+          component.insertSelectedDisk();
         }
+        this.hideJukeboxDisk();
         break;
+      case 'button_cancel':
+      case 'close':
+        this.hideJukeboxDisk();
+        break;
+    }
+  }
 
-      case 'soundSetLeave':
-        const ssLeave = data as { setId: number };
-        if (component.soundSetEvent(ssLeave.setId, 0, 0, 'mouseLeave')) {
-          this.renderSoundSets();
+  confirmEventProc(event: string, spriteId: string, param: unknown, windowId: string): void {
+    if (event !== 'mouseUp') return;
+
+    const component = this.getComponent() as SoundMachineComponent | null;
+
+    switch (spriteId) {
+      case 'button_ok':
+        if (component) {
+          component.actionConfirmed();
         }
-        break;
-
-      case 'timelineClick':
-        const tlClick = data as { x: number; y: number };
-        if (component.timeLineEvent(tlClick.x, tlClick.y, 'mouseDown')) {
-          this.renderTimeLine();
-        }
-        break;
-
-      case 'timelineHover':
-        const tlHover = data as { x: number; y: number };
-        if (component.timeLineEvent(tlHover.x, tlHover.y, 'mouseWithin')) {
-          this.renderTimeLine();
-        }
-        break;
-
-      case 'timelineLeave':
-        if (component.timeLineEvent(0, 0, 'mouseLeave')) {
-          this.renderTimeLine();
-        }
-        break;
-
-      case 'play':
-        component.playEditorSong();
-        this.updatePlayHead();
-        break;
-
-      case 'stop':
-        component.stopEditorSong();
-        break;
-
-      case 'save':
-        this.showSaveSong();
-        break;
-
-      case 'clear':
-        this.confirmAction('clear');
-        break;
-
-      case 'scrollLeft':
-        this.scrollTimeLine(-10);
-        break;
-
-      case 'scrollRight':
-        this.scrollTimeLine(10);
-        break;
-
-      case 'confirmOk':
-        component.actionConfirmed();
         this.hideConfirm();
         break;
-
-      case 'confirmCancel':
+      case 'button_cancel':
+      case 'close':
         this.hideConfirm();
         break;
     }
+  }
+
+  /**
+   * Get window IDs
+   */
+  getSoundMachineWindowId(): string {
+    return this.pSoundMachineWindowId;
+  }
+
+  getPlaylistWindowId(): string {
+    return this.pPlaylistWindowId;
+  }
+
+  getJukeboxWindowId(): string {
+    return this.pJukeboxWindowId;
   }
 }

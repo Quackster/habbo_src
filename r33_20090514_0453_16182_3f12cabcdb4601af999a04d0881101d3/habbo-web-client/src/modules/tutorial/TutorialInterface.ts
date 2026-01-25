@@ -4,11 +4,9 @@
  * Ported from: hh_tutorial/Cast External ParentScript 3 - NUH Interface Class.ls
  */
 
-import { BaseObject } from '../../core/BaseObject';
-import { EventEmitter } from '../../core/events';
+import { BaseInterface } from '../../core/BaseInterface';
 import { registerMessage, unregisterMessage } from '../../core/MessageBus';
 import { Bubble } from './Bubble';
-import { StaticBubble } from './StaticBubble';
 import { UpdateBubble, TutorBubble } from './UpdateBubble';
 import {
   InvitationStatus,
@@ -18,24 +16,24 @@ import {
 } from './types';
 import { TutorialComponent } from './TutorialComponent';
 
+// Timeout names
+const TIMEOUT_INVITATION_STATUS = 'NUH_invite_status_timeout_ID';
+const TIMEOUT_HIGHLIGHTER_BLINK = 'NUH_hiliter_blink_timeout';
+
 /**
  * Tutorial interface - manages help bubbles and UI
  */
-export class TutorialInterface extends BaseObject {
-  private events: EventEmitter = new EventEmitter();
+export class TutorialInterface extends BaseInterface {
   private bubbles: Map<string, Bubble> = new Map();
   private searchAnimFrame: number = 1;
   private highlighterList: HighlighterList | null = null;
   private highlighterBlinkPhase: number = 1;
 
   // Window IDs
-  private invitationWindowId: string = 'NUH_invite_window_ID';
-  private invitationStatusWindowId: string = 'NUH_invite_status_window_ID';
-  private skipWindowId: string = 'NUH_skip_window_ID';
-
-  // Timeouts
-  private invitationStatusTimeout: ReturnType<typeof setTimeout> | null = null;
-  private highlighterBlinkTimeout: ReturnType<typeof setInterval> | null = null;
+  private pInvitationWindowId: string = 'NUH_invite_window_ID';
+  private pInvitationStatusWindowId: string = 'NUH_invite_status_window_ID';
+  private pSkipWindowId: string = 'NUH_skip_window_ID';
+  private pRoomBarId: string = 'RoomBarID';
 
   construct(): void {
     super.construct();
@@ -61,6 +59,8 @@ export class TutorialInterface extends BaseObject {
 
   /**
    * Remove all bubbles and windows
+   *
+   * Lingo: removeAll()
    */
   removeAll(): void {
     this.removeBlinkTimeout();
@@ -72,8 +72,6 @@ export class TutorialInterface extends BaseObject {
 
     this.hideInvitationWindow();
     this.hideSkipOrNotWindow();
-
-    this.events.emit('removeAll');
   }
 
   /**
@@ -102,22 +100,65 @@ export class TutorialInterface extends BaseObject {
 
   /**
    * Show skip or not window
+   *
+   * Lingo: createWindow(pSkipWindowID, "bubble.window")
+   *        tWindow.merge("habbo_decision_plain.window")
    */
-  showSkipOrNotWindow(helpId: string): void {
-    this.events.emit('showSkipWindow', {
-      helpId,
-      title: 'NUH_asktoshowhelp_title',
-      text: 'NUH_asktoshowhelp_text',
-      okText: 'NUH_asktoshowhelp_decision_ok',
-      cancelText: 'NUH_asktoshowhelp_decision_cancel',
-    });
+  async showSkipOrNotWindow(helpId: string): Promise<void> {
+    // Check if in room (not game)
+    // Would check room component for room ID
+
+    await this.createWindow(this.pSkipWindowId, 'bubble.window');
+
+    if (!this.windowExists(this.pSkipWindowId)) return;
+
+    // Hide pointers except #4
+    for (let i = 1; i <= 8; i++) {
+      if (i !== 4) {
+        const pointerElem = `pointer_${i}`;
+        if (this.elementExists(this.pSkipWindowId, pointerElem)) {
+          this.hideElement(this.pSkipWindowId, pointerElem);
+        }
+        const pointerShadow = `pointer_${i}_shadow`;
+        if (this.elementExists(this.pSkipWindowId, pointerShadow)) {
+          this.hideElement(this.pSkipWindowId, pointerShadow);
+        }
+      }
+    }
+
+    // Merge decision layout
+    await this.mergeWindow(this.pSkipWindowId, 'habbo_decision_plain.window');
+
+    // Register event procedure
+    this.registerWindowProcedure(this.pSkipWindowId, 'eventProcSkipTutorial', 'mouseUp');
+
+    // Set text elements
+    if (this.elementExists(this.pSkipWindowId, 'habbo_decision_text_a')) {
+      this.setText(this.pSkipWindowId, 'habbo_decision_text_a', 'NUH_asktoshowhelp_title');
+    }
+    if (this.elementExists(this.pSkipWindowId, 'habbo_decision_text_b')) {
+      this.setText(this.pSkipWindowId, 'habbo_decision_text_b', 'NUH_asktoshowhelp_text');
+    }
+    if (this.elementExists(this.pSkipWindowId, 'habbo_decision_cancel')) {
+      this.setText(this.pSkipWindowId, 'habbo_decision_cancel', 'NUH_asktoshowhelp_decision_cancel');
+    }
+    if (this.elementExists(this.pSkipWindowId, 'habbo_decision_ok')) {
+      this.setText(this.pSkipWindowId, 'habbo_decision_ok', 'NUH_asktoshowhelp_decision_ok');
+    }
+
+    // Position window (would use config value)
+    this.moveWindow(this.pSkipWindowId, 100, 100);
   }
 
   /**
    * Hide skip or not window
+   *
+   * Lingo: removeWindow(pSkipWindowID)
    */
   hideSkipOrNotWindow(): void {
-    this.events.emit('hideSkipWindow');
+    if (this.windowExists(this.pSkipWindowId)) {
+      this.removeWindow(this.pSkipWindowId);
+    }
   }
 
   /**
@@ -177,83 +218,165 @@ export class TutorialInterface extends BaseObject {
 
   /**
    * Show invitation window
+   *
+   * Lingo: createWindow(pInvitationWindowID, "nuh_invitation.window")
    */
-  showInviteWindow(): void {
+  async showInviteWindow(): Promise<void> {
     this.hideInvitationWindow();
 
-    this.events.emit('showInviteWindow', {
-      header: 'send_invitation_header',
-      text: 'send_invitation_text',
-    });
+    await this.createWindow(this.pInvitationWindowId, 'nuh_invitation.window');
+
+    if (!this.windowExists(this.pInvitationWindowId)) return;
+
+    // Set header and text
+    if (this.elementExists(this.pInvitationWindowId, 'nuh_invitation_header')) {
+      this.setText(this.pInvitationWindowId, 'nuh_invitation_header', 'send_invitation_header');
+    }
+    if (this.elementExists(this.pInvitationWindowId, 'nuh_invitation_text')) {
+      this.setText(this.pInvitationWindowId, 'nuh_invitation_text', 'send_invitation_text');
+    }
+
+    // Position window (would use config value)
+    this.moveWindow(this.pInvitationWindowId, 10, 10);
+
+    // Register event procedure
+    this.registerWindowProcedure(this.pInvitationWindowId, 'eventProcInvitation', 'mouseUp');
   }
 
   /**
    * Hide invitation window
+   *
+   * Lingo: removeWindow(pInvitationWindowID)
    */
   hideInvitationWindow(): void {
-    this.events.emit('hideInviteWindow');
+    if (this.windowExists(this.pInvitationWindowId)) {
+      this.removeWindow(this.pInvitationWindowId);
+    }
   }
 
   /**
    * Show invitation status window
+   *
+   * Lingo: createWindow(pInvitationStatusWindowID, tLayout)
+   *        createTimeout(pInvitationStatusTimeoutID, ...)
    */
-  showInvitationStatusWindow(status: InvitationStatus): void {
+  async showInvitationStatusWindow(status: InvitationStatus): Promise<void> {
     this.hideInvitationStatusWindow();
 
-    this.events.emit('showInvitationStatus', { status });
-
-    // Clear existing timeout
-    if (this.invitationStatusTimeout) {
-      clearTimeout(this.invitationStatusTimeout);
-      this.invitationStatusTimeout = null;
+    // Determine layout based on status
+    let layout: string;
+    switch (status) {
+      case 'search':
+        layout = 'nuh_invitation_status.window';
+        break;
+      case 'room_left':
+        layout = 'nuh_room_left.window';
+        break;
+      case 'success':
+        layout = 'nuh_invitation_success.window';
+        break;
+      case 'failure':
+        layout = 'nuh_invitation_failure.window';
+        break;
+      default:
+        return;
     }
+
+    await this.createWindow(this.pInvitationStatusWindowId, layout);
+
+    if (!this.windowExists(this.pInvitationStatusWindowId)) return;
+
+    this.moveWindow(this.pInvitationStatusWindowId, 10, 10);
+    this.registerWindowProcedure(this.pInvitationStatusWindowId, 'eventProcInvitationStatus', 'mouseUp');
+
+    // Remove existing timeout
+    this.removeTimeout(TIMEOUT_INVITATION_STATUS);
 
     switch (status) {
       case 'search':
-        // Start animation
-        this.invitationStatusTimeout = setInterval(() => {
-          this.updateInvitationStatusWindow();
-        }, SEARCH_ANIM_INTERVAL);
+        // Start animation timeout (repeating)
+        this.createRepeatingTimeout(TIMEOUT_INVITATION_STATUS, SEARCH_ANIM_INTERVAL, 'updateInvitationStatusWindow');
         break;
-
       case 'success':
-        // Auto-hide after 3 seconds
-        this.invitationStatusTimeout = setTimeout(() => {
-          this.hideInvitationStatusWindow();
-        }, 3000);
+        // Auto-hide after 3 seconds (one-shot)
+        this.createTimeout(TIMEOUT_INVITATION_STATUS, 3000, 'hideInvitationStatusWindow');
         break;
     }
   }
 
   /**
    * Hide invitation status window
+   *
+   * Lingo: removeWindow(pInvitationStatusWindowID)
+   *        removeTimeout(pInvitationStatusTimeoutID)
    */
   hideInvitationStatusWindow(): void {
-    if (this.invitationStatusTimeout) {
-      clearTimeout(this.invitationStatusTimeout);
-      clearInterval(this.invitationStatusTimeout as unknown as ReturnType<typeof setInterval>);
-      this.invitationStatusTimeout = null;
+    if (this.windowExists(this.pInvitationStatusWindowId)) {
+      this.removeWindow(this.pInvitationStatusWindowId);
     }
+    this.removeTimeout(TIMEOUT_INVITATION_STATUS);
+  }
 
-    this.events.emit('hideInvitationStatus');
+  /**
+   * Create a repeating timeout (interval)
+   */
+  private createRepeatingTimeout(name: string, intervalMs: number, handlerMethod: string): void {
+    // Store interval ID for cleanup
+    const intervalId = setInterval(() => {
+      const handler = (this as Record<string, unknown>)[handlerMethod];
+      if (typeof handler === 'function') {
+        handler.call(this);
+      }
+    }, intervalMs);
+
+    // Store for cleanup (using internal map)
+    (this as any)[`_interval_${name}`] = intervalId;
+  }
+
+  /**
+   * Override removeTimeout to handle intervals too
+   */
+  protected override removeTimeout(name: string): boolean {
+    // Check for interval
+    const intervalKey = `_interval_${name}`;
+    if ((this as any)[intervalKey]) {
+      clearInterval((this as any)[intervalKey]);
+      delete (this as any)[intervalKey];
+      return true;
+    }
+    return super.removeTimeout(name);
   }
 
   /**
    * Update invitation status window (search animation)
+   *
+   * Lingo: updateInvitationStatusWindow()
    */
   private updateInvitationStatusWindow(): void {
-    this.searchAnimFrame++;
-    if (this.searchAnimFrame > 3) {
-      this.searchAnimFrame = 1;
+    if (!this.windowExists(this.pInvitationStatusWindowId)) return;
+
+    // Update search animation
+    if (this.elementExists(this.pInvitationStatusWindowId, 'nuh_search')) {
+      this.searchAnimFrame++;
+      if (this.searchAnimFrame > 3) {
+        this.searchAnimFrame = 1;
+      }
+      // Would set image: nuh_search_1, nuh_search_2, nuh_search_3
+      this.setElementProperty(
+        this.pInvitationStatusWindowId,
+        'nuh_search',
+        'frame',
+        this.searchAnimFrame
+      );
     }
 
-    const component = this.getComponent() as TutorialComponent | null;
-    const guideCount = component?.getGuideCount() || 0;
-
-    this.events.emit('updateInvitationStatus', {
-      frame: this.searchAnimFrame,
-      guideCount,
-    });
+    // Update guide counter
+    if (this.elementExists(this.pInvitationStatusWindowId, 'nuh_invitation_status_counter')) {
+      const component = this.getComponent() as TutorialComponent | null;
+      const guideCount = component?.getGuideCount() || 0;
+      const text = `NUH_invitation_guides_found ${guideCount}`;
+      this.setText(this.pInvitationStatusWindowId, 'nuh_invitation_status_counter', text);
+    }
   }
 
   /**
@@ -269,16 +392,29 @@ export class TutorialInterface extends BaseObject {
 
   /**
    * Hide all highlighters
+   *
+   * Lingo: hideHighlighters()
    */
   hideHighlighters(): void {
+    if (!this.windowExists(this.pRoomBarId)) return;
+
+    const highlighters = this.getHighlighterList();
+    for (const elementName of Object.values(highlighters)) {
+      if (this.elementExists(this.pRoomBarId, elementName)) {
+        this.hideElement(this.pRoomBarId, elementName);
+      }
+    }
     this.removeBlinkTimeout();
-    this.events.emit('hideHighlighters');
   }
 
   /**
    * Show highlighter for help item
+   *
+   * Lingo: showHighlighter(tHelpId)
    */
   showHighlighter(helpId: string): void {
+    if (!this.windowExists(this.pRoomBarId)) return;
+
     const highlighters = this.getHighlighterList();
     const elementName = highlighters[helpId];
 
@@ -286,52 +422,76 @@ export class TutorialInterface extends BaseObject {
       return;
     }
 
-    this.events.emit('showHighlighter', {
-      helpId,
-      elementName,
-      phase: this.highlighterBlinkPhase,
-    });
+    if (this.elementExists(this.pRoomBarId, elementName)) {
+      this.showElement(this.pRoomBarId, elementName);
+      this.setElementProperty(
+        this.pRoomBarId,
+        elementName,
+        'member',
+        `bar_hilite_icon_${this.highlighterBlinkPhase}`
+      );
+    }
 
     this.createBlinkTimeout();
   }
 
   /**
    * Create highlighter blink timeout
+   *
+   * Lingo: createTimeout(pHighlighterBlinkTimeoutID, 750, #blinkHighlighters, ...)
    */
   private createBlinkTimeout(): void {
-    if (!this.highlighterBlinkTimeout) {
-      this.highlighterBlinkTimeout = setInterval(() => {
-        this.blinkHighlighters();
-      }, HIGHLIGHTER_BLINK_INTERVAL);
+    if ((this as any)[`_interval_${TIMEOUT_HIGHLIGHTER_BLINK}`]) {
+      return; // Already exists
     }
+    this.createRepeatingTimeout(TIMEOUT_HIGHLIGHTER_BLINK, HIGHLIGHTER_BLINK_INTERVAL, 'blinkHighlighters');
   }
 
   /**
    * Remove highlighter blink timeout
+   *
+   * Lingo: removeTimeout(pHighlighterBlinkTimeoutID)
    */
   private removeBlinkTimeout(): void {
-    if (this.highlighterBlinkTimeout) {
-      clearInterval(this.highlighterBlinkTimeout);
-      this.highlighterBlinkTimeout = null;
-    }
+    this.removeTimeout(TIMEOUT_HIGHLIGHTER_BLINK);
   }
 
   /**
    * Blink highlighters
+   *
+   * Lingo: blinkHighlighters()
    */
   private blinkHighlighters(): void {
+    if (!this.windowExists(this.pRoomBarId)) return;
+
+    const highlighters = this.getHighlighterList();
+
+    for (const elementName of Object.values(highlighters)) {
+      if (this.elementExists(this.pRoomBarId, elementName)) {
+        const visible = this.getElementProperty(this.pRoomBarId, elementName, 'visible');
+        if (visible) {
+          this.setElementProperty(
+            this.pRoomBarId,
+            elementName,
+            'member',
+            `bar_hilite_icon_${this.highlighterBlinkPhase}`
+          );
+        }
+      }
+    }
+
     this.highlighterBlinkPhase++;
     if (this.highlighterBlinkPhase > 2) {
       this.highlighterBlinkPhase = 1;
     }
-
-    this.events.emit('blinkHighlighters', { phase: this.highlighterBlinkPhase });
   }
 
   /**
    * Handle invitation dialog event
+   *
+   * Lingo: eventProcInvitation(tEvent, tSprID)
    */
-  eventProcInvitation(event: string, sprId: string): void {
+  eventProcInvitation(event: string, sprId: string, param: unknown, windowId: string): void {
     const component = this.getComponent() as TutorialComponent | null;
     if (!component) return;
 
@@ -350,14 +510,17 @@ export class TutorialInterface extends BaseObject {
 
   /**
    * Handle invitation status event
+   *
+   * Lingo: eventProcInvitationStatus(tEvent, tSprID)
    */
-  eventProcInvitationStatus(event: string, sprId: string): void {
+  eventProcInvitationStatus(event: string, sprId: string, param: unknown, windowId: string): void {
     const component = this.getComponent() as TutorialComponent | null;
     if (!component) return;
 
     // Handle option buttons
     if (sprId.startsWith('nuh_invitation_option')) {
-      // Would execute configured message
+      const option = sprId.charAt(sprId.length - 1);
+      // Would execute configured message from NUH.invitation.option.<option>
       this.hideInvitationStatusWindow();
       return;
     }
@@ -381,8 +544,10 @@ export class TutorialInterface extends BaseObject {
 
   /**
    * Handle skip tutorial event
+   *
+   * Lingo: eventProcSkipTutorial(tEvent, tSprID)
    */
-  eventProcSkipTutorial(event: string, sprId: string): void {
+  eventProcSkipTutorial(event: string, sprId: string, param: unknown, windowId: string): void {
     const component = this.getComponent() as TutorialComponent | null;
     if (!component) return;
 
@@ -397,13 +562,6 @@ export class TutorialInterface extends BaseObject {
         this.hideSkipOrNotWindow();
         break;
     }
-  }
-
-  /**
-   * Get events emitter
-   */
-  getEvents(): EventEmitter {
-    return this.events;
   }
 
   /**
