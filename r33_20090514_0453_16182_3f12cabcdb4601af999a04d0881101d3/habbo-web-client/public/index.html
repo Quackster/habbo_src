@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Habbo Web Client</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: #121212;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      color: #fff;
+      overflow: hidden;
+    }
+
+    #app {
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    #header {
+      height: 50px;
+      background: linear-gradient(to bottom, #1a1a2e, #16213e);
+      border-bottom: 2px solid #0f3460;
+      display: flex;
+      align-items: center;
+      padding: 0 20px;
+      justify-content: space-between;
+    }
+
+    #header h1 {
+      font-size: 18px;
+      font-weight: 500;
+      color: #e94560;
+    }
+
+    #connection-status {
+      font-size: 12px;
+      padding: 5px 12px;
+      border-radius: 12px;
+      background: #2d3436;
+    }
+
+    #connection-status.connected {
+      background: #00b894;
+    }
+
+    #connection-status.connecting {
+      background: #fdcb6e;
+      color: #2d3436;
+    }
+
+    #connection-status.disconnected {
+      background: #d63031;
+    }
+
+    #main-container {
+      flex: 1;
+      display: flex;
+      overflow: hidden;
+    }
+
+    #game-view {
+      flex: 1;
+      position: relative;
+      background: #1e1e2e;
+    }
+
+    #game-canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    #sidebar {
+      width: 280px;
+      background: #1a1a2e;
+      border-left: 1px solid #0f3460;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .sidebar-section {
+      padding: 15px;
+      border-bottom: 1px solid #0f3460;
+    }
+
+    .sidebar-section h3 {
+      font-size: 12px;
+      text-transform: uppercase;
+      color: #666;
+      margin-bottom: 10px;
+    }
+
+    #chat-container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    #chat-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 10px;
+      font-size: 13px;
+    }
+
+    .chat-message {
+      padding: 8px;
+      margin-bottom: 5px;
+      background: #2d3436;
+      border-radius: 8px;
+    }
+
+    .chat-message .sender {
+      font-weight: bold;
+      color: #74b9ff;
+    }
+
+    .chat-message .time {
+      font-size: 10px;
+      color: #636e72;
+      margin-left: 8px;
+    }
+
+    #chat-input-container {
+      padding: 10px;
+      border-top: 1px solid #0f3460;
+    }
+
+    #chat-input {
+      width: 100%;
+      padding: 10px;
+      border: none;
+      border-radius: 8px;
+      background: #2d3436;
+      color: #fff;
+      font-size: 13px;
+    }
+
+    #chat-input:focus {
+      outline: 2px solid #e94560;
+    }
+
+    /* Loading screen */
+    #loading-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+
+    #loading-screen.hidden {
+      display: none;
+    }
+
+    #loading-logo {
+      font-size: 48px;
+      font-weight: bold;
+      color: #e94560;
+      margin-bottom: 30px;
+      text-shadow: 0 0 20px rgba(233, 69, 96, 0.5);
+    }
+
+    #loading-bar-container {
+      width: 300px;
+      height: 8px;
+      background: #2d3436;
+      border-radius: 4px;
+      overflow: hidden;
+      margin-bottom: 15px;
+    }
+
+    #loading-bar {
+      height: 100%;
+      background: linear-gradient(90deg, #e94560, #ff6b6b);
+      width: 0%;
+      transition: width 0.3s ease;
+    }
+
+    #loading-text {
+      font-size: 14px;
+      color: #666;
+    }
+
+    /* Info panel */
+    #info-panel {
+      padding: 10px;
+      font-size: 12px;
+      color: #888;
+    }
+
+    #info-panel p {
+      margin-bottom: 5px;
+    }
+
+    /* Buttons */
+    .btn {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 13px;
+      transition: all 0.2s;
+    }
+
+    .btn-primary {
+      background: #e94560;
+      color: #fff;
+    }
+
+    .btn-primary:hover {
+      background: #ff6b6b;
+    }
+
+    .btn-secondary {
+      background: #2d3436;
+      color: #fff;
+    }
+
+    .btn-secondary:hover {
+      background: #636e72;
+    }
+
+    /* Room list */
+    #room-list {
+      max-height: 200px;
+      overflow-y: auto;
+    }
+
+    .room-item {
+      padding: 10px;
+      margin-bottom: 5px;
+      background: #2d3436;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .room-item:hover {
+      background: #636e72;
+    }
+
+    .room-item .room-name {
+      font-weight: bold;
+      color: #fff;
+    }
+
+    .room-item .room-info {
+      font-size: 11px;
+      color: #888;
+      margin-top: 3px;
+    }
+  </style>
+</head>
+<body>
+  <div id="loading-screen">
+    <div id="loading-logo">HABBO</div>
+    <div id="loading-bar-container">
+      <div id="loading-bar"></div>
+    </div>
+    <div id="loading-text">Loading...</div>
+  </div>
+
+  <div id="app">
+    <div id="header">
+      <h1>Habbo Web Client</h1>
+      <span id="connection-status" class="disconnected">Disconnected</span>
+    </div>
+
+    <div id="main-container">
+      <div id="game-view">
+        <canvas id="game-canvas"></canvas>
+      </div>
+
+      <div id="sidebar">
+        <div class="sidebar-section">
+          <h3>Connection</h3>
+          <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+            <input type="text" id="server-host" placeholder="Server host" value="localhost" style="flex: 1; padding: 8px; border-radius: 6px; border: none; background: #2d3436; color: #fff;">
+            <input type="text" id="server-port" placeholder="Port" value="12321" style="width: 80px; padding: 8px; border-radius: 6px; border: none; background: #2d3436; color: #fff;">
+          </div>
+          <button id="connect-btn" class="btn btn-primary" style="width: 100%;">Connect</button>
+        </div>
+
+        <div class="sidebar-section">
+          <h3>Navigator</h3>
+          <div id="room-list">
+            <div class="room-item">
+              <div class="room-name">Welcome Lounge</div>
+              <div class="room-info">12 users online</div>
+            </div>
+            <div class="room-item">
+              <div class="room-name">Habbo Lido</div>
+              <div class="room-info">8 users online</div>
+            </div>
+            <div class="room-item">
+              <div class="room-name">Rooftop Rumble</div>
+              <div class="room-info">5 users online</div>
+            </div>
+          </div>
+        </div>
+
+        <div id="chat-container">
+          <h3 style="padding: 15px 15px 0;">Chat</h3>
+          <div id="chat-messages">
+            <div class="chat-message">
+              <span class="sender">System</span>
+              <span class="time">12:00</span>
+              <div>Welcome to Habbo Web Client!</div>
+            </div>
+          </div>
+          <div id="chat-input-container">
+            <input type="text" id="chat-input" placeholder="Type a message...">
+          </div>
+        </div>
+
+        <div id="info-panel">
+          <p>Version: 0.1.0 (Development)</p>
+          <p>Ported from r33_20090514</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    /**
+     * Habbo Web Client - Main Entry Point
+     *
+     * This is a web-based Habbo client ported from the original
+     * Shockwave Director client (r33_20090514).
+     *
+     * Asset Loading:
+     * Assets are loaded from extracted DCR (Director Cast Resource) files.
+     * The original DCR files should be converted to web-compatible formats:
+     * - Images: PNG format with manifest JSON
+     * - Sounds: MP3/OGG format
+     * - Data: JSON format
+     *
+     * DCR to Web Asset Conversion:
+     * 1. Use a DCR extractor tool to extract cast members
+     * 2. Convert bitmaps to PNG files
+     * 3. Create sprite sheet manifests (JSON)
+     * 4. Place assets in the /assets directory
+     */
+
+    // Loading progress
+    const loadingBar = document.getElementById('loading-bar');
+    const loadingText = document.getElementById('loading-text');
+    const loadingScreen = document.getElementById('loading-screen');
+
+    function setLoadingProgress(percent, text) {
+      loadingBar.style.width = percent + '%';
+      loadingText.textContent = text;
+    }
+
+    // Game state
+    const gameState = {
+      connected: false,
+      currentRoom: null,
+      user: null,
+      socket: null,
+    };
+
+    // Canvas setup
+    const canvas = document.getElementById('game-canvas');
+    const ctx = canvas.getContext('2d');
+
+    function resizeCanvas() {
+      const container = document.getElementById('game-view');
+      canvas.width = container.clientWidth;
+      canvas.height = container.clientHeight;
+      render();
+    }
+
+    window.addEventListener('resize', resizeCanvas);
+
+    // Main render loop
+    function render() {
+      ctx.fillStyle = '#1e1e2e';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // Draw isometric grid for room visualization
+      if (gameState.currentRoom) {
+        drawRoom(gameState.currentRoom);
+      } else {
+        // Draw hotel view placeholder
+        drawHotelView();
+      }
+    }
+
+    function drawHotelView() {
+      ctx.fillStyle = '#2d3436';
+      ctx.font = '24px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('Hotel View', canvas.width / 2, canvas.height / 2);
+
+      ctx.font = '14px sans-serif';
+      ctx.fillStyle = '#666';
+      ctx.fillText('Connect to a server to enter rooms', canvas.width / 2, canvas.height / 2 + 30);
+    }
+
+    function drawRoom(room) {
+      // Draw isometric room floor
+      const tileWidth = 64;
+      const tileHeight = 32;
+      const startX = canvas.width / 2;
+      const startY = 100;
+
+      // Draw floor tiles
+      for (let y = 0; y < 10; y++) {
+        for (let x = 0; x < 10; x++) {
+          const screenX = startX + (x - y) * (tileWidth / 2);
+          const screenY = startY + (x + y) * (tileHeight / 2);
+
+          drawIsometricTile(screenX, screenY, tileWidth, tileHeight);
+        }
+      }
+
+      // Draw room info
+      ctx.fillStyle = '#fff';
+      ctx.font = '14px sans-serif';
+      ctx.textAlign = 'left';
+      ctx.fillText(`Room: ${room.name || 'Unknown'}`, 20, 30);
+      ctx.fillText(`Users: ${room.userCount || 0}`, 20, 50);
+    }
+
+    function drawIsometricTile(x, y, width, height) {
+      ctx.beginPath();
+      ctx.moveTo(x, y);
+      ctx.lineTo(x + width / 2, y + height / 2);
+      ctx.lineTo(x, y + height);
+      ctx.lineTo(x - width / 2, y + height / 2);
+      ctx.closePath();
+
+      ctx.fillStyle = '#3d5c5c';
+      ctx.fill();
+      ctx.strokeStyle = '#4a6b6b';
+      ctx.stroke();
+    }
+
+    // Connection handling
+    const connectBtn = document.getElementById('connect-btn');
+    const connectionStatus = document.getElementById('connection-status');
+    const serverHost = document.getElementById('server-host');
+    const serverPort = document.getElementById('server-port');
+
+    connectBtn.addEventListener('click', () => {
+      if (gameState.connected) {
+        disconnect();
+      } else {
+        connect();
+      }
+    });
+
+    function connect() {
+      const host = serverHost.value;
+      const port = serverPort.value;
+
+      connectionStatus.textContent = 'Connecting...';
+      connectionStatus.className = 'connecting';
+      connectBtn.textContent = 'Cancel';
+
+      // In a real implementation, this would use WebSocket
+      // For now, simulate connection
+      setTimeout(() => {
+        // Simulated connection success
+        gameState.connected = true;
+        connectionStatus.textContent = 'Connected';
+        connectionStatus.className = 'connected';
+        connectBtn.textContent = 'Disconnect';
+
+        addChatMessage('System', `Connected to ${host}:${port}`);
+      }, 1000);
+    }
+
+    function disconnect() {
+      gameState.connected = false;
+      gameState.currentRoom = null;
+      connectionStatus.textContent = 'Disconnected';
+      connectionStatus.className = 'disconnected';
+      connectBtn.textContent = 'Connect';
+
+      addChatMessage('System', 'Disconnected from server');
+      render();
+    }
+
+    // Chat handling
+    const chatInput = document.getElementById('chat-input');
+    const chatMessages = document.getElementById('chat-messages');
+
+    chatInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter' && chatInput.value.trim()) {
+        sendChat(chatInput.value);
+        chatInput.value = '';
+      }
+    });
+
+    function sendChat(message) {
+      // In a real implementation, this would send to server
+      addChatMessage('You', message);
+    }
+
+    function addChatMessage(sender, message) {
+      const time = new Date().toLocaleTimeString('en-US', {
+        hour: '2-digit',
+        minute: '2-digit',
+      });
+
+      const msgDiv = document.createElement('div');
+      msgDiv.className = 'chat-message';
+      msgDiv.innerHTML = `
+        <span class="sender">${sender}</span>
+        <span class="time">${time}</span>
+        <div>${message}</div>
+      `;
+
+      chatMessages.appendChild(msgDiv);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    // Room list handling
+    document.querySelectorAll('.room-item').forEach(item => {
+      item.addEventListener('click', () => {
+        if (!gameState.connected) {
+          addChatMessage('System', 'Please connect to a server first');
+          return;
+        }
+
+        const roomName = item.querySelector('.room-name').textContent;
+        enterRoom({ name: roomName, userCount: 0 });
+      });
+    });
+
+    function enterRoom(room) {
+      gameState.currentRoom = room;
+      addChatMessage('System', `Entering room: ${room.name}`);
+      render();
+    }
+
+    // Initialize
+    async function init() {
+      setLoadingProgress(10, 'Initializing...');
+
+      // Simulate asset loading
+      await simulateLoading(30, 'Loading core assets...');
+      await simulateLoading(50, 'Loading figure data...');
+      await simulateLoading(70, 'Loading room data...');
+      await simulateLoading(90, 'Preparing interface...');
+      await simulateLoading(100, 'Ready!');
+
+      // Hide loading screen
+      setTimeout(() => {
+        loadingScreen.classList.add('hidden');
+        resizeCanvas();
+      }, 500);
+    }
+
+    function simulateLoading(percent, text) {
+      return new Promise(resolve => {
+        setTimeout(() => {
+          setLoadingProgress(percent, text);
+          resolve();
+        }, 300);
+      });
+    }
+
+    // Start initialization
+    init();
+
+    // Animation loop
+    function gameLoop() {
+      render();
+      requestAnimationFrame(gameLoop);
+    }
+
+    // Start game loop after loading
+    setTimeout(gameLoop, 2000);
+  </script>
+</body>
+</html>

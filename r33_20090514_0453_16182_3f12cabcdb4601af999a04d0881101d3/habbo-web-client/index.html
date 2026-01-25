@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Habbo Hotel - Web Client</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background-color: #000;
+      font-family: 'Volter', Arial, sans-serif;
+      overflow: hidden;
+    }
+
+    #habbo-container {
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(180deg, #1a3a5c 0%, #0d1f33 100%);
+    }
+
+    #habbo-canvas {
+      border: 2px solid #2a5a8a;
+      box-shadow: 0 0 20px rgba(0, 100, 200, 0.3);
+      cursor: pointer;
+    }
+
+    /* Loading overlay */
+    #loading-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.9);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      transition: opacity 0.5s;
+    }
+
+    #loading-overlay.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .loading-logo {
+      width: 200px;
+      height: 60px;
+      margin-bottom: 30px;
+      /* Placeholder for Habbo logo */
+      background: #ffc800;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      font-weight: bold;
+      color: #000;
+    }
+
+    .loading-bar-container {
+      width: 300px;
+      height: 20px;
+      background: #1a1a1a;
+      border: 2px solid #333;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .loading-bar {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #ffc800, #ffaa00);
+      transition: width 0.3s;
+    }
+
+    .loading-text {
+      margin-top: 15px;
+      color: #888;
+      font-size: 12px;
+    }
+
+    /* Error message */
+    #error-message {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: #300;
+      border: 2px solid #f00;
+      padding: 20px;
+      border-radius: 10px;
+      color: #fff;
+      display: none;
+      z-index: 2000;
+      text-align: center;
+    }
+
+    #error-message.visible {
+      display: block;
+    }
+
+    #error-message h3 {
+      color: #f66;
+      margin-bottom: 10px;
+    }
+
+    #error-message button {
+      margin-top: 15px;
+      padding: 8px 20px;
+      background: #f00;
+      border: none;
+      color: #fff;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+  </style>
+</head>
+<body>
+  <!-- Loading overlay -->
+  <div id="loading-overlay">
+    <div class="loading-logo">HABBO</div>
+    <div class="loading-bar-container">
+      <div class="loading-bar" id="loading-bar"></div>
+    </div>
+    <div class="loading-text" id="loading-text">Initializing...</div>
+  </div>
+
+  <!-- Error message -->
+  <div id="error-message">
+    <h3>Connection Error</h3>
+    <p id="error-text">An error occurred while connecting to the server.</p>
+    <button onclick="location.reload()">Retry</button>
+  </div>
+
+  <!-- Main container -->
+  <div id="habbo-container"></div>
+
+  <!-- Configuration -->
+  <script>
+    // Client configuration
+    // In production, these would be set by the server-side template
+    window.habboConfig = {
+      containerId: 'habbo-container',
+
+      // Server connection (WebSocket)
+      serverHost: 'localhost',
+      serverPort: 30000,
+
+      // SSO ticket from the website (replaces username/password login)
+      // ssoTicket: 'SSO_TICKET_FROM_SERVER',
+
+      // Or use traditional login
+      // username: 'test',
+      // password: 'test',
+
+      // Client version (must match server)
+      clientVersion: 33,
+
+      // External configuration URLs
+      externalVariablesUrl: '/gamedata/external_variables.txt',
+      externalTextsUrl: '/gamedata/external_texts.txt',
+
+      // Asset base URL
+      assetBaseUrl: '/habbo-imaging/',
+    };
+
+    // Loading progress helper
+    function setLoadingProgress(percent, text) {
+      document.getElementById('loading-bar').style.width = percent + '%';
+      if (text) {
+        document.getElementById('loading-text').textContent = text;
+      }
+    }
+
+    // Error display helper
+    function showError(message) {
+      document.getElementById('error-text').textContent = message;
+      document.getElementById('error-message').classList.add('visible');
+      document.getElementById('loading-overlay').classList.add('hidden');
+    }
+
+    // Hide loading overlay
+    function hideLoading() {
+      document.getElementById('loading-overlay').classList.add('hidden');
+    }
+  </script>
+
+  <!-- Main application bundle -->
+  <script type="module">
+    import { initHabbo, connect } from './src/index.ts';
+
+    // Update loading progress
+    setLoadingProgress(10, 'Loading modules...');
+
+    // Initialize the client
+    initHabbo(window.habboConfig)
+      .then((success) => {
+        if (success) {
+          setLoadingProgress(80, 'Connecting to server...');
+
+          // Connect to server
+          connect();
+
+          setLoadingProgress(100, 'Ready!');
+
+          // Hide loading after a short delay
+          setTimeout(hideLoading, 500);
+        } else {
+          showError('Failed to initialize the client. Please refresh the page.');
+        }
+      })
+      .catch((error) => {
+        console.error('Initialization error:', error);
+        showError('An error occurred: ' + error.message);
+      });
+  </script>
+</body>
+</html>

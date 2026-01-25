@@ -8,3 +8,5 @@ dcrs
 *.ini
 *.exe
 *.xml
+/games/snowstorm_macromedia_lingo
+/games
